@@ -86,8 +86,7 @@ export const CommentsSidebar = ({ project }) => {
 										<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
 									</svg>
 								</div>
-
-								<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
+								<span className='text-sm font-medium ml-3 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
 									Comments
 								</span>
 							</>
