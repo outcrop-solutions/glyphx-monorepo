@@ -66,6 +66,14 @@ module.exports = {
       addVariant('sidebar-expanded', ({ modifySelectors, separator }) => {
         modifySelectors(({ className }) => `.sidebar-expanded .${e(`sidebar-expanded${separator}${className}`)}`);
       });
+      addVariant('project-sidebar-expanded', ({ modifySelectors, separator }) => {
+        modifySelectors(
+          ({ className }) =>
+            `.project-sidebar-expanded .${e(
+              `project-sidebar-expanded${separator}${className}`
+            )}`
+        )
+      });
     }),
   ],
 };

@@ -2,7 +2,19 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Project from '../../images/project.png'
 
-function ProjectCard(props) {
+export const ProjectCard = ({
+	project,
+	setProject,
+	idx,
+	key,
+	id,
+	category,
+	members,
+	title,
+	link,
+	content,
+	type,
+}) => {
 	const typeColor = (type) => {
 		switch (type) {
 			case 'One-Time':
@@ -65,7 +77,7 @@ function ProjectCard(props) {
 
 	return (
 		<div className='col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg border border-opacity-50 border-gray-200'>
-			{props.idx === 0 ? (
+			{idx === 0 ? (
 				<div className='flex flex-col items-center justify-center h-full w-full'>
 					<svg
 						className='mb-4'
@@ -79,21 +91,21 @@ function ProjectCard(props) {
 							fill='#595E68'
 						/>
 					</svg>
-					<div className="text-white">New Project</div>
+					<div className='text-white'>New Project</div>
 				</div>
 			) : (
-				<div className='flex flex-col h-full'>
+				<div
+					onClick={() => setProject(project)}
+					className='flex flex-col h-full'>
 					<img className='w-full h-full rounded-t-md' src={Project} />
 					<footer className='mt-2 px-5 pb-5 pt-1'>
-						<div className='text-sm font-medium text-white mb-2'>
-							Purchasing Raw materials China
-						</div>
+						<div className='text-sm font-medium text-white mb-2'>{title}</div>
 						<div className='flex justify-between items-center'>
 							{/* <div>
               <div className={`text-xs inline-flex font-medium rounded-full text-center px-2.5 py-1 ${typeColor(props.type)}`}>{props.type}</div>
             </div> */}
 							<div className='flex flex-shrink-0 -space-x-3 -ml-px'>
-								{props.members.map((member) => {
+								{members.map((member) => {
 									return (
 										<Link key={member.name} className='block' to={member.link}>
 											<img
@@ -110,7 +122,7 @@ function ProjectCard(props) {
 							<div>
 								<Link
 									className='text-sm font-medium text-gray-50 opacity-40'
-									to={props.link}>
+									to={link}>
 									00d ago
 								</Link>
 							</div>

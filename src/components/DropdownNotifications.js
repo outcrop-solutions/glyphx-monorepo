@@ -84,8 +84,6 @@ function DropdownNotifications({ align, grid, setGrid }) {
 						/>
 					</svg>
 				)}
-
-				<div className='absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full'></div>
 			</button>
 
 			<Transition

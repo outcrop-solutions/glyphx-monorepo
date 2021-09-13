@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import UserMenu from '../components/DropdownProfile'
+import UserMenu from '../components/UserMenu'
 
 function Sidebar({ sidebarOpen, setSidebarOpen }) {
 	const location = useLocation()
@@ -130,7 +130,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 				<div className='space-y-8'>
 					{/* Pages group */}
 					<div>
-						<div className='text-xs uppercase text-gray-500 font-semibold border-b pb-2 border-white flex justify-center xl:sidebar-expanded:justify-start xl:sidebar-expanded:ml-3 items-center'>
+						<div className='text-xs uppercase text-gray-500 font-semibold border-b pb-2 border-white flex justify-center lg:sidebar-expanded:justify-start lg:sidebar-expanded:ml-3 items-center'>
 							<span
 								className='hidden lg:block lg:sidebar-expanded:hidden 2xl:hidden text-center w-6'
 								aria-hidden='true'>

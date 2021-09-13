@@ -1,0 +1,12 @@
+.git
+.cache
+.env
+node_modules
+build
+.dockerignore
+Dockerfile
+Dockerfile.prod
+*.md
+!README*.md
+README-secret.md
+a.txt

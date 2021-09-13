@@ -10,7 +10,7 @@ import Image07 from '../../images/user-28-07.jpg'
 import Image09 from '../../images/user-28-09.jpg'
 import Image11 from '../../images/user-28-11.jpg'
 
-function TableView() {
+export const TableView = () => {
 	return (
 		<div className='text-white rounded-sm'>
 			<div className='p-3'>
@@ -36,7 +36,9 @@ function TableView() {
 						</thead>
 						{/* Table body */}
 						<tbody className='text-sm'>
-							<div className='ml-2 text-lg text-gray-100'>Recently Used Templates</div>
+							<div className='ml-2 text-lg text-gray-100'>
+								Recently Used Templates
+							</div>
 							{/* Row */}
 							<tr>
 								<td className='p-2 whitespace-nowrap'>

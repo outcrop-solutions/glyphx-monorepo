@@ -8,7 +8,6 @@ import {
 import './css/style.scss';
 
 import { focusHandling } from 'cruip-js-toolkit';
-import './charts/ChartjsConfig';
 
 
 import Projects from './pages/Projects';

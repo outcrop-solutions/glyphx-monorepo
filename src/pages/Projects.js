@@ -4,6 +4,9 @@ import Sidebar from '../partials/Sidebar'
 import Header from '../partials/Header'
 import ProjectCard from '../partials/projects/ProjectCard'
 import TableView from '../partials/projects/TableView'
+import { GridView } from '../partials/projects/GridView'
+import { ProjectSidebar } from '../partials/projects/ProjectSidebar'
+import { CommentsSidebar } from '../partials/projects/CommentsSidebar'
 
 import Image01 from '../images/user-28-01.jpg'
 import Image02 from '../images/user-28-02.jpg'
@@ -20,7 +23,8 @@ import Image12 from '../images/user-28-12.jpg'
 
 function Projects() {
 	const [grid, setGrid] = useState(true)
-	const items = [
+	const [project, setProject] = useState(false)
+	const projects = [
 		{
 			id: 0,
 			category: '1',
@@ -316,6 +320,7 @@ function Projects() {
 			<div className='relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
 				{/*  Site header */}
 				<Header
+					project={project}
 					sidebarOpen={sidebarOpen}
 					setSidebarOpen={setSidebarOpen}
 					grid={grid}
@@ -323,42 +328,20 @@ function Projects() {
 				/>
 
 				<main>
-					<div className='px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto'>
-						{grid ? (
-							<TableView />
-						) : (
-							<>
-								{/* Page header */}
-								<div className='sm:flex sm:justify-between sm:items-center mb-8'>
-									{/* Left: Title */}
-									<div className='mb-4 sm:mb-0'>
-										<h1 className='text-xl md:text-2xl text-white font-thin'>
-											Recently Used Templates
-										</h1>
-									</div>
-								</div>
-
-								{/* Cards */}
-								<div className='grid grid-cols-12 gap-6'>
-									{items.map((item, idx) => {
-										return (
-											<ProjectCard
-												idx={idx}
-												key={item.id}
-												id={item.id}
-												category={item.category}
-												members={item.members}
-												title={item.title}
-												link={item.link}
-												content={item.content}
-												type={item.type}
-											/>
-										)
-									})}
-								</div>
-							</>
-						)}
-					</div>
+					{project ? (
+						<div className='flex w-full h-full justify-between'>
+							<ProjectSidebar project={project} />
+							<CommentsSidebar project={project} />
+						</div>
+					) : (
+						<div className='px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto'>
+							{grid ? (
+								<TableView />
+							) : (
+								<GridView projects={projects} setProject={setProject} />
+							)}
+						</div>
+					)}
 				</main>
 			</div>
 		</div>

@@ -6,13 +6,13 @@ import Help from '../components/DropdownHelp'
 import SearchForm from './actions/SearchForm'
 
 
-function Header({ sidebarOpen, setSidebarOpen, grid, setGrid }) {
+function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
 
 	return (
 		<header className='sticky top-0 border-b border-gray-200 z-30 mx-6 flex justify-between items-center max-h-16'>
-			<div className='text-left hidden lg:block text-white font-extralight text-2xl mr-6'>
-				My Projects
+			<div className='text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate'>
+				{project ? project.title : 'My Project'}
 			</div>
 			<div className='px-4 sm:px-6 lg:px-0 lg:w-5/6'>
 				<div className='flex items-center justify-between h-16 -mb-px'>
@@ -74,7 +74,6 @@ function Header({ sidebarOpen, setSidebarOpen, grid, setGrid }) {
 								fill='white'
 							/>
 						</svg>
-						{/* <UserMenu align='right' /> */}
 					</div>
 				</div>
 			</div>
