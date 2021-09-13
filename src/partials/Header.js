@@ -37,7 +37,7 @@ function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 					</div>
 
 					{/* Search form */}
-					<SearchForm placeholder='Search SynGlyphX' />
+					<SearchForm placeholder='Search GlyphX' />
 					{/* Header: Right side */}
 					<div className='flex items-center space-x-3'>
 						<SearchModal

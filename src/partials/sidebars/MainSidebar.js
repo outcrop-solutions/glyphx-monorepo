@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import UserMenu from '../components/UserMenu'
+import UserMenu from '../../components/UserMenu'
 
-function Sidebar({ sidebarOpen, setSidebarOpen }) {
+export const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 	const location = useLocation()
 	const { pathname } = location
 
@@ -176,26 +176,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 												/>
 											</svg>
 										</div>
-										{/* <svg className='flex-shrink-0 h-6 w-6' viewBox='0 0 24 24'>
-											<path
-												className={`fill-current text-gray-400 ${
-													pathname === '/' && '!text-indigo-500'
-												}`}
-												d='M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0z'
-											/>
-											<path
-												className={`fill-current text-gray-600 ${
-													pathname === '/' && 'text-indigo-600'
-												}`}
-												d='M12 3c-4.963 0-9 4.037-9 9s4.037 9 9 9 9-4.037 9-9-4.037-9-9-9z'
-											/>
-											<path
-												className={`fill-current text-gray-400 ${
-													pathname === '/' && 'text-indigo-200'
-												}`}
-												d='M12 15c-1.654 0-3-1.346-3-3 0-.462.113-.894.3-1.285L6 6l4.714 3.301A2.973 2.973 0 0112 9c1.654 0 3 1.346 3 3s-1.346 3-3 3z'
-											/>
-										</svg> */}
+
 										<span className='text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
 											My Projects
 										</span>
@@ -227,26 +208,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 												/>
 											</svg>
 										</div>
-										{/* <svg className='flex-shrink-0 h-6 w-6' viewBox='0 0 24 24'>
-											<path
-												className={`fill-current text-gray-400 ${
-													pathname.includes('ecommerce') && 'text-indigo-300'
-												}`}
-												d='M13 15l11-7L11.504.136a1 1 0 00-1.019.007L0 7l13 8z'
-											/>
-											<path
-												className={`fill-current text-gray-700 ${
-													pathname.includes('ecommerce') && '!text-indigo-600'
-												}`}
-												d='M13 15L0 7v9c0 .355.189.685.496.864L13 24v-9z'
-											/>
-											<path
-												className={`fill-current text-gray-600 ${
-													pathname.includes('ecommerce') && 'text-indigo-500'
-												}`}
-												d='M13 15.047V24l10.573-7.181A.999.999 0 0024 16V8l-11 7.047z'
-											/>
-										</svg> */}
+
 										<span className='text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
 											Shared with Me
 										</span>
@@ -357,5 +319,3 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 		</div>
 	)
 }
-
-export default Sidebar

@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 
-import Sidebar from '../partials/Sidebar'
 import Header from '../partials/Header'
 import ProjectCard from '../partials/projects/ProjectCard'
 import TableView from '../partials/projects/TableView'
 import { GridView } from '../partials/projects/GridView'
-import { ProjectSidebar } from '../partials/projects/ProjectSidebar'
-import { CommentsSidebar } from '../partials/projects/CommentsSidebar'
+import { ProjectSidebar } from '../partials/sidebars/ProjectSidebar'
+import { CommentsSidebar } from '../partials/sidebars/CommentsSidebar'
+import { MainSidebar } from '../partials/sidebars/MainSidebar'
 
 import Image01 from '../images/user-28-01.jpg'
 import Image02 from '../images/user-28-02.jpg'
@@ -22,7 +22,7 @@ import Image11 from '../images/user-28-11.jpg'
 import Image12 from '../images/user-28-12.jpg'
 
 function Projects() {
-	const [grid, setGrid] = useState(true)
+	const [grid, setGrid] = useState(false)
 	const [project, setProject] = useState(false)
 	const projects = [
 		{
@@ -314,7 +314,7 @@ function Projects() {
 	return (
 		<div className='flex h-screen overflow-hidden bg-gray-900'>
 			{/* Sidebar */}
-			<Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+			<MainSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
 			{/* Content area */}
 			<div className='relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>

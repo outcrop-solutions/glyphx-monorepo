@@ -35,7 +35,7 @@ function DropdownFilter({
     <div className="hidden md:relative md:inline-flex">
       <button
         ref={trigger}
-        className="btn bg-transparentborder-gray-200 hover:border-gray-300 text-white hover:text-gray-600"
+        className="btn bg-transparentborder-gray-200 text-white"
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}

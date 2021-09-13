@@ -5,13 +5,13 @@ function SearchForm({
   placeholder
 }) {
   return (
-		<form className='relative bg-gray-400 bg-opacity-5 rounded-md'>
+		<form className='relative bg-gray-400 bg-opacity-5 rounded-md hover:border-gray-300 hover:text-gray-600'>
 			<label htmlFor='action-search' className='sr-only'>
 				Search
 			</label>
 			<input
 				id='action-search'
-				className='form-input pl-9 border-transparent w-96 focus:border-gray-300 bg-transparent'
+				className='form-input pl-9 border-transparent w-96 bg-transparent'
 				type='search'
 				placeholder={placeholder}
 			/>

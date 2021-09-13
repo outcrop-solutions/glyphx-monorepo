@@ -27,6 +27,9 @@ export const CommentsSidebar = ({ project }) => {
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
 
+	useEffect(() => {
+		console.log({ position: sidebar.current.getBoundingClientRect() })
+	}, [sidebar])
 	// close on click outside
 	useEffect(() => {
 		const clickHandler = ({ target }) => {
