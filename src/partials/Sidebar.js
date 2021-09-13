@@ -67,7 +67,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 					sidebarOpen ? 'translate-x-0' : '-translate-x-64'
 				}`}>
 				{/* Sidebar header */}
-				<div className='flex justify-between mb-2 pr-3 sm:px-2 border-b border-gray-50 pb-4'>
+				<div className='flex justify-between mb-2 pr-3 sm:px-2 border-b border-gray-400 pb-4'>
 					{/* Close button */}
 					<button
 						ref={trigger}
@@ -205,13 +205,13 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 							{/* Analytics */}
 							<li
 								className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-									pathname.includes('analytics') && 'bg-gray-900'
+									pathname.includes('shared') && 'bg-gray-900'
 								}`}>
 								<NavLink
 									exact
-									to='/analytics'
+									to='/shared'
 									className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
-										pathname.includes('analytics') && 'hover:text-gray-200'
+										pathname.includes('shared') && 'hover:text-gray-200'
 									}`}>
 									<div className='flex'>
 										<div className='flex items-center justify-center h-6 w-6'>
@@ -256,13 +256,13 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 							{/* Analytics */}
 							<li
 								className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-									pathname.includes('analytics') && 'bg-gray-900'
+									pathname.includes('shared') && 'bg-gray-900'
 								}`}>
 								<NavLink
 									exact
-									to='/analytics'
+									to='/shared'
 									className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
-										pathname.includes('analytics') && 'hover:text-gray-200'
+										pathname.includes('shared') && 'hover:text-gray-200'
 									}`}>
 									<div className='flex'>
 										<div className='flex items-center justify-center h-6 w-6'>
@@ -281,13 +281,13 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 										{/* <svg className='flex-shrink-0 h-6 w-6' viewBox='0 0 24 24'>
 											<path
 												className={`fill-current text-gray-600 ${
-													pathname.includes('analytics') && 'text-indigo-500'
+													pathname.includes('shared') && 'text-indigo-500'
 												}`}
 												d='M0 20h24v2H0z'
 											/>
 											<path
 												className={`fill-current text-gray-400 ${
-													pathname.includes('analytics') && 'text-indigo-300'
+													pathname.includes('shared') && 'text-indigo-300'
 												}`}
 												d='M4 18h2a1 1 0 001-1V8a1 1 0 00-1-1H4a1 1 0 00-1 1v9a1 1 0 001 1zM11 18h2a1 1 0 001-1V3a1 1 0 00-1-1h-2a1 1 0 00-1 1v14a1 1 0 001 1zM17 12v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 00-1-1h-2a1 1 0 00-1 1z'
 											/>
@@ -301,13 +301,13 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
 							{/* Analytics */}
 							<li
 								className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-									pathname.includes('analytics') && 'bg-gray-900'
+									pathname.includes('shared') && 'bg-gray-900'
 								}`}>
 								<NavLink
 									exact
-									to='/analytics'
+									to='/shared'
 									className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
-										pathname.includes('analytics') && 'hover:text-gray-200'
+										pathname.includes('shared') && 'hover:text-gray-200'
 									}`}>
 									<div className='flex'>
 										<div className='flex items-center justify-center h-6 w-6'>

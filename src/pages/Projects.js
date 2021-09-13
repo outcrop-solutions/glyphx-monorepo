@@ -327,21 +327,28 @@ function Projects() {
 					setGrid={setGrid}
 				/>
 
-				<main>
-					{project ? (
-						<div className='flex w-full h-full justify-between'>
-							<ProjectSidebar project={project} />
-							<CommentsSidebar project={project} />
-						</div>
-					) : (
-						<div className='px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto'>
-							{grid ? (
-								<TableView />
-							) : (
-								<GridView projects={projects} setProject={setProject} />
-							)}
-						</div>
-					)}
+				<main className='h-full'>
+					<div className='flex relative h-full'>
+						{project ? (
+							// <div className='flex w-full h-screen justify-between'>
+							<>
+								<ProjectSidebar project={project} />
+								<div className='w-full flex'>
+									<div className='min-w-0 flex-auto'></div>
+									<CommentsSidebar project={project} />
+								</div>
+							</>
+						) : (
+							// </div>
+							<div className='px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto'>
+								{grid ? (
+									<TableView />
+								) : (
+									<GridView projects={projects} setProject={setProject} />
+								)}
+							</div>
+						)}
+					</div>
 				</main>
 			</div>
 		</div>

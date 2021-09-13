@@ -20,7 +20,7 @@ export const CommentsSidebar = ({ project }) => {
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
 
-	const storedSidebarExpanded = localStorage.getItem('project-sidebar-expanded')
+	const storedSidebarExpanded = localStorage.getItem('comments-sidebar-expanded')
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
@@ -44,38 +44,38 @@ export const CommentsSidebar = ({ project }) => {
 	// close if the esc key is pressed
 	useEffect(() => {
 		const keyHandler = ({ keyCode }) => {
-			if (!sidebarOpen || keyCode !== 27) return
+			if (!sidebarOpen || keyCode !== 221) return
 			setSidebarOpen(false)
 		}
 		document.addEventListener('keydown', keyHandler)
 		return () => document.removeEventListener('keydown', keyHandler)
 	})
 	useEffect(() => {
-		localStorage.setItem('project-sidebar-expanded', sidebarExpanded)
+		localStorage.setItem('comments-sidebar-expanded', sidebarExpanded)
 		if (sidebarExpanded) {
-			document.querySelector('body').classList.add('project-sidebar-expanded')
+			document.querySelector('body').classList.add('comments-sidebar-expanded')
 		} else {
-			document.querySelector('body').classList.remove('project-sidebar-expanded')
+			document.querySelector('body').classList.remove('comments-sidebar-expanded')
 		}
 	}, [sidebarExpanded])
 	return (
-		<div className=''>
+		// <div className=''>
 			<div
 				id='sidebar'
 				ref={sidebar}
-				className={`flex flex-col absolute z-40 right-0 top-0 lg:static lg:right-auto lg:top-auto lg:translate-x-0 transform h-5/6 no-scrollbar w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 2xl:!w-64 flex-shrink-0 p-2 transition-all duration-200 ease-in-out ${
+				className={`flex flex-col absolute z-40 right-0 top-0 lg:static lg:right-auto lg:top-auto lg:translate-x-0 transform h-full no-scrollbar w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 2xl:!w-64 flex-shrink-0 p-2 transition-all duration-200 ease-in-out ${
 					sidebarOpen ? 'translate-y-64' : 'translate-x-0'
 				}`}>
 				<ul className='m-1'>
-					<li>Hello</li>
+					<li>Comments</li>
 				</ul>
 				{/* Expand / collapse button */}
-				<div className='pt-3 hidden lg:inline-flex 2xl:hidden justify-end project-sidebar-expanded:justify-start mt-auto'>
+				<div className='pt-3 hidden lg:inline-flex 2xl:hidden justify-center comments-sidebar-expanded:justify-start pb-2 mt-auto'>
 					<div className='px-3 py-2'>
 						<button onClick={() => setSidebarExpanded(!sidebarExpanded)}>
 							<span className='sr-only'>Expand / collapse sidebar</span>
 							<svg
-								className='w-6 h-6 fill-current rotate-180 project-sidebar-expanded:rotate-0'
+								className='w-6 h-6 fill-current rotate-180 comments-sidebar-expanded:rotate-0'
 								viewBox='0 0 24 24'>
 								<path
 									className='text-gray-400'
@@ -87,7 +87,7 @@ export const CommentsSidebar = ({ project }) => {
 					</div>
 				</div>
 			</div>
-		</div>
+		// </div>
 	)
 }
 export default CommentsSidebar

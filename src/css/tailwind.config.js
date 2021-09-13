@@ -74,6 +74,17 @@ module.exports = {
             )}`
         )
       });
+      addVariant(
+				'comments-sidebar-expanded',
+				({ modifySelectors, separator }) => {
+					modifySelectors(
+						({ className }) =>
+							`.comments-sidebar-expanded .${e(
+								`comments-sidebar-expanded${separator}${className}`
+							)}`
+					)
+				}
+			)
     }),
   ],
 };

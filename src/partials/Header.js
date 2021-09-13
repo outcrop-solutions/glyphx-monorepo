@@ -5,13 +5,12 @@ import Notifications from '../components/DropdownNotifications'
 import Help from '../components/DropdownHelp'
 import SearchForm from './actions/SearchForm'
 
-
 function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
 
 	return (
-		<header className='sticky top-0 border-b border-gray-200 z-30 mx-6 flex justify-between items-center max-h-16'>
-			<div className='text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate'>
+		<header className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center max-h-16 ${project ? 'mx-0' : 'mx-6'}`}>
+			<div className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${project ? 'ml-6' : 'ml-0'}`}>
 				{project ? project.title : 'My Project'}
 			</div>
 			<div className='px-4 sm:px-6 lg:px-0 lg:w-5/6'>
