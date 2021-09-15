@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import useResizeObserver from '@react-hook/resize-observer'
 
 import Header from '../partials/Header'
 import ProjectCard from '../partials/projects/ProjectCard'
@@ -21,7 +22,21 @@ import Image10 from '../images/user-28-10.jpg'
 import Image11 from '../images/user-28-11.jpg'
 import Image12 from '../images/user-28-12.jpg'
 
-function Projects() {
+// added here for clarity
+const usePosition = (target) => {
+	const [entry, setEntry] = useState()
+
+	useLayoutEffect(() => {
+		if (target.current) setEntry(target.current.getBoundingClientRect())
+	}, [target])
+
+	// Where the magic happens
+	useResizeObserver(target, (entry) => setEntry(entry))
+
+	return entry
+}
+
+export const Projects = ({ position, setPosition }) => {
 	const [grid, setGrid] = useState(false)
 	const [project, setProject] = useState(false)
 	const projects = [
@@ -309,6 +324,14 @@ function Projects() {
 		},
 	]
 
+	const ref = useRef(null)
+	const pos = usePosition(ref)
+
+	// passes resize observation back up to app level state
+	useEffect(() => {
+		setPosition(pos)
+	}, [pos])
+
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 
 	return (
@@ -330,16 +353,14 @@ function Projects() {
 				<main className='h-full'>
 					<div className='flex relative h-full'>
 						{project ? (
-							// <div className='flex w-full h-screen justify-between'>
 							<>
 								<ProjectSidebar project={project} />
 								<div className='w-full flex'>
-									<div className='min-w-0 flex-auto'></div>
+									<div ref={ref} className='min-w-0 flex-auto'></div>
 									<CommentsSidebar project={project} />
 								</div>
 							</>
 						) : (
-							// </div>
 							<div className='px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto'>
 								{grid ? (
 									<TableView />
@@ -354,5 +375,3 @@ function Projects() {
 		</div>
 	)
 }
-
-export default Projects

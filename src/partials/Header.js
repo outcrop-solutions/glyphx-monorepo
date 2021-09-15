@@ -9,7 +9,7 @@ function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
 
 	return (
-		<header className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center max-h-16 ${project ? 'mx-0' : 'mx-6'}`}>
+		<header className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center max-h-16 ${project ? 'ml-0 mr-6' : 'mx-6'}`}>
 			<div className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${project ? 'ml-6' : 'ml-0'}`}>
 				{project ? project.title : 'My Project'}
 			</div>
