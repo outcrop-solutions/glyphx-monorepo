@@ -4,13 +4,20 @@ import SearchModal from '../components/ModalSearch'
 import Notifications from '../components/DropdownNotifications'
 import Help from '../components/DropdownHelp'
 import SearchForm from './actions/SearchForm'
+import { AmplifySignOut } from '@aws-amplify/ui-react'
 
 function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
 
 	return (
-		<header className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center max-h-16 ${project ? 'ml-0 mr-6' : 'mx-6'}`}>
-			<div className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${project ? 'ml-6' : 'ml-0'}`}>
+		<header
+			className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-gray-900 max-h-16 ${
+				project ? 'ml-0 mr-6' : 'mx-6'
+			}`}>
+			<div
+				className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
+					project ? 'ml-6' : 'ml-0'
+				}`}>
 				{project ? project.title : 'My Project'}
 			</div>
 			<div className='px-4 sm:px-6 lg:px-0 lg:w-5/6'>
@@ -73,6 +80,9 @@ function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 								fill='white'
 							/>
 						</svg>
+						{/* <div className='w-4'> */}
+						<AmplifySignOut />
+						{/* </div> */}
 					</div>
 				</div>
 			</div>
