@@ -332,6 +332,12 @@ export const Projects = ({ position, setPosition }) => {
 		setPosition(pos)
 	}, [pos])
 
+	useEffect(() => {
+		if(project){
+			window.core.OpenProject("open");
+		}
+	}, [project])
+
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 
 	return (
@@ -357,7 +363,7 @@ export const Projects = ({ position, setPosition }) => {
 								<ProjectSidebar project={project} />
 								<div className='w-full flex'>
 									<div ref={ref} className='min-w-0 flex-auto'></div>
-									<CommentsSidebar project={project} />
+									<CommentsSidebar project={project} setPosition={setPosition}/>
 								</div>
 							</>
 						) : (
