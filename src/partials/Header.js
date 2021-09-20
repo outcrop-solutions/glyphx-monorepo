@@ -11,7 +11,7 @@ function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 
 	return (
 		<header
-			className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center max-h-16 ${
+			className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-gray-900 max-h-16 ${
 				project ? 'ml-0 mr-6' : 'mx-6'
 			}`}>
 			<div
