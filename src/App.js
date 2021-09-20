@@ -7,6 +7,11 @@ import { focusHandling } from 'cruip-js-toolkit'
 
 import { Projects } from './pages/Projects'
 
+import Amplify from 'aws-amplify'
+import awsconfig from './aws-exports'
+import { withAuthenticator } from '@aws-amplify/ui-react'
+
+Amplify.configure(awsconfig)
 function App() {
 	// position state can be destructured as follows...
 	// { bottom, height, left, right, top, width, x, y } = position
@@ -31,4 +36,4 @@ function App() {
 	)
 }
 
-export default App
+export default withAuthenticator(App)
