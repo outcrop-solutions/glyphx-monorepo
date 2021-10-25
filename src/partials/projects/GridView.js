@@ -1,5 +1,8 @@
 import ProjectCard from './ProjectCard'
 
+
+import { useEffect } from 'react'
+
 export const GridView = ({ projects, setProject }) => {
 	return (
 		<>
@@ -23,12 +26,9 @@ export const GridView = ({ projects, setProject }) => {
 							idx={idx}
 							key={item.id}
 							id={item.id}
-							category={item.category}
-							members={item.members}
-							title={item.title}
-							link={item.link}
-							content={item.content}
-							type={item.type}
+							name={item.name}
+							link={'#0'}
+							description={item.description}
 						/>
 					)
 				})}

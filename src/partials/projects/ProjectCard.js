@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Project from '../../images/project.png'
+import Image07 from '../../images/user-28-07.jpg'
+import Image08 from '../../images/user-28-08.jpg'
+import Image09 from '../../images/user-28-09.jpg'
 
 export const ProjectCard = ({
 	project,
@@ -8,13 +11,31 @@ export const ProjectCard = ({
 	idx,
 	key,
 	id,
-	category,
-	members,
-	title,
+
+	name,
 	link,
-	content,
-	type,
+	description,
 }) => {
+	const members = [
+		{
+			name: 'User 07',
+			image: Image07,
+			link: '#0',
+		},
+		{
+			name: 'User 08',
+			image: Image08,
+			link: '#0',
+		},
+		{
+			name: 'User 09',
+			image: Image09,
+			link: '#0',
+		},
+	]
+	useEffect(() => {
+		if (idx > 0) console.log(`I'm rendering`)
+	}, [])
 	const typeColor = (type) => {
 		switch (type) {
 			case 'One-Time':
@@ -78,7 +99,7 @@ export const ProjectCard = ({
 	return (
 		<div className='col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg border border-opacity-50 border-gray-200'>
 			{idx === 0 ? (
-				<div className='flex flex-col items-center justify-center h-full w-full'>
+				<div className='flex flex-col items-center justify-center h-60'>
 					<svg
 						className='mb-4'
 						width='30'
@@ -99,7 +120,7 @@ export const ProjectCard = ({
 					className='flex flex-col h-full'>
 					<img className='w-full h-full rounded-t-md' src={Project} />
 					<footer className='mt-2 px-5 pb-5 pt-1'>
-						<div className='text-sm font-medium text-white mb-2'>{title}</div>
+						<div className='text-sm font-medium text-white mb-2'>{name}</div>
 						<div className='flex justify-between items-center'>
 							{/* <div>
               <div className={`text-xs inline-flex font-medium rounded-full text-center px-2.5 py-1 ${typeColor(props.type)}`}>{props.type}</div>

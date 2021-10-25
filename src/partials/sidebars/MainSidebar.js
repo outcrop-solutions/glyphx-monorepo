@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import UserMenu from '../../components/UserMenu'
 
-export const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
+export const MainSidebar = ({ user, sidebarOpen, setSidebarOpen }) => {
 	const location = useLocation()
 	const { pathname } = location
 
@@ -147,7 +147,7 @@ export const MainSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 								</svg>
 							</span>
 							<span className='lg:hidden lg:sidebar-expanded:block 2xl:block'>
-								<UserMenu />
+								<UserMenu user={user} />
 							</span>
 						</div>
 						<ul className='mt-3'>

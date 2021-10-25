@@ -4,9 +4,9 @@ import Transition from '../utils/Transition'
 
 import UserAvatar from '../images/user.png'
 
-function UserMenu({ align }) {
+function UserMenu({ user, align }) {
 	const [dropdownOpen, setDropdownOpen] = useState(false)
-
+	const { attributes } = user
 	const trigger = useRef(null)
 	const dropdown = useRef(null)
 
@@ -37,10 +37,10 @@ function UserMenu({ align }) {
 	})
 
 	return (
-		<div className='relative inline-flex'>
+		<div className='relative inline-flex w-full'>
 			<button
 				ref={trigger}
-				className='inline-flex justify-start items-center group'
+				className='inline-flex justify-center items-center group pl-8 sidebar-expanded:pl-0'
 				aria-haspopup='true'
 				onClick={() => setDropdownOpen(!dropdownOpen)}
 				aria-expanded={dropdownOpen}>
@@ -57,8 +57,8 @@ function UserMenu({ align }) {
 					/>
 				</svg>
 				<div className='flex items-center truncate'>
-					<span className='truncate ml-2 text-sm text-white font-sans font-medium group-hover:text-gray-800'>
-						John Doe
+					<span className='truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-gray-800'>
+						{attributes && attributes.email ? attributes.email : ''}
 					</span>
 				</div>
 			</button>

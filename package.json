@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "^1.2.16",
-    "@craco/craco": "^6.3.0",
+    "@craco/craco": "^6.1.1",
     "@react-hook/resize-observer": "^1.2.4",
     "@tailwindcss/forms": "^0.3.3",
     "@testing-library/jest-dom": "^5.11.10",
@@ -18,8 +18,8 @@
     "moment": "^2.29.1",
     "node-sass": "^5.0.0",
     "postcss": "^8.2.9",
+    "posthog-js": "^1.13.13",
     "prop-types": "^15.7.2",
-    "qwebchannel": "^5.9.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-flatpickr": "^3.10.7",
@@ -30,7 +30,7 @@
     "web-vitals": "^1.1.1"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "TAILWIND_MODE=watch craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject"

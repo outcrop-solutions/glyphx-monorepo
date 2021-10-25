@@ -1,6 +1,6 @@
 {
   "auth": {
-    "dashboardefd34675": {
+    "dashboard42b506ef": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
@@ -21,23 +21,6 @@
         "verificationMechanisms": [
           "EMAIL"
         ]
-      }
-    }
-  },
-  "api": {
-    "dashAPI": {
-      "service": "AppSync",
-      "providerPlugin": "awscloudformation",
-      "output": {
-        "authConfig": {
-          "defaultAuthentication": {
-            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
-            "userPoolConfig": {
-              "userPoolId": "authdashboardefd34675"
-            }
-          },
-          "additionalAuthenticationProviders": []
-        }
       }
     }
   }

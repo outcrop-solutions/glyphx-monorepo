@@ -12,7 +12,7 @@ import Image07 from '../../images/user-28-07.jpg'
 import Image09 from '../../images/user-28-09.jpg'
 import Image11 from '../../images/user-28-11.jpg'
 
-export const CommentsSidebar = ({ project, setPosition }) => {
+export const CommentsSidebar = ({ project }) => {
 	const location = useLocation()
 	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -29,7 +29,6 @@ export const CommentsSidebar = ({ project, setPosition }) => {
 
 	useEffect(() => {
 		console.log({ position: sidebar.current.getBoundingClientRect() })
-		setPosition(sidebar.current.getBoundingClientRect())
 	}, [sidebar])
 	// close on click outside
 	useEffect(() => {

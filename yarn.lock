@@ -3140,6 +3140,11 @@
     "estree-walker" "^1.0.1"
     "picomatch" "^2.2.2"
 
+"@sentry/types@^6.11.0":
+  "integrity" "sha512-6WjGj/VjjN8LZDtqJH5ikeB1o39rO1gYS6anBxiS3d0sXNBb3Ux0pNNDFoBxQpOhmdDHXYS57MEptX9EV82gmg=="
+  "resolved" "https://registry.npmjs.org/@sentry/types/-/types-6.13.2.tgz"
+  "version" "6.13.2"
+
 "@sideway/address@^4.1.0":
   "integrity" "sha512-idTz8ibqWFrPU8kMirL0CoPH/A29XOzzAzpyN3zQ4kAWnzmNfFmRaoMNN6VI8ske5M73HZyhIaW4OuSFIdM4oA=="
   "resolved" "https://registry.npmjs.org/@sideway/address/-/address-4.1.2.tgz"
@@ -7306,6 +7311,11 @@
   "version" "2.0.1"
   dependencies:
     "bser" "2.1.1"
+
+"fflate@^0.4.1":
+  "integrity" "sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA=="
+  "resolved" "https://registry.npmjs.org/fflate/-/fflate-0.4.8.tgz"
+  "version" "0.4.8"
 
 "figgy-pudding@^3.5.1":
   "integrity" "sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw=="
@@ -12246,6 +12256,15 @@
     "source-map" "^0.6.1"
     "supports-color" "^6.1.0"
 
+"posthog-js@^1.13.13":
+  "integrity" "sha512-80isGaW6wbW2NXeWtCdq9lAc5VBNC7K+3Ikdghkp/87Av8NcGNC291aLKziOWTxtpQaSZZ8DpI/7yqEOTrFM0w=="
+  "resolved" "https://registry.npmjs.org/posthog-js/-/posthog-js-1.13.13.tgz"
+  "version" "1.13.13"
+  dependencies:
+    "@sentry/types" "^6.11.0"
+    "fflate" "^0.4.1"
+    "rrweb-snapshot" "^1.1.7"
+
 "prelude-ls@^1.2.1":
   "integrity" "sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g=="
   "resolved" "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz"
@@ -13296,6 +13315,11 @@
     "@types/estree" "*"
     "@types/node" "*"
     "acorn" "^7.1.0"
+
+"rrweb-snapshot@^1.1.7":
+  "integrity" "sha512-wi8T9IVobEwlns7U2m8cbPfoihsNAMpTI+UBe4KUjclU2N+vtowD2U1Rq8PleiFTDvcseHvkQDmEIZoZLXFzwg=="
+  "resolved" "https://registry.npmjs.org/rrweb-snapshot/-/rrweb-snapshot-1.1.8.tgz"
+  "version" "1.1.8"
 
 "rsvp@^4.8.4":
   "integrity" "sha512-nfMOlASu9OnRJo1mbEk2cz0D56a1MBNrJ7orjRZQG10XDyuvwksKbuXNp6qa+kbn839HwjwhBzhFmdsaEAfauA=="
