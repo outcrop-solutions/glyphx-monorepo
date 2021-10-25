@@ -11,7 +11,7 @@ import Amplify, { API, graphqlOperation, Auth } from 'aws-amplify'
 
 import awsconfig from './aws-exports'
 import { withAuthenticator } from '@aws-amplify/ui-react'
-import { listProjects } from './graphql/queries'
+// import { listProjects } from './graphql/queries'
 
 import posthog from 'posthog-js'
 
@@ -34,26 +34,26 @@ function App() {
 
 	useEffect(() => {
 		posthog.capture('my event', { property: 'value' })
-		fetchProjects()
+		// fetchProjects()
 	}, [])
 
 	useEffect(() => {
 		console.log({ projects })
 	}, [projects])
 
-	const fetchProjects = async () => {
-		try {
-			const projectData = await API.graphql(graphqlOperation(listProjects))
-			const projectList = projectData.data.listProjects.items
+	// const fetchProjects = async () => {
+	// 	try {
+	// 		const projectData = await API.graphql(graphqlOperation(listProjects))
+	// 		const projectList = projectData.data.listProjects.items
 
-			setProjects((prev) => {
-				let newData = [...projectList]
-				return newData
-			})
-		} catch (error) {
-			console.log('error on fetching projects', error)
-		}
-	}
+	// 		setProjects((prev) => {
+	// 			let newData = [...projectList]
+	// 			return newData
+	// 		})
+	// 	} catch (error) {
+	// 		console.log('error on fetching projects', error)
+	// 	}
+	// }
 	// position state can be destructured as follows...
 	// { bottom, height, left, right, top, width, x, y } = position
 	const [position, setPosition] = useState({})
