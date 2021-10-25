@@ -1,0 +1,30 @@
+type Project @model {
+	id: ID!
+	name: String!
+	description: String!
+	states: [State] @connection(keyName: "byProject", fields: ["id"])
+	filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
+}
+
+type State @model @key(name: "byProject", fields: ["projectID"]) {
+	id: ID!
+	title: String!
+	description: String!
+	projectID: ID!
+	project: Project @connection(fields: ["projectID"])
+	comments: [Comment] @connection(keyName: "byState", fields: ["id"])
+}
+
+type Filter @model @key(name: "byProject", fields: ["projectID"]) {
+	id: ID!
+	title: String!
+	projectID: ID!
+	project: Project @connection(fields: ["projectID"])
+}
+
+type Comment @model @key(name: "byState", fields: ["stateID", "content"]) {
+	id: ID!
+	stateID: ID!
+	state: State @connection(fields: ["stateID"])
+	content: String!
+}
