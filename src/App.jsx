@@ -109,7 +109,11 @@ function App() {
 							setPosition={setPosition}
 						/>
 					) : resetPass ? (
-						<ResetPassword setResetPass={setResetPass} setSignUp={setSignUp} />
+						<ResetPassword
+							setResetPass={setResetPass}
+							setSignUp={setSignUp}
+							setUser={setUser}
+						/>
 					) : signUp ? (
 						<Signup
 							setUser={setUser}

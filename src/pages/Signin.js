@@ -55,7 +55,7 @@ function Signin({ setUser, setLoggedIn, setSignUp, setResetPass }) {
 											id='email'
 											value={username}
 											onChange={handleUname}
-											className='form-input w-full bg-gray-900 border-gray-400 focus:border-0'
+											className='form-input w-full bg-gray-900 border-gray-400 text-white focus:border-0'
 											type='email'
 										/>
 									</div>

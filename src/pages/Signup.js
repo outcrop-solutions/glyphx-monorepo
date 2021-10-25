@@ -23,7 +23,7 @@ function Signup({ setSignUp, setUser, setLoggedIn }) {
 				password,
 				attributes: {
 					email: username,
-					fullName,
+					name: fullName,
 				},
 			})
 			console.log({ userSignup: user })
@@ -65,7 +65,7 @@ function Signup({ setSignUp, setUser, setLoggedIn }) {
 											value={username}
 											onChange={(e) => setUsername(e.target.value)}
 											id='email'
-											className='form-input w-full bg-gray-900 border-gray-400 focus:border-0'
+											className='form-input w-full bg-gray-900 text-white border-gray-400 focus:border-0'
 											type='email'
 										/>
 									</div>
@@ -79,7 +79,7 @@ function Signup({ setSignUp, setUser, setLoggedIn }) {
 											value={fullName}
 											onChange={(e) => setFullName(e.target.value)}
 											id='name'
-											className='form-input w-full bg-gray-900 border-gray-400 focus:border-0'
+											className='form-input w-full bg-gray-900 border-gray-400 focus:border-0 text-white'
 											type='text'
 										/>
 									</div>
@@ -93,7 +93,7 @@ function Signup({ setSignUp, setUser, setLoggedIn }) {
 											value={password}
 											onChange={(e) => setPassword(e.target.value)}
 											id='password'
-											className='form-input w-full bg-gray-900 border-gray-400 focus:border-0'
+											className='form-input w-full bg-gray-900 border-gray-400 text-white focus:border-0'
 											type='password'
 											autoComplete='on'
 										/>

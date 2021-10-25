@@ -6,7 +6,6 @@ import UserAvatar from '../images/user.png'
 
 function UserMenu({ user, align }) {
 	const [dropdownOpen, setDropdownOpen] = useState(false)
-	const { attributes } = user
 	const trigger = useRef(null)
 	const dropdown = useRef(null)
 
@@ -58,7 +57,9 @@ function UserMenu({ user, align }) {
 				</svg>
 				<div className='flex items-center truncate'>
 					<span className='truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-gray-800'>
-						{attributes && attributes.email ? attributes.email : ''}
+						{user.attributes && user.attributes.name
+							? user.attributes.name
+							: user.attributes.email}
 					</span>
 				</div>
 			</button>
