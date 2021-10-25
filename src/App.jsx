@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { Switch, Route, useLocation } from 'react-router-dom'
+import {
+	Switch,
+	Route,
+	useLocation,
+	useHistory,
+	Router,
+	Redirect,
+} from 'react-router-dom'
 
 import './css/style.scss'
 
 import { focusHandling } from 'cruip-js-toolkit'
 
 import { Projects } from './pages/Projects'
+import SignIn from './pages/Signin'
 
 import Amplify, { API, graphqlOperation, Auth } from 'aws-amplify'
 
@@ -14,6 +22,8 @@ import { withAuthenticator } from '@aws-amplify/ui-react'
 import { listProjects } from './graphql/queries'
 
 import posthog from 'posthog-js'
+import Signup from './pages/Signup'
+import ResetPassword from './pages/ResetPassword'
 
 posthog.init('phc_flrvuYtat2QJ6aSiiWeuBZq69U3M3EmXKVLprmvZPIS', {
 	api_host: 'https://app.posthog.com',
@@ -22,12 +32,36 @@ posthog.init('phc_flrvuYtat2QJ6aSiiWeuBZq69U3M3EmXKVLprmvZPIS', {
 Amplify.configure(awsconfig)
 
 function App() {
+	let history = useHistory()
 	const [projects, setProjects] = useState([])
 	const [user, setUser] = useState({})
+	const [loggedIn, setLoggedIn] = useState(false)
+	const [signUp, setSignUp] = useState(false)
+	const [resetPass, setResetPass] = useState(false)
+
+	useEffect(() => {
+		assessLoggedIn()
+	}, [])
+
+	const assessLoggedIn = () => {
+		Auth.currentAuthenticatedUser()
+			.then(() => {
+				setLoggedIn(true)
+			})
+			.catch(() => {
+				setLoggedIn(false)
+				// history.push('/signin')
+			})
+	}
+
 	useEffect(() => {
 		const getUser = async () => {
-			let user = await Auth.currentUserInfo()
-			setUser(user)
+			try {
+				let user = await Auth.currentUserInfo()
+				setUser(user)
+			} catch (error) {
+				setLoggedIn(false)
+			}
 		}
 		getUser()
 	}, [])
@@ -36,10 +70,6 @@ function App() {
 		posthog.capture('my event', { property: 'value' })
 		fetchProjects()
 	}, [])
-
-	useEffect(() => {
-		console.log({ projects })
-	}, [projects])
 
 	const fetchProjects = async () => {
 		try {
@@ -70,16 +100,38 @@ function App() {
 		<>
 			<Switch>
 				<Route exact path='/'>
-					<Projects
-						user={user}
-						projects={projects}
-						position={position}
-						setPosition={setPosition}
-					/>
+					{loggedIn && user ? (
+						<Projects
+							setLoggedIn={setLoggedIn}
+							user={user}
+							projects={projects}
+							position={position}
+							setPosition={setPosition}
+						/>
+					) : resetPass ? (
+						<ResetPassword setResetPass={setResetPass} setSignUp={setSignUp} />
+					) : signUp ? (
+						<Signup
+							setUser={setUser}
+							setSignUp={setSignUp}
+							setLoggedIn={setLoggedIn}
+						/>
+					) : (
+						<SignIn
+							setResetPass={setResetPass}
+							setUser={setUser}
+							setLoggedIn={setLoggedIn}
+							setSignUp={setSignUp}
+						/>
+					)}
 				</Route>
+				{/* <Route exact path='/signin'>
+					<SignIn />
+				</Route> */}
 			</Switch>
 		</>
 	)
 }
 
-export default withAuthenticator(App)
+// export default withAuthenticator(App)
+export default App

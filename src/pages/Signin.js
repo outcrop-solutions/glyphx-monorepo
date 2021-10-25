@@ -1,72 +1,119 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Auth } from 'aws-amplify'
 
-import AuthImage from '../images/auth-image.jpg';
-import AuthDecoration from '../images/auth-decoration.png';
+import AuthImage from '../images/auth-image.jpg'
+import AuthDecoration from '../images/auth-decoration.png'
 
-function Signin() {
-  return (
-    <main className="bg-white">
+function Signin({ setUser, setLoggedIn, setSignUp, setResetPass }) {
+	const [username, setUsername] = useState('')
+	const [password, setPassword] = useState('')
 
-      <div className="relative md:flex">
+	const handleUname = (e) => {
+		setUsername(e.target.value)
+	}
+	const handleResetPass = () => {
+		setResetPass(true)
+		setUsername('')
+		setPassword('')
+	}
 
-        {/* Content */}
-        <div className="md:w-1/2">
-          <div className="max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
-
-            <div className="w-full">
-              <h1 className="text-3xl text-gray-800 font-bold mb-6">Welcome back! ✨</h1>
-              {/* Form */}
-              <form>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="email">Email Address</label>
-                    <input id="email" className="form-input w-full" type="email" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="password">Password</label>
-                    <input id="password" className="form-input w-full" type="password" autoComplete="on" />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-6">
-                  <div className="mr-1">
-                    <Link className="text-sm underline hover:no-underline" to="/reset-password">Forgot Password?</Link>
-                  </div>
-                  <Link className="btn bg-indigo-500 hover:bg-indigo-600 text-white ml-3" to="/">Sign In</Link>
-                </div>
-              </form>
-              {/* Footer */}
-              <div className="pt-5 mt-6 border-t border-gray-200">
-                <div className="text-sm">
-                  Don’t you have an account? <Link className="font-medium text-indigo-500 hover:text-indigo-600" to="/signup">Sign Up</Link>
-                </div>
-                {/* Warning */}
-                <div className="mt-5">
-                  <div className="bg-yellow-100 text-yellow-600 px-3 py-2 rounded">
-                    <svg className="inline w-3 h-3 flex-shrink-0 fill-current mr-2" viewBox="0 0 12 12">
-                      <path d="M10.28 1.28L3.989 7.575 1.695 5.28A1 1 0 00.28 6.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 1.28z" />
-                    </svg>
-                    <span className="text-sm">
-                      To support you during the pandemic super pro features are free until March 31st.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Image */}
-        <div className="hidden md:block absolute top-0 bottom-0 right-0 md:w-1/2" aria-hidden="true">
-          <img className="object-cover object-center w-full h-full" src={AuthImage} width="760" height="1024" alt="Authentication" />
-          <img className="absolute top-1/4 left-0 transform -translate-x-1/2 ml-8" src={AuthDecoration} width="218" height="224" alt="Authentication decoration" />
-        </div>
-
-      </div>
-
-    </main>
-  );
+	const handlePass = (e) => {
+		setPassword(e.target.value)
+	}
+	const signIn = async () => {
+		try {
+			const user = await Auth.signIn(username, password)
+			console.log({ user })
+			setUser(user)
+			setLoggedIn(true)
+		} catch (error) {
+			console.log('error on signin page' + error)
+			setLoggedIn(false)
+		}
+	}
+	return (
+		<main className='bg-gray-900'>
+			<div className='relative md:flex'>
+				{/* Content */}
+				<div className='w-full'>
+					<div className='max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8'>
+						<div className='w-full rounded-md p-8 bg-gray-800 border-gray-400 border'>
+							<h1 className='text-xl text-white font-bold mb-6'>
+								Sign in to your account
+							</h1>
+							{/* Form */}
+							<div>
+								<div className='space-y-4'>
+									<div>
+										<label
+											className='block text-sm font-medium mb-1 text-white'
+											htmlFor='email'>
+											Email Address
+										</label>
+										<input
+											id='email'
+											value={username}
+											onChange={handleUname}
+											className='form-input w-full bg-gray-900 border-gray-400 focus:border-0'
+											type='email'
+										/>
+									</div>
+									<div>
+										<label
+											className='block text-sm font-medium mb-1 text-white'
+											htmlFor='password'>
+											Password
+										</label>
+										<input
+											value={password}
+											onChange={handlePass}
+											id='password'
+											className='form-input w-full bg-gray-900 border-gray-400 focus:border-opacity-0 focus:ring-transparent'
+											type='password'
+											autoComplete='on'
+										/>
+									</div>
+								</div>
+								<div className='flex items-center justify-between mt-6'>
+									<div className='mr-1'>
+										<div
+											onClick={handleResetPass}
+											className='text-sm underline hover:no-underline text-gray-400'>
+											Forgot Password?
+										</div>
+									</div>
+									<Link
+										onClick={signIn}
+										onKeyPress={(ev) => {
+											if (ev.key === 'Enter') {
+												ev.preventDefault()
+												signIn()
+											}
+										}}
+										className='btn bg-yellow-400 select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow-600 text-gray-900 ml-3'
+										to='/'>
+										Sign In
+									</Link>
+								</div>
+							</div>
+							{/* Footer */}
+							<div className='pt-5 mt-6 border-t border-gray-200'>
+								<div className='text-sm text-gray-400'>
+									Don’t you have an account?{' '}
+									<span
+										onClick={() => setSignUp(true)}
+										className='font-medium select-none text-yellow-400 cursor-pointer hover:text-yellow-300'>
+										Sign Up
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	)
 }
 
-export default Signin;
+export default Signin

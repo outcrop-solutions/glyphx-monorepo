@@ -36,7 +36,7 @@ const usePosition = (target) => {
 	return entry
 }
 
-export const Projects = ({ user, projects, position, setPosition }) => {
+export const Projects = ({ setLoggedIn, user, projects, position, setPosition }) => {
 	const [grid, setGrid] = useState(false)
 	const [project, setProject] = useState(false)
 
@@ -59,6 +59,7 @@ export const Projects = ({ user, projects, position, setPosition }) => {
 			<div className='relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
 				{/*  Site header */}
 				<Header
+					setLoggedIn={setLoggedIn}
 					project={project}
 					sidebarOpen={sidebarOpen}
 					setSidebarOpen={setSidebarOpen}

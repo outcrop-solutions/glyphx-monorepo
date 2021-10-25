@@ -4,11 +4,26 @@ import SearchModal from '../components/ModalSearch'
 import Notifications from '../components/DropdownNotifications'
 import Help from '../components/DropdownHelp'
 import SearchForm from './actions/SearchForm'
-import { AmplifySignOut } from '@aws-amplify/ui-react'
+import { Auth } from 'aws-amplify'
+// import { AmplifySignOut } from '@aws-amplify/ui-react'
 
-function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
+function Header({
+	setLoggedIn,
+	sidebarOpen,
+	setSidebarOpen,
+	grid,
+	setGrid,
+	project,
+}) {
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
-
+	const signOut = async () => {
+		try {
+			await Auth.signOut()
+			setLoggedIn(false)
+		} catch (error) {
+			console.log('error sigingin out' + error)
+		}
+	}
 	return (
 		<header
 			className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-gray-900 max-h-16 ${
@@ -81,7 +96,12 @@ function Header({ sidebarOpen, setSidebarOpen, grid, setGrid, project }) {
 							/>
 						</svg>
 						{/* <div className='w-4'> */}
-						<AmplifySignOut />
+						<button
+							className='btn rounded-2xl bg-yellow-400 text-gray-800 text-xs font-bold hover:text-white py-1.5'
+							onClick={signOut}>
+							Sign Out
+						</button>
+						{/* <AmplifySignOut /> */}
 						{/* </div> */}
 					</div>
 				</div>
