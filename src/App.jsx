@@ -148,6 +148,7 @@ function App() {
 				<Route exact path='/'>
 					{loggedIn && user ? (
 						<Projects
+							fetchProjects={fetchProjects}
 							setLoggedIn={setLoggedIn}
 							user={user}
 							projects={projects}

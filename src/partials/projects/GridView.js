@@ -1,11 +1,22 @@
 import ProjectCard from './ProjectCard'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { AddProject } from './AddProject'
+import { AddProjectModal } from './AddProjectModal'
 
-export const GridView = ({ projects, setProject }) => {
+export const GridView = ({ projects, setProject, fetchProjects }) => {
+	const [showAddProject, setShowAddProject] = useState(false)
 	return (
 		<>
+			{showAddProject ? (
+				<AddProjectModal
+					onUpload={() => {
+						setShowAddProject(false)
+						fetchProjects()
+					}}
+				/>
+			) : null}
+
 			{/* Page header */}
 			<div className='sm:flex sm:justify-between sm:items-center mb-8'>
 				{/* Left: Title */}
@@ -18,7 +29,7 @@ export const GridView = ({ projects, setProject }) => {
 
 			{/* Cards */}
 			<div className='grid grid-cols-12 gap-6'>
-				<AddProject />
+				<AddProject setShowAddProject={setShowAddProject} />
 				{projects.map((item, idx) => {
 					return (
 						<ProjectCard

@@ -1,8 +1,10 @@
 import React from 'react'
 
-export const AddProject = (props) => {
+export const AddProject = ({ setShowAddProject }) => {
 	return (
-		<div className='col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg border border-opacity-50 border-gray-200'>
+		<div
+			onClick={() => setShowAddProject(true)}
+			className='col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg border border-opacity-50 border-gray-200'>
 			<div className='flex flex-col items-center justify-center h-60'>
 				<svg
 					className='mt-20 mb-4'

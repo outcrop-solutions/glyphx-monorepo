@@ -9,7 +9,6 @@ import { ProjectSidebar } from '../partials/sidebars/ProjectSidebar'
 import { CommentsSidebar } from '../partials/sidebars/CommentsSidebar'
 import { MainSidebar } from '../partials/sidebars/MainSidebar'
 
-
 // added here for clarity
 const usePosition = (target) => {
 	const [entry, setEntry] = useState()
@@ -24,7 +23,14 @@ const usePosition = (target) => {
 	return entry
 }
 
-export const Projects = ({ setLoggedIn, user, projects, position, setPosition }) => {
+export const Projects = ({
+	setLoggedIn,
+	user,
+	projects,
+	position,
+	setPosition,
+	fetchProjects,
+}) => {
 	const [grid, setGrid] = useState(false)
 	const [project, setProject] = useState(false)
 	const ref = useRef(null)
@@ -82,7 +88,11 @@ export const Projects = ({ setLoggedIn, user, projects, position, setPosition })
 								{grid ? (
 									<TableView />
 								) : (
-									<GridView projects={projects} setProject={setProject} />
+									<GridView
+										projects={projects}
+										setProject={setProject}
+										fetchProjects={fetchProjects}
+									/>
 								)}
 							</div>
 						)}
