@@ -18,29 +18,22 @@ export const GridView = ({ projects, setProject }) => {
 
 			{/* Cards */}
 			<div className='grid grid-cols-12 gap-6'>
-				{projects.length === 0 ? (
-					// <div className='col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg border border-opacity-50 border-gray-200'>
-					<AddProject />
-				) : (
-					// </div>
-					<>
-						<AddProject />
-						{projects.map((item, idx) => {
-							return (
-								<ProjectCard
-									project={item}
-									setProject={setProject}
-									idx={idx}
-									key={item.id}
-									id={item.id}
-									name={item.name}
-									link={'#0'}
-									description={item.description}
-								/>
-							)
-						})}
-					</>
-				)}
+				<AddProject />
+				{projects.map((item, idx) => {
+					return (
+						<ProjectCard
+							key={item.id}
+							project={item}
+							setProject={setProject}
+							idx={idx}
+							updatedAt={item.updatedAt}
+							id={item.id}
+							name={item.name}
+							link={'#0'}
+							description={item.description}
+						/>
+					)
+				})}
 			</div>
 		</>
 	)

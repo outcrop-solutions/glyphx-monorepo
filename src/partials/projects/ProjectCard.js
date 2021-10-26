@@ -1,5 +1,8 @@
+import * as dayjs from 'dayjs'
+import * as relativeTime from 'dayjs/plugin/relativeTime'
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+
 import Project from '../../images/project.png'
 import Image07 from '../../images/user-28-07.jpg'
 import Image08 from '../../images/user-28-08.jpg'
@@ -10,13 +13,14 @@ import { AddProject } from './AddProject'
 export const ProjectCard = ({
 	project,
 	setProject,
+	updatedAt,
 	idx,
-	key,
 	id,
 	name,
 	link,
 	description,
 }) => {
+	dayjs.extend(relativeTime)
 	const members = [
 		{
 			name: 'User 07',
@@ -122,7 +126,7 @@ export const ProjectCard = ({
 							<Link
 								className='text-sm font-medium text-gray-50 opacity-40'
 								to={link}>
-								00d ago
+								{dayjs().to(dayjs(updatedAt))}
 							</Link>
 						</div>
 					</div>
