@@ -222,7 +222,7 @@ export const MainSidebar = ({ user, sidebarOpen, setSidebarOpen }) => {
 								}`}>
 								<NavLink
 									exact
-									to='/shared'
+									to='/drafts'
 									className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
 										pathname.includes('shared') && 'hover:text-gray-200'
 									}`}>
@@ -267,7 +267,7 @@ export const MainSidebar = ({ user, sidebarOpen, setSidebarOpen }) => {
 								}`}>
 								<NavLink
 									exact
-									to='/shared'
+									to='/trash'
 									className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
 										pathname.includes('shared') && 'hover:text-gray-200'
 									}`}>

@@ -9,7 +9,9 @@ function UserMenu({ user, align }) {
 	const trigger = useRef(null)
 	const dropdown = useRef(null)
 
-	// close on click outside
+	useEffect(() => {
+		console.log({ user })
+	}, [user])
 	useEffect(() => {
 		const clickHandler = ({ target }) => {
 			if (!dropdown.current) return
@@ -23,9 +25,7 @@ function UserMenu({ user, align }) {
 		}
 		document.addEventListener('click', clickHandler)
 		return () => document.removeEventListener('click', clickHandler)
-	})
-
-	// close if the esc key is pressed
+	}) // close on click outside
 	useEffect(() => {
 		const keyHandler = ({ keyCode }) => {
 			if (!dropdownOpen || keyCode !== 27) return
@@ -33,7 +33,7 @@ function UserMenu({ user, align }) {
 		}
 		document.addEventListener('keydown', keyHandler)
 		return () => document.removeEventListener('keydown', keyHandler)
-	})
+	}) // close if the esc key is pressed
 
 	return (
 		<div className='relative inline-flex w-full'>
@@ -57,9 +57,13 @@ function UserMenu({ user, align }) {
 				</svg>
 				<div className='flex items-center truncate'>
 					<span className='truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-gray-800'>
-						{user.attributes && user.attributes.name
+						{user.attributes
 							? user.attributes.name
-							: user.attributes.email}
+								? user.attributes.name
+								: user.attributes.email
+								? user.attributes.email
+								: ''
+							: ''}
 					</span>
 				</div>
 			</button>

@@ -11227,6 +11227,11 @@ quick-lru@^5.1.1:
   resolved "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz"
   integrity sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
 
+qwebchannel@^5.9.0:
+  version "5.9.0"
+  resolved "https://registry.yarnpkg.com/qwebchannel/-/qwebchannel-5.9.0.tgz#e7354bae6d1a156fd1211ae52a6e808b520e66d4"
+  integrity sha512-bSdtido58+pn1NTuaGSXETd0mvifAlFVl8PaxZS/ogeayXkOHru5xK8oqKPNrRGzeJ6y2G89e8IXf55oEWNu6A==
+
 raf-schd@^4.0.2:
   version "4.0.3"
   resolved "https://registry.npmjs.org/raf-schd/-/raf-schd-4.0.3.tgz"

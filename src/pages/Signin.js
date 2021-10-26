@@ -69,7 +69,7 @@ function Signin({ setUser, setLoggedIn, setSignUp, setResetPass }) {
 											value={password}
 											onChange={handlePass}
 											id='password'
-											className='form-input w-full bg-gray-900 border-gray-400 focus:border-opacity-0 focus:ring-transparent'
+											className='form-input w-full bg-gray-900 border-gray-400 focus:border-opacity-0 focus:ring-transparent text-white'
 											type='password'
 											autoComplete='on'
 										/>
