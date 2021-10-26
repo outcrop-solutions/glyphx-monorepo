@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import useResizeObserver from '@react-hook/resize-observer'
+import { Storage } from 'aws-amplify'
 
 import Header from '../partials/Header'
 import ProjectCard from '../partials/projects/ProjectCard'
@@ -42,10 +43,18 @@ export const Projects = ({
 	}, [pos])
 
 	useEffect(() => {
-		if (project) {
-			window.core.OpenProject('open')
+		const signUrl = async () => {
+			try {
+				let list = await Storage.list('sample_project/') // for listing ALL files without prefix, pass '' instead
+
+				// window.core.OpenProject('open')
+			} catch (error) {
+				console.log({ error })
+			}
 		}
-	}, [project])
+		if (user.attributes) {
+		}
+	}, [user])
 
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 

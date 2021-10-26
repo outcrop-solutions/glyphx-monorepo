@@ -1,6 +1,6 @@
 {
     "identityPoolName": "dashboard42b506ef_identitypool_42b506ef",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "dashbo42b506ef",
     "userPoolName": "dashboard42b506ef_userpool_42b506ef",
     "autoVerifiedAttributes": [

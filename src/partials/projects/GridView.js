@@ -10,10 +10,8 @@ export const GridView = ({ projects, setProject, fetchProjects }) => {
 		<>
 			{showAddProject ? (
 				<AddProjectModal
-					onUpload={() => {
-						setShowAddProject(false)
-						fetchProjects()
-					}}
+					setShowAddProject={setShowAddProject}
+					fetchProjects={fetchProjects}
 				/>
 			) : null}
 

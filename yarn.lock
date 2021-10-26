@@ -11616,6 +11616,11 @@
     "regenerator-runtime" "^0.13.7"
     "whatwg-fetch" "^3.4.1"
 
+"react-click-away-listener@^2.0.5":
+  "integrity" "sha512-sFFuuQ52ABwkrKxnYE5FbpA1zBjvJsOYmKXNg9XCTRU+iWc9bk/vpWBJQN0qEohlnmQpDQZk14ygPMTnXAnlEA=="
+  "resolved" "https://registry.npmjs.org/react-click-away-listener/-/react-click-away-listener-2.0.5.tgz"
+  "version" "2.0.5"
+
 "react-dev-utils@^11.0.3":
   "integrity" "sha512-dx0LvIGHcOPtKbeiSUM4jqpBl3TcY7CDjZdfOIcKeznE7BWr9dg0iPG90G5yfVQ+p/rGNMXdbfStvzQZEVEi4A=="
   "resolved" "https://registry.npmjs.org/react-dev-utils/-/react-dev-utils-11.0.4.tgz"
