@@ -32,8 +32,40 @@ export const Projects = ({
 	setPosition,
 	fetchProjects,
 }) => {
+	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [grid, setGrid] = useState(false)
 	const [project, setProject] = useState(false)
+	const [properties, setProperties] = useState({})
+	const [fileSystem, setFileSystem] = useState([
+		{
+			id: 1,
+			parent: 0,
+			droppable: true,
+			text: 'Sample_Project',
+		},
+		{
+			id: 2,
+			parent: 1,
+			droppable: false,
+			text: 'sidebar.json',
+			data: {
+				fileType: 'json',
+				fileSize: '0.5MB',
+			},
+		},
+		{
+			id: 3,
+			parent: 1,
+			droppable: false,
+			text: 'mcgee_sku_model.zip',
+			data: {
+				fileType: 'zip',
+				fileSize: '0.5MB',
+			},
+		},
+	])
+	const [columns, setColumns] = useState({})
+	const [files, setFiles] = useState([])
 	const ref = useRef(null)
 	const pos = usePosition(ref)
 
@@ -46,20 +78,62 @@ export const Projects = ({
 		let filePath = project.filePath
 		const signUrl = async () => {
 			try {
-				let signedUrl = await Storage.get(`${filePath}/`) // for listing ALL files without prefix, pass '' instead
+				let signedUrl = await Storage.get(`${filePath}/mcgee_sku_model.zip`)
 				console.log({ signedUrl })
-				window.core.OpenProject(JSON.stringify(signedUrl))
+				// window.core.OpenProject(JSON.stringify(signedUrl))
+			} catch (error) {
+				console.log({ error })
+			}
+		}
+		const getFilesList = async () => {
+			try {
+				let files = await Storage.list(`${filePath}/`)
+				let fileSystem = processStorageList(files)
+				// setFileSystem({ ...fileSystem })
+				console.log({ fileSystem })
+			} catch (error) {
+				console.log({ error })
+			}
+		}
+		const getSidebar = async () => {
+			try {
+				let sidebarData = await Storage.get(`${filePath}/sidebar.json`, {
+					download: true,
+				})
+				// data.Body is a Blob
+				sidebarData.Body.text().then((string) => {
+					let { columns, properties } = JSON.parse(string)
+					setProperties({ ...properties })
+					setColumns({ ...columns })
+				})
 			} catch (error) {
 				console.log({ error })
 			}
 		}
 		if (typeof filePath !== 'undefined') {
 			signUrl()
+			getFilesList()
+			getSidebar()
 		}
-	}, [project])
+	}, [project]) //pass presigned url,
 
-	const [sidebarOpen, setSidebarOpen] = useState(false)
-
+	function processStorageList(results) {
+		const filesystem = {}
+		// https://stackoverflow.com/questions/44759750/how-can-i-create-a-nested-object-representation-of-a-folder-structure
+		const add = (source, target, item) => {
+			const elements = source.split('/')
+			const element = elements.shift()
+			if (!element) return // blank
+			target[element] = target[element] || { __data: item } // element;
+			if (elements.length) {
+				target[element] =
+					typeof target[element] === 'object' ? target[element] : {}
+				add(elements.join('/'), target[element], item)
+			}
+		}
+		results.forEach((item) => add(item.key, filesystem, item))
+		return filesystem
+	}
 	return (
 		<div className='flex h-screen overflow-hidden bg-gray-900'>
 			{/* Sidebar */}
@@ -85,7 +159,13 @@ export const Projects = ({
 					<div className='flex relative h-full'>
 						{project ? (
 							<>
-								<ProjectSidebar project={project} />
+								<ProjectSidebar
+									fileSystem={fileSystem}
+									setFileSystem={setFileSystem}
+									project={project}
+									properties={properties}
+									columns={columns}
+								/>
 								<div className='w-full flex'>
 									<div ref={ref} className='min-w-0 flex-auto'></div>
 									<CommentsSidebar

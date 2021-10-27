@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react'
 import ProjectLinkGroup from '../ProjectLinkGroup'
 import { NavLink, useLocation } from 'react-router-dom'
+import { Tree } from '@minoru/react-dnd-treeview'
+import { CustomNode } from './CustomNode'
+import { CustomDragPreview } from './CustomDragPreview'
+import styles from './App.module.css'
 
-import Image01 from '../../images/user-28-01.jpg'
-import Image02 from '../../images/user-28-02.jpg'
-import Image03 from '../../images/user-28-03.jpg'
-import Image04 from '../../images/user-28-04.jpg'
-import Image05 from '../../images/user-28-05.jpg'
-import Image06 from '../../images/user-28-06.jpg'
-import Image07 from '../../images/user-28-07.jpg'
-import Image09 from '../../images/user-28-09.jpg'
-import Image11 from '../../images/user-28-11.jpg'
-
-export const ProjectSidebar = ({ project }) => {
+export const ProjectSidebar = ({
+	project,
+	properties,
+	columns,
+	fileSystem,
+	setFileSystem,
+}) => {
 	const location = useLocation()
 	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -61,6 +61,8 @@ export const ProjectSidebar = ({ project }) => {
 				.classList.remove('project-sidebar-expanded')
 		}
 	}, [sidebarExpanded])
+
+	const handleDrop = (newTree) => setFileSystem(newTree)
 	return (
 		// <div className='w-56'>
 		<div
@@ -102,10 +104,31 @@ export const ProjectSidebar = ({ project }) => {
 									</div>
 								</a>
 								<div
-									className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 ${
+									className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 pl-3 ${
 										!open ? 'border-0 -my-2' : 'border-b border-gray-400'
 									}`}>
-									<ul className={`pl-2 mt-1 ${!open && 'hidden'}`}>
+									<Tree
+										tree={fileSystem}
+										rootId={0}
+										render={(node, { depth, isOpen, onToggle }) => (
+											<CustomNode
+												node={node}
+												depth={depth}
+												isOpen={isOpen}
+												onToggle={onToggle}
+											/>
+										)}
+										dragPreviewRender={(monitorProps) => (
+											<CustomDragPreview monitorProps={monitorProps} />
+										)}
+										onDrop={handleDrop}
+										classes={{
+											root: styles.treeRoot,
+											draggingSource: styles.draggingSource,
+											dropTarget: styles.dropTarget,
+										}}
+									/>
+									{/* <ul className={`pl-2 mt-1 ${!open && 'hidden'}`}>
 										<li className='mb-1 last:mb-0 flex'>
 											<div className='flex items-center justify-center h-6 w-6'>
 												<svg
@@ -198,7 +221,7 @@ export const ProjectSidebar = ({ project }) => {
 												</span>
 											</NavLink>
 										</li>
-									</ul>
+									</ul> */}
 								</div>
 							</React.Fragment>
 						)
@@ -259,7 +282,7 @@ export const ProjectSidebar = ({ project }) => {
 												to='/'
 												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
 												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													X-Axes
+													{properties.x}
 												</span>
 											</NavLink>
 										</li>
@@ -282,7 +305,7 @@ export const ProjectSidebar = ({ project }) => {
 												to='/'
 												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
 												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Y-Axes
+													{properties.y}
 												</span>
 											</NavLink>
 										</li>
@@ -305,7 +328,7 @@ export const ProjectSidebar = ({ project }) => {
 												to='/'
 												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
 												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Z-Axes
+													{properties.z}
 												</span>
 											</NavLink>
 										</li>
