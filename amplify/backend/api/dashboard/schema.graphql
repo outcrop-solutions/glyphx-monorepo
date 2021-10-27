@@ -1,7 +1,15 @@
-type Project @model {
+type Project
+	@model
+	@key(
+		name: "projectByOwner"
+		fields: ["owner"]
+		queryField: "projectByOwner"
+	) {
 	id: ID!
 	name: String!
 	description: String!
+	filePath: String
+	owner: String!
 	states: [State] @connection(keyName: "byProject", fields: ["id"])
 	filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
 }
@@ -25,6 +33,7 @@ type Filter @model @key(name: "byProject", fields: ["projectID"]) {
 type Comment @model @key(name: "byState", fields: ["stateID", "content"]) {
 	id: ID!
 	stateID: ID!
+	author: String!
 	state: State @connection(fields: ["stateID"])
 	content: String!
 }

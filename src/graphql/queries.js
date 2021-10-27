@@ -7,6 +7,8 @@ export const getProject = /* GraphQL */ `
       id
       name
       description
+      filePath
+      owner
       states {
         items {
           id
@@ -44,6 +46,8 @@ export const listProjects = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -68,6 +72,8 @@ export const getState = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -81,6 +87,7 @@ export const getState = /* GraphQL */ `
         items {
           id
           stateID
+          author
           content
           createdAt
           updatedAt
@@ -108,6 +115,8 @@ export const listStates = /* GraphQL */ `
           id
           name
           description
+          filePath
+          owner
           createdAt
           updatedAt
         }
@@ -131,6 +140,8 @@ export const getFilter = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -160,6 +171,8 @@ export const listFilters = /* GraphQL */ `
           id
           name
           description
+          filePath
+          owner
           createdAt
           updatedAt
         }
@@ -175,6 +188,7 @@ export const getComment = /* GraphQL */ `
     getComment(id: $id) {
       id
       stateID
+      author
       state {
         id
         title
@@ -184,6 +198,8 @@ export const getComment = /* GraphQL */ `
           id
           name
           description
+          filePath
+          owner
           createdAt
           updatedAt
         }
@@ -209,6 +225,7 @@ export const listComments = /* GraphQL */ `
       items {
         id
         stateID
+        author
         state {
           id
           title
@@ -218,6 +235,40 @@ export const listComments = /* GraphQL */ `
           updatedAt
         }
         content
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const projectByOwner = /* GraphQL */ `
+  query ProjectByOwner(
+    $owner: String
+    $sortDirection: ModelSortDirection
+    $filter: ModelProjectFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    projectByOwner(
+      owner: $owner
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        name
+        description
+        filePath
+        owner
+        states {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
         createdAt
         updatedAt
       }

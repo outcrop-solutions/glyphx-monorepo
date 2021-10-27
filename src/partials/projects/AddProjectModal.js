@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 import { createProject } from '../../graphql/mutations'
 import { API, graphqlOperation, Storage } from 'aws-amplify'
 
-export const AddProjectModal = ({ setShowAddProject, fetchProjects }) => {
+export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
 	const [menu, setMenu] = useState(true)
 	const [view, setView] = useState('')
 	const [projectData, setProjectData] = useState({})
@@ -16,10 +16,13 @@ export const AddProjectModal = ({ setShowAddProject, fetchProjects }) => {
 		// const { key } = await Storage.put(`${uuid()}.json`, projectFile, {
 		// 	contentType: 'json',
 		// })
+
 		const createProjectInput = {
 			id: uuid(),
 			name,
 			description,
+			filePath: 'sample_projects',
+			owner: user.username,
 		}
 		try {
 			console.log({ createProjectInput })

@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react'
 import { AddProject } from './AddProject'
 import { AddProjectModal } from './AddProjectModal'
 
-export const GridView = ({ projects, setProject, fetchProjects }) => {
+export const GridView = ({ user, projects, setProject, fetchProjects }) => {
 	const [showAddProject, setShowAddProject] = useState(false)
 	return (
 		<>
 			{showAddProject ? (
 				<AddProjectModal
+					user={user}
 					setShowAddProject={setShowAddProject}
 					fetchProjects={fetchProjects}
 				/>

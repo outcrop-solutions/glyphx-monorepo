@@ -7,6 +7,8 @@ export const onCreateProject = /* GraphQL */ `
       id
       name
       description
+      filePath
+      owner
       states {
         items {
           id
@@ -39,6 +41,8 @@ export const onUpdateProject = /* GraphQL */ `
       id
       name
       description
+      filePath
+      owner
       states {
         items {
           id
@@ -71,6 +75,8 @@ export const onDeleteProject = /* GraphQL */ `
       id
       name
       description
+      filePath
+      owner
       states {
         items {
           id
@@ -108,6 +114,8 @@ export const onCreateState = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -121,6 +129,7 @@ export const onCreateState = /* GraphQL */ `
         items {
           id
           stateID
+          author
           content
           createdAt
           updatedAt
@@ -143,6 +152,8 @@ export const onUpdateState = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -156,6 +167,7 @@ export const onUpdateState = /* GraphQL */ `
         items {
           id
           stateID
+          author
           content
           createdAt
           updatedAt
@@ -178,6 +190,8 @@ export const onDeleteState = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -191,6 +205,7 @@ export const onDeleteState = /* GraphQL */ `
         items {
           id
           stateID
+          author
           content
           createdAt
           updatedAt
@@ -212,6 +227,8 @@ export const onCreateFilter = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -236,6 +253,8 @@ export const onUpdateFilter = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -260,6 +279,8 @@ export const onDeleteFilter = /* GraphQL */ `
         id
         name
         description
+        filePath
+        owner
         states {
           nextToken
         }
@@ -279,6 +300,7 @@ export const onCreateComment = /* GraphQL */ `
     onCreateComment {
       id
       stateID
+      author
       state {
         id
         title
@@ -288,6 +310,8 @@ export const onCreateComment = /* GraphQL */ `
           id
           name
           description
+          filePath
+          owner
           createdAt
           updatedAt
         }
@@ -308,6 +332,7 @@ export const onUpdateComment = /* GraphQL */ `
     onUpdateComment {
       id
       stateID
+      author
       state {
         id
         title
@@ -317,6 +342,8 @@ export const onUpdateComment = /* GraphQL */ `
           id
           name
           description
+          filePath
+          owner
           createdAt
           updatedAt
         }
@@ -337,6 +364,7 @@ export const onDeleteComment = /* GraphQL */ `
     onDeleteComment {
       id
       stateID
+      author
       state {
         id
         title
@@ -346,6 +374,8 @@ export const onDeleteComment = /* GraphQL */ `
           id
           name
           description
+          filePath
+          owner
           createdAt
           updatedAt
         }

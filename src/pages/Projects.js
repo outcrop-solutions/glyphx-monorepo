@@ -43,18 +43,20 @@ export const Projects = ({
 	}, [pos])
 
 	useEffect(() => {
+		let filePath = project.filePath
 		const signUrl = async () => {
 			try {
-				let list = await Storage.list('sample_project/') // for listing ALL files without prefix, pass '' instead
-
-				// window.core.OpenProject('open')
+				let signedUrl = await Storage.get(`${filePath}/`) // for listing ALL files without prefix, pass '' instead
+				console.log({ signedUrl })
+				window.core.OpenProject(JSON.stringify(signedUrl))
 			} catch (error) {
 				console.log({ error })
 			}
 		}
-		if (user.attributes) {
+		if (typeof filePath !== 'undefined') {
+			signUrl()
 		}
-	}, [user])
+	}, [project])
 
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -98,6 +100,7 @@ export const Projects = ({
 									<TableView />
 								) : (
 									<GridView
+										user={user}
 										projects={projects}
 										setProject={setProject}
 										fetchProjects={fetchProjects}
