@@ -1,7 +1,7 @@
 import React from 'react'
 import { DragLayerMonitorProps } from '@minoru/react-dnd-treeview'
 import { TypeIcon } from './TypeIcon'
-import styles from './CustomDragPreview.module.css'
+import styles from './css/CustomDragPreview.module.css'
 
 export const CustomDragPreview = (props) => {
 	const item = props.monitorProps.item

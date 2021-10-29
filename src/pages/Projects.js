@@ -75,16 +75,16 @@ export const Projects = ({
 	}, [pos])
 
 	useEffect(() => {
-		if(project && window.core){
-			window.core.OpenProject("open"); //sending open to test, would take signed-url normally
+		if (project && window.core) {
+			window.core.OpenProject('open') //sending open to test, would take signed-url normally
 		}
 	}, [project])
 
 	useEffect(() => {
-		let filePath = project.filePath
 		const signUrl = async () => {
 			try {
-				let signedUrl = await Storage.get(`${filePath}/mcgee_sku_model.zip`)
+				// let signedUrl = await Storage.get(`${filePath}/mcgee_sku_model.zip`)
+				let signedUrl = await Storage.get('mcgee_sku_model.zip')
 				console.log({ signedUrl })
 				// window.core.OpenProject(JSON.stringify(signedUrl))
 			} catch (error) {
@@ -93,7 +93,8 @@ export const Projects = ({
 		}
 		const getFilesList = async () => {
 			try {
-				let files = await Storage.list(`${filePath}/`)
+				// let files = await Storage.list(`${filePath}/`)
+				let files = await Storage.list('')
 				let fileSystem = processStorageList(files)
 				// setFileSystem({ ...fileSystem })
 				console.log({ fileSystem })
@@ -103,7 +104,8 @@ export const Projects = ({
 		}
 		const getSidebar = async () => {
 			try {
-				let sidebarData = await Storage.get(`${filePath}/sidebar.json`, {
+				// let sidebarData = await Storage.get(`${filePath}/sidebar.json`, {
+				let sidebarData = await Storage.get('sidebar.json', {
 					download: true,
 				})
 				// data.Body is a Blob
@@ -116,11 +118,10 @@ export const Projects = ({
 				console.log({ error })
 			}
 		}
-		if (typeof filePath !== 'undefined') {
-			signUrl()
-			getFilesList()
-			getSidebar()
-		}
+
+		signUrl()
+		getFilesList()
+		getSidebar()
 	}, [project]) //pass presigned url,
 
 	function processStorageList(results) {

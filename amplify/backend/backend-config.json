@@ -25,7 +25,7 @@
     }
   },
   "api": {
-    "dashboard": {
+    "sgxapi": {
       "service": "AppSync",
       "providerPlugin": "awscloudformation",
       "output": {
@@ -42,11 +42,9 @@
     }
   },
   "storage": {
-    "dashboard36e8ab10": {
+    "projectFiles": {
       "service": "S3",
-      "serviceType": "imported",
-      "providerPlugin": "awscloudformation",
-      "dependsOn": []
+      "providerPlugin": "awscloudformation"
     }
   }
 }

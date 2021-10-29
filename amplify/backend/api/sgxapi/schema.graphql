@@ -18,7 +18,6 @@ type State @model @key(name: "byProject", fields: ["projectID"]) {
 	filters: [StateFilter] @connection(keyName: "byState", fields: ["id"])
 }
 
-# join table with queries disabled to create many:many relationship between filters and states
 type StateFilter
 	@model(queries: null)
 	@key(name: "byState", fields: ["stateID", "filterID"])
@@ -33,8 +32,8 @@ type StateFilter
 type Filter @model @key(name: "byProject", fields: ["projectID"]) {
 	id: ID!
 	name: String!
-	min: Int
-	max: Int
+	min: String!
+	max: String!
 	projectID: ID!
 	project: Project @connection(fields: ["projectID"])
 	states: [StateFilter] @connection(keyName: "byFilter", fields: ["id"])

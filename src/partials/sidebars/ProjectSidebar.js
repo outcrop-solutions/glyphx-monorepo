@@ -4,7 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { Tree } from '@minoru/react-dnd-treeview'
 import { CustomNode } from './CustomNode'
 import { CustomDragPreview } from './CustomDragPreview'
-import styles from './App.module.css'
+import styles from './css/Sidebar.module.css'
 
 export const ProjectSidebar = ({
 	project,
@@ -64,7 +64,6 @@ export const ProjectSidebar = ({
 
 	const handleDrop = (newTree) => setFileSystem(newTree)
 	return (
-		// <div className='w-56'>
 		<div
 			id='sidebar'
 			ref={sidebar}
@@ -72,6 +71,7 @@ export const ProjectSidebar = ({
 				sidebarOpen ? 'translate-x-0' : '-translate-x-64'
 			}`}>
 			<ul>
+				{/* Files */}
 				<ProjectLinkGroup activecondition={pathname.includes('')}>
 					{(handleClick, open) => {
 						return (
@@ -128,105 +128,12 @@ export const ProjectSidebar = ({
 											dropTarget: styles.dropTarget,
 										}}
 									/>
-									{/* <ul className={`pl-2 mt-1 ${!open && 'hidden'}`}>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													final_excel_sorted.csv
-												</span>
-											</NavLink>
-										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													final_excel_sorted.sdt
-												</span>
-											</NavLink>
-										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													project_index.js
-												</span>
-											</NavLink>
-										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													test_file.txt
-												</span>
-											</NavLink>
-										</li>
-									</ul> */}
 								</div>
 							</React.Fragment>
 						)
 					}}
 				</ProjectLinkGroup>
+				{/* Properties */}
 				<ProjectLinkGroup activecondition={pathname.includes('')}>
 					{(handleClick, open) => {
 						return (
@@ -389,6 +296,7 @@ export const ProjectSidebar = ({
 						)
 					}}
 				</ProjectLinkGroup>
+				{/* Filters */}
 				<ProjectLinkGroup activecondition={pathname.includes('')}>
 					{(handleClick, open) => {
 						return (
@@ -428,15 +336,15 @@ export const ProjectSidebar = ({
 										<li className='mb-1 last:mb-0 flex'>
 											<div className='flex items-center justify-center h-6 w-6'>
 												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
+													aria-hidden='true'
+													role='img'
+													width='16'
+													height='16'
+													preserveAspectRatio='xMidYMid meet'
+													viewBox='0 0 16 16'>
+													<g fill='white'>
+														<path d='M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z' />
+													</g>
 												</svg>
 											</div>
 											<NavLink
@@ -448,81 +356,13 @@ export const ProjectSidebar = ({
 												</span>
 											</NavLink>
 										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Filter 2
-												</span>
-											</NavLink>
-										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Filter 3
-												</span>
-											</NavLink>
-										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Filter 4
-												</span>
-											</NavLink>
-										</li>
 									</ul>
 								</div>
 							</React.Fragment>
 						)
 					}}
 				</ProjectLinkGroup>
+				{/* States */}
 				<ProjectLinkGroup activecondition={pathname.includes('')}>
 					{(handleClick, open) => {
 						return (

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDragOver } from '@minoru/react-dnd-treeview'
 import { TypeIcon } from './TypeIcon'
-import styles from './CustomNode.module.css'
+import styles from './css/CustomNode.module.css'
 
 export const CustomNode = (props) => {
 	const { id, droppable, data } = props.node

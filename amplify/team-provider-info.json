@@ -14,12 +14,6 @@
     "categories": {
       "auth": {
         "dashboard42b506ef": {}
-      },
-      "storage": {
-        "dashboard36e8ab10": {
-          "bucketName": "synglyphx",
-          "region": "us-east-1"
-        }
       }
     }
   }
