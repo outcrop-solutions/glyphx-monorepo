@@ -6,7 +6,10 @@ import { CustomNode } from './CustomNode'
 import { CustomDragPreview } from './CustomDragPreview'
 import { API, graphqlOperation } from 'aws-amplify'
 import { listFilters, listStates } from '../../graphql/queries'
+import { createFilter } from '../../graphql/mutations'
+import { v4 as uuid } from 'uuid'
 import styles from './css/Sidebar.module.css'
+import { min } from 'moment'
 
 export const ProjectSidebar = ({
 	project,
@@ -64,6 +67,34 @@ export const ProjectSidebar = ({
 		fetchFilters()
 		fetchStates()
 	}, [])
+
+	// useEffect(() => {
+	// 	const saveFilters = async () => {
+	// 		for (let i = 0; i < columns.length; i++) {
+	// 			let projectID = '735d8888-b804-4228-a5db-fbd5358b6c16'
+	// 			let projectID2 = '9394cf22-e8e8-42db-ac39-87c7dc974cb7'
+	// 			let projectID3 = 'd1b8ac16-6e54-44c5-8100-600ef79e6a5f'
+	// 			const createFilterInput = {
+	// 				id: uuid(),
+	// 				name: columns[i].name,
+	// 				min: columns[i].min,
+	// 				max: columns[i].max,
+	// 				projectID: i < 7 ? projectID : i < 12 ? projectID2 : projectID3,
+	// 			}
+
+	// 			try {
+	// 				console.log({ createFilterInput })
+	// 				const result = await API.graphql(
+	// 					graphqlOperation(createFilter, { input: createFilterInput })
+	// 				)
+	// 				console.log({ result })
+	// 			} catch (error) {
+	// 				console.log({ error })
+	// 			}
+	// 		}
+	// 	}
+	// 	saveFilters()
+	// }, [columns])
 
 	// close on click outside
 	useEffect(() => {
@@ -196,7 +227,7 @@ export const ProjectSidebar = ({
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
 													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400 ${
-														open ? 'rotate-90' : '-rotate-90'
+														open ? 'rotate-0' : '-rotate-90'
 													}`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
@@ -361,7 +392,7 @@ export const ProjectSidebar = ({
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
 													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400 ${
-														open ? 'rotate-90' : '-rotate-90'
+														open ? 'rotate-0' : '-rotate-90'
 													}`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
@@ -373,7 +404,7 @@ export const ProjectSidebar = ({
 										</div>
 									</div>
 								</a>
-								{columns.length > 0 && (
+								{filters.length > 0 && (
 									<div
 										className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2  ${
 											!open ? 'border-0 -my-2' : 'border-b border-gray-400'
@@ -383,7 +414,7 @@ export const ProjectSidebar = ({
 											className={`pl-2 mt-1 overflow-auto ${
 												!open && 'hidden'
 											}`}>
-											{columns.map((item, idx) => (
+											{filters.map((item, idx) => (
 												<li className='mb-1 last:mb-0 flex'>
 													<div className='flex items-center justify-center h-6 w-6'>
 														<svg
@@ -443,7 +474,7 @@ export const ProjectSidebar = ({
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
 													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400 ${
-														open ? 'rotate-90' : '-rotate-90'
+														open ? 'rotate-0' : '-rotate-90'
 													}`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
