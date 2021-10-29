@@ -23,7 +23,9 @@ export const onCreateProject = /* GraphQL */ `
       filters {
         items {
           id
-          title
+          name
+          min
+          max
           projectID
           createdAt
           updatedAt
@@ -57,7 +59,9 @@ export const onUpdateProject = /* GraphQL */ `
       filters {
         items {
           id
-          title
+          name
+          min
+          max
           projectID
           createdAt
           updatedAt
@@ -91,7 +95,9 @@ export const onDeleteProject = /* GraphQL */ `
       filters {
         items {
           id
-          title
+          name
+          min
+          max
           projectID
           createdAt
           updatedAt
@@ -128,9 +134,19 @@ export const onCreateState = /* GraphQL */ `
       comments {
         items {
           id
-          stateID
           author
+          stateID
           content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      filters {
+        items {
+          id
+          stateID
+          filterID
           createdAt
           updatedAt
         }
@@ -166,9 +182,19 @@ export const onUpdateState = /* GraphQL */ `
       comments {
         items {
           id
-          stateID
           author
+          stateID
           content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      filters {
+        items {
+          id
+          stateID
+          filterID
           createdAt
           updatedAt
         }
@@ -204,9 +230,19 @@ export const onDeleteState = /* GraphQL */ `
       comments {
         items {
           id
-          stateID
           author
+          stateID
           content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      filters {
+        items {
+          id
+          stateID
+          filterID
           createdAt
           updatedAt
         }
@@ -217,90 +253,12 @@ export const onDeleteState = /* GraphQL */ `
     }
   }
 `;
-export const onCreateFilter = /* GraphQL */ `
-  subscription OnCreateFilter {
-    onCreateFilter {
-      id
-      title
-      projectID
-      project {
-        id
-        name
-        description
-        filePath
-        owner
-        states {
-          nextToken
-        }
-        filters {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onUpdateFilter = /* GraphQL */ `
-  subscription OnUpdateFilter {
-    onUpdateFilter {
-      id
-      title
-      projectID
-      project {
-        id
-        name
-        description
-        filePath
-        owner
-        states {
-          nextToken
-        }
-        filters {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onDeleteFilter = /* GraphQL */ `
-  subscription OnDeleteFilter {
-    onDeleteFilter {
-      id
-      title
-      projectID
-      project {
-        id
-        name
-        description
-        filePath
-        owner
-        states {
-          nextToken
-        }
-        filters {
-          nextToken
-        }
-        createdAt
-        updatedAt
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const onCreateComment = /* GraphQL */ `
-  subscription OnCreateComment {
-    onCreateComment {
+export const onCreateStateFilter = /* GraphQL */ `
+  subscription OnCreateStateFilter {
+    onCreateStateFilter {
       id
       stateID
-      author
+      filterID
       state {
         id
         title
@@ -316,6 +274,288 @@ export const onCreateComment = /* GraphQL */ `
           updatedAt
         }
         comments {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      filter {
+        id
+        name
+        min
+        max
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          owner
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateStateFilter = /* GraphQL */ `
+  subscription OnUpdateStateFilter {
+    onUpdateStateFilter {
+      id
+      stateID
+      filterID
+      state {
+        id
+        title
+        description
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          owner
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      filter {
+        id
+        name
+        min
+        max
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          owner
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteStateFilter = /* GraphQL */ `
+  subscription OnDeleteStateFilter {
+    onDeleteStateFilter {
+      id
+      stateID
+      filterID
+      state {
+        id
+        title
+        description
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          owner
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      filter {
+        id
+        name
+        min
+        max
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          owner
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateFilter = /* GraphQL */ `
+  subscription OnCreateFilter {
+    onCreateFilter {
+      id
+      name
+      min
+      max
+      projectID
+      project {
+        id
+        name
+        description
+        filePath
+        owner
+        states {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      states {
+        items {
+          id
+          stateID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateFilter = /* GraphQL */ `
+  subscription OnUpdateFilter {
+    onUpdateFilter {
+      id
+      name
+      min
+      max
+      projectID
+      project {
+        id
+        name
+        description
+        filePath
+        owner
+        states {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      states {
+        items {
+          id
+          stateID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteFilter = /* GraphQL */ `
+  subscription OnDeleteFilter {
+    onDeleteFilter {
+      id
+      name
+      min
+      max
+      projectID
+      project {
+        id
+        name
+        description
+        filePath
+        owner
+        states {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      states {
+        items {
+          id
+          stateID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateComment = /* GraphQL */ `
+  subscription OnCreateComment {
+    onCreateComment {
+      id
+      author
+      stateID
+      state {
+        id
+        title
+        description
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          owner
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        filters {
           nextToken
         }
         createdAt
@@ -331,8 +571,8 @@ export const onUpdateComment = /* GraphQL */ `
   subscription OnUpdateComment {
     onUpdateComment {
       id
-      stateID
       author
+      stateID
       state {
         id
         title
@@ -350,6 +590,9 @@ export const onUpdateComment = /* GraphQL */ `
         comments {
           nextToken
         }
+        filters {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -363,8 +606,8 @@ export const onDeleteComment = /* GraphQL */ `
   subscription OnDeleteComment {
     onDeleteComment {
       id
-      stateID
       author
+      stateID
       state {
         id
         title
@@ -380,6 +623,9 @@ export const onDeleteComment = /* GraphQL */ `
           updatedAt
         }
         comments {
+          nextToken
+        }
+        filters {
           nextToken
         }
         createdAt

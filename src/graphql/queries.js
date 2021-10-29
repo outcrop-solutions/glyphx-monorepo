@@ -23,7 +23,9 @@ export const getProject = /* GraphQL */ `
       filters {
         items {
           id
-          title
+          name
+          min
+          max
           projectID
           createdAt
           updatedAt
@@ -86,9 +88,19 @@ export const getState = /* GraphQL */ `
       comments {
         items {
           id
-          stateID
           author
+          stateID
           content
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      filters {
+        items {
+          id
+          stateID
+          filterID
           createdAt
           updatedAt
         }
@@ -123,6 +135,9 @@ export const listStates = /* GraphQL */ `
         comments {
           nextToken
         }
+        filters {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -134,7 +149,9 @@ export const getFilter = /* GraphQL */ `
   query GetFilter($id: ID!) {
     getFilter(id: $id) {
       id
-      title
+      name
+      min
+      max
       projectID
       project {
         id
@@ -151,6 +168,16 @@ export const getFilter = /* GraphQL */ `
         createdAt
         updatedAt
       }
+      states {
+        items {
+          id
+          stateID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -165,7 +192,9 @@ export const listFilters = /* GraphQL */ `
     listFilters(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        title
+        name
+        min
+        max
         projectID
         project {
           id
@@ -175,6 +204,9 @@ export const listFilters = /* GraphQL */ `
           owner
           createdAt
           updatedAt
+        }
+        states {
+          nextToken
         }
         createdAt
         updatedAt
@@ -187,8 +219,8 @@ export const getComment = /* GraphQL */ `
   query GetComment($id: ID!) {
     getComment(id: $id) {
       id
-      stateID
       author
+      stateID
       state {
         id
         title
@@ -204,6 +236,9 @@ export const getComment = /* GraphQL */ `
           updatedAt
         }
         comments {
+          nextToken
+        }
+        filters {
           nextToken
         }
         createdAt
@@ -224,8 +259,8 @@ export const listComments = /* GraphQL */ `
     listComments(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        stateID
         author
+        stateID
         state {
           id
           title
@@ -235,40 +270,6 @@ export const listComments = /* GraphQL */ `
           updatedAt
         }
         content
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const projectByOwner = /* GraphQL */ `
-  query ProjectByOwner(
-    $owner: String
-    $sortDirection: ModelSortDirection
-    $filter: ModelProjectFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    projectByOwner(
-      owner: $owner
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        name
-        description
-        filePath
-        owner
-        states {
-          nextToken
-        }
-        filters {
-          nextToken
-        }
         createdAt
         updatedAt
       }

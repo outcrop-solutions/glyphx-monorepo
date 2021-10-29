@@ -119,7 +119,7 @@ export const Projects = ({
 
 	function processStorageList(results) {
 		const filesystem = {}
-		// https://stackoverflow.com/questions/44759750/how-can-i-create-a-nested-object-representation-of-a-folder-structure
+
 		const add = (source, target, item) => {
 			const elements = source.split('/')
 			const element = elements.shift()

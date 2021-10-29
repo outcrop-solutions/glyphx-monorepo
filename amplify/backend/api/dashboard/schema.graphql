@@ -1,10 +1,4 @@
-type Project
-	@model
-	@key(
-		name: "projectByOwner"
-		fields: ["owner"]
-		queryField: "projectByOwner"
-	) {
+type Project @model @key(name: "projectByOwner", fields: ["owner"]) {
 	id: ID!
 	name: String!
 	description: String!
@@ -21,19 +15,35 @@ type State @model @key(name: "byProject", fields: ["projectID"]) {
 	projectID: ID!
 	project: Project @connection(fields: ["projectID"])
 	comments: [Comment] @connection(keyName: "byState", fields: ["id"])
+	filters: [StateFilter] @connection(keyName: "byState", fields: ["id"])
+}
+
+# join table with queries disabled to create many:many relationship between filters and states
+type StateFilter
+	@model(queries: null)
+	@key(name: "byState", fields: ["stateID", "filterID"])
+	@key(name: "byFilter", fields: ["filterID", "stateID"]) {
+	id: ID!
+	stateID: ID!
+	filterID: ID!
+	state: State! @connection(fields: ["stateID"])
+	filter: Filter! @connection(fields: ["filterID"])
 }
 
 type Filter @model @key(name: "byProject", fields: ["projectID"]) {
 	id: ID!
-	title: String!
+	name: String!
+	min: Int
+	max: Int
 	projectID: ID!
 	project: Project @connection(fields: ["projectID"])
+	states: [StateFilter] @connection(keyName: "byFilter", fields: ["id"])
 }
 
 type Comment @model @key(name: "byState", fields: ["stateID", "content"]) {
 	id: ID!
-	stateID: ID!
 	author: String!
+	stateID: ID!
 	state: State @connection(fields: ["stateID"])
 	content: String!
 }
