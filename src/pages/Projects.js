@@ -64,7 +64,7 @@ export const Projects = ({
 			},
 		},
 	])
-	const [columns, setColumns] = useState({})
+	const [columns, setColumns] = useState([])
 	const [files, setFiles] = useState([])
 	const ref = useRef(null)
 	const pos = usePosition(ref)
@@ -112,7 +112,7 @@ export const Projects = ({
 				sidebarData.Body.text().then((string) => {
 					let { columns, properties } = JSON.parse(string)
 					setProperties({ ...properties })
-					setColumns({ ...columns })
+					setColumns([...columns])
 				})
 			} catch (error) {
 				console.log({ error })

@@ -4,6 +4,8 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { Tree } from '@minoru/react-dnd-treeview'
 import { CustomNode } from './CustomNode'
 import { CustomDragPreview } from './CustomDragPreview'
+import { API, graphqlOperation } from 'aws-amplify'
+import { listFilters, listStates } from '../../graphql/queries'
 import styles from './css/Sidebar.module.css'
 
 export const ProjectSidebar = ({
@@ -18,6 +20,9 @@ export const ProjectSidebar = ({
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [active, setActive] = useState('')
 
+	const [states, setStates] = useState([])
+	const [filters, setFilters] = useState([])
+
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
 
@@ -25,6 +30,40 @@ export const ProjectSidebar = ({
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
+
+	const fetchFilters = async () => {
+		try {
+			const filterData = await API.graphql(graphqlOperation(listFilters))
+			const filterList = filterData.data.listFilters.items
+
+			console.log({ filterList })
+			setFilters((prev) => {
+				let newData = [...filterList]
+				return newData
+			})
+		} catch (error) {
+			console.log('error on fetching filters', error)
+		}
+	}
+	const fetchStates = async () => {
+		try {
+			const stateData = await API.graphql(graphqlOperation(listStates))
+			const stateList = stateData.data.listStates.items
+
+			console.log({ stateList })
+			setStates((prev) => {
+				let newData = [...stateList]
+				return newData
+			})
+		} catch (error) {
+			console.log('error on fetching states', error)
+		}
+	}
+
+	useEffect(() => {
+		fetchFilters()
+		fetchStates()
+	}, [])
 
 	// close on click outside
 	useEffect(() => {
@@ -78,7 +117,9 @@ export const ProjectSidebar = ({
 							<React.Fragment>
 								<a
 									href='#0'
-									className={`block text-gray-200 hover:text-white truncate border-gray-400 border-b transition duration-150 ${
+									className={`block text-gray-200 hover:text-white truncate border-gray-400 ${
+										Object.keys(fileSystem).length > 0 ? '' : 'border-b'
+									} transition duration-150 ${
 										pathname.includes('') && 'hover:text-gray-200'
 									}`}
 									onClick={(e) => {
@@ -90,9 +131,9 @@ export const ProjectSidebar = ({
 											{/* Icon */}
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
-													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current text-gray-400 ${
-														open && 'transform rotate-180'
-													}`}
+													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400
+														rotate-90
+													`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
 												</svg>
@@ -105,7 +146,7 @@ export const ProjectSidebar = ({
 								</a>
 								<div
 									className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 pl-3 ${
-										!open ? 'border-0 -my-2' : 'border-b border-gray-400'
+										!open ? 'border-0' : 'border-b border-gray-400'
 									}`}>
 									<Tree
 										tree={fileSystem}
@@ -140,7 +181,9 @@ export const ProjectSidebar = ({
 							<React.Fragment>
 								<a
 									href='#0'
-									className={`block text-gray-200 hover:text-white truncate border-gray-400 border-b transition duration-150 ${
+									className={`block text-gray-200 hover:text-white truncate border-gray-400 ${
+										open ? '' : 'border-b border-gray-400'
+									} transition duration-150 ${
 										pathname.includes('') && 'hover:text-gray-200'
 									}`}
 									onClick={(e) => {
@@ -152,8 +195,8 @@ export const ProjectSidebar = ({
 											{/* Icon */}
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
-													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current text-gray-400 ${
-														open && 'transform rotate-180'
+													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400 ${
+														open ? 'rotate-90' : '-rotate-90'
 													}`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
@@ -178,19 +221,19 @@ export const ProjectSidebar = ({
 													viewBox='0 0 16 16'
 													fill='none'>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M8.99978 10.75C8.58557 10.75 8.24978 10.4142 8.24978 10V4.5C8.24978 4.08579 8.58557 3.75 8.99978 3.75C9.41399 3.75 9.74978 4.08579 9.74978 4.5V10C9.74978 10.4142 9.41399 10.75 8.99978 10.75Z'
 														fill='white'
 													/>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M3.8413 13.371C3.6157 13.0236 3.71443 12.5591 4.06182 12.3335L8.67451 9.338C9.0219 9.1124 9.4864 9.21113 9.71199 9.55852C9.93759 9.90591 9.83886 10.3704 9.49147 10.596L4.87878 13.5915C4.53139 13.8171 4.0669 13.7184 3.8413 13.371Z'
 														fill='white'
 													/>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M14.3413 13.379C14.1157 13.7264 13.6512 13.8251 13.3038 13.5995L8.69113 10.604C8.34374 10.3784 8.24501 9.91392 8.47061 9.56653C8.6962 9.21914 9.1607 9.12041 9.50809 9.34601L14.1208 12.3415C14.4682 12.5671 14.5669 13.0316 14.3413 13.379Z'
 														fill='white'
@@ -218,19 +261,19 @@ export const ProjectSidebar = ({
 													viewBox='0 0 16 16'
 													fill='none'>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M8.99978 10.75C8.58557 10.75 8.24978 10.4142 8.24978 10V4.5C8.24978 4.08579 8.58557 3.75 8.99978 3.75C9.41399 3.75 9.74978 4.08579 9.74978 4.5V10C9.74978 10.4142 9.41399 10.75 8.99978 10.75Z'
 														fill='white'
 													/>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M3.8413 13.371C3.6157 13.0236 3.71443 12.5591 4.06182 12.3335L8.67451 9.338C9.0219 9.1124 9.4864 9.21113 9.71199 9.55852C9.93759 9.90591 9.83886 10.3704 9.49147 10.596L4.87878 13.5915C4.53139 13.8171 4.0669 13.7184 3.8413 13.371Z'
 														fill='white'
 													/>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M14.3413 13.379C14.1157 13.7264 13.6512 13.8251 13.3038 13.5995L8.69113 10.604C8.34374 10.3784 8.24501 9.91392 8.47061 9.56653C8.6962 9.21914 9.1607 9.12041 9.50809 9.34601L14.1208 12.3415C14.4682 12.5671 14.5669 13.0316 14.3413 13.379Z'
 														fill='white'
@@ -258,19 +301,19 @@ export const ProjectSidebar = ({
 													viewBox='0 0 16 16'
 													fill='none'>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M8.99978 10.75C8.58557 10.75 8.24978 10.4142 8.24978 10V4.5C8.24978 4.08579 8.58557 3.75 8.99978 3.75C9.41399 3.75 9.74978 4.08579 9.74978 4.5V10C9.74978 10.4142 9.41399 10.75 8.99978 10.75Z'
 														fill='white'
 													/>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M3.8413 13.371C3.6157 13.0236 3.71443 12.5591 4.06182 12.3335L8.67451 9.338C9.0219 9.1124 9.4864 9.21113 9.71199 9.55852C9.93759 9.90591 9.83886 10.3704 9.49147 10.596L4.87878 13.5915C4.53139 13.8171 4.0669 13.7184 3.8413 13.371Z'
 														fill='white'
 													/>
 													<path
-														fill-rule='evenodd'
+														fillRule='evenodd'
 														clip-rule='evenodd'
 														d='M14.3413 13.379C14.1157 13.7264 13.6512 13.8251 13.3038 13.5995L8.69113 10.604C8.34374 10.3784 8.24501 9.91392 8.47061 9.56653C8.6962 9.21914 9.1607 9.12041 9.50809 9.34601L14.1208 12.3415C14.4682 12.5671 14.5669 13.0316 14.3413 13.379Z'
 														fill='white'
@@ -303,7 +346,9 @@ export const ProjectSidebar = ({
 							<React.Fragment>
 								<a
 									href='#0'
-									className={`block text-gray-200 hover:text-white truncate border-gray-400 border-b transition duration-150 ${
+									className={`block text-gray-200 hover:text-white truncate ${
+										open ? '' : 'border-b border-gray-400'
+									} transition duration-150 ${
 										pathname.includes('') && 'hover:text-gray-200'
 									}`}
 									onClick={(e) => {
@@ -315,8 +360,8 @@ export const ProjectSidebar = ({
 											{/* Icon */}
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
-													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current text-gray-400 ${
-														open && 'transform rotate-180'
+													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400 ${
+														open ? 'rotate-90' : '-rotate-90'
 													}`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
@@ -328,36 +373,50 @@ export const ProjectSidebar = ({
 										</div>
 									</div>
 								</a>
-								<div
-									className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 ${
-										!open ? 'border-0 -my-2' : 'border-b border-gray-400'
-									}`}>
-									<ul className={`pl-2 mt-1 ${!open && 'hidden'}`}>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													aria-hidden='true'
-													role='img'
-													width='16'
-													height='16'
-													preserveAspectRatio='xMidYMid meet'
-													viewBox='0 0 16 16'>
-													<g fill='white'>
-														<path d='M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z' />
-													</g>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Filter 1
-												</span>
-											</NavLink>
-										</li>
-									</ul>
-								</div>
+								{columns.length > 0 && (
+									<div
+										className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2  ${
+											!open ? 'border-0 -my-2' : 'border-b border-gray-400'
+										}`}>
+										<ul
+											style={{ height: '200px' }}
+											className={`pl-2 mt-1 overflow-auto ${
+												!open && 'hidden'
+											}`}>
+											{columns.map((item, idx) => (
+												<li className='mb-1 last:mb-0 flex'>
+													<div className='flex items-center justify-center h-6 w-6'>
+														<svg
+															aria-hidden='true'
+															role='img'
+															width='16'
+															height='16'
+															preserveAspectRatio='xMidYMid meet'
+															viewBox='0 0 16 16'>
+															<g fill='white'>
+																<path d='M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z' />
+															</g>
+														</svg>
+													</div>
+													<NavLink
+														exact
+														to='/'
+														className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
+														<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
+															{item.name}
+														</span>
+														<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
+															Min {item.min}
+														</span>
+														<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
+															Max {item.max}
+														</span>
+													</NavLink>
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
 							</React.Fragment>
 						)
 					}}
@@ -369,7 +428,9 @@ export const ProjectSidebar = ({
 							<React.Fragment>
 								<a
 									href='#0'
-									className={`block text-gray-200 hover:text-white truncate border-gray-400 border-b transition duration-150 ${
+									className={`block text-gray-200 hover:text-white truncate ${
+										open ? '' : 'border-b border-gray-400'
+									} transition duration-150 ${
 										pathname.includes('') && 'hover:text-gray-200'
 									}`}
 									onClick={(e) => {
@@ -381,8 +442,8 @@ export const ProjectSidebar = ({
 											{/* Icon */}
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
-													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current text-gray-400 ${
-														open && 'transform rotate-180'
+													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400 ${
+														open ? 'rotate-90' : '-rotate-90'
 													}`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
@@ -394,82 +455,40 @@ export const ProjectSidebar = ({
 										</div>
 									</div>
 								</a>
-								<div
-									className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 ${
-										!open ? 'border-0 -my-2' : 'border-b border-gray-400'
-									}`}>
-									<ul className={`pl-2 mt-1 ${!open && 'hidden'}`}>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													High Shipping Spend
-												</span>
-											</NavLink>
-										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Cost Center Revenue Dip
-												</span>
-											</NavLink>
-										</li>
-										<li className='mb-1 last:mb-0 flex'>
-											<div className='flex items-center justify-center h-6 w-6'>
-												<svg
-													width='24'
-													height='24'
-													viewBox='0 0 24 24'
-													fill='none'
-													xmlns='http://www.w3.org/2000/svg'>
-													<path
-														d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
-														fill='white'
-													/>
-												</svg>
-											</div>
-											<NavLink
-												exact
-												to='/'
-												className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-												<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-													Shipping Center Inneficiency
-												</span>
-											</NavLink>
-										</li>
-									</ul>
-								</div>
+								{states.length > 0 && (
+									<div
+										className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 ${
+											!open ? 'border-0 -my-2' : 'border-b border-gray-400'
+										}`}>
+										<ul className={`pl-2 mt-1 ${!open && 'hidden'}`}>
+											{states.map((item, idx) => (
+												<li className='mb-1 last:mb-0 flex'>
+													<div className='flex items-center justify-center h-6 w-6'>
+														<svg
+															width='24'
+															height='24'
+															viewBox='0 0 24 24'
+															fill='none'
+															xmlns='http://www.w3.org/2000/svg'>
+															<path
+																d='M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z'
+																fill='white'
+															/>
+														</svg>
+													</div>
+													<NavLink
+														exact
+														to='/'
+														className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
+														<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
+															{item.title}
+														</span>
+													</NavLink>
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
 							</React.Fragment>
 						)
 					}}

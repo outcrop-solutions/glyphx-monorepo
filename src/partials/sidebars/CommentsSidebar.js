@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import SidebarLinkGroup from '../SidebarLinkGroup'
 import { NavLink, useLocation } from 'react-router-dom'
+import { API, graphqlOperation } from 'aws-amplify'
+import { listComments } from '../../graphql/queries'
 
 import Image01 from '../../images/user-28-01.jpg'
 import Image02 from '../../images/user-28-02.jpg'
@@ -16,7 +18,7 @@ export const CommentsSidebar = ({ project, setPosition }) => {
 	const location = useLocation()
 	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(false)
-
+	const [comments, setComments] = useState([])
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
 
@@ -26,7 +28,24 @@ export const CommentsSidebar = ({ project, setPosition }) => {
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
+	const fetchComments = async () => {
+		try {
+			const commentData = await API.graphql(graphqlOperation(listComments))
+			const commentList = commentData.data.listComments.items
 
+			console.log({ commentList })
+			setComments((prev) => {
+				let newData = [...commentList]
+				return newData
+			})
+		} catch (error) {
+			console.log('error on fetching comments', error)
+		}
+	}
+
+	useEffect(() => {
+		fetchComments()
+	}, [])
 	useEffect(() => {
 		console.log({ position: sidebar.current.getBoundingClientRect() })
 		setPosition(sidebar.current.getBoundingClientRect())
@@ -103,37 +122,27 @@ export const CommentsSidebar = ({ project, setPosition }) => {
 					</div>
 				</div>
 
-				<div className='hidden comments-sidebar-expanded:block text-center mt-2'>
+				{/* <div className='hidden comments-sidebar-expanded:block text-center mt-2'>
 					Yesterday 6:31 PM
-				</div>
-				<div className='m-2 hidden comments-sidebar-expanded:block'>
-					<div className='flex justify-between mb-2'>
-						<div className='rounded-full bg-green-400 h-8 w-8 text-sm text-white flex items-center justify-center'>
-							WL
-						</div>
-						<div className='w-10/12 text-white'>
-							Please take a look at this when you get a chance. This SKU's
-							shipping cost is highly variable.
-						</div>
-					</div>
-					<div className='flex justify-between mb-2'>
-						<div className='rounded-full bg-blue-600 h-8 w-8 text-sm text-white flex items-center justify-center'>
-							MM
-						</div>
-						<div className='w-10/12 text-white'>
-							Thanks for pointing that out! The variation could come from the
-							factory change in 2020.
-						</div>
-					</div>
-					<div className='flex justify-between mb-2'>
-						<div className='rounded-full bg-yellow-400 h-8 w-8 text-sm text-white flex items-center justify-center'>
-							HF
-						</div>
-						<div className='w-10/12 text-white'>
-							We confirmed that the shipping costs would remain sustainable
-							before making the switch
-						</div>
-					</div>
+				</div> */}
+				<div className='m-2 hidden comments-sidebar-expanded:block overflow-y-scroll'>
+					{comments.length > 0 ? (
+						<>
+							{comments.map((item, idx) => (
+								<div className='flex justify-between mb-2'>
+									<div
+										className={`rounded-full ${
+											idx % 2 === 0 ? 'bg-blue-600' : 'bg-yellow-400'
+										} h-8 w-8 text-sm text-white flex items-center justify-center`}>
+										{`${item.author.split('@')[0]} ${
+											item.author.split('@')[1]
+										}`}
+									</div>
+									<div className='w-10/12 text-white'>{item.content}</div>
+								</div>
+							))}
+						</>
+					) : null}
 				</div>
 			</ul>
 			{/* Expand / collapse button */}
