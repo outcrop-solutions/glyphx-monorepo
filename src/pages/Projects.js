@@ -75,6 +75,12 @@ export const Projects = ({
 	}, [pos])
 
 	useEffect(() => {
+		if(project && window.core){
+			window.core.OpenProject("open"); //sending open to test, would take signed-url normally
+		}
+	}, [project])
+
+	useEffect(() => {
 		let filePath = project.filePath
 		const signUrl = async () => {
 			try {
