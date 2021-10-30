@@ -8,7 +8,7 @@ export const getProject = /* GraphQL */ `
       name
       description
       filePath
-      owner
+      author
       states {
         items {
           id
@@ -49,7 +49,7 @@ export const listProjects = /* GraphQL */ `
         name
         description
         filePath
-        owner
+        author
         states {
           nextToken
         }
@@ -75,7 +75,7 @@ export const getState = /* GraphQL */ `
         name
         description
         filePath
-        owner
+        author
         states {
           nextToken
         }
@@ -128,7 +128,7 @@ export const listStates = /* GraphQL */ `
           name
           description
           filePath
-          owner
+          author
           createdAt
           updatedAt
         }
@@ -158,7 +158,7 @@ export const getFilter = /* GraphQL */ `
         name
         description
         filePath
-        owner
+        author
         states {
           nextToken
         }
@@ -201,7 +201,7 @@ export const listFilters = /* GraphQL */ `
           name
           description
           filePath
-          owner
+          author
           createdAt
           updatedAt
         }
@@ -231,7 +231,7 @@ export const getComment = /* GraphQL */ `
           name
           description
           filePath
-          owner
+          author
           createdAt
           updatedAt
         }

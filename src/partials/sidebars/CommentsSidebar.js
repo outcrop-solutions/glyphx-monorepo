@@ -1,33 +1,70 @@
 import React, { useState, useEffect, useRef } from 'react'
-import SidebarLinkGroup from '../SidebarLinkGroup'
-import { NavLink, useLocation } from 'react-router-dom'
+import { v4 as uuid } from 'uuid'
+import { useLocation } from 'react-router-dom'
 import { API, graphqlOperation } from 'aws-amplify'
 import { listComments } from '../../graphql/queries'
 
-import Image01 from '../../images/user-28-01.jpg'
-import Image02 from '../../images/user-28-02.jpg'
-import Image03 from '../../images/user-28-03.jpg'
-import Image04 from '../../images/user-28-04.jpg'
-import Image05 from '../../images/user-28-05.jpg'
-import Image06 from '../../images/user-28-06.jpg'
-import Image07 from '../../images/user-28-07.jpg'
-import Image09 from '../../images/user-28-09.jpg'
-import Image11 from '../../images/user-28-11.jpg'
-
-export const CommentsSidebar = ({ project, setPosition }) => {
+export const CommentsSidebar = ({ project, setPosition, user }) => {
 	const location = useLocation()
 	const { pathname } = location
+
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [comments, setComments] = useState([])
-	const trigger = useRef(null)
-	const sidebar = useRef(null)
-
-	const storedSidebarExpanded = localStorage.getItem(
-		'comments-sidebar-expanded'
-	)
+	const [commentContent, setCommentContent] = useState('')
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
+
+	const trigger = useRef(null)
+	const sidebar = useRef(null)
+	const commentRef = useRef(null)
+
+	// get sidebar exapanded from local storage
+	const storedSidebarExpanded = localStorage.getItem(
+		'comments-sidebar-expanded'
+	)
+
+	useEffect(() => {
+		fetchComments()
+	}, []) //fetch comments
+	useEffect(() => {
+		console.log({ position: sidebar.current.getBoundingClientRect() })
+		setPosition(sidebar.current.getBoundingClientRect())
+	}, [sidebar]) //get rectangle bounding box coordinates
+	useEffect(() => {
+		const clickHandler = ({ target }) => {
+			if (!sidebar.current || !trigger.current) return
+			if (
+				!sidebarOpen ||
+				sidebar.current.contains(target) ||
+				trigger.current.contains(target)
+			)
+				return
+			setSidebarOpen(false)
+		}
+		document.addEventListener('click', clickHandler)
+		return () => document.removeEventListener('click', clickHandler)
+	}) // close on click outside
+	useEffect(() => {
+		const keyHandler = ({ keyCode }) => {
+			if (!sidebarOpen || keyCode !== 221) return
+			setSidebarOpen(false)
+		}
+		document.addEventListener('keydown', keyHandler)
+		return () => document.removeEventListener('keydown', keyHandler)
+	}) // close if the esc key is pressed
+	useEffect(() => {
+		localStorage.setItem('comments-sidebar-expanded', sidebarExpanded)
+		if (sidebarExpanded) {
+			document.querySelector('body').classList.add('comments-sidebar-expanded')
+		} else {
+			document
+				.querySelector('body')
+				.classList.remove('comments-sidebar-expanded')
+		}
+	}, [sidebarExpanded]) //handle sidebar local storage
+
+	// fetch commetn data
 	const fetchComments = async () => {
 		try {
 			const commentData = await API.graphql(graphqlOperation(listComments))
@@ -43,54 +80,19 @@ export const CommentsSidebar = ({ project, setPosition }) => {
 		}
 	}
 
-	useEffect(() => {
-		fetchComments()
-	}, [])
-	useEffect(() => {
-		console.log({ position: sidebar.current.getBoundingClientRect() })
-		setPosition(sidebar.current.getBoundingClientRect())
-	}, [sidebar])
-	// close on click outside
-	useEffect(() => {
-		const clickHandler = ({ target }) => {
-			if (!sidebar.current || !trigger.current) return
-			if (
-				!sidebarOpen ||
-				sidebar.current.contains(target) ||
-				trigger.current.contains(target)
-			)
-				return
-			setSidebarOpen(false)
+	const handleComment = (e) => {
+		let commentInput = {
+			id: uuid(),
+			author: user.attributes.email,
+			content: commentContent,
 		}
-		document.addEventListener('click', clickHandler)
-		return () => document.removeEventListener('click', clickHandler)
-	})
+	}
 
-	// close if the esc key is pressed
-	useEffect(() => {
-		const keyHandler = ({ keyCode }) => {
-			if (!sidebarOpen || keyCode !== 221) return
-			setSidebarOpen(false)
-		}
-		document.addEventListener('keydown', keyHandler)
-		return () => document.removeEventListener('keydown', keyHandler)
-	})
-	useEffect(() => {
-		localStorage.setItem('comments-sidebar-expanded', sidebarExpanded)
-		if (sidebarExpanded) {
-			document.querySelector('body').classList.add('comments-sidebar-expanded')
-		} else {
-			document
-				.querySelector('body')
-				.classList.remove('comments-sidebar-expanded')
-		}
-	}, [sidebarExpanded])
 	return (
-		// <div className=''>
 		<div
 			id='sidebar'
 			ref={sidebar}
-			className={`hidden lg:flex flex-col absolute z-40 right-0 top-0 lg:static border-l border-gray-400 lg:right-auto lg:top-auto lg:translate-x-0 transform h-full no-scrollbar w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 2xl:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
+			className={`hidden lg:flex flex-col absolute z-40 right-0 top-0 lg:static border-l border-gray-400 lg:right-auto lg:top-auto lg:translate-x-0 transform h-full no-scrollbar w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
 				sidebarOpen ? 'translate-y-64' : 'translate-x-0'
 			}`}>
 			<ul>
@@ -134,19 +136,28 @@ export const CommentsSidebar = ({ project, setPosition }) => {
 										className={`rounded-full ${
 											idx % 2 === 0 ? 'bg-blue-600' : 'bg-yellow-400'
 										} h-8 w-8 text-sm text-white flex items-center justify-center`}>
-										{`${item.author.split('@')[0]} ${
-											item.author.split('@')[1]
-										}`}
+										{`${item.author.split('@')[0][0].toUpperCase()}`}
 									</div>
-									<div className='w-10/12 text-white'>{item.content}</div>
+									<div className='w-10/12 text-white text-xs'>
+										{item.content}
+									</div>
 								</div>
 							))}
 						</>
 					) : null}
+					<div className='relative'>
+						<input
+							className='w-full border-0  bg-transparent focus:ring-transparent placeholder-gray-400 appearance-none py-3 pl-10 pr-4'
+							type='comment'
+							onChange={handleComment}
+							placeholder='Type comments…'
+							ref={commentRef}
+						/>
+					</div>
 				</div>
 			</ul>
 			{/* Expand / collapse button */}
-			<div className='pt-3 hidden lg:inline-flex 2xl:hidden justify-center comments-sidebar-expanded:justify-start pb-4 mt-auto'>
+			<div className='pt-3 hidden lg:inline-flex justify-center comments-sidebar-expanded:justify-start pb-4 mt-auto'>
 				<div className='px-3 py-2'>
 					<button onClick={() => setSidebarExpanded(!sidebarExpanded)}>
 						<span className='sr-only'>Expand / collapse sidebar</span>
@@ -163,7 +174,6 @@ export const CommentsSidebar = ({ project, setPosition }) => {
 				</div>
 			</div>
 		</div>
-		// </div>
 	)
 }
 export default CommentsSidebar

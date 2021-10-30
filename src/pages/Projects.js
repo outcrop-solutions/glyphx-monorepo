@@ -176,6 +176,7 @@ export const Projects = ({
 								<div className='w-full flex'>
 									<div ref={ref} className='min-w-0 flex-auto'></div>
 									<CommentsSidebar
+										user={user}
 										project={project}
 										setPosition={setPosition}
 									/>

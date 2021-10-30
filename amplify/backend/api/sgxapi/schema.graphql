@@ -1,14 +1,20 @@
-type Project @model @key(name: "projectByOwner", fields: ["owner"]) {
+type Project
+	@model
+	@auth(rules: [{ allow: private }])
+	@key(name: "projectByAuthor", fields: ["author"]) {
 	id: ID!
 	name: String!
 	description: String!
 	filePath: String
-	owner: String!
+	author: String!
 	states: [State] @connection(keyName: "byProject", fields: ["id"])
 	filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
 }
 
-type State @model @key(name: "byProject", fields: ["projectID"]) {
+type State
+	@model
+	@auth(rules: [{ allow: private }])
+	@key(name: "byProject", fields: ["projectID"]) {
 	id: ID!
 	title: String!
 	description: String!
@@ -20,6 +26,7 @@ type State @model @key(name: "byProject", fields: ["projectID"]) {
 
 type StateFilter
 	@model(queries: null)
+	@auth(rules: [{ allow: private }])
 	@key(name: "byState", fields: ["stateID", "filterID"])
 	@key(name: "byFilter", fields: ["filterID", "stateID"]) {
 	id: ID!
@@ -29,7 +36,10 @@ type StateFilter
 	filter: Filter! @connection(fields: ["filterID"])
 }
 
-type Filter @model @key(name: "byProject", fields: ["projectID"]) {
+type Filter
+	@model
+	@auth(rules: [{ allow: private }])
+	@key(name: "byProject", fields: ["projectID"]) {
 	id: ID!
 	name: String!
 	min: String!
@@ -39,7 +49,10 @@ type Filter @model @key(name: "byProject", fields: ["projectID"]) {
 	states: [StateFilter] @connection(keyName: "byFilter", fields: ["id"])
 }
 
-type Comment @model @key(name: "byState", fields: ["stateID", "content"]) {
+type Comment
+	@model
+	@auth(rules: [{ allow: private }])
+	@key(name: "byState", fields: ["stateID", "content"]) {
 	id: ID!
 	author: String!
 	stateID: ID!
