@@ -29,7 +29,7 @@ function Header({
 	return (
 		<header
 			className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-gray-900 max-h-16 ${
-				project ? 'ml-0 mr-6' : 'mx-6'
+				project ? 'ml-0' : 'mx-6'
 			}`}>
 			<div
 				className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
@@ -92,7 +92,7 @@ function Header({
 						{/* <FilterButton align='right' /> */}
 					</form>
 					{/* Header: Right side */}
-					<div className='flex items-center space-x-3'>
+					<div className='flex items-center space-x-3 mr-6'>
 						<SearchModal
 							id='search-modal'
 							searchId='search'
