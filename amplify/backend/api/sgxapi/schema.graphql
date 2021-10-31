@@ -7,14 +7,14 @@ type Project
 	description: String!
 	filePath: String
 	author: String!
-	states: [State] @connection(keyName: "byProject", fields: ["id"])
+	states: [State] @connection(keyName: "byProj", fields: ["id"])
 	filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
 }
 
 type State
 	@model
 	@auth(rules: [{ allow: private }])
-	@key(name: "byProject", fields: ["projectID"]) {
+	@key(name: "byProj", fields: ["projectID"]) {
 	id: ID!
 	title: String!
 	description: String!

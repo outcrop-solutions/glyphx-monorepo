@@ -73,7 +73,6 @@ function App() {
 		var baseUrl = 'ws://localhost:12345'
 		openSocket(baseUrl)
 	}, [location.pathname]) // handle scroll position on route change
-
 	useEffect(() => {
 		if (sendDrawerPosition) {
 			window.core.SendDrawerPosition(JSON.stringify(position))
@@ -95,6 +94,7 @@ function App() {
 	const fetchProjects = async () => {
 		try {
 			const projectData = await API.graphql(graphqlOperation(listProjects))
+			console.log({ projectData })
 			const projectList = projectData.data.listProjects.items
 
 			console.log({ projectList })

@@ -74,6 +74,7 @@ export const Projects = ({
 		setPosition(pos)
 	}, [pos])
 
+	const [showAddProject, setShowAddProject] = useState(false)
 	useEffect(() => {
 		if (project && window.core) {
 			window.core.OpenProject('open') //sending open to test, would take signed-url normally
@@ -154,6 +155,8 @@ export const Projects = ({
 			<div className='relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
 				{/*  Site header */}
 				<Header
+					showAddProject={showAddProject}
+					setShowAddProject={setShowAddProject}
 					setLoggedIn={setLoggedIn}
 					project={project}
 					sidebarOpen={sidebarOpen}
@@ -188,6 +191,8 @@ export const Projects = ({
 									<TableView />
 								) : (
 									<GridView
+										showAddProject={showAddProject}
+										setShowAddProject={setShowAddProject}
 										user={user}
 										projects={projects}
 										setProject={setProject}

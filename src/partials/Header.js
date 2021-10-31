@@ -5,6 +5,7 @@ import Notifications from '../components/DropdownNotifications'
 import Help from '../components/DropdownHelp'
 import SearchForm from './actions/SearchForm'
 import { Auth } from 'aws-amplify'
+import FilterButton from '../components/DropdownFilter'
 // import { AmplifySignOut } from '@aws-amplify/ui-react'
 
 function Header({
@@ -14,6 +15,7 @@ function Header({
 	grid,
 	setGrid,
 	project,
+	setShowAddProject,
 }) {
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
 	const signOut = async () => {
@@ -59,7 +61,36 @@ function Header({
 					</div>
 
 					{/* Search form */}
-					<SearchForm placeholder='Search GlyphX' />
+					{/* <SearchForm placeholder='Search GlyphX' /> */}
+					<form
+						onClick={(e) => {
+							e.stopPropagation()
+							setSearchModalOpen(true)
+						}}
+						className='relative bg-gray-400 bg-opacity-5 rounded-md hover:border-gray-300 hover:text-gray-600 z-60'>
+						<label htmlFor='action-search' className='sr-only'>
+							Search
+						</label>
+						<input
+							id='action-search'
+							className='form-input pl-9 border-transparent w-96 bg-transparent'
+							type='search'
+							placeholder='Search Glyphx'
+						/>
+						<button
+							className='absolute inset-0 right-auto group'
+							type='submit'
+							aria-label='Search'>
+							<svg
+								className='w-4 h-4 flex-shrink-0 fill-current text-white group-hover:text-gray-500 ml-3 mr-2'
+								viewBox='0 0 16 16'
+								xmlns='http://www.w3.org/2000/svg'>
+								<path d='M7 14c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zM7 2C4.243 2 2 4.243 2 7s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5z' />
+								<path d='M15.707 14.293L13.314 11.9a8.019 8.019 0 01-1.414 1.414l2.393 2.393a.997.997 0 001.414 0 .999.999 0 000-1.414z' />
+							</svg>
+						</button>
+						{/* <FilterButton align='right' /> */}
+					</form>
 					{/* Header: Right side */}
 					<div className='flex items-center space-x-3'>
 						<SearchModal
@@ -77,8 +108,8 @@ function Header({
 								searchModalOpen && 'bg-gray-200'
 							}`}
 							onClick={(e) => {
-								e.stopPropagation()
-								setSearchModalOpen(true)
+								// e.stopPropagation()
+								setShowAddProject(true)
 							}}
 							aria-controls='search-modal'>
 							<b className='text-gray-800 text-xs'>New Project</b>

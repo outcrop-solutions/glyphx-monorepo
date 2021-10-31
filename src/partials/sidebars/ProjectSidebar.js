@@ -67,36 +67,6 @@ export const ProjectSidebar = ({
 		fetchFilters()
 		fetchStates()
 	}, [])
-
-	// useEffect(() => {
-	// 	const saveFilters = async () => {
-	// 		for (let i = 0; i < columns.length; i++) {
-	// 			let projectID = '735d8888-b804-4228-a5db-fbd5358b6c16'
-	// 			let projectID2 = '9394cf22-e8e8-42db-ac39-87c7dc974cb7'
-	// 			let projectID3 = 'd1b8ac16-6e54-44c5-8100-600ef79e6a5f'
-	// 			const createFilterInput = {
-	// 				id: uuid(),
-	// 				name: columns[i].name,
-	// 				min: columns[i].min,
-	// 				max: columns[i].max,
-	// 				projectID: i < 7 ? projectID : i < 12 ? projectID2 : projectID3,
-	// 			}
-
-	// 			try {
-	// 				console.log({ createFilterInput })
-	// 				const result = await API.graphql(
-	// 					graphqlOperation(createFilter, { input: createFilterInput })
-	// 				)
-	// 				console.log({ result })
-	// 			} catch (error) {
-	// 				console.log({ error })
-	// 			}
-	// 		}
-	// 	}
-	// 	saveFilters()
-	// }, [columns])
-
-	// close on click outside
 	useEffect(() => {
 		const clickHandler = ({ target }) => {
 			if (!sidebar.current || !trigger.current) return
@@ -110,9 +80,7 @@ export const ProjectSidebar = ({
 		}
 		document.addEventListener('click', clickHandler)
 		return () => document.removeEventListener('click', clickHandler)
-	})
-
-	// close if the esc key is pressed
+	}) // close on click outside
 	useEffect(() => {
 		const keyHandler = ({ keyCode }) => {
 			if (!sidebarOpen || keyCode !== 219) return
@@ -120,7 +88,7 @@ export const ProjectSidebar = ({
 		}
 		document.addEventListener('keydown', keyHandler)
 		return () => document.removeEventListener('keydown', keyHandler)
-	})
+	}) // close if the esc key is pressed
 	useEffect(() => {
 		localStorage.setItem('project-sidebar-expanded', sidebarExpanded)
 		if (sidebarExpanded) {

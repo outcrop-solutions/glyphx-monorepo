@@ -7,6 +7,10 @@ import { listComments } from '../../graphql/queries'
 export const CommentsSidebar = ({ project, setPosition, user }) => {
 	const location = useLocation()
 	const { pathname } = location
+	// get sidebar exapanded from local storage
+	const storedSidebarExpanded = localStorage.getItem(
+		'comments-sidebar-expanded'
+	)
 
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [comments, setComments] = useState([])
@@ -18,11 +22,6 @@ export const CommentsSidebar = ({ project, setPosition, user }) => {
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
 	const commentRef = useRef(null)
-
-	// get sidebar exapanded from local storage
-	const storedSidebarExpanded = localStorage.getItem(
-		'comments-sidebar-expanded'
-	)
 
 	useEffect(() => {
 		fetchComments()
