@@ -131,7 +131,7 @@ export const ProjectSidebar = ({
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
 													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400
-														rotate-90
+														rotate-0
 													`}
 													viewBox='0 0 12 12'>
 													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
@@ -459,7 +459,9 @@ export const ProjectSidebar = ({
 										className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 ${
 											!open ? 'border-0 -my-2' : 'border-b border-gray-400'
 										}`}>
-										<ul className={`pl-2 mt-1 ${!open && 'hidden'}`}>
+										<ul
+											style={{ height: '200px' }}
+											className={`pl-2 mt-1 overflow-auto ${!open && 'hidden'}`}>
 											{states.map((item, idx) => (
 												<li className='mb-1 last:mb-0 flex'>
 													<div className='flex items-center justify-center h-6 w-6'>

@@ -42,52 +42,24 @@ function DropdownNotifications({ align, grid, setGrid }) {
 					'flex items-center justify-center hover:bg-gray-200 transition duration-150 rounded-full'
 				}
 				aria-haspopup='true'
-				// onClick={() => setDropdownOpen(!dropdownOpen)}
+				onClick={() => setDropdownOpen(!dropdownOpen)}
 				aria-expanded={dropdownOpen}>
 				<span className='sr-only'>Notifications</span>
-				{grid ? (
-					<svg
-						onClick={() => setGrid((prev) => !prev)}
-						width='24'
-						height='24'
-						viewBox='0 0 24 24'
-						fill='none'
-						xmlns='http://www.w3.org/2000/svg'>
-						<path
-							d='M6.5 11H9.5C10.325 11 11 10.325 11 9.5V6.5C11 5.675 10.325 5 9.5 5H6.5C5.675 5 5 5.675 5 6.5V9.5C5 10.325 5.675 11 6.5 11Z'
-							fill='white'
-						/>
-						<path
-							d='M6.5 19H9.5C10.325 19 11 18.325 11 17.5V14.5C11 13.675 10.325 13 9.5 13H6.5C5.675 13 5 13.675 5 14.5V17.5C5 18.325 5.675 19 6.5 19Z'
-							fill='white'
-						/>
-						<path
-							d='M13 6.5V9.5C13 10.325 13.675 11 14.5 11H17.5C18.325 11 19 10.325 19 9.5V6.5C19 5.675 18.325 5 17.5 5H14.5C13.675 5 13 5.675 13 6.5Z'
-							fill='white'
-						/>
-						<path
-							d='M14.5 19H17.5C18.325 19 19 18.325 19 17.5V14.5C19 13.675 18.325 13 17.5 13H14.5C13.675 13 13 13.675 13 14.5V17.5C13 18.325 13.675 19 14.5 19Z'
-							fill='white'
-						/>
-					</svg>
-				) : (
-					<svg
-						onClick={() => setGrid((prev) => !prev)}
-						width='24'
-						height='24'
-						viewBox='0 0 24 24'
-						fill='none'
-						xmlns='http://www.w3.org/2000/svg'>
-						<path
-							d='M4.88889 14H6.66667C7.15556 14 7.55556 13.6 7.55556 13.1111V11.3333C7.55556 10.8444 7.15556 10.4444 6.66667 10.4444H4.88889C4.4 10.4444 4 10.8444 4 11.3333V13.1111C4 13.6 4.4 14 4.88889 14ZM4.88889 18.4444H6.66667C7.15556 18.4444 7.55556 18.0444 7.55556 17.5556V15.7778C7.55556 15.2889 7.15556 14.8889 6.66667 14.8889H4.88889C4.4 14.8889 4 15.2889 4 15.7778V17.5556C4 18.0444 4.4 18.4444 4.88889 18.4444ZM4.88889 9.55556H6.66667C7.15556 9.55556 7.55556 9.15556 7.55556 8.66667V6.88889C7.55556 6.4 7.15556 6 6.66667 6H4.88889C4.4 6 4 6.4 4 6.88889V8.66667C4 9.15556 4.4 9.55556 4.88889 9.55556ZM9.33333 14H19.1111C19.6 14 20 13.6 20 13.1111V11.3333C20 10.8444 19.6 10.4444 19.1111 10.4444H9.33333C8.84444 10.4444 8.44444 10.8444 8.44444 11.3333V13.1111C8.44444 13.6 8.84444 14 9.33333 14ZM9.33333 18.4444H19.1111C19.6 18.4444 20 18.0444 20 17.5556V15.7778C20 15.2889 19.6 14.8889 19.1111 14.8889H9.33333C8.84444 14.8889 8.44444 15.2889 8.44444 15.7778V17.5556C8.44444 18.0444 8.84444 18.4444 9.33333 18.4444ZM8.44444 6.88889V8.66667C8.44444 9.15556 8.84444 9.55556 9.33333 9.55556H19.1111C19.6 9.55556 20 9.15556 20 8.66667V6.88889C20 6.4 19.6 6 19.1111 6H9.33333C8.84444 6 8.44444 6.4 8.44444 6.88889Z'
-							fill='white'
-						/>
-					</svg>
-				)}
+				<svg
+					width='13'
+					height='16'
+					viewBox='0 0 13 16'
+					fill='none'
+					xmlns='http://www.w3.org/2000/svg'>
+					<path
+						d='M12.2063 12.1354L11.1479 11.0769V6.97436C11.1479 4.45538 9.80224 2.34667 7.45557 1.78872V1.23077C7.45557 0.549744 6.90583 0 6.2248 0C5.54378 0 4.99403 0.549744 4.99403 1.23077V1.78872C2.63916 2.34667 1.30172 4.44718 1.30172 6.97436V11.0769L0.243263 12.1354C-0.27366 12.6523 0.0873658 13.5385 0.817622 13.5385H11.6238C12.3622 13.5385 12.7233 12.6523 12.2063 12.1354ZM9.50685 11.8974H2.94275V6.97436C2.94275 4.93949 4.18173 3.28205 6.2248 3.28205C8.26788 3.28205 9.50685 4.93949 9.50685 6.97436V11.8974ZM6.2248 16C7.12737 16 7.86583 15.2615 7.86583 14.359H4.58378C4.58378 15.2615 5.31403 16 6.2248 16Z'
+						fill='white'
+					/>
+				</svg>
 			</button>
 
 			<Transition
-				className={`origin-top-right z-10 absolute top-full -mr-48 sm:mr-0 min-w-80 bg-white border border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+				className={`origin-top-right z-10 absolute top-full -mr-48 sm:mr-0 min-w-80 bg-gray-900 border border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
 					align === 'right' ? 'right-0' : 'left-0'
 				}`}
 				show={dropdownOpen}
@@ -107,12 +79,12 @@ function DropdownNotifications({ align, grid, setGrid }) {
 					<ul>
 						<li className='border-b border-gray-200 last:border-0'>
 							<Link
-								className='block py-2 px-4 hover:bg-gray-50'
+								className='block py-2 px-4 hover:bg-gray-500'
 								to='#0'
 								onClick={() => setDropdownOpen(!dropdownOpen)}>
 								<span className='block text-sm mb-2'>
 									📣{' '}
-									<span className='font-medium text-gray-800'>
+									<span className='font-medium text-white'>
 										Edit your information in a swipe
 									</span>{' '}
 									Sint occaecat cupidatat non proident, sunt in culpa qui
@@ -125,12 +97,12 @@ function DropdownNotifications({ align, grid, setGrid }) {
 						</li>
 						<li className='border-b border-gray-200 last:border-0'>
 							<Link
-								className='block py-2 px-4 hover:bg-gray-50'
+								className='block py-2 px-4 hover:bg-gray-500'
 								to='#0'
 								onClick={() => setDropdownOpen(!dropdownOpen)}>
 								<span className='block text-sm mb-2'>
 									📣{' '}
-									<span className='font-medium text-gray-800'>
+									<span className='font-medium text-white'>
 										Edit your information in a swipe
 									</span>{' '}
 									Sint occaecat cupidatat non proident, sunt in culpa qui
@@ -143,12 +115,12 @@ function DropdownNotifications({ align, grid, setGrid }) {
 						</li>
 						<li className='border-b border-gray-200 last:border-0'>
 							<Link
-								className='block py-2 px-4 hover:bg-gray-50'
+								className='block py-2 px-4 hover:bg-gray-500'
 								to='#0'
 								onClick={() => setDropdownOpen(!dropdownOpen)}>
 								<span className='block text-sm mb-2'>
 									🚀
-									<span className='font-medium text-gray-800'>
+									<span className='font-medium text-white'>
 										Say goodbye to paper receipts!
 									</span>{' '}
 									Sint occaecat cupidatat non proident, sunt in culpa qui
