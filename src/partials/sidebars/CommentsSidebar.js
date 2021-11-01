@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { v4 as uuid } from 'uuid'
-import { useLocation } from 'react-router-dom'
+import { StaticRouter, useLocation } from 'react-router-dom'
 import { API, graphqlOperation } from 'aws-amplify'
 import { listComments } from '../../graphql/queries'
+import { createComment } from '../../graphql/mutations'
 
-export const CommentsSidebar = ({ project, setPosition, user }) => {
+export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 	const location = useLocation()
 	const { pathname } = location
 	// get sidebar exapanded from local storage
@@ -65,25 +66,51 @@ export const CommentsSidebar = ({ project, setPosition, user }) => {
 
 	// fetch commetn data
 	const fetchComments = async () => {
-		try {
-			const commentData = await API.graphql(graphqlOperation(listComments))
-			const commentList = commentData.data.listComments.items
+		if (typeof state !== 'undefined') {
+			try {
+				const queryParams = {
+					stateID: state.id,
+					sortDirection: 'DESC',
+				}
+				const commentData = await API.graphql(
+					graphqlOperation(listComments, queryParams)
+				)
+				const commentList = commentData.data.listComments.items
 
-			console.log({ commentList })
-			setComments((prev) => {
-				let newData = [...commentList]
-				return newData
-			})
-		} catch (error) {
-			console.log('error on fetching comments', error)
+				console.log({ commentList })
+				setComments((prev) => {
+					let newData = [...commentList]
+					return newData
+				})
+			} catch (error) {
+				console.log('error on fetching comments', error)
+			}
 		}
 	}
 
 	const handleComment = (e) => {
-		let commentInput = {
-			id: uuid(),
-			author: user.attributes.email,
-			content: commentContent,
+		setCommentContent(e.target.value)
+	}
+	const handleSaveComment = async () => {
+		if (typeof state !== 'undefined') {
+			let commentInput = {
+				id: uuid(),
+				author: user.attributes.email,
+				content: commentContent,
+				stateID: state.id,
+				// state: state,
+			}
+			console.log({ commentInput })
+			try {
+				console.log({ commentInput })
+				const commentData = await API.graphql(
+					graphqlOperation(createComment, { input: commentInput })
+				)
+
+				console.log({ commentData })
+			} catch (error) {
+				console.log({ error })
+			}
 		}
 	}
 
@@ -144,14 +171,34 @@ export const CommentsSidebar = ({ project, setPosition, user }) => {
 							))}
 						</>
 					) : null}
-					<div className='relative'>
+					<div
+						onKeyPress={(ev) => {
+							if (ev.key === 'Enter') {
+								ev.preventDefault()
+								handleSaveComment()
+							}
+						}}
+						className='relative flex items-center'>
 						<input
-							className='w-full border-0  bg-transparent focus:ring-transparent placeholder-gray-400 appearance-none py-3 pl-10 pr-4'
+							className='w-full border-0  bg-transparent focus:ring-transparent placeholder-gray-400 appearance-none py-3'
 							type='comment'
 							onChange={handleComment}
 							placeholder='Type comments…'
 							ref={commentRef}
 						/>
+						<svg
+							onClick={handleSaveComment}
+							aria-hidden='true'
+							role='img'
+							width='16'
+							height='16'
+							preserveAspectRatio='xMidYMid meet'
+							viewBox='0 0 24 24'>
+							<path
+								d='M21.426 11.095l-17-8A1 1 0 0 0 3.03 4.242l1.212 4.849L12 12l-7.758 2.909l-1.212 4.849a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81z'
+								fill='white'
+							/>
+						</svg>
 					</div>
 				</div>
 			</ul>

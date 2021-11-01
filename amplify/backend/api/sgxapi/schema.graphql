@@ -52,10 +52,11 @@ type Filter
 type Comment
 	@model
 	@auth(rules: [{ allow: private }])
-	@key(name: "byState", fields: ["stateID", "content"]) {
+	@key(name: "byState", fields: ["stateID", "createdAt"]) {
 	id: ID!
 	author: String!
 	stateID: ID!
 	state: State @connection(fields: ["stateID"])
 	content: String!
+	createdAt: String!
 }

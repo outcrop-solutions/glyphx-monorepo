@@ -17,13 +17,13 @@ export const ProjectSidebar = ({
 	columns,
 	fileSystem,
 	setFileSystem,
+	states,
+	setState,
 }) => {
 	const location = useLocation()
 	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [active, setActive] = useState('')
-
-	const [states, setStates] = useState([])
 	const [filters, setFilters] = useState([])
 
 	const trigger = useRef(null)
@@ -48,24 +48,15 @@ export const ProjectSidebar = ({
 			console.log('error on fetching filters', error)
 		}
 	}
-	const fetchStates = async () => {
-		try {
-			const stateData = await API.graphql(graphqlOperation(listStates))
-			const stateList = stateData.data.listStates.items
-
-			console.log({ stateList })
-			setStates((prev) => {
-				let newData = [...stateList]
-				return newData
-			})
-		} catch (error) {
-			console.log('error on fetching states', error)
-		}
+	const handleStateChange = (state) => {
+		setState((prev) => {
+			let data = state
+			return data
+		})
 	}
 
 	useEffect(() => {
 		fetchFilters()
-		fetchStates()
 	}, [])
 	useEffect(() => {
 		const clickHandler = ({ target }) => {
@@ -130,11 +121,16 @@ export const ProjectSidebar = ({
 											{/* Icon */}
 											<div className='flex flex-shrink-0 ml-2'>
 												<svg
-													className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400
-														rotate-0
-													`}
-													viewBox='0 0 12 12'>
-													<path d='M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z' />
+													aria-hidden='true'
+													role='img'
+													width='16'
+													height='16'
+													preserveAspectRatio='xMidYMid meet'
+													viewBox='0 0 256 256'>
+													<path
+														d='M213.657 66.343l-40-40A8 8 0 0 0 168 24H88a16.018 16.018 0 0 0-16 16v16H56a16.018 16.018 0 0 0-16 16v144a16.018 16.018 0 0 0 16 16h112a16.018 16.018 0 0 0 16-16v-16h16a16.018 16.018 0 0 0 16-16V72a8 8 0 0 0-2.343-5.657zM136 192H88a8 8 0 0 1 0-16h48a8 8 0 0 1 0 16zm0-32H88a8 8 0 0 1 0-16h48a8 8 0 0 1 0 16zm64 24h-16v-80a8 8 0 0 0-2.343-5.657l-40-40A8 8 0 0 0 136 56H88V40h76.687L200 75.314z'
+														fill='white'
+													/>
 												</svg>
 											</div>
 											<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
@@ -461,9 +457,15 @@ export const ProjectSidebar = ({
 										}`}>
 										<ul
 											style={{ height: '200px' }}
-											className={`pl-2 mt-1 overflow-auto ${!open && 'hidden'}`}>
+											className={`pl-2 mt-1 overflow-auto ${
+												!open && 'hidden'
+											}`}>
 											{states.map((item, idx) => (
-												<li className='mb-1 last:mb-0 flex'>
+												<li
+													onClick={() => {
+														handleStateChange(item)
+													}}
+													className='mb-1 last:mb-0 flex'>
 													<div className='flex items-center justify-center h-6 w-6'>
 														<svg
 															width='24'

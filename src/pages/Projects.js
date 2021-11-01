@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Storage } from 'aws-amplify'
-
+import { API, graphqlOperation } from 'aws-amplify'
+import { listFilters, listStates } from '../graphql/queries'
 import Header from '../partials/Header'
 import ProjectCard from '../partials/projects/ProjectCard'
 import TableView from '../partials/projects/TableView'
@@ -65,7 +66,11 @@ export const Projects = ({
 		},
 	])
 	const [columns, setColumns] = useState([])
+
 	const [files, setFiles] = useState([])
+	const [state, setState] = useState(null)
+	const [states, setStates] = useState([])
+
 	const ref = useRef(null)
 	const pos = usePosition(ref)
 
@@ -125,6 +130,13 @@ export const Projects = ({
 		getSidebar()
 	}, [project]) //pass presigned url,
 
+	useEffect(() => {
+		console.log({ state })
+	}, [state])
+	useEffect(() => {
+		fetchStates()
+	}, []) //fetch states
+
 	function processStorageList(results) {
 		const filesystem = {}
 
@@ -141,6 +153,21 @@ export const Projects = ({
 		}
 		results.forEach((item) => add(item.key, filesystem, item))
 		return filesystem
+	}
+	const fetchStates = async () => {
+		try {
+			const stateData = await API.graphql(graphqlOperation(listStates))
+			const stateList = stateData.data.listStates.items
+
+			console.log({ stateList })
+			setState(stateList[0].id)
+			setStates((prev) => {
+				let newData = [...stateList]
+				return newData
+			})
+		} catch (error) {
+			console.log('error on fetching states', error)
+		}
 	}
 	return (
 		<div className='flex h-screen overflow-hidden bg-gray-900'>
@@ -175,6 +202,8 @@ export const Projects = ({
 									project={project}
 									properties={properties}
 									columns={columns}
+									states={states}
+									setState={setState}
 								/>
 								<div className='w-full flex'>
 									<div ref={ref} className='min-w-0 flex-auto'></div>
@@ -182,6 +211,7 @@ export const Projects = ({
 										user={user}
 										project={project}
 										setPosition={setPosition}
+										state={state}
 									/>
 								</div>
 							</>
