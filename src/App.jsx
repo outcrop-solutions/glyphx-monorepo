@@ -62,8 +62,8 @@ function App() {
 		getUser()
 	}, []) // fetch and set current user
 	useEffect(() => {
-		fetchProjects()
-	}, []) // fetch project data from RDS
+		if (user && user.attributes) fetchProjects()
+	}, [user]) // fetch project data from RDS
 	useEffect(() => {
 		document.querySelector('html').style.scrollBehavior = 'auto'
 		window.scroll({ top: 0 })

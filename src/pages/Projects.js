@@ -160,7 +160,7 @@ export const Projects = ({
 			const stateList = stateData.data.listStates.items
 
 			console.log({ stateList })
-			setState(stateList[0].id)
+			setState(stateList[0])
 			setStates((prev) => {
 				let newData = [...stateList]
 				return newData

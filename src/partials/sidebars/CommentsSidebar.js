@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { v4 as uuid } from 'uuid'
 import { StaticRouter, useLocation } from 'react-router-dom'
 import { API, graphqlOperation } from 'aws-amplify'
-import { listComments } from '../../graphql/queries'
-import { createComment } from '../../graphql/mutations'
+import { getState, listComments } from '../../graphql/queries'
+import { createComment, updateState } from '../../graphql/mutations'
 
 export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 	const location = useLocation()
@@ -26,7 +26,7 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 
 	useEffect(() => {
 		fetchComments()
-	}, []) //fetch comments
+	}, [state]) //fetch comments
 	useEffect(() => {
 		console.log({ position: sidebar.current.getBoundingClientRect() })
 		setPosition(sidebar.current.getBoundingClientRect())
@@ -64,20 +64,25 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 		}
 	}, [sidebarExpanded]) //handle sidebar local storage
 
-	// fetch commetn data
+	// fetch comment data
 	const fetchComments = async () => {
 		if (typeof state !== 'undefined') {
 			try {
-				const queryParams = {
-					stateID: state.id,
-					sortDirection: 'DESC',
+				console.log({ state })
+				let filter = {
+					stateID: {
+						eq: state.id, // filter priority = 1
+					},
 				}
-				const commentData = await API.graphql(
-					graphqlOperation(listComments, queryParams)
-				)
-				const commentList = commentData.data.listComments.items
+				// console.log({ stateID: state })
+				const commentsData = await API.graphql({
+					query: listComments,
+					variables: { filter: filter },
+				})
+				const commentList = commentsData.data.listComments.items
 
-				console.log({ commentList })
+				console.log({ commentsData })
+				// console.log({ stateData })
 				setComments((prev) => {
 					let newData = [...commentList]
 					return newData
@@ -87,7 +92,6 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 			}
 		}
 	}
-
 	const handleComment = (e) => {
 		setCommentContent(e.target.value)
 	}
