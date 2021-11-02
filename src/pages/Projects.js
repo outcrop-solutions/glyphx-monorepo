@@ -203,6 +203,7 @@ export const Projects = ({
 									properties={properties}
 									columns={columns}
 									states={states}
+									state={state}
 									setState={setState}
 								/>
 								<div className='w-full flex'>

@@ -18,6 +18,7 @@ export const ProjectSidebar = ({
 	fileSystem,
 	setFileSystem,
 	states,
+	state,
 	setState,
 }) => {
 	const location = useLocation()
@@ -482,7 +483,14 @@ export const ProjectSidebar = ({
 														exact
 														to='/'
 														className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
-														<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
+														<span
+															className={`text-sm ${
+																typeof item.id !== 'undefined'
+																	? item.id === state.id
+																		? 'text-white'
+																		: ''
+																	: ''
+															} font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200`}>
 															{item.title}
 														</span>
 													</NavLink>

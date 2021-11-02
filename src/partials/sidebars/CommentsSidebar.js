@@ -80,11 +80,11 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 					variables: { filter: filter },
 				})
 				const commentList = commentsData.data.listComments.items
-
+				const reordered = commentList.reverse()
 				console.log({ commentsData })
 				// console.log({ stateData })
 				setComments((prev) => {
-					let newData = [...commentList]
+					let newData = [...reordered]
 					return newData
 				})
 			} catch (error) {
@@ -92,9 +92,11 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 			}
 		}
 	}
+	// update comment state
 	const handleComment = (e) => {
 		setCommentContent(e.target.value)
 	}
+	// save comment to DynamoDB
 	const handleSaveComment = async () => {
 		if (typeof state !== 'undefined') {
 			let commentInput = {
@@ -102,16 +104,12 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 				author: user.attributes.email,
 				content: commentContent,
 				stateID: state.id,
-				// state: state,
 			}
-			console.log({ commentInput })
 			try {
-				console.log({ commentInput })
-				const commentData = await API.graphql(
+				await API.graphql(
 					graphqlOperation(createComment, { input: commentInput })
 				)
-
-				console.log({ commentData })
+				setCommentContent('')
 			} catch (error) {
 				console.log({ error })
 			}
@@ -184,7 +182,7 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 						}}
 						className='relative flex items-center'>
 						<input
-							className='w-full border-0  bg-transparent focus:ring-transparent placeholder-gray-400 appearance-none py-3'
+							className='w-full bg-transparent placeholder-gray-400 appearance-none py-3'
 							type='comment'
 							onChange={handleComment}
 							placeholder='Type comments…'
