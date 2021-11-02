@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Storage } from 'aws-amplify'
 import { API, graphqlOperation } from 'aws-amplify'
-import { listFilters, listStates } from '../graphql/queries'
+import { listStates } from '../graphql/queries'
 import Header from '../partials/Header'
 import ProjectCard from '../partials/projects/ProjectCard'
 import TableView from '../partials/projects/TableView'
 import { GridView } from '../partials/projects/GridView'
-import { ProjectSidebar } from '../partials/sidebars/ProjectSidebar'
+import { ProjectSidebar } from '../partials/sidebars/projectSidebar'
 import { CommentsSidebar } from '../partials/sidebars/CommentsSidebar'
 import { MainSidebar } from '../partials/sidebars/MainSidebar'
 
@@ -65,34 +65,28 @@ export const Projects = ({
 			},
 		},
 	])
-	const [columns, setColumns] = useState([])
-
 	const [files, setFiles] = useState([])
+
+	const [filtersApplied, setFiltersApplied] = useState([])
+	const [columns, setColumns] = useState([])
 	const [state, setState] = useState(null)
 	const [states, setStates] = useState([])
+	const [showAddProject, setShowAddProject] = useState(false)
 
 	const ref = useRef(null)
 	const pos = usePosition(ref)
 
-	// passes resize observation back up to app level state
 	useEffect(() => {
 		setPosition(pos)
-	}, [pos])
-
-	const [showAddProject, setShowAddProject] = useState(false)
-	useEffect(() => {
-		if (project && window.core) {
-			window.core.OpenProject('open') //sending open to test, would take signed-url normally
-		}
-	}, [project])
-
+	}, [pos]) // passes resize observation back up to app level state
 	useEffect(() => {
 		const signUrl = async () => {
 			try {
-				// let signedUrl = await Storage.get(`${filePath}/mcgee_sku_model.zip`)
+				// TODO: put unzipped file names in sidebar.json
 				let signedUrl = await Storage.get('mcgee_sku_model.zip')
-				console.log({ signedUrl })
-				// window.core.OpenProject(JSON.stringify(signedUrl))
+				if (project && window.core) {
+					window.core.OpenProject(JSON.stringify(signedUrl))
+				}
 			} catch (error) {
 				console.log({ error })
 			}
@@ -103,14 +97,12 @@ export const Projects = ({
 				let files = await Storage.list('')
 				let fileSystem = processStorageList(files)
 				// setFileSystem({ ...fileSystem })
-				console.log({ fileSystem })
 			} catch (error) {
 				console.log({ error })
 			}
 		}
 		const getSidebar = async () => {
 			try {
-				// let sidebarData = await Storage.get(`${filePath}/sidebar.json`, {
 				let sidebarData = await Storage.get('sidebar.json', {
 					download: true,
 				})
@@ -124,15 +116,11 @@ export const Projects = ({
 				console.log({ error })
 			}
 		}
-
 		signUrl()
 		getFilesList()
 		getSidebar()
-	}, [project]) //pass presigned url,
+	}, [project]) //pass presigned url
 
-	useEffect(() => {
-		console.log({ state })
-	}, [state])
 	useEffect(() => {
 		fetchStates()
 	}, []) //fetch states
@@ -169,6 +157,7 @@ export const Projects = ({
 			console.log('error on fetching states', error)
 		}
 	}
+	
 	return (
 		<div className='flex h-screen overflow-hidden bg-gray-900'>
 			{/* Sidebar */}

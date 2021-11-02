@@ -14,6 +14,7 @@ export const onCreateProject = /* GraphQL */ `
           id
           title
           description
+          camera
           projectID
           createdAt
           updatedAt
@@ -24,8 +25,6 @@ export const onCreateProject = /* GraphQL */ `
         items {
           id
           name
-          min
-          max
           projectID
           createdAt
           updatedAt
@@ -50,6 +49,7 @@ export const onUpdateProject = /* GraphQL */ `
           id
           title
           description
+          camera
           projectID
           createdAt
           updatedAt
@@ -60,8 +60,6 @@ export const onUpdateProject = /* GraphQL */ `
         items {
           id
           name
-          min
-          max
           projectID
           createdAt
           updatedAt
@@ -86,6 +84,7 @@ export const onDeleteProject = /* GraphQL */ `
           id
           title
           description
+          camera
           projectID
           createdAt
           updatedAt
@@ -96,8 +95,6 @@ export const onDeleteProject = /* GraphQL */ `
         items {
           id
           name
-          min
-          max
           projectID
           createdAt
           updatedAt
@@ -115,6 +112,7 @@ export const onCreateState = /* GraphQL */ `
       id
       title
       description
+      camera
       projectID
       project {
         id
@@ -163,6 +161,7 @@ export const onUpdateState = /* GraphQL */ `
       id
       title
       description
+      camera
       projectID
       project {
         id
@@ -211,6 +210,7 @@ export const onDeleteState = /* GraphQL */ `
       id
       title
       description
+      camera
       projectID
       project {
         id
@@ -263,6 +263,7 @@ export const onCreateStateFilter = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id
@@ -285,8 +286,9 @@ export const onCreateStateFilter = /* GraphQL */ `
       filter {
         id
         name
-        min
-        max
+        columns {
+          nextToken
+        }
         projectID
         project {
           id
@@ -318,6 +320,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id
@@ -340,8 +343,9 @@ export const onUpdateStateFilter = /* GraphQL */ `
       filter {
         id
         name
-        min
-        max
+        columns {
+          nextToken
+        }
         projectID
         project {
           id
@@ -373,6 +377,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id
@@ -395,8 +400,114 @@ export const onDeleteStateFilter = /* GraphQL */ `
       filter {
         id
         name
-        min
-        max
+        columns {
+          nextToken
+        }
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateColumn = /* GraphQL */ `
+  subscription OnCreateColumn {
+    onCreateColumn {
+      id
+      name
+      min
+      max
+      filterID
+      filter {
+        id
+        name
+        columns {
+          nextToken
+        }
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateColumn = /* GraphQL */ `
+  subscription OnUpdateColumn {
+    onUpdateColumn {
+      id
+      name
+      min
+      max
+      filterID
+      filter {
+        id
+        name
+        columns {
+          nextToken
+        }
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteColumn = /* GraphQL */ `
+  subscription OnDeleteColumn {
+    onDeleteColumn {
+      id
+      name
+      min
+      max
+      filterID
+      filter {
+        id
+        name
+        columns {
+          nextToken
+        }
         projectID
         project {
           id
@@ -423,8 +534,18 @@ export const onCreateFilter = /* GraphQL */ `
     onCreateFilter {
       id
       name
-      min
-      max
+      columns {
+        items {
+          id
+          name
+          min
+          max
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       projectID
       project {
         id
@@ -461,8 +582,18 @@ export const onUpdateFilter = /* GraphQL */ `
     onUpdateFilter {
       id
       name
-      min
-      max
+      columns {
+        items {
+          id
+          name
+          min
+          max
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       projectID
       project {
         id
@@ -499,8 +630,18 @@ export const onDeleteFilter = /* GraphQL */ `
     onDeleteFilter {
       id
       name
-      min
-      max
+      columns {
+        items {
+          id
+          name
+          min
+          max
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       projectID
       project {
         id
@@ -542,6 +683,7 @@ export const onCreateComment = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id
@@ -577,6 +719,7 @@ export const onUpdateComment = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id
@@ -612,6 +755,7 @@ export const onDeleteComment = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id

@@ -14,6 +14,7 @@ export const getProject = /* GraphQL */ `
           id
           title
           description
+          camera
           projectID
           createdAt
           updatedAt
@@ -24,8 +25,6 @@ export const getProject = /* GraphQL */ `
         items {
           id
           name
-          min
-          max
           projectID
           createdAt
           updatedAt
@@ -69,6 +68,7 @@ export const getState = /* GraphQL */ `
       id
       title
       description
+      camera
       projectID
       project {
         id
@@ -122,6 +122,7 @@ export const listStates = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id
@@ -145,13 +146,85 @@ export const listStates = /* GraphQL */ `
     }
   }
 `;
+export const getColumn = /* GraphQL */ `
+  query GetColumn($id: ID!) {
+    getColumn(id: $id) {
+      id
+      name
+      min
+      max
+      filterID
+      filter {
+        id
+        name
+        columns {
+          nextToken
+        }
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listColumns = /* GraphQL */ `
+  query ListColumns(
+    $filter: ModelColumnFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listColumns(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        min
+        max
+        filterID
+        filter {
+          id
+          name
+          projectID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
 export const getFilter = /* GraphQL */ `
   query GetFilter($id: ID!) {
     getFilter(id: $id) {
       id
       name
-      min
-      max
+      columns {
+        items {
+          id
+          name
+          min
+          max
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       projectID
       project {
         id
@@ -193,8 +266,9 @@ export const listFilters = /* GraphQL */ `
       items {
         id
         name
-        min
-        max
+        columns {
+          nextToken
+        }
         projectID
         project {
           id
@@ -225,6 +299,7 @@ export const getComment = /* GraphQL */ `
         id
         title
         description
+        camera
         projectID
         project {
           id
@@ -265,6 +340,7 @@ export const listComments = /* GraphQL */ `
           id
           title
           description
+          camera
           projectID
           createdAt
           updatedAt
@@ -274,6 +350,200 @@ export const listComments = /* GraphQL */ `
         updatedAt
       }
       nextToken
+    }
+  }
+`;
+export const searchProjects = /* GraphQL */ `
+  query SearchProjects(
+    $filter: SearchableProjectFilterInput
+    $sort: SearchableProjectSortInput
+    $limit: Int
+    $nextToken: String
+    $from: Int
+  ) {
+    searchProjects(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+    ) {
+      items {
+        id
+        name
+        description
+        filePath
+        author
+        states {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+      total
+    }
+  }
+`;
+export const searchStates = /* GraphQL */ `
+  query SearchStates(
+    $filter: SearchableStateFilterInput
+    $sort: SearchableStateSortInput
+    $limit: Int
+    $nextToken: String
+    $from: Int
+  ) {
+    searchStates(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+    ) {
+      items {
+        id
+        title
+        description
+        camera
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        comments {
+          nextToken
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+      total
+    }
+  }
+`;
+export const searchColumns = /* GraphQL */ `
+  query SearchColumns(
+    $filter: SearchableColumnFilterInput
+    $sort: SearchableColumnSortInput
+    $limit: Int
+    $nextToken: String
+    $from: Int
+  ) {
+    searchColumns(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+    ) {
+      items {
+        id
+        name
+        min
+        max
+        filterID
+        filter {
+          id
+          name
+          projectID
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+      total
+    }
+  }
+`;
+export const searchFilters = /* GraphQL */ `
+  query SearchFilters(
+    $filter: SearchableFilterFilterInput
+    $sort: SearchableFilterSortInput
+    $limit: Int
+    $nextToken: String
+    $from: Int
+  ) {
+    searchFilters(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+    ) {
+      items {
+        id
+        name
+        columns {
+          nextToken
+        }
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      nextToken
+      total
+    }
+  }
+`;
+export const searchComments = /* GraphQL */ `
+  query SearchComments(
+    $filter: SearchableCommentFilterInput
+    $sort: SearchableCommentSortInput
+    $limit: Int
+    $nextToken: String
+    $from: Int
+  ) {
+    searchComments(
+      filter: $filter
+      sort: $sort
+      limit: $limit
+      nextToken: $nextToken
+      from: $from
+    ) {
+      items {
+        id
+        author
+        stateID
+        state {
+          id
+          title
+          description
+          camera
+          projectID
+          createdAt
+          updatedAt
+        }
+        content
+        createdAt
+        updatedAt
+      }
+      nextToken
+      total
     }
   }
 `;

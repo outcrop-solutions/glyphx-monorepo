@@ -1,5 +1,6 @@
 type Project
 	@model
+	@searchable
 	@auth(rules: [{ allow: private }])
 	@key(name: "projectByAuthor", fields: ["author"]) {
 	id: ID!
@@ -13,11 +14,13 @@ type Project
 
 type State
 	@model
+	@searchable
 	@auth(rules: [{ allow: private }])
 	@key(name: "byProj", fields: ["projectID"]) {
 	id: ID!
 	title: String!
 	description: String!
+	camera: String
 	projectID: ID!
 	project: Project @connection(fields: ["projectID"])
 	comments: [Comment] @connection(keyName: "byState", fields: ["id"])
@@ -36,14 +39,27 @@ type StateFilter
 	filter: Filter! @connection(fields: ["filterID"])
 }
 
-type Filter
+type Column
 	@model
+	@searchable
 	@auth(rules: [{ allow: private }])
-	@key(name: "byProject", fields: ["projectID"]) {
+	@key(name: "byFilter", fields: ["filterID"]) {
 	id: ID!
 	name: String!
 	min: String!
 	max: String!
+	filterID: ID!
+	filter: Filter! @connection(fields: ["filterID"])
+}
+
+type Filter
+	@model
+	@searchable
+	@auth(rules: [{ allow: private }])
+	@key(name: "byProject", fields: ["projectID"]) {
+	id: ID!
+	name: String!
+	columns: [Column] @connection(keyName: "byFilter", fields: ["id"])
 	projectID: ID!
 	project: Project @connection(fields: ["projectID"])
 	states: [StateFilter] @connection(keyName: "byFilter", fields: ["id"])
@@ -51,6 +67,7 @@ type Filter
 
 type Comment
 	@model
+	@searchable
 	@auth(rules: [{ allow: private }])
 	@key(name: "byState", fields: ["stateID", "createdAt"]) {
 	id: ID!
