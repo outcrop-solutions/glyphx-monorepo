@@ -68,6 +68,7 @@ export const Projects = ({
 	const [files, setFiles] = useState([])
 
 	const [filtersApplied, setFiltersApplied] = useState([])
+	const [filters, setFilters] = useState([])
 	const [columns, setColumns] = useState([])
 	const [state, setState] = useState(null)
 	const [states, setStates] = useState([])
@@ -125,6 +126,42 @@ export const Projects = ({
 		fetchStates()
 	}, []) //fetch states
 
+	useEffect(() => {
+		if (window && window.core && state) {
+			//build array of query strings
+			if (typeof state.filters !== 'undefined') {
+				let filterStringArr = []
+
+				for (let i = 0; i < state.filters.length; i++) {
+					let filter = state.filters[i]
+					let cols = filter.columns
+					for (let j = 0; j < cols.length; j++) {
+						let name = cols[j].name
+						let min = cols[j].min
+						let max = cols[j].max
+
+						let queryStr = `${name || '-'} BETWEEN ${min || '-'} AND ${
+							max || '-'
+						}`
+						filterStringArr.push(queryStr)
+					}
+				}
+				let query =
+					filterStringArr.length > 0
+						? `SELECT * from 0bc27e1c-b48b-474e-844d-4ec1b0f94613 WHERE ${filterStringArr.join(
+								'AND'
+						  )}`
+						: ''
+				const changeStateInput = {
+					camera: state.camera,
+					filter: query,
+				}
+				console.log({ changeStateInput })
+				window.core.ChangeState(JSON.stringify(changeStateInput))
+			}
+		}
+	}, [state]) //build query string and call state change function
+
 	function processStorageList(results) {
 		const filesystem = {}
 
@@ -157,11 +194,12 @@ export const Projects = ({
 			console.log('error on fetching states', error)
 		}
 	}
-	
+
 	return (
 		<div className='flex h-screen overflow-hidden bg-gray-900'>
 			{/* Sidebar */}
 			<MainSidebar
+				setProject={setProject}
 				user={user}
 				sidebarOpen={sidebarOpen}
 				setSidebarOpen={setSidebarOpen}
@@ -175,6 +213,7 @@ export const Projects = ({
 					setShowAddProject={setShowAddProject}
 					setLoggedIn={setLoggedIn}
 					project={project}
+					setProject={setProject}
 					sidebarOpen={sidebarOpen}
 					setSidebarOpen={setSidebarOpen}
 					grid={grid}
@@ -186,6 +225,10 @@ export const Projects = ({
 						{project ? (
 							<>
 								<ProjectSidebar
+									filtersApplied={filtersApplied}
+									setFiltersApplied={setFiltersApplied}
+									filters={filters}
+									setFilters={setFilters}
 									fileSystem={fileSystem}
 									setFileSystem={setFileSystem}
 									project={project}

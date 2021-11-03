@@ -5,6 +5,8 @@ import Column from './Column'
 import Filter from './Filter'
 
 function Filters({
+	filtersApplied,
+	setFiltersApplied,
 	filters,
 	setFilters,
 	columns,
@@ -93,7 +95,13 @@ function Filters({
 						style={{ height: '200px' }}
 						className={`pl-2 mt-1 overflow-auto ${!open && 'hidden'}`}>
 						{filters.map((item, idx) => (
-							<Filter setShowCols={setShowCols} columns={columns} item={item} />
+							<Filter
+								filtersApplied={filtersApplied}
+								setFiltersApplied={setFiltersApplied}
+								setShowCols={setShowCols}
+								columns={columns}
+								item={item}
+							/>
 						))}
 						{showCols ? (
 							<>

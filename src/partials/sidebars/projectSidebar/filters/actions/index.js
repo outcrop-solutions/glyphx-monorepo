@@ -1,13 +1,18 @@
-import AddFilter from './AddFilter'
+import AddColumn from './AddColumn'
 import DeleteFilter from './DeleteFilter'
 import EditFilter from './EditFilter'
 import ShowHide from './ShowHide'
 
-function FilterActions({ show, setShowCols }) {
+function FilterActions({
+	show,
+	setShowCols,
+	filtersApplied,
+	setFiltersApplied,
+}) {
 	return (
 		<div className='flex justify-between'>
 			{/* Add Filter */}
-			<AddFilter setShowCols={setShowCols} />
+			<AddColumn setShowCols={setShowCols} />
 			{/* Delete Filter */}
 			<DeleteFilter />
 			{/* show/hide filter */}

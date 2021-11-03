@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-function AddFilter({ setShowCols }) {
+function AddColumn({ setShowCols }) {
 	const handleShowCols = () => {
 		setShowCols(true)
 	}
@@ -27,4 +27,4 @@ function AddFilter({ setShowCols }) {
 	)
 }
 
-export default AddFilter
+export default AddColumn

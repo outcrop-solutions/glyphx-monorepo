@@ -2,7 +2,12 @@ import React, { useState, useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import UserMenu from '../../components/UserMenu'
 
-export const MainSidebar = ({ user, sidebarOpen, setSidebarOpen }) => {
+export const MainSidebar = ({
+	user,
+	sidebarOpen,
+	setSidebarOpen,
+	setProject,
+}) => {
 	const location = useLocation()
 	const { pathname } = location
 
@@ -159,6 +164,9 @@ export const MainSidebar = ({ user, sidebarOpen, setSidebarOpen }) => {
 								<NavLink
 									exact
 									to='/'
+									onClick={() => {
+										setProject(false)
+									}}
 									className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
 										pathname === '/' && 'hover:text-gray-200'
 									}`}>

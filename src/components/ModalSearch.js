@@ -64,7 +64,7 @@ function ModalSearch({
         leaveStart="opacity-100 translate-y-0"
         leaveEnd="opacity-0 translate-y-4"
       >
-        <div ref={modalContent} className="bg-white overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg">
+        <div ref={modalContent} className="z-60 bg-white overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg">
           {/* Search form */}
           <form className="border-b border-gray-200">
             <div className="relative">

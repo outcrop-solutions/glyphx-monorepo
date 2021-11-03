@@ -14,6 +14,7 @@ function Header({
 	sidebarOpen,
 	setSidebarOpen,
 	grid,
+	setProject,
 	setGrid,
 	project,
 	setShowAddProject,
@@ -90,7 +91,6 @@ function Header({
 								<path d='M15.707 14.293L13.314 11.9a8.019 8.019 0 01-1.414 1.414l2.393 2.393a.997.997 0 001.414 0 .999.999 0 000-1.414z' />
 							</svg>
 						</button>
-						{/* <FilterButton align='right' /> */}
 					</form>
 					{/* Header: Right side */}
 					<div className='flex items-center space-x-3 mr-6'>
@@ -100,7 +100,12 @@ function Header({
 							modalOpen={searchModalOpen}
 							setModalOpen={setSearchModalOpen}
 						/>
-						<GridToggle align='right' grid={grid} setGrid={setGrid} />
+						<GridToggle
+							align='right'
+							grid={grid}
+							setGrid={setGrid}
+							setProject={setProject}
+						/>
 						<Help align='right' />
 						{/*  Divider */}
 						<hr className='w-px h-6 bg-gray-200 mx-3' />
@@ -109,21 +114,18 @@ function Header({
 								searchModalOpen && 'bg-gray-200'
 							}`}
 							onClick={(e) => {
-								// e.stopPropagation()
 								setShowAddProject(true)
 							}}
 							aria-controls='search-modal'>
 							<b className='text-gray-800 text-xs'>New Project</b>
 						</button>
 						<Notifications align='right' />
-						{/* <div className='w-4'> */}
+
 						<button
 							className='btn rounded-2xl bg-yellow-400 text-gray-800 text-xs font-bold hover:text-white py-1.5'
 							onClick={signOut}>
 							Sign Out
 						</button>
-						{/* <AmplifySignOut /> */}
-						{/* </div> */}
 					</div>
 				</div>
 			</div>

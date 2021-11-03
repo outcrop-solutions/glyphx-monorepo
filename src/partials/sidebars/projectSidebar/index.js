@@ -23,12 +23,15 @@ export const ProjectSidebar = ({
 	states,
 	state,
 	setState,
+	filters,
+	setFilters,
+	filtersApplied,
+	setFiltersApplied,
 }) => {
 	const location = useLocation()
 	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [showCols, setShowCols] = useState(false)
-	const [filters, setFilters] = useState([])
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
 
@@ -97,7 +100,7 @@ export const ProjectSidebar = ({
 		<div
 			id='sidebar'
 			ref={sidebar}
-			className={`flex flex-col absolute z-40 left-0 top-0 lg:static border-r border-gray-400 lg:left-auto lg:top-auto lg:translate-x-0 transform  h-full no-scrollbar w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 2xl:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
+			className={`flex flex-col absolute z-30 left-0 top-0 lg:static border-r border-gray-400 lg:left-auto lg:top-auto lg:translate-x-0 transform  h-full no-scrollbar w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 2xl:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
 				sidebarOpen ? 'translate-x-0' : '-translate-x-64'
 			}`}>
 			<ul>
@@ -123,7 +126,6 @@ export const ProjectSidebar = ({
 										className={`flex items-center h-11 ml-3 ${
 											!sidebarExpanded ? 'w-full justify-center ml-0' : ''
 										}`}>
-										{/* <div className='flex items-center justify-center'> */}
 										{/* Icon */}
 										<div className='flex flex-shrink-0'>
 											<svg
@@ -199,6 +201,8 @@ export const ProjectSidebar = ({
 						return (
 							<ClickAwayListener onClickAway={handleClickAway}>
 								<Filters
+									filtersApplied={filtersApplied}
+									setFiltersApplied={setFiltersApplied}
 									showCols={showCols}
 									setShowCols={setShowCols}
 									includes={pathname.includes}

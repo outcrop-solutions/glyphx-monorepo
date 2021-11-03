@@ -3,7 +3,16 @@ import { NavLink, useLocation } from 'react-router-dom'
 import ClickAwayListener from 'react-click-away-listener'
 import FilterActions from './actions'
 
-function Filter({ item, columns, setShowCols }) {
+function Filter({
+	item,
+	columns,
+	setShowCols,
+	filtersApplied,
+	setFiltersApplied,
+}) {
+	const [applied, setApplied] = useState(
+		filtersApplied.includes(item) ? true : false
+	)
 	const [edit, setEdit] = useState(false)
 	const [show, setShow] = useState(false)
 	const [name, setName] = useState(item.name || '')
@@ -71,14 +80,18 @@ function Filter({ item, columns, setShowCols }) {
 								</svg>
 							</div>
 						) : (
-							<span className='text-sm font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
+								<span className={`text-sm ${applied ? 'text-white' : 'text-gray-400'} font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200`}>
 								{item.name}
 							</span>
 						)}
 					</div>
 				</div>
 
-				<FilterActions setShowCols={setShowCols} />
+				<FilterActions
+					setShowCols={setShowCols}
+					filtersApplied={filtersApplied}
+					setFiltersApplied={setFiltersApplied}
+				/>
 			</li>
 		</ClickAwayListener>
 	)

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Transition from '../utils/Transition'
 
-function GridToggle({ align, grid, setGrid }) {
+function GridToggle({ align, grid, setGrid, setProject }) {
 	const [dropdownOpen, setDropdownOpen] = useState(false)
 
 	const trigger = useRef(null)
@@ -47,7 +47,10 @@ function GridToggle({ align, grid, setGrid }) {
 				<span className='sr-only'>Notifications</span>
 				{grid ? (
 					<svg
-						onClick={() => setGrid((prev) => !prev)}
+						onClick={() => {
+							setGrid((prev) => !prev)
+							setProject(false)
+						}}
 						width='24'
 						height='24'
 						viewBox='0 0 24 24'
@@ -72,7 +75,10 @@ function GridToggle({ align, grid, setGrid }) {
 					</svg>
 				) : (
 					<svg
-						onClick={() => setGrid((prev) => !prev)}
+						onClick={() => {
+							setProject(false)
+							setGrid((prev) => !prev)
+						}}
 						width='24'
 						height='24'
 						viewBox='0 0 24 24'

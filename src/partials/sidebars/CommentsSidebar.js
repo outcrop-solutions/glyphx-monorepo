@@ -107,10 +107,10 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 			}
 			try {
 				setComments((prev) => [...prev, commentInput])
+				setCommentContent('')
 				await API.graphql(
 					graphqlOperation(createComment, { input: commentInput })
 				)
-				setCommentContent('')
 			} catch (error) {
 				console.log({ error })
 			}
@@ -181,11 +181,11 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 								handleSaveComment()
 							}
 						}}
-						className='relative flex items-center'>
+						className='relative flex items-center justify-around'>
 						<input
-							className='w-full bg-transparent placeholder-gray-400 appearance-none py-3'
-							type='comment'
+							className='w-10/12 border-0 focus:ring-2 focus:ring-red-600  bg-transparent placeholder-gray-400 py-1 rounded-md'
 							onChange={handleComment}
+							value={commentContent}
 							placeholder='Type comments…'
 							ref={commentRef}
 						/>
