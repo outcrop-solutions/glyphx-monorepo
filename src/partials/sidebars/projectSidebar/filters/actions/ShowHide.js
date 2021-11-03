@@ -1,9 +1,24 @@
 import { useEffect, useState } from 'react'
 
-function ShowHide(props) {
+function ShowHide({ applied, setApplied, item, setFiltersApplied }) {
+	const handleApply = () => {
+		console.log({ applied, item, setFiltersApplied })
+		setFiltersApplied((prev) => {
+			if (applied) {
+				let newArr = prev.filter((el) => el.id !== item.id)
+				return [...newArr]
+			} else {
+				let newArr = [...prev, item]
+				return [...newArr]
+			}
+		})
+		setApplied((prev) => !prev)
+	}
 	return (
-		<div className='flex items-center justify-center h-6 w-6'>
-			{props.show ? (
+		<div
+			onClick={handleApply}
+			className='flex items-center justify-center h-6 w-6'>
+			{applied ? (
 				<svg
 					aria-hidden='true'
 					role='img'

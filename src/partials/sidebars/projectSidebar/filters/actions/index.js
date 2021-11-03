@@ -4,7 +4,9 @@ import EditFilter from './EditFilter'
 import ShowHide from './ShowHide'
 
 function FilterActions({
-	show,
+	item,
+	applied,
+	setApplied,
 	setShowCols,
 	filtersApplied,
 	setFiltersApplied,
@@ -16,7 +18,12 @@ function FilterActions({
 			{/* Delete Filter */}
 			<DeleteFilter />
 			{/* show/hide filter */}
-			<ShowHide show={show} />
+			<ShowHide
+				item={item}
+				applied={applied}
+				setApplied={setApplied}
+				setFiltersApplied={setFiltersApplied}
+			/>
 			{/* edit filter */}
 			<EditFilter />
 		</div>

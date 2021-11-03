@@ -14,7 +14,6 @@ function Filter({
 		filtersApplied.includes(item) ? true : false
 	)
 	const [edit, setEdit] = useState(false)
-	const [show, setShow] = useState(false)
 	const [name, setName] = useState(item.name || '')
 
 	const handleName = (e) => {
@@ -80,7 +79,10 @@ function Filter({
 								</svg>
 							</div>
 						) : (
-								<span className={`text-sm ${applied ? 'text-white' : 'text-gray-400'} font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200`}>
+							<span
+								className={`text-sm ${
+									applied ? 'text-white' : 'text-gray-400'
+								} font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200`}>
 								{item.name}
 							</span>
 						)}
@@ -88,6 +90,9 @@ function Filter({
 				</div>
 
 				<FilterActions
+					item={item}
+					applied={applied}
+					setApplied={setApplied}
 					setShowCols={setShowCols}
 					filtersApplied={filtersApplied}
 					setFiltersApplied={setFiltersApplied}
