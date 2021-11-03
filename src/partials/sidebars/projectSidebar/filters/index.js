@@ -13,10 +13,15 @@ function Filters({
 	sidebarExpanded,
 	setSidebarExpanded,
 	handleClick,
+	showCols,
+	setShowCols,
 }) {
 	useEffect(() => {
 		fetchFilters()
 	}, [])
+	useEffect(() => {
+		console.log({ showCols })
+	}, [showCols])
 	const fetchFilters = async () => {
 		try {
 			const filterData = await API.graphql(graphqlOperation(listFilters))
@@ -69,15 +74,19 @@ function Filters({
 						style={{ height: '200px' }}
 						className={`pl-2 mt-1 overflow-auto ${!open && 'hidden'}`}>
 						{filters.map((item, idx) => (
-							<Filter item={item} />
+							<Filter setShowCols={setShowCols} columns={columns} item={item} />
 						))}
-						{columns.length > 0 && (
+						{showCols ? (
 							<>
-								{columns.map((item, idx) => (
-									<Column item={item} />
-								))}
+								{columns.length > 0 && (
+									<>
+										{columns.map((item, idx) => (
+											<Column item={item} />
+										))}
+									</>
+								)}
 							</>
-						)}
+						) : null}
 					</ul>
 				</div>
 			)}

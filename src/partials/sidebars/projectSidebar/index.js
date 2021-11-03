@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import ProjectLinkGroup from '../../ProjectLinkGroup'
 import { NavLink, useLocation } from 'react-router-dom'
 import { Tree } from '@minoru/react-dnd-treeview'
+import ClickAwayListener from 'react-click-away-listener'
 import { CustomNode } from '../CustomNode'
 import { CustomDragPreview } from '../CustomDragPreview'
 import { API, graphqlOperation } from 'aws-amplify'
@@ -26,6 +27,7 @@ export const ProjectSidebar = ({
 	const location = useLocation()
 	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(true)
+	const [showCols, setShowCols] = useState(false)
 	const [filters, setFilters] = useState([])
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
@@ -53,6 +55,9 @@ export const ProjectSidebar = ({
 			let data = state
 			return data
 		})
+	}
+	const handleClickAway = () => {
+		setShowCols(false)
 	}
 	useEffect(() => {
 		const clickHandler = ({ target }) => {
@@ -184,16 +189,20 @@ export const ProjectSidebar = ({
 				<ProjectLinkGroup activecondition={pathname.includes('')}>
 					{(handleClick, open) => {
 						return (
-							<Filters
-								includes={pathname.includes}
-								filters={filters}
-								setFilters={setFilters}
-								columns={columns}
-								open={open}
-								sidebarExpanded={sidebarExpanded}
-								setSidebarExpanded={setSidebarExpanded}
-								handleClick={handleClick}
-							/>
+							<ClickAwayListener onClickAway={handleClickAway}>
+								<Filters
+									showCols={showCols}
+									setShowCols={setShowCols}
+									includes={pathname.includes}
+									filters={filters}
+									setFilters={setFilters}
+									columns={columns}
+									open={open}
+									sidebarExpanded={sidebarExpanded}
+									setSidebarExpanded={setSidebarExpanded}
+									handleClick={handleClick}
+								/>
+							</ClickAwayListener>
 						)
 					}}
 				</ProjectLinkGroup>

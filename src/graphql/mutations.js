@@ -34,6 +34,18 @@ export const createProject = /* GraphQL */ `
         }
         nextToken
       }
+      columns {
+        items {
+          id
+          name
+          min
+          max
+          projectID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -66,6 +78,18 @@ export const updateProject = /* GraphQL */ `
         items {
           id
           name
+          projectID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      columns {
+        items {
+          id
+          name
+          min
+          max
           projectID
           createdAt
           updatedAt
@@ -110,6 +134,18 @@ export const deleteProject = /* GraphQL */ `
         }
         nextToken
       }
+      columns {
+        items {
+          id
+          name
+          min
+          max
+          projectID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -136,6 +172,9 @@ export const createState = /* GraphQL */ `
           nextToken
         }
         filters {
+          nextToken
+        }
+        columns {
           nextToken
         }
         createdAt
@@ -190,6 +229,9 @@ export const updateState = /* GraphQL */ `
         filters {
           nextToken
         }
+        columns {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -240,6 +282,9 @@ export const deleteState = /* GraphQL */ `
           nextToken
         }
         filters {
+          nextToken
+        }
+        columns {
           nextToken
         }
         createdAt
@@ -307,9 +352,6 @@ export const createStateFilter = /* GraphQL */ `
       filter {
         id
         name
-        columns {
-          nextToken
-        }
         projectID
         project {
           id
@@ -319,6 +361,9 @@ export const createStateFilter = /* GraphQL */ `
           author
           createdAt
           updatedAt
+        }
+        columns {
+          nextToken
         }
         states {
           nextToken
@@ -367,9 +412,6 @@ export const updateStateFilter = /* GraphQL */ `
       filter {
         id
         name
-        columns {
-          nextToken
-        }
         projectID
         project {
           id
@@ -379,6 +421,9 @@ export const updateStateFilter = /* GraphQL */ `
           author
           createdAt
           updatedAt
+        }
+        columns {
+          nextToken
         }
         states {
           nextToken
@@ -427,9 +472,6 @@ export const deleteStateFilter = /* GraphQL */ `
       filter {
         id
         name
-        columns {
-          nextToken
-        }
         projectID
         project {
           id
@@ -439,6 +481,180 @@ export const deleteStateFilter = /* GraphQL */ `
           author
           createdAt
           updatedAt
+        }
+        columns {
+          nextToken
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createColumnFilter = /* GraphQL */ `
+  mutation CreateColumnFilter(
+    $input: CreateColumnFilterInput!
+    $condition: ModelColumnFilterConditionInput
+  ) {
+    createColumnFilter(input: $input, condition: $condition) {
+      id
+      columnID
+      filterID
+      column {
+        id
+        name
+        min
+        max
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      filter {
+        id
+        name
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        columns {
+          nextToken
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateColumnFilter = /* GraphQL */ `
+  mutation UpdateColumnFilter(
+    $input: UpdateColumnFilterInput!
+    $condition: ModelColumnFilterConditionInput
+  ) {
+    updateColumnFilter(input: $input, condition: $condition) {
+      id
+      columnID
+      filterID
+      column {
+        id
+        name
+        min
+        max
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      filter {
+        id
+        name
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        columns {
+          nextToken
+        }
+        states {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteColumnFilter = /* GraphQL */ `
+  mutation DeleteColumnFilter(
+    $input: DeleteColumnFilterInput!
+    $condition: ModelColumnFilterConditionInput
+  ) {
+    deleteColumnFilter(input: $input, condition: $condition) {
+      id
+      columnID
+      filterID
+      column {
+        id
+        name
+        min
+        max
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        filters {
+          nextToken
+        }
+        createdAt
+        updatedAt
+      }
+      filter {
+        id
+        name
+        projectID
+        project {
+          id
+          name
+          description
+          filePath
+          author
+          createdAt
+          updatedAt
+        }
+        columns {
+          nextToken
         }
         states {
           nextToken
@@ -461,28 +677,34 @@ export const createColumn = /* GraphQL */ `
       name
       min
       max
-      filterID
-      filter {
+      projectID
+      project {
         id
         name
-        columns {
+        description
+        filePath
+        author
+        states {
           nextToken
         }
-        projectID
-        project {
-          id
-          name
-          description
-          filePath
-          author
-          createdAt
-          updatedAt
+        filters {
+          nextToken
         }
-        states {
+        columns {
           nextToken
         }
         createdAt
         updatedAt
+      }
+      filters {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -499,28 +721,34 @@ export const updateColumn = /* GraphQL */ `
       name
       min
       max
-      filterID
-      filter {
+      projectID
+      project {
         id
         name
-        columns {
+        description
+        filePath
+        author
+        states {
           nextToken
         }
-        projectID
-        project {
-          id
-          name
-          description
-          filePath
-          author
-          createdAt
-          updatedAt
+        filters {
+          nextToken
         }
-        states {
+        columns {
           nextToken
         }
         createdAt
         updatedAt
+      }
+      filters {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -537,28 +765,34 @@ export const deleteColumn = /* GraphQL */ `
       name
       min
       max
-      filterID
-      filter {
+      projectID
+      project {
         id
         name
-        columns {
+        description
+        filePath
+        author
+        states {
           nextToken
         }
-        projectID
-        project {
-          id
-          name
-          description
-          filePath
-          author
-          createdAt
-          updatedAt
+        filters {
+          nextToken
         }
-        states {
+        columns {
           nextToken
         }
         createdAt
         updatedAt
+      }
+      filters {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -573,18 +807,6 @@ export const createFilter = /* GraphQL */ `
     createFilter(input: $input, condition: $condition) {
       id
       name
-      columns {
-        items {
-          id
-          name
-          min
-          max
-          filterID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
       projectID
       project {
         id
@@ -598,8 +820,21 @@ export const createFilter = /* GraphQL */ `
         filters {
           nextToken
         }
+        columns {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      columns {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       states {
         items {
@@ -624,18 +859,6 @@ export const updateFilter = /* GraphQL */ `
     updateFilter(input: $input, condition: $condition) {
       id
       name
-      columns {
-        items {
-          id
-          name
-          min
-          max
-          filterID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
       projectID
       project {
         id
@@ -649,8 +872,21 @@ export const updateFilter = /* GraphQL */ `
         filters {
           nextToken
         }
+        columns {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      columns {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       states {
         items {
@@ -675,18 +911,6 @@ export const deleteFilter = /* GraphQL */ `
     deleteFilter(input: $input, condition: $condition) {
       id
       name
-      columns {
-        items {
-          id
-          name
-          min
-          max
-          filterID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
       projectID
       project {
         id
@@ -700,8 +924,21 @@ export const deleteFilter = /* GraphQL */ `
         filters {
           nextToken
         }
+        columns {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      columns {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       states {
         items {

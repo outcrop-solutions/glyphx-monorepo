@@ -106,6 +106,7 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 				stateID: state.id,
 			}
 			try {
+				setComments((prev) => [...prev, commentInput])
 				await API.graphql(
 					graphqlOperation(createComment, { input: commentInput })
 				)

@@ -31,6 +31,18 @@ export const getProject = /* GraphQL */ `
         }
         nextToken
       }
+      columns {
+        items {
+          id
+          name
+          min
+          max
+          projectID
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -53,6 +65,9 @@ export const listProjects = /* GraphQL */ `
           nextToken
         }
         filters {
+          nextToken
+        }
+        columns {
           nextToken
         }
         createdAt
@@ -80,6 +95,9 @@ export const getState = /* GraphQL */ `
           nextToken
         }
         filters {
+          nextToken
+        }
+        columns {
           nextToken
         }
         createdAt
@@ -153,28 +171,34 @@ export const getColumn = /* GraphQL */ `
       name
       min
       max
-      filterID
-      filter {
+      projectID
+      project {
         id
         name
-        columns {
+        description
+        filePath
+        author
+        states {
           nextToken
         }
-        projectID
-        project {
-          id
-          name
-          description
-          filePath
-          author
-          createdAt
-          updatedAt
+        filters {
+          nextToken
         }
-        states {
+        columns {
           nextToken
         }
         createdAt
         updatedAt
+      }
+      filters {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -193,13 +217,18 @@ export const listColumns = /* GraphQL */ `
         name
         min
         max
-        filterID
-        filter {
+        projectID
+        project {
           id
           name
-          projectID
+          description
+          filePath
+          author
           createdAt
           updatedAt
+        }
+        filters {
+          nextToken
         }
         createdAt
         updatedAt
@@ -213,18 +242,6 @@ export const getFilter = /* GraphQL */ `
     getFilter(id: $id) {
       id
       name
-      columns {
-        items {
-          id
-          name
-          min
-          max
-          filterID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
       projectID
       project {
         id
@@ -238,8 +255,21 @@ export const getFilter = /* GraphQL */ `
         filters {
           nextToken
         }
+        columns {
+          nextToken
+        }
         createdAt
         updatedAt
+      }
+      columns {
+        items {
+          id
+          columnID
+          filterID
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       states {
         items {
@@ -266,9 +296,6 @@ export const listFilters = /* GraphQL */ `
       items {
         id
         name
-        columns {
-          nextToken
-        }
         projectID
         project {
           id
@@ -278,6 +305,9 @@ export const listFilters = /* GraphQL */ `
           author
           createdAt
           updatedAt
+        }
+        columns {
+          nextToken
         }
         states {
           nextToken
@@ -380,6 +410,9 @@ export const searchProjects = /* GraphQL */ `
         filters {
           nextToken
         }
+        columns {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -452,13 +485,18 @@ export const searchColumns = /* GraphQL */ `
         name
         min
         max
-        filterID
-        filter {
+        projectID
+        project {
           id
           name
-          projectID
+          description
+          filePath
+          author
           createdAt
           updatedAt
+        }
+        filters {
+          nextToken
         }
         createdAt
         updatedAt
@@ -486,9 +524,6 @@ export const searchFilters = /* GraphQL */ `
       items {
         id
         name
-        columns {
-          nextToken
-        }
         projectID
         project {
           id
@@ -498,6 +533,9 @@ export const searchFilters = /* GraphQL */ `
           author
           createdAt
           updatedAt
+        }
+        columns {
+          nextToken
         }
         states {
           nextToken

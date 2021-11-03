@@ -3,15 +3,15 @@ import DeleteFilter from './DeleteFilter'
 import EditFilter from './EditFilter'
 import ShowHide from './ShowHide'
 
-function FilterActions(props) {
+function FilterActions({ show, setShowCols }) {
 	return (
 		<div className='flex justify-between'>
 			{/* Add Filter */}
-			<AddFilter />
+			<AddFilter setShowCols={setShowCols} />
 			{/* Delete Filter */}
 			<DeleteFilter />
 			{/* show/hide filter */}
-			<ShowHide show={props.show} />
+			<ShowHide show={show} />
 			{/* edit filter */}
 			<EditFilter />
 		</div>
