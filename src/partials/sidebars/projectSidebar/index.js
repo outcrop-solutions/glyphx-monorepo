@@ -5,9 +5,6 @@ import { Tree } from '@minoru/react-dnd-treeview'
 import ClickAwayListener from 'react-click-away-listener'
 import { CustomNode } from '../CustomNode'
 import { CustomDragPreview } from '../CustomDragPreview'
-import { API, graphqlOperation } from 'aws-amplify'
-import { listFilters, listStates } from '../../../graphql/queries'
-import { createFilter } from '../../../graphql/mutations'
 import styles from '../css/Sidebar.module.css'
 import Filters from './filters'
 import Properties from './properties'
@@ -39,20 +36,6 @@ export const ProjectSidebar = ({
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
-	const fetchFilters = async () => {
-		try {
-			const filterData = await API.graphql(graphqlOperation(listFilters))
-			const filterList = filterData.data.listFilters.items
-
-			console.log({ filterList })
-			setFilters((prev) => {
-				let newData = [...filterList]
-				return newData
-			})
-		} catch (error) {
-			console.log('error on fetching filters', error)
-		}
-	}
 	const handleStateChange = (state) => {
 		setState((prev) => {
 			let data = state

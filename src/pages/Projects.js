@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import useResizeObserver from '@react-hook/resize-observer'
 import { Storage } from 'aws-amplify'
 import { API, graphqlOperation } from 'aws-amplify'
-import { listStates } from '../graphql/queries'
+import { listStates, listFilters } from '../graphql/queries'
 import Header from '../partials/Header'
 import ProjectCard from '../partials/projects/ProjectCard'
 import TableView from '../partials/projects/TableView'
@@ -125,7 +125,9 @@ export const Projects = ({
 	useEffect(() => {
 		fetchStates()
 	}, []) //fetch states
-
+	useEffect(() => {
+		fetchFilters()
+	}, [])
 	useEffect(() => {
 		if (window && window.core && state) {
 			//build array of query strings
@@ -194,6 +196,7 @@ export const Projects = ({
 		}
 		console.log({ filtersApplied })
 	}, [filtersApplied]) //build query and call filter change function
+
 	function processStorageList(results) {
 		const filesystem = {}
 
@@ -224,6 +227,20 @@ export const Projects = ({
 			})
 		} catch (error) {
 			console.log('error on fetching states', error)
+		}
+	}
+	const fetchFilters = async () => {
+		try {
+			const filterData = await API.graphql(graphqlOperation(listFilters))
+			const filterList = filterData.data.listFilters.items
+
+			console.log({ filterList })
+			setFilters((prev) => {
+				let newData = [...filterList]
+				return newData
+			})
+		} catch (error) {
+			console.log('error on fetching filters', error)
 		}
 	}
 
