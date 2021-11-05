@@ -17,6 +17,7 @@ export const ProjectSidebar = ({
 	columns,
 	fileSystem,
 	setFileSystem,
+	setPosition,
 	states,
 	state,
 	setState,
@@ -77,6 +78,14 @@ export const ProjectSidebar = ({
 				.classList.remove('project-sidebar-expanded')
 		}
 	}, [sidebarExpanded])
+	useEffect(() => {
+		setPosition((prev) => {
+			if (sidebar.current !== null) {
+				console.log({ sidebar })
+				sidebar.current.getBoundingClientRect()
+			}
+		})
+	})
 
 	const handleDrop = (newTree) => setFileSystem(newTree)
 	return (

@@ -44,6 +44,9 @@ function App() {
 	const [resetPass, setResetPass] = useState(false)
 	const [position, setPosition] = useState({}) // Drawer position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
 
+	useEffect(() => {
+		console.log({ position })
+	}, [position])
 	const [sendDrawerPosition, setSendDrawerPosition] = useState(false)
 
 	const location = useLocation()

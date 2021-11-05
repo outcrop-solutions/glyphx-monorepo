@@ -29,7 +29,7 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 	}, [state]) //fetch comments
 	useEffect(() => {
 		console.log({ position: sidebar.current.getBoundingClientRect() })
-		setPosition(sidebar.current.getBoundingClientRect())
+		// setPosition(sidebar.current.getBoundingClientRect())
 	}, [sidebar]) //get rectangle bounding box coordinates
 	useEffect(() => {
 		const clickHandler = ({ target }) => {

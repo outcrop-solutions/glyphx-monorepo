@@ -77,6 +77,15 @@ export const Projects = ({
 	const ref = useRef(null)
 	const pos = usePosition(ref)
 
+	// useEffect(() => {
+	// 	// console.log({ position: ref.current.getBoundingClientRect() })
+	// 	setPosition((prev) => {
+	// 		// console.log({ ref })
+	// 		if (ref.current !== null) {
+	// 			ref.current.getBoundingClientRect()
+	// 		}
+	// 	})
+	// })
 	useEffect(() => {
 		setPosition(pos)
 	}, [pos]) // passes resize observation back up to app level state
@@ -92,16 +101,16 @@ export const Projects = ({
 				console.log({ error })
 			}
 		}
-		const getFilesList = async () => {
-			try {
-				// let files = await Storage.list(`${filePath}/`)
-				let files = await Storage.list('')
-				let fileSystem = processStorageList(files)
-				// setFileSystem({ ...fileSystem })
-			} catch (error) {
-				console.log({ error })
-			}
-		}
+		// const getFilesList = async () => {
+		// 	try {
+		// 		// let files = await Storage.list(`${filePath}/`)
+		// 		let files = await Storage.list('')
+		// 		let fileSystem = processStorageList(files)
+		// 		// setFileSystem({ ...fileSystem })
+		// 	} catch (error) {
+		// 		console.log({ error })
+		// 	}
+		// }
 		const getSidebar = async () => {
 			try {
 				let sidebarData = await Storage.get('sidebar.json', {
@@ -109,16 +118,37 @@ export const Projects = ({
 				})
 				// data.Body is a Blob
 				sidebarData.Body.text().then((string) => {
-					let { columns, properties } = JSON.parse(string)
+					let { files, columns, properties } = JSON.parse(string)
+					console.log({ js: JSON.parse(string) })
+					console.log({ columns })
 					setProperties({ ...properties })
 					setColumns([...columns])
+					setFileSystem((prev) => {
+						let newData = files.map((item, idx) => ({
+							id: idx + 2,
+							parent: 1,
+							droppable: false,
+							text: item,
+							data: {
+								fileType: item.split('.')[1],
+								fileSize: '0.5MB',
+							},
+						}))
+						newData.unshift({
+							id: 1,
+							parent: 0,
+							droppable: true,
+							text: 'Sample_Project',
+						})
+						return newData
+					})
 				})
 			} catch (error) {
 				console.log({ error })
 			}
 		}
 		signUrl()
-		getFilesList()
+		// getFilesList()
 		getSidebar()
 	}, [project]) //pass presigned url
 
@@ -127,7 +157,7 @@ export const Projects = ({
 	}, []) //fetch states
 	useEffect(() => {
 		fetchFilters()
-	}, [])
+	}, []) //fetch filters
 	useEffect(() => {
 		if (window && window.core && state) {
 			//build array of query strings
@@ -197,6 +227,9 @@ export const Projects = ({
 		console.log({ filtersApplied })
 	}, [filtersApplied]) //build query and call filter change function
 
+	useEffect(() => {
+		console.log({ fileSystem })
+	}, [fileSystem])
 	function processStorageList(results) {
 		const filesystem = {}
 
@@ -282,6 +315,7 @@ export const Projects = ({
 									setFileSystem={setFileSystem}
 									project={project}
 									properties={properties}
+									setPosition={setPosition}
 									columns={columns}
 									states={states}
 									state={state}
