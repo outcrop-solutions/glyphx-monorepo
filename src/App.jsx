@@ -43,10 +43,10 @@ function App() {
 	const [signUp, setSignUp] = useState(false)
 	const [resetPass, setResetPass] = useState(false)
 	const [position, setPosition] = useState({}) // Drawer position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
-
+	const [sidePosition, setSidePosition] = useState({})
 	useEffect(() => {
-		console.log({ position })
-	}, [position])
+		console.log({ position, sidePosition })
+	}, [position, sidePosition])
 	const [sendDrawerPosition, setSendDrawerPosition] = useState(false)
 
 	const location = useLocation()
@@ -77,11 +77,22 @@ function App() {
 		openSocket(baseUrl)
 	}, [location.pathname]) // handle scroll position on route change
 	useEffect(() => {
+		console.log(
+			JSON.stringify({
+				projectsSidebar: sidePosition.oldValues,
+				commentsSidebar: position.oldValues,
+			})
+		)
 		if (sendDrawerPosition) {
-			window.core.SendDrawerPosition(JSON.stringify(position))
-			setSendDrawerPosition(false)
+			window.core.SendDrawerPosition(
+				JSON.stringify({
+					projectsSidebar: sidePosition.oldValues,
+					commentsSidebar: position.oldValues,
+				})
+			)
+			// setSendDrawerPosition(false)
 		}
-	}, [position, sendDrawerPosition])
+	}, [position, sidePosition, sendDrawerPosition])
 
 	// utility functions
 	const assessLoggedIn = () => {
@@ -157,6 +168,8 @@ function App() {
 							projects={projects}
 							position={position}
 							setPosition={setPosition}
+							sidePosition={sidePosition}
+							setSidePosition={setSidePosition}
 						/>
 					) : resetPass ? (
 						<ResetPassword

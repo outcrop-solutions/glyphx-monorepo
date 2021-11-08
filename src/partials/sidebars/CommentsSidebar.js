@@ -1,10 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { v4 as uuid } from 'uuid'
 import { StaticRouter, useLocation } from 'react-router-dom'
+import useResizeObserver from '@react-hook/resize-observer'
 import { API, graphqlOperation } from 'aws-amplify'
 import { getState, listComments } from '../../graphql/queries'
 import { createComment, updateState } from '../../graphql/mutations'
 
+// added here for clarity
+const usePosition = (target) => {
+	const [entry, setEntry] = useState()
+
+	useLayoutEffect(() => {
+		if (target.current) setEntry(target.current.getBoundingClientRect())
+	}, [target])
+
+	// Where the magic happens
+	useResizeObserver(target, (entry) => setEntry(entry))
+
+	return entry
+}
 export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 	const location = useLocation()
 	const { pathname } = location
@@ -23,6 +37,7 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
 	const commentRef = useRef(null)
+	const pos = usePosition(sidebar)
 
 	useEffect(() => {
 		fetchComments()
@@ -64,6 +79,20 @@ export const CommentsSidebar = ({ state, project, setPosition, user }) => {
 		}
 	}, [sidebarExpanded]) //handle sidebar local storage
 
+	useEffect(() => {
+		setPosition((prev) => {
+			if (sidebar.current !== null) {
+				return {
+					oldValues: sidebar.current.getBoundingClientRect(),
+					newValues: pos,
+				}
+				// return {
+				// 	width: sidebar.current.offsetWidth,
+				// 	height: sidebar.current.offsetHeight,
+				// }
+			}
+		})
+	}, [sidebarExpanded, pos])
 	// fetch comment data
 	const fetchComments = async () => {
 		if (typeof state !== 'undefined') {

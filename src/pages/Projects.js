@@ -31,6 +31,8 @@ export const Projects = ({
 	projects,
 	position,
 	setPosition,
+	sidePosition,
+	setSidePosition,
 	fetchProjects,
 }) => {
 	const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -75,7 +77,7 @@ export const Projects = ({
 	const [showAddProject, setShowAddProject] = useState(false)
 
 	const ref = useRef(null)
-	const pos = usePosition(ref)
+	// const pos = usePosition(ref)
 
 	// useEffect(() => {
 	// 	// console.log({ position: ref.current.getBoundingClientRect() })
@@ -86,9 +88,31 @@ export const Projects = ({
 	// 		}
 	// 	})
 	// })
-	useEffect(() => {
-		setPosition(pos)
-	}, [pos]) // passes resize observation back up to app level state
+	const storedSidebarExpanded = localStorage.getItem('project-sidebar-expanded')
+	const commentsSidebarExpanded = localStorage.getItem(
+		'comments-sidebar-expanded'
+	)
+	// useEffect(() => {
+	// 	setPosition((prev) => {
+	// 		if (ref.current !== null) {
+	// 			console.log({
+	// 				oldValues: ref.current.getBoundingClientRect(),
+	// 				newValues: pos,
+	// 			})
+	// 			return {
+	// 				oldValues: ref.current.getBoundingClientRect(),
+	// 				newValues: pos,
+	// 			}
+	// 			// return {
+	// 			// 	width: ref.current.offsetWidth,
+	// 			// 	height: ref.current.offsetHeight,
+	// 			// }
+	// 		}
+	// 	})
+	// }, [storedSidebarExpanded, commentsSidebarExpanded, pos])
+	// useEffect(() => {
+	// 	setPosition(pos)
+	// }, [pos]) // passes resize observation back up to app level state
 	useEffect(() => {
 		const signUrl = async () => {
 			try {
@@ -315,7 +339,7 @@ export const Projects = ({
 									setFileSystem={setFileSystem}
 									project={project}
 									properties={properties}
-									setPosition={setPosition}
+									setSidePosition={setSidePosition}
 									columns={columns}
 									states={states}
 									state={state}

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import ProjectLinkGroup from '../../ProjectLinkGroup'
+import useResizeObserver from '@react-hook/resize-observer'
 import { NavLink, useLocation } from 'react-router-dom'
 import { Tree } from '@minoru/react-dnd-treeview'
 import ClickAwayListener from 'react-click-away-listener'
@@ -11,13 +12,27 @@ import Properties from './properties'
 import States from './states'
 import ExpandCollapse from './ExpandCollapse'
 
+// added here for clarity
+const usePosition = (target) => {
+	const [entry, setEntry] = useState()
+
+	useLayoutEffect(() => {
+		if (target.current) setEntry(target.current.getBoundingClientRect())
+	}, [target])
+
+	// Where the magic happens
+	useResizeObserver(target, (entry) => setEntry(entry))
+
+	return entry
+}
+
 export const ProjectSidebar = ({
 	project,
 	properties,
 	columns,
 	fileSystem,
 	setFileSystem,
-	setPosition,
+	setSidePosition,
 	states,
 	state,
 	setState,
@@ -34,6 +49,9 @@ export const ProjectSidebar = ({
 	const sidebar = useRef(null)
 
 	const storedSidebarExpanded = localStorage.getItem('project-sidebar-expanded')
+	const commentsSidebarExpanded = localStorage.getItem(
+		'comments-sidebar-expanded'
+	)
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
@@ -78,14 +96,25 @@ export const ProjectSidebar = ({
 				.classList.remove('project-sidebar-expanded')
 		}
 	}, [sidebarExpanded])
+
+	const projPosition = usePosition(sidebar)
+	// useEffect(() => {
+	// 	setSidePosition(projPosition)
+	// }, [projPosition])
 	useEffect(() => {
-		setPosition((prev) => {
+		setSidePosition((prev) => {
 			if (sidebar.current !== null) {
-				console.log({ sidebar })
-				sidebar.current.getBoundingClientRect()
+				return {
+					oldValues: sidebar.current.getBoundingClientRect(),
+					newValues: projPosition,
+				}
+				// return {
+				// 	width: sidebar.current.offsetWidth,
+				// 	height: sidebar.current.offsetHeight,
+				// }
 			}
 		})
-	})
+	}, [sidebarExpanded, commentsSidebarExpanded, projPosition])
 
 	const handleDrop = (newTree) => setFileSystem(newTree)
 	return (
