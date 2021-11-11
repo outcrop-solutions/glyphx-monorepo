@@ -1,11 +1,9 @@
 import React from 'react'
-import { DragLayerMonitorProps } from '@minoru/react-dnd-treeview'
 import { TypeIcon } from './TypeIcon'
-import styles from './css/CustomDragPreview.module.css'
+import styles from '../../css/CustomDragPreview.module.css'
 
-export const CustomDragPreview = (props) => {
-	const item = props.monitorProps.item
-
+export const CustomDragPreview = ({ monitorProps }) => {
+	const item = monitorProps.item
 	return (
 		<div className={styles.root}>
 			<div className={styles.icon}>

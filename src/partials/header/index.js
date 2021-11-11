@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 
-import SearchModal from '../components/ModalSearch'
-import GridToggle from '../components/GridToggle'
-import Notifications from '../components/DropdownNotifications'
-import Help from '../components/DropdownHelp'
-import SearchForm from './actions/SearchForm'
+import SearchModal from '../../components/ModalSearch'
+import GridToggle from '../../components/GridToggle'
+import Notifications from '../../components/DropdownNotifications'
+import Help from '../../components/DropdownHelp'
+import SearchForm from '../actions/SearchForm'
 import { Auth } from 'aws-amplify'
-import FilterButton from '../components/DropdownFilter'
-// import { AmplifySignOut } from '@aws-amplify/ui-react'
+import FilterButton from '../../components/DropdownFilter'
 
 function Header({
 	setLoggedIn,

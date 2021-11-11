@@ -1,30 +1,13 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import ProjectLinkGroup from '../../ProjectLinkGroup'
-import useResizeObserver from '@react-hook/resize-observer'
-import { NavLink, useLocation } from 'react-router-dom'
-import { Tree } from '@minoru/react-dnd-treeview'
+import { useLocation } from 'react-router-dom'
 import ClickAwayListener from 'react-click-away-listener'
-import { CustomNode } from '../CustomNode'
-import { CustomDragPreview } from '../CustomDragPreview'
-import styles from '../css/Sidebar.module.css'
 import Filters from './filters'
 import Properties from './properties'
 import States from './states'
+import { Files } from './files'
 import ExpandCollapse from './ExpandCollapse'
-
-// added here for clarity
-const usePosition = (target) => {
-	const [entry, setEntry] = useState()
-
-	useLayoutEffect(() => {
-		if (target.current) setEntry(target.current.getBoundingClientRect())
-	}, [target])
-
-	// Where the magic happens
-	useResizeObserver(target, (entry) => setEntry(entry))
-
-	return entry
-}
+import { usePosition } from '../../../services/usePosition'
 
 export const ProjectSidebar = ({
 	project,
@@ -33,11 +16,8 @@ export const ProjectSidebar = ({
 	fileSystem,
 	setFileSystem,
 	setSidePosition,
-	states,
 	state,
 	setState,
-	filters,
-	setFilters,
 	filtersApplied,
 	setFiltersApplied,
 }) => {
@@ -45,8 +25,10 @@ export const ProjectSidebar = ({
 	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [showCols, setShowCols] = useState(false)
+
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
+	const projPosition = usePosition(sidebar)
 
 	const storedSidebarExpanded = localStorage.getItem('project-sidebar-expanded')
 	const commentsSidebarExpanded = localStorage.getItem(
@@ -55,15 +37,7 @@ export const ProjectSidebar = ({
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
-	const handleStateChange = (state) => {
-		setState((prev) => {
-			let data = state
-			return data
-		})
-	}
-	const handleClickAway = () => {
-		setShowCols(false)
-	}
+	// close on click outside
 	useEffect(() => {
 		const clickHandler = ({ target }) => {
 			if (!sidebar.current || !trigger.current) return
@@ -77,7 +51,8 @@ export const ProjectSidebar = ({
 		}
 		document.addEventListener('click', clickHandler)
 		return () => document.removeEventListener('click', clickHandler)
-	}) // close on click outside
+	})
+	// close if the esc key is pressed
 	useEffect(() => {
 		const keyHandler = ({ keyCode }) => {
 			if (!sidebarOpen || keyCode !== 219) return
@@ -85,7 +60,8 @@ export const ProjectSidebar = ({
 		}
 		document.addEventListener('keydown', keyHandler)
 		return () => document.removeEventListener('keydown', keyHandler)
-	}) // close if the esc key is pressed
+	})
+	//handle sidebar state in localStorage
 	useEffect(() => {
 		localStorage.setItem('project-sidebar-expanded', sidebarExpanded)
 		if (sidebarExpanded) {
@@ -96,27 +72,29 @@ export const ProjectSidebar = ({
 				.classList.remove('project-sidebar-expanded')
 		}
 	}, [sidebarExpanded])
-
-	const projPosition = usePosition(sidebar)
-	// useEffect(() => {
-	// 	setSidePosition(projPosition)
-	// }, [projPosition])
+	// set projectsSidebar position on transition
 	useEffect(() => {
 		setSidePosition((prev) => {
 			if (sidebar.current !== null) {
 				return {
-					oldValues: sidebar.current.getBoundingClientRect(),
-					newValues: projPosition,
+					values: sidebar.current.getBoundingClientRect(),
 				}
-				// return {
-				// 	width: sidebar.current.offsetWidth,
-				// 	height: sidebar.current.offsetHeight,
-				// }
 			}
 		})
 	}, [sidebarExpanded, commentsSidebarExpanded, projPosition])
 
+	//utilities
+	const handleStateChange = (state) => {
+		setState((prev) => {
+			let data = state
+			return data
+		})
+	}
+	const handleClickAway = () => {
+		setShowCols(false)
+	}
 	const handleDrop = (newTree) => setFileSystem(newTree)
+
 	return (
 		<div
 			id='sidebar'
@@ -129,75 +107,15 @@ export const ProjectSidebar = ({
 				<ProjectLinkGroup activecondition={pathname.includes('')}>
 					{(handleClick, open) => {
 						return (
-							<React.Fragment>
-								<a
-									href='#0'
-									className={`block text-gray-200 hover:text-white truncate border-gray-400 ${
-										Object.keys(fileSystem).length > 0
-											? 'border-b border-gray-400'
-											: 'border-b'
-									} transition duration-150 ${
-										pathname.includes('') && 'hover:text-gray-200'
-									}`}
-									onClick={(e) => {
-										e.preventDefault()
-										sidebarExpanded ? handleClick() : setSidebarExpanded(true)
-									}}>
-									<div
-										className={`flex items-center h-11 ml-3 ${
-											!sidebarExpanded ? 'w-full justify-center ml-0' : ''
-										}`}>
-										{/* Icon */}
-										<div className='flex flex-shrink-0'>
-											<svg
-												aria-hidden='true'
-												role='img'
-												width='16'
-												height='16'
-												preserveAspectRatio='xMidYMid meet'
-												viewBox='0 0 256 256'>
-												<path
-													d='M213.657 66.343l-40-40A8 8 0 0 0 168 24H88a16.018 16.018 0 0 0-16 16v16H56a16.018 16.018 0 0 0-16 16v144a16.018 16.018 0 0 0 16 16h112a16.018 16.018 0 0 0 16-16v-16h16a16.018 16.018 0 0 0 16-16V72a8 8 0 0 0-2.343-5.657zM136 192H88a8 8 0 0 1 0-16h48a8 8 0 0 1 0 16zm0-32H88a8 8 0 0 1 0-16h48a8 8 0 0 1 0 16zm64 24h-16v-80a8 8 0 0 0-2.343-5.657l-40-40A8 8 0 0 0 136 56H88V40h76.687L200 75.314z'
-													fill='white'
-												/>
-											</svg>
-										</div>
-
-										{sidebarExpanded ? (
-											<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-												Files
-											</span>
-										) : null}
-										{/* </div> */}
-									</div>
-								</a>
-								<div
-									className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 pl-3 ${
-										!open ? 'border-0' : 'border-b border-gray-400'
-									}`}>
-									<Tree
-										tree={fileSystem}
-										rootId={0}
-										render={(node, { depth, isOpen, onToggle }) => (
-											<CustomNode
-												node={node}
-												depth={depth}
-												isOpen={isOpen}
-												onToggle={onToggle}
-											/>
-										)}
-										dragPreviewRender={(monitorProps) => (
-											<CustomDragPreview monitorProps={monitorProps} />
-										)}
-										onDrop={handleDrop}
-										classes={{
-											root: styles.treeRoot,
-											draggingSource: styles.draggingSource,
-											dropTarget: styles.dropTarget,
-										}}
-									/>
-								</div>
-							</React.Fragment>
+							<Files
+								includes={pathname.includes}
+								sidebarExpanded={sidebarExpanded}
+								setSidebarExpanded={setSidebarExpanded}
+								handleDrop={handleDrop}
+								handleClick={handleClick}
+								open={open}
+								length={Object.keys(fileSystem).length}
+								fileSystem={fileSystem}></Files>
 						)
 					}}
 				</ProjectLinkGroup>
@@ -227,8 +145,6 @@ export const ProjectSidebar = ({
 									showCols={showCols}
 									setShowCols={setShowCols}
 									includes={pathname.includes}
-									filters={filters}
-									setFilters={setFilters}
 									columns={columns}
 									open={open}
 									sidebarExpanded={sidebarExpanded}
@@ -249,7 +165,6 @@ export const ProjectSidebar = ({
 								sidebarExpanded={sidebarExpanded}
 								setSidebarExpanded={setSidebarExpanded}
 								handleClick={handleClick}
-								states={states}
 								handleStateChange={handleStateChange}
 								state={state}
 							/>

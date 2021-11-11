@@ -3,16 +3,16 @@ import { useDragOver } from '@minoru/react-dnd-treeview'
 import { TypeIcon } from './TypeIcon'
 import styles from './css/CustomNode.module.css'
 
-export const CustomNode = (props) => {
-	const { id, droppable, data } = props.node
-	const indent = props.depth * 24
+export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
+	const { id, droppable, data } = node
+	const indent = depth * 24
 
 	const handleToggle = (e) => {
 		e.stopPropagation()
-		props.onToggle(props.node.id)
+		onToggle(node.id)
 	}
 
-	const dragOverProps = useDragOver(id, props.isOpen, props.onToggle)
+	const dragOverProps = useDragOver(id, isOpen, onToggle)
 
 	return (
 		<div
@@ -21,9 +21,9 @@ export const CustomNode = (props) => {
 			{...dragOverProps}>
 			<div
 				className={`${styles.expandIconWrapper} ${
-					props.isOpen ? styles.isOpen : ''
+					isOpen ? styles.isOpen : ''
 				}`}>
-				{props.node.droppable && (
+				{node.droppable && (
 					<div onClick={handleToggle}>
 						<svg
 							aria-hidden='true'
@@ -40,7 +40,7 @@ export const CustomNode = (props) => {
 				<TypeIcon droppable={droppable} fileType={data?.fileType} />
 			</div>
 			<div className={styles.labelGridItem}>
-				<div className='text-white text-sm'>{props.node.text}</div>
+				<div className='text-white text-sm'>{node.text}</div>
 			</div>
 		</div>
 	)

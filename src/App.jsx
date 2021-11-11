@@ -10,11 +10,8 @@ import {
 
 // AWS & Analytics
 import posthog from 'posthog-js'
-import Amplify, { API, graphqlOperation, Auth } from 'aws-amplify'
-import { withAuthenticator } from '@aws-amplify/ui-react'
-import awsconfig from './aws-exports'
 
-import QWebChannel from 'qwebchannel'
+import awsconfig from './aws-exports'
 
 // styles
 import { focusHandling } from 'cruip-js-toolkit'
@@ -25,9 +22,11 @@ import { Projects } from './pages/Projects'
 import SignIn from './pages/Signin'
 import Signup from './pages/Signup'
 import ResetPassword from './pages/ResetPassword'
-import { listProjects } from './graphql/queries'
-
-let socket = null
+import { useSocket } from './services/useSocket'
+import { useUser } from './services/useUser'
+import { useDrawerPosition } from './services/useDrawerPosition'
+import { useProjects } from './services/useProjects'
+import Amplify from 'aws-amplify'
 
 // TODO: set api key in environment variable
 posthog.init('phc_flrvuYtat2QJ6aSiiWeuBZq69U3M3EmXKVLprmvZPIS', {
@@ -37,159 +36,59 @@ posthog.init('phc_flrvuYtat2QJ6aSiiWeuBZq69U3M3EmXKVLprmvZPIS', {
 Amplify.configure(awsconfig)
 
 function App() {
-	const [projects, setProjects] = useState([])
-	const [user, setUser] = useState({})
-	const [loggedIn, setLoggedIn] = useState(false)
-	const [signUp, setSignUp] = useState(false)
+	// const [user, setUser] = useState({})
+	const [isSignedUp, setIsSignedUp] = useState(false)
+	const [isLoggedIn, setIsLoggedIn] = useState(false)
+	const { user } = useUser(isLoggedIn, isSignedUp)
 	const [resetPass, setResetPass] = useState(false)
-	const [position, setPosition] = useState({}) // Drawer position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
-	const [sidePosition, setSidePosition] = useState({})
-	useEffect(() => {
-		console.log({ position, sidePosition })
-	}, [position, sidePosition])
-	const [sendDrawerPosition, setSendDrawerPosition] = useState(false)
-
+	const [signUp, setSignUp] = useState(false)
 	const location = useLocation()
+	const { projects } = useProjects()
+	// comments and filter sidebar positions
+	// position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
+	//position state dynamically changes with transitions
+	const [commentsPosition, setCommentsPosition] = useState({})
+	const [filterSidebarPosition, setFilterSidebarPosition] = useState({})
+	const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false)
+	const { isDrawerSent } = useDrawerPosition(
+		commentsPosition,
+		filterSidebarPosition,
+		sendDrawerPositionApp
+	)
+	const { isSocketOpen, sendDrawerPosition } = useSocket('ws://localhost:12345')
+
 	useEffect(() => {
-		assessLoggedIn()
-	}, []) // check if user is logged in
-	useEffect(() => {
-		const getUser = async () => {
-			try {
-				let user = await Auth.currentUserInfo()
-				setUser(user)
-			} catch (error) {
-				setLoggedIn(false)
-			}
-		}
-		getUser()
-	}, []) // fetch and set current user
-	useEffect(() => {
-		if (user && user.attributes) fetchProjects()
-	}, [user]) // fetch project data from RDS
+		setSendDrawerPositionApp(sendDrawerPosition)
+	}, [sendDrawerPosition])
+	// handle scroll position on route change
 	useEffect(() => {
 		document.querySelector('html').style.scrollBehavior = 'auto'
 		window.scroll({ top: 0 })
 		document.querySelector('html').style.scrollBehavior = ''
 		focusHandling('outline')
-
-		var baseUrl = 'ws://localhost:12345'
-		openSocket(baseUrl)
-	}, [location.pathname]) // handle scroll position on route change
-	useEffect(() => {
-		console.log(
-			JSON.stringify({
-				projectsSidebar: sidePosition.oldValues,
-				commentsSidebar: position.oldValues,
-			})
-		)
-		if (sendDrawerPosition) {
-			window.core.SendDrawerPosition(
-				JSON.stringify({
-					projectsSidebar: sidePosition.oldValues,
-					commentsSidebar: position.oldValues,
-				})
-			)
-			// setSendDrawerPosition(false)
-		}
-	}, [position, sidePosition, sendDrawerPosition])
-
-	// utility functions
-	const assessLoggedIn = () => {
-		Auth.currentAuthenticatedUser()
-			.then(() => {
-				setLoggedIn(true)
-			})
-			.catch(() => {
-				setLoggedIn(false)
-				// history.push('/signin')
-			})
-	}
-	const fetchProjects = async () => {
-		try {
-			const projectData = await API.graphql(graphqlOperation(listProjects))
-			console.log({ projectData })
-			const projectList = projectData.data.listProjects.items
-
-			console.log({ projectList })
-			setProjects((prev) => {
-				let newData = [...projectList]
-				return newData
-			})
-		} catch (error) {
-			console.log('error on fetching projects', error)
-		}
-	}
-	let openSocket = (baseUrl) => {
-		if (!socket) {
-			socket = new WebSocket(baseUrl)
-		}
-		socket.onclose = function () {
-			console.error('web channel closed')
-		}
-		socket.onerror = function (error) {
-			console.error('web channel error: ' + error)
-		}
-		socket.onopen = function () {
-			console.log('WebSocket connected, setting up QWebChannel.')
-			new QWebChannel.QWebChannel(socket, function (channel) {
-				try {
-					// make core object accessible globally
-					window.core = channel.objects.core
-					window.core.KeepAlive.connect(function (message) {
-						//Issued every 30 seconds from Qt to prevent websocket timeout
-						console.log(message)
-					})
-					window.core.GetDrawerPosition.connect(function (message) {
-						setSendDrawerPosition(true)
-					})
-
-					//core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
-					//core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
-					//core.UpdateFilter("Update Filter");	// Takes a SQL query based on current filters
-					//core.ChangeState("Change State");		// Takes the Json information for the selected state
-					//core.ReloadDrawer("Reload Drawer");	// Triggers a reload of the visualization currently in the drawer. This does not need to be called after a filter update.
-				} catch (e) {
-					console.error(e.message)
-				}
-			})
-		}
-	}
+	}, [location.pathname])
 
 	return (
 		<>
 			<Switch>
 				<Route exact path='/'>
-					{loggedIn && user ? (
+					{isLoggedIn && user ? (
 						<Projects
-							fetchProjects={fetchProjects}
-							setLoggedIn={setLoggedIn}
 							user={user}
 							projects={projects}
-							position={position}
-							setPosition={setPosition}
-							sidePosition={sidePosition}
-							setSidePosition={setSidePosition}
+							commentsPosition={commentsPosition}
+							setCommentsPosition={setCommentsPosition}
+							filterSidebarPosition={filterSidebarPosition}
 						/>
 					) : resetPass ? (
 						<ResetPassword
 							setResetPass={setResetPass}
-							setSignUp={setSignUp}
-							setUser={setUser}
+							setIsSignedUp={setIsSignedUp}
 						/>
-					) : signUp ? (
-						<Signup
-							setUser={setUser}
-							setSignUp={setSignUp}
-							setLoggedIn={setLoggedIn}
-						/>
+					) : isSignedUp ? (
+						<Signup setIsSignedUp={setIsSignedUp} />
 					) : (
-						<SignIn
-							setResetPass={setResetPass}
-							setUser={setUser}
-							setLoggedIn={setLoggedIn}
-							setSignUp={setSignUp}
-						/>
+						<SignIn setResetPass={setResetPass} setIsSignedUp={setIsSignedUp} />
 					)}
 				</Route>
 			</Switch>
