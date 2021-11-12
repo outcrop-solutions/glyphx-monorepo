@@ -1,133 +1,135 @@
-import React, { useState, useEffect } from 'react'
-import { Grid, Input, Select } from 'react-spreadsheet-grid'
+import { useState } from 'react'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { Cell } from './cell'
 
-export const DataTable = () => {
-	const initColumns = () => {
-		return [
-			{
-				title: 'First Name',
-				value: (row, { focus }) => {
-					return (
-						<Input
-							value={row.firstName}
-							focus={focus}
-							onChange={onFieldChange(row.id, 'firstName')}
-						/>
-					)
-				},
-				id: 'firstName',
-			},
-			{
-				title: 'Last Name',
-				value: (row, { focus }) => {
-					return (
-						<Input
-							value={row.secondName}
-							focus={focus}
-							onChange={onFieldChange(row.id, 'secondName')}
-						/>
-					)
-				},
-				id: 'secondName',
-			},
-			{
-				title: 'Position',
-				value: (row, { focus }) => {
-					return (
-						<Select
-							selectedId={row.positionId}
-							isOpen={focus}
-							items={positions}
-							onChange={onFieldChange(row.id, 'positionId')}
-						/>
-					)
-				},
-				id: 'position',
-			},
-			{
-				title: '',
-				value: (row, { focus }) => {
-					return (
-						<Input
-							value={row.age}
-							focus={focus}
-							onChange={onFieldChange(row.id, 'age')}
-						/>
-					)
-				},
-				id: 'age',
-				width: 10,
-			},
-		]
-	}
-	const initData = () => {
-		const rows = []
-		const positions = []
-		for (let i = 0; i < 1000; i++) {
-			rows.push({
-				id: i,
-				firstName: 'First name ' + i,
-				secondName: 'Second name ' + i,
-				positionId: 3,
-				age: i,
-			})
+// fake data generator
+const getItems = (count, offset = 0) =>
+	Array.from({ length: count }, (v, k) => k).map((k) => ({
+		id: `item-${k + offset}-${new Date().getTime()}`,
+		content: `item ${k + offset}`,
+	}))
+
+const reorder = (list, startIndex, endIndex) => {
+	const result = Array.from(list)
+	const [removed] = result.splice(startIndex, 1)
+	result.splice(endIndex, 0, removed)
+
+	return result
+}
+
+/**
+ * Moves an item from one list to another list.
+ */
+const move = (source, destination, droppableSource, droppableDestination) => {
+	const sourceClone = Array.from(source)
+	const destClone = Array.from(destination)
+	const [removed] = sourceClone.splice(droppableSource.index, 1)
+
+	destClone.splice(droppableDestination.index, 0, removed)
+
+	const result = {}
+	result[droppableSource.droppableId] = sourceClone
+	result[droppableDestination.droppableId] = destClone
+
+	return result
+}
+
+const getItemStyle = (isDragging) =>
+	`${isDragging ? '' : 'border border-gray-200 border-1'}`
+const getListStyle = (isDraggingOver) =>
+	`${isDraggingOver ? '' : 'min-w-56 max-w-min'}`
+
+export const DataGrid = () => {
+	const [state, setState] = useState([
+		getItems(10),
+		getItems(10, 10),
+		getItems(10, 20),
+		getItems(10, 30),
+		getItems(10, 40),
+	])
+
+	function onDragEnd(result) {
+		const { source, destination } = result
+
+		// dropped outside the list
+		if (!destination) {
+			return
 		}
+		const sInd = +source.droppableId
+		const dInd = +destination.droppableId
 
-		for (let i = 1; i < 6; i++) {
-			positions.push({
-				id: i,
-				name: 'Long Position Name ' + i,
-			})
+		if (sInd === dInd) {
+			const items = reorder(state[sInd], source.index, destination.index)
+			const newState = [...state]
+			newState[sInd] = items
+			setState(newState)
+		} else {
+			const result = move(state[sInd], state[dInd], source, destination)
+			const newState = [...state]
+			newState[sInd] = result[sInd]
+			newState[dInd] = result[dInd]
+
+			setState(newState.filter((group) => group.length))
 		}
-		return { rows, positions }
-	}
-
-	const [columns, setColumns] = useState(initColumns())
-	const [rows, setRows] = useState([])
-	const [positions, setPositions] = useState([])
-	const [data, setData] = useState(initData())
-	useEffect(() => {
-		setRows(data.rows)
-		setPositions(data.positions)
-	}, [data])
-
-	const onFieldChange = (rowId, field) => (value) => {
-		rows[rowId][field] = value
-		setRows([].concat(rows))
-	}
-
-	const onColumnResize = (widthValues) => {
-		const newColumns = [].concat(columns)
-		Object.keys(widthValues).forEach((columnId) => {
-			const column = columns.find(({ id }) => id === columnId)
-			column.width = widthValues[columnId]
-		})
-		setColumns(newColumns)
 	}
 
 	return (
-		<div className='overflow-hidden h-5/6'>
-			{rows.length > 0 && positions.length > 0 ? (
-				<Grid
-					className='bg-gray-900'
-					columns={columns}
-					rows={rows}
-					getRowKey={(row) => row.id}
-					rowHeight={50}
-					isColumnsResizable
-					onColumnResize={onColumnResize}
-					focusOnSingleClick={true}
-					disabledCellChecker={(row, columnId) => {
-						return columnId === 'age'
-					}}
-					isScrollable={true}
-				/>
-			) : null}
+		<div className='overflow-x-scroll w-full'>
+			{/* <button
+				type='button'
+				onClick={() => {
+					setState([...state, []])
+				}}>
+				Add new group
+			</button>
+			<button
+				type='button'
+				onClick={() => {
+					setState([...state, getItems(1)])
+				}}>
+				Add new item
+			</button> */}
+			<div style={{ display: 'flex' }}>
+				<DragDropContext onDragEnd={onDragEnd}>
+					{state.map((el, ind) => (
+						<Droppable key={ind} droppableId={`${ind}`}>
+							{(provided, snapshot) => (
+								<div
+									ref={provided.innerRef}
+									className={getListStyle(snapshot.isDraggingOver)}
+									{...provided.droppableProps}>
+									{el.map((item, index) => (
+										<Draggable
+											key={item.id}
+											draggableId={item.id}
+											index={index}>
+											{(provided, snapshot) => {
+												return (
+													<div
+														ref={provided.innerRef}
+														{...provided.draggableProps}
+														{...provided.dragHandleProps}
+														style={provided.draggableProps.style}
+														className={getItemStyle(snapshot.isDragging)}>
+														<Cell
+															ind={ind}
+															index={index}
+															item={item}
+															state={state}
+															setState={setState}
+														/>
+													</div>
+												)
+											}}
+										</Draggable>
+									))}
+									{provided.placeholder}
+								</div>
+							)}
+						</Droppable>
+					))}
+				</DragDropContext>
+			</div>
 		</div>
 	)
-}
-
-DataTable.defaultProps = {
-	isScrollable: false,
-	focusedOnClick: false,
 }

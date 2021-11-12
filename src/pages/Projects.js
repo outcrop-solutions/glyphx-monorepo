@@ -9,7 +9,10 @@ import { MainSidebar } from '../partials/sidebars/main'
 import { useUrl } from '../services/useUrl'
 import { useStateChange } from '../services/useStateChange'
 import { useFilterChange } from '../services/useFilterChange'
-import { DataTable } from '../partials/datagrid/index'
+import { DataGrid } from '../partials/datagrid'
+import { Columns } from '../partials/datagrid/columns'
+// import { DataTable } from '../partials/datasheet-temp/index'
+
 // import { Horizontal } from '../partials/dnd/Pages'
 
 export const Projects = ({
@@ -71,10 +74,10 @@ export const Projects = ({
 									setState={setState}
 								/>
 								<div className='w-full flex'>
-									<div className='min-w-0 flex-auto'>
+									<div className='min-w-0 flex-auto mx-2'>
 										{/* <Dnd /> */}
-										{/* <Horizontal /> */}
-										<DataTable />
+										<Columns />
+										<DataGrid />
 									</div>
 									<CommentsSidebar
 										user={user}

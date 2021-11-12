@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
-import ProjectLinkGroup from '../../ProjectLinkGroup'
-import { useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import ClickAwayListener from 'react-click-away-listener'
 import Filters from './filters'
 import Properties from './properties'
@@ -19,8 +17,6 @@ export const ProjectSidebar = ({
 	filtersApplied,
 	setFiltersApplied,
 }) => {
-	const location = useLocation()
-	const { pathname } = location
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [showCols, setShowCols] = useState(false)
 

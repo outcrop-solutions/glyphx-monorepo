@@ -14,6 +14,7 @@ module.exports = {
 				xl: '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.01)',
 			},
 			colors: {
+				...colors,
 				gray: colors.blueGray,
 				'light-blue': colors.sky,
 				red: colors.rose,
