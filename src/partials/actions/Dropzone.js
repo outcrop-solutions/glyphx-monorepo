@@ -44,12 +44,20 @@ export const Dropzone = ({ setFiles }) => {
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
 	return (
-		<div className='m-4' {...getRootProps()}>
+		<div
+			className={`px-4 py-2 mr-3 ${
+				isDragActive ? 'border border-white py-0 px-0 h-48' : ''
+			} rounded-lg`}
+			{...getRootProps()}>
 			<input {...getInputProps()} />
 			{isDragActive ? (
-				<div>Drop the files here ...</div>
+				<div className='text-gray-500 hover:text-gray-300 cursor-pointer'>
+					Drop the files here ...
+				</div>
 			) : (
-				<div>Drag 'n' drop some files here, or click to select files</div>
+				<div className='text-xs cursor-pointer'>
+					<span className='text-gray-500 hover:text-gray-300 '>+ Files...</span>
+				</div>
 			)}
 		</div>
 	)

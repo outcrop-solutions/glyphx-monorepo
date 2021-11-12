@@ -10,14 +10,16 @@ function Filters({
 	filtersApplied,
 	setFiltersApplied,
 	columns,
-	open,
-	includes,
 	sidebarExpanded,
 	setSidebarExpanded,
-	handleClick,
 	showCols,
 	setShowCols,
 }) {
+	const [open, setOpen] = useState(false)
+
+	const handleClick = () => {
+		setOpen(!open)
+	}
 	const { filters } = useFilters()
 	return (
 		<React.Fragment>

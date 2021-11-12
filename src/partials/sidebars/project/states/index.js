@@ -1,15 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Header } from './Header'
 import { useStates } from '../../../../services/useStates'
 import { StateList } from './StateList'
 
-function States({
-	handleStateChange,
-	open,
-	sidebarExpanded,
-	setSidebarExpanded,
-	handleClick,
-}) {
+function States({ handleStateChange, sidebarExpanded, setSidebarExpanded }) {
+	const [open, setOpen] = useState(false)
+
+	const handleClick = () => {
+		setOpen(!open)
+	}
 	const { states, state } = useStates()
 	return (
 		<React.Fragment>

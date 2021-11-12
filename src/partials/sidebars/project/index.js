@@ -87,9 +87,9 @@ export const ProjectSidebar = ({
 			return data
 		})
 	}
-	const handleClickAway = () => {
-		setShowCols(false)
-	}
+	// const handleClickAway = () => {
+	// 	setShowCols(false)
+	// }
 
 	return (
 		<div
@@ -98,80 +98,48 @@ export const ProjectSidebar = ({
 			className={`flex flex-col absolute z-30 left-0 top-0 lg:static border-r border-gray-400 lg:left-auto lg:top-auto lg:translate-x-0 transform  h-full no-scrollbar w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 2xl:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
 				sidebarOpen ? 'translate-x-0' : '-translate-x-64'
 			}`}>
-			<ul>
+			<div>
 				{/* Files */}
-				<ProjectLinkGroup activecondition={pathname.includes('')}>
-					{(handleClick, open) => {
-						return (
-							<Files
-								project={project}
-								includes={pathname.includes}
-								sidebarExpanded={sidebarExpanded}
-								setSidebarExpanded={setSidebarExpanded}
-								handleClick={handleClick}
-								open={open}
-							/>
-						)
-					}}
-				</ProjectLinkGroup>
+				<Files
+					project={project}
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
 				{/* Properties */}
-				<ProjectLinkGroup activecondition={pathname.includes('')}>
-					{(handleClick, open) => {
-						return (
-							<Properties
-								sidebarExpanded={sidebarExpanded}
-								setSidebarExpanded={setSidebarExpanded}
-								handleClick={handleClick}
-								open={open}
-								project={project}
-							/>
-						)
-					}}
-				</ProjectLinkGroup>
+
+				<Properties
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+					project={project}
+				/>
 				{/* Filters */}
-				<ProjectLinkGroup activecondition={pathname.includes('')}>
-					{(handleClick, open) => {
-						return (
-							<ClickAwayListener onClickAway={handleClickAway}>
-								<Filters
-									filtersApplied={filtersApplied}
-									setFiltersApplied={setFiltersApplied}
-									showCols={showCols}
-									setShowCols={setShowCols}
-									includes={pathname.includes}
-									columns={columns}
-									open={open}
-									sidebarExpanded={sidebarExpanded}
-									setSidebarExpanded={setSidebarExpanded}
-									handleClick={handleClick}
-								/>
-							</ClickAwayListener>
-						)
-					}}
-				</ProjectLinkGroup>
+				{/* <ClickAwayListener onClickAway={handleClickAway}> */}
+				<Filters
+					filtersApplied={filtersApplied}
+					setFiltersApplied={setFiltersApplied}
+					showCols={showCols}
+					setShowCols={setShowCols}
+					columns={columns}
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
+				{/* </ClickAwayListener> */}
 				{/* States */}
-				<ProjectLinkGroup activecondition={pathname.includes('')}>
-					{(handleClick, open) => {
-						return (
-							<States
-								open={open}
-								sidebarExpanded={sidebarExpanded}
-								setSidebarExpanded={setSidebarExpanded}
-								handleClick={handleClick}
-								handleStateChange={handleStateChange}
-								state={state}
-							/>
-						)
-					}}
-				</ProjectLinkGroup>
-			</ul>
-			{/* Expand / collapse button */}
-			<ExpandCollapse
-				sidebarExpanded={sidebarExpanded}
-				setSidebarExpanded={setSidebarExpanded}
-			/>
+				<States
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+					handleStateChange={handleStateChange}
+					state={state}
+				/>
+				{/* Expand / collapse button */}
+			</div>
+			<div className='sticky bottom-0'>
+				<ExpandCollapse
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
+			</div>
 		</div>
-		// </div>
 	)
 }
 export default ProjectSidebar

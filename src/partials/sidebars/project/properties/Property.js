@@ -13,6 +13,7 @@ export const Property = ({ item, idx }) => {
 				return 'z'
 				break
 			default:
+				return 'x'
 				break
 		}
 	}

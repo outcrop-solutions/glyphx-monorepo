@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Storage } from 'aws-amplify'
 
 export const useProperties = (project) => {
-	const [properties, setProperties] = useState({})
+	const [properties, setProperties] = useState(null)
 
 	useEffect(() => {
 		const getProperties = async () => {
@@ -21,5 +21,6 @@ export const useProperties = (project) => {
 		}
 		getProperties()
 	}, [project])
+	console.log({ properties })
 	return { properties }
 }

@@ -1,21 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
-function ProjectLinkGroup({
-  children,
-  activecondition,
-}) {
+function ProjectLinkGroup({ children, activecondition }) {
+	const [open, setOpen] = useState(activecondition)
 
-  const [open, setOpen] = useState(activecondition);
+	const handleClick = () => {
+		setOpen(!open)
+	}
 
-  const handleClick = () => {
-    setOpen(!open);
-  }
-
-  return (
-    <li className={`rounded-sm last:mb-0 bg-transparent ${activecondition && 'bg-gray-900'}`}>
-      {children(handleClick, open)}
-    </li>
-  );
+	return <div>{children(handleClick, open)}</div>
 }
 
-export default ProjectLinkGroup;
+export default ProjectLinkGroup
