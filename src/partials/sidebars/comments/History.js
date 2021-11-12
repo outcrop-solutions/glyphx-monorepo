@@ -1,7 +1,7 @@
 import { useComments } from '../../../services/useComments'
 
-export const History = ({ state }) => {
-	const { results } = useComments(state)
+export const History = () => {
+	const { results } = useComments()
 	return (
 		<ul>
 			{results.length > 0 ? (

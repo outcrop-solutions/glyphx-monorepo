@@ -40,7 +40,7 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
 				<TypeIcon droppable={droppable} fileType={data?.fileType} />
 			</div>
 			<div className={styles.labelGridItem}>
-				<div className='text-white text-sm'>{node.text}</div>
+				<div className='text-white text-sm truncate'>{node.text}</div>
 			</div>
 		</div>
 	)

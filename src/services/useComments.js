@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useStates } from './useStates'
 import { API } from 'aws-amplify'
 import { listComments } from '../graphql/queries'
 
-export const useComments = (state) => {
+export const useComments = () => {
 	const [comments, setComments] = useState([])
+	const { state, states } = useStates()
 	// fetch comments
 	const fetchComments = async () => {
 		if (typeof state !== 'undefined') {

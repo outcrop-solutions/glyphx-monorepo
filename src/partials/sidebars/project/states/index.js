@@ -5,15 +5,12 @@ import { StateList } from './StateList'
 
 function States({
 	handleStateChange,
-	state,
-	setState,
 	open,
-	includes,
 	sidebarExpanded,
 	setSidebarExpanded,
 	handleClick,
 }) {
-	const { states } = useStates(setState)
+	const { states, state } = useStates()
 	return (
 		<React.Fragment>
 			<Header

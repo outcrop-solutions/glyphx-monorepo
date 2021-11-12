@@ -80,7 +80,7 @@ export const CommentsSidebar = ({
 			}`}>
 			<Header sidebarExpanded={sidebarExpanded} />
 			<div className='m-2 hidden comments-sidebar-expanded:block overflow-y-scroll'>
-				<History state={state} />
+				<History />
 				<CommentInput user={user} state={state} />
 			</div>
 

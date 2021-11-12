@@ -23,5 +23,8 @@
 }
 
 .labelGridItem {
-  padding-inline-start: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* padding-inline-start: 8px; */
 }

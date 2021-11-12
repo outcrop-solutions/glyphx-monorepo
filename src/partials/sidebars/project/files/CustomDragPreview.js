@@ -1,6 +1,6 @@
 import React from 'react'
 import { TypeIcon } from './TypeIcon'
-import styles from '../../css/CustomDragPreview.module.css'
+import styles from './css/CustomDragPreview.module.css'
 
 export const CustomDragPreview = ({ monitorProps }) => {
 	const item = monitorProps.item

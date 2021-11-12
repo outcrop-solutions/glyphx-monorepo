@@ -21,7 +21,7 @@ export const Property = ({ item, idx }) => {
 			<PropertyIcons property={prop} />
 			<div className='block text-gray-400 hover:text-gray-200 transition duration-150 truncate'>
 				<span className='text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200'>
-					{item}
+					{item || ''}
 				</span>
 			</div>
 		</li>

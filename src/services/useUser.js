@@ -1,18 +1,19 @@
 import { Auth } from 'aws-amplify'
 import { useEffect, useState } from 'react'
 
-export const useUser = (isLoggedin, isSignedUp) => {
+export const useUser = (isLoggedin) => {
 	const [user, setUser] = useState({})
+	const [isLogged, setIsLogged] = useState(false)
 	// check if user is logged in
 	useEffect(() => {
 		// utility functions
 		const assessLoggedIn = () => {
 			Auth.currentAuthenticatedUser()
 				.then(() => {
-					setIsLoggedIn(true)
+					setIsLogged(true)
 				})
 				.catch(() => {
-					setIsLoggedIn(false)
+					setIsLogged(false)
 					// history.push('/signin')
 				})
 		}
@@ -21,11 +22,11 @@ export const useUser = (isLoggedin, isSignedUp) => {
 				let user = await Auth.currentUserInfo()
 				setUser(user)
 			} catch (error) {
-				setIsLoggedIn(false)
+				setIsLogged(false)
 			}
 		}
 		getUser()
 		assessLoggedIn()
-	}, [])
-	return { user, isLoggedIn }
+	}, [isLoggedin])
+	return { user, isLogged }
 }

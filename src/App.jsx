@@ -16,7 +16,7 @@ import awsconfig from './aws-exports'
 // styles
 import { focusHandling } from 'cruip-js-toolkit'
 import './css/style.scss'
-
+import './css/react_spreadsheet_grid_overrides.css'
 // components
 import { Projects } from './pages/Projects'
 import SignIn from './pages/Signin'
@@ -37,19 +37,18 @@ Amplify.configure(awsconfig)
 
 function App() {
 	// const [user, setUser] = useState({})
-	const [isSignedUp, setIsSignedUp] = useState(false)
+	const [signup, setSignUp] = useState(false)
 	const [isLoggedIn, setIsLoggedIn] = useState(false)
-	const { user } = useUser(isLoggedIn, isSignedUp)
+	const { user, isLogged } = useUser(isLoggedIn)
 	const [resetPass, setResetPass] = useState(false)
-	const [signUp, setSignUp] = useState(false)
 	const location = useLocation()
 	const { projects } = useProjects()
+	const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false)
 	// comments and filter sidebar positions
 	// position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
 	//position state dynamically changes with transitions
 	const [commentsPosition, setCommentsPosition] = useState({})
 	const [filterSidebarPosition, setFilterSidebarPosition] = useState({})
-	const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false)
 	const { isDrawerSent } = useDrawerPosition(
 		commentsPosition,
 		filterSidebarPosition,
@@ -68,6 +67,10 @@ function App() {
 		focusHandling('outline')
 	}, [location.pathname])
 
+	useEffect(() => {
+		setIsLoggedIn(isLogged)
+	}, [isLogged])
+
 	return (
 		<>
 			<Switch>
@@ -75,20 +78,23 @@ function App() {
 					{isLoggedIn && user ? (
 						<Projects
 							user={user}
+							setIsLoggedIn={setIsLoggedIn}
 							projects={projects}
 							commentsPosition={commentsPosition}
 							setCommentsPosition={setCommentsPosition}
 							filterSidebarPosition={filterSidebarPosition}
+							setFilterSidebarPosition={setFilterSidebarPosition}
 						/>
 					) : resetPass ? (
-						<ResetPassword
-							setResetPass={setResetPass}
-							setIsSignedUp={setIsSignedUp}
-						/>
-					) : isSignedUp ? (
-						<Signup setIsSignedUp={setIsSignedUp} />
+						<ResetPassword setResetPass={setResetPass} setSignUp={setSignUp} />
+					) : signup ? (
+						<Signup setSignUp={setSignUp} setIsLoggedIn={setIsLoggedIn} />
 					) : (
-						<SignIn setResetPass={setResetPass} setIsSignedUp={setIsSignedUp} />
+						<SignIn
+							setResetPass={setResetPass}
+							setSignUp={setSignUp}
+							setIsLoggedIn={setIsLoggedIn}
+						/>
 					)}
 				</Route>
 			</Switch>

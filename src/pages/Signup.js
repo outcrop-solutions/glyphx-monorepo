@@ -5,17 +5,11 @@ import { Auth } from 'aws-amplify'
 import AuthImage from '../images/auth-image.jpg'
 import AuthDecoration from '../images/auth-decoration.png'
 
-function Signup({ setSignUp, setUser, setLoggedIn }) {
+function Signup({ setSignUp, setIsLoggedIn }) {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 	const [fullName, setFullName] = useState('')
 
-	const handleUname = (e) => {
-		setUsername(e.target.value)
-	}
-	const handlePass = (e) => {
-		setPassword(e.target.value)
-	}
 	const handleSignUp = async () => {
 		try {
 			const { user } = await Auth.signUp({
@@ -28,13 +22,14 @@ function Signup({ setSignUp, setUser, setLoggedIn }) {
 			})
 			console.log({ userSignup: user })
 			if (user) {
-				setUser(user)
+				// setUser(user)
 				Auth.signIn(username, password)
 					.then(() => {
-						setLoggedIn(true)
+						setIsLoggedIn(true)
 						console.log('logged in after signup')
 					})
 					.catch((error) => {
+						setIsLoggedIn(false)
 						console.log({ error })
 					})
 			}

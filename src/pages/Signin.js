@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Auth } from 'aws-amplify'
 
-import AuthImage from '../images/auth-image.jpg'
-import AuthDecoration from '../images/auth-decoration.png'
-
-function Signin({ setUser, setLoggedIn, setSignUp, setResetPass }) {
+function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 
@@ -25,11 +22,10 @@ function Signin({ setUser, setLoggedIn, setSignUp, setResetPass }) {
 		try {
 			const user = await Auth.signIn(username, password)
 			console.log({ user })
-			setUser(user)
-			setLoggedIn(true)
+			setIsLoggedIn(true)
 		} catch (error) {
 			console.log('error on signin page' + error)
-			setLoggedIn(false)
+			setIsLoggedIn(false)
 		}
 	}
 	return (

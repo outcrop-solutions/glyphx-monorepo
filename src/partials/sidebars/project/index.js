@@ -11,11 +11,8 @@ import { usePosition } from '../../../services/usePosition'
 
 export const ProjectSidebar = ({
 	project,
-	properties,
 	columns,
-	fileSystem,
-	setFileSystem,
-	setSidePosition,
+	setFilterSidebarPosition,
 	state,
 	setState,
 	filtersApplied,
@@ -74,14 +71,14 @@ export const ProjectSidebar = ({
 	}, [sidebarExpanded])
 	// set projectsSidebar position on transition
 	useEffect(() => {
-		setSidePosition((prev) => {
+		setFilterSidebarPosition((prev) => {
 			if (sidebar.current !== null) {
 				return {
 					values: sidebar.current.getBoundingClientRect(),
 				}
 			}
 		})
-	}, [sidebarExpanded, commentsSidebarExpanded, projPosition])
+	}, [sidebarExpanded, projPosition])
 
 	//utilities
 	const handleStateChange = (state) => {
@@ -93,7 +90,6 @@ export const ProjectSidebar = ({
 	const handleClickAway = () => {
 		setShowCols(false)
 	}
-	const handleDrop = (newTree) => setFileSystem(newTree)
 
 	return (
 		<div
@@ -108,14 +104,13 @@ export const ProjectSidebar = ({
 					{(handleClick, open) => {
 						return (
 							<Files
+								project={project}
 								includes={pathname.includes}
 								sidebarExpanded={sidebarExpanded}
 								setSidebarExpanded={setSidebarExpanded}
-								handleDrop={handleDrop}
 								handleClick={handleClick}
 								open={open}
-								length={Object.keys(fileSystem).length}
-								fileSystem={fileSystem}></Files>
+							/>
 						)
 					}}
 				</ProjectLinkGroup>
@@ -124,12 +119,11 @@ export const ProjectSidebar = ({
 					{(handleClick, open) => {
 						return (
 							<Properties
-								includes={pathname.includes}
 								sidebarExpanded={sidebarExpanded}
 								setSidebarExpanded={setSidebarExpanded}
 								handleClick={handleClick}
 								open={open}
-								properties={properties}
+								project={project}
 							/>
 						)
 					}}
@@ -161,7 +155,6 @@ export const ProjectSidebar = ({
 						return (
 							<States
 								open={open}
-								includes={pathname.includes}
 								sidebarExpanded={sidebarExpanded}
 								setSidebarExpanded={setSidebarExpanded}
 								handleClick={handleClick}

@@ -9,15 +9,17 @@ import { MainSidebar } from '../partials/sidebars/main'
 import { useUrl } from '../services/useUrl'
 import { useStateChange } from '../services/useStateChange'
 import { useFilterChange } from '../services/useFilterChange'
+import { DataTable } from '../partials/datagrid/index'
+// import { Horizontal } from '../partials/dnd/Pages'
 
 export const Projects = ({
-	setLoggedIn,
 	user,
+	setIsLoggedIn,
 	projects,
-	setFileSystem,
+	commentsPosition,
 	setCommentsPosition,
-	setSidePosition,
-	fetchProjects,
+	filterSidebarPosition,
+	setFilterSidebarPosition,
 }) => {
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [grid, setGrid] = useState(false)
@@ -45,9 +47,10 @@ export const Projects = ({
 			<div className='relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
 				{/*  Site header */}
 				<Header
+					project={project}
 					showAddProject={showAddProject}
 					setShowAddProject={setShowAddProject}
-					setLoggedIn={setLoggedIn}
+					setIsLoggedIn={setIsLoggedIn}
 					project={project}
 					setProject={setProject}
 					sidebarOpen={sidebarOpen}
@@ -61,14 +64,18 @@ export const Projects = ({
 						{project ? (
 							<>
 								<ProjectSidebar
+									project={project}
 									filtersApplied={filtersApplied}
 									setFiltersApplied={setFiltersApplied}
-									setFileSystem={setFileSystem}
-									setSidePosition={setSidePosition}
+									setFilterSidebarPosition={setFilterSidebarPosition}
 									setState={setState}
 								/>
 								<div className='w-full flex'>
-									<div className='min-w-0 flex-auto'></div>
+									<div className='min-w-0 flex-auto'>
+										{/* <Dnd /> */}
+										{/* <Horizontal /> */}
+										<DataTable />
+									</div>
 									<CommentsSidebar
 										user={user}
 										project={project}

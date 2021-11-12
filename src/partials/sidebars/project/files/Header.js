@@ -1,6 +1,5 @@
 export const Header = ({
 	length,
-	includes,
 	sidebarExpanded,
 	setSidebarExpanded,
 	handleClick,
@@ -10,7 +9,7 @@ export const Header = ({
 			href='#0'
 			className={`block text-gray-200 hover:text-white truncate border-gray-400 ${
 				length > 0 ? 'border-b border-gray-400' : 'border-b'
-			} transition duration-150 ${includes('') && 'hover:text-gray-200'}`}
+			} transition duration-150`}
 			onClick={(e) => {
 				e.preventDefault()
 				sidebarExpanded ? handleClick() : setSidebarExpanded(true)
