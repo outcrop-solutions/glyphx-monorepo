@@ -8,6 +8,7 @@ import States from './states'
 import { Files } from './files'
 import ExpandCollapse from './ExpandCollapse'
 import { usePosition } from '../../../services/usePosition'
+import { Dnd } from './dnd'
 
 export const ProjectSidebar = ({
 	project,
@@ -90,6 +91,53 @@ export const ProjectSidebar = ({
 	// const handleClickAway = () => {
 	// 	setShowCols(false)
 	// }
+	let items = [
+		{
+			id: 'files',
+			content: (
+				<Files
+					project={project}
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
+			),
+		},
+		{
+			id: 'properties',
+			content: (
+				<Properties
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+					project={project}
+				/>
+			),
+		},
+		{
+			id: 'filters',
+			content: (
+				<Filters
+					filtersApplied={filtersApplied}
+					setFiltersApplied={setFiltersApplied}
+					showCols={showCols}
+					setShowCols={setShowCols}
+					columns={columns}
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
+			),
+		},
+		{
+			id: 'states',
+			content: (
+				<States
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+					handleStateChange={handleStateChange}
+					state={state}
+				/>
+			),
+		},
+	]
 
 	return (
 		<div
@@ -100,37 +148,11 @@ export const ProjectSidebar = ({
 			}`}>
 			<div>
 				{/* Files */}
-				<Files
-					project={project}
-					sidebarExpanded={sidebarExpanded}
-					setSidebarExpanded={setSidebarExpanded}
-				/>
-				{/* Properties */}
+				<Dnd items={items} />
 
-				<Properties
-					sidebarExpanded={sidebarExpanded}
-					setSidebarExpanded={setSidebarExpanded}
-					project={project}
-				/>
-				{/* Filters */}
 				{/* <ClickAwayListener onClickAway={handleClickAway}> */}
-				<Filters
-					filtersApplied={filtersApplied}
-					setFiltersApplied={setFiltersApplied}
-					showCols={showCols}
-					setShowCols={setShowCols}
-					columns={columns}
-					sidebarExpanded={sidebarExpanded}
-					setSidebarExpanded={setSidebarExpanded}
-				/>
 				{/* </ClickAwayListener> */}
 				{/* States */}
-				<States
-					sidebarExpanded={sidebarExpanded}
-					setSidebarExpanded={setSidebarExpanded}
-					handleStateChange={handleStateChange}
-					state={state}
-				/>
 				{/* Expand / collapse button */}
 			</div>
 			<div className='sticky bottom-0'>
