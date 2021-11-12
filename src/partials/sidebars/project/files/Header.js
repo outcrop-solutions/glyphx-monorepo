@@ -1,5 +1,4 @@
 export const Header = ({
-	length,
 	open,
 	sidebarExpanded,
 	setSidebarExpanded,
@@ -8,7 +7,7 @@ export const Header = ({
 	return (
 		<a
 			href='#0'
-			className={`block text-gray-200 hover:text-white truncate border-gray-400 ${
+			className={`block text-gray-200 hover:text-white truncate ${
 				open ? '' : 'border-b border-gray-400'
 			} transition duration-150`}
 			onClick={(e) => {
@@ -55,5 +54,4 @@ export const Header = ({
 		</a>
 	)
 }
-
 

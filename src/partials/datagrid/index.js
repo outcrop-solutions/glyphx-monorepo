@@ -42,10 +42,10 @@ const getListStyle = (isDraggingOver) =>
 export const DataGrid = () => {
 	const [state, setState] = useState([
 		getItems(10),
-		getItems(10, 10),
-		getItems(10, 20),
-		getItems(10, 30),
-		getItems(10, 40),
+		getItems(10),
+		getItems(10),
+		getItems(10),
+		getItems(10),
 	])
 
 	function onDragEnd(result) {

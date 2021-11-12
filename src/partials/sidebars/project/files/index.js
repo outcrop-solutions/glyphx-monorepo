@@ -28,14 +28,15 @@ export const Files = ({ sidebarExpanded, setSidebarExpanded, project }) => {
 		<React.Fragment>
 			<Header
 				open={open}
-				length={length}
 				sidebarExpanded={sidebarExpanded}
 				setSidebarExpanded={setSidebarExpanded}
 				handleClick={handleClick}
 			/>
 			<div
 				className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 ${
-					!open ? 'border-0 -my-2' : 'border-b border-gray-400'
+					!open && sidebarExpanded
+						? 'border-0 -my-2'
+						: 'border-b border-gray-400'
 				}`}>
 				<div className={`pl-2 ${!open && 'hidden'}`}>
 					{files && Object.keys(files).length > 0 ? (

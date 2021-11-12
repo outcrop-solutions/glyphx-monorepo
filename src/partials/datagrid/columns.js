@@ -56,7 +56,7 @@ export const Columns = () => {
 	}
 
 	return (
-		<DragDropContext className='mb-2' onDragEnd={onDragEnd}>
+		<DragDropContext onDragEnd={onDragEnd}>
 			<Droppable droppableId='droppable' direction='horizontal'>
 				{(provided, snapshot) => (
 					<div

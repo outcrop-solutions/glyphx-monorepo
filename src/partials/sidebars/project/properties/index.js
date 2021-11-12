@@ -25,7 +25,7 @@ function Properties({ project, sidebarExpanded, setSidebarExpanded }) {
 			/>
 			<div
 				className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 -mt-2 ${
-					!open ? 'border-0 -my-2' : 'border-b border-gray-400'
+					!open && sidebarExpanded ? 'border-0 -my-2' : 'border-b border-gray-400'
 				}`}>
 				<ul className={`pl-2 ${!open && 'hidden'}`}>
 					{propertiesArr.length > 0
