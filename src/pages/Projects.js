@@ -60,7 +60,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 					commentsSidebar: commentsPosition.values,
 				})
 			)
-			setSendDrawerPositionApp(false)
+			// setSendDrawerPositionApp(false)
 		}
 	}, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp])
 
