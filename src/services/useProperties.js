@@ -21,6 +21,6 @@ export const useProperties = (project) => {
 		}
 		getProperties()
 	}, [project])
-	console.log({ properties })
+	// console.log({ properties })
 	return { properties }
 }

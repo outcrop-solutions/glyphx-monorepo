@@ -22,9 +22,7 @@ import { Projects } from './pages/Projects'
 import SignIn from './pages/Signin'
 import Signup from './pages/Signup'
 import ResetPassword from './pages/ResetPassword'
-import { useSocket } from './services/useSocket'
 import { useUser } from './services/useUser'
-import { useDrawerPosition } from './services/useDrawerPosition'
 import { useProjects } from './services/useProjects'
 import Amplify from 'aws-amplify'
 
@@ -43,22 +41,6 @@ function App() {
 	const [resetPass, setResetPass] = useState(false)
 	const location = useLocation()
 	const { projects } = useProjects()
-	const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false)
-	// comments and filter sidebar positions
-	// position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
-	//position state dynamically changes with transitions
-	const [commentsPosition, setCommentsPosition] = useState({})
-	const [filterSidebarPosition, setFilterSidebarPosition] = useState({})
-	const { isDrawerSent } = useDrawerPosition(
-		commentsPosition,
-		filterSidebarPosition,
-		sendDrawerPositionApp
-	)
-	const { isSocketOpen, sendDrawerPosition } = useSocket('ws://localhost:12345')
-
-	useEffect(() => {
-		setSendDrawerPositionApp(sendDrawerPosition)
-	}, [sendDrawerPosition])
 	// handle scroll position on route change
 	useEffect(() => {
 		document.querySelector('html').style.scrollBehavior = 'auto'
@@ -80,10 +62,6 @@ function App() {
 							user={user}
 							setIsLoggedIn={setIsLoggedIn}
 							projects={projects}
-							commentsPosition={commentsPosition}
-							setCommentsPosition={setCommentsPosition}
-							filterSidebarPosition={filterSidebarPosition}
-							setFilterSidebarPosition={setFilterSidebarPosition}
 						/>
 					) : resetPass ? (
 						<ResetPassword setResetPass={setResetPass} setSignUp={setSignUp} />

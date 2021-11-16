@@ -18,8 +18,8 @@ function AddColumn({ setShowCols }) {
 					<path
 						d='M12 20v-8m0 0V4m0 8h8m-8 0H4'
 						stroke='#595e68'
-						stroke-width='2'
-						stroke-linecap='round'
+						strokeWidth='2'
+						strokeLinecap='round'
 					/>
 				</g>
 			</svg>

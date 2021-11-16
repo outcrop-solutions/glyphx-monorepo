@@ -36,7 +36,9 @@ export const useComments = () => {
 	}
 
 	useEffect(() => {
-		fetchComments()
+		if (state) {
+			fetchComments()
+		}
 	}, [state])
 
 	return { results: comments }

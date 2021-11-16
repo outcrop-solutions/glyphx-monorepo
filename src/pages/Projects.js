@@ -1,4 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import {
+	Switch,
+	Route,
+	useLocation,
+	useHistory,
+	Router,
+	Redirect,
+} from 'react-router-dom'
+import QWebChannel from 'qwebchannel'
 
 import Header from '../partials/header'
 import TableView from '../partials/projects/TableView'
@@ -12,18 +21,10 @@ import { useFilterChange } from '../services/useFilterChange'
 import { DataGrid } from '../partials/datagrid'
 import { Columns } from '../partials/datagrid/columns'
 // import { DataTable } from '../partials/datasheet-temp/index'
-
+let socket = null
 // import { Horizontal } from '../partials/dnd/Pages'
 
-export const Projects = ({
-	user,
-	setIsLoggedIn,
-	projects,
-	commentsPosition,
-	setCommentsPosition,
-	filterSidebarPosition,
-	setFilterSidebarPosition,
-}) => {
+export const Projects = ({ user, setIsLoggedIn, projects }) => {
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const [grid, setGrid] = useState(false)
 	const [state, setState] = useState(null)
@@ -35,6 +36,73 @@ export const Projects = ({
 	const { isFilterChanged } = useFilterChange(filtersApplied)
 	// pass signed url
 	const { isUrlSigned } = useUrl(project)
+	const location = useLocation()
+	const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false)
+	// comments and filter sidebar positions
+	// position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
+	//position state dynamically changes with transitions
+	const [commentsPosition, setCommentsPosition] = useState({})
+	const [filterSidebarPosition, setFilterSidebarPosition] = useState({})
+
+	useEffect(() => {
+		console.log({
+			filterSidebar: filterSidebarPosition.values,
+			commentsSidebar: commentsPosition.values,
+		})
+		if (sendDrawerPositionApp) {
+			// console.log({
+			// 	filterSidebar: filterSidebarPosition,
+			// 	commentsSidebar: commentsPosition,
+			// })
+			window.core.SendDrawerPosition(
+				JSON.stringify({
+					filterSidebar: filterSidebarPosition.values,
+					commentsSidebar: commentsPosition.values,
+				})
+			)
+			setSendDrawerPositionApp(false)
+		}
+	}, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp])
+
+	useEffect(() => {
+		var baseUrl = 'ws://localhost:12345'
+		openSocket(baseUrl)
+	}, [location.pathname])
+	const openSocket = (baseUrl) => {
+		if (!socket) {
+			socket = new WebSocket(baseUrl)
+		}
+		socket.onclose = function () {
+			console.error('web channel closed')
+		}
+		socket.onerror = function (error) {
+			console.error('web channel error: ' + error)
+		}
+		socket.onopen = function () {
+			console.log('WebSocket connected, setting up QWebChannel.')
+			new QWebChannel.QWebChannel(socket, function (channel) {
+				try {
+					// make core object accessible globally
+					window.core = channel.objects.core
+					window.core.KeepAlive.connect(function (message) {
+						//Issued every 30 seconds from Qt to prevent websocket timeout
+						console.log(message)
+					})
+					window.core.GetDrawerPosition.connect(function (message) {
+						setSendDrawerPositionApp(true)
+					})
+
+					//core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
+					//core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
+					//core.UpdateFilter("Update Filter");	// Takes a SQL query based on current filters
+					//core.ChangeState("Change State");		// Takes the Json information for the selected state
+					//core.ReloadDrawer("Reload Drawer");	// Triggers a reload of the visualization currently in the drawer. This does not need to be called after a filter update.
+				} catch (e) {
+					console.error(e.message)
+				}
+			})
+		}
+	}
 
 	return (
 		<div className='flex h-screen overflow-hidden bg-gray-900'>
@@ -74,11 +142,11 @@ export const Projects = ({
 									setState={setState}
 								/>
 								<div className='w-full flex'>
-									<div className='min-w-0 flex-auto mx-2'>
-										{/* <Dnd /> */}
-										<Columns />
-										<DataGrid />
-									</div>
+									<div className='min-w-0 flex-auto mx-2' />
+									{/* <Dnd /> */}
+									{/* <Columns />
+										<DataGrid /> */}
+									{/* </div> */}
 									<CommentsSidebar
 										user={user}
 										project={project}

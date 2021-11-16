@@ -68,11 +68,11 @@ export const Columns = () => {
 						{items.map((item, index) => (
 							<Draggable key={item.id} draggableId={item.id} index={index}>
 								{(provided, snapshot) => {
-									console.log({
-										color: `${snapshot.isDragging ? '' : ''} ${
-											item.color
-										}`,
-									})
+									// console.log({
+									// 	color: `${snapshot.isDragging ? '' : ''} ${
+									// 		item.color
+									// 	}`,
+									// })
 									return (
 										<div
 											ref={provided.innerRef}

@@ -5,11 +5,11 @@ import Column from './Column'
 import Filter from './Filter'
 import { Header } from './Header'
 import { useFilters } from '../../../../services/useFilters'
+import { useColumns } from '../../../../services/useColumns'
 
 function Filters({
 	filtersApplied,
 	setFiltersApplied,
-	columns,
 	sidebarExpanded,
 	setSidebarExpanded,
 	showCols,
@@ -21,6 +21,7 @@ function Filters({
 		setOpen(!open)
 	}
 	const { filters } = useFilters()
+	const { columns } = useColumns()
 	return (
 		<React.Fragment>
 			<Header
@@ -32,13 +33,16 @@ function Filters({
 			{filters.length > 0 && (
 				<div
 					className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2  ${
-						!open && sidebarExpanded ? 'border-0 -my-2' : 'border-b border-gray-400'
+						!open && sidebarExpanded
+							? 'border-0 -my-2'
+							: 'border-b border-gray-400'
 					}`}>
 					<ul
 						style={{ height: '200px' }}
 						className={`pl-2 mt-1 overflow-auto ${!open && 'hidden'}`}>
 						{filters.map((item, idx) => (
 							<Filter
+								key={item.id}
 								filtersApplied={filtersApplied}
 								setFiltersApplied={setFiltersApplied}
 								setShowCols={setShowCols}
@@ -51,7 +55,7 @@ function Filters({
 								{columns.length > 0 && (
 									<>
 										{columns.map((item, idx) => (
-											<Column item={item} />
+											<Column key={idx} item={item} />
 										))}
 									</>
 								)}

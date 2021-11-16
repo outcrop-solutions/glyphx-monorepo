@@ -11,6 +11,7 @@ export const StateList = ({ open, states, handleStateChange, id }) => {
 				className={`pl-2 mt-1 overflow-auto ${!open && 'hidden'}`}>
 				{states.map((item) => (
 					<li
+						key={item.id}
 						onClick={() => {
 							handleStateChange(item)
 						}}

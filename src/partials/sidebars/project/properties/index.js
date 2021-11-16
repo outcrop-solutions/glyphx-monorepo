@@ -30,7 +30,7 @@ function Properties({ project, sidebarExpanded, setSidebarExpanded }) {
 				<ul className={`pl-2 ${!open && 'hidden'}`}>
 					{propertiesArr.length > 0
 						? propertiesArr.map((item, idx) => (
-								<Property item={item} idx={idx} />
+								<Property key={item} item={item} idx={idx} />
 						  ))
 						: null}
 				</ul>

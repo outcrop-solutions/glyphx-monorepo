@@ -15,7 +15,7 @@
         <rect id="a" x="0" y="0" width="80" height="80" rx="40" />
         <path id="d" d="M21.552 0l21.486 43.134-21.486-6.74-21.486 6.74z" />
     </defs>
-    <g fill="none" fill-rule="evenodd">
+    <g fill="none" fillRule="evenodd">
         <mask id="c" fill="#fff">
             <use xlink:href="#a" />
         </mask>

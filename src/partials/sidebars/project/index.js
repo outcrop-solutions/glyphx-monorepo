@@ -10,12 +10,10 @@ import { Dnd } from './dnd'
 
 export const ProjectSidebar = ({
 	project,
-	columns,
-	setFilterSidebarPosition,
-	state,
-	setState,
 	filtersApplied,
 	setFiltersApplied,
+	setFilterSidebarPosition,
+	setState,
 }) => {
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [showCols, setShowCols] = useState(false)
@@ -116,7 +114,6 @@ export const ProjectSidebar = ({
 					setFiltersApplied={setFiltersApplied}
 					showCols={showCols}
 					setShowCols={setShowCols}
-					columns={columns}
 					sidebarExpanded={sidebarExpanded}
 					setSidebarExpanded={setSidebarExpanded}
 				/>
@@ -129,7 +126,6 @@ export const ProjectSidebar = ({
 					sidebarExpanded={sidebarExpanded}
 					setSidebarExpanded={setSidebarExpanded}
 					handleStateChange={handleStateChange}
-					state={state}
 				/>
 			),
 		},
