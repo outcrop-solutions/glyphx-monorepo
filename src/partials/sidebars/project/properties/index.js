@@ -46,7 +46,7 @@ function Properties({
 						? 'border-0 -my-2'
 						: 'border-b border-gray-400'
 				}`}>
-				<ul className={`pl-2 ${!open && 'hidden'}`}>
+				<ul className={`pl-2 my-4 ${!open && 'hidden'}`}>
 					{isEditing ? (
 						<PropDrop colHeaders={colHeaders} setColHeaders={setColHeaders} />
 					) : (

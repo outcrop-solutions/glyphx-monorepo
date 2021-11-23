@@ -7,14 +7,12 @@ export const Header = ({
 	return (
 		<a
 			href='#0'
-			className={`block text-gray-200 hover:text-white truncate ${
-				open ? '' : 'border-b border-gray-400'
-			} transition duration-150`}
+			className={
+				'block text-gray-200 hover:text-white truncate border-b border-gray-400 transition duration-150'
+			}
 			onClick={(e) => {
 				e.preventDefault()
-				sidebarExpanded
-					? handleClick()
-					: setSidebarExpanded(true)
+				sidebarExpanded ? handleClick() : setSidebarExpanded(true)
 			}}>
 			<div
 				className={`flex items-center h-11 ${
