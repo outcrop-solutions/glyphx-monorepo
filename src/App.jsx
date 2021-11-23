@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-	Switch,
-	Route,
-	useLocation,
-	useHistory,
-	Router,
-	Redirect,
-} from 'react-router-dom'
+import { Switch, Route, useLocation } from 'react-router-dom'
 
 // AWS & Analytics
 import posthog from 'posthog-js'

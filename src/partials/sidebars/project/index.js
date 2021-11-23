@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
-import ClickAwayListener from 'react-click-away-listener'
+import { useState, useEffect, useRef } from 'react'
 import Filters from './filters'
 import Properties from './properties'
 import States from './states'

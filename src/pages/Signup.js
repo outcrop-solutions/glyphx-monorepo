@@ -1,9 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Auth } from 'aws-amplify'
-
-import AuthImage from '../images/auth-image.jpg'
-import AuthDecoration from '../images/auth-decoration.png'
 
 function Signup({ setSignUp, setIsLoggedIn }) {
 	const [username, setUsername] = useState('')

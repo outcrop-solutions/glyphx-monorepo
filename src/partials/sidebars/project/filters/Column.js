@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+
 import ClickAwayListener from 'react-click-away-listener'
 
 function Column({ item }) {

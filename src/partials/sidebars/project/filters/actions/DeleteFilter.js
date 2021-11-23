@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-
 function DeleteFilter() {
 	return (
 		<div className='flex items-center justify-center h-6 w-6'>

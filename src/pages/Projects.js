@@ -151,11 +151,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 				{/*  Site header */}
 				<Header
 					project={project}
+					setProject={setProject}
 					showAddProject={showAddProject}
 					setShowAddProject={setShowAddProject}
 					setIsLoggedIn={setIsLoggedIn}
-					project={project}
-					setProject={setProject}
 					sidebarOpen={sidebarOpen}
 					setSidebarOpen={setSidebarOpen}
 					grid={grid}

@@ -11,7 +11,7 @@ export const Cell = ({ ind, index, item, setState, state }) => {
 		<input
 			className='py-1 px-2 bg-transparent'
 			onChange={handleChange}
-			value={item.content}
+			value={content}
 		/>
 		//  <button
 		// 	type='button'

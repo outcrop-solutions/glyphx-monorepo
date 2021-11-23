@@ -1,10 +1,16 @@
 import ProjectCard from './ProjectCard'
 
-import { useEffect, useState } from 'react'
 import { AddProject } from './AddProject'
 import { AddProjectModal } from './AddProjectModal'
 
-export const GridView = ({ user, projects, setProject, fetchProjects, showAddProject, setShowAddProject }) => {
+export const GridView = ({
+	user,
+	projects,
+	setProject,
+	fetchProjects,
+	showAddProject,
+	setShowAddProject,
+}) => {
 	return (
 		<>
 			{showAddProject ? (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 
 export const useFilterChange = (filtersApplied) => {
 	//build query and call filter change function

@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { API, graphqlOperation } from 'aws-amplify'
-import { listFilters } from '../../../../graphql/queries'
+import React, { useState } from 'react'
+
 import Column from './Column'
 import Filter from './Filter'
 import { Header } from './Header'

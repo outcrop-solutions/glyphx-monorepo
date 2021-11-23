@@ -5,7 +5,7 @@ import { listComments } from '../graphql/queries'
 
 export const useComments = () => {
 	const [comments, setComments] = useState([])
-	const { state, states } = useStates()
+	const { state } = useStates()
 	// fetch comments
 	const fetchComments = async () => {
 		if (typeof state !== 'undefined') {

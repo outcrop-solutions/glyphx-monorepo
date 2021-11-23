@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-
 function ShowHide({ applied, setApplied, item, setFiltersApplied }) {
 	const handleApply = () => {
 		console.log({ applied, item, setFiltersApplied })

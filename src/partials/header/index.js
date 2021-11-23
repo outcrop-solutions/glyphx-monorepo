@@ -4,9 +4,7 @@ import SearchModal from '../../components/ModalSearch'
 import GridToggle from '../../components/GridToggle'
 import Notifications from '../../components/DropdownNotifications'
 import Help from '../../components/DropdownHelp'
-import SearchForm from '../actions/SearchForm'
 import { Auth } from 'aws-amplify'
-import FilterButton from '../../components/DropdownFilter'
 import DeleteModel from '../../components/DeleteModel'
 
 function Header({
