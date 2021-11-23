@@ -48,7 +48,7 @@ function Properties({
 						: 'border-b border-gray-400'
 				}`}>
 				<ul className={`pl-2 h-44 my-4 ${!open && 'hidden'}`}>
-					{Object.keys(modelProps.propMap).map((key, index) => {
+					{/* {Object.keys(modelProps.propMap).map((key, index) => {
 						if (key !== 'columnHeaders') {
 							return (
 								<Columns
@@ -59,7 +59,7 @@ function Properties({
 								/>
 							)
 						}
-					})}
+					})} */}
 
 					{/* <PropDrop modelProps={modelProps} setModelProps={setModelProps} /> */}
 

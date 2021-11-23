@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import QWebChannel from 'qwebchannel'
 
@@ -15,7 +15,12 @@ import { DataGrid } from '../partials/datagrid'
 import { Columns } from '../partials/datagrid/columns'
 import { Invite } from '../partials/invite'
 import { DragDropContext } from 'react-beautiful-dnd'
-import { mode } from '../css/tailwind.config'
+
+import { Files } from '../partials/sidebars/project/files'
+import Properties from '../partials/sidebars/project/properties'
+import Filters from '../partials/sidebars/project/filters'
+import States from '../partials/sidebars/project/states'
+import { usePosition } from '../services/usePosition'
 // import { DataTable } from '../partials/datasheet-temp/index'
 let socket = null
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -39,10 +44,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 	//position state dynamically changes with transitions
 	const [commentsPosition, setCommentsPosition] = useState({})
 	const [filterSidebarPosition, setFilterSidebarPosition] = useState({})
-
-	const [isEditing, setIsEditing] = useState(false)
-	const [share, setShare] = useState(false)
-
 	useEffect(() => {
 		if (sendDrawerPositionApp) {
 			window.core.SendDrawerPosition(
@@ -94,10 +95,126 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 			})
 		}
 	}
+
+	// projectSidebar state and utilities
+	const [projectSidebarOpen, setProjectSidebarOpen] = useState(true)
+	const [showCols, setShowCols] = useState(false)
+	const trigger = useRef(null)
+	const sidebar = useRef(null)
+	const projPosition = usePosition(sidebar)
+	const storedSidebarExpanded = localStorage.getItem('project-sidebar-expanded')
+	const [sidebarExpanded, setSidebarExpanded] = useState(
+		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
+	)
+	// close on click outside
+	useEffect(() => {
+		const clickHandler = ({ target }) => {
+			if (!sidebar.current || !trigger.current) return
+			if (
+				!sidebarOpen ||
+				sidebar.current.contains(target) ||
+				trigger.current.contains(target)
+			)
+				return
+			setSidebarOpen(false)
+		}
+		document.addEventListener('click', clickHandler)
+		return () => document.removeEventListener('click', clickHandler)
+	})
+	// close if the esc key is pressed
+	useEffect(() => {
+		const keyHandler = ({ keyCode }) => {
+			if (!sidebarOpen || keyCode !== 219) return
+			setSidebarOpen(false)
+		}
+		document.addEventListener('keydown', keyHandler)
+		return () => document.removeEventListener('keydown', keyHandler)
+	})
+	//handle sidebar state in localStorage
+	useEffect(() => {
+		localStorage.setItem('project-sidebar-expanded', sidebarExpanded)
+		if (sidebarExpanded) {
+			document.querySelector('body').classList.add('project-sidebar-expanded')
+		} else {
+			document
+				.querySelector('body')
+				.classList.remove('project-sidebar-expanded')
+		}
+	}, [sidebarExpanded])
+	// set projectsSidebar position on transition
+	useEffect(() => {
+		setFilterSidebarPosition((prev) => {
+			if (sidebar.current !== null) {
+				return {
+					values: sidebar.current.getBoundingClientRect(),
+				}
+			}
+		})
+	}, [sidebarExpanded, projPosition])
+	const handleStateChange = (state) => {
+		setState((prev) => {
+			let data = state
+			return data
+		})
+	}
+
+	// DND state
+	const [isEditing, setIsEditing] = useState(false)
+	const [share, setShare] = useState(false)
 	const columnHeaders = 'columnHeaders'
 	const X = 'X'
 	const Y = 'Y'
 	const Z = 'Z'
+	let items = [
+		{
+			id: 'files',
+			content: (
+				<Files
+					project={project}
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
+			),
+		},
+		{
+			id: 'properties',
+			content: (
+				<Properties
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+					project={project}
+					isEditing={isEditing}
+					setIsEditing={setIsEditing}
+					// modelProps={modelProps}
+					// setModelProps={setModelProps}
+				/>
+			),
+		},
+		{
+			id: 'filters',
+			content: (
+				<Filters
+					filtersApplied={filtersApplied}
+					setFiltersApplied={setFiltersApplied}
+					showCols={showCols}
+					setShowCols={setShowCols}
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
+			),
+		},
+		{
+			id: 'states',
+			content: (
+				<States
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+					handleStateChange={handleStateChange}
+				/>
+			),
+		},
+	]
+	const WIDGETS = 'WIDGETS'
 	const [modelProps, setModelProps] = useState({
 		propMap: {
 			[columnHeaders]: [
@@ -146,10 +263,15 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 			],
 			[Y]: [],
 			[Z]: [],
+			[WIDGETS]: items ? items : [],
 		},
 	})
-
-	// a little function to help us with reordering the result
+	useEffect(() => {
+		setModelProps((prev) => {
+			return { propMap: { ...prev.propMap, [WIDGETS]: [...items] } }
+		})
+	}, [items])
+	// Drag and drop utilities
 	const reorder = (list, startIndex, endIndex) => {
 		const result = Array.from(list)
 		const [removed] = result.splice(startIndex, 1)
@@ -157,20 +279,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
 		return result
 	}
-	const move = (source, destination, droppableSource, droppableDestination) => {
-		const sourceClone = Array.from(source)
-		const destClone = Array.from(destination)
-		const [removed] = sourceClone.splice(droppableSource.index, 1)
-
-		destClone.splice(droppableDestination.index, 0, removed)
-
-		const result = {}
-		result[droppableSource.droppableId] = sourceClone
-		result[droppableDestination.droppableId] = destClone
-
-		return result
-	}
-
 	const reorderPropMap = ({ propMap, source, destination }) => {
 		const current = [...propMap[source.droppableId]]
 		const next = [...propMap[destination.droppableId]]
@@ -222,7 +330,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 		})
 		setIsEditing(false)
 	}
-
 	const onDragStart = () => {
 		setIsEditing(true)
 	}
@@ -261,15 +368,11 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 									onDragEnd={onDragEnd}
 									onDragStart={onDragStart}>
 									<ProjectSidebar
-										project={project}
-										filtersApplied={filtersApplied}
-										setFiltersApplied={setFiltersApplied}
-										setFilterSidebarPosition={setFilterSidebarPosition}
-										setState={setState}
-										isEditing={isEditing}
-										setIsEditing={setIsEditing}
+										sidebar={sidebar}
+										sidebarOpen={sidebarOpen}
+										sidebarExpanded={sidebarExpanded}
+										setSidebarExpanded={setSidebarExpanded}
 										modelProps={modelProps}
-										setModelProps={setModelProps}
 									/>
 									<div className='w-full flex'>
 										<div className='min-w-0 flex-auto mx-2 overflow-x-auto'>
