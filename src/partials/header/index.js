@@ -18,6 +18,7 @@ function Header({
 	setGrid,
 	project,
 	setShowAddProject,
+	setShare,
 }) {
 	const [searchModalOpen, setSearchModalOpen] = useState(false)
 	const signOut = async () => {
@@ -127,6 +128,7 @@ function Header({
 								}`}
 								onClick={(e) => {
 									setShowAddProject(project ? true : false)
+									setShare(true)
 								}}
 								aria-controls='search-modal'>
 								<b className='text-gray-800 text-xs'>Share</b>

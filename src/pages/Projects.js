@@ -40,6 +40,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 	const [filterSidebarPosition, setFilterSidebarPosition] = useState({})
 
 	const [isEditing, setIsEditing] = useState(false)
+	const [share, setShare] = useState(false)
 
 	useEffect(() => {
 		console.log({
@@ -159,6 +160,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 					setSidebarOpen={setSidebarOpen}
 					grid={grid}
 					setGrid={setGrid}
+					setShare={setShare}
 				/>
 
 				<main className='h-full'>
@@ -180,14 +182,19 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 										setColHeaders={setItems}
 									/>
 									<div className='w-full flex'>
-										<div className='min-w-0 flex-auto mx-2'>
-											<Invite />
-											{/* <Columns
-												items={items}
-												setItems={setItems}
-												setIsEditing={setIsEditing}
-											/>
-											<DataGrid /> */}
+										<div className='min-w-0 flex-auto mx-2 overflow-x-auto'>
+											{share ? (
+												<Invite setShare={setShare} />
+											) : (
+												<div className='overflow-x-auto'>
+													<Columns
+														items={items}
+														setItems={setItems}
+														setIsEditing={setIsEditing}
+													/>
+													<DataGrid />
+												</div>
+											)}
 										</div>
 										<CommentsSidebar
 											user={user}

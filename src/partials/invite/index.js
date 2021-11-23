@@ -3,13 +3,16 @@ import LinkDropDown from './LinkDropDown'
 import { MemberList } from './MemberList'
 import PermissionsDropDown from './PermissionsDropDown'
 
-export const Invite = () => {
+export const Invite = ({ setShare }) => {
 	return (
 		<div class='flex-none mt-20 justify-center h-screen items-center antialiased bg-gray-900'>
 			<div class='flex flex-col w-96 max-w-2xl rounded-lg border border-gray-300 shadow-xl py-4 px-5 mx-auto'>
 				<div class='flex flex-row justify-between mb-4'>
 					<p class='font-semibold text-white'>Invite</p>
 					<svg
+						onClick={() => {
+							setShare(false)
+						}}
 						class='w-6 h-6'
 						fill='none'
 						stroke='currentColor'

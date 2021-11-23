@@ -75,7 +75,7 @@ export const CommentsSidebar = ({
 		<div
 			id='sidebar'
 			ref={sidebar}
-			className={`hidden lg:flex flex-col absolute z-40 right-0 top-0 lg:static border-l border-gray-400 lg:right-auto lg:top-auto lg:translate-x-0 transform h-full no-scrollbar w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
+			className={`hidden lg:flex flex-col absolute z-10 right-0 top-0 lg:static border-l border-gray-400 lg:right-auto lg:top-auto lg:translate-x-0 transform h-full no-scrollbar w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
 				sidebarOpen ? 'translate-y-64' : 'translate-x-0'
 			}`}>
 			<Header sidebarExpanded={sidebarExpanded} />
@@ -85,10 +85,12 @@ export const CommentsSidebar = ({
 			</div>
 
 			{/* Expand / collapse button */}
-			<ExpandCollapse
-				sidebarExpanded={sidebarExpanded}
-				setSidebarExpanded={setSidebarExpanded}
-			/>
+			<div className='sticky bottom-0'>
+				<ExpandCollapse
+					sidebarExpanded={sidebarExpanded}
+					setSidebarExpanded={setSidebarExpanded}
+				/>
+			</div>
 		</div>
 	)
 }

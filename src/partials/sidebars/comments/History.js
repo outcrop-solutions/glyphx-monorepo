@@ -3,7 +3,7 @@ import { useComments } from '../../../services/useComments'
 export const History = () => {
 	const { results } = useComments()
 	return (
-		<ul>
+		<ul className='mb-4'>
 			{results.length > 0 ? (
 				<>
 					{results.map((item, idx) => (

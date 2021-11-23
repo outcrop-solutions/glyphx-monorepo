@@ -40,12 +40,13 @@ export const CommentInput = ({ user, state, setComments }) => {
 			}}
 			className='relative flex items-center justify-around'>
 			<input
-				className='w-10/12 border-0 focus:ring-2 focus:ring-red-600  bg-transparent placeholder-gray-400 py-1 rounded-md'
-				onChange={handleComment}
-				value={commentContent}
-				placeholder='Type comments…'
+				type='text'
+				name=''
+				placeholder='Type comments...'
+				class='bg-gray-900 border border-gray-400 rounded shadow-sm h-8 w-full'
+				id=''
 			/>
-			<svg
+			{/* <svg
 				onClick={handleSaveComment}
 				aria-hidden='true'
 				role='img'
@@ -57,7 +58,7 @@ export const CommentInput = ({ user, state, setComments }) => {
 					d='M21.426 11.095l-17-8A1 1 0 0 0 3.03 4.242l1.212 4.849L12 12l-7.758 2.909l-1.212 4.849a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81z'
 					fill='white'
 				/>
-			</svg>
+			</svg> */}
 		</div>
 	)
 }
