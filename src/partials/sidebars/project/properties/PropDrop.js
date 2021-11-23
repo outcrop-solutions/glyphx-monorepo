@@ -1,25 +1,18 @@
 import { ColumnHeader } from '../../../datagrid/columnHeader'
 import { Droppable, Draggable } from 'react-beautiful-dnd'
 
-export const PropDrop = ({ colHeaders, setColHeaders }) => {
+export const PropDrop = ({ modelProps, setModelProps }) => {
 	return (
 		// <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-		<Droppable droppableId='droppable-props' direction='vertical'>
+		<Droppable droppableId='0' direction='horizontal'>
 			{(provided, snapshot) => (
 				<div
 					ref={provided.innerRef}
-					className={`${
-						snapshot.isDraggingOver ? '' : ''
-					} flex-col overflow-auto`}
+					className={`${snapshot.isDraggingOver ? '' : ''} flex overflow-auto`}
 					{...provided.droppableProps}>
-					{colHeaders.map((item, index) => (
+					{modelProps[0].map((item, index) => (
 						<Draggable key={item.id} draggableId={item.id} index={index}>
 							{(provided, snapshot) => {
-								// console.log({
-								// 	color: `${snapshot.isDragging ? '' : ''} ${
-								// 		item.color
-								// 	}`,
-								// })
 								return (
 									<div
 										ref={provided.innerRef}

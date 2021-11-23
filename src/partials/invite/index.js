@@ -5,15 +5,15 @@ import PermissionsDropDown from './PermissionsDropDown'
 
 export const Invite = ({ setShare }) => {
 	return (
-		<div class='flex-none mt-20 justify-center h-screen items-center antialiased bg-gray-900'>
-			<div class='flex flex-col w-96 max-w-2xl rounded-lg border border-gray-300 shadow-xl py-4 px-5 mx-auto'>
-				<div class='flex flex-row justify-between mb-4'>
-					<p class='font-semibold text-white'>Invite</p>
+		<div className='flex-none mt-20 justify-center h-screen items-center antialiased bg-gray-900'>
+			<div className='flex flex-col w-96 max-w-2xl rounded-lg border border-gray-300 shadow-xl py-4 px-5 mx-auto'>
+				<div className='flex flex-row justify-between mb-4'>
+					<p className='font-semibold text-white'>Invite</p>
 					<svg
 						onClick={() => {
 							setShare(false)
 						}}
-						class='w-6 h-6'
+						className='w-6 h-6'
 						fill='none'
 						stroke='currentColor'
 						viewBox='0 0 24 24'
@@ -25,12 +25,12 @@ export const Invite = ({ setShare }) => {
 							d='M6 18L18 6M6 6l12 12'></path>
 					</svg>
 				</div>
-				<div class='flex flex-col w-full'>
+				<div className='flex flex-col w-full'>
 					<input
 						type='text'
 						name=''
 						placeholder='Email, comma separated...'
-						class='bg-gray-900 border border-gray-400 rounded shadow-sm h-12'
+						className='bg-gray-900 border border-gray-400 rounded shadow-sm h-12'
 						id=''
 					/>
 					<div className='flex items-center pt-3 pb-1'>
@@ -47,18 +47,18 @@ export const Invite = ({ setShare }) => {
 							/>
 						</svg>
 
-						<p class='mb-2 text-gray-700 text-left text-xs'>
+						<p className='mb-2 text-gray-700 text-left text-xs'>
 							Everyone at Robert Weed can access this file
 						</p>
 					</div>
-					<div class='flex items-center justify-between pb-4'>
+					<div className='flex items-center justify-between pb-4'>
 						<LinkDropDown />
 						<PermissionsDropDown />
 					</div>
 					<hr />
 					<MemberList />
 				</div>
-				<div class='flex flex-row items-center justify-between pt-3  border-t border-gray-200'>
+				<div className='flex flex-row items-center justify-between pt-3  border-t border-gray-200'>
 					<div className='flex items-center'>
 						<svg
 							className='mr-2'
@@ -73,9 +73,9 @@ export const Invite = ({ setShare }) => {
 							/>
 						</svg>
 
-						<p class='font-thin text-gray-600'>Copy Link</p>
+						<p className='font-thin text-gray-600'>Copy Link</p>
 					</div>
-					<button class='px-4 py-2 text-gray-900 font-semibold bg-yellow-400 rounded-2xl'>
+					<button className='px-4 py-2 text-gray-900 font-semibold bg-yellow-400 rounded-2xl'>
 						Send Invite
 					</button>
 				</div>

@@ -45,7 +45,7 @@ export const CommentInput = ({ user, state, setComments }) => {
 				value={commentContent}
 				onChange={handleComment}
 				placeholder='Type comments...'
-				class='bg-gray-900 border border-gray-400 rounded shadow-sm h-8 w-full'
+				className='bg-gray-900 border border-gray-400 rounded shadow-sm h-8 w-full'
 				id=''
 			/>
 			{/* <svg

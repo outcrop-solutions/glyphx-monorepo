@@ -3,14 +3,15 @@ import { Header } from './Header'
 import { Property } from './Property'
 import { useProperties } from '../../../../services/useProperties'
 import { PropDrop } from './PropDrop'
+import { Columns } from '../../../datagrid/columns'
 
 function Properties({
 	project,
 	sidebarExpanded,
 	setSidebarExpanded,
 	isEditing,
-	colHeaders,
-	setColHeaders,
+	modelProps,
+	setModelProps,
 }) {
 	const [open, setOpen] = useState(isEditing ? true : false)
 	const [isOver, setIsOver] = useState(false)
@@ -46,18 +47,32 @@ function Properties({
 						? 'border-0 -my-2'
 						: 'border-b border-gray-400'
 				}`}>
-				<ul className={`pl-2 my-4 ${!open && 'hidden'}`}>
-					{isEditing ? (
-						<PropDrop colHeaders={colHeaders} setColHeaders={setColHeaders} />
-					) : (
-						<>
-							{propertiesArr.length > 0
-								? propertiesArr.map((item, idx) => (
-										<Property key={item} item={item} idx={idx} />
-								  ))
-								: null}
-						</>
-					)}
+				<ul className={`pl-2 h-44 my-4 ${!open && 'hidden'}`}>
+					{Object.keys(modelProps.propMap).map((key, index) => {
+						if (key !== 'columnHeaders') {
+							return (
+								<Columns
+									key={key}
+									listId={key}
+									listType='CARD'
+									properties={modelProps.propMap[key]}
+								/>
+							)
+						}
+					})}
+
+					{/* <PropDrop modelProps={modelProps} setModelProps={setModelProps} /> */}
+
+					{/* {isEditing ? ( 
+					// ) : (
+					// 	<>
+					// 		{propertiesArr.length > 0
+					// 			? propertiesArr.map((item, idx) => (
+					// 					<Property key={item} item={item} idx={idx} />
+					// 			  ))
+					// 			: null}
+					// 	</>
+					// )} */}
 				</ul>
 			</div>
 		</React.Fragment>

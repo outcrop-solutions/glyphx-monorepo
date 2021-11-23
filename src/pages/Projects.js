@@ -15,6 +15,7 @@ import { DataGrid } from '../partials/datagrid'
 import { Columns } from '../partials/datagrid/columns'
 import { Invite } from '../partials/invite'
 import { DragDropContext } from 'react-beautiful-dnd'
+import { mode } from '../css/tailwind.config'
 // import { DataTable } from '../partials/datasheet-temp/index'
 let socket = null
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -43,15 +44,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 	const [share, setShare] = useState(false)
 
 	useEffect(() => {
-		console.log({
-			filterSidebar: filterSidebarPosition.values,
-			commentsSidebar: commentsPosition.values,
-		})
 		if (sendDrawerPositionApp) {
-			// console.log({
-			// 	filterSidebar: filterSidebarPosition,
-			// 	commentsSidebar: commentsPosition,
-			// })
 			window.core.SendDrawerPosition(
 				JSON.stringify({
 					filterSidebar: filterSidebarPosition.values,
@@ -101,13 +94,60 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 			})
 		}
 	}
-	const [items, setItems] = useState([
-		{
-			id: `item-0`,
-			content: 'objectId',
-			type: 'ID',
+	const columnHeaders = 'columnHeaders'
+	const X = 'X'
+	const Y = 'Y'
+	const Z = 'Z'
+	const [modelProps, setModelProps] = useState({
+		propMap: {
+			[columnHeaders]: [
+				{
+					id: `item-1`,
+					content: 'objectId',
+					type: 'ID',
+				},
+				{
+					id: `item-2`,
+					content: 'firstName',
+					type: 'String',
+				},
+				{
+					id: `item-3`,
+					content: 'lastName',
+					type: 'String',
+				},
+				{
+					id: `item-4`,
+					content: 'settings',
+					type: 'Object',
+				},
+				{
+					id: `item-5`,
+					content: 'collaborators',
+					type: 'Array',
+				},
+			],
+			[X]: [
+				{
+					id: `item-6`,
+					content: 'objectId',
+					type: 'ID',
+				},
+				{
+					id: `item-7`,
+					content: 'settings',
+					type: 'Object',
+				},
+				{
+					id: `item-8`,
+					content: 'collaborators',
+					type: 'Array',
+				},
+			],
+			[Y]: [],
+			[Z]: [],
 		},
-	])
+	})
 
 	// a little function to help us with reordering the result
 	const reorder = (list, startIndex, endIndex) => {
@@ -117,19 +157,70 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
 		return result
 	}
-	function onDragEnd(result) {
-		// dropped outside the list
-		if (!result.destination) {
-			return
+	const move = (source, destination, droppableSource, droppableDestination) => {
+		const sourceClone = Array.from(source)
+		const destClone = Array.from(destination)
+		const [removed] = sourceClone.splice(droppableSource.index, 1)
+
+		destClone.splice(droppableDestination.index, 0, removed)
+
+		const result = {}
+		result[droppableSource.droppableId] = sourceClone
+		result[droppableDestination.droppableId] = destClone
+
+		return result
+	}
+
+	const reorderPropMap = ({ propMap, source, destination }) => {
+		const current = [...propMap[source.droppableId]]
+		const next = [...propMap[destination.droppableId]]
+		const target = current[source.index]
+
+		// moving to same list
+		if (source.droppableId === destination.droppableId) {
+			const reordered = reorder(current, source.index, destination.index)
+			const result = {
+				...propMap,
+				[source.droppableId]: reordered,
+			}
+			return {
+				propMap: result,
+			}
 		}
 
-		const newItems = reorder(
-			items,
-			result.source.index,
-			result.destination.index
-		)
+		// moving to different list
+
+		// remove from original
+		current.splice(source.index, 1)
+		// insert into next
+		next.splice(destination.index, 0, target)
+
+		const result = {
+			...propMap,
+			[source.droppableId]: current,
+			[destination.droppableId]: next,
+		}
+
+		return {
+			propMap: result,
+		}
+	}
+	function onDragEnd(result) {
+		const { source, destination } = result
+		console.log({ source, destination })
+		// dropped outside the list
+		if (!destination) {
+			return
+		}
+		setModelProps((prev) => {
+			let newData = reorderPropMap({
+				propMap: prev.propMap,
+				source,
+				destination,
+			})
+			return newData
+		})
 		setIsEditing(false)
-		setItems(newItems)
 	}
 
 	const onDragStart = () => {
@@ -177,20 +268,27 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 										setState={setState}
 										isEditing={isEditing}
 										setIsEditing={setIsEditing}
-										colHeaders={items}
-										setColHeaders={setItems}
+										modelProps={modelProps}
+										setModelProps={setModelProps}
 									/>
 									<div className='w-full flex'>
 										<div className='min-w-0 flex-auto mx-2 overflow-x-auto'>
 											{share ? (
 												<Invite setShare={setShare} />
 											) : (
-												<div className='overflow-x-auto'>
-													<Columns
-														items={items}
-														setItems={setItems}
-														setIsEditing={setIsEditing}
-													/>
+												<div className='overflow-x-auto flex-col'>
+													{Object.keys(modelProps.propMap).map((key, index) => {
+														if (key === 'columnHeaders') {
+															return (
+																<Columns
+																	key={key}
+																	listId={key}
+																	listType='CARD'
+																	properties={modelProps.propMap[key]}
+																/>
+															)
+														}
+													})}
 													<DataGrid />
 												</div>
 											)}

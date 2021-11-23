@@ -15,8 +15,8 @@ export const ProjectSidebar = ({
 	setState,
 	isEditing,
 	setIsEditing,
-	colHeaders,
-	setColHeaders,
+	modelProps,
+	setModelProps,
 }) => {
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [showCols, setShowCols] = useState(false)
@@ -108,8 +108,8 @@ export const ProjectSidebar = ({
 					project={project}
 					isEditing={isEditing}
 					setIsEditing={setIsEditing}
-					colHeaders={colHeaders}
-					setColHeaders={setColHeaders}
+					modelProps={modelProps}
+					setModelProps={setModelProps}
 				/>
 			),
 		},
