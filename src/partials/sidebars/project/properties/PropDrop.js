@@ -1,45 +1,19 @@
 import { useState } from 'react'
-import { ColumnHeader } from './columnHeader'
+import { ColumnHeader } from '../../../datagrid/columnHeader'
 import { Droppable, Draggable } from 'react-beautiful-dnd'
 
-// export const Columns = ({ items, setItems, setIsEditing }) => {
-export const Columns = ({ setIsEditing }) => {
-	const [items, setItems] = useState([
-		{
-			id: `item-0`,
-			content: 'objectId',
-			type: 'ID',
-		},
-		{
-			id: `item-1`,
-			content: 'firstName',
-			type: 'String',
-		},
-		{
-			id: `item-2`,
-			content: 'lastName',
-			type: 'String',
-		},
-		{
-			id: `item-3`,
-			content: 'settings',
-			type: 'Object',
-		},
-		{
-			id: `item-4`,
-			content: 'collaborators',
-			type: 'Array',
-		},
-	])
+export const PropDrop = ({ colHeaders, setColHeaders }) => {
 	return (
 		// <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-		<Droppable droppableId='droppable' direction='horizontal'>
+		<Droppable droppableId='droppable-props' direction='vertical'>
 			{(provided, snapshot) => (
 				<div
 					ref={provided.innerRef}
-					className={`${snapshot.isDraggingOver ? '' : ''} flex overflow-auto`}
+					className={`${
+						snapshot.isDraggingOver ? '' : ''
+					} flex-col overflow-auto`}
 					{...provided.droppableProps}>
-					{items.map((item, index) => (
+					{colHeaders.map((item, index) => (
 						<Draggable key={item.id} draggableId={item.id} index={index}>
 							{(provided, snapshot) => {
 								// console.log({

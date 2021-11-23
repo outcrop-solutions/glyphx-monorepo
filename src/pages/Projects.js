@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import {
-	Switch,
-	Route,
-	useLocation,
-	useHistory,
-	Router,
-	Redirect,
-} from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import QWebChannel from 'qwebchannel'
 
 import Header from '../partials/header'
@@ -20,6 +13,8 @@ import { useStateChange } from '../services/useStateChange'
 import { useFilterChange } from '../services/useFilterChange'
 import { DataGrid } from '../partials/datagrid'
 import { Columns } from '../partials/datagrid/columns'
+import { Invite } from '../partials/invite'
+import { DragDropContext } from 'react-beautiful-dnd'
 // import { DataTable } from '../partials/datasheet-temp/index'
 let socket = null
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -43,6 +38,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 	//position state dynamically changes with transitions
 	const [commentsPosition, setCommentsPosition] = useState({})
 	const [filterSidebarPosition, setFilterSidebarPosition] = useState({})
+
+	const [isEditing, setIsEditing] = useState(false)
 
 	useEffect(() => {
 		console.log({
@@ -103,6 +100,40 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 			})
 		}
 	}
+	const [items, setItems] = useState([
+		{
+			id: `item-0`,
+			content: 'objectId',
+			type: 'ID',
+		},
+	])
+
+	// a little function to help us with reordering the result
+	const reorder = (list, startIndex, endIndex) => {
+		const result = Array.from(list)
+		const [removed] = result.splice(startIndex, 1)
+		result.splice(endIndex, 0, removed)
+
+		return result
+	}
+	function onDragEnd(result) {
+		// dropped outside the list
+		if (!result.destination) {
+			return
+		}
+
+		const newItems = reorder(
+			items,
+			result.source.index,
+			result.destination.index
+		)
+		setIsEditing(false)
+		setItems(newItems)
+	}
+
+	const onDragStart = () => {
+		setIsEditing(true)
+	}
 
 	return (
 		<div className='flex h-screen overflow-hidden bg-gray-900'>
@@ -134,25 +165,37 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 					<div className='flex relative h-full'>
 						{project ? (
 							<>
-								<ProjectSidebar
-									project={project}
-									filtersApplied={filtersApplied}
-									setFiltersApplied={setFiltersApplied}
-									setFilterSidebarPosition={setFilterSidebarPosition}
-									setState={setState}
-								/>
-								<div className='w-full flex'>
-									<div className='min-w-0 flex-auto mx-2' />
-									{/* <Dnd /> */}
-									{/* <Columns />
-										<DataGrid /> */}
-									{/* </div> */}
-									<CommentsSidebar
-										user={user}
+								<DragDropContext
+									onDragEnd={onDragEnd}
+									onDragStart={onDragStart}>
+									<ProjectSidebar
 										project={project}
-										setCommentsPosition={setCommentsPosition}
+										filtersApplied={filtersApplied}
+										setFiltersApplied={setFiltersApplied}
+										setFilterSidebarPosition={setFilterSidebarPosition}
+										setState={setState}
+										isEditing={isEditing}
+										setIsEditing={setIsEditing}
+										colHeaders={items}
+										setColHeaders={setItems}
 									/>
-								</div>
+									<div className='w-full flex'>
+										<div className='min-w-0 flex-auto mx-2'>
+											<Invite />
+											{/* <Columns
+												items={items}
+												setItems={setItems}
+												setIsEditing={setIsEditing}
+											/>
+											<DataGrid /> */}
+										</div>
+										<CommentsSidebar
+											user={user}
+											project={project}
+											setCommentsPosition={setCommentsPosition}
+										/>
+									</div>
+								</DragDropContext>
 							</>
 						) : (
 							<div className='px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto'>

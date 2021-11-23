@@ -70,11 +70,12 @@ export const Dnd = ({ items }) => {
 									<div
 										ref={provided.innerRef}
 										{...provided.draggableProps}
-										{...provided.dragHandleProps}
+										// {...provided.dragHandleProps}
 										style={getItemStyle(
 											snapshot.isDragging,
 											provided.draggableProps.style
 										)}>
+										<span {...provided.dragHandleProps} className='h-4 w-4 rounded bg-yellow-400 absolute right-0 top-2'></span>
 										{item.content}
 									</div>
 								)}

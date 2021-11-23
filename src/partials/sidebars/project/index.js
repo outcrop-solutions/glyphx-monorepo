@@ -14,6 +14,10 @@ export const ProjectSidebar = ({
 	setFiltersApplied,
 	setFilterSidebarPosition,
 	setState,
+	isEditing,
+	setIsEditing,
+	colHeaders,
+	setColHeaders,
 }) => {
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const [showCols, setShowCols] = useState(false)
@@ -103,6 +107,10 @@ export const ProjectSidebar = ({
 					sidebarExpanded={sidebarExpanded}
 					setSidebarExpanded={setSidebarExpanded}
 					project={project}
+					isEditing={isEditing}
+					setIsEditing={setIsEditing}
+					colHeaders={colHeaders}
+					setColHeaders={setColHeaders}
 				/>
 			),
 		},
