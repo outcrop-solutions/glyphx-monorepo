@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import Column from './Column'
 import Filter from './Filter'
@@ -20,6 +20,10 @@ function Filters({
 		setOpen(!open)
 	}
 	const { filters } = useFilters()
+	const [filtersState, setFiltersState] = useState([])
+	useEffect(() => {
+		setFiltersState([...filters])
+	}, [filters])
 	const { columns } = useColumns()
 	return (
 		<React.Fragment>
@@ -29,7 +33,7 @@ function Filters({
 				setSidebarExpanded={setSidebarExpanded}
 				handleClick={handleClick}
 			/>
-			{filters.length > 0 && (
+			{filtersState.length > 0 && (
 				<div
 					className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2  ${
 						!open && sidebarExpanded
@@ -39,9 +43,11 @@ function Filters({
 					<ul
 						style={{ height: '200px' }}
 						className={`pl-2 mt-1 overflow-auto ${!open && 'hidden'}`}>
-						{filters.map((item, idx) => (
+						{filtersState.map((item, idx) => (
 							<Filter
 								key={item.id}
+								filtersState={filtersState}
+								setFiltersState={setFiltersState}
 								filtersApplied={filtersApplied}
 								setFiltersApplied={setFiltersApplied}
 								setShowCols={setShowCols}

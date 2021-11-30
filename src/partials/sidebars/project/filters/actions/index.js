@@ -4,6 +4,8 @@ import EditFilter from './EditFilter'
 import ShowHide from './ShowHide'
 
 function FilterActions({
+	filtersState,
+	setFiltersState,
 	item,
 	applied,
 	setApplied,
@@ -16,7 +18,7 @@ function FilterActions({
 			{/* Add Filter */}
 			<AddColumn setShowCols={setShowCols} />
 			{/* Delete Filter */}
-			<DeleteFilter />
+			<DeleteFilter item={item} setFiltersState={setFiltersState} />
 			{/* show/hide filter */}
 			<ShowHide
 				item={item}

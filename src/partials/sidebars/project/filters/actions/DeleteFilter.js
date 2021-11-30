@@ -1,7 +1,23 @@
-function DeleteFilter() {
+import { API, graphqlOperation } from 'aws-amplify'
+import { deleteFilter } from '../../../../../graphql/mutations'
+
+function DeleteFilter({ item, setFiltersState }) {
+	const handleDeleteFilter = async () => {
+		let deleteFilterInput = { id: item.id }
+		console.log({ deleteFilterInput })
+		const result = await API.graphql(
+			graphqlOperation(deleteFilter, { input: deleteFilterInput })
+		)
+		setFiltersState((prev) => {
+			let newState = [...prev.filter((el) => el.id !== item.id)]
+			return newState
+		})
+	}
+
 	return (
 		<div className='flex items-center justify-center h-6 w-6'>
 			<svg
+				onClick={handleDeleteFilter}
 				aria-hidden='true'
 				role='img'
 				width='16'

@@ -3,6 +3,8 @@ import ClickAwayListener from 'react-click-away-listener'
 import FilterActions from './actions'
 
 function Filter({
+	filtersState,
+	setFiltersState,
 	item,
 	columns,
 	setShowCols,
@@ -90,6 +92,8 @@ function Filter({
 
 				<FilterActions
 					item={item}
+					filtersState={filtersState}
+					setFiltersState={setFiltersState}
 					applied={applied}
 					setApplied={setApplied}
 					setShowCols={setShowCols}
