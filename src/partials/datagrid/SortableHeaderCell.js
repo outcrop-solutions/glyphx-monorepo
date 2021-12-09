@@ -29,14 +29,14 @@ export default function SortableHeaderCell({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      <span className='flex-grow overflow-hidden overflow-ellipsis'>{children}</span>
+      <div className='flex-grow overflow-hidden overflow-ellipsis'>{children}</div>
       <span>
         {sortDirection !== undefined && (
           <svg
             viewBox="0 0 12 8"
             width="12"
             height="8"
-            className='fill-current'
+            className='mt-3'
             aria-hidden
           >
             <path

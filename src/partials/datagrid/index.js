@@ -117,9 +117,12 @@ export const Datagrid = () => {
     }
     return direction === "DESC" ? sortedRows.reverse() : sortedRows;
   }, [rows, sortColumns]);
+
+
   return (
     <DndProvider backend={HTML5Backend}>
       <DataGrid
+        className='max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full'
         columns={draggableColumns}
         rows={sortedRows}
         sortColumns={sortColumns}

@@ -326,15 +326,15 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     showCols={showCols}
                     setShowCols={setShowCols}
                   />
-                  <div className="w-full flex">
+                  <div className="w-full h-full flex">
                     <div
-                      className={`min-w-0 flex-auto mx-2 overflow-auto`}
+                      className={`min-w-0 flex-auto overflow-auto`}
                     >
                       {share ? (
                         <Invite setShare={setShare} />
                       ) : (
-                        <div className="overflow-x-auto flex-col w-2/3 mx-auto">
-                          {Object.keys(modelProps.propMap).map((key, index) => {
+                        <div className="overflow-x-auto flex-col mx-auto">
+                          {/* {Object.keys(modelProps.propMap).map((key, index) => {
                             if (key === "columnHeaders") {
                               return (
                                 <Columns
@@ -345,7 +345,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                                 />
                               );
                             } else return <></>
-                          })}
+                          })} */}
                           <Datagrid />
                         </div>
                       )}
