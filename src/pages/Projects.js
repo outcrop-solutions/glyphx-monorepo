@@ -11,15 +11,11 @@ import { MainSidebar } from "../partials/sidebars/main";
 import { useUrl } from "../services/useUrl";
 import { useStateChange } from "../services/useStateChange";
 import { useFilterChange } from "../services/useFilterChange";
-import { DataGrid } from "../partials/datagrid";
+import { Datagrid } from "../partials/datagrid";
 import { Columns } from "../partials/datagrid/columns";
 import { Invite } from "../partials/invite";
 import { DragDropContext } from "react-beautiful-dnd";
 
-import { Files } from "../partials/sidebars/project/files";
-import Properties from "../partials/sidebars/project/properties";
-import Filters from "../partials/sidebars/project/filters";
-import States from "../partials/sidebars/project/states";
 import { usePosition } from "../services/usePosition";
 // import { DataTable } from '../partials/datasheet-temp/index'
 let socket = null;
@@ -331,11 +327,13 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     setShowCols={setShowCols}
                   />
                   <div className="w-full flex">
-                    <div className="min-w-0 flex-auto mx-2 overflow-x-auto">
+                    <div
+                      className={`min-w-0 flex-auto mx-2 overflow-auto`}
+                    >
                       {share ? (
                         <Invite setShare={setShare} />
                       ) : (
-                        <div className="overflow-x-auto flex-col">
+                        <div className="overflow-x-auto flex-col w-2/3 mx-auto">
                           {Object.keys(modelProps.propMap).map((key, index) => {
                             if (key === "columnHeaders") {
                               return (
@@ -346,9 +344,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                                   properties={modelProps.propMap[key]}
                                 />
                               );
-                            }
+                            } else return <></>
                           })}
-                          <DataGrid />
+                          <Datagrid />
                         </div>
                       )}
                     </div>

@@ -12,7 +12,7 @@ export const MemberList = () => {
 		{ author: 'Kyla McAndrews' },
 	]
 	return (
-		<ul className='my-4 h-40 overflow-auto'>
+		<ul className='my-4 h-40 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300'>
 			{results.length > 0 ? (
 				<>
 					{results.map((item, idx) => (

@@ -95,12 +95,12 @@ input[type='search']::-webkit-search-results-decoration {
 	@apply text-indigo-500 border border-gray-300;
 }
 
-/* Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-	display: none;
-}
+// /* Chrome, Safari and Opera */
+// .no-scrollbar::-webkit-scrollbar {
+// 	display: none;
+// }
 
-.no-scrollbar {
-	-ms-overflow-style: none; /* IE and Edge */
-	scrollbar-width: none; /* Firefox */
-}
+// .no-scrollbar {
+// 	-ms-overflow-style: none; /* IE and Edge */
+// 	scrollbar-width: none; /* Firefox */
+// }

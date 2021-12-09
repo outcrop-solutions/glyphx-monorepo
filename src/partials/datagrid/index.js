@@ -1,135 +1,132 @@
-import { useState } from 'react'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import { Cell } from './cell'
+import { useState, useCallback, useMemo } from "react";
+import DataGrid, {
+  Column,
+  HeaderRendererProps,
+  SortColumn,
+} from "react-data-grid";
+import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+function createRows() {
+  const rows = [];
+  for (let i = 1; i < 500; i++) {
+    rows.push({
+      id: i,
+      task: `Task ${i}`,
+      complete: Math.min(100, Math.round(Math.random() * 110)),
+      priority: ["Critical", "High", "Medium", "Low"][
+        Math.round(Math.random() * 3)
+      ],
+      issueType: ["Bug", "Improvement", "Epic", "Story"][
+        Math.round(Math.random() * 3)
+      ],
+    });
+  }
 
-// fake data generator
-const getItems = (count, offset = 0) =>
-	Array.from({ length: count }, (v, k) => k).map((k) => ({
-		id: `item-${k + offset}-${new Date().getTime()}`,
-		content: `item ${k + offset}`,
-	}))
-
-const reorder = (list, startIndex, endIndex) => {
-	const result = Array.from(list)
-	const [removed] = result.splice(startIndex, 1)
-	result.splice(endIndex, 0, removed)
-
-	return result
+  return rows;
 }
 
-/**
- * Moves an item from one list to another list.
- */
-const move = (source, destination, droppableSource, droppableDestination) => {
-	const sourceClone = Array.from(source)
-	const destClone = Array.from(destination)
-	const [removed] = sourceClone.splice(droppableSource.index, 1)
-
-	destClone.splice(droppableDestination.index, 0, removed)
-
-	const result = {}
-	result[droppableSource.droppableId] = sourceClone
-	result[droppableDestination.droppableId] = destClone
-
-	return result
+function createColumns() {
+  return [
+    {
+      key: "id",
+      name: "ID",
+      width: 80,
+    },
+    {
+      key: "task",
+      name: "Title",
+      resizable: true,
+      sortable: true,
+    },
+    {
+      key: "priority",
+      name: "Priority",
+      resizable: true,
+      sortable: true,
+    },
+    {
+      key: "issueType",
+      name: "Issue Type",
+      resizable: true,
+      sortable: true,
+    },
+    {
+      key: "complete",
+      name: "% Complete",
+      resizable: true,
+      sortable: true,
+    },
+  ];
 }
 
-const getItemStyle = (isDragging) =>
-	`${isDragging ? '' : 'border border-gray-200 border-1'}`
-const getListStyle = (isDraggingOver) =>
-	`${isDraggingOver ? '' : 'min-w-56 max-w-min'}`
+export const Datagrid = () => {
+  const [rows] = useState(createRows());
+  const [columns, setColumns] = useState(createColumns());
+  const [sortColumns, setSortColumns] = useState([]);
+  const onSortColumnsChange = useCallback((sortColumns) => {
+    setSortColumns(sortColumns.slice(-1));
+  }, []);
+  const draggableColumns = useMemo(() => {
+    function HeaderRenderer(props) {
+      return (
+        <DraggableHeaderRenderer
+          {...props}
+          onColumnsReorder={handleColumnsReorder}
+        />
+      );
+    }
 
-export const DataGrid = () => {
-	const [state, setState] = useState([
-		getItems(10),
-		getItems(10),
-		getItems(10),
-		getItems(10),
-		getItems(10),
-	])
+    function handleColumnsReorder(sourceKey, targetKey) {
+      const sourceColumnIndex = columns.findIndex((c) => c.key === sourceKey);
+      const targetColumnIndex = columns.findIndex((c) => c.key === targetKey);
+      const reorderedColumns = [...columns];
 
-	function onDragEnd(result) {
-		const { source, destination } = result
+      reorderedColumns.splice(
+        targetColumnIndex,
+        0,
+        reorderedColumns.splice(sourceColumnIndex, 1)[0]
+      );
 
-		// dropped outside the list
-		if (!destination) {
-			return
-		}
-		const sInd = +source.droppableId
-		const dInd = +destination.droppableId
+      setColumns(reorderedColumns);
+    }
 
-		if (sInd === dInd) {
-			const items = reorder(state[sInd], source.index, destination.index)
-			const newState = [...state]
-			newState[sInd] = items
-			setState(newState)
-		} else {
-			const result = move(state[sInd], state[dInd], source, destination)
-			const newState = [...state]
-			newState[sInd] = result[sInd]
-			newState[dInd] = result[dInd]
+    return columns.map((c) => {
+      if (c.key === "id") return c;
+      return { ...c, headerRenderer: HeaderRenderer };
+    });
+  }, [columns]);
+  const sortedRows = useMemo(() => {
+    if (sortColumns.length === 0) return rows;
+    const { columnKey, direction } = sortColumns[0];
 
-			setState(newState.filter((group) => group.length))
-		}
-	}
+    let sortedRows = [...rows];
 
-	return (
-		<div className='overflow-x-scroll w-full'>
-			{/* <button
-				type='button'
-				onClick={() => {
-					setState([...state, []])
-				}}>
-				Add new group
-			</button>
-			<button
-				type='button'
-				onClick={() => {
-					setState([...state, getItems(1)])
-				}}>
-				Add new item
-			</button> */}
-			<div style={{ display: 'flex' }}>
-				<DragDropContext onDragEnd={onDragEnd}>
-					{state.map((el, ind) => (
-						<Droppable key={ind} droppableId={`${ind}`}>
-							{(provided, snapshot) => (
-								<div
-									ref={provided.innerRef}
-									className={getListStyle(snapshot.isDraggingOver)}
-									{...provided.droppableProps}>
-									{el.map((item, index) => (
-										<Draggable
-											key={item.id}
-											draggableId={item.id}
-											index={index}>
-											{(provided, snapshot) => {
-												return (
-													<div
-														ref={provided.innerRef}
-														{...provided.draggableProps}
-														{...provided.dragHandleProps}
-														style={provided.draggableProps.style}
-														className={getItemStyle(snapshot.isDragging)}>
-														<Cell
-															ind={ind}
-															index={index}
-															item={item}
-															state={state}
-															setState={setState}
-														/>
-													</div>
-												)
-											}}
-										</Draggable>
-									))}
-									{provided.placeholder}
-								</div>
-							)}
-						</Droppable>
-					))}
-				</DragDropContext>
-			</div>
-		</div>
-	)
-}
+    switch (columnKey) {
+      case "task":
+      case "priority":
+      case "issueType":
+        sortedRows = sortedRows.sort((a, b) =>
+          a[columnKey].localeCompare(b[columnKey])
+        );
+        break;
+      case "complete":
+        sortedRows = sortedRows.sort((a, b) => a[columnKey] - b[columnKey]);
+        break;
+      default:
+    }
+    return direction === "DESC" ? sortedRows.reverse() : sortedRows;
+  }, [rows, sortColumns]);
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <DataGrid
+        columns={draggableColumns}
+        rows={sortedRows}
+        sortColumns={sortColumns}
+        onSortColumnsChange={onSortColumnsChange}
+      />
+    </DndProvider>
+  );
+  // return <div className='scrollbar-track-transparent scrollbar-thumb-yellow-400'>Hello</div>
+  // return <DataGrid columns={columns} rows={rows} />;
+};

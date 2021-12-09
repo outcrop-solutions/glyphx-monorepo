@@ -12,9 +12,9 @@ export const Columns = ({ key, listId, listType, properties }) => {
 					ref={provided.innerRef}
 					className={`${
 						snapshot.isDraggingOver ? '' : ''
-					} flex overflow-auto p-2 select-none m-1`}
+					} flex p-2 select-none m-1`}
 					{...provided.droppableProps}>
-					<div className='overflow-auto'>
+					<div className='overflow-auto scrollbar-none'>
 						<div className='flex-grow inline-flex'>
 							<div
 								className='flex items-start'

@@ -79,7 +79,7 @@ export const CommentsSidebar = ({
 				sidebarOpen ? 'translate-y-64' : 'translate-x-0'
 			}`}>
 			<Header sidebarExpanded={sidebarExpanded} />
-			<div className='m-2 hidden comments-sidebar-expanded:block overflow-y-scroll'>
+			<div className='m-2 hidden comments-sidebar-expanded:block overflow-y-scroll scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full'>
 				<History />
 				<CommentInput user={user} state={state} />
 			</div>

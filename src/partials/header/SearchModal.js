@@ -71,7 +71,7 @@ function SearchModal() {
         leaveStart="opacity-100 translate-y-0"
         leaveEnd="opacity-0 translate-y-4"
       >
-        <div className="bg-white overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg" ref={searchContent}>
+        <div className="bg-white overflow-auto scrollbar-track-transparent scrollbar-thumb-yellow-400 max-w-2xl w-full max-h-full rounded shadow-lg" ref={searchContent}>
           {/* Search form */}
           <form className="border-b border-gray-200">
             <div className="relative">

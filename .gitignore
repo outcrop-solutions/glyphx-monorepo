@@ -27,6 +27,8 @@ yarn-error.log*
 .vscode
 .idea/
 
+src/.linaria_cache
+
 .env
 
 src/environment.js
@@ -37,7 +39,6 @@ amplify/.config/local-*
 amplify/logs
 amplify/mock-data
 amplify/backend/amplify-meta.json
-amplify/backend/awscloudformation
 amplify/backend/.temp
 build/
 dist/
