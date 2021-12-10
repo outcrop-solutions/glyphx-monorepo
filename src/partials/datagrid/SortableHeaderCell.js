@@ -25,18 +25,23 @@ export default function SortableHeaderCell({
     <span
       ref={ref}
       tabIndex={tabIndex}
-      className='cursor-pointer flex focus:outline-none'
+      className="cursor-pointer flex focus:outline-none"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      <div className='flex-grow overflow-hidden overflow-ellipsis'>{children}</div>
+      <div
+        datatype="string"
+        className="flex-grow overflow-hidden overflow-ellipsis"
+      >
+        {children}
+      </div>
       <span>
         {sortDirection !== undefined && (
           <svg
             viewBox="0 0 12 8"
             width="12"
             height="8"
-            className='mt-3'
+            className="mt-3"
             aria-hidden
           >
             <path

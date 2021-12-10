@@ -95,20 +95,50 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply text-indigo-500 border border-gray-300;
 }
 
-.rdg-header-row {
-  @apply bg-gray-900 text-white;
+div[role="columnheader"] {
+	@apply border-0;
+}
+div[role="grid"] {
+	@apply bg-gray-900;
+}
+div[role="row"] {
+	@apply text-white bg-gray-900;
 }
 
-.rdg-cell {
+div[role="gridcell"] {
 	@apply bg-gray-900 text-white
 }
 
+.rdg-header-row {
+
+}
+
+div[datatype="object"] {
+	@apply bg-gray-800 text-white rounded-2xl text-center
+}
+div[datatype="boolean"] {
+	@apply bg-blue-700 text-white rounded-2xl text-center
+}
+div[datatype="number"] {
+	@apply bg-indigo-700 text-white rounded-2xl text-center
+}
+div[datatype="bigint"] {
+	@apply bg-purple-700 text-white rounded-2xl text-center
+}
+div[datatype="string"] {
+	@apply bg-lightBlue-700 text-white rounded-2xl text-center
+}
+
+// .rdg-cell {
+// 	@apply bg-gray-900 text-white
+// }
+
 // /* Chrome, Safari and Opera */
-// .no-scrollbar::-webkit-scrollbar {
+// .scrollbar-none::-webkit-scrollbar {
 // 	display: none;
 // }
 
-// .no-scrollbar {
+// .scrollbar-none {
 // 	-ms-overflow-style: none; /* IE and Edge */
 // 	scrollbar-width: none; /* Firefox */
 // }

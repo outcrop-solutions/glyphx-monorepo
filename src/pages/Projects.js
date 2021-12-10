@@ -279,7 +279,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-900">
+    <div className="flex h-screen overflow-hidden scrollbar-none bg-gray-900">
       {/* Sidebar */}
       <MainSidebar
         setProject={setProject}
@@ -289,7 +289,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       />
 
       {/* Content area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none overflow-x-hidden">
         {/*  Site header */}
         <Header
           project={project}
