@@ -3,6 +3,29 @@ import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
 
+export const formatGridData = (data) => {
+  let colNames = Object.keys(data[0]);
+  // console.log({result})
+
+  let cols = colNames.map((item, idx) => {
+    const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
+    return {
+      key: item,
+      name: capitalized,
+      resizable: true,
+      sortable: true,
+    };
+  });
+
+  cols.unshift({ key: "id", name: "ID", width: 50 });
+  let rows = data.map((row, idx) => ({ ...row, id: idx }));
+  const newGrid = { columns: cols, rows };
+
+  // add iterator column
+  console.log({ newGrid });
+  return newGrid;
+};
+
 export const Dropzone = ({
   fileSystem,
   setFileSystem,
@@ -12,11 +35,6 @@ export const Dropzone = ({
   const onDrop = useCallback(
     (acceptedFiles) => {
       console.log({ acceptedFiles });
-      //   process csv using papaparse
-      //	set grid data with processed data
-      // pass simplified array of names to files state
-      // onclick of file node download data and display in grid
-
       //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
         id: idx + fileSystem.length + 1,
@@ -33,25 +51,8 @@ export const Dropzone = ({
       acceptedFiles.forEach(async (file) => {
         const text = await file.text();
         const { data } = parse(text, { header: true });
-        let colNames = Object.keys(data[0]);
-        // console.log({result})
-
-        let cols = colNames.map((item, idx) => {
-          const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
-          return {
-            key: item,
-            name: capitalized,
-            resizable: true,
-            sortable: true,
-          };
-        });
-
-        cols.unshift({ key: "id", name: "ID", width: 50 });
-        let rows = data.map((row, idx) => ({ ...row, id: idx }));
-        const newGrid = { columns: cols, rows };
-        // add iterator column
-        console.log({ newGrid });
-        setDataGrid(newGrid);
+        const grid = formatGridData(data);
+        setDataGrid(grid);
       });
 
       //send file to s3

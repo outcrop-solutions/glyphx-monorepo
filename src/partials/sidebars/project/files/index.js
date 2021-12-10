@@ -51,6 +51,8 @@ export const Files = ({
               rootId={0}
               render={(node, { depth, isOpen, onToggle }) => (
                 <CustomNode
+                  project={project}
+                  setDataGrid={setDataGrid}
                   node={node}
                   depth={depth}
                   isOpen={isOpen}
