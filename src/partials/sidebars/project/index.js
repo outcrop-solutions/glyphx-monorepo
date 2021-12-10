@@ -12,12 +12,13 @@ export const ProjectSidebar = ({
   sidebarOpen,
   project,
   isEditing,
-  setIsEditing,
+  propertiesArr,
   filtersApplied,
   setFiltersApplied,
   handleStateChange,
   showCols,
   setShowCols,
+  handleDrop,
 }) => {
   //utilities
 
@@ -39,11 +40,12 @@ export const ProjectSidebar = ({
           setSidebarExpanded={setSidebarExpanded}
         />
         <Properties
+          handleDrop={handleDrop}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
           project={project}
           isEditing={isEditing}
-          setIsEditing={setIsEditing}
+          propertiesArr={propertiesArr}
           // modelProps={modelProps}
           // setModelProps={setModelProps}
         />

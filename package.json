@@ -19,6 +19,7 @@
 		"cruip-js-toolkit": "^1.0.3",
 		"csv": "^6.0.4",
 		"dayjs": "^1.10.7",
+		"immutability-helper": "^3.1.1",
 		"moment": "^2.29.1",
 		"node-sass": "^5.0.0",
 		"papaparse": "^5.3.1",

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 import SortableHeaderCell from "./SortableHeaderCell";
@@ -11,14 +12,24 @@ export function DraggableHeaderRenderer({
   onSort,
   priority,
   isCellSelected,
+  isDropped,
 }) {
   const [{ isDragging }, drag] = useDrag({
-    type: 'COLUMN_DRAG',
-    item: { key: column.key,  type: 'COLUMN_DRAG', },
+    type: "COLUMN_DRAG",
+    item: { key: column.key, type: "COLUMN_DRAG" },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
+
+  // useEffect(() => {
+  //   if (isDragging) {
+  //     setIsEditing((prev) => {
+  //       console.log("logging true");
+  //       return true;
+  //     });
+  //   }
+  // }, [isDragging, setIsEditing]);
 
   const [{ isOver }, drop] = useDrop({
     accept: "COLUMN_DRAG",
@@ -34,11 +45,9 @@ export function DraggableHeaderRenderer({
   return (
     <div
       ref={useCombinedRefs(drag, drop)}
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        backgroundColor: isOver ? "#ececec" : undefined,
-        cursor: "move",
-      }}
+      className={`${isDragging ? "opacity-80" : "opacity-100"} ${
+        isOver ? "bg-blue-500" : ""
+      }`}
     >
       <SortableHeaderCell
         sortDirection={sortDirection}
@@ -46,7 +55,7 @@ export function DraggableHeaderRenderer({
         priority={priority}
         isCellSelected={isCellSelected}
       >
-        {column.name}
+        {isDropped(column.key) ? <s>{column.name}</s> : column.name}
       </SortableHeaderCell>
     </div>
   );

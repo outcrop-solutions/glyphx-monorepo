@@ -1,66 +1,66 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import DataGrid, {
-  Column,
-  HeaderRendererProps,
-  SortColumn,
-} from "react-data-grid";
+import DataGrid from "react-data-grid";
 import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-function createRows() {
-  const rows = [];
-  for (let i = 1; i < 500; i++) {
-    rows.push({
-      id: i,
-      task: `Task ${i}`,
-      complete: Math.min(100, Math.round(Math.random() * 110)),
-      priority: ["Critical", "High", "Medium", "Low"][
-        Math.round(Math.random() * 3)
-      ],
-      issueType: ["Bug", "Improvement", "Epic", "Story"][
-        Math.round(Math.random() * 3)
-      ],
-    });
-  }
 
-  return rows;
-}
+// function createRows() {
+//   const rows = [];
+//   for (let i = 1; i < 500; i++) {
+//     rows.push({
+//       id: i,
+//       task: `Task ${i}`,
+//       complete: Math.min(100, Math.round(Math.random() * 110)),
+//       priority: ["Critical", "High", "Medium", "Low"][
+//         Math.round(Math.random() * 3)
+//       ],
+//       issueType: ["Bug", "Improvement", "Epic", "Story"][
+//         Math.round(Math.random() * 3)
+//       ],
+//     });
+//   }
 
-function createColumns() {
-  return [
-    {
-      key: "id",
-      name: "ID",
-      width: 80,
-    },
-    {
-      key: "task",
-      name: "Title",
-      resizable: true,
-      sortable: true,
-    },
-    {
-      key: "priority",
-      name: "Priority",
-      resizable: true,
-      sortable: true,
-    },
-    {
-      key: "issueType",
-      name: "Issue Type",
-      resizable: true,
-      sortable: true,
-    },
-    {
-      key: "complete",
-      name: "% Complete",
-      resizable: true,
-      sortable: true,
-    },
-  ];
-}
+//   return rows;
+// }
 
-export const Datagrid = ({ dataGrid }) => {
+// function createColumns() {
+//   return [
+//     {
+//       key: "id",
+//       name: "ID",
+//       width: 80,
+//     },
+//     {
+//       key: "task",
+//       name: "Title",
+//       resizable: true,
+//       sortable: true,
+//     },
+//     {
+//       key: "priority",
+//       name: "Priority",
+//       resizable: true,
+//       sortable: true,
+//     },
+//     {
+//       key: "issueType",
+//       name: "Issue Type",
+//       resizable: true,
+//       sortable: true,
+//     },
+//     {
+//       key: "complete",
+//       name: "% Complete",
+//       resizable: true,
+//       sortable: true,
+//     },
+//   ];
+// }
+
+export const Datagrid = ({
+  isDropped,
+  dataGrid,
+  setIsEditing,
+  setDataGrid,
+}) => {
   const [rows, setRows] = useState(dataGrid.rows);
   const [columns, setColumns] = useState(dataGrid.columns);
   const [sortColumns, setSortColumns] = useState([]);
@@ -68,6 +68,7 @@ export const Datagrid = ({ dataGrid }) => {
     setSortColumns(sortColumns.slice(-1));
   }, []);
 
+  //set datagrid data
   useEffect(() => {
     const newCols = dataGrid.columns;
     setColumns(newCols);
@@ -76,11 +77,14 @@ export const Datagrid = ({ dataGrid }) => {
     const newRows = dataGrid.rows;
     setRows(newRows);
   }, [dataGrid.rows]);
+
+  // data grid column handling
   const draggableColumns = useMemo(() => {
     function HeaderRenderer(props) {
       return (
         <DraggableHeaderRenderer
           {...props}
+          isDropped={isDropped}
           onColumnsReorder={handleColumnsReorder}
         />
       );
@@ -105,6 +109,8 @@ export const Datagrid = ({ dataGrid }) => {
       return { ...c, headerRenderer: HeaderRenderer };
     });
   }, [columns]);
+
+  // data grid row handling
   const sortedRows = useMemo(() => {
     if (sortColumns.length === 0) return rows;
     const { columnKey, direction } = sortColumns[0];
@@ -128,16 +134,12 @@ export const Datagrid = ({ dataGrid }) => {
   }, [rows, sortColumns]);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <DataGrid
-        className="max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full"
-        columns={draggableColumns}
-        rows={sortedRows}
-        sortColumns={sortColumns}
-        onSortColumnsChange={onSortColumnsChange}
-      />
-    </DndProvider>
+    <DataGrid
+      className="max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full"
+      columns={draggableColumns}
+      rows={sortedRows}
+      sortColumns={sortColumns}
+      onSortColumnsChange={onSortColumnsChange}
+    />
   );
-  // return <div className='scrollbar-track-transparent scrollbar-thumb-yellow-400'>Hello</div>
-  // return <DataGrid columns={columns} rows={rows} />;
 };

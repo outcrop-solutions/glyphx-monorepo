@@ -17,7 +17,7 @@ export const formatGridData = (data) => {
     };
   });
 
-  cols.unshift({ key: "id", name: "ID", width: 50 });
+  cols.unshift({ key: "id", name: "ID", width: 10 });
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
   const newGrid = { columns: cols, rows };
 

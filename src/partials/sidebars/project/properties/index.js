@@ -1,20 +1,22 @@
+/* eslint-disable no-lone-blocks */
 import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Property } from "./Property";
 import { useProperties } from "../../../../services/useProperties";
 import { PropDrop } from "./PropDrop";
 import { Columns } from "../../../datagrid/columns";
+import { useDrop } from "react-dnd";
 
 export const Properties = ({
   project,
   sidebarExpanded,
   setSidebarExpanded,
   isEditing,
-  modelProps,
-  setModelProps,
+  propertiesArr,
+  handleDrop,
 }) => {
   const [open, setOpen] = useState(isEditing ? true : false);
-  const [isOver, setIsOver] = useState(false);
+
   const handleClick = () => {
     setOpen(!open);
   };
@@ -27,13 +29,17 @@ export const Properties = ({
       setSidebarExpanded(false);
       setOpen(false);
     }
-  }, [isEditing]);
-  const [propertiesArr, setPropertiesArr] = useState([]);
-  const { properties } = useProperties(project);
-  useEffect(() => {
-    if (properties)
-      setPropertiesArr([properties.x, properties.y, properties.z]);
-  }, [properties]);
+  }, [isEditing, setSidebarExpanded]);
+
+  // const { properties } = useProperties(project);
+  // useEffect(() => {
+  //   if (properties)
+  //     setPropertiesArr([properties.x, properties.y, properties.z]);
+  //   if (propertiesArr.length === 3) {
+  //     //send props to lambda function
+  //   }
+  // }, [properties, propertiesArr.length]);
+
   return (
     <React.Fragment>
       <Header
@@ -50,7 +56,27 @@ export const Properties = ({
         }`}
       >
         <ul className={`pl-2 h-44 my-4 ${!open && "hidden"}`}>
-          {/* {Object.keys(modelProps.propMap).map((key, index) => {
+          {propertiesArr.length > 0
+            ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => (
+                <Property
+                  accept={accepts}
+                  lastDroppedItem={lastDroppedItem}
+                  onDrop={(item) => handleDrop(idx, item)}
+                  key={idx}
+                  idx={idx}
+                />
+              ))
+            : null}
+        </ul>
+      </div>
+    </React.Fragment>
+  );
+};
+
+export default Properties;
+
+{
+  /* {Object.keys(modelProps.propMap).map((key, index) => {
 						if (key !== 'columnHeaders') {
 							return (
 								<Columns
@@ -61,11 +87,15 @@ export const Properties = ({
 								/>
 							)
 						}
-					})} */}
+					})} */
+}
 
-          {/* <PropDrop modelProps={modelProps} setModelProps={setModelProps} /> */}
+{
+  /* <PropDrop modelProps={modelProps} setModelProps={setModelProps} /> */
+}
 
-          {/* {isEditing ? ( 
+{
+  /* {isEditing ? ( 
 					// ) : (
 					// 	<>
 					// 		{propertiesArr.length > 0
@@ -74,11 +104,5 @@ export const Properties = ({
 					// 			  ))
 					// 			: null}
 					// 	</>
-					// )} */}
-        </ul>
-      </div>
-    </React.Fragment>
-  );
-};
-
-export default Properties;
+					// )} */
+}

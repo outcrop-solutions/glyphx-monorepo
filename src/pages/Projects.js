@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import QWebChannel from "qwebchannel";
 
@@ -14,7 +14,9 @@ import { useFilterChange } from "../services/useFilterChange";
 import { Datagrid } from "../partials/datagrid";
 import { Columns } from "../partials/datagrid/columns";
 import { Invite } from "../partials/invite";
-import { DragDropContext } from "react-beautiful-dnd";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import update from "immutability-helper";
 
 import { usePosition } from "../services/usePosition";
 // import { DataTable } from '../partials/datasheet-temp/index'
@@ -157,7 +159,35 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   };
 
   //data grid state
-  const [dataGrid, setDataGrid] = useState({rows: [], columns: []});
+  const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
+  const [propertiesArr, setPropertiesArr] = useState([
+    { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+  ]);
+  const [droppedProps, setDroppedProps] = useState([]);
+  const isDropped = (propName) => {
+    return droppedProps.indexOf(propName) > -1;
+  };
+  const handleDrop = useCallback(
+    (index, item) => {
+      const { key } = item;
+      setDroppedProps(
+        update(droppedProps, key ? { $push: [key] } : { $push: [] })
+      );
+      setPropertiesArr(
+        update(propertiesArr, {
+          [index]: {
+            lastDroppedItem: {
+              $set: item,
+            },
+          },
+        })
+      );
+    },
+    [droppedProps, propertiesArr]
+  );
+
   // useEffect(() => {
   //   effect;
   //   return () => {
@@ -317,10 +347,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           <div className="flex relative h-full">
             {project ? (
               <>
-                <DragDropContext
-                  onDragEnd={onDragEnd}
-                  onDragStart={onDragStart}
-                >
+                <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
                     setDataGrid={setDataGrid}
                     sidebar={sidebar}
@@ -329,12 +356,13 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     setSidebarExpanded={setSidebarExpanded}
                     project={project}
                     isEditing={isEditing}
-                    setIsEditing={setIsEditing}
+                    propertiesArr={propertiesArr}
                     filtersApplied={filtersApplied}
                     setFiltersApplied={setFiltersApplied}
                     handleStateChange={handleStateChange}
                     showCols={showCols}
                     setShowCols={setShowCols}
+                    handleDrop={handleDrop}
                   />
                   <div className="w-full h-full flex">
                     <div className={`min-w-0 flex-auto overflow-auto`}>
@@ -342,19 +370,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         <Invite setShare={setShare} />
                       ) : (
                         <div className="overflow-x-auto flex-col mx-auto">
-                          {/* {Object.keys(modelProps.propMap).map((key, index) => {
-                            if (key === "columnHeaders") {
-                              return (
-                                <Columns
-                                  key={key}
-                                  listId={key}
-                                  listType="CARD"
-                                  properties={modelProps.propMap[key]}
-                                />
-                              );
-                            } else return <></>
-                          })} */}
                           <Datagrid
+                            isDropped={isDropped}
+                            setIsEditing={setIsEditing}
                             dataGrid={dataGrid}
                             setDataGrid={setDataGrid}
                           />
@@ -367,7 +385,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                       setCommentsPosition={setCommentsPosition}
                     />
                   </div>
-                </DragDropContext>
+                </DndProvider>
               </>
             ) : (
               <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
