@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import DataGrid, {
   Column,
   HeaderRendererProps,
@@ -60,13 +60,22 @@ function createColumns() {
   ];
 }
 
-export const Datagrid = () => {
-  const [rows] = useState(createRows());
-  const [columns, setColumns] = useState(createColumns());
+export const Datagrid = ({ dataGrid }) => {
+  const [rows, setRows] = useState(dataGrid.rows);
+  const [columns, setColumns] = useState(dataGrid.columns);
   const [sortColumns, setSortColumns] = useState([]);
   const onSortColumnsChange = useCallback((sortColumns) => {
     setSortColumns(sortColumns.slice(-1));
   }, []);
+
+  useEffect(() => {
+    const newCols = dataGrid.columns;
+    setColumns(newCols);
+  }, [dataGrid.columns]);
+  useEffect(() => {
+    const newRows = dataGrid.rows;
+    setRows(newRows);
+  }, [dataGrid.rows]);
   const draggableColumns = useMemo(() => {
     function HeaderRenderer(props) {
       return (
@@ -118,11 +127,10 @@ export const Datagrid = () => {
     return direction === "DESC" ? sortedRows.reverse() : sortedRows;
   }, [rows, sortColumns]);
 
-
   return (
     <DndProvider backend={HTML5Backend}>
       <DataGrid
-        className='max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full'
+        className="max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full"
         columns={draggableColumns}
         rows={sortedRows}
         sortColumns={sortColumns}

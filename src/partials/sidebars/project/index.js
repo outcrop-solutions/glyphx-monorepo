@@ -5,6 +5,7 @@ import { Filters } from "./filters";
 import { States } from "./states";
 
 export const ProjectSidebar = ({
+  setDataGrid,
   sidebarExpanded,
   setSidebarExpanded,
   sidebar,
@@ -32,6 +33,7 @@ export const ProjectSidebar = ({
         {/* Files */}
 
         <Files
+          setDataGrid={setDataGrid}
           project={project}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}

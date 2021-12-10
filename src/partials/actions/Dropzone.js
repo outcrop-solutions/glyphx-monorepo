@@ -1,8 +1,14 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
+import { parse } from "papaparse";
 
-export const Dropzone = ({ fileSystem, setFileSystem, project, setGrid }) => {
+export const Dropzone = ({
+  fileSystem,
+  setFileSystem,
+  project,
+  setDataGrid,
+}) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       console.log({ acceptedFiles });
@@ -10,6 +16,8 @@ export const Dropzone = ({ fileSystem, setFileSystem, project, setGrid }) => {
       //	set grid data with processed data
       // pass simplified array of names to files state
       // onclick of file node download data and display in grid
+
+      //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
         id: idx + fileSystem.length + 1,
         parent: 0,
@@ -21,6 +29,31 @@ export const Dropzone = ({ fileSystem, setFileSystem, project, setGrid }) => {
         },
       }));
       setFileSystem(newData);
+
+      acceptedFiles.forEach(async (file) => {
+        const text = await file.text();
+        const { data } = parse(text, { header: true });
+        let colNames = Object.keys(data[0]);
+        // console.log({result})
+
+        let cols = colNames.map((item, idx) => {
+          const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
+          return {
+            key: item,
+            name: capitalized,
+            resizable: true,
+            sortable: true,
+          };
+        });
+
+        cols.unshift({ key: "id", name: "ID", width: 50 });
+        let rows = data.map((row, idx) => ({ ...row, id: idx }));
+        const newGrid = { columns: cols, rows };
+        // add iterator column
+        console.log({ newGrid });
+        setDataGrid(newGrid);
+      });
+
       //send file to s3
       acceptedFiles.forEach((file, idx) => {
         const reader = new FileReader();

@@ -156,6 +156,15 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     });
   };
 
+  //data grid state
+  const [dataGrid, setDataGrid] = useState({rows: [], columns: []});
+  // useEffect(() => {
+  //   effect;
+  //   return () => {
+  //     cleanup;
+  //   };
+  // }, []);
+
   // DND state
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
@@ -313,6 +322,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                   onDragStart={onDragStart}
                 >
                   <ProjectSidebar
+                    setDataGrid={setDataGrid}
                     sidebar={sidebar}
                     sidebarOpen={sidebarOpen}
                     sidebarExpanded={sidebarExpanded}
@@ -327,9 +337,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     setShowCols={setShowCols}
                   />
                   <div className="w-full h-full flex">
-                    <div
-                      className={`min-w-0 flex-auto overflow-auto`}
-                    >
+                    <div className={`min-w-0 flex-auto overflow-auto`}>
                       {share ? (
                         <Invite setShare={setShare} />
                       ) : (
@@ -346,7 +354,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                               );
                             } else return <></>
                           })} */}
-                          <Datagrid />
+                          <Datagrid
+                            dataGrid={dataGrid}
+                            setDataGrid={setDataGrid}
+                          />
                         </div>
                       )}
                     </div>

@@ -7,7 +7,12 @@ import { Header } from "./Header";
 import { useFileSystem } from "../../../../services/useFileSystem";
 import { Dropzone } from "../../../actions/Dropzone";
 
-export const Files = ({ sidebarExpanded, setSidebarExpanded, project }) => {
+export const Files = ({
+  setDataGrid,
+  sidebarExpanded,
+  setSidebarExpanded,
+  project,
+}) => {
   const [open, setOpen] = useState(false);
 
   const handleClick = () => {
@@ -63,7 +68,12 @@ export const Files = ({ sidebarExpanded, setSidebarExpanded, project }) => {
               }}
             />
           ) : null}
-          <Dropzone project={project} fileSystem={fileSystem} setFileSystem={setFiles} />
+          <Dropzone
+            setDataGrid={setDataGrid}
+            project={project}
+            fileSystem={fileSystem}
+            setFileSystem={setFiles}
+          />
         </div>
       </div>
     </React.Fragment>
