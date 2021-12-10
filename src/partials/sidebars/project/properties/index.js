@@ -49,16 +49,17 @@ export const Properties = ({
         setSidebarExpanded={setSidebarExpanded}
       />
       <div
-        className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2 -mt-2 ${
+        className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block ${
           !open && sidebarExpanded
             ? "border-0 -my-2"
             : "border-b border-gray-400"
         }`}
       >
-        <ul className={`pl-2 h-44 my-4 ${!open && "hidden"}`}>
+        <ul className={`h-28 ${!open && "hidden"}`}>
           {propertiesArr.length > 0
             ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => (
                 <Property
+                  axis={axis}
                   accept={accepts}
                   lastDroppedItem={lastDroppedItem}
                   onDrop={(item) => handleDrop(idx, item)}
