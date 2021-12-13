@@ -10,8 +10,11 @@ import { CommentsSidebar } from "../partials/sidebars/comments";
 import { MainSidebar } from "../partials/sidebars/main";
 import { useUrl } from "../services/useUrl";
 import { useStateChange } from "../services/useStateChange";
+import { useFileSystem } from "../services/useFileSystem";
 import { useFilterChange } from "../services/useFilterChange";
 import { Datagrid } from "../partials/datagrid";
+import { AddFiles } from "../partials/addFiles.js";
+import { Templates } from "../partials/projects/Templates";
 import { Columns } from "../partials/datagrid/columns";
 import { Invite } from "../partials/invite";
 import { DndProvider } from "react-dnd";
@@ -188,134 +191,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     [droppedProps, propertiesArr]
   );
 
-  // useEffect(() => {
-  //   effect;
-  //   return () => {
-  //     cleanup;
-  //   };
-  // }, []);
-
-  // DND state
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
-  const columnHeaders = "columnHeaders";
-  const X = "X";
-  const Y = "Y";
-  const Z = "Z";
-
-  const [modelProps, setModelProps] = useState({
-    propMap: {
-      [columnHeaders]: [
-        {
-          id: `item-1`,
-          content: "objectId",
-          type: "ID",
-        },
-        {
-          id: `item-2`,
-          content: "firstName",
-          type: "String",
-        },
-        {
-          id: `item-3`,
-          content: "lastName",
-          type: "String",
-        },
-        {
-          id: `item-4`,
-          content: "settings",
-          type: "Object",
-        },
-        {
-          id: `item-5`,
-          content: "collaborators",
-          type: "Array",
-        },
-      ],
-      [X]: [
-        {
-          id: `item-6`,
-          content: "objectId",
-          type: "ID",
-        },
-        {
-          id: `item-7`,
-          content: "settings",
-          type: "Object",
-        },
-        {
-          id: `item-8`,
-          content: "collaborators",
-          type: "Array",
-        },
-      ],
-      [Y]: [],
-      [Z]: [],
-    },
-  });
-
-  // Drag and drop utilities
-  const reorder = (list, startIndex, endIndex) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
-  const reorderPropMap = ({ propMap, source, destination }) => {
-    const current = [...propMap[source.droppableId]];
-    const next = [...propMap[destination.droppableId]];
-    const target = current[source.index];
-
-    // moving to same list
-    if (source.droppableId === destination.droppableId) {
-      const reordered = reorder(current, source.index, destination.index);
-      const result = {
-        ...propMap,
-        [source.droppableId]: reordered,
-      };
-      return {
-        propMap: result,
-      };
-    }
-
-    // moving to different list
-
-    // remove from original
-    current.splice(source.index, 1);
-    // insert into next
-    next.splice(destination.index, 0, target);
-
-    const result = {
-      ...propMap,
-      [source.droppableId]: current,
-      [destination.droppableId]: next,
-    };
-
-    return {
-      propMap: result,
-    };
-  };
-  function onDragEnd(result) {
-    const { source, destination } = result;
-    console.log({ source, destination });
-    // dropped outside the list
-    if (!destination) {
-      return;
-    }
-    setModelProps((prev) => {
-      let newData = reorderPropMap({
-        propMap: prev.propMap,
-        source,
-        destination,
-      });
-      return newData;
-    });
-    setIsEditing(false);
-  }
-  const onDragStart = () => {
-    setIsEditing(true);
-  };
+  const { fileSystem, setFiles } = useFileSystem(project);
 
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-gray-900">
@@ -349,6 +227,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
               <>
                 <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
+                    fileSystem={fileSystem}
+                    setFiles={setFiles}
                     setDataGrid={setDataGrid}
                     sidebar={sidebar}
                     sidebarOpen={sidebarOpen}
@@ -370,13 +250,23 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         <Invite setShare={setShare} />
                       ) : (
                         <div className="overflow-x-auto flex-col mx-auto">
-                          <Datagrid
-                            isDropped={isDropped}
-                            setIsEditing={setIsEditing}
-                            dataGrid={dataGrid}
-                            setDataGrid={setDataGrid}
-                          />
+                          {fileSystem && fileSystem.length ? (
+                            <Datagrid
+                              isDropped={isDropped}
+                              setIsEditing={setIsEditing}
+                              dataGrid={dataGrid}
+                              setDataGrid={setDataGrid}
+                            />
+                          ) : null}
                         </div>
+                      )}
+                      {fileSystem && fileSystem.length ? null : (
+                        <AddFiles
+                          setDataGrid={setDataGrid}
+                          project={project}
+                          fileSystem={fileSystem}
+                          setFileSystem={setFiles}
+                        />
                       )}
                     </div>
                     <CommentsSidebar
@@ -388,23 +278,29 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                 </DndProvider>
               </>
             ) : (
-              <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-                {grid ? (
-                  <TableView
-                    user={user}
-                    projects={projects}
-                    setProject={setProject}
-                  />
+              <>
+                {false ? (
+                  <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+                    {grid ? (
+                      <TableView
+                        user={user}
+                        projects={projects}
+                        setProject={setProject}
+                      />
+                    ) : (
+                      <GridView
+                        showAddProject={showAddProject}
+                        setShowAddProject={setShowAddProject}
+                        user={user}
+                        projects={projects}
+                        setProject={setProject}
+                      />
+                    )}
+                  </div>
                 ) : (
-                  <GridView
-                    showAddProject={showAddProject}
-                    setShowAddProject={setShowAddProject}
-                    user={user}
-                    projects={projects}
-                    setProject={setProject}
-                  />
+                  <Templates setProject={setProject} user={user} />
                 )}
-              </div>
+              </>
             )}
           </div>
         </main>

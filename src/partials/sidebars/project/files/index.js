@@ -12,13 +12,15 @@ export const Files = ({
   sidebarExpanded,
   setSidebarExpanded,
   project,
+  fileSystem,
+  setFiles
 }) => {
   const [open, setOpen] = useState(false);
 
   const handleClick = () => {
     setOpen(!open);
   };
-  const { fileSystem, setFiles } = useFileSystem(project);
+ 
   //   const [files, setFiles] = useState(fileSystem ? fileSystem : []);
   //   const [length, setLength] = useState(fileSystem ? fileSystem.length : 0);
 

@@ -19,6 +19,8 @@ export const ProjectSidebar = ({
   showCols,
   setShowCols,
   handleDrop,
+  fileSystem,
+  setFiles,
 }) => {
   //utilities
 
@@ -34,6 +36,8 @@ export const ProjectSidebar = ({
         {/* Files */}
 
         <Files
+          fileSystem={fileSystem}
+          setFiles={setFiles}
           setDataGrid={setDataGrid}
           project={project}
           sidebarExpanded={sidebarExpanded}
