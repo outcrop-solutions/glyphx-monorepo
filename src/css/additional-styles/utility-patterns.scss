@@ -96,37 +96,36 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 div[role="columnheader"] {
-	@apply border-0;
+  @apply border-0;
 }
 div[role="grid"] {
-	@apply bg-gray-900;
+  @apply bg-gray-900 max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full;
 }
 div[role="row"] {
-	@apply text-white bg-gray-900;
+  @apply text-white bg-gray-900;
 }
 
 div[role="gridcell"] {
-	@apply bg-gray-900 text-white h-8
+  @apply bg-gray-900 text-white h-8;
 }
 
 .rdg-header-row {
-
 }
 
 div[datatype="object"] {
-	@apply bg-gray-800 text-white rounded-2xl text-center
+  @apply bg-gray-800 text-white rounded-2xl text-center;
 }
 div[datatype="boolean"] {
-	@apply bg-blue-700 text-white rounded-2xl text-center
+  @apply bg-blue-700 text-white rounded-2xl text-center;
 }
 div[datatype="number"] {
-	@apply bg-indigo-700 text-white rounded-2xl text-center
+  @apply bg-indigo-700 text-white rounded-2xl text-center;
 }
 div[datatype="bigint"] {
-	@apply bg-purple-700 text-white rounded-2xl text-center
+  @apply bg-purple-700 text-white rounded-2xl text-center;
 }
 div[datatype="string"] {
-	@apply bg-lightBlue-700 text-white rounded-2xl text-center
+  @apply bg-lightBlue-700 text-white rounded-2xl text-center;
 }
 
 // .rdg-cell {

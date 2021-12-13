@@ -49,7 +49,7 @@ export const Properties = ({
         setSidebarExpanded={setSidebarExpanded}
       />
       <div
-        className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block ${
+        className={`lg:hidden lg:project-sidebar-expanded:block ${
           !open && sidebarExpanded
             ? "border-0 -my-2"
             : "border-b border-gray-400"

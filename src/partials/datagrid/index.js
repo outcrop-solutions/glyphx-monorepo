@@ -108,7 +108,7 @@ export const Datagrid = ({
       if (c.key === "id") return c;
       return { ...c, headerRenderer: HeaderRenderer };
     });
-  }, [columns]);
+  }, [columns, isDropped]);
 
   // data grid row handling
   const sortedRows = useMemo(() => {
@@ -135,7 +135,6 @@ export const Datagrid = ({
 
   return (
     <DataGrid
-      className="max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full"
       columns={draggableColumns}
       rows={sortedRows}
       sortColumns={sortColumns}

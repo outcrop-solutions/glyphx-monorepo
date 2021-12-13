@@ -35,7 +35,7 @@ export const Filters = ({
       />
       {filtersState.length > 0 && (
         <div
-          className={`lg:hidden lg:project-sidebar-expanded:block 2xl:block py-2  ${
+          className={`lg:hidden lg:project-sidebar-expanded:block py-2  ${
             !open && sidebarExpanded
               ? "border-0 -my-2"
               : "border-b border-gray-400"
