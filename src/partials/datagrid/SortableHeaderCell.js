@@ -30,7 +30,7 @@ export default function SortableHeaderCell({
       onKeyDown={handleKeyDown}
     >
       <div
-        datatype="string"
+        // datatype={handleType()}
         className="flex-grow overflow-hidden overflow-ellipsis"
       >
         {children}

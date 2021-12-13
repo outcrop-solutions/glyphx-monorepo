@@ -4,9 +4,22 @@ import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
 
 export const formatGridData = (data) => {
-  let colNames = Object.keys(data[0]);
+  const colNames = Object.keys(data[0]);
   // console.log({result})
-
+  const newData = JSON.stringify(data);
+  const parsed = JSON.parse(newData);
+  console.log({ colNames });
+  console.log({ data });
+  console.log({ newData });
+  console.log({ parsed });
+  colNames.map((item) => {
+    console.log({ item });
+    console.log({ itemdata: parsed[0][item] });
+    console.log({
+      type: typeof data[0][item],
+    });
+    return null;
+  });
   let cols = colNames.map((item, idx) => {
     const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {

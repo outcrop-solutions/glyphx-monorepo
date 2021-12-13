@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import UserMenu from "../../../components/UserMenu";
+import {UserMenu} from "../../../components/UserMenu";
 
 export const MainSidebar = ({
   user,
   sidebarOpen,
   setSidebarOpen,
   setProject,
+  setIsLoggedIn,
 }) => {
   const location = useLocation();
   const { pathname } = location;
@@ -137,7 +138,12 @@ export const MainSidebar = ({
                 </svg>
               </span>
               <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">
-                <UserMenu user={user} />
+                {/* <UserMenu user={user} /> */}
+                <UserMenu
+                  align="right"
+                  user={user}
+                  setIsLoggedIn={setIsLoggedIn}
+                />
               </span>
             </div>
             <ul className="mt-3">

@@ -2,10 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Property } from "./Property";
-import { useProperties } from "../../../../services/useProperties";
-import { PropDrop } from "./PropDrop";
-import { Columns } from "../../../datagrid/columns";
-import { useDrop } from "react-dnd";
+
 
 export const Properties = ({
   project,
@@ -55,7 +52,7 @@ export const Properties = ({
             : "border-b border-gray-400"
         }`}
       >
-        <ul className={`h-28 ${!open && "hidden"}`}>
+        <ul className={`${!open && "hidden"}`}>
           {propertiesArr.length > 0
             ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => (
                 <Property

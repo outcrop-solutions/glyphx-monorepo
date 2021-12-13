@@ -15,14 +15,13 @@ import { useFilterChange } from "../services/useFilterChange";
 import { Datagrid } from "../partials/datagrid";
 import { AddFiles } from "../partials/addFiles.js";
 import { Templates } from "../partials/projects/Templates";
-import { Columns } from "../partials/datagrid/columns";
 import { Invite } from "../partials/invite";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import update from "immutability-helper";
 
 import { usePosition } from "../services/usePosition";
-// import { DataTable } from '../partials/datasheet-temp/index'
+
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
 
@@ -201,6 +200,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       <MainSidebar
         setProject={setProject}
         user={user}
+        setIsLoggedIn={setIsLoggedIn}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
@@ -213,7 +213,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           setProject={setProject}
           showAddProject={showAddProject}
           setShowAddProject={setShowAddProject}
-          setIsLoggedIn={setIsLoggedIn}
+          
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           grid={grid}

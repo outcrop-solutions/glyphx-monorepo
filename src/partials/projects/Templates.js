@@ -13,7 +13,7 @@ const items = [
   {
     name: "Shipping Send by SKU",
     description:
-      "Breakdown shipping send by SKU to discover winners and prune losers",
+      "Breakdown shipping send by SKU to discover new winners",
     href: "#",
     iconColor: "bg-pink-500",
     icon: SpeakerphoneIcon,
@@ -114,7 +114,7 @@ export const Templates = ({ setProject, user }) => {
       </ul>
       <div className="mt-6 flex" onClick={handleCreate}>
         <span className="text-lg font-medium text-white hover:font-bold">
-          Or start from an empty project<span aria-hidden="true"> &rarr;</span>
+          Start from an empty project<span aria-hidden="true"> &rarr;</span>
         </span>
       </div>
     </div>

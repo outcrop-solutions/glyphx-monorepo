@@ -8,7 +8,6 @@ import { Auth } from "aws-amplify";
 import DeleteModel from "../../components/DeleteModel";
 
 function Header({
-  setIsLoggedIn,
   sidebarOpen,
   setSidebarOpen,
   grid,
@@ -19,14 +18,7 @@ function Header({
   setShare,
 }) {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const signOut = async () => {
-    try {
-      await Auth.signOut();
-      setIsLoggedIn(false);
-    } catch (error) {
-      console.log("error sigingin out" + error);
-    }
-  };
+ 
 
   useEffect(() => {
     console.log({ project });
