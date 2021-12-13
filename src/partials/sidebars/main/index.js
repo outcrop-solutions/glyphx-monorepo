@@ -109,9 +109,9 @@ export const MainSidebar = ({
                 stroke-width="0.25"
               />
             </svg>
-            <span className="hidden font-sans sidebar-expanded:block 2xl:hidden capitalize text-2xl text-white font-light">
+            {/* <span className="hidden font-sans sidebar-expanded:block 2xl:hidden capitalize text-2xl text-white font-light">
               GLYPH
-            </span>
+            </span> */}
           </NavLink>
         </div>
 

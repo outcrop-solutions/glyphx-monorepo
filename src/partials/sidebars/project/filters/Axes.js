@@ -1,9 +1,11 @@
 import { AxesIcons } from "./AxesIcons";
-
+import { Filter } from "./Filter";
 export const Axes = ({ axis, lastDroppedItem }) => {
   return (
     <li className="py-2 pl-2 last:mb-0 flex items-center border-b border-gray-500">
       <AxesIcons property={axis} />
+      <Filter />
+
       <div
         className={`flex justify-center ${
           lastDroppedItem
