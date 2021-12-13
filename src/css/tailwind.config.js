@@ -16,6 +16,7 @@ module.exports = {
       colors: {
         ...colors,
         gray: colors.blueGray,
+        "blue-gray": colors.blueGray,
         "light-blue": colors.sky,
         red: colors.rose,
       },
@@ -58,7 +59,7 @@ module.exports = {
     },
   },
   variants: {
-	scrollbar: ['rounded']
+    scrollbar: ["rounded"],
   },
   plugins: [
     // eslint-disable-next-line global-require

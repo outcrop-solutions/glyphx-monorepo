@@ -12,6 +12,7 @@ import "./css/style.scss";
 
 // components
 import { Projects } from "./pages/Projects";
+import { Settings } from "./partials/settings";
 import SignIn from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ResetPassword from "./pages/ResetPassword";
@@ -67,6 +68,9 @@ function App() {
               setIsLoggedIn={setIsLoggedIn}
             />
           )}
+        </Route>
+        <Route exact path="/settings">
+          <Settings />
         </Route>
       </Switch>
     </>
