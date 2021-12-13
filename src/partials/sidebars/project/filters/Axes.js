@@ -1,10 +1,18 @@
 import { AxesIcons } from "./AxesIcons";
+import { useState } from "react";
 import { Filter } from "./Filter";
 export const Axes = ({ axis, lastDroppedItem }) => {
+  const [isRange, setIsRange] = useState(false);
+  const [isSearch, setIsSearch] = useState(false);
   return (
     <li className="py-2 pl-2 last:mb-0 flex items-center border-b border-gray-500">
       <AxesIcons property={axis} />
-      <Filter />
+      <Filter
+        isSearch={isSearch}
+        isRange={isRange}
+        setIsRange={setIsRange}
+        setIsSearch={setIsSearch}
+      />
 
       <div
         className={`flex justify-center ${

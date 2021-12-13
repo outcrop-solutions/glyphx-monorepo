@@ -96,7 +96,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 div[role="columnheader"] {
-  @apply border-0;
+  @apply border-0 bg-blue-500;
 }
 div[role="grid"] {
   @apply bg-gray-900 max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full;

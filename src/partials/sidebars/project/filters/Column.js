@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { Filter } from "./Filter";
 export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
+const [isRange, setIsRange] = useState(false)
+const [isSearch, setIsSearch] = useState(false)
   const [{ isOver, canDrop }, drop] = useDrop({
     accept,
     drop: onDrop,
@@ -17,7 +20,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
       className="py-2 pl-2 last:mb-0 flex items-center border-b border-gray-500"
     >
       <div className="pl-2 mr-2">{`${idx + 1}`}</div>
-      <Filter />
+      <Filter isSearch={isSearch} isRange={isRange} setIsRange={setIsRange} setIsSearch={setIsSearch}/>
       {isActive ? (
         <div className="block text-gray-400 hover:text-gray-200 transition duration-150 truncate">
           <span className="text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
