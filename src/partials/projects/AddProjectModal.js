@@ -21,7 +21,7 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
 			id: uuid(),
 			name,
 			description,
-			owner: user.attributes.email,
+			owner: user.id,
 		}
 		try {
 			console.log({ createProjectInput })
