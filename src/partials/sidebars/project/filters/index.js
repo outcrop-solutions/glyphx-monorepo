@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 
-import Column from "./Column";
+import { Column } from "./Column";
 import Filter from "./Filter";
 import { Header } from "./Header";
+import { Axes } from "./Axes";
 import { useFilters } from "../../../../services/useFilters";
 import { useColumns } from "../../../../services/useColumns";
 
@@ -11,8 +12,8 @@ export const Filters = ({
   setFiltersApplied,
   sidebarExpanded,
   setSidebarExpanded,
-  showCols,
-  setShowCols,
+  propertiesArr,
+  handleDrop,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -33,44 +34,41 @@ export const Filters = ({
         setSidebarExpanded={setSidebarExpanded}
         handleClick={handleClick}
       />
-      {filtersState.length > 0 && (
-        <div
-          className={`lg:hidden lg:project-sidebar-expanded:block py-2  ${
-            !open && sidebarExpanded
-              ? "border-0 -my-2"
-              : "border-b border-gray-400"
-          }`}
-        >
-          <ul
-            style={{ height: "200px" }}
-            className={`pl-2 mt-1 overflow-auto ${!open && "hidden"}`}
-          >
-            {filtersState.map((item, idx) => (
-              <Filter
-                key={item.id}
-                filtersState={filtersState}
-                setFiltersState={setFiltersState}
-                filtersApplied={filtersApplied}
-                setFiltersApplied={setFiltersApplied}
-                setShowCols={setShowCols}
-                columns={columns}
-                item={item}
-              />
-            ))}
-            {showCols ? (
-              <>
-                {columns.length > 0 && (
-                  <>
-                    {columns.map((item, idx) => (
-                      <Column key={idx} item={item} />
-                    ))}
-                  </>
-                )}
-              </>
-            ) : null}
-          </ul>
-        </div>
-      )}
+
+      <div
+        className={`lg:hidden lg:project-sidebar-expanded:block ${
+          !open && sidebarExpanded
+            ? "border-0 -my-2"
+            : "border-b border-gray-400"
+        }`}
+      >
+        <ul className={`overflow-auto ${!open && "hidden"}`}>
+          {/* read only (no drag n drop) property filters */}
+          {propertiesArr.length > 0
+            ? propertiesArr.map(({ axis, lastDroppedItem }, idx) => (
+                <Axes
+                  axis={axis}
+                  lastDroppedItem={lastDroppedItem}
+                  key={idx}
+                  idx={idx}
+                />
+              ))
+            : null}
+          {/* droppable column filters*/}
+          {propertiesArr.length > 0
+            ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => (
+                <Column
+                  axis={axis}
+                  accept={accepts}
+                  lastDroppedItem={lastDroppedItem}
+                  onDrop={(item) => handleDrop(idx, item)}
+                  key={idx}
+                  idx={idx}
+                />
+              ))
+            : null}
+        </ul>
+      </div>
     </React.Fragment>
   );
 };

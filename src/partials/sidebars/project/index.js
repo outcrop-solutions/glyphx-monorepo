@@ -55,10 +55,10 @@ export const ProjectSidebar = ({
         />
         {/* properties={modelProps.propMap[key]} */}
         <Filters
+          handleDrop={handleDrop}
+          propertiesArr={propertiesArr}
           filtersApplied={filtersApplied}
           setFiltersApplied={setFiltersApplied}
-          showCols={showCols}
-          setShowCols={setShowCols}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
         />

@@ -113,7 +113,7 @@ export const Templates = ({ setProject, user }) => {
         ))}
       </ul>
       <div className="mt-6 flex" onClick={handleCreate}>
-        <span className="text-lg font-medium text-white hover:font-bold">
+        <span className="text-lg cursor-pointer font-medium text-white hover:font-bold">
           Start from an empty project<span aria-hidden="true"> &rarr;</span>
         </span>
       </div>
