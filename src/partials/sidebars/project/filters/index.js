@@ -47,6 +47,8 @@ export const Filters = ({
                 if (idx < 3) {
                   return (
                     <Axes
+                      filtersApplied={filtersApplied}
+                      setFiltersApplied={setFiltersApplied}
                       axis={axis}
                       lastDroppedItem={lastDroppedItem}
                       key={idx}
@@ -56,6 +58,8 @@ export const Filters = ({
                 } else {
                   return (
                     <Column
+                      filtersApplied={filtersApplied}
+                      setFiltersApplied={setFiltersApplied}
                       axis={axis}
                       accept={accepts}
                       lastDroppedItem={lastDroppedItem}

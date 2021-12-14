@@ -3,7 +3,15 @@ import { useDrop } from "react-dnd";
 import { Filter } from "./Filter";
 import { RangeFilter } from "./actions/RangeFilter";
 import { SearchFilter } from "./actions/SearchFilter";
-export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
+export const Column = ({
+  filtersApplied,
+  setFiltersApplied,
+  axis,
+  accept,
+  lastDroppedItem,
+  onDrop,
+  idx,
+}) => {
   const [isRange, setIsRange] = useState("none");
   const [{ isOver, canDrop }, drop] = useDrop({
     accept,
@@ -44,7 +52,19 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
         <p>Last dropped: {JSON.stringify(lastDroppedItem)}</p>
       )} */}
       </li>
-      {isRange !== "none" ? isRange ? <RangeFilter /> : <SearchFilter /> : null}
+      {isRange !== "none" ? (
+        isRange ? (
+          <RangeFilter
+            filtersApplied={filtersApplied}
+            setFiltersApplied={setFiltersApplied}
+          />
+        ) : (
+          <SearchFilter
+            filtersApplied={filtersApplied}
+            setFiltersApplied={setFiltersApplied}
+          />
+        )
+      ) : null}
     </>
   );
 };

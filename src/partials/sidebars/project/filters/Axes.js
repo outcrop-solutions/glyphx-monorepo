@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Filter } from "./Filter";
 import { RangeFilter } from "./actions/RangeFilter";
 import { SearchFilter } from "./actions/SearchFilter";
-export const Axes = ({ axis, lastDroppedItem }) => {
+export const Axes = ({filtersApplied, setFiltersApplied, axis, lastDroppedItem }) => {
   const [isRange, setIsRange] = useState("none");
   return (
     <>
@@ -24,7 +24,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
           </span>
         </div>
       </li>
-      {isRange !== "none" ? isRange ? <RangeFilter /> : <SearchFilter /> : null}
+      {isRange !== "none" ? isRange ? <RangeFilter filtersApplied={filtersApplied} setFiltersApplied={setFiltersApplied}/> : <SearchFilter filtersApplied={filtersApplied} setFiltersApplied={setFiltersApplied}/> : null}
     </>
   );
 };
