@@ -37,35 +37,35 @@ export const Filters = ({
 
       <div
         className={`lg:hidden lg:project-sidebar-expanded:block ${
-          !open && sidebarExpanded
-            ? "border-0"
-            : "border-b border-gray-400"
+          !open && sidebarExpanded ? "border-0" : "border-b border-gray-400"
         }`}
       >
         <ul className={`overflow-auto ${!open && "hidden"}`}>
           {/* read only (no drag n drop) property filters */}
           {propertiesArr.length > 0
-            ? propertiesArr.map(({ axis, lastDroppedItem }, idx) => (
-                <Axes
-                  axis={axis}
-                  lastDroppedItem={lastDroppedItem}
-                  key={idx}
-                  idx={idx}
-                />
-              ))
-            : null}
-          {/* droppable column filters*/}
-          {propertiesArr.length > 0
-            ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => (
-                <Column
-                  axis={axis}
-                  accept={accepts}
-                  lastDroppedItem={lastDroppedItem}
-                  onDrop={(item) => handleDrop(idx, item)}
-                  key={idx}
-                  idx={idx}
-                />
-              ))
+            ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => {
+                if (idx < 3) {
+                  return (
+                    <Axes
+                      axis={axis}
+                      lastDroppedItem={lastDroppedItem}
+                      key={idx}
+                      idx={idx}
+                    />
+                  );
+                } else {
+                  return (
+                    <Column
+                      axis={axis}
+                      accept={accepts}
+                      lastDroppedItem={lastDroppedItem}
+                      onDrop={(item) => handleDrop(idx, item)}
+                      key={idx}
+                      idx={idx}
+                    />
+                  );
+                }
+              })
             : null}
         </ul>
       </div>

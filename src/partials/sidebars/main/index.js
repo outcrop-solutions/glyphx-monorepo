@@ -4,6 +4,7 @@ import {UserMenu} from "../../../components/UserMenu";
 
 export const MainSidebar = ({
   user,
+  project,
   sidebarOpen,
   setSidebarOpen,
   setProject,
@@ -55,6 +56,9 @@ export const MainSidebar = ({
     }
   }, [sidebarExpanded]);
 
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [project, setSidebarOpen])
   return (
     <div className="bg-gray-800">
       {/* Sidebar backdrop (mobile only) */}

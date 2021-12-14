@@ -108,6 +108,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
+
+  useEffect(() => {
+    setSidebarExpanded(true);
+  }, [project]);
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }) => {
@@ -166,6 +170,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
   ]);
   const [droppedProps, setDroppedProps] = useState([]);
   const isDropped = (propName) => {
@@ -175,10 +182,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     (index, item) => {
       const { key } = item;
       setDroppedProps(
-        update(
-          droppedProps,
-          key ? { $push: [key] } : { $push: [] }
-        )
+        update(droppedProps, key ? { $push: [key] } : { $push: [] })
       );
       setPropertiesArr(
         update(propertiesArr, {
@@ -201,6 +205,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     <div className="flex h-screen overflow-hidden scrollbar-none bg-gray-900">
       {/* Sidebar */}
       <MainSidebar
+        project={project}
         setProject={setProject}
         user={user}
         setIsLoggedIn={setIsLoggedIn}
@@ -281,7 +286,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
               </>
             ) : (
               <>
-                {false ? (
+                {true ? (
                   <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
                     {grid ? (
                       <TableView

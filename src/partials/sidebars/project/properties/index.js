@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Property } from "./Property";
 
-
 export const Properties = ({
   project,
   sidebarExpanded,
@@ -47,23 +46,25 @@ export const Properties = ({
       />
       <div
         className={`lg:hidden lg:project-sidebar-expanded:block ${
-          !open && sidebarExpanded
-            ? "border-0"
-            : "border-b border-gray-400"
+          !open && sidebarExpanded ? "border-0" : "border-b border-gray-400"
         }`}
       >
         <ul className={`${!open && "hidden"}`}>
           {propertiesArr.length > 0
-            ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => (
-                <Property
-                  axis={axis}
-                  accept={accepts}
-                  lastDroppedItem={lastDroppedItem}
-                  onDrop={(item) => handleDrop(idx, item)}
-                  key={idx}
-                  idx={idx}
-                />
-              ))
+            ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => {
+                if (idx < 3) {
+                  return (
+                    <Property
+                      axis={axis}
+                      accept={accepts}
+                      lastDroppedItem={lastDroppedItem}
+                      onDrop={(item) => handleDrop(idx, item)}
+                      key={idx}
+                      idx={idx}
+                    />
+                  );
+                } else return null;
+              })
             : null}
         </ul>
       </div>

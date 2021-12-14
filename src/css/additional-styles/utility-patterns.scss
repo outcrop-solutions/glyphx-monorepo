@@ -57,6 +57,10 @@ input[type="search"]::-webkit-search-results-decoration {
   -webkit-appearance: none;
 }
 
+input[type='searchFilter'] {
+  @apply bg-transparent;
+}
+
 .form-input,
 .form-textarea,
 .form-multiselect,
