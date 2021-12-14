@@ -163,9 +163,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   //data grid state
   const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
   const [propertiesArr, setPropertiesArr] = useState([
+    { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-    { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
   ]);
   const [droppedProps, setDroppedProps] = useState([]);
   const isDropped = (propName) => {
@@ -175,7 +175,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     (index, item) => {
       const { key } = item;
       setDroppedProps(
-        update(droppedProps, key ? { $push: [key] } : { $push: [] })
+        update(
+          droppedProps,
+          key ? { $push: [key] } : { $push: [] }
+        )
       );
       setPropertiesArr(
         update(propertiesArr, {
@@ -213,7 +216,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           setProject={setProject}
           showAddProject={showAddProject}
           setShowAddProject={setShowAddProject}
-          
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           grid={grid}

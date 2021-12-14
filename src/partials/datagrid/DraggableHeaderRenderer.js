@@ -16,7 +16,7 @@ export function DraggableHeaderRenderer({
 }) {
   const [{ isDragging }, drag] = useDrag({
     type: "COLUMN_DRAG",
-    item: { key: column.key, type: "COLUMN_DRAG" },
+    item: { key: column.key, type: "COLUMN_DRAG", dataType: column.dataType },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -44,6 +44,7 @@ export function DraggableHeaderRenderer({
 
   return (
     <div
+    datatype={`${column.dataType}`}
       ref={useCombinedRefs(drag, drop)}
       className={`${isDragging ? "opacity-80" : "opacity-100"} ${
         isOver ? "bg-blue-500" : ""

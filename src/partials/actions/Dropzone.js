@@ -6,24 +6,26 @@ import { parse } from "papaparse";
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
   // console.log({result})
-  const newData = JSON.stringify(data);
-  const parsed = JSON.parse(newData);
-  console.log({ colNames });
-  console.log({ data });
-  console.log({ newData });
-  console.log({ parsed });
-  colNames.map((item) => {
-    console.log({ item });
-    console.log({ itemdata: parsed[0][item] });
-    console.log({
-      type: typeof data[0][item],
-    });
-    return null;
-  });
+  // const newData = JSON.stringify(data);
+  // const parsed = JSON.parse(newData);
+  // console.log({ colNames });
+  // console.log({ data });
+  // console.log({ newData });
+  // console.log({ parsed });
+  // colNames.map((item) => {
+  //   const isNumber = isNaN(parseInt(data[0][item]));
+  //   console.log({
+  //     item,
+  //     type: !isNumber ? "number" : "string",
+  //   });
+  //   return null;
+  // });
   let cols = colNames.map((item, idx) => {
+ 
     const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {
       key: item,
+      dataType: !isNaN(parseInt(data[0][item])) ? "number" : "string",
       name: capitalized,
       resizable: true,
       sortable: true,
