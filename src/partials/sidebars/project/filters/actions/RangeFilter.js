@@ -11,24 +11,15 @@ export const RangeFilter = ({ filtersApplied, setFiltersApplied }) => {
   const handleMax = (e) => {
     setMax(e.target.value);
   };
-  const handleSave = () => {
-    setFiltersApplied((prev) => {
-      let newArr = [...prev, { name: "Range", min, max }];
-      return newArr;
-    });
-  };
+  // const handleSave = () => {
+    
+  // };
   return (
-    <ClickAwayListener onClickAway={handleSave}>
+    // <ClickAwayListener onClickAway={handleSave}>
       <div className="py-2 mx-2 grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-6">
         <div className="sm:col-span-3">
           <div className="">
             <input
-              onKeyPress={(ev) => {
-                if (ev.key === "Enter") {
-                  ev.preventDefault();
-                  handleSave();
-                }
-              }}
               type="number"
               name="min"
               placeholder="000"
@@ -44,12 +35,6 @@ export const RangeFilter = ({ filtersApplied, setFiltersApplied }) => {
         <div className="sm:col-span-3">
           <div className="">
             <input
-              onKeyPress={(ev) => {
-                if (ev.key === "Enter") {
-                  ev.preventDefault();
-                  handleSave();
-                }
-              }}
               onChange={handleMax}
               value={max}
               type="number"
@@ -62,6 +47,6 @@ export const RangeFilter = ({ filtersApplied, setFiltersApplied }) => {
           </div>
         </div>
       </div>
-    </ClickAwayListener>
+    // </ClickAwayListener>
   );
 };
