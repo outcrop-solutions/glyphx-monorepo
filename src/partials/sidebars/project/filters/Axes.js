@@ -7,7 +7,11 @@ export const Axes = ({ axis, lastDroppedItem }) => {
   const [isRange, setIsRange] = useState("none");
   return (
     <>
-      <li className="py-2 pl-2 last:mb-0 flex items-center border-b border-gray-500">
+      <li
+        className={`py-2 pl-2 last:mb-0 flex items-center ${
+          isRange === "none" ? "border-b border-gray-500" : ""
+        }`}
+      >
         <AxesIcons property={axis} />
         <Filter isRange={isRange} setIsRange={setIsRange} />
 

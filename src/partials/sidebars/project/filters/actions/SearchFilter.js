@@ -17,7 +17,7 @@
 export const SearchFilter = () => {
     return (
       <div>
-        <div className="mt-1 border-b border-gray-300 focus-within:border-indigo-600">
+        <div className="mt-1 focus-within:border-indigo-600">
           <input
             type="text"
             name="name"
