@@ -21,6 +21,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import update from "immutability-helper";
 
 import { usePosition } from "../services/usePosition";
+import { JS } from "aws-amplify";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -36,7 +37,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const { isStateChanged } = useStateChange(state);
   const { isFilterChanged } = useFilterChange(filtersApplied);
   // pass signed url
-  const { isUrlSigned } = useUrl(project);
+  // const { isUrlSigned } = useUrl(project);
   const location = useLocation();
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
 
@@ -197,6 +198,39 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     },
     [droppedProps, propertiesArr]
   );
+
+  const [full, setFull] = useState(false);
+  // listen to properties array drops and call ETL on XYZ full
+  useEffect(() => {
+    // check if xyz are populated
+    // if yes set "full" to true, show spinner and call etl endpoint
+    // take signedurl response and pass to Bryan
+    // if no, do nothing
+    const handleETL = async () => {
+      let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+      let filterArr = propertiesArr
+        .slice(3)
+        .filter((item) => item.lastDroppedItem);
+      if (propsArr && propsArr.length >= 3) {
+        setFull(true);
+        const body = {
+          model_id: project.id,
+          x_axis: propertiesArr[0].lastDroppedItem.key,
+          y_axis: propertiesArr[1].lastDroppedItem.key,
+          z_axis: propertiesArr[2].lastDroppedItem.key,
+          filters: filterArr,
+        };
+        // window.core.ToggleDrawer("ToggleDrawer")
+        console.log({ body });
+        // let response = await fetch(url, { method: "POST", body: JSON.stringify(body) });
+        // window.core.OpenProject(JSON.stringify('https://sgx-etl-etlbucket-14tuu39hyrwzx.s3.amazonaws.com/10001/output/10001.zip'))
+      } else {
+        setFull(false);
+      }
+    };
+
+    handleETL();
+  }, [propertiesArr, project.id]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
