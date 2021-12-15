@@ -1,22 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import {UserMenu} from "../../../components/UserMenu";
+import ExpandCollapse from "./ExpandCollapse";
+import { UserMenu } from "../../../components/UserMenu";
 
-export const MainSidebar = ({
-  user,
-  project,
-  sidebarOpen,
-  setSidebarOpen,
-  setProject,
-  setIsLoggedIn,
-}) => {
+export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const location = useLocation();
   const { pathname } = location;
 
   const trigger = useRef(null);
   const sidebar = useRef(null);
 
-  const storedSidebarExpanded = localStorage.getItem("sidebar-expanded");
+  const storedSidebarExpanded = localStorage.getItem("main-sidebar-expanded");
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
@@ -48,84 +44,56 @@ export const MainSidebar = ({
   });
 
   useEffect(() => {
-    localStorage.setItem("sidebar-expanded", sidebarExpanded);
+    localStorage.setItem("main-sidebar-expanded", sidebarExpanded);
     if (sidebarExpanded) {
-      document.querySelector("body").classList.add("sidebar-expanded");
+      document.querySelector("body").classList.add("main-sidebar-expanded");
     } else {
-      document.querySelector("body").classList.remove("sidebar-expanded");
+      document.querySelector("body").classList.remove("main-sidebar-expanded");
     }
   }, [sidebarExpanded]);
 
-  useEffect(() => {
-    setSidebarOpen(false)
-  }, [project, setSidebarOpen])
   return (
-    <div className="bg-gray-800">
-      {/* Sidebar backdrop (mobile only) */}
-      <div
-        className={`fixed inset-0 bg-opacity-30 z-40 lg:hidden lg:z-auto transition-opacity duration-200 ${
-          sidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        aria-hidden="true"
-      ></div>
-
-      {/* Sidebar */}
-
-      <div
-        id="sidebar"
-        ref={sidebar}
-        className={`flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 transform h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:sidebar-expanded:!w-64 2xl:!w-64 flex-shrink-0 p-4 transition-all duration-200 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-64"
-        }`}
-      >
+    <div
+      id="sidebar"
+      ref={sidebar}
+      className={`flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 transform h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4 transition-all duration-200 ease-in-out ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-64"
+      }`}
+    >
+      <div>
         {/* Sidebar header */}
-        <div className="flex justify-between mb-2 pr-3 sm:px-2 border-b border-gray-400 pb-4">
-          {/* Close button */}
-          <button
-            ref={trigger}
-            className="lg:hidden text-gray-500 hover:text-gray-400"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            aria-controls="sidebar"
-            aria-expanded={sidebarOpen}
-          >
-            <span className="sr-only">Close sidebar</span>
-            <svg
-              className="w-6 h-6 fill-current"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M10.7 18.7l1.4-1.4L7.8 13H20v-2H7.8l4.3-4.3-1.4-1.4L4 12z" />
-            </svg>
-          </button>
+        <div className="flex justify-between mb-2 pr-3 sm:px-2 border-b border-gray-400 py-3">
           {/* Logo */}
           <NavLink exact to="/" className="flex">
             <svg
-              width="11"
-              height="20"
-              viewBox="0 0 11 20"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
+              <circle cx="12" cy="12" r="12" fill="#1F273A" />
               <path
-                d="M4.69836 10.0902H4.69851C5.71133 10.089 6.68279 9.69376 7.39968 8.99053C8.11666 8.28722 8.52046 7.33317 8.52171 6.33749V6.33733C8.52171 5.59454 8.29716 4.86864 7.87674 4.25143C7.45634 3.63425 6.85906 3.15357 6.16071 2.86982C5.46238 2.58608 4.69409 2.51188 3.9529 2.6565C3.2117 2.80112 2.53055 3.15815 1.99569 3.68281C1.46081 4.2075 1.09627 4.87628 0.948558 5.60473C0.800842 6.33319 0.876678 7.08823 1.16637 7.77427C1.45605 8.46029 1.94643 9.04624 2.57514 9.45832C3.20382 9.87039 3.9427 10.0902 4.69836 10.0902ZM4.72469 4.02504H4.84969V4.02375C5.12204 4.0377 5.39024 4.09717 5.64262 4.19985C5.93354 4.31821 6.19765 4.49161 6.4199 4.71002C6.64215 4.92843 6.81818 5.18756 6.93804 5.47251C7.0579 5.75745 7.11927 6.06269 7.11869 6.37079V6.37102C7.11869 6.83447 6.97861 7.28772 6.71586 7.67346C6.45309 8.05923 6.07934 8.36026 5.64162 8.53811C5.20387 8.71597 4.72206 8.76255 4.2572 8.67184C3.79235 8.58114 3.36568 8.35732 3.03102 8.02904C2.69639 7.70079 2.46878 7.28286 2.3766 6.82825C2.28441 6.37365 2.3317 5.90242 2.51259 5.47404C2.69349 5.04564 3 4.67909 3.39373 4.42102C3.78749 4.16293 4.25067 4.02504 4.72469 4.02504ZM4.69836 19.125H4.82336V19.1184C5.79007 19.0863 6.71078 18.6958 7.39801 18.0225C8.11485 17.3202 8.5192 16.3673 8.52171 15.3725V15.3721C8.52171 14.6294 8.29716 13.9035 7.87674 13.2862C7.45634 12.6691 6.85906 12.1884 6.16071 11.9046C5.46238 11.6209 4.69409 11.5467 3.9529 11.6913C3.2117 11.8359 2.53055 12.193 1.99569 12.7176C1.46081 13.2423 1.09627 13.9111 0.948558 14.6395C0.800842 15.368 0.876678 16.1231 1.16637 16.8091C1.45605 17.4951 1.94643 18.0811 2.57514 18.4931C3.20382 18.9052 3.9427 19.125 4.69836 19.125ZM4.69836 13.0677H4.82336V13.0666C5.40287 13.0973 5.95183 13.3369 6.36336 13.7411C6.80433 14.1743 7.05143 14.761 7.05114 15.3721V15.3722C7.05135 15.8277 6.91387 16.2732 6.65578 16.6525C6.39766 17.0317 6.03044 17.3277 5.60026 17.5027C5.17007 17.6777 4.69651 17.7236 4.23957 17.6346C3.78265 17.5455 3.36322 17.3257 3.03422 17.0031C2.70524 16.6805 2.48145 16.2698 2.39077 15.823C2.30009 15.3762 2.3465 14.9131 2.52423 14.492C2.70198 14.0709 3.00321 13.7106 3.39018 13.457C3.77719 13.2033 4.23244 13.0677 4.69836 13.0677ZM9.22834 0.875003L9.22822 0.875002C8.97339 0.874511 8.72394 0.948178 8.51144 1.08694C8.29891 1.22573 8.13275 1.42349 8.03438 1.65548C7.936 1.8875 7.90996 2.14308 7.95966 2.38977C8.00936 2.63644 8.13248 2.86277 8.31305 3.04025C8.49359 3.2177 8.72346 3.33836 8.97342 3.38732C9.22338 3.43628 9.48254 3.41142 9.71822 3.31579C9.95392 3.22016 10.1558 3.05792 10.298 2.84926C10.4402 2.64056 10.5163 2.39491 10.5163 2.14339V2.14327C10.516 1.80665 10.3797 1.48438 10.138 1.24687C9.89643 1.00943 9.56929 0.875987 9.22834 0.875003Z"
+                d="M11.6984 12.0902H11.6985C12.7113 12.089 13.6828 11.6938 14.3997 10.9905C15.1167 10.2872 15.5205 9.33317 15.5217 8.33749V8.33733C15.5217 7.59454 15.2972 6.86864 14.8767 6.25143C14.4563 5.63425 13.8591 5.15357 13.1607 4.86982C12.4624 4.58608 11.6941 4.51188 10.9529 4.6565C10.2117 4.80112 9.53055 5.15815 8.99569 5.68281C8.46081 6.2075 8.09627 6.87628 7.94856 7.60473C7.80084 8.33319 7.87668 9.08823 8.16637 9.77427C8.45605 10.4603 8.94643 11.0462 9.57514 11.4583C10.2038 11.8704 10.9427 12.0902 11.6984 12.0902ZM11.7247 6.02504H11.8497V6.02375C12.122 6.0377 12.3902 6.09717 12.6426 6.19985C12.9335 6.31821 13.1976 6.49161 13.4199 6.71002C13.6422 6.92843 13.8182 7.18756 13.938 7.47251C14.0579 7.75745 14.1193 8.06269 14.1187 8.37079V8.37102C14.1187 8.83447 13.9786 9.28772 13.7159 9.67346C13.4531 10.0592 13.0793 10.3603 12.6416 10.5381C12.2039 10.716 11.7221 10.7625 11.2572 10.6718C10.7923 10.5811 10.3657 10.3573 10.031 10.029C9.69639 9.70079 9.46878 9.28286 9.3766 8.82825C9.28441 8.37365 9.3317 7.90242 9.51259 7.47404C9.69349 7.04564 10 6.67909 10.3937 6.42102C10.7875 6.16293 11.2507 6.02504 11.7247 6.02504ZM11.6984 21.125H11.8234V21.1184C12.7901 21.0863 13.7108 20.6958 14.398 20.0225C15.1149 19.3202 15.5192 18.3673 15.5217 17.3725V17.3721C15.5217 16.6294 15.2972 15.9035 14.8767 15.2862C14.4563 14.6691 13.8591 14.1884 13.1607 13.9046C12.4624 13.6209 11.6941 13.5467 10.9529 13.6913C10.2117 13.8359 9.53055 14.193 8.99569 14.7176C8.46081 15.2423 8.09627 15.9111 7.94856 16.6395C7.80084 17.368 7.87668 18.1231 8.16637 18.8091C8.45605 19.4951 8.94643 20.0811 9.57514 20.4931C10.2038 20.9052 10.9427 21.125 11.6984 21.125ZM11.6984 15.0677H11.8234V15.0666C12.4029 15.0973 12.9518 15.3369 13.3634 15.7411C13.8043 16.1743 14.0514 16.761 14.0511 17.3721V17.3722C14.0514 17.8277 13.9139 18.2732 13.6558 18.6525C13.3977 19.0317 13.0304 19.3277 12.6003 19.5027C12.1701 19.6777 11.6965 19.7236 11.2396 19.6346C10.7826 19.5455 10.3632 19.3257 10.0342 19.0031C9.70524 18.6805 9.48145 18.2698 9.39077 17.823C9.30009 17.3762 9.3465 16.9131 9.52423 16.492C9.70198 16.0709 10.0032 15.7106 10.3902 15.457C10.7772 15.2033 11.2324 15.0677 11.6984 15.0677ZM16.2283 2.875L16.2282 2.875C15.9734 2.87451 15.7239 2.94818 15.5114 3.08694C15.2989 3.22573 15.1328 3.42349 15.0344 3.65548C14.936 3.8875 14.91 4.14308 14.9597 4.38977C15.0094 4.63644 15.1325 4.86277 15.313 5.04025C15.4936 5.2177 15.7235 5.33836 15.9734 5.38732C16.2234 5.43628 16.4825 5.41142 16.7182 5.31579C16.9539 5.22016 17.1558 5.05792 17.298 4.84926C17.4402 4.64056 17.5163 4.39491 17.5163 4.14339V4.14327C17.516 3.80665 17.3797 3.48438 17.138 3.24687C16.8964 3.00943 16.5693 2.87599 16.2283 2.875Z"
                 fill="#FFC500"
                 stroke="#FFC500"
                 stroke-width="0.25"
               />
             </svg>
-            {/* <span className="hidden font-sans sidebar-expanded:block 2xl:hidden capitalize text-2xl text-white font-light">
+
+            {/* <span className="hidden font-sans main-sidebar-expanded:block 2xl:hidden capitalize text-2xl text-white font-light">
               GLYPH
             </span> */}
           </NavLink>
         </div>
 
         {/* Links */}
-        <div className="space-y-8">
+        <div className="space-y-8 mt-1">
           {/* Pages group */}
           <div>
-            <div className="text-xs uppercase text-gray-500 font-semibold border-b pb-2 border-white flex justify-center lg:sidebar-expanded:justify-start lg:sidebar-expanded:ml-3 items-center">
+            <div className="text-xs uppercase text-gray-500 font-semibold border-b pb-2 border-white flex justify-center lg:main-sidebar-expanded:justify-start lg:main-sidebar-expanded:ml-3 items-center">
               <span
-                className="hidden lg:block lg:sidebar-expanded:hidden 2xl:hidden text-center w-6"
+                className="hidden lg:block lg:main-sidebar-expanded:hidden text-center w-6"
                 aria-hidden="true"
               >
                 <svg
@@ -141,7 +109,7 @@ export const MainSidebar = ({
                   />
                 </svg>
               </span>
-              <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">
+              <span className="lg:hidden main-sidebar-expanded:block">
                 {/* <UserMenu user={user} /> */}
                 <UserMenu
                   align="right"
@@ -183,7 +151,7 @@ export const MainSidebar = ({
                       </svg>
                     </div>
 
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200">
                       My Projects
                     </span>
                   </div>
@@ -218,7 +186,7 @@ export const MainSidebar = ({
                       </svg>
                     </div>
 
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200">
                       Shared with Me
                     </span>
                   </div>
@@ -266,7 +234,7 @@ export const MainSidebar = ({
 												d='M4 18h2a1 1 0 001-1V8a1 1 0 00-1-1H4a1 1 0 00-1 1v9a1 1 0 001 1zM11 18h2a1 1 0 001-1V3a1 1 0 00-1-1h-2a1 1 0 00-1 1v14a1 1 0 001 1zM17 12v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 00-1-1h-2a1 1 0 00-1 1z'
 											/>
 										</svg> */}
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200">
                       Drafts
                     </span>
                   </div>
@@ -303,7 +271,7 @@ export const MainSidebar = ({
                       </div>
                     </div>
 
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200">
                       Trash
                     </span>
                   </div>
@@ -314,24 +282,14 @@ export const MainSidebar = ({
         </div>
 
         {/* Expand / collapse button */}
-        <div className="pt-3 hidden lg:inline-flex 2xl:hidden justify-end mt-auto">
-          <div className="px-3 py-2">
-            <button onClick={() => setSidebarExpanded(!sidebarExpanded)}>
-              <span className="sr-only">Expand / collapse sidebar</span>
-              <svg
-                className="w-6 h-6 fill-current sidebar-expanded:rotate-180"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  className="text-gray-400"
-                  d="M19.586 11l-5-5L16 4.586 23.414 12 16 19.414 14.586 18l5-5H7v-2z"
-                />
-                <path className="text-gray-600" d="M3 23H1V1h2z" />
-              </svg>
-            </button>
-          </div>
+        <div className="sticky bottom-0">
+          <ExpandCollapse
+            sidebarExpanded={sidebarExpanded}
+            setSidebarExpanded={setSidebarExpanded}
+          />
         </div>
       </div>
     </div>
+    // </div>
   );
 };

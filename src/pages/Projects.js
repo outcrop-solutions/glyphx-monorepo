@@ -39,6 +39,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const { isUrlSigned } = useUrl(project);
   const location = useLocation();
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
+
   // comments and filter sidebar positions
   // position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
   //position state dynamically changes with transitions
@@ -209,8 +210,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         setProject={setProject}
         user={user}
         setIsLoggedIn={setIsLoggedIn}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
+        // sidebarOpen={sidebarOpen}
+        // setSidebarOpen={setSidebarOpen}
       />
 
       {/* Content area */}

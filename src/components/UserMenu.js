@@ -45,7 +45,7 @@ export const UserMenu = ({ align, user, setIsLoggedIn }) => {
     <div className="relative">
       <button
         ref={trigger}
-        className="inline-flex justify-center items-center group pl-8 sidebar-expanded:pl-0"
+        className="inline-flex justify-center items-center group pl-8 main-sidebar-expanded:pl-0"
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}

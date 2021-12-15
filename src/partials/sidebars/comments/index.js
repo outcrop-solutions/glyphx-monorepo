@@ -69,7 +69,7 @@ export const CommentsSidebar = ({
 				}
 			}
 		})
-	}, [sidebarExpanded, pos])
+	}, [sidebarExpanded, pos, setCommentsPosition])
 
 	return (
 		<div

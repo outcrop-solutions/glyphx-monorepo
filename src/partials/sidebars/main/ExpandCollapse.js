@@ -1,12 +1,12 @@
 function ExpandCollapse(props) {
 	return (
-		<div className='pt-3 justify-center project-sidebar-expanded:justify-end pb-4 mt-auto'>
+		<div className='pt-3 justify-center main-sidebar-expanded:justify-end pb-4 mt-auto'>
 			<div className='px-3 py-2'>
 				<button
 					onClick={() => props.setSidebarExpanded(!props.sidebarExpanded)}>
 					<span className='sr-only'>Expand / collapse sidebar</span>
 					<svg
-						className='w-6 h-6 fill-current project-sidebar-expanded:rotate-180'
+						className='w-6 h-6 fill-current main-sidebar-expanded:rotate-180'
 						viewBox='0 0 24 24'>
 						<path
 							className='text-gray-400'

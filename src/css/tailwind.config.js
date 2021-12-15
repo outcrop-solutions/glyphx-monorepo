@@ -71,11 +71,11 @@ module.exports = {
     require("tailwind-scrollbar"),
     // add custom variant for expanding sidebar
     plugin(({ addVariant, e }) => {
-      addVariant("sidebar-expanded", ({ modifySelectors, separator }) => {
+      addVariant("main-sidebar-expanded", ({ modifySelectors, separator }) => {
         modifySelectors(
           ({ className }) =>
-            `.sidebar-expanded .${e(
-              `sidebar-expanded${separator}${className}`
+            `.main-sidebar-expanded .${e(
+              `main-sidebar-expanded${separator}${className}`
             )}`
         );
       });
