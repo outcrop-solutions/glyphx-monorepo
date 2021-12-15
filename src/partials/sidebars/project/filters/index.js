@@ -21,11 +21,11 @@ export const Filters = ({
     setOpen(!open);
   };
   const { filters } = useFilters();
-  const [filtersState, setFiltersState] = useState([]);
-  useEffect(() => {
-    setFiltersState([...filters]);
-  }, [filters]);
-  const { columns } = useColumns();
+  // const [filtersState, setFiltersState] = useState([]);
+  // useEffect(() => {
+  //   setFiltersState([...filters]);
+  // }, [filters]);
+  // const { columns } = useColumns();
   return (
     <React.Fragment>
       <Header

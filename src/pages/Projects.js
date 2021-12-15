@@ -168,9 +168,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   //data grid state
   const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
   const [propertiesArr, setPropertiesArr] = useState([
-    { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
