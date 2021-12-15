@@ -135,6 +135,7 @@ export const Datagrid = ({
 
   return (
     <DataGrid
+      headerRowHeight={20}
       columns={draggableColumns}
       rows={sortedRows}
       sortColumns={sortColumns}

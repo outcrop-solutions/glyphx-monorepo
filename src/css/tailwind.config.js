@@ -18,6 +18,8 @@ module.exports = {
         gray: colors.blueGray,
         "blue-gray": colors.blueGray,
         "light-blue": colors.sky,
+        "primary-yellow": "#FFC00",
+        "primary-dark-blue": "#0D1321",
         red: colors.rose,
       },
       fontFamily: {
