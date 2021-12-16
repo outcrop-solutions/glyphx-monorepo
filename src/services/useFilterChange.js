@@ -15,13 +15,13 @@ export const useFilterChange = (filtersApplied) => {
         let min = filter.min;
         let max = filter.max;
 
-        let queryStr = `"${name || "-"}" BETWEEN ${min || "-"} AND ${max || "-"}`;
+        let queryStr = `\`${name || "-"}\` BETWEEN ${min || "-"} AND ${max || "-"}`;
         filterStringArr.push(queryStr);
         // }
       }
       let query =
         filterStringArr.length > 0
-          ? `SELECT * from "0bc27e1c-b48b-474e-844d-4ec1b0f94613" WHERE ${filterStringArr.join(
+          ? `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\` WHERE ${filterStringArr.join(
               "AND"
             )}`
           : "";
@@ -31,6 +31,9 @@ export const useFilterChange = (filtersApplied) => {
       };
       console.log({ updateFilterInput });
       window.core.UpdateFilter(JSON.stringify(updateFilterInput));
+    } else {
+      
+      window.core.UpdateFilter(JSON.stringify({filter: `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\``}));
     }
     console.log({ filtersApplied });
   }, [filtersApplied]);
