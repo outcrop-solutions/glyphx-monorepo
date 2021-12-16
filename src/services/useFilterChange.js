@@ -25,7 +25,7 @@ export const useFilterChange = (filtersApplied) => {
         let query =
           filterStringArr.length > 0
             ? `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\` WHERE ${filterStringArr.join(
-                "AND"
+                " AND "
               )}`
             : "";
 
