@@ -68,6 +68,7 @@ export const Axes = ({
       {isFilter && lastDroppedItem ? (
         lastDroppedItem.dataType === "number" ? (
           <RangeFilter
+            lastDroppedItem={lastDroppedItem}
             filtersApplied={filtersApplied}
             setFiltersApplied={setFiltersApplied}
           />

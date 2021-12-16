@@ -20,7 +20,7 @@ export const Filters = ({
   const handleClick = () => {
     setOpen(!open);
   };
-  const { filters } = useFilters();
+  // const { filters } = useFilters();
   // const [filtersState, setFiltersState] = useState([]);
   // useEffect(() => {
   //   setFiltersState([...filters]);
