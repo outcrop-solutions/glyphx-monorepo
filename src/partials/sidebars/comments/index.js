@@ -19,7 +19,13 @@ export const CommentsSidebar = ({
 	const [sidebarExpanded, setSidebarExpanded] = useState(
 		storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
 	)
-
+	useEffect(() => {
+		if (project) {
+		  setSidebarExpanded(false);
+		} else {
+		  setSidebarExpanded(true);
+		}
+	  }, [project]);
 	// refs for sidebar trigger and resize
 	const trigger = useRef(null)
 	const sidebar = useRef(null)
