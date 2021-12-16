@@ -21,14 +21,10 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Storage } from "aws-amplify";
 import update from "immutability-helper";
 
-import { usePosition } from "../services/usePosition";
-import { JS } from "aws-amplify";
-
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
 
 export const Projects = ({ user, setIsLoggedIn, projects }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [grid, setGrid] = useState(false);
   const [state, setState] = useState(null);
   const [project, setProject] = useState(false);
@@ -47,18 +43,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   //position state dynamically changes with transitions
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
-  useEffect(() => {
-    if (sendDrawerPositionApp) {
-      console.log({ filterSidebarPosition, commentsPosition });
-      window.core.SendDrawerPosition(
-        JSON.stringify({
-          filterSidebar: filterSidebarPosition.values,
-          commentsSidebar: commentsPosition.values,
-        })
-      );
-      // setSendDrawerPositionApp(false)
-    }
-  }, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp]);
 
   // useEffect(() => {
   //   console.log({ filterSidebarPosition, commentsPosition });
@@ -104,12 +88,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     };
   };
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   // projectSidebar state and utilities
-  const [projectSidebarOpen, setProjectSidebarOpen] = useState(true);
   const [showCols, setShowCols] = useState(false);
-  const trigger = useRef(null);
-  const sidebar = useRef(null);
-  const projPosition = usePosition(sidebar);
   const storedSidebarExpanded = localStorage.getItem(
     "project-sidebar-expanded"
   );
@@ -118,53 +99,17 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   );
 
   useEffect(() => {
-    setSidebarExpanded(true);
-  }, [project]);
-  // close on click outside
-  useEffect(() => {
-    const clickHandler = ({ target }) => {
-      if (!sidebar.current || !trigger.current) return;
-      if (
-        !sidebarOpen ||
-        sidebar.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
-  });
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
-      if (!sidebarOpen || keyCode !== 219) return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
-  });
-  //handle sidebar state in localStorage
-  useEffect(() => {
-    localStorage.setItem("project-sidebar-expanded", sidebarExpanded);
-    if (sidebarExpanded) {
-      document.querySelector("body").classList.add("project-sidebar-expanded");
-    } else {
-      document
-        .querySelector("body")
-        .classList.remove("project-sidebar-expanded");
+    if (sendDrawerPositionApp) {
+      console.log({ filterSidebarPosition, commentsPosition });
+      window.core.SendDrawerPosition(
+        JSON.stringify({
+          filterSidebar: filterSidebarPosition.values,
+          commentsSidebar: commentsPosition.values,
+        })
+      );
+      // setSendDrawerPositionApp(false)
     }
-  }, [sidebarExpanded]);
-  // set projectsSidebar position on transition
-  useEffect(() => {
-    setFilterSidebarPosition((prev) => {
-      if (sidebar.current !== null) {
-        return {
-          values: sidebar.current.getBoundingClientRect(),
-        };
-      }
-    });
-  }, [sidebarExpanded, projPosition]);
+  }, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp]);
   const handleStateChange = (state) => {
     setState((prev) => {
       let data = state;
@@ -283,8 +228,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     fileSystem={fileSystem}
                     setFiles={setFiles}
                     setDataGrid={setDataGrid}
-                    sidebar={sidebar}
+                    setFilterSidebarPosition={setFilterSidebarPosition}
                     sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
                     sidebarExpanded={sidebarExpanded}
                     setSidebarExpanded={setSidebarExpanded}
                     project={project}

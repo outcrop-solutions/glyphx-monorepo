@@ -1,15 +1,18 @@
+import { useRef, useEffect } from "react";
 import ExpandCollapse from "./ExpandCollapse";
 import { Files } from "./files";
 import { Properties } from "./properties";
 import { Filters } from "./filters";
 import { States } from "./states";
+import { usePosition } from "../../../services/usePosition";
 
 export const ProjectSidebar = ({
   setDataGrid,
   sidebarExpanded,
   setSidebarExpanded,
-  sidebar,
+  setFilterSidebarPosition,
   sidebarOpen,
+  setSidebarOpen,
   project,
   isEditing,
   propertiesArr,
@@ -23,7 +26,62 @@ export const ProjectSidebar = ({
   setFiles,
 }) => {
   //utilities
+  const trigger = useRef(null);
+  const sidebar = useRef(null);
+  const projPosition = usePosition(sidebar);
 
+  useEffect(() => {
+    if (project) {
+      setSidebarExpanded(true);
+    }
+  }, [project, setSidebarExpanded]);
+  // close on click outside
+  useEffect(() => {
+    const clickHandler = ({ target }) => {
+      if (!sidebar.current || !trigger.current) return;
+      if (
+        !sidebarOpen ||
+        sidebar.current.contains(target) ||
+        trigger.current.contains(target)
+      )
+        return;
+      setSidebarOpen(false);
+    };
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
+  });
+  // close if the esc key is pressed
+  useEffect(() => {
+    const keyHandler = ({ keyCode }) => {
+      if (!sidebarOpen || keyCode !== 219) return;
+      setSidebarOpen(false);
+    };
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
+  });
+  //handle sidebar state in localStorage
+  useEffect(() => {
+    localStorage.setItem("project-sidebar-expanded", sidebarExpanded);
+    if (sidebarExpanded) {
+      document.querySelector("body").classList.add("project-sidebar-expanded");
+    } else {
+      document
+        .querySelector("body")
+        .classList.remove("project-sidebar-expanded");
+    }
+  }, [sidebarExpanded]);
+  // set projectsSidebar position on transition
+  useEffect(() => {
+    console.log({ sidebarExpanded, projPosition, setFilterSidebarPosition });
+    setFilterSidebarPosition((prev) => {
+      console.log({ sidebar: sidebar });
+      if (sidebar.current !== null) {
+        return {
+          values: sidebar.current.getBoundingClientRect(),
+        };
+      }
+    });
+  }, [sidebarExpanded, projPosition, setFilterSidebarPosition]);
   return (
     <div
       id="sidebar"
