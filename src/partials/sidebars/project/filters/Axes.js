@@ -15,7 +15,7 @@ export const Axes = ({
     <>
       <li
         className={`py-2 pl-2 last:mb-0 flex items-center ${
-          isFilter === "none" ? "border-b border-gray-500" : ""
+          isFilter ? "border-b border-gray-500" : ""
         }`}
       >
         <AxesIcons property={axis} />

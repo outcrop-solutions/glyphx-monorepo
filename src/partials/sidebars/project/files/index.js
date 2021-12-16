@@ -15,7 +15,7 @@ export const Files = ({
   fileSystem,
   setFiles
 }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleClick = () => {
     setOpen(!open);

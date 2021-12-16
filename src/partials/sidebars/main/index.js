@@ -17,6 +17,13 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
 
+  useEffect(() => {
+    if (project) {
+      setSidebarExpanded(false);
+    } else {
+      setSidebarExpanded(true);
+    }
+  }, [project]);
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }) => {

@@ -18,6 +18,7 @@ import { Templates } from "../partials/projects/Templates";
 import { Invite } from "../partials/invite";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { Storage } from "aws-amplify";
 import update from "immutability-helper";
 
 import { usePosition } from "../services/usePosition";
@@ -48,6 +49,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
   useEffect(() => {
     if (sendDrawerPositionApp) {
+      console.log({ filterSidebarPosition, commentsPosition });
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: filterSidebarPosition.values,
@@ -57,6 +59,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       // setSendDrawerPositionApp(false)
     }
   }, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp]);
+
+  // useEffect(() => {
+  //   console.log({ filterSidebarPosition, commentsPosition });
+  // }, [filterSidebarPosition, commentsPosition]);
 
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
@@ -222,6 +228,11 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         };
         // window.core.ToggleDrawer("ToggleDrawer")
         console.log({ body });
+        let signedUrl = await Storage.get("mcgee_sku_model.zip");
+        console.log({ signedUrl });
+        if (project && window.core) {
+          window.core.OpenProject(JSON.stringify(signedUrl));
+        }
         // let response = await fetch(url, { method: "POST", body: JSON.stringify(body) });
         // window.core.OpenProject(JSON.stringify('https://sgx-etl-etlbucket-14tuu39hyrwzx.s3.amazonaws.com/10001/output/10001.zip'))
       } else {
@@ -230,7 +241,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     };
 
     handleETL();
-  }, [propertiesArr, project.id]);
+  }, [propertiesArr, project]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);

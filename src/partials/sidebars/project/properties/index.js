@@ -11,21 +11,21 @@ export const Properties = ({
   propertiesArr,
   handleDrop,
 }) => {
-  const [open, setOpen] = useState(isEditing ? true : false);
+  const [open, setOpen] = useState(true);
 
   const handleClick = () => {
     setOpen(!open);
   };
 
-  useEffect(() => {
-    if (isEditing) {
-      setSidebarExpanded(true);
-      setOpen(true);
-    } else {
-      setSidebarExpanded(false);
-      setOpen(false);
-    }
-  }, [isEditing, setSidebarExpanded]);
+  // useEffect(() => {
+  //   if (isEditing) {
+  //     setSidebarExpanded(true);
+  //     setOpen(true);
+  //   } else {
+  //     setSidebarExpanded(false);
+  //     setOpen(false);
+  //   }
+  // }, [isEditing, setSidebarExpanded]);
 
   // const { properties } = useProperties(project);
   // useEffect(() => {
