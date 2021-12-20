@@ -32,11 +32,11 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [project, setProject] = useState(false);
   const { states, state, setState, setStates } = useStates(project);
   useStateChange(state);
-  const [filtersApplied, setFiltersApplied] = useState([]);
+
   const [showAddProject, setShowAddProject] = useState(false);
 
   const { isStateChanged } = useStateChange(state);
-  const { isFilterChanged } = useFilterChange(filtersApplied);
+
   // pass signed url
   // const { isUrlSigned } = useUrl(project);
   const location = useLocation();
@@ -175,15 +175,18 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           z_axis: propertiesArr[2].lastDroppedItem.key,
           filters: filterArr,
         };
-        // window.core.ToggleDrawer("ToggleDrawer")
+        window.core.ToggleDrawer(false);
         console.log({ body });
-        let signedUrl = await Storage.get("mcgee_sku_model.zip");
-        console.log({ signedUrl });
-        if (project && window.core) {
-          window.core.OpenProject(JSON.stringify(signedUrl));
+        // let signedUrl = await Storage.get("mcgee_sku_model.zip");
+        // console.log({ signedUrl });
+        if (project && window && window.core) {
+          let response = await fetch(
+            "https://vkepitqt88.execute-api.us-east-1.amazonaws.com/Prod/etl/model",
+            { method: "POST", body: JSON.stringify(body) }
+          );
+          console.log({ response });
+          window.core.OpenProject(JSON.stringify(response));
         }
-        // let response = await fetch(url, { method: "POST", body: JSON.stringify(body) });
-        // window.core.OpenProject(JSON.stringify('https://sgx-etl-etlbucket-14tuu39hyrwzx.s3.amazonaws.com/10001/output/10001.zip'))
       } else {
         setFull(false);
       }
@@ -240,8 +243,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     project={project}
                     isEditing={isEditing}
                     propertiesArr={propertiesArr}
-                    filtersApplied={filtersApplied}
-                    setFiltersApplied={setFiltersApplied}
+                    setPropertiesArr={setPropertiesArr}
                     handleStateChange={handleStateChange}
                     showCols={showCols}
                     setShowCols={setShowCols}
@@ -253,28 +255,32 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                   />
                   <div className="w-full h-full flex">
                     <div className={`min-w-0 flex-auto overflow-auto`}>
-                      {share ? (
-                        <Invite setShare={setShare} />
-                      ) : (
-                        <div className="overflow-x-auto flex-col mx-auto">
-                          {fileSystem && fileSystem.length ? (
-                            <Datagrid
-                              isDropped={isDropped}
-                              setIsEditing={setIsEditing}
-                              dataGrid={dataGrid}
+                      {full ? (
+                        <>
+                          {share ? (
+                            <Invite setShare={setShare} />
+                          ) : (
+                            <div className="overflow-x-auto flex-col mx-auto">
+                              {fileSystem && fileSystem.length ? (
+                                <Datagrid
+                                  isDropped={isDropped}
+                                  setIsEditing={setIsEditing}
+                                  dataGrid={dataGrid}
+                                  setDataGrid={setDataGrid}
+                                />
+                              ) : null}
+                            </div>
+                          )}
+                          {fileSystem && fileSystem.length ? null : (
+                            <AddFiles
                               setDataGrid={setDataGrid}
+                              project={project}
+                              fileSystem={fileSystem}
+                              setFileSystem={setFiles}
                             />
-                          ) : null}
-                        </div>
-                      )}
-                      {fileSystem && fileSystem.length ? null : (
-                        <AddFiles
-                          setDataGrid={setDataGrid}
-                          project={project}
-                          fileSystem={fileSystem}
-                          setFileSystem={setFiles}
-                        />
-                      )}
+                          )}
+                        </>) : (<div className="text-3xl text-white">loading....</div>)
+                      }
                     </div>
                     <CommentsSidebar
                       state={state}

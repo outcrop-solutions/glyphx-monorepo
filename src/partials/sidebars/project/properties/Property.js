@@ -1,6 +1,6 @@
 import { PropertyIcons } from "./PropertyIcons";
 import { useDrop } from "react-dnd";
-import { useState, useEffect } from "react";
+
 
 export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -12,32 +12,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
     }),
   });
   const isActive = isOver && canDrop;
-  const [bg, setBg] = useState("");
-  useEffect(() => {
-    // const handleBg = () => {
-    //   if (lastDroppedItem) {
-    //     if (lastDroppedItem.dataType === "number") {
-    //       setBg("bg-green-400 text-black");
-    //     } else {
-    //       setBg("bg-lightBlue-300 text-black");
-    //     }
-    //   } else {
-    //     setBg("bg-gray-700 text-gray-500");
-    //   }
-    // };
-    setBg("bg-lightBlue-300 text-black");
-    // handleBg();
-  }, [lastDroppedItem]);
-  // const handleBg = (key) => {
-  //   switch (key) {
-  //     case string:
 
-  //       break;
-
-  //     default:
-  //       break;
-  //   }
-  // }
   return (
     <li
       ref={drop}
@@ -60,10 +35,6 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
           </span>
         </div>
       )}
-      {/* 
-      {lastDroppedItem && (
-        <p>Last dropped: {JSON.stringify(lastDroppedItem)}</p>
-      )} */}
     </li>
   );
 };

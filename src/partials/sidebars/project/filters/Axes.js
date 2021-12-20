@@ -3,6 +3,11 @@ import { useState } from "react";
 import { Filter } from "./Filter";
 import { RangeFilter } from "./actions/RangeFilter";
 import { SearchFilter } from "./actions/SearchFilter";
+import { API, graphqlOperation } from "aws-amplify";
+import { deleteFilter } from "../../../../graphql/mutations";
+import ShowHide from "./actions/ShowHide";
+import DeleteFilter from "./actions/DeleteFilter";
+
 export const Axes = ({
   filtersApplied,
   setFiltersApplied,
@@ -10,6 +15,32 @@ export const Axes = ({
   lastDroppedItem,
 }) => {
   const [isFilter, setIsFilter] = useState(false);
+  const [applied, setApplied] = useState(
+    filtersApplied.includes(lastDroppedItem) ? true : false
+  );
+  const [min, setMin] = useState("");
+  const [max, setMax] = useState("");
+
+  const handleApply = () => {
+    setFiltersApplied((prev) => {
+      if (applied) {
+        let newArr = prev.filter((el) => el.name !== lastDroppedItem.key);
+        return [...newArr];
+      } else {
+        let newArr = [...prev, { name: lastDroppedItem.key, min, max }];
+        return [...newArr];
+      }
+    });
+    setApplied((prev) => !prev);
+  };
+  const handleDeleteFilter = async () => {
+    let deleteFilterInput = { id: lastDroppedItem.id };
+    // console.log({ deleteFilterInput })
+    const result = await API.graphql(
+      graphqlOperation(deleteFilter, { input: deleteFilterInput })
+    );
+   
+  };
 
   return (
     <>
@@ -18,7 +49,9 @@ export const Axes = ({
           isFilter ? "border-b border-gray-500" : ""
         }`}
       >
+        {/* axis icon */}
         <AxesIcons property={axis} />
+        {/* filter icons */}
         {lastDroppedItem ? (
           <Filter
             isFilter={isFilter}
@@ -55,7 +88,7 @@ export const Axes = ({
             </svg>
           </div>
         )}
-
+        {/* column header chip */}
         <div
           formatType={lastDroppedItem ? lastDroppedItem.dataType : ""}
           className={`flex justify-center h-4 ml-4 hover:text-gray-400 transition duration-150 truncate cursor-pointer rounded-2xl`}
@@ -64,19 +97,18 @@ export const Axes = ({
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
           </span>
         </div>
+        {/* onHover filter actions */}
+        <div className="flex justify-between">
+          <ShowHide applied={applied} handleApply={handleApply} />
+          <DeleteFilter handleDeleteFilter={handleDeleteFilter} />
+        </div>
       </li>
+      {/* filtering dropdown */}
       {isFilter && lastDroppedItem ? (
         lastDroppedItem.dataType === "number" ? (
-          <RangeFilter
-            lastDroppedItem={lastDroppedItem}
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
-          />
+          <RangeFilter min={min} setMin={setMin} max={max} setMax={setMax} />
         ) : (
-          <SearchFilter
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
-          />
+          <SearchFilter />
         )
       ) : null}
     </>

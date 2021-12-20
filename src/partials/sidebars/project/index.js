@@ -16,6 +16,7 @@ export const ProjectSidebar = ({
   project,
   isEditing,
   propertiesArr,
+  setPropertiesArr,
   filtersApplied,
   setFiltersApplied,
   handleStateChange,
@@ -119,6 +120,7 @@ export const ProjectSidebar = ({
         <Filters
           handleDrop={handleDrop}
           propertiesArr={propertiesArr}
+          setPropertiesArr={setPropertiesArr}
           filtersApplied={filtersApplied}
           setFiltersApplied={setFiltersApplied}
           sidebarExpanded={sidebarExpanded}

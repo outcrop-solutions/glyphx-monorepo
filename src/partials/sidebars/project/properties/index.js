@@ -17,25 +17,6 @@ export const Properties = ({
     setOpen(!open);
   };
 
-  // useEffect(() => {
-  //   if (isEditing) {
-  //     setSidebarExpanded(true);
-  //     setOpen(true);
-  //   } else {
-  //     setSidebarExpanded(false);
-  //     setOpen(false);
-  //   }
-  // }, [isEditing, setSidebarExpanded]);
-
-  // const { properties } = useProperties(project);
-  // useEffect(() => {
-  //   if (properties)
-  //     setPropertiesArr([properties.x, properties.y, properties.z]);
-  //   if (propertiesArr.length === 3) {
-  //     //send props to lambda function
-  //   }
-  // }, [properties, propertiesArr.length]);
-
   return (
     <React.Fragment>
       <Header

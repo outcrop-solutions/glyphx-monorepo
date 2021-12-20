@@ -1,31 +1,23 @@
 import React, { useState, useEffect } from "react";
-
 import { Column } from "./Column";
-import Filter from "./Filter";
 import { Header } from "./Header";
 import { Axes } from "./Axes";
-import { useFilters } from "../../../../services/useFilters";
-import { useColumns } from "../../../../services/useColumns";
+import { useFilterChange } from "../../../../services/useFilterChange";
 
 export const Filters = ({
-  filtersApplied,
-  setFiltersApplied,
   sidebarExpanded,
   setSidebarExpanded,
   propertiesArr,
+  setPropertiesArr,
   handleDrop,
 }) => {
   const [open, setOpen] = useState(true);
+  const [filtersApplied, setFiltersApplied] = useState([]);
+  const { isFilterChanged } = useFilterChange(filtersApplied);
 
   const handleClick = () => {
     setOpen(!open);
   };
-  // const { filters } = useFilters();
-  // const [filtersState, setFiltersState] = useState([]);
-  // useEffect(() => {
-  //   setFiltersState([...filters]);
-  // }, [filters]);
-  // const { columns } = useColumns();
   return (
     <React.Fragment>
       <Header
