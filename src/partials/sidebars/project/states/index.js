@@ -7,13 +7,14 @@ export const States = ({
   handleStateChange,
   sidebarExpanded,
   setSidebarExpanded,
+  project,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleClick = () => {
     setOpen(!open);
   };
-  const { states, state } = useStates();
+  const { states, state, setState, setStates } = useStates(project);
   return (
     <React.Fragment>
       <Header
@@ -21,12 +22,16 @@ export const States = ({
         sidebarExpanded={sidebarExpanded}
         setSidebarExpanded={setSidebarExpanded}
         handleClick={handleClick}
+        project={project}
+        setStates={setStates}
       />
-      {states.length > 0 && (
+      {states && states.length > 0 && (
         <StateList
-          handleStateChange={handleStateChange}
-          id={state.id}
+          // handleStateChange={handleStateChange}
+          // id={state.id}
           open={open}
+          setState={setState}
+          state={state}
           states={states}
         />
       )}

@@ -10,7 +10,7 @@ export const useFilters = () => {
 				const filterData = await API.graphql(graphqlOperation(listFilters))
 				const filterList = filterData.data.listFilters.items
 
-				console.log({ filterList })
+				// console.log({ filterList })
 				setFilters((prev) => {
 					let newData = [...filterList]
 					return newData

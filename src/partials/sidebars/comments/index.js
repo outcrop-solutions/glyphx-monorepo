@@ -68,7 +68,7 @@ export const CommentsSidebar = ({
 	}, [sidebarExpanded])
 	//fetch commentsSidebar position on layout resize
 	useEffect(() => {
-		console.log({sidebarExpanded, pos, setCommentsPosition})
+		// console.log({sidebarExpanded, pos, setCommentsPosition})
 		setCommentsPosition((prev) => {
 			// console.log({sidebarComments: sidebar})
 			if (sidebar.current !== null) {

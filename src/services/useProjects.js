@@ -12,10 +12,10 @@ export const useProjects = () => {
 		const fetchProjects = async () => {
 			try {
 				const projectData = await API.graphql(graphqlOperation(listProjects))
-				console.log({ projectData })
+				// console.log({ projectData })
 				const projectList = projectData.data.listProjects.items
 
-				console.log({ projectList })
+				// console.log({ projectList })
 				setProjects((prev) => {
 					let newData = [...projectList]
 					return newData

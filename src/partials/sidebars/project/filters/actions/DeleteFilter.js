@@ -4,7 +4,7 @@ import { deleteFilter } from '../../../../../graphql/mutations'
 function DeleteFilter({ item, setFiltersState }) {
 	const handleDeleteFilter = async () => {
 		let deleteFilterInput = { id: item.id }
-		console.log({ deleteFilterInput })
+		// console.log({ deleteFilterInput })
 		const result = await API.graphql(
 			graphqlOperation(deleteFilter, { input: deleteFilterInput })
 		)

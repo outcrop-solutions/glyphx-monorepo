@@ -1,6 +1,6 @@
 function ShowHide({ applied, setApplied, item, setFiltersApplied }) {
 	const handleApply = () => {
-		console.log({ applied, item, setFiltersApplied })
+		// console.log({ applied, item, setFiltersApplied })
 		setFiltersApplied((prev) => {
 			if (applied) {
 				let newArr = prev.filter((el) => el.id !== item.id)

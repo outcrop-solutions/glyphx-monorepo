@@ -100,7 +100,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   useEffect(() => {
     if (sendDrawerPositionApp) {
-      console.log({ filterSidebarPosition, commentsPosition });
+      // console.log({ filterSidebarPosition, commentsPosition });
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: filterSidebarPosition.values,

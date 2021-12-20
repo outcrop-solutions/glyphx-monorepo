@@ -25,7 +25,7 @@ export const CustomNode = ({
     const { data } = parse(blobData, { header: true });
     // const text = await fileDat;
     const grid = formatGridData(data);
-    console.log({ grid });
+    // console.log({ grid });
     setDataGrid(grid);
   };
   const handleToggle = (e) => {

@@ -72,9 +72,9 @@ export const ProjectSidebar = ({
   }, [sidebarExpanded]);
   // set projectsSidebar position on transition
   useEffect(() => {
-    console.log({ sidebarExpanded, projPosition, setFilterSidebarPosition });
+    // console.log({ sidebarExpanded, projPosition, setFilterSidebarPosition });
     setFilterSidebarPosition((prev) => {
-      console.log({ sidebar: sidebar });
+      // console.log({ sidebar: sidebar });
       if (sidebar.current !== null) {
         return {
           values: sidebar.current.getBoundingClientRect(),
@@ -121,6 +121,7 @@ export const ProjectSidebar = ({
           setSidebarExpanded={setSidebarExpanded}
         />
         <States
+          project={project}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
           handleStateChange={handleStateChange}
