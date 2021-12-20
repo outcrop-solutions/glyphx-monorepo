@@ -20,14 +20,17 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Storage } from "aws-amplify";
 import update from "immutability-helper";
+import { useStates } from "../services/useStates";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
 
 export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [grid, setGrid] = useState(false);
-  const [state, setState] = useState(null);
+  // const [state, setState] = useState(null);
+
   const [project, setProject] = useState(false);
+  const { states, state, setState, setStates } = useStates(project);
   const [filtersApplied, setFiltersApplied] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
 
@@ -242,6 +245,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     showCols={showCols}
                     setShowCols={setShowCols}
                     handleDrop={handleDrop}
+                    state={state}
+                    states={states}
+                    setState={setState}
+                    setStates={setStates}
                   />
                   <div className="w-full h-full flex">
                     <div className={`min-w-0 flex-auto overflow-auto`}>
@@ -269,6 +276,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                       )}
                     </div>
                     <CommentsSidebar
+                      state={state}
+                      states={states}
                       user={user}
                       project={project}
                       setCommentsPosition={setCommentsPosition}

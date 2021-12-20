@@ -24,6 +24,10 @@ export const ProjectSidebar = ({
   handleDrop,
   fileSystem,
   setFiles,
+  states,
+  state,
+  setState,
+  setStates,
 }) => {
   //utilities
   const trigger = useRef(null);
@@ -125,6 +129,10 @@ export const ProjectSidebar = ({
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
           handleStateChange={handleStateChange}
+          state={state}
+          states={states}
+          setState={setState}
+          setStates={setStates}
         />
       </div>
       <div className="sticky bottom-0">

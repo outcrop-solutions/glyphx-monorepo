@@ -8,13 +8,17 @@ export const States = ({
   sidebarExpanded,
   setSidebarExpanded,
   project,
+  states,
+  state,
+  setState,
+  setStates,
 }) => {
   const [open, setOpen] = useState(true);
 
   const handleClick = () => {
     setOpen(!open);
   };
-  const { states, state, setState, setStates } = useStates(project);
+
   return (
     <React.Fragment>
       <Header

@@ -8,9 +8,8 @@ export const Header = ({
   sidebarExpanded,
   open,
   project,
-  setStates
+  setStates,
 }) => {
-
   const addState = async () => {
     // if (window && window.core) {
     const createStateInput = {
@@ -28,7 +27,8 @@ export const Header = ({
         graphqlOperation(createState, { input: createStateInput })
       );
       console.log({ newState: result });
-	  setStates(result.data.createState)
+      setStates(result.data.createState);
+      handleClick();
     } catch (error) {
       console.log({ error });
     }
