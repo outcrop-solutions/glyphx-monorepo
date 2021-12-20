@@ -167,7 +167,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         .slice(3)
         .filter((item) => item.lastDroppedItem);
       if (propsArr && propsArr.length >= 3) {
-        setFull(true);
+        // setFull(true);
         const body = {
           model_id: project.id,
           x_axis: propertiesArr[0].lastDroppedItem.key,
@@ -255,32 +255,32 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                   />
                   <div className="w-full h-full flex">
                     <div className={`min-w-0 flex-auto overflow-auto`}>
-                      {full ? (
-                        <>
-                          {share ? (
-                            <Invite setShare={setShare} />
-                          ) : (
-                            <div className="overflow-x-auto flex-col mx-auto">
-                              {fileSystem && fileSystem.length ? (
-                                <Datagrid
-                                  isDropped={isDropped}
-                                  setIsEditing={setIsEditing}
-                                  dataGrid={dataGrid}
-                                  setDataGrid={setDataGrid}
-                                />
-                              ) : null}
-                            </div>
-                          )}
-                          {fileSystem && fileSystem.length ? null : (
-                            <AddFiles
+                      {/* {full ? (
+                        <> */}
+                      {share ? (
+                        <Invite setShare={setShare} />
+                      ) : (
+                        <div className="overflow-x-auto flex-col mx-auto">
+                          {fileSystem && fileSystem.length ? (
+                            <Datagrid
+                              isDropped={isDropped}
+                              setIsEditing={setIsEditing}
+                              dataGrid={dataGrid}
                               setDataGrid={setDataGrid}
-                              project={project}
-                              fileSystem={fileSystem}
-                              setFileSystem={setFiles}
                             />
-                          )}
-                        </>) : (<div className="text-3xl text-white">loading....</div>)
-                      }
+                          ) : null}
+                        </div>
+                      )}
+                      {fileSystem && fileSystem.length ? null : (
+                        <AddFiles
+                          setDataGrid={setDataGrid}
+                          project={project}
+                          fileSystem={fileSystem}
+                          setFileSystem={setFiles}
+                        />
+                      )}
+                      {/* </>) : (<div className="text-3xl text-white">loading....</div>) */}
+                      {/* } */}
                     </div>
                     <CommentsSidebar
                       state={state}
