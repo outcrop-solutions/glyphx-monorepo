@@ -31,6 +31,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   const [project, setProject] = useState(false);
   const { states, state, setState, setStates } = useStates(project);
+  useStateChange(state);
   const [filtersApplied, setFiltersApplied] = useState([]);
   const [showAddProject, setShowAddProject] = useState(false);
 

@@ -61,7 +61,7 @@ export const Header = ({
             </svg>
           </div>
         ) : (
-          <div className="flex w-10/12 items-center justify-between">
+          <div className="flex w-full items-center justify-between">
             <div className="flex items-center">
               <div className="flex flex-shrink-0 ml-2">
                 <svg
@@ -77,20 +77,21 @@ export const Header = ({
                 States
               </span>
             </div>
-            <svg
-              onClick={addState}
-              className="float-right"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M13.1429 8.85714H8.85714V13.1429C8.85714 13.6143 8.47143 14 8 14C7.52857 14 7.14286 13.6143 7.14286 13.1429V8.85714H2.85714C2.38571 8.85714 2 8.47143 2 8C2 7.52857 2.38571 7.14286 2.85714 7.14286H7.14286V2.85714C7.14286 2.38571 7.52857 2 8 2C8.47143 2 8.85714 2.38571 8.85714 2.85714V7.14286H13.1429C13.6143 7.14286 14 7.52857 14 8C14 8.47143 13.6143 8.85714 13.1429 8.85714Z"
-                fill="#595E68"
-              />
-            </svg>
+            <div className="pr-4">
+              <svg
+                onClick={addState}
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13.1429 8.85714H8.85714V13.1429C8.85714 13.6143 8.47143 14 8 14C7.52857 14 7.14286 13.6143 7.14286 13.1429V8.85714H2.85714C2.38571 8.85714 2 8.47143 2 8C2 7.52857 2.38571 7.14286 2.85714 7.14286H7.14286V2.85714C7.14286 2.38571 7.52857 2 8 2C8.47143 2 8.85714 2.38571 8.85714 2.85714V7.14286H13.1429C13.6143 7.14286 14 7.52857 14 8C14 8.47143 13.6143 8.85714 13.1429 8.85714Z"
+                  fill="#595E68"
+                />
+              </svg>
+            </div>
           </div>
         )}
       </div>

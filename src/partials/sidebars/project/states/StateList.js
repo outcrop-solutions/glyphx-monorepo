@@ -1,7 +1,6 @@
 export const StateList = ({
   open,
   states,
-  //   handleStateChange,
   setState,
   state,
 }) => {
