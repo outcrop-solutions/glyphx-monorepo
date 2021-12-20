@@ -18,7 +18,6 @@ function Header({
   setShare,
 }) {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
- 
 
   useEffect(() => {
     console.log({ project });
@@ -132,7 +131,7 @@ function Header({
                   searchModalOpen && "bg-gray-200"
                 }`}
                 onClick={(e) => {
-                  setShowAddProject(project ? true : false);
+                  setShowAddProject(true);
                 }}
                 aria-controls="search-modal"
               >
