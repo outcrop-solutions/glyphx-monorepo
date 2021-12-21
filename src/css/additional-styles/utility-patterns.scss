@@ -124,16 +124,16 @@ div[datatype="object"] {
   @apply bg-gray-800 text-white rounded-2xl text-center;
 }
 div[datatype="boolean"] {
-  @apply bg-blue-700 text-white rounded-2xl text-center w-32;
+  @apply bg-blue-700 text-white rounded-2xl text-center;
 }
 div[datatype="number"] {
-  @apply bg-green-400 text-black rounded-2xl text-center w-32;
+  @apply bg-green-400 text-black rounded-2xl text-center;
 }
 div[datatype="bigint"] {
-  @apply bg-purple-700 text-white rounded-2xl text-center w-32;
+  @apply bg-purple-700 text-white rounded-2xl text-center;
 }
 div[datatype="string"] {
-  @apply bg-lightBlue-300 text-black rounded-2xl text-center w-32;
+  @apply bg-lightBlue-300 text-black rounded-2xl text-center;
 }
 
 div[formatType="string"] {

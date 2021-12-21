@@ -1,24 +1,27 @@
-import React from "react";
-
 export const AxesIcons = ({ property }) => {
   const Icon = () => {
     switch (property) {
       case "X":
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-current">
-            <svg className="fill-current" width="16" height="16" viewBox="0 0 16 16">
+          <div className="flex items-center justify-center h-6 w-6">
+            <svg
+              className="fill-current group-hover:text-white"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+            >
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M8.99978 10.75C8.58557 10.75 8.24978 10.4142 8.24978 10V4.5C8.24978 4.08579 8.58557 3.75 8.99978 3.75C9.41399 3.75 9.74978 4.08579 9.74978 4.5V10C9.74978 10.4142 9.41399 10.75 8.99978 10.75Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M3.8413 13.371C3.6157 13.0236 3.71443 12.5591 4.06182 12.3335L8.67451 9.338C9.0219 9.1124 9.4864 9.21113 9.71199 9.55852C9.93759 9.90591 9.83886 10.3704 9.49147 10.596L4.87878 13.5915C4.53139 13.8171 4.0669 13.7184 3.8413 13.371Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M14.3413 13.379C14.1157 13.7264 13.6512 13.8251 13.3038 13.5995L8.69113 10.604C8.34374 10.3784 8.24501 9.91392 8.47061 9.56653C8.6962 9.21914 9.1607 9.12041 9.50809 9.34601L14.1208 12.3415C14.4682 12.5671 14.5669 13.0316 14.3413 13.379Z"
               />
@@ -28,20 +31,26 @@ export const AxesIcons = ({ property }) => {
         );
       case "Y":
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-current">
-            <svg className="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <div className="flex items-center justify-center h-6 w-6">
+            <svg
+              className="fill-current group-hover:text-white"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M8.99978 10.75C8.58557 10.75 8.24978 10.4142 8.24978 10V4.5C8.24978 4.08579 8.58557 3.75 8.99978 3.75C9.41399 3.75 9.74978 4.08579 9.74978 4.5V10C9.74978 10.4142 9.41399 10.75 8.99978 10.75Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M3.8413 13.371C3.6157 13.0236 3.71443 12.5591 4.06182 12.3335L8.67451 9.338C9.0219 9.1124 9.4864 9.21113 9.71199 9.55852C9.93759 9.90591 9.83886 10.3704 9.49147 10.596L4.87878 13.5915C4.53139 13.8171 4.0669 13.7184 3.8413 13.371Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M14.3413 13.379C14.1157 13.7264 13.6512 13.8251 13.3038 13.5995L8.69113 10.604C8.34374 10.3784 8.24501 9.91392 8.47061 9.56653C8.6962 9.21914 9.1607 9.12041 9.50809 9.34601L14.1208 12.3415C14.4682 12.5671 14.5669 13.0316 14.3413 13.379Z"
               />
@@ -51,20 +60,26 @@ export const AxesIcons = ({ property }) => {
         );
       case "Z":
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-current">
-            <svg className="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <div className="flex items-center justify-center h-6 w-6">
+            <svg
+              className="fill-current group-hover:text-white"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M8.99978 10.75C8.58557 10.75 8.24978 10.4142 8.24978 10V4.5C8.24978 4.08579 8.58557 3.75 8.99978 3.75C9.41399 3.75 9.74978 4.08579 9.74978 4.5V10C9.74978 10.4142 9.41399 10.75 8.99978 10.75Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M3.8413 13.371C3.6157 13.0236 3.71443 12.5591 4.06182 12.3335L8.67451 9.338C9.0219 9.1124 9.4864 9.21113 9.71199 9.55852C9.93759 9.90591 9.83886 10.3704 9.49147 10.596L4.87878 13.5915C4.53139 13.8171 4.0669 13.7184 3.8413 13.371Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M14.3413 13.379C14.1157 13.7264 13.6512 13.8251 13.3038 13.5995L8.69113 10.604C8.34374 10.3784 8.24501 9.91392 8.47061 9.56653C8.6962 9.21914 9.1607 9.12041 9.50809 9.34601L14.1208 12.3415C14.4682 12.5671 14.5669 13.0316 14.3413 13.379Z"
               />
@@ -74,20 +89,26 @@ export const AxesIcons = ({ property }) => {
         );
       default:
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-current">
-            <svg className="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <div className="flex items-center justify-center h-6 w-6">
+            <svg
+              className="fill-current group-hover:text-white"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M8.99978 10.75C8.58557 10.75 8.24978 10.4142 8.24978 10V4.5C8.24978 4.08579 8.58557 3.75 8.99978 3.75C9.41399 3.75 9.74978 4.08579 9.74978 4.5V10C9.74978 10.4142 9.41399 10.75 8.99978 10.75Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M3.8413 13.371C3.6157 13.0236 3.71443 12.5591 4.06182 12.3335L8.67451 9.338C9.0219 9.1124 9.4864 9.21113 9.71199 9.55852C9.93759 9.90591 9.83886 10.3704 9.49147 10.596L4.87878 13.5915C4.53139 13.8171 4.0669 13.7184 3.8413 13.371Z"
               />
               <path
-                fillRule="evenodd"
+                fillRule="inherit"
                 clipRule="evenodd"
                 d="M14.3413 13.379C14.1157 13.7264 13.6512 13.8251 13.3038 13.5995L8.69113 10.604C8.34374 10.3784 8.24501 9.91392 8.47061 9.56653C8.6962 9.21914 9.1607 9.12041 9.50809 9.34601L14.1208 12.3415C14.4682 12.5671 14.5669 13.0316 14.3413 13.379Z"
               />

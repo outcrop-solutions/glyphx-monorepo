@@ -62,7 +62,7 @@ export const Column = ({
           isFilter ? "border-b border-gray-500" : ""
         }`}
       >
-        <div className={`${axis === '1' ? 'mr-2' : 'mr-1'} pl-2`}>{`${axis}`}</div>
+        <div className={`${axis === '1' ? 'mr-2' : 'mr-1'} group-hover:text-white pl-2`}>{`${axis}`}</div>
         {lastDroppedItem ? (
           <Filter
             isFilter={isFilter}
@@ -70,7 +70,7 @@ export const Column = ({
             type={lastDroppedItem.dataType}
           />
         ) : (
-          <div className="ml-2 flex bg-split-gray-yellow items-center px-2 py-1 border border-gray-400 rounded-2xl">
+          <div className="ml-2 flex items-center px-2 py-1 border border-gray-400 rounded-2xl">
             <svg
               className="mr-3 fill-current text-gray-500 group-hover:text-white"
               width="12"
