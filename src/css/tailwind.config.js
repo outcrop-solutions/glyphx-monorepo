@@ -44,8 +44,10 @@ module.exports = {
         3: "3px",
       },
       backgroundImage: {
-        'split-yellow-gray': 'linear-gradient(to right, #111827 50%, transparent 50%)',
-        'split-gray-yellow': 'linear-gradient(to right, transparent 50%, #111827 50%)'
+        "split-yellow-gray":
+          "linear-gradient(to right, #111827 50%, transparent 50%)",
+        "split-gray-yellow":
+          "linear-gradient(to right, transparent 50%, #111827 50%)",
       },
       minWidth: {
         36: "9rem",
@@ -54,6 +56,9 @@ module.exports = {
         60: "15rem",
         72: "18rem",
         80: "20rem",
+      },
+      width: {
+        56: "14rem"
       },
       maxWidth: {
         "8xl": "88rem",
@@ -66,6 +71,7 @@ module.exports = {
   },
   variants: {
     scrollbar: ["rounded"],
+    opacity: ["group-hover"],
   },
   plugins: [
     // eslint-disable-next-line global-require

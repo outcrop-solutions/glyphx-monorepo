@@ -124,23 +124,23 @@ div[datatype="object"] {
   @apply bg-gray-800 text-white rounded-2xl text-center;
 }
 div[datatype="boolean"] {
-  @apply bg-blue-700 text-white rounded-2xl text-center;
+  @apply bg-blue-700 text-white rounded-2xl text-center w-32;
 }
 div[datatype="number"] {
-  @apply bg-green-400 text-black rounded-2xl text-center;
+  @apply bg-green-400 text-black rounded-2xl text-center w-32;
 }
 div[datatype="bigint"] {
-  @apply bg-purple-700 text-white rounded-2xl text-center;
+  @apply bg-purple-700 text-white rounded-2xl text-center w-32;
 }
 div[datatype="string"] {
-  @apply bg-lightBlue-300 text-black rounded-2xl text-center;
+  @apply bg-lightBlue-300 text-black rounded-2xl text-center w-32;
 }
 
 div[formatType="string"] {
-  @apply bg-lightBlue-300 text-black rounded-2xl text-center;
+  @apply bg-lightBlue-300 text-black rounded-2xl text-center w-32;
 }
 div[formatType="number"] {
-  @apply bg-green-400 text-black rounded-2xl text-center;
+  @apply bg-green-400 text-black rounded-2xl text-center w-32;
 }
 
 // .rdg-cell {

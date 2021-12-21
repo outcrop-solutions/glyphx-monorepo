@@ -166,6 +166,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       let filterArr = propertiesArr
         .slice(3)
         .filter((item) => item.lastDroppedItem);
+      console.log({ propsArr });
       if (propsArr && propsArr.length >= 3) {
         // setFull(true);
         const body = {
@@ -175,18 +176,18 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           z_axis: propertiesArr[2].lastDroppedItem.key,
           filters: filterArr,
         };
-        window.core.ToggleDrawer(false);
+        // window.core.ToggleDrawer(false);
         console.log({ body });
         // let signedUrl = await Storage.get("mcgee_sku_model.zip");
         // console.log({ signedUrl });
-        if (project && window && window.core) {
+        // if (project && window && window.core) {
           let response = await fetch(
             "https://vkepitqt88.execute-api.us-east-1.amazonaws.com/Prod/etl/model",
-            { method: "POST", body: JSON.stringify(body) }
+            { method: "POST", mode: 'no-cors', body: JSON.stringify(body) }
           );
           console.log({ response });
-          window.core.OpenProject(JSON.stringify(response));
-        }
+          // window.core.OpenProject(JSON.stringify(response));
+        // }
       } else {
         setFull(false);
       }
