@@ -21,7 +21,6 @@ export const formatGridData = (data) => {
   //   return null;
   // });
   let cols = colNames.map((item, idx) => {
- 
     const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {
       key: item,
@@ -46,6 +45,8 @@ export const Dropzone = ({
   setFileSystem,
   project,
   setDataGrid,
+  uploaded,
+  setUploaded,
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -82,6 +83,14 @@ export const Dropzone = ({
           console.log({ project });
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
+              if (progress.loaded / progress.total === 1) {
+                setUploaded(true);
+                console.log("upload complete");
+              } else {
+                console.log("upload incomplete");
+
+                setUploaded(false);
+              }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
           });
@@ -115,7 +124,9 @@ export const Dropzone = ({
         </div>
       ) : (
         <div className="text-xs cursor-pointer">
-          <span className="text-gray-500 hover:text-gray-300 ">Add files here...</span>
+          <span className="text-gray-500 hover:text-gray-300 ">
+            Add files here...
+          </span>
         </div>
       )}
     </div>

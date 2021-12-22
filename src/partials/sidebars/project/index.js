@@ -29,6 +29,8 @@ export const ProjectSidebar = ({
   state,
   setState,
   setStates,
+  uploaded,
+  setUploaded,
 }) => {
   //utilities
   const trigger = useRef(null);
@@ -99,6 +101,8 @@ export const ProjectSidebar = ({
         {/* Files */}
 
         <Files
+          uploaded={uploaded}
+          setUploaded={setUploaded}
           fileSystem={fileSystem}
           setFiles={setFiles}
           setDataGrid={setDataGrid}

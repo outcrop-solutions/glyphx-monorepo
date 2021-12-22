@@ -13,13 +13,7 @@ export const GridView = ({
 }) => {
 	return (
 		<>
-			{showAddProject ? (
-				<AddProjectModal
-					user={user}
-					setShowAddProject={setShowAddProject}
-					fetchProjects={fetchProjects}
-				/>
-			) : null}
+			
 
 			{/* Page header */}
 			<div className='sm:flex sm:justify-between sm:items-center mb-8'>

@@ -38,7 +38,7 @@ function DropdownHelp({ align }) {
 			<button
 				ref={trigger}
 				className={
-					'flex items-center justify-center hover:bg-gray-200 transition duration-150 rounded-full'
+					'flex items-center justify-center hover:bg-gray-800 transition duration-150 rounded-full'
 				}
 				aria-haspopup='true'
 				onClick={() => setDropdownOpen(!dropdownOpen)}

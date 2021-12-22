@@ -13,14 +13,16 @@ export const Files = ({
   setSidebarExpanded,
   project,
   fileSystem,
-  setFiles
+  setFiles,
+  uploaded,
+  setUploaded,
 }) => {
   const [open, setOpen] = useState(true);
 
   const handleClick = () => {
     setOpen(!open);
   };
- 
+
   //   const [files, setFiles] = useState(fileSystem ? fileSystem : []);
   //   const [length, setLength] = useState(fileSystem ? fileSystem.length : 0);
 
@@ -73,6 +75,8 @@ export const Files = ({
             />
           ) : null}
           <Dropzone
+            uploaded={uploaded}
+            setUploaded={setUploaded}
             setDataGrid={setDataGrid}
             project={project}
             fileSystem={fileSystem}

@@ -9,6 +9,7 @@ export const getProject = /* GraphQL */ `
       description
       filePath
       author
+      shared
       states {
         items {
           id
@@ -61,6 +62,7 @@ export const listProjects = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -91,6 +93,7 @@ export const getState = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -148,6 +151,7 @@ export const listStates = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -178,6 +182,7 @@ export const getColumn = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -224,6 +229,7 @@ export const listColumns = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -249,6 +255,7 @@ export const getFilter = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -303,6 +310,7 @@ export const listFilters = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -337,6 +345,7 @@ export const getComment = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -404,6 +413,7 @@ export const searchProjects = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -448,6 +458,7 @@ export const searchStates = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -492,6 +503,7 @@ export const searchColumns = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -531,6 +543,7 @@ export const searchFilters = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }

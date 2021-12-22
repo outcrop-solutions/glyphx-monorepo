@@ -19,7 +19,6 @@ import ResetPassword from "./pages/ResetPassword";
 import { useUser } from "./services/useUser";
 import { useProjects } from "./services/useProjects";
 import Amplify from "aws-amplify";
-import { NewProject } from "./partials/modals/newProject";
 
 // TODO: set api key in environment variable
 posthog.init("phc_flrvuYtat2QJ6aSiiWeuBZq69U3M3EmXKVLprmvZPIS", {

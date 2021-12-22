@@ -10,6 +10,8 @@ export const AddFiles = ({
   setFileSystem,
   project,
   setDataGrid,
+  uploaded,
+  setUploaded,
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -46,6 +48,14 @@ export const AddFiles = ({
           console.log({ project });
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
+              if (progress.loaded / progress.total === 1) {
+                setUploaded(true);
+                console.log("upload complete");
+              } else {
+                console.log("upload incomplete");
+
+                setUploaded(false);
+              }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
           });

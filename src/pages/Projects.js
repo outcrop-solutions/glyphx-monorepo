@@ -21,7 +21,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Storage } from "aws-amplify";
 import update from "immutability-helper";
 import { useStates } from "../services/useStates";
-import { NewProject } from "../partials/modals/newProject";
+import { AddProjectModal } from "../partials/projects/AddProjectModal";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -156,6 +156,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   );
 
   const [full, setFull] = useState(false);
+  const [uploaded, setUploaded] = useState(false);
+
   // listen to properties array drops and call ETL on XYZ full
   useEffect(() => {
     // check if xyz are populated
@@ -168,7 +170,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         .slice(3)
         .filter((item) => item.lastDroppedItem);
       console.log({ propsArr });
-      if (propsArr && propsArr.length >= 3) {
+      if (propsArr && propsArr.length >= 3 && uploaded) {
         // setFull(true);
         const body = {
           model_id: project.id,
@@ -195,7 +197,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     };
 
     handleETL();
-  }, [propertiesArr, project]);
+  }, [propertiesArr, project, uploaded]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
@@ -203,6 +205,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
+      {showAddProject ? (
+        <AddProjectModal user={user} setShowAddProject={setShowAddProject} />
+      ) : null}
+
       {/* Sidebar */}
       <MainSidebar
         project={project}
@@ -234,6 +240,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
               <>
                 <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
+                    uploaded={uploaded}
+                    setUploaded={setUploaded}
                     fileSystem={fileSystem}
                     setFiles={setFiles}
                     setDataGrid={setDataGrid}
@@ -275,6 +283,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                       )}
                       {fileSystem && fileSystem.length ? null : (
                         <AddFiles
+                          uploaded={uploaded}
+                          setUploaded={setUploaded}
                           setDataGrid={setDataGrid}
                           project={project}
                           fileSystem={fileSystem}

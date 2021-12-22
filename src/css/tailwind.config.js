@@ -77,7 +77,7 @@ module.exports = {
   },
   variants: {
     scrollbar: ["rounded"],
-    opacity: ["group-hover"],
+    opacity: ["group-hover", "bg"],
   },
   plugins: [
     // eslint-disable-next-line global-require

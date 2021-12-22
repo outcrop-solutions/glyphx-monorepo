@@ -9,6 +9,7 @@ export const onCreateProject = /* GraphQL */ `
       description
       filePath
       author
+      shared
       states {
         items {
           id
@@ -56,6 +57,7 @@ export const onUpdateProject = /* GraphQL */ `
       description
       filePath
       author
+      shared
       states {
         items {
           id
@@ -103,6 +105,7 @@ export const onDeleteProject = /* GraphQL */ `
       description
       filePath
       author
+      shared
       states {
         items {
           id
@@ -156,6 +159,7 @@ export const onCreateState = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -208,6 +212,7 @@ export const onUpdateState = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -260,6 +265,7 @@ export const onDeleteState = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -316,6 +322,7 @@ export const onCreateStateFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -338,6 +345,7 @@ export const onCreateStateFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -373,6 +381,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -395,6 +404,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -430,6 +440,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -452,6 +463,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -487,6 +499,7 @@ export const onCreateColumnFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -506,6 +519,7 @@ export const onCreateColumnFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -541,6 +555,7 @@ export const onUpdateColumnFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -560,6 +575,7 @@ export const onUpdateColumnFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -595,6 +611,7 @@ export const onDeleteColumnFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -614,6 +631,7 @@ export const onDeleteColumnFilter = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -645,6 +663,7 @@ export const onCreateColumn = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -686,6 +705,7 @@ export const onUpdateColumn = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -727,6 +747,7 @@ export const onDeleteColumn = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -766,6 +787,7 @@ export const onCreateFilter = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -815,6 +837,7 @@ export const onUpdateFilter = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -864,6 +887,7 @@ export const onDeleteFilter = /* GraphQL */ `
         description
         filePath
         author
+        shared
         states {
           nextToken
         }
@@ -919,6 +943,7 @@ export const onCreateComment = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -955,6 +980,7 @@ export const onUpdateComment = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }
@@ -991,6 +1017,7 @@ export const onDeleteComment = /* GraphQL */ `
           description
           filePath
           author
+          shared
           createdAt
           updatedAt
         }

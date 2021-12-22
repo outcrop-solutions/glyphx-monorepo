@@ -8,6 +8,7 @@ type Project
 	description: String!
 	filePath: String
 	author: String!
+	shared: [String]
 	states: [State] @connection(keyName: "byProject", fields: ["id"])
 	filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
 	columns: [Column] @connection(keyName: "byProject", fields: ["id"])
