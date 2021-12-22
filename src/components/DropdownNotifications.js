@@ -59,7 +59,7 @@ function DropdownNotifications({ align, grid, setGrid }) {
 			</button>
 
 			<Transition
-				className={`origin-top-right absolute top-full -mr-48 sm:mr-0 min-w-80 border bg-gray-900 border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+				className={`origin-top-right absolute top-full -mr-48 sm:mr-0 min-w-80 border bg-primary-dark-blue border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
 					align === 'right' ? 'right-0' : 'left-0'
 				}`}
 				show={dropdownOpen}
@@ -70,15 +70,15 @@ function DropdownNotifications({ align, grid, setGrid }) {
 				leaveStart='opacity-100'
 				leaveEnd='opacity-0'>
 				<div
-					className='bg-gray-900'
+					className='bg-primary-dark-blue'
 					ref={dropdown}
 					onFocus={() => setDropdownOpen(true)}
 					onBlur={() => setDropdownOpen(false)}>
-					<div className='text-xs bg-gray-900 font-semibold text-gray-400 uppercase pt-1.5 pb-2 px-4'>
+					<div className='text-xs bg-primary-dark-blue font-semibold text-gray-400 uppercase pt-1.5 pb-2 px-4'>
 						Notifications
 					</div>
 					<ul>
-						<li className='border-b bg-gray-900 z-60 border-gray-200 last:border-0'>
+						<li className='border-b bg-primary-dark-blue z-60 border-gray-200 last:border-0'>
 							<Link
 								className='block py-2 px-4 hover:bg-gray-500'
 								to='#0'

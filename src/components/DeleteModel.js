@@ -58,7 +58,7 @@ function DeleteModel({ align, grid, setGrid }) {
 			</button>
 
 			<Transition
-				className={`origin-top-right z-60 absolute top-full -mr-48 sm:mr-0 min-w-80 bg-gray-900 border border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+				className={`origin-top-right z-60 absolute top-full -mr-48 sm:mr-0 min-w-80 bg-primary-dark-blue border border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
 					align === 'right' ? 'right-0' : 'left-0'
 				}`}
 				show={dropdownOpen}
@@ -72,7 +72,7 @@ function DeleteModel({ align, grid, setGrid }) {
 					ref={dropdown}
 					onFocus={() => setDropdownOpen(true)}
 					onBlur={() => setDropdownOpen(false)}>
-					<div className='text-xs font-semibold text-gray-400 bg-gray-900 uppercase pt-1.5 pb-2 px-4'>
+					<div className='text-xs font-semibold text-gray-400 bg-primary-dark-blue uppercase pt-1.5 pb-2 px-4'>
 						Are you sure you want to delete your model?
 					</div>
 				</div>

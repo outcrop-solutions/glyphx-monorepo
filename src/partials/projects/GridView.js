@@ -33,7 +33,7 @@ export const GridView = ({
 
 			{/* Cards */}
 			<div className='grid grid-cols-12 gap-6'>
-				<AddProject setShowAddProject={setShowAddProject} />
+				{/* <AddProject setShowAddProject={setShowAddProject} /> */}
 				{projects.map((item, idx) => {
 					return (
 						<ProjectCard

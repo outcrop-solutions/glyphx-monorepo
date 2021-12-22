@@ -77,7 +77,7 @@ export const UserMenu = ({ align, user, setIsLoggedIn }) => {
       </button>
 
       <Transition
-        className={`origin-top-right z-10 absolute top-full min-w-2/3 bg-gray-900 border border-gray-800 py-1.5 rounded shadow-lg overflow-hidden mt-1 -right-4`}
+        className={`origin-top-right z-10 absolute top-full min-w-2/3 bg-primary-dark-blue border border-gray-800 py-1.5 rounded shadow-lg overflow-hidden mt-1 -right-4`}
         show={dropdownOpen}
         enter="transition ease-out duration-200 transform"
         enterStart="opacity-0 -translate-y-2"

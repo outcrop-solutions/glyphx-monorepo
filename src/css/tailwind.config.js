@@ -5,6 +5,11 @@ module.exports = {
   mode: "jit",
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   theme: {
+    gradientColorStops: theme => ({
+      ...theme('colors'),
+      'primary': '#0D1321',
+      'secondary': '#151C2D',
+     }),
     extend: {
       boxShadow: {
         DEFAULT:
@@ -20,6 +25,7 @@ module.exports = {
         "light-blue": colors.sky,
         "primary-yellow": "#FFC00",
         "primary-dark-blue": "#0D1321",
+        "secondary-dark-blue": "#151C2D",
         red: colors.rose,
       },
       fontFamily: {

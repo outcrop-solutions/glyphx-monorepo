@@ -34,7 +34,7 @@ function ModalBlank({
     <>
       {/* Modal backdrop */}
       <Transition
-        className="fixed inset-0 bg-gray-900 bg-opacity-30 z-50 transition-opacity"
+        className="fixed inset-0 bg-primary-dark-blue bg-opacity-30 z-50 transition-opacity"
         show={modalOpen}
         enter="transition ease-out duration-200"
         enterStart="opacity-0"

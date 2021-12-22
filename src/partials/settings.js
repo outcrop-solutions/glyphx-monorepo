@@ -118,7 +118,7 @@ export const Settings = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-          <main className="flex-1 flex bg-gray-900 overflow-hidden">
+          <main className="flex-1 flex bg-primary-dark-blue overflow-hidden">
             <div className="flex-1 flex flex-col overflow-y-auto xl:overflow-hidden">
               {/* Breadcrumb */}
               <nav
@@ -143,7 +143,7 @@ export const Settings = () => {
                 {/* Secondary sidebar */}
                 <nav
                   aria-label="Sections"
-                  className="hidden flex-shrink-0 w-96 bg-gray-900 border-r border-blue-gray-800 xl:flex xl:flex-col"
+                  className="hidden flex-shrink-0 w-96 bg-primary-dark-blue border-r border-blue-gray-800 xl:flex xl:flex-col"
                 >
                   <div className="flex-shrink-0 h-16 px-6 border-b border-blue-gray-800 flex items-center">
                     <p className="text-lg font-medium text-white">
@@ -267,7 +267,7 @@ export const Settings = () => {
                               alt=""
                             />
                             <div className="ml-4 flex">
-                              <div className="relative bg-gray-900 py-2 px-3 border border-blue-gray-300 rounded-md shadow-sm flex items-center cursor-pointer hover:bg-blue-gray-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-blue-gray-50 focus-within:ring-blue-500">
+                              <div className="relative bg-primary-dark-blue py-2 px-3 border border-blue-gray-300 rounded-md shadow-sm flex items-center cursor-pointer hover:bg-blue-gray-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-blue-gray-50 focus-within:ring-blue-500">
                                 <label
                                   htmlFor="user-photo"
                                   className="relative text-sm font-medium text-white pointer-events-none"
@@ -420,7 +420,7 @@ export const Settings = () => {
                       <div className="pt-8 flex justify-end">
                         <button
                           type="button"
-                          className="bg-gray-900 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          className="bg-primary-dark-blue py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                           Cancel
                         </button>

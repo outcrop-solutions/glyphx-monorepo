@@ -42,7 +42,7 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
 	}
 
 	return (
-		<main className='bg-gray-900'>
+		<main className='bg-primary-dark-blue'>
 			<div className='relative md:flex'>
 				{/* Content */}
 				<div className='w-full'>
@@ -64,7 +64,7 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
 												id='code'
 												value={code}
 												onChange={handleCode}
-												className='form-input w-full bg-gray-900 focus:bg-gray-900 border-gray-400 focus:border-0'
+												className='form-input w-full bg-primary-dark-blue focus:bg-primary-dark-blue border-gray-400 focus:border-0'
 												type='number'
 											/>
 										</div>
@@ -76,7 +76,7 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
 												id='password'
 												value={newPass}
 												onChange={handleNewPass}
-												className='form-input w-full bg-gray-900 focus:bg-gray-900 border-gray-400 focus:border-0'
+												className='form-input w-full bg-primary-dark-blue focus:bg-primary-dark-blue border-gray-400 focus:border-0'
 												type='password'
 											/>
 										</div>
@@ -113,7 +113,7 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
 												id='email'
 												value={email}
 												onChange={handleEmail}
-												className='form-input w-full bg-gray-900 focus:bg-gray-900 border-gray-400 focus:border-0'
+												className='form-input w-full bg-primary-dark-blue focus:bg-primary-dark-blue border-gray-400 focus:border-0'
 												type='email'
 											/>
 										</div>

@@ -16,7 +16,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
   return (
     <li
       ref={drop}
-      className="py-2 pl-2 group last:mb-0 flex items-center border-b border-gray-500"
+      className="py-2 pl-2 group last:mb-0 flex items-center"
     >
       <AxesIcons property={axis} />
       {isActive ? (

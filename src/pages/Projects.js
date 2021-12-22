@@ -21,6 +21,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Storage } from "aws-amplify";
 import update from "immutability-helper";
 import { useStates } from "../services/useStates";
+import { NewProject } from "../partials/modals/newProject";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -181,12 +182,12 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         // let signedUrl = await Storage.get("mcgee_sku_model.zip");
         // console.log({ signedUrl });
         // if (project && window && window.core) {
-          let response = await fetch(
-            "https://vkepitqt88.execute-api.us-east-1.amazonaws.com/Prod/etl/model",
-            { method: "POST", mode: 'no-cors', body: JSON.stringify(body) }
-          );
-          console.log({ response });
-          // window.core.OpenProject(JSON.stringify(response));
+        let response = await fetch(
+          "https://vkepitqt88.execute-api.us-east-1.amazonaws.com/Prod/etl/model",
+          { method: "POST", mode: "no-cors", body: JSON.stringify(body) }
+        );
+        console.log({ response });
+        // window.core.OpenProject(JSON.stringify(response));
         // }
       } else {
         setFull(false);
@@ -201,7 +202,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const { fileSystem, setFiles } = useFileSystem(project);
 
   return (
-    <div className="flex h-screen overflow-hidden scrollbar-none bg-gray-900">
+    <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       {/* Sidebar */}
       <MainSidebar
         project={project}
@@ -213,7 +214,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       />
 
       {/* Content area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none overflow-x-hidden">
+      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none overflow-x-hidden bg-primary-dark-blue">
         {/*  Site header */}
         <Header
           project={project}
@@ -255,7 +256,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     setStates={setStates}
                   />
                   <div className="w-full h-full flex">
-                    <div className={`min-w-0 flex-auto overflow-auto`}>
+                    <div className="min-w-0 flex-auto overflow-auto w-full">
                       {/* {full ? (
                         <> */}
                       {share ? (
@@ -294,9 +295,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                 </DndProvider>
               </>
             ) : (
-              <>
-                {false ? (
-                  <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+              <div className="w-full">
+                {projects && projects.length > 0 ? (
+                  <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
                     {grid ? (
                       <TableView
                         user={user}
@@ -316,7 +317,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                 ) : (
                   <Templates setProject={setProject} user={user} />
                 )}
-              </>
+              </div>
             )}
           </div>
         </main>

@@ -7,7 +7,7 @@ import Image03 from '../../images/user-28-03.jpg'
 export const TableView = ({ user, projects, setProject, fetchProjects }) => {
 	return (
 		<div className='text-white rounded-sm'>
-			<div className='p-3'>
+			<div className='px-1'>
 				{/* Table */}
 				<div className='overflow-x-auto'>
 					<table className='table-auto w-full'>

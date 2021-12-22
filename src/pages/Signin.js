@@ -29,7 +29,7 @@ function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
 		}
 	}
 	return (
-		<main className='bg-gray-900'>
+		<main className='bg-primary-dark-blue'>
 			<div className='relative md:flex'>
 				{/* Content */}
 				<div className='w-full'>
@@ -51,7 +51,7 @@ function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
 											id='email'
 											value={username}
 											onChange={handleUname}
-											className='form-input w-full bg-gray-900 border-gray-400 text-white focus:border-0'
+											className='form-input w-full bg-primary-dark-blue border-gray-400 text-white focus:border-0'
 											type='email'
 										/>
 									</div>
@@ -65,7 +65,7 @@ function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
 											value={password}
 											onChange={handlePass}
 											id='password'
-											className='form-input w-full bg-gray-900 border-gray-400 focus:border-opacity-0 focus:ring-transparent text-white'
+											className='form-input w-full bg-primary-dark-blue border-gray-400 focus:border-opacity-0 focus:ring-transparent text-white'
 											type='password'
 											autoComplete='on'
 										/>

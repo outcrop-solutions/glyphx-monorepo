@@ -5,7 +5,7 @@ import PermissionsDropDown from './PermissionsDropDown'
 
 export const Invite = ({ setShare }) => {
 	return (
-		<div className='flex-none mt-20 justify-center h-screen items-center antialiased bg-gray-900'>
+		<div className='flex-none mt-20 justify-center h-screen items-center antialiased bg-primary-dark-blue'>
 			<div className='flex flex-col w-96 max-w-2xl rounded-lg border border-gray-300 shadow-xl py-4 px-5 mx-auto'>
 				<div className='flex flex-row justify-between mb-4'>
 					<p className='font-semibold text-white'>Invite</p>
@@ -21,7 +21,7 @@ export const Invite = ({ setShare }) => {
 						<path
 							stroke-linecap='round'
 							stroke-linejoin='round'
-							stroke-width='2'
+							strokeWidth='2'
 							d='M6 18L18 6M6 6l12 12'></path>
 					</svg>
 				</div>
@@ -30,7 +30,7 @@ export const Invite = ({ setShare }) => {
 						type='text'
 						name=''
 						placeholder='Email, comma separated...'
-						className='bg-gray-900 border border-gray-400 rounded shadow-sm h-12'
+						className='bg-primary-dark-blue border border-gray-400 rounded shadow-sm h-12'
 						id=''
 					/>
 					<div className='flex items-center pt-3 pb-1'>

@@ -60,7 +60,7 @@ function PermissionsDropDown({ align }) {
 			</button>
 
 			<Transition
-				className={`origin-top-right z-10 absolute top-full min-w-44 bg-gray-900 border border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+				className={`origin-top-right z-10 absolute top-full min-w-44 bg-primary-dark-blue border border-gray-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
 					align === 'right' ? 'right-0' : 'left-0'
 				}`}
 				show={dropdownOpen}

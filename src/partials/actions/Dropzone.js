@@ -115,7 +115,7 @@ export const Dropzone = ({
         </div>
       ) : (
         <div className="text-xs cursor-pointer">
-          <span className="text-gray-500 hover:text-gray-300 ">+ Files...</span>
+          <span className="text-gray-500 hover:text-gray-300 ">Add files here...</span>
         </div>
       )}
     </div>

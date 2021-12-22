@@ -24,7 +24,7 @@ function Header({
   }, [project]);
   return (
     <header
-      className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-gray-900 max-h-16 ${
+      className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-primary-dark-blue max-h-16 ${
         project ? "ml-0" : "mx-6"
       }`}
     >
@@ -148,7 +148,7 @@ function Header({
                   />
                 </svg>
 
-                <b className="text-gray-800 text-xs ml-1">New</b>
+                <b className="text-gray-800 text-sm ml-2">New</b>
               </button>
             )}
             {!project && (
