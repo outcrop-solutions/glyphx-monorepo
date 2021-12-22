@@ -50,7 +50,7 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
                 <nav className="space-y-1">
                   <div className="cursor-pointer border-b mb-4 border-white text-white hover:text-white hover:bg-gray-800 group px-3 py-2 flex items-center text-sm font-bold">
                     <ArrowLeftIcon
-                      className="text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
+                      className="text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 h-8 w-6"
                       aria-hidden="true"
                     />
                     <span className="text-xs truncate">Back to Dashboard</span>
@@ -102,18 +102,19 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
                         <h3 className="text-2xl font-extralight leading-6 text-white">
                           {current === 0 ? "Create Model" : "Template Library"}
                         </h3>
-                        {current === 0 ? (
-                          <div className="py-3 text-right sm:px-6">
+
+                        <div className="py-3 text-right sm:px-6">
+                          {current === 0 ? (
                             <button
                               onClick={handleSave}
                               className="bg-yellow-500 border border-transparent rounded-full shadow-sm py-1 px-4 inline-flex justify-center text-sm font-medium text-gray-900 hover:bg-yellow-700"
                             >
                               Create
                             </button>
-                          </div>
-                        ) : (
-                          <div className="h-8"></div>
-                        )}
+                          ) : (
+                            <div className="h-8"></div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-3 gap-6">
@@ -233,7 +234,7 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
                               className="mt-1 rounded-sm block w-full border-px bg-gray-800 border-gray-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                           ) : (
-                            <div className="flex items-center justify-evenly border-b border-gray-50 py-2">
+                            <div className="flex items-center border-b border-gray-50 py-2">
                               <svg
                                 width="32"
                                 height="32"
@@ -281,7 +282,7 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
                               />
                             </div>
                           ) : (
-                            <div className="flex items-center justify-evenly border-b border-gray-50 py-2">
+                            <div className="flex items-center border-b border-gray-50 py-2">
                               <svg
                                 width="32"
                                 height="32"

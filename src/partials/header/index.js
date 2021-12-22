@@ -148,7 +148,7 @@ function Header({
                   />
                 </svg>
 
-                <b className="text-gray-800 text-sm ml-2">New</b>
+                <b className="text-gray-800 text-sm mx-2">New</b>
               </button>
             )}
             {!project && (
