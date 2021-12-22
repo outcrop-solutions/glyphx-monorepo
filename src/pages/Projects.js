@@ -206,7 +206,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
-        <AddProjectModal user={user} setShowAddProject={setShowAddProject} />
+        <AddProjectModal user={user} setShowAddProject={setShowAddProject} setProject={setProject} />
       ) : null}
 
       {/* Sidebar */}

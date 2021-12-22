@@ -10,7 +10,7 @@ import { v4 as uuid } from "uuid";
 import { createProject } from "../../graphql/mutations";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 
-export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
+export const AddProjectModal = ({ user, setShowAddProject, setProject }) => {
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -30,7 +30,8 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
       );
       console.log({ result });
       setShowAddProject(false);
-      fetchProjects();
+      setProject(result.data.createProject);
+      // fetchProjects();
     } catch (error) {
       console.log({ error });
     }
@@ -134,7 +135,7 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
                               placeholder="Untitled Project"
                               value={name}
                               onChange={(e) => setName(e.target.value)}
-                              className="mt-1 rounded-sm block w-full border-px bg-gray-800 border-gray-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              className="mt-1 rounded-sm text-white block w-full border-px bg-gray-800 border-gray-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                           ) : (
                             <div className="flex items-center justify-between border-b border-gray-50 py-2">
@@ -276,7 +277,7 @@ export const AddProjectModal = ({ user, setShowAddProject, fetchProjects }) => {
                                 rows={3}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="shadow-sm bg-gray-800 focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-500 rounded-sm"
+                                className="shadow-sm bg-gray-800 text-white focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-500 rounded-sm"
                                 placeholder="Type note here"
                                 defaultValue={""}
                               />
