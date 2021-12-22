@@ -13,6 +13,8 @@ import { useStateChange } from "../services/useStateChange";
 import { useFileSystem } from "../services/useFileSystem";
 import { useFilterChange } from "../services/useFilterChange";
 import { Datagrid } from "../partials/datagrid";
+import { FileHeader } from "../partials/datagrid/FileHeader";
+import { ModelFooter } from "../partials/datagrid/ModelFooter";
 import { AddFiles } from "../partials/addFiles.js";
 import { Templates } from "../partials/projects/Templates";
 import { Invite } from "../partials/invite";
@@ -201,12 +203,18 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
+  const [sdt, setSdt] = useState("Hello");
+  const [filesOpen, setFilesOpen] = useState(["Mcgee and co - Sheet1.csv"]);
   const { fileSystem, setFiles } = useFileSystem(project);
 
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
-        <AddProjectModal user={user} setShowAddProject={setShowAddProject} setProject={setProject} />
+        <AddProjectModal
+          user={user}
+          setShowAddProject={setShowAddProject}
+          setProject={setProject}
+        />
       ) : null}
 
       {/* Sidebar */}
@@ -244,6 +252,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     setUploaded={setUploaded}
                     fileSystem={fileSystem}
                     setFiles={setFiles}
+                    filesOpen={filesOpen}
+                    setFilesOpen={setFilesOpen}
                     setDataGrid={setDataGrid}
                     setFilterSidebarPosition={setFilterSidebarPosition}
                     sidebarOpen={sidebarOpen}
@@ -271,6 +281,11 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         <Invite setShare={setShare} />
                       ) : (
                         <div className="overflow-x-auto flex-col mx-auto">
+                          <FileHeader
+                            fileSystem={fileSystem}
+                            filesOpen={filesOpen}
+                            setFilesOpen={setFilesOpen}
+                          />
                           {fileSystem && fileSystem.length ? (
                             <Datagrid
                               isDropped={isDropped}
@@ -279,6 +294,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                               setDataGrid={setDataGrid}
                             />
                           ) : null}
+                          <ModelFooter sdt={sdt} />
                         </div>
                       )}
                       {fileSystem && fileSystem.length ? null : (

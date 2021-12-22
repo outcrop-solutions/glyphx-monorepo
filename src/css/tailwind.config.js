@@ -5,11 +5,11 @@ module.exports = {
   mode: "jit",
   purge: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
   theme: {
-    gradientColorStops: theme => ({
-      ...theme('colors'),
-      'primary': '#0D1321',
-      'secondary': '#151C2D',
-     }),
+    gradientColorStops: (theme) => ({
+      ...theme("colors"),
+      primary: "#0D1321",
+      secondary: "#151C2D",
+    }),
     extend: {
       boxShadow: {
         DEFAULT:
@@ -64,7 +64,7 @@ module.exports = {
         80: "20rem",
       },
       width: {
-        56: "14rem"
+        56: "14rem",
       },
       maxWidth: {
         "8xl": "88rem",
@@ -78,6 +78,7 @@ module.exports = {
   variants: {
     scrollbar: ["rounded"],
     opacity: ["group-hover", "bg"],
+    bg: ["group-hover"],
   },
   plugins: [
     // eslint-disable-next-line global-require

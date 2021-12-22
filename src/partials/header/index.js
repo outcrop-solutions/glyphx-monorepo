@@ -104,7 +104,7 @@ function Header({
                   searchModalOpen && "bg-gray-200"
                 }`}
                 onClick={(e) => {
-                  setShowAddProject(project ? true : false);
+                  // setShowAddProject(project ? true : false);
                   setShare(true);
                 }}
                 aria-controls="search-modal"

@@ -51,7 +51,7 @@
 
 
 div[role="columnheader"] {
-  @apply border-0 bg-gray-800;
+  @apply border-0 bg-secondary-dark-blue;
 }
 div[role="grid"] {
   @apply bg-primary-dark-blue max-h-full h-screen scrollbar-thin scrollbar-track-transparent scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full;
@@ -65,7 +65,7 @@ div[role="gridcell"] {
 }
 
 div[aria-colindex="1"] {
-  @apply bg-gray-800
+  @apply bg-secondary-dark-blue
 }
 
 .rdg-header-row {

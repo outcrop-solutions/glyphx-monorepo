@@ -20,11 +20,11 @@ export const ProjectSidebar = ({
   filtersApplied,
   setFiltersApplied,
   handleStateChange,
-  showCols,
-  setShowCols,
   handleDrop,
   fileSystem,
   setFiles,
+  filesOpen,
+  setFilesOpen,
   states,
   state,
   setState,
@@ -105,6 +105,8 @@ export const ProjectSidebar = ({
           setUploaded={setUploaded}
           fileSystem={fileSystem}
           setFiles={setFiles}
+          filesOpen={filesOpen}
+          setFilesOpen={setFilesOpen}
           setDataGrid={setDataGrid}
           project={project}
           sidebarExpanded={sidebarExpanded}

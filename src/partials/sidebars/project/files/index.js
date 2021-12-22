@@ -14,6 +14,8 @@ export const Files = ({
   project,
   fileSystem,
   setFiles,
+  filesOpen,
+  setFilesOpen,
   uploaded,
   setUploaded,
 }) => {
@@ -22,14 +24,6 @@ export const Files = ({
   const handleClick = () => {
     setOpen(!open);
   };
-
-  //   const [files, setFiles] = useState(fileSystem ? fileSystem : []);
-  //   const [length, setLength] = useState(fileSystem ? fileSystem.length : 0);
-
-  //   useEffect(() => {
-  //     setLength(Object.keys(fileSystem).length);
-  //     setFiles(fileSystem);
-  //   }, [fileSystem]);
 
   const handleDrop = (newTree) => setFiles(newTree);
   return (
@@ -47,7 +41,7 @@ export const Files = ({
             : "border-b border-gray-400"
         }`}
       >
-        <div className={`pl-2 ${!open && "hidden"}`}>
+        <div className={`${!open && "hidden"}`}>
           {fileSystem && fileSystem.length > 0 ? (
             <Tree
               initialOpen={true}
@@ -57,6 +51,8 @@ export const Files = ({
                 <CustomNode
                   project={project}
                   setDataGrid={setDataGrid}
+                  filesOpen={filesOpen}
+                  setFilesOpen={setFilesOpen}
                   node={node}
                   depth={depth}
                   isOpen={isOpen}

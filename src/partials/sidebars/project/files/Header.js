@@ -22,8 +22,8 @@ export const Header = ({
       >
         {/* Icon */}
         {sidebarExpanded ? (
-          <>
-            <div className="flex flex-shrink-0 ml-2">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center flex-shrink-0 ml-2">
               <svg
                 className={`w-3 h-3 flex-shrink-0 ml-1 fill-current transform text-gray-400 ${
                   open ? "rotate-0" : "-rotate-90"
@@ -32,10 +32,11 @@ export const Header = ({
               >
                 <path d="M5.9 11.4L.5 6l1.4-1.4 4 4 4-4L11.3 6z" />
               </svg>
+              <span className="text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                Files
+              </span>
             </div>
-            <span className="text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
-              Files
-            </span>
+
             <div className="pr-4">
               <svg
                 // onClick={addState}
@@ -51,7 +52,7 @@ export const Header = ({
                 />
               </svg>
             </div>
-          </>
+          </div>
         ) : (
           <div className="flex flex-shrink-0">
             <svg

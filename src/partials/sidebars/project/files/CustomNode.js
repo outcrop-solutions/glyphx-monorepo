@@ -13,6 +13,8 @@ export const CustomNode = ({
   depth,
   onToggle,
   isOpen,
+  filesOpen,
+  setFilesOpen,
 }) => {
   const { id, droppable, data } = node;
   const indent = depth * 24;
@@ -38,7 +40,9 @@ export const CustomNode = ({
   return (
     <div
       onClick={handleFile}
-      className={`tree-node ${styles.root}`}
+      className={`tree-node ${
+        filesOpen.includes(node.text) ? "bg-gray-800" : ""
+      } ${styles.root}`}
       style={{ paddingInlineStart: indent }}
       {...dragOverProps}
     >
