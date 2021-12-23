@@ -2,12 +2,14 @@ import { PlusIcon } from "@heroicons/react/solid";
 import { FileTab } from "./FileTab";
 
 export const FileHeader = ({
+  project,
   selectedFile,
   setSelectedFile,
   fileSystem,
   filesOpen,
   setFilesOpen,
   setDataGrid,
+  setDataGridLoading
 }) => {
   return (
     <div className="w-full h-11 border-b border-gray-600 text-white text-xs flex items-center">
@@ -15,12 +17,14 @@ export const FileHeader = ({
         <>
           {filesOpen.map((item, idx) => (
             <FileTab
+              project={project}
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
               item={item}
               filesOpen={filesOpen}
               setFilesOpen={setFilesOpen}
               setDataGrid={setDataGrid}
+              setDataGridLoading={setDataGridLoading}
             />
           ))}
         </>

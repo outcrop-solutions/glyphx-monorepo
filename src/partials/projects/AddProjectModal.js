@@ -10,13 +10,23 @@ import { v4 as uuid } from "uuid";
 import { createProject } from "../../graphql/mutations";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 
-export const AddProjectModal = ({ user, setShowAddProject, setProject }) => {
+export const AddProjectModal = ({
+  user,
+  setShowAddProject,
+  setProject,
+  setDataGrid,
+  setSelectedFile,
+  setFilesOpen,
+}) => {
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [projectFile, setProjectFile] = useState("");
 
   const handleSave = async () => {
+    setDataGrid({ columns: [], rows: [] });
+    setSelectedFile("");
+    setFilesOpen([]);
     const createProjectInput = {
       id: uuid(),
       name,

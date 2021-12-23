@@ -210,16 +210,14 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [filesOpen, setFilesOpen] = useState([]);
   const { fileSystem, setFiles } = useFileSystem(project);
 
-  // // handle case if transitioning from n to n-1 filesOpen where n-1 !== 0
-  // useEffect(() => {
-
-  // }, [filesOpen])  
-
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
         <AddProjectModal
           user={user}
+          setDataGrid={setDataGrid}
+          setFilesOpen={setFilesOpen}
+          setSelectedFile={setSelectedFile}
           setShowAddProject={setShowAddProject}
           setProject={setProject}
         />
@@ -294,9 +292,11 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         <div className="flex-col mx-auto h-full">
                           {filesOpen && filesOpen.length > 0 && (
                             <FileHeader
+                              project={project}
                               selectedFile={selectedFile}
                               setSelectedFile={setSelectedFile}
                               setDataGrid={setDataGrid}
+                              setDataGridLoading={setDataGridLoading}
                               fileSystem={fileSystem}
                               filesOpen={filesOpen}
                               setFilesOpen={setFilesOpen}
