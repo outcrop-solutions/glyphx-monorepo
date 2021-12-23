@@ -66,7 +66,12 @@ export const AddProjectModal = ({
                       className="text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 h-8 w-6"
                       aria-hidden="true"
                     />
-                    <span className="text-xs truncate">Back to Dashboard</span>
+                    <span
+                      onClick={handleClickAway}
+                      className="text-xs truncate"
+                    >
+                      Back to Dashboard
+                    </span>
                   </div>
                   <div
                     onClick={() => setCurrent(0)}
