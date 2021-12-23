@@ -7,7 +7,10 @@ import { States } from "./states";
 import { usePosition } from "../../../services/usePosition";
 
 export const ProjectSidebar = ({
+  selectedFile,
+  setSelectedFile,
   setDataGrid,
+  setDataGridLoading,
   sidebarExpanded,
   setSidebarExpanded,
   setFilterSidebarPosition,
@@ -101,6 +104,9 @@ export const ProjectSidebar = ({
         {/* Files */}
 
         <Files
+          selectedFile={selectedFile}
+          setSelectedFile={setSelectedFile}
+          setDataGridLoading={setDataGridLoading}
           uploaded={uploaded}
           setUploaded={setUploaded}
           fileSystem={fileSystem}

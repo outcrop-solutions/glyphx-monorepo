@@ -12,6 +12,7 @@ export const AddFiles = ({
   setDataGrid,
   uploaded,
   setUploaded,
+  setFilesOpen,
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -32,7 +33,10 @@ export const AddFiles = ({
       acceptedFiles.forEach(async (file) => {
         const text = await file.text();
         const { data } = parse(text, { header: true });
+        console.log({ data });
         const grid = formatGridData(data);
+
+        setFilesOpen((prev) => [...prev, file.name]);
         setDataGrid(grid);
       });
 
@@ -46,6 +50,7 @@ export const AddFiles = ({
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
           console.log({ project });
+
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
               if (progress.loaded / progress.total === 1) {
@@ -53,12 +58,12 @@ export const AddFiles = ({
                 console.log("upload complete");
               } else {
                 console.log("upload incomplete");
-
                 setUploaded(false);
               }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
           });
+
           console.log(`sent ${file.name} to S3`);
         };
         reader.readAsArrayBuffer(file);
@@ -94,9 +99,12 @@ export const AddFiles = ({
           d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
         />
       </svg>
-      <h3 className="mt-2 text-sm font-medium text-white">No files</h3>
+      <h3 className="mt-2 text-sm font-medium text-white">
+        No files loaded...
+      </h3>
       <p className="mt-1 text-sm text-gray-200">
-        Get started by adding a CSV file to your project.
+        Add a new CSV file to your project or open an existing file form the
+        Files drawer.
       </p>
       <div className="mt-6">
         <input {...getInputProps()} />

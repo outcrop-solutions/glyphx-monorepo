@@ -24,6 +24,7 @@ import { Storage } from "aws-amplify";
 import update from "immutability-helper";
 import { useStates } from "../services/useStates";
 import { AddProjectModal } from "../partials/projects/AddProjectModal";
+import GridLoader from "react-spinners/GridLoader";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -126,6 +127,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   //data grid state
   const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
+  const [selectedFile, setSelectedFile] = useState("");
+  const [dataGridLoading, setDataGridLoading] = useState(false);
   const [propertiesArr, setPropertiesArr] = useState([
     { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
@@ -204,8 +207,13 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
   const [sdt, setSdt] = useState("Hello");
-  const [filesOpen, setFilesOpen] = useState(["Mcgee and co - Sheet1.csv"]);
+  const [filesOpen, setFilesOpen] = useState([]);
   const { fileSystem, setFiles } = useFileSystem(project);
+
+  // // handle case if transitioning from n to n-1 filesOpen where n-1 !== 0
+  // useEffect(() => {
+
+  // }, [filesOpen])  
 
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
@@ -248,6 +256,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
               <>
                 <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
+                    selectedFile={selectedFile}
+                    setSelectedFile={setSelectedFile}
+                    setDataGridLoading={setDataGridLoading}
                     uploaded={uploaded}
                     setUploaded={setUploaded}
                     fileSystem={fileSystem}
@@ -274,39 +285,60 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     setStates={setStates}
                   />
                   <div className="w-full h-full flex">
-                    <div className="min-w-0 flex-auto overflow-auto w-full">
+                    <div className="min-w-0 flex-auto w-full">
                       {/* {full ? (
                         <> */}
                       {share ? (
                         <Invite setShare={setShare} />
                       ) : (
-                        <div className="overflow-x-auto flex-col mx-auto">
-                          <FileHeader
-                            fileSystem={fileSystem}
-                            filesOpen={filesOpen}
-                            setFilesOpen={setFilesOpen}
-                          />
-                          {fileSystem && fileSystem.length ? (
-                            <Datagrid
-                              isDropped={isDropped}
-                              setIsEditing={setIsEditing}
-                              dataGrid={dataGrid}
+                        <div className="flex-col mx-auto h-full">
+                          {filesOpen && filesOpen.length > 0 && (
+                            <FileHeader
+                              selectedFile={selectedFile}
+                              setSelectedFile={setSelectedFile}
                               setDataGrid={setDataGrid}
+                              fileSystem={fileSystem}
+                              filesOpen={filesOpen}
+                              setFilesOpen={setFilesOpen}
                             />
-                          ) : null}
+                          )}
+                          {dataGridLoading ? (
+                            <div className="h-full w-full flex justify-center items-center border-none">
+                              <GridLoader
+                                loading={dataGridLoading}
+                                size={100}
+                                color={"yellow"}
+                              />
+                            </div>
+                          ) : (
+                            <>
+                              {fileSystem &&
+                              fileSystem.length &&
+                              dataGrid.rows.length > 0 ? (
+                                <Datagrid
+                                  isDropped={isDropped}
+                                  setIsEditing={setIsEditing}
+                                  dataGrid={dataGrid}
+                                  setDataGrid={setDataGrid}
+                                />
+                              ) : (
+                                <AddFiles
+                                  setFilesOpen={setFilesOpen}
+                                  uploaded={uploaded}
+                                  setUploaded={setUploaded}
+                                  setDataGrid={setDataGrid}
+                                  project={project}
+                                  fileSystem={fileSystem}
+                                  setFileSystem={setFiles}
+                                />
+                              )}
+                            </>
+                          )}
+
                           <ModelFooter sdt={sdt} />
                         </div>
                       )}
-                      {fileSystem && fileSystem.length ? null : (
-                        <AddFiles
-                          uploaded={uploaded}
-                          setUploaded={setUploaded}
-                          setDataGrid={setDataGrid}
-                          project={project}
-                          fileSystem={fileSystem}
-                          setFileSystem={setFiles}
-                        />
-                      )}
+
                       {/* </>) : (<div className="text-3xl text-white">loading....</div>) */}
                       {/* } */}
                     </div>

@@ -9,6 +9,7 @@ import { Dropzone } from "../../../actions/Dropzone";
 
 export const Files = ({
   setDataGrid,
+  setDataGridLoading,
   sidebarExpanded,
   setSidebarExpanded,
   project,
@@ -18,6 +19,8 @@ export const Files = ({
   setFilesOpen,
   uploaded,
   setUploaded,
+  selectedFile,
+  setSelectedFile,
 }) => {
   const [open, setOpen] = useState(true);
 
@@ -49,6 +52,7 @@ export const Files = ({
               rootId={0}
               render={(node, { depth, isOpen, onToggle }) => (
                 <CustomNode
+                  setDataGridLoading={setDataGridLoading}
                   project={project}
                   setDataGrid={setDataGrid}
                   filesOpen={filesOpen}
@@ -57,6 +61,8 @@ export const Files = ({
                   depth={depth}
                   isOpen={isOpen}
                   onToggle={onToggle}
+                  selectedFile={selectedFile}
+                  setSelectedFile={setSelectedFile}
                 />
               )}
               dragPreviewRender={(monitorProps) => (
@@ -71,6 +77,7 @@ export const Files = ({
             />
           ) : null}
           <Dropzone
+            setFilesOpen={setFilesOpen}
             uploaded={uploaded}
             setUploaded={setUploaded}
             setDataGrid={setDataGrid}
