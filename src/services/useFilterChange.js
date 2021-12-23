@@ -12,15 +12,25 @@ export const useFilterChange = (filtersApplied) => {
           let filter = filtersApplied[i];
           // let cols = filter.columns
           // for (let j = 0; j < cols.length; j++) {
-          let name = filter.name;
-          let min = filter.min;
-          let max = filter.max;
+          if (filter.keywords && filter.keywords.length > 0) {
+            let name = filter.name;
+            let keywords = filter.keywords;
 
-          let queryStr = `\`${name || "-"}\` BETWEEN ${min || "-"} AND ${
-            max || "-"
-          }`;
-          filterStringArr.push(queryStr);
-          // }
+            let queryStr = `MATCH \`${name || "-"}\` AGAINST (${
+              keywords.join(" ") || "-"
+            })`;
+            filterStringArr.push(queryStr);
+          } else {
+            let name = filter.name;
+            let min = filter.min;
+            let max = filter.max;
+
+            let queryStr = `\`${name || "-"}\` BETWEEN ${min || "-"} AND ${
+              max || "-"
+            }`;
+            filterStringArr.push(queryStr);
+            // }
+          }
         }
         let query =
           filterStringArr.length > 0
