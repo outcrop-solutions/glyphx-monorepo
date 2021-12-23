@@ -5,6 +5,7 @@ import { ExpandCollapse } from "./ExpandCollapse";
 import { CommentInput } from "./CommentInput";
 import { History } from "./History";
 import { useStates } from "../../../services/useStates";
+import { useComments } from "../../../services/useComments";
 
 export const CommentsSidebar = ({
   project,
@@ -32,6 +33,8 @@ export const CommentsSidebar = ({
   const trigger = useRef(null);
   const sidebar = useRef(null);
   const pos = usePosition(sidebar);
+
+  const { comments, setComments } = useComments();
 
   // close on click outside
   useEffect(() => {
@@ -93,8 +96,8 @@ export const CommentsSidebar = ({
         >
           <Header sidebarExpanded={sidebarExpanded} />
           <div className="m-2 hidden comments-sidebar-expanded:block overflow-y-scroll scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full">
-            <History />
-            <CommentInput user={user} state={state} />
+            <History comments={comments}/>
+            <CommentInput user={user} state={state} setComments={setComments} />
           </div>
 
           {/* Expand / collapse button */}

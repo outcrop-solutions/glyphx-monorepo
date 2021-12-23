@@ -11,13 +11,13 @@ export const Header = ({
   setStates,
 }) => {
   const addState = async () => {
-    if (window && window.core) {
+    // if (window && window.core) {
       const createStateInput = {
         id: uuid(),
         title: "state_name",
         description: "",
-        camera: window.core.GetCameraPosition(),
-        // camera: "camera-pos",
+        // camera: window.core.GetCameraPosition(),
+        camera: "camera-pos",
         projectID: project.id,
       };
 
@@ -32,7 +32,7 @@ export const Header = ({
       } catch (error) {
         console.log({ error });
       }
-    }
+    // }
   };
   return (
     <a

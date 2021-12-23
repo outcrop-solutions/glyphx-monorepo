@@ -59,23 +59,23 @@ div[role="grid"] {
   width: 10px;
 }
 
-// div[role="grid"]::-webkit-scrollbar-thumb {
-//   background: rgb(253, 229, 8);
-// }
+div[role="grid"]::-webkit-scrollbar-thumb {
+  background: rgb(253, 229, 8);
+}
 /* Track */
-// ::-webkit-scrollbar-track {
-//   background: #f1f1f100;
-// }
+::-webkit-scrollbar-track {
+  background: #f1f1f100;
+}
 
 // /* Handle */
-// ::-webkit-scrollbar-thumb {
-//   background: rgb(253, 229, 8);
-// }
+::-webkit-scrollbar-thumb {
+  background: rgb(253, 229, 8);
+}
 
 // /* Handle on hover */
-// ::-webkit-scrollbar-thumb:hover {
-//   background: rgb(235, 202, 17);
-// }
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(235, 202, 17);
+}
 
 div[role="row"] {
   @apply text-white bg-primary-dark-blue;

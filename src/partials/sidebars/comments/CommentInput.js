@@ -20,7 +20,7 @@ export const CommentInput = ({ user, state, setComments }) => {
         stateID: state.id,
       };
       try {
-        setComments((prev) => [...prev, commentInput]);
+        setComments(commentInput);
         setCommentContent("");
         await API.graphql(
           graphqlOperation(createComment, { input: commentInput })

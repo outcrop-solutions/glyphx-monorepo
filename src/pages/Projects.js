@@ -25,6 +25,7 @@ import update from "immutability-helper";
 import { useStates } from "../services/useStates";
 import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
+import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -129,6 +130,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
   const [selectedFile, setSelectedFile] = useState("");
   const [dataGridLoading, setDataGridLoading] = useState(false);
+  const [reorderConfirm, setReorderConfirm] = useState(false);
   const [propertiesArr, setPropertiesArr] = useState([
     { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
@@ -143,6 +145,16 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   };
   const handleDrop = useCallback(
     (index, item) => {
+      let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+      console.log({ droppedProps });
+      if (
+        droppedProps &&
+        droppedProps.length >= 3 &&
+        propsArr &&
+        propsArr.length === 3
+      ) {
+        setReorderConfirm(true);
+      }
       const { key } = item;
       setDroppedProps(
         update(droppedProps, key ? { $push: [key] } : { $push: [] })
@@ -210,10 +222,29 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [filesOpen, setFilesOpen] = useState([]);
   const { fileSystem, setFiles } = useFileSystem(project);
 
+  useEffect(() => {
+    if ((share || reorderConfirm) && window && window.core) {
+      window.core.ToggleDrawer(false);
+    }
+  }, [share, reorderConfirm]);
+
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
         <AddProjectModal
+          user={user}
+          setFileSystem={setFiles}
+          setDataGrid={setDataGrid}
+          setFilesOpen={setFilesOpen}
+          setSelectedFile={setSelectedFile}
+          setShowAddProject={setShowAddProject}
+          setProject={setProject}
+        />
+      ) : null}
+      {reorderConfirm ? (
+        <ReorderConfirmModal
+          project={project}
+          setReorderConfirm={setReorderConfirm}
           user={user}
           setFileSystem={setFiles}
           setDataGrid={setDataGrid}
@@ -368,6 +399,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         user={user}
                         projects={projects}
                         setProject={setProject}
+                        setFileSystem={setFiles}
                       />
                     )}
                   </div>

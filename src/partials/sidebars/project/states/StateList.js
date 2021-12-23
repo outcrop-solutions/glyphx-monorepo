@@ -22,7 +22,7 @@ export const StateList = ({
             onClick={() => {
               setState(item);
             }}
-            className="mb-1 last:mb-0 flex"
+            className="mb-1 last:mb-0 flex cursor-pointer"
           >
             <div className="flex items-center justify-center h-6 w-6">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
