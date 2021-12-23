@@ -15,7 +15,7 @@ export const useProjects = () => {
         // console.log({ projectData })
         const projectList = projectData.data.listProjects.items;
 
-        // console.log({ projectList })
+        console.log({ projectList })
         setProjects((prev) => {
           let newData = [...projectList];
           return newData;

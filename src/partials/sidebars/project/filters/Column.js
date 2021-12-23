@@ -108,7 +108,7 @@ export const Column = ({
           </div>
         ) : (
           <div
-            formatType={lastDroppedItem ? lastDroppedItem.dataType : ""}
+            formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
             className='h-4 px-4 my-auto ml-4 bg-gray-800 group-hover:text-gray-400 transition duration-150 truncate cursor-pointer rounded-2xl text-xs font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100'
           >
             {/* <span className="text-xs font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200"> */}

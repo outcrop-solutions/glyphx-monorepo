@@ -89,10 +89,10 @@ div[aria-colindex="1"] {
   @apply bg-secondary-dark-blue;
 }
 
-div[formatType="string"] {
+div[formattype="string"] {
   @apply bg-lightBlue-300 text-black rounded-2xl text-center w-32;
 }
-div[formatType="number"] {
+div[formattype="number"] {
   @apply bg-green-400 text-black rounded-2xl text-center w-32;
 }
 div[datatype="string"] {

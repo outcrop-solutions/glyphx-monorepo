@@ -71,7 +71,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
         {/* Sidebar header */}
         <div className="flex justify-between mb-2 pr-3 sm:px-2 border-b border-gray-400 py-3">
           {/* Logo */}
-          <NavLink exact to="/" className="flex">
+          <div className="flex">
             <svg
               width="24"
               height="24"
@@ -91,7 +91,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
             {/* <span className="hidden font-sans main-sidebar-expanded:block 2xl:hidden capitalize text-2xl text-white font-light">
               GLYPH
             </span> */}
-          </NavLink>
+          </div>
         </div>
 
         {/* Links */}
@@ -132,9 +132,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                   pathname === "/" && "bg-gray-800"
                 }`}
               >
-                <NavLink
-                  exact
-                  to="/"
+                <div
                   onClick={() => {
                     setProject(false);
                   }}
@@ -162,7 +160,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                       My Projects
                     </span>
                   </div>
-                </NavLink>
+                </div>
               </li>
               {/* Analytics */}
               <li
@@ -170,9 +168,8 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                   pathname.includes("shared") && "bg-gray-800"
                 }`}
               >
-                <NavLink
-                  exact
-                  to="/shared"
+                <a
+                  href="/shared"
                   className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
                     pathname.includes("shared") && "hover:text-gray-200"
                   }`}
@@ -197,7 +194,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                       Shared with Me
                     </span>
                   </div>
-                </NavLink>
+                </a>
               </li>
               {/* Analytics */}
               <li
@@ -205,9 +202,8 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                   pathname.includes("shared") && "bg-primary-dark-blue"
                 }`}
               >
-                <NavLink
-                  exact
-                  to="/drafts"
+                <a
+                  href="/drafts"
                   className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
                     pathname.includes("shared") && "hover:text-gray-200"
                   }`}
@@ -245,7 +241,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                       Drafts
                     </span>
                   </div>
-                </NavLink>
+                </a>
               </li>
               {/* Analytics */}
               <li
@@ -253,9 +249,8 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                   pathname.includes("shared") && "bg-primary-dark-blue"
                 }`}
               >
-                <NavLink
-                  exact
-                  to="/trash"
+                <a
+                  href="/trash"
                   className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
                     pathname.includes("shared") && "hover:text-gray-200"
                   }`}
@@ -282,7 +277,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                       Trash
                     </span>
                   </div>
-                </NavLink>
+                </a>
               </li>
             </ul>
           </div>
