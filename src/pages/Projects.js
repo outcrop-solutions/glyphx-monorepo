@@ -174,6 +174,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   const [full, setFull] = useState(false);
   const [uploaded, setUploaded] = useState(false);
+  const [url, setUrl] = useState("");
 
   // listen to properties array drops and call ETL on XYZ full
   useEffect(() => {
@@ -206,8 +207,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           { method: "POST", mode: "no-cors", body: JSON.stringify(body) }
         );
         console.log({ response });
+        // TODO: Set Url state to toggle drawer from bottom drawer
         // window.core.OpenProject(JSON.stringify(response));
-        // }
       } else {
         setFull(false);
       }
@@ -365,7 +366,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                             </>
                           )}
 
-                          <ModelFooter sdt={sdt} />
+                          <ModelFooter sdt={sdt} url={url} />
                         </div>
                       )}
 
