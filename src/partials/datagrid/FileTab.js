@@ -39,10 +39,29 @@ export const FileTab = ({
       }
     });
   };
+  const handleClick = async (el) => {
+    setDataGridLoading(true);
+    setSelectedFile(el);
+    const fileData = await Storage.get(`${project.id}/input/${el}`, {
+      download: true,
+    });
+    const blobData = await fileData.Body.text();
+    const { data } = parse(blobData, { header: true });
+    // const text = await fileDat;
+    const grid = formatGridData(data);
+    // console.log({ grid });
+    // if file is already open, set file selected && set Grid data
+    // if file is not open, get the data and set grid && add file name to files open
+    setDataGridLoading(false);
+    setDataGrid(grid);
+  };
   return (
     <div
+      onClick={() => handleClick(item)}
       className={`flex relative cursor-pointer group hover:bg-gray-600 items-center ${
-        selectedFile === item ? "border border-blue-600" : "border border-gray-600"
+        selectedFile === item
+          ? "border border-blue-600"
+          : "border border-gray-600"
       } h-full px-4`}
     >
       <span className="text-yellow-500 mr-2 text-xs font-bold">CSV</span>
