@@ -17,6 +17,7 @@ export const AddProjectModal = ({
   setDataGrid,
   setSelectedFile,
   setFilesOpen,
+  setFileSystem,
 }) => {
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("");
@@ -27,6 +28,7 @@ export const AddProjectModal = ({
     setDataGrid({ columns: [], rows: [] });
     setSelectedFile("");
     setFilesOpen([]);
+    setFileSystem([]);
     const createProjectInput = {
       id: uuid(),
       name,

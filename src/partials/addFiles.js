@@ -13,6 +13,7 @@ export const AddFiles = ({
   uploaded,
   setUploaded,
   setFilesOpen,
+  setSelectedFile,
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -35,9 +36,9 @@ export const AddFiles = ({
         const { data } = parse(text, { header: true });
         console.log({ data });
         const grid = formatGridData(data);
-
-        setFilesOpen((prev) => [...prev, file.name]);
         setDataGrid(grid);
+        setFilesOpen((prev) => [...prev, file.name]);
+        setSelectedFile(file.name);
       });
 
       //send file to s3

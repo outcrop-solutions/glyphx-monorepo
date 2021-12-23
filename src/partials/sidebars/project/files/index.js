@@ -77,6 +77,7 @@ export const Files = ({
             />
           ) : null}
           <Dropzone
+            setSelectedFile={setSelectedFile}
             setFilesOpen={setFilesOpen}
             uploaded={uploaded}
             setUploaded={setUploaded}

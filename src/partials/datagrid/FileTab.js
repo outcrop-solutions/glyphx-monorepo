@@ -10,7 +10,7 @@ export const FileTab = ({
   setDataGrid,
   selectedFile,
   setSelectedFile,
-  setDataGridLoading
+  setDataGridLoading,
 }) => {
   // TODO: handle case if transitioning from n to n-1 filesOpen where n-1 !== 0
   const handleClose = async () => {
@@ -31,15 +31,20 @@ export const FileTab = ({
         // if file is not open, get the data and set grid && add file name to files open
         setDataGridLoading(false);
         setDataGrid(grid);
+        return newData;
       } else {
         setDataGrid({ rows: [], columns: [] });
         setSelectedFile("");
+        return newData;
       }
-      return newData;
     });
   };
   return (
-    <div className="flex relative cursor-pointer group hover:bg-gray-600 items-center border-r border-r-gray-600 h-full px-4">
+    <div
+      className={`flex relative cursor-pointer group hover:bg-gray-600 items-center ${
+        selectedFile === item ? "border border-blue-600" : "border border-gray-600"
+      } h-full px-4`}
+    >
       <span className="text-yellow-500 mr-2 text-xs font-bold">CSV</span>
       {item}
       <div className="rounded-full bg-gray-500 hidden group-hover:flex h-4 absolute right-0 mr-2 z-60">

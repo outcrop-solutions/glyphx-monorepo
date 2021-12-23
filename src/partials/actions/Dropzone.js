@@ -27,6 +27,7 @@ export const formatGridData = (data) => {
 };
 
 export const Dropzone = ({
+  setSelectedFile,
   setFilesOpen,
   fileSystem,
   setFileSystem,
@@ -55,6 +56,7 @@ export const Dropzone = ({
         const text = await file.text();
         const { data } = parse(text, { header: true });
         const grid = formatGridData(data);
+        setSelectedFile(file.name);
         setFilesOpen((prev) => [...prev, file.name]);
         setDataGrid(grid);
       });

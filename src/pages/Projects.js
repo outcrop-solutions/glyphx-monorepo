@@ -215,6 +215,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       {showAddProject ? (
         <AddProjectModal
           user={user}
+          setFileSystem={setFiles}
           setDataGrid={setDataGrid}
           setFilesOpen={setFilesOpen}
           setSelectedFile={setSelectedFile}
@@ -312,9 +313,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                             </div>
                           ) : (
                             <>
-                              {fileSystem &&
-                              fileSystem.length &&
-                              dataGrid.rows.length > 0 ? (
+                              {dataGrid.rows.length > 0 ? (
                                 <Datagrid
                                   isDropped={isDropped}
                                   setIsEditing={setIsEditing}
