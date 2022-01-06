@@ -42,6 +42,7 @@ export const Filters = ({
                       filtersApplied={filtersApplied}
                       setFiltersApplied={setFiltersApplied}
                       axis={axis}
+                      setPropertiesArr={setPropertiesArr}
                       lastDroppedItem={lastDroppedItem}
                       key={idx}
                       idx={idx}
@@ -52,6 +53,7 @@ export const Filters = ({
                     <Column
                       filtersApplied={filtersApplied}
                       setFiltersApplied={setFiltersApplied}
+                      setPropertiesArr={setPropertiesArr}
                       axis={axis}
                       accept={accepts}
                       lastDroppedItem={lastDroppedItem}

@@ -188,7 +188,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         .slice(3)
         .filter((item) => item.lastDroppedItem);
       console.log({ propsArr });
-      if (propsArr && propsArr.length >= 3 && uploaded) {
+      if (propsArr && propsArr.length >= 3) {
         // setFull(true);
         const body = {
           model_id: project.id,

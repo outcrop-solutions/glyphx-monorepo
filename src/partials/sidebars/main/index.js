@@ -168,9 +168,8 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                   pathname.includes("shared") && "bg-gray-800"
                 }`}
               >
-                <a
-                  href="/shared"
-                  className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
+                <div
+                  className={`block text-gray-500 truncate transition duration-150 ${
                     pathname.includes("shared") && "hover:text-gray-200"
                   }`}
                 >
@@ -194,7 +193,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                       Shared with Me
                     </span>
                   </div>
-                </a>
+                </div>
               </li>
               {/* Analytics */}
               <li
@@ -202,9 +201,9 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                   pathname.includes("shared") && "bg-primary-dark-blue"
                 }`}
               >
-                <a
-                  href="/drafts"
-                  className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
+                <div
+            
+                  className={`block text-gray-500 truncate transition duration-150 ${
                     pathname.includes("shared") && "hover:text-gray-200"
                   }`}
                 >
@@ -241,7 +240,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                       Drafts
                     </span>
                   </div>
-                </a>
+                </div>
               </li>
               {/* Analytics */}
               <li
@@ -251,7 +250,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
               >
                 <a
                   href="/trash"
-                  className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
+                  className={`block text-gray-500 truncate transition duration-150 ${
                     pathname.includes("shared") && "hover:text-gray-200"
                   }`}
                 >

@@ -10,6 +10,7 @@ import ShowHide from "./actions/ShowHide";
 import DeleteFilter from "./actions/DeleteFilter";
 
 export const Column = ({
+  setPropertiesArr,
   filtersApplied,
   setFiltersApplied,
   axis,
@@ -39,7 +40,20 @@ export const Column = ({
   };
   const handleDeleteFilter = async () => {
     let deleteFilterInput = { id: lastDroppedItem.id };
-    // console.log({ deleteFilterInput })
+    // console.log({ deleteFilterInput }
+    setPropertiesArr((prev) => {
+      let newProps = prev;
+      if (prev.length > 0) {
+        newProps = prev.map((el) => {
+          let newEl = el;
+          if (el.axis === axis) {
+            newEl = { ...el, lastDroppedItem: null };
+          }
+          return newEl;
+        });
+      }
+      return newProps;
+    });
     const result = await API.graphql(
       graphqlOperation(deleteFilter, { input: deleteFilterInput })
     );
