@@ -203,7 +203,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         // console.log({ signedUrl });
         // if (project && window && window.core) {
         let response = await fetch(
-          "https://vkepitqt88.execute-api.us-east-1.amazonaws.com/Prod/etl/model",
+          "https://m6l2svpb59.execute-api.us-east-2.amazonaws.com/Prod/etl/model",
           { method: "POST", mode: "no-cors", body: JSON.stringify(body) }
         );
         console.log({ response });
