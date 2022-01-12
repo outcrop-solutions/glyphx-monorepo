@@ -20,7 +20,7 @@ const projects = [
       </svg>
     ),
     href: "#",
-    members: 16,
+    derivatives: 0,
     bgColor: "transparent",
   },
   {
@@ -42,7 +42,7 @@ const projects = [
       </svg>
     ),
     href: "#",
-    members: 12,
+    derivatives: 0,
     bgColor: "transparent",
   },
   {
@@ -67,7 +67,7 @@ const projects = [
       </svg>
     ),
     href: "#",
-    members: 16,
+    derivatives: 0,
     bgColor: "transparent",
   },
   {
@@ -88,7 +88,7 @@ const projects = [
       </svg>
     ),
     href: "#",
-    members: 8,
+    derivatives: 8,
     bgColor: "transparent",
   },
   {
@@ -109,7 +109,7 @@ const projects = [
       </svg>
     ),
     href: "#",
-    members: 8,
+    derivatives: 8,
     bgColor: "transparent",
   },
 ];
@@ -150,7 +150,7 @@ export const PinnedProjects = () => {
                   {project.name}
                 </a>
                 <p className="text-gray-500">
-                  {project.members} Derivative Projects
+                  {project.derivatives} Derivative Projects
                 </p>
               </div>
               <div className="flex-shrink-0 pr-2">

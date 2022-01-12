@@ -27,6 +27,8 @@ import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 import { ToastContainer } from "react-toastify";
+import { formatGridData } from "../partials/actions/Dropzone";
+import { parse } from "papaparse";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -224,6 +226,32 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [sdt, setSdt] = useState("Hello");
   const [filesOpen, setFilesOpen] = useState([]);
   const { fileSystem, setFiles } = useFileSystem(project);
+
+  useEffect(() => {
+    const defaultSelectFile = async () => {
+      if (selectedFile === "" && fileSystem && fileSystem[0]) {
+        setDataGridLoading(true);
+        setSelectedFile(fileSystem[0].text);
+        setFilesOpen([fileSystem[0].text])
+        const fileData = await Storage.get(
+          `${project.id}/input/${fileSystem[0].text}`,
+          {
+            download: true,
+          }
+        );
+        const blobData = await fileData.Body.text();
+        const { data } = parse(blobData, { header: true });
+        // const text = await fileDat;
+        const grid = formatGridData(data);
+        // console.log({ grid });
+        // if file is already open, set file selected && set Grid data
+        // if file is not open, get the data and set grid && add file name to files open
+        setDataGridLoading(false);
+        setDataGrid(grid);
+      }
+    };
+    defaultSelectFile();
+  }, [selectedFile, fileSystem]);
 
   useEffect(() => {
     if ((share || reorderConfirm) && window && window.core) {

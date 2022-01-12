@@ -29,7 +29,10 @@ export const useFileSystem = (project) => {
         const processed = processStorageList(data);
         console.log({ processed });
         const files = Object.keys(processed[`${project.id}`].input);
-
+        const filteredFiles = files.filter(
+          (fileName) =>
+            fileName !== "etl_data_lake.csv" && fileName.split(".")[1] === "csv"
+        );
         // let sidebarData = await Storage.get(`sidebar.json`, {
         //   download: true,
         // });
@@ -38,17 +41,18 @@ export const useFileSystem = (project) => {
         //   let { files } = JSON.parse(string);
 
         setFileSystem((prev) => {
-          let filtered = files.filter((file) => file.split(".")[1] === "csv");
-          let newData = filtered.map((item, idx) => ({
-            id: idx + 1,
-            parent: 0,
-            droppable: false,
-            text: item,
-            data: {
-              fileType: item.split(".")[1],
-              fileSize: "0.5MB",
-            },
-          }));
+          let newData = filteredFiles.map((item, idx) => {
+            return {
+              id: idx + 1,
+              parent: 0,
+              droppable: false,
+              text: item,
+              data: {
+                fileType: item.split(".")[1],
+                fileSize: "0.5MB",
+              },
+            };
+          });
           console.log({ newFilesystem: newData });
           return newData;
         });
@@ -68,9 +72,6 @@ export const useFileSystem = (project) => {
         console.log({ hookset: [...prev, ...arg] });
         return [...prev, ...arg];
       });
-    },
-    clearFiles: (arg) => {
-      setFileSystem([]);
     },
   };
 };

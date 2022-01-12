@@ -12,14 +12,15 @@ export const FileTab = ({
   setSelectedFile,
   setDataGridLoading,
 }) => {
-  // TODO: handle case if transitioning from n to n-1 filesOpen where n-1 !== 0
+  // TODO: handle case where attempting to open a file that is not yet fully uploaded
   const handleClose = async () => {
     setFilesOpen(async (prev) => {
       let newData = prev.filter((el) => el !== item);
+      console.log({ newData });
       if (newData.length !== 0) {
         setDataGridLoading(true);
-        setSelectedFile(newData[newData.length - 1]);
-        const fileData = await Storage.get(`${project.id}/input/${item}`, {
+        setSelectedFile(newData[0]);
+        const fileData = await Storage.get(`${project.id}/input/${newData[0]}`, {
           download: true,
         });
         const blobData = await fileData.Body.text();
@@ -33,9 +34,10 @@ export const FileTab = ({
         setDataGrid(grid);
         return newData;
       } else {
+        setDataGridLoading(false);
         setDataGrid({ rows: [], columns: [] });
         setSelectedFile("");
-        return newData;
+        return [];
       }
     });
   };
