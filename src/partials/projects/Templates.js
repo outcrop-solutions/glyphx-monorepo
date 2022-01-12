@@ -46,7 +46,7 @@ export const Templates = ({ setProject, user }) => {
 
     const createProjectInput = {
       id: uuid(),
-      name: "Untitled",
+      name: "untitled",
       description: "New project from emplty template",
       author: user.id,
     };
