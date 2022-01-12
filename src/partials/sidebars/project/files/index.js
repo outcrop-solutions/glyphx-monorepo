@@ -21,6 +21,7 @@ export const Files = ({
   setUploaded,
   selectedFile,
   setSelectedFile,
+  toastRef,
 }) => {
   const [open, setOpen] = useState(true);
 
@@ -85,6 +86,7 @@ export const Files = ({
             project={project}
             fileSystem={fileSystem}
             setFileSystem={setFiles}
+            toastRef={toastRef}
           />
         </div>
       </div>

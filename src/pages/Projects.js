@@ -26,6 +26,7 @@ import { useStates } from "../services/useStates";
 import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
+import { ToastContainer } from "react-toastify";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -35,6 +36,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   // const [state, setState] = useState(null);
 
   const [project, setProject] = useState(false);
+
   const { states, state, setState, setStates } = useStates(project);
   useStateChange(state);
 
@@ -175,7 +177,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [full, setFull] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [url, setUrl] = useState("");
-
+  const toastRef = React.useRef(null);
   // listen to properties array drops and call ETL on XYZ full
   useEffect(() => {
     // check if xyz are populated
@@ -231,6 +233,17 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
+      {/* <ToastContainer
+        position="bottom-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      /> */}
       {showAddProject ? (
         <AddProjectModal
           user={user}
@@ -314,6 +327,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     states={states}
                     setState={setState}
                     setStates={setStates}
+                    toastRef={toastRef}
                   />
                   <div className="w-full h-full flex">
                     <div className="min-w-0 flex-auto w-full">

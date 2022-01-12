@@ -34,6 +34,7 @@ export const ProjectSidebar = ({
   setStates,
   uploaded,
   setUploaded,
+  toastRef,
 }) => {
   //utilities
   const trigger = useRef(null);
@@ -117,6 +118,7 @@ export const ProjectSidebar = ({
           project={project}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
+          toastRef={toastRef}
         />
         <Properties
           handleDrop={handleDrop}
