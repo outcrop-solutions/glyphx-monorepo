@@ -21,20 +21,28 @@ export const createProject = /* GraphQL */ `
           description
           camera
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       filters {
         items {
           id
           name
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       columns {
         items {
@@ -43,11 +51,18 @@ export const createProject = /* GraphQL */ `
           min
           max
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -73,20 +88,28 @@ export const updateProject = /* GraphQL */ `
           description
           camera
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       filters {
         items {
           id
           name
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       columns {
         items {
@@ -95,11 +118,18 @@ export const updateProject = /* GraphQL */ `
           min
           max
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -125,20 +155,28 @@ export const deleteProject = /* GraphQL */ `
           description
           camera
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       filters {
         items {
           id
           name
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       columns {
         items {
@@ -147,11 +185,18 @@ export const deleteProject = /* GraphQL */ `
           min
           max
           projectID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -178,13 +223,19 @@ export const createState = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -195,20 +246,31 @@ export const createState = /* GraphQL */ `
           stateID
           content
           createdAt
+          _version
+          _deleted
+          _lastChangedAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       filters {
         items {
           id
           stateID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -235,13 +297,19 @@ export const updateState = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -252,20 +320,31 @@ export const updateState = /* GraphQL */ `
           stateID
           content
           createdAt
+          _version
+          _deleted
+          _lastChangedAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       filters {
         items {
           id
           stateID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -292,13 +371,19 @@ export const deleteState = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -309,20 +394,31 @@ export const deleteState = /* GraphQL */ `
           stateID
           content
           createdAt
+          _version
+          _deleted
+          _lastChangedAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       filters {
         items {
           id
           stateID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -351,15 +447,23 @@ export const createStateFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         comments {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -375,18 +479,29 @@ export const createStateFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         columns {
           nextToken
+          startedAt
         }
         states {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -415,15 +530,23 @@ export const updateStateFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         comments {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -439,18 +562,29 @@ export const updateStateFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         columns {
           nextToken
+          startedAt
         }
         states {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -479,15 +613,23 @@ export const deleteStateFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         comments {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -503,18 +645,29 @@ export const deleteStateFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         columns {
           nextToken
+          startedAt
         }
         states {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -543,12 +696,19 @@ export const createColumnFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -564,18 +724,29 @@ export const createColumnFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         columns {
           nextToken
+          startedAt
         }
         states {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -604,12 +775,19 @@ export const updateColumnFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -625,18 +803,29 @@ export const updateColumnFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         columns {
           nextToken
+          startedAt
         }
         states {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -665,12 +854,19 @@ export const deleteColumnFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -686,18 +882,29 @@ export const deleteColumnFilter = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         columns {
           nextToken
+          startedAt
         }
         states {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -724,13 +931,19 @@ export const createColumn = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -739,11 +952,18 @@ export const createColumn = /* GraphQL */ `
           id
           columnID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -770,13 +990,19 @@ export const updateColumn = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -785,11 +1011,18 @@ export const updateColumn = /* GraphQL */ `
           id
           columnID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -816,13 +1049,19 @@ export const deleteColumn = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -831,11 +1070,18 @@ export const deleteColumn = /* GraphQL */ `
           id
           columnID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -860,13 +1106,19 @@ export const createFilter = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -875,21 +1127,32 @@ export const createFilter = /* GraphQL */ `
           id
           columnID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       states {
         items {
           id
           stateID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -914,13 +1177,19 @@ export const updateFilter = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -929,21 +1198,32 @@ export const updateFilter = /* GraphQL */ `
           id
           columnID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       states {
         items {
           id
           stateID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -968,13 +1248,19 @@ export const deleteFilter = /* GraphQL */ `
         files
         states {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
         columns {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -983,21 +1269,32 @@ export const deleteFilter = /* GraphQL */ `
           id
           columnID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
       states {
         items {
           id
           stateID
           filterID
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         nextToken
+        startedAt
       }
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -1026,20 +1323,31 @@ export const createComment = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         comments {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
       content
       createdAt
+      _version
+      _deleted
+      _lastChangedAt
       updatedAt
     }
   }
@@ -1067,20 +1375,31 @@ export const updateComment = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         comments {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
       content
       createdAt
+      _version
+      _deleted
+      _lastChangedAt
       updatedAt
     }
   }
@@ -1108,20 +1427,31 @@ export const deleteComment = /* GraphQL */ `
           author
           shared
           files
+          _version
+          _deleted
+          _lastChangedAt
           createdAt
           updatedAt
         }
         comments {
           nextToken
+          startedAt
         }
         filters {
           nextToken
+          startedAt
         }
+        _version
+        _deleted
+        _lastChangedAt
         createdAt
         updatedAt
       }
       content
       createdAt
+      _version
+      _deleted
+      _lastChangedAt
       updatedAt
     }
   }

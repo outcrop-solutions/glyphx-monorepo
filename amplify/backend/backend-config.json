@@ -25,7 +25,7 @@
     }
   },
   "api": {
-    "sgxapi": {
+    "dashboard": {
       "service": "AppSync",
       "providerPlugin": "awscloudformation",
       "output": {

@@ -5,7 +5,7 @@ export const useFileSystem = (project) => {
   const [fileSystem, setFileSystem] = useState([]);
   // utility to process storage list if unzipped
   function processStorageList(results) {
-    const files= {};
+    const files = {};
 
     const add = (source, target, item) => {
       const elements = source.split("/");
@@ -68,6 +68,9 @@ export const useFileSystem = (project) => {
         console.log({ hookset: [...prev, ...arg] });
         return [...prev, ...arg];
       });
+    },
+    clearFiles: (arg) => {
+      setFileSystem([]);
     },
   };
 };
