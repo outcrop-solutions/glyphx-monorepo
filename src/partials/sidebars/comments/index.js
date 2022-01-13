@@ -34,7 +34,7 @@ export const CommentsSidebar = ({
   const sidebar = useRef(null);
   const pos = usePosition(sidebar);
 
-  const { comments, setComments } = useComments();
+  const { comments, setComments } = useComments(state);
 
   // close on click outside
   useEffect(() => {
@@ -96,7 +96,7 @@ export const CommentsSidebar = ({
         >
           <Header sidebarExpanded={sidebarExpanded} />
           <div className="m-2 hidden comments-sidebar-expanded:block overflow-y-scroll scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full">
-            <History comments={comments}/>
+            <History comments={comments} />
             <CommentInput user={user} state={state} setComments={setComments} />
           </div>
 

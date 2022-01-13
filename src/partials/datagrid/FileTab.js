@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { XIcon } from "@heroicons/react/solid";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
@@ -12,17 +13,17 @@ export const FileTab = ({
   setSelectedFile,
   setDataGridLoading,
 }) => {
-  // TODO: handle case where attempting to open a file that is not yet fully uploaded
-  const handleClose = async () => {
-    setFilesOpen(async (prev) => {
-      let newData = prev.filter((el) => el !== item);
-      console.log({ newData });
-      if (newData.length !== 0) {
+  useEffect(() => {
+    const newClose = async () => {
+      if (filesOpen.length !== 0) {
         setDataGridLoading(true);
-        setSelectedFile(newData[0]);
-        const fileData = await Storage.get(`${project.id}/input/${newData[0]}`, {
-          download: true,
-        });
+        setSelectedFile(filesOpen[0]);
+        const fileData = await Storage.get(
+          `${project.id}/input/${filesOpen[0]}`,
+          {
+            download: true,
+          }
+        );
         const blobData = await fileData.Body.text();
         const { data } = parse(blobData, { header: true });
         // const text = await fileDat;
@@ -32,11 +33,22 @@ export const FileTab = ({
         // if file is not open, get the data and set grid && add file name to files open
         setDataGridLoading(false);
         setDataGrid(grid);
-        return newData;
       } else {
         setDataGridLoading(false);
         setDataGrid({ rows: [], columns: [] });
         setSelectedFile("");
+      }
+    };
+    newClose();
+  }, [filesOpen]);
+  // TODO: handle case where attempting to open a file that is not yet fully uploaded
+  const handleClose = async () => {
+    setFilesOpen(async (prev) => {
+      let newData = prev.filter((el) => el !== item);
+      console.log({ newData });
+      if (newData.length !== 0) {
+        return newData;
+      } else {
         return [];
       }
     });

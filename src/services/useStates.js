@@ -7,9 +7,27 @@ export const useStates = (project) => {
   const [states, setStates] = useState([]);
 
   useEffect(() => {
-    if (project && project.states.items) {
-      setStates(project.states.items);
-    }
+    const fetchStates = async () => {
+      try {
+        const statesData = await API.graphql(graphqlOperation(listStates));
+        // console.log({ projectData })
+        const stateList = statesData.data.listStates.items;
+
+        console.log({ stateList });
+        setStates((prev) => {
+          let newData = [
+            ...stateList.filter((el) => el.projectID === project.id),
+          ];
+          return newData;
+        });
+      } catch (error) {
+        console.log("error on fetching states", error);
+      }
+    };
+    if (project) fetchStates();
+    // if (project && project.states.items) {
+    //   setStates(project.states.items);
+    // }
   }, [project]);
   return {
     states,
