@@ -7,6 +7,7 @@ import { States } from "./states";
 import { usePosition } from "../../../services/usePosition";
 
 export const ProjectSidebar = ({
+  openFile,
   selectedFile,
   setSelectedFile,
   setDataGrid,
@@ -105,6 +106,7 @@ export const ProjectSidebar = ({
         {/* Files */}
 
         <Files
+          openFile={openFile}
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
           setDataGridLoading={setDataGridLoading}

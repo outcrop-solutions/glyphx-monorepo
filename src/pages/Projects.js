@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import QWebChannel from "qwebchannel";
-
 import Header from "../partials/header";
 import TableView from "../partials/projects/TableView";
 import { GridView } from "../partials/projects/GridView";
 import { ProjectSidebar } from "../partials/sidebars/project";
 import { CommentsSidebar } from "../partials/sidebars/comments";
 import { MainSidebar } from "../partials/sidebars/main";
-import { useUrl } from "../services/useUrl";
 import { useStateChange } from "../services/useStateChange";
 import { useFileSystem } from "../services/useFileSystem";
-import { useFilterChange } from "../services/useFilterChange";
 import { Datagrid } from "../partials/datagrid";
 import { FileHeader } from "../partials/datagrid/FileHeader";
 import { ModelFooter } from "../partials/datagrid/ModelFooter";
@@ -20,34 +17,26 @@ import { Templates } from "../partials/projects/Templates";
 import { Invite } from "../partials/invite";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Storage } from "aws-amplify";
 import update from "immutability-helper";
 import { useStates } from "../services/useStates";
 import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 import { ToastContainer } from "react-toastify";
-import { formatGridData } from "../partials/actions/Dropzone";
-import { parse } from "papaparse";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
 
 export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [grid, setGrid] = useState(false);
-  // const [state, setState] = useState(null);
-
   const [project, setProject] = useState(false);
 
   const { states, state, setState, setStates } = useStates(project);
   useStateChange(state);
+  useStateChange(state);
 
   const [showAddProject, setShowAddProject] = useState(false);
 
-  const { isStateChanged } = useStateChange(state);
-
-  // pass signed url
-  // const { isUrlSigned } = useUrl(project);
   const location = useLocation();
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
 
@@ -56,10 +45,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   //position state dynamically changes with transitions
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
-
-  // useEffect(() => {
-  //   console.log({ filterSidebarPosition, commentsPosition });
-  // }, [filterSidebarPosition, commentsPosition]);
 
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
@@ -110,7 +95,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
-
   useEffect(() => {
     if (sendDrawerPositionApp) {
       // console.log({ filterSidebarPosition, commentsPosition });
@@ -130,10 +114,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     });
   };
 
-  //data grid state
-  const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
-  const [selectedFile, setSelectedFile] = useState("");
-  const [dataGridLoading, setDataGridLoading] = useState(false);
   const [reorderConfirm, setReorderConfirm] = useState(false);
   const [propertiesArr, setPropertiesArr] = useState([
     { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
@@ -175,8 +155,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     },
     [droppedProps, propertiesArr]
   );
-
-  const [full, setFull] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [url, setUrl] = useState("");
   const toastRef = React.useRef(null);
@@ -213,8 +191,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         console.log({ response });
         // TODO: Set Url state to toggle drawer from bottom drawer
         // window.core.OpenProject(JSON.stringify(response));
-      } else {
-        setFull(false);
       }
     };
 
@@ -223,35 +199,23 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
-  const [sdt, setSdt] = useState("Hello");
-  const [filesOpen, setFilesOpen] = useState([]);
-  const { fileSystem, setFiles } = useFileSystem(project);
 
-  useEffect(() => {
-    const defaultSelectFile = async () => {
-      if (selectedFile === "" && fileSystem && fileSystem[0]) {
-        setDataGridLoading(true);
-        setSelectedFile(fileSystem[0].text);
-        setFilesOpen([fileSystem[0].text])
-        const fileData = await Storage.get(
-          `${project.id}/input/${fileSystem[0].text}`,
-          {
-            download: true,
-          }
-        );
-        const blobData = await fileData.Body.text();
-        const { data } = parse(blobData, { header: true });
-        // const text = await fileDat;
-        const grid = formatGridData(data);
-        // console.log({ grid });
-        // if file is already open, set file selected && set Grid data
-        // if file is not open, get the data and set grid && add file name to files open
-        setDataGridLoading(false);
-        setDataGrid(grid);
-      }
-    };
-    defaultSelectFile();
-  }, [selectedFile, fileSystem]);
+  const {
+    fileSystem,
+    setFiles,
+    filesOpen,
+    setFilesOpen,
+    openFile,
+    closeFile,
+    selectedFile,
+    setSelectedFile,
+    sdt,
+    setSdt,
+    dataGrid,
+    setDataGrid,
+    dataGridLoading,
+    setDataGridLoading,
+  } = useFileSystem(project);
 
   useEffect(() => {
     if ((share || reorderConfirm) && window && window.core) {
@@ -328,6 +292,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
               <>
                 <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
+                    openFile={openFile}
                     selectedFile={selectedFile}
                     setSelectedFile={setSelectedFile}
                     setDataGridLoading={setDataGridLoading}
@@ -367,14 +332,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         <div className="flex-col mx-auto h-full">
                           {filesOpen && filesOpen.length > 0 && (
                             <FileHeader
-                              project={project}
+                              openFile={openFile}
+                              closeFile={closeFile}
                               selectedFile={selectedFile}
-                              setSelectedFile={setSelectedFile}
-                              setDataGrid={setDataGrid}
-                              setDataGridLoading={setDataGridLoading}
-                              fileSystem={fileSystem}
                               filesOpen={filesOpen}
-                              setFilesOpen={setFilesOpen}
                             />
                           )}
                           {dataGridLoading ? (

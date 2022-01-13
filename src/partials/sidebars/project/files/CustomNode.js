@@ -7,45 +7,16 @@ import { formatGridData } from "../../../../partials/actions/Dropzone";
 import styles from "./css/CustomNode.module.css";
 
 export const CustomNode = ({
-  project,
-  setDataGrid,
-  setDataGridLoading,
   node,
   depth,
   onToggle,
   isOpen,
-  filesOpen,
-  setFilesOpen,
   selectedFile,
-  setSelectedFile,
+  openFile,
 }) => {
   const { id, droppable, data } = node;
   const indent = depth * 24;
 
-  const handleFile = async () => {
-    setDataGridLoading(true);
-
-    if (!filesOpen.includes(node.text)) {
-      setFilesOpen((prev) => {
-        return [...new Set([...prev, node.text])];
-      });
-    }
-
-    setSelectedFile(node.text);
-
-    const fileData = await Storage.get(`${project.id}/input/${node.text}`, {
-      download: true,
-    });
-    const blobData = await fileData.Body.text();
-    const { data } = parse(blobData, { header: true });
-    // const text = await fileDat;
-    const grid = formatGridData(data);
-    // console.log({ grid });
-    // if file is already open, set file selected && set Grid data
-    // if file is not open, get the data and set grid && add file name to files open
-    setDataGridLoading(false);
-    setDataGrid(grid);
-  };
   const handleToggle = (e) => {
     e.stopPropagation();
     onToggle(node.id);
@@ -55,7 +26,7 @@ export const CustomNode = ({
 
   return (
     <div
-      onClick={handleFile}
+      onClick={() => openFile(node.text)}
       className={`tree-node ${
         selectedFile === node.text ? "bg-gray-800" : ""
       } ${styles.root}`}
