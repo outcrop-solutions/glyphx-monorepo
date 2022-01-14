@@ -183,14 +183,15 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         console.log({ body });
         // let signedUrl = await Storage.get("mcgee_sku_model.zip");
         // console.log({ signedUrl });
-        // if (project && window && window.core) {
-        let response = await fetch(
-          "https://m6l2svpb59.execute-api.us-east-2.amazonaws.com/Prod/etl/model",
-          { method: "POST", mode: "no-cors", body: JSON.stringify(body) }
-        );
-        console.log({ response });
-        // TODO: Set Url state to toggle drawer from bottom drawer
-        // window.core.OpenProject(JSON.stringify(response));
+        if (project && window && window.core) {
+          let response = await fetch(
+            "https://m6l2svpb59.execute-api.us-east-2.amazonaws.com/Prod/etl/model",
+            { method: "POST", mode: "no-cors", body: JSON.stringify(body) }
+          );
+          // console.log({ response });
+          // TODO: Set Url state to toggle drawer from bottom drawer
+          window.core.OpenProject(JSON.stringify(response));
+        }
       }
     };
 
