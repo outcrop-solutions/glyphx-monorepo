@@ -209,6 +209,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     openFile,
     selectFile,
     closeFile,
+    clearFiles,
     selectedFile,
     setSelectedFile,
     sdt,
@@ -241,10 +242,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       {showAddProject ? (
         <AddProjectModal
           user={user}
-          setFileSystem={setFiles}
-          setDataGrid={setDataGrid}
-          setFilesOpen={setFilesOpen}
-          setSelectedFile={setSelectedFile}
+          clearFiles={clearFiles}
           setShowAddProject={setShowAddProject}
           setProject={setProject}
         />

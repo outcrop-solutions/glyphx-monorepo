@@ -38,6 +38,10 @@ export const useFileSystem = (project) => {
     //  set Data grid loading to be true
     //  format data and set it
     //  set data grid loading false
+    setDataGrid({ columns: [], rows: [] });
+    setSelectedFile("");
+    setFilesOpen([]);
+    setFileSystem([]);
     const getFileSystem = async () => {
       try {
         const data = await Storage.list(`${project.id}/input/`);
@@ -179,6 +183,12 @@ export const useFileSystem = (project) => {
         setSelectedFile("");
         setDataGrid({ rows: [], columns: [] });
       }
+    },
+    clearFiles: async () => {
+      setDataGrid({ columns: [], rows: [] });
+      setSelectedFile("");
+      setFilesOpen([]);
+      setFileSystem([]);
     },
     filesOpen,
     dataGrid,
