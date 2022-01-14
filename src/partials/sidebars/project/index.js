@@ -103,7 +103,7 @@ export const ProjectSidebar = ({
         sidebarOpen ? "translate-x-0" : "-translate-x-64"
       }`}
     >
-      <div>
+      <div className="overflow-y-auto scrollbar-none">
         {/* Files */}
 
         <Files

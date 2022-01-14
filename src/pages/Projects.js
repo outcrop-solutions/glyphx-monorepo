@@ -129,16 +129,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   };
   const handleDrop = useCallback(
     (index, item) => {
-      let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
-      console.log({ droppedProps });
-      if (
-        droppedProps &&
-        droppedProps.length >= 3 &&
-        propsArr &&
-        propsArr.length === 3
-      ) {
-        setReorderConfirm(true);
-      }
+      // let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+      // console.log({ droppedProps });
+      // if first three items have changed, throw modal, else do nothing
+
       const { key } = item;
       setDroppedProps(
         update(droppedProps, key ? { $push: [key] } : { $push: [] })
@@ -164,6 +158,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     // if yes set "full" to true, show spinner and call etl endpoint
     // take signedurl response and pass to Bryan
     // if no, do nothing
+
     const handleETL = async () => {
       let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
       let filterArr = propertiesArr
@@ -194,8 +189,42 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         }
       }
     };
+    let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+    const equals = (a, b) =>
+      a.length === b.length && a.every((v, i) => v === b[i]);
 
-    handleETL();
+    console.log({
+      dropped: droppedProps.slice(0, 3),
+      props: propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key),
+      equals: equals(
+        droppedProps.slice(0, 3),
+        propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key)
+      ),
+    });
+    if (
+      droppedProps &&
+      droppedProps.length >= 3 &&
+      propsArr &&
+      propsArr.length >= 3 &&
+      !equals(
+        droppedProps.slice(0, 3),
+        propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key)
+      )
+    ) {
+      setReorderConfirm(true);
+    }
+    if (
+      droppedProps &&
+      droppedProps.length === 3 &&
+      propsArr &&
+      propsArr.length === 3 &&
+      equals(
+        droppedProps.slice(0, 3),
+        propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key)
+      )
+    ) {
+      handleETL();
+    }
   }, [propertiesArr, project, uploaded]);
 
   const [isEditing, setIsEditing] = useState(false);
