@@ -41,6 +41,7 @@ export const useFileSystem = (project) => {
     const getFileSystem = async () => {
       try {
         const data = await Storage.list(`${project.id}/input/`);
+        console.log({ data });
         const processed = processStorageList(data);
         console.log({ processed });
         const files = Object.keys(processed[`${project.id}`].input);

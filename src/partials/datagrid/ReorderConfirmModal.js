@@ -23,13 +23,30 @@ export const ReorderConfirmModal = ({
   const [projectFile, setProjectFile] = useState("");
 
   const handleSave = async () => {
+    let newId = uuid();
     const createProjectInput = {
-      id: uuid(),
+      id: newId,
       name: `${project.name} Copy`,
       description: "",
       author: user.id,
     };
+
     try {
+      const data = await Storage.list(`${project.id}/input/`);
+      console.log({ data });
+      for (let i = 0; i < data.length; i++) {
+        console.log({
+          strings: [
+            { srckey: `${data[i].key}` },
+            { destkey: `${newId}${data[i].key.slice(36)}` },
+          ],
+        });
+        const copied = await Storage.copy(
+          { key: `${data[i].key}` },
+          { key: `${newId}${data[i].key.slice(36)}` }
+        );
+        console.log({ copied });
+      }
       console.log({ createProjectInput });
       const result = await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
