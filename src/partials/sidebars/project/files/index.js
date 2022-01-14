@@ -8,6 +8,7 @@ import { Dropzone } from "../../../actions/Dropzone";
 
 export const Files = ({
   openFile,
+  selectFile,
   setDataGrid,
   sidebarExpanded,
   setSidebarExpanded,
@@ -52,6 +53,7 @@ export const Files = ({
               render={(node, { depth, isOpen, onToggle }) => (
                 <CustomNode
                   openFile={openFile}
+                  selectFile={selectFile}
                   node={node}
                   depth={depth}
                   isOpen={isOpen}

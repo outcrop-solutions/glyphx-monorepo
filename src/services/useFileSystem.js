@@ -103,15 +103,47 @@ export const useFileSystem = (project) => {
     },
     openFile: async (arg) => {
       console.log({ arg });
-      // add to filesOpen
+      // if already in filesOpn && selected, do nothing
+      // if in filesOpen && not selected, select and add to datagrid
+      // if not in filesOpn && not selected, add to filesOpn && select && add to dataGrid
+      // if
       // add to dataGrid
       // set as selected File
-      setFilesOpen((prev) => {
-        // console.log({ hookset: [...prev, arg] });
-        if (prev.length > 0) {
-          return [...prev, arg];
-        } else return [arg];
-      });
+      const selectAndLoad = async () => {
+        setSelectedFile(arg);
+        setDataGridLoading(true);
+        const fileData = await Storage.get(`${project.id}/input/${arg}`, {
+          download: true,
+        });
+        const blobData = await fileData.Body.text();
+        const { data } = parse(blobData, { header: true });
+        const grid = formatGridData(data);
+        setDataGridLoading(false);
+        setDataGrid(grid);
+      };
+
+      if (filesOpen.includes(arg) && selectedFile === arg) {
+        return;
+      } else if (filesOpen.includes(arg) && selectedFile !== arg) {
+        await selectAndLoad();
+      } else if (!filesOpen.includes(arg) && selectedFile !== arg) {
+        setFilesOpen((prev) => {
+          // console.log({ hookset: [...prev, arg] });
+          if (prev.length > 0) {
+            return [...prev, arg];
+          } else return [arg];
+        });
+        await selectAndLoad();
+      }
+    },
+    selectFile: async (arg) => {
+      console.log({ arg });
+      // if already selected, do nothing
+      // if not selected, add to dataGrid && set as selected File
+
+      if (arg === selectedFile) {
+        return;
+      }
       setSelectedFile(arg);
       setDataGridLoading(true);
       const fileData = await Storage.get(`${project.id}/input/${arg}`, {

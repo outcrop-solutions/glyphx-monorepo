@@ -13,6 +13,7 @@ export const CustomNode = ({
   isOpen,
   selectedFile,
   openFile,
+  selectFile,
 }) => {
   const { id, droppable, data } = node;
   const indent = depth * 24;
@@ -26,7 +27,13 @@ export const CustomNode = ({
 
   return (
     <div
-      onClick={() => openFile(node.text)}
+      onClick={() => {
+        if (node.text === selectedFile) {
+          selectFile(node.text);
+        } else {
+          openFile(node.text);
+        }
+      }}
       className={`tree-node ${
         selectedFile === node.text ? "bg-gray-800" : ""
       } ${styles.root}`}

@@ -8,6 +8,7 @@ import { usePosition } from "../../../services/usePosition";
 
 export const ProjectSidebar = ({
   openFile,
+  selectFile,
   selectedFile,
   setSelectedFile,
   setDataGrid,
@@ -107,6 +108,7 @@ export const ProjectSidebar = ({
 
         <Files
           openFile={openFile}
+          selectFile={selectFile}
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
           setDataGridLoading={setDataGridLoading}

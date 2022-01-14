@@ -4,7 +4,7 @@ import { FileTab } from "./FileTab";
 export const FileHeader = ({
   selectedFile,
   filesOpen,
-  openFile,
+  selectFile,
   closeFile,
 }) => {
   return (
@@ -16,7 +16,7 @@ export const FileHeader = ({
               key={`${item}-${idx}`}
               item={item}
               selectedFile={selectedFile}
-              openFile={openFile}
+              selectFile={selectFile}
               closeFile={closeFile}
             />
           ))}

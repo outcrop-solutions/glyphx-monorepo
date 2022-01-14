@@ -207,6 +207,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     filesOpen,
     setFilesOpen,
     openFile,
+    selectFile,
     closeFile,
     selectedFile,
     setSelectedFile,
@@ -294,6 +295,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                 <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
                     openFile={openFile}
+                    selectFile={selectFile}
                     selectedFile={selectedFile}
                     setSelectedFile={setSelectedFile}
                     setDataGridLoading={setDataGridLoading}
@@ -333,7 +335,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         <div className="flex-col mx-auto h-full">
                           {filesOpen && filesOpen.length > 0 && (
                             <FileHeader
-                              openFile={openFile}
+                              selectFile={selectFile}
                               closeFile={closeFile}
                               selectedFile={selectedFile}
                               filesOpen={filesOpen}
