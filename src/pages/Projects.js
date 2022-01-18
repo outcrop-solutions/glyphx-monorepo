@@ -179,23 +179,23 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         console.log({ body });
         // let signedUrl = await Storage.get("mcgee_sku_model.zip");
         // console.log({ signedUrl });
-        // if (project && window && window.core) {
-        let response = await fetch("https://api.glyphx.co/etl/model", {
-          method: "POST",
-          mode: "no-cors",
-          body: JSON.stringify(body),
-        });
-        console.log({ response });
+        if (project && window && window.core) {
+          let response = await fetch("https://api.glyphx.co/etl/model", {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(body),
+          });
+          console.log({ response });
 
-        // TODO: Set Url state to toggle drawer from bottom drawer
-        // if (response.ok) {
-        //   window.core.OpenProject(JSON.stringify(response.signedUrl));
-        //   setUrl(response.signedUrl);
-        //   setSdt(response.sdt);
-        // } else {
-        //   window.core.OpenProject(JSON.stringify({}));
-        // }
-        // }
+          // TODO: Set Url state to toggle drawer from bottom drawer
+          if (response.ok) {
+            window.core.OpenProject(JSON.stringify(response.signedUrl));
+            setUrl(response.signedUrl);
+            setSdt(response.sdt);
+          } else {
+            window.core.OpenProject(JSON.stringify({}));
+          }
+        }
       }
     };
     let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
