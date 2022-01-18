@@ -240,6 +240,20 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
 
+  useEffect(() => {
+    setPropertiesArr([
+      { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    ]);
+    setOldDropped([]);
+    setReorderConfirm(false);
+    setDroppedProps([]);
+  }, [project]);
+
   const {
     fileSystem,
     setFiles,
