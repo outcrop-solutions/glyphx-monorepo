@@ -34,7 +34,7 @@ function Header({
     const updateProjectInput = {
       id: project.id,
       name: projectName,
-      version: project._version,
+      // version: project._version,
     };
     console.log({ updateProjectInput });
     try {

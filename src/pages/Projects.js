@@ -124,6 +124,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
   ]);
   const [droppedProps, setDroppedProps] = useState([]);
+  const [oldDropped, setOldDropped] = useState([]);
   const isDropped = (propName) => {
     return droppedProps.indexOf(propName) > -1;
   };
@@ -134,9 +135,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
       // if first three items have changed, throw modal, else do nothing
 
       const { key } = item;
-      setDroppedProps(
-        update(droppedProps, key ? { $push: [key] } : { $push: [] })
-      );
+      setOldDropped(droppedProps);
+      setDroppedProps(update(droppedProps, { [index]: { $set: key } }));
+      // TODO:
       setPropertiesArr(
         update(propertiesArr, {
           [index]: {
@@ -178,59 +179,60 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         console.log({ body });
         // let signedUrl = await Storage.get("mcgee_sku_model.zip");
         // console.log({ signedUrl });
-        if (project && window && window.core) {
-          let response = await fetch("https://api.glyphx.co/etl/model", {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(body),
-          });
-          console.log({ response });
+        // if (project && window && window.core) {
+        let response = await fetch("https://api.glyphx.co/etl/model", {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify(body),
+        });
+        console.log({ response });
 
-          // TODO: Set Url state to toggle drawer from bottom drawer
-          if (response.ok) {
-            window.core.OpenProject(JSON.stringify(response.signedUrl));
-            setUrl(response.signedUrl);
-            setSdt(response.sdt);
-          } else {
-            window.core.OpenProject(JSON.stringify({}));
-          }
-        }
+        // TODO: Set Url state to toggle drawer from bottom drawer
+        // if (response.ok) {
+        //   window.core.OpenProject(JSON.stringify(response.signedUrl));
+        //   setUrl(response.signedUrl);
+        //   setSdt(response.sdt);
+        // } else {
+        //   window.core.OpenProject(JSON.stringify({}));
+        // }
+        // }
       }
     };
     let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
     const equals = (a, b) =>
       a.length === b.length && a.every((v, i) => v === b[i]);
+    let propsSliced = propsArr
+      .slice(0, 3)
+      .map((item) => item.lastDroppedItem.key);
 
+    let oldDroppedSliced = oldDropped.slice(0, 3).filter((el) => el);
+    let droppedSliced = droppedProps.slice(0, 3).filter((el) => el);
     console.log({
-      dropped: droppedProps.slice(0, 3),
-      props: propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key),
-      equals: equals(
-        droppedProps.slice(0, 3),
-        propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key)
-      ),
+      propsArr,
+      oldDropped,
+      oldDroppedSliced,
+      propsSliced,
+      equals: !equals(propsSliced, oldDroppedSliced),
     });
     if (
-      droppedProps &&
-      droppedProps.length >= 3 &&
-      propsArr &&
-      propsArr.length >= 3 &&
-      !equals(
-        droppedProps.slice(0, 3),
-        propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key)
-      )
+      oldDropped &&
+      oldDroppedSliced.length === 3 &&
+      !equals(propsSliced, oldDroppedSliced)
     ) {
       setReorderConfirm(true);
+      return;
     }
+
     if (
-      droppedProps &&
-      droppedProps.length === 3 &&
       propsArr &&
-      propsArr.length === 3 &&
-      equals(
-        droppedProps.slice(0, 3),
-        propsArr.slice(0, 3).map((item) => item.lastDroppedItem.key)
-      )
+      propsArr.length >= 3 &&
+      propsSliced &&
+      propsSliced.length >= 3 &&
+      droppedSliced &&
+      droppedSliced.length >= 3 &&
+      equals(propsSliced, droppedSliced)
     ) {
+      console.log("handleETl called");
       handleETL();
     }
   }, [propertiesArr, project, uploaded]);
@@ -289,12 +291,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           project={project}
           setReorderConfirm={setReorderConfirm}
           user={user}
-          setFileSystem={setFiles}
-          setDataGrid={setDataGrid}
-          setFilesOpen={setFilesOpen}
-          setSelectedFile={setSelectedFile}
           setShowAddProject={setShowAddProject}
           setProject={setProject}
+          setOldDropped={setOldDropped}
+          setPropertiesArr={setPropertiesArr}
         />
       ) : null}
 
