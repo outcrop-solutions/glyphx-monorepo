@@ -1,7 +1,11 @@
 export const ModelFooter = ({ sdt, url }) => {
   const handleOpen = () => {
     if (window && window.core) {
-      window.core.OpenProject(url);
+      if (url) {
+        window.core.OpenProject(url);
+      } else {
+        window.core.OpenProject({});
+      }
     }
   };
   return (

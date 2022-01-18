@@ -150,7 +150,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     [droppedProps, propertiesArr]
   );
   const [uploaded, setUploaded] = useState(false);
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(false);
   const toastRef = React.useRef(null);
   // listen to properties array drops and call ETL on XYZ full
   useEffect(() => {
@@ -179,13 +179,21 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         // let signedUrl = await Storage.get("mcgee_sku_model.zip");
         // console.log({ signedUrl });
         if (project && window && window.core) {
-          let response = await fetch(
-            "https://m6l2svpb59.execute-api.us-east-2.amazonaws.com/Prod/etl/model",
-            { method: "POST", mode: "no-cors", body: JSON.stringify(body) }
-          );
-          // console.log({ response });
+          let response = await fetch("https://api.glyphx.co/etl/model", {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(body),
+          });
+          console.log({ response });
+
           // TODO: Set Url state to toggle drawer from bottom drawer
-          window.core.OpenProject(JSON.stringify(response));
+          if (response.ok) {
+            window.core.OpenProject(JSON.stringify(response.signedUrl));
+            setUrl(response.signedUrl);
+            setSdt(response.sdt);
+          } else {
+            window.core.OpenProject(JSON.stringify({}));
+          }
         }
       }
     };

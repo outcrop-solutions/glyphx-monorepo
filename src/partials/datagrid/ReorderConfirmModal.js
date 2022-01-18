@@ -30,7 +30,7 @@ export const ReorderConfirmModal = ({
       description: "",
       author: user.id,
     };
-
+    setReorderConfirm(false);
     try {
       const data = await Storage.list(`${project.id}/input/`);
       console.log({ data });
@@ -52,7 +52,7 @@ export const ReorderConfirmModal = ({
         graphqlOperation(createProject, { input: createProjectInput })
       );
       console.log({ result });
-      setReorderConfirm(false);
+      
       setProject(result.data.createProject);
       // fetchProjects();
     } catch (error) {

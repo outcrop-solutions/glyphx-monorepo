@@ -6,7 +6,7 @@ import { parse } from "papaparse";
 export const useFileSystem = (project) => {
   const [fileSystem, setFileSystem] = useState([]);
   const [filesOpen, setFilesOpen] = useState([]);
-  const [sdt, setSdt] = useState("Hello");
+  const [sdt, setSdt] = useState("Mcgee and co.sdt");
   const [selectedFile, setSelectedFile] = useState("");
   const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
   const [dataGridLoading, setDataGridLoading] = useState(false);
