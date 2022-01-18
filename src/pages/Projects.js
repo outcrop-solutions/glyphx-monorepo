@@ -97,14 +97,16 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   );
   useEffect(() => {
     if (sendDrawerPositionApp) {
-      // console.log({ filterSidebarPosition, commentsPosition });
+      console.log({ filterSidebarPosition, commentsPosition });
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: filterSidebarPosition.values,
-          commentsSidebar: commentsPosition.values,
+          commentsSidebar: commentsPosition
+            ? commentsPosition.values
+            : { ...filterSidebarPosition.values, left: window.innerWidth },
         })
       );
-      // setSendDrawerPositionApp(false)
+      setSendDrawerPositionApp(false);
     }
   }, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp]);
   const handleStateChange = (state) => {
