@@ -339,7 +339,9 @@ export const ProjectCard = ({
                 </>
               ) : (
                 <div className="rounded-full bg-blue-600 h-6 w-6 text-sm text-white flex items-center justify-center">
-                  {`${user.attributes.email.split("@")[0][0].toUpperCase()}`}
+                  {user.attributes
+                    ? `${user.attributes.email.split("@")[0][0].toUpperCase()}`
+                    : ""}
                 </div>
               )}
               {project.shared && project.shared.length > 4 ? (

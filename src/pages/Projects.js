@@ -184,16 +184,22 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         if (project && window && window.core) {
           let response = await fetch("https://api.glyphx.co/etl/model", {
             method: "POST",
-            mode: "no-cors",
+            mode: "cors",
             body: JSON.stringify(body),
           });
-          console.log({ response });
-
+          let res = await response.json();
+          console.log({ res });
+          console.log({
+            sdt: res.sdt,
+            signedUrl: res.url,
+            statusCode: res.statusCode,
+          });
           // TODO: Set Url state to toggle drawer from bottom drawer
-          if (response.ok) {
-            window.core.OpenProject(JSON.stringify(response.signedUrl));
-            setUrl(response.signedUrl);
-            setSdt(response.sdt);
+          if (res.statusCode === 200) {
+            console.log("THIS IS BEING LOGGED NOW");
+            window.core.OpenProject(JSON.stringify(res.url));
+            setUrl(res.url);
+            setSdt(res.sdt);
           } else {
             window.core.OpenProject(JSON.stringify({}));
           }

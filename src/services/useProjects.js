@@ -4,8 +4,8 @@ import { listProjects } from "../graphql/queries";
 import { useUser } from "../services/useUser";
 
 export const useProjects = () => {
-  const { user } = useUser();
-  console.log({ user });
+  // const { user } = useUser();
+  // console.log({ user });
   const [projects, setProjects] = useState([]);
   // fetch project data from RDS
   useEffect(() => {
@@ -24,7 +24,8 @@ export const useProjects = () => {
         console.log("error on fetching projects", error);
       }
     };
-    if (user && user.attributes) fetchProjects();
-  }, [user]);
+    // if (user && user.attributes) 
+    fetchProjects();
+  }, []);
   return { projects };
 };
