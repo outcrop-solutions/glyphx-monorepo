@@ -34,7 +34,7 @@ function App() {
   const { user, isLogged } = useUser(isLoggedIn);
   const [resetPass, setResetPass] = useState(false);
   const location = useLocation();
-  const { projects } = useProjects();
+  const { projects } = useProjects(isLoggedIn, user);
   // handle scroll position on route change
   useEffect(() => {
     document.querySelector("html").style.scrollBehavior = "auto";

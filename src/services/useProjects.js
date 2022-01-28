@@ -3,7 +3,7 @@ import { API, graphqlOperation, Auth } from "aws-amplify";
 import { listProjects } from "../graphql/queries";
 import { useUser } from "../services/useUser";
 
-export const useProjects = () => {
+export const useProjects = ({ isLoggedIn }) => {
   // const { user } = useUser();
   // console.log({ user });
   const [projects, setProjects] = useState([]);
@@ -15,12 +15,12 @@ export const useProjects = () => {
       setUser(user);
     };
     fetchUser();
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        if (user) {
+        // if (user) {
           const projectData = await API.graphql(graphqlOperation(listProjects));
           // console.log({ projectData })
           const projectList = projectData.data.listProjects.items;
@@ -30,15 +30,15 @@ export const useProjects = () => {
             let newData = [...projectList];
             return newData;
           });
-        } else {
-          console.log("No User");
-        }
+        // } else {
+        //   console.log("No User");
+        // }
       } catch (error) {
         console.log("error on fetching projects", error);
       }
     };
     // if (user && user.attributes)
     fetchProjects();
-  }, [user]);
+  }, [user, isLoggedIn]);
   return { projects };
 };
