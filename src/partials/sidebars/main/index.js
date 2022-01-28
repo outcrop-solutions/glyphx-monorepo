@@ -134,6 +134,9 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
               >
                 <div
                   onClick={() => {
+                    if (window && window.core) {
+                      window.core.ToggleDrawer(false);
+                    }
                     setProject(false);
                   }}
                   className={`block text-gray-200 hover:text-white truncate transition duration-150 ${
@@ -202,7 +205,6 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                 }`}
               >
                 <div
-            
                   className={`block text-gray-500 truncate transition duration-150 ${
                     pathname.includes("shared") && "hover:text-gray-200"
                   }`}
