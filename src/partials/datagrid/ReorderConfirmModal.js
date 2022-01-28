@@ -11,11 +11,9 @@ export const ReorderConfirmModal = ({
   project,
   setShowAddProject,
   setProject,
-  setDataGrid,
-  setSelectedFile,
-  setFilesOpen,
-  setFileSystem,
   setReorderConfirm,
+  setOldDropped,
+  setPropertiesArr,
 }) => {
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("");
@@ -23,19 +21,38 @@ export const ReorderConfirmModal = ({
   const [projectFile, setProjectFile] = useState("");
 
   const handleSave = async () => {
+    // TODO: set old dropped to empty array
+    setOldDropped([]);
+    let newId = uuid();
     const createProjectInput = {
-      id: uuid(),
+      id: newId,
       name: `${project.name} Copy`,
       description: "",
       author: user.id,
     };
+    setReorderConfirm(false);
     try {
+      const data = await Storage.list(`${project.id}/input/`);
+      console.log({ data });
+      for (let i = 0; i < data.length; i++) {
+        console.log({
+          strings: [
+            { srckey: `${data[i].key}` },
+            { destkey: `${newId}${data[i].key.slice(36)}` },
+          ],
+        });
+        const copied = await Storage.copy(
+          { key: `${data[i].key}` },
+          { key: `${newId}${data[i].key.slice(36)}` }
+        );
+        console.log({ copied });
+      }
       console.log({ createProjectInput });
       const result = await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
       );
       console.log({ result });
-      setReorderConfirm(false);
+
       setProject(result.data.createProject);
       // fetchProjects();
     } catch (error) {
@@ -46,7 +63,10 @@ export const ReorderConfirmModal = ({
   const handleClickAway = () => {
     setShowAddProject(false);
   };
-  const handleCancel = () => {};
+  const handleCancel = () => {
+    // TODO: restore properties array to old props
+    setReorderConfirm(false);
+  };
   return (
     <div className="absolute w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 z-60">
       <ClickAwayListener onClickAway={handleClickAway}>
@@ -78,7 +98,7 @@ export const ReorderConfirmModal = ({
             <button
               type="button"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-gray-500 text-base font-medium text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:col-start-1 sm:text-sm"
-              onClick={() => setReorderConfirm(false)}
+              onClick={handleCancel}
             >
               Cancel
             </button>

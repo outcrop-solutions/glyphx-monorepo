@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
+import { toast } from "react-toastify";
 
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
@@ -35,6 +36,7 @@ export const Dropzone = ({
   setDataGrid,
   uploaded,
   setUploaded,
+  toastRef,
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -73,8 +75,31 @@ export const Dropzone = ({
           console.log({ project });
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
+              // let prog = progress.loaded / progress.total;
+              // if (toastRef.current === null) {
+              //   toastRef.current = toast("Upload in Progress", {
+              //     position: "bottom-left",
+              //     autoClose: 5000,
+              //     hideProgressBar: false,
+              //     closeOnClick: true,
+              //     pauseOnHover: true,
+              //     draggable: true,
+              //     progress: prog,
+              //   });
+              // } else {
+              //   toast.update(toastRef.current, {
+              //     progress: prog,
+              //     position: "bottom-left",
+              //     autoClose: 5000,
+              //     hideProgressBar: false,
+              //     closeOnClick: true,
+              //     pauseOnHover: true,
+              //     draggable: true,
+              //   });
+              // }
               if (progress.loaded / progress.total === 1) {
                 setUploaded(true);
+                toast.done(toastRef.current);
                 console.log("upload complete");
               } else {
                 console.log("upload incomplete");

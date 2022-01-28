@@ -1,9 +1,26 @@
+import { useEffect } from "react";
+
 export const ModelFooter = ({ sdt, url }) => {
+  useEffect(() => {
+    if (window && window.core) {
+      if (url) {
+        window.core.OpenProject(url);
+      } else {
+        window.core.OpenProject({});
+      }
+    }
+  }, [sdt, url]);
+
   const handleOpen = () => {
     if (window && window.core) {
-      window.core.OpenProject(url);
+      if (url) {
+        window.core.OpenProject(url);
+      } else {
+        window.core.OpenProject({});
+      }
     }
   };
+
   return (
     <div className="w-full h-11 border border-gray-600 bg-primary-dark-blue text-xs flex items-center fixed bottom-0">
       {sdt && (

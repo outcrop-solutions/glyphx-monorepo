@@ -1,6 +1,7 @@
 import ProjectCard from "./ProjectCard";
 
 import { AddProject } from "./AddProject";
+import { PinnedProjects } from "./PinnedProjects";
 
 export const GridView = ({
   user,
@@ -13,6 +14,7 @@ export const GridView = ({
   return (
     <>
       {/* Page header */}
+      <PinnedProjects />
       <div className="sm:flex sm:justify-between sm:items-center mb-8">
         {/* Left: Title */}
         <div className="mb-4 sm:mb-0">
@@ -21,7 +23,6 @@ export const GridView = ({
           </h1>
         </div>
       </div>
-
       {/* Cards */}
       <div className="grid grid-cols-12 gap-6">
         <AddProject setShowAddProject={setShowAddProject} />

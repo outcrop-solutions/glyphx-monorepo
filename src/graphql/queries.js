@@ -19,6 +19,7 @@ export const syncProjects = /* GraphQL */ `
         name
         description
         filePath
+        properties
         author
         shared
         files
@@ -52,6 +53,7 @@ export const getProject = /* GraphQL */ `
       name
       description
       filePath
+      properties
       author
       shared
       files
@@ -121,6 +123,7 @@ export const listProjects = /* GraphQL */ `
         name
         description
         filePath
+        properties
         author
         shared
         files
@@ -171,6 +174,7 @@ export const syncStates = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -212,6 +216,7 @@ export const getState = /* GraphQL */ `
         name
         description
         filePath
+        properties
         author
         shared
         files
@@ -288,6 +293,7 @@ export const listStates = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -440,6 +446,7 @@ export const syncColumns = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -477,6 +484,7 @@ export const getColumn = /* GraphQL */ `
         name
         description
         filePath
+        properties
         author
         shared
         files
@@ -538,6 +546,7 @@ export const listColumns = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -584,6 +593,7 @@ export const syncFilters = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -623,6 +633,7 @@ export const getFilter = /* GraphQL */ `
         name
         description
         filePath
+        properties
         author
         shared
         files
@@ -696,6 +707,7 @@ export const listFilters = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -782,6 +794,7 @@ export const getComment = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -869,6 +882,7 @@ export const searchProjects = /* GraphQL */ `
         name
         description
         filePath
+        properties
         author
         shared
         files
@@ -921,6 +935,7 @@ export const searchStates = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -975,6 +990,7 @@ export const searchColumns = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files
@@ -1023,6 +1039,7 @@ export const searchFilters = /* GraphQL */ `
           name
           description
           filePath
+          properties
           author
           shared
           files

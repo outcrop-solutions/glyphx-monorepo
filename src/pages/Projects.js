@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import QWebChannel from "qwebchannel";
-
 import Header from "../partials/header";
 import TableView from "../partials/projects/TableView";
 import { GridView } from "../partials/projects/GridView";
 import { ProjectSidebar } from "../partials/sidebars/project";
 import { CommentsSidebar } from "../partials/sidebars/comments";
 import { MainSidebar } from "../partials/sidebars/main";
-import { useUrl } from "../services/useUrl";
 import { useStateChange } from "../services/useStateChange";
 import { useFileSystem } from "../services/useFileSystem";
-import { useFilterChange } from "../services/useFilterChange";
 import { Datagrid } from "../partials/datagrid";
 import { FileHeader } from "../partials/datagrid/FileHeader";
 import { ModelFooter } from "../partials/datagrid/ModelFooter";
@@ -20,30 +17,26 @@ import { Templates } from "../partials/projects/Templates";
 import { Invite } from "../partials/invite";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Storage } from "aws-amplify";
 import update from "immutability-helper";
 import { useStates } from "../services/useStates";
 import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
+import { ToastContainer } from "react-toastify";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
 
 export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [grid, setGrid] = useState(false);
-  // const [state, setState] = useState(null);
-
   const [project, setProject] = useState(false);
+
   const { states, state, setState, setStates } = useStates(project);
+  useStateChange(state);
   useStateChange(state);
 
   const [showAddProject, setShowAddProject] = useState(false);
 
-  const { isStateChanged } = useStateChange(state);
-
-  // pass signed url
-  // const { isUrlSigned } = useUrl(project);
   const location = useLocation();
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
 
@@ -52,10 +45,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   //position state dynamically changes with transitions
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
-
-  // useEffect(() => {
-  //   console.log({ filterSidebarPosition, commentsPosition });
-  // }, [filterSidebarPosition, commentsPosition]);
 
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
@@ -106,17 +95,18 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
-
   useEffect(() => {
     if (sendDrawerPositionApp) {
-      // console.log({ filterSidebarPosition, commentsPosition });
+      console.log({ filterSidebarPosition, commentsPosition });
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: filterSidebarPosition.values,
-          commentsSidebar: commentsPosition.values,
+          commentsSidebar: commentsPosition
+            ? commentsPosition.values
+            : { ...filterSidebarPosition.values, left: window.innerWidth },
         })
       );
-      // setSendDrawerPositionApp(false)
+      setSendDrawerPositionApp(false);
     }
   }, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp]);
   const handleStateChange = (state) => {
@@ -126,10 +116,6 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     });
   };
 
-  //data grid state
-  const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
-  const [selectedFile, setSelectedFile] = useState("");
-  const [dataGridLoading, setDataGridLoading] = useState(false);
   const [reorderConfirm, setReorderConfirm] = useState(false);
   const [propertiesArr, setPropertiesArr] = useState([
     { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
@@ -140,25 +126,20 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
   ]);
   const [droppedProps, setDroppedProps] = useState([]);
+  const [oldDropped, setOldDropped] = useState([]);
   const isDropped = (propName) => {
     return droppedProps.indexOf(propName) > -1;
   };
   const handleDrop = useCallback(
     (index, item) => {
-      let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
-      console.log({ droppedProps });
-      if (
-        droppedProps &&
-        droppedProps.length >= 3 &&
-        propsArr &&
-        propsArr.length === 3
-      ) {
-        setReorderConfirm(true);
-      }
+      // let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+      // console.log({ droppedProps });
+      // if first three items have changed, throw modal, else do nothing
+
       const { key } = item;
-      setDroppedProps(
-        update(droppedProps, key ? { $push: [key] } : { $push: [] })
-      );
+      setOldDropped(droppedProps);
+      setDroppedProps(update(droppedProps, { [index]: { $set: key } }));
+      // TODO:
       setPropertiesArr(
         update(propertiesArr, {
           [index]: {
@@ -171,17 +152,16 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     },
     [droppedProps, propertiesArr]
   );
-
-  const [full, setFull] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [url, setUrl] = useState("");
-
+  const [url, setUrl] = useState(false);
+  const toastRef = React.useRef(null);
   // listen to properties array drops and call ETL on XYZ full
   useEffect(() => {
     // check if xyz are populated
     // if yes set "full" to true, show spinner and call etl endpoint
     // take signedurl response and pass to Bryan
     // if no, do nothing
+
     const handleETL = async () => {
       let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
       let filterArr = propertiesArr
@@ -201,27 +181,105 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         console.log({ body });
         // let signedUrl = await Storage.get("mcgee_sku_model.zip");
         // console.log({ signedUrl });
-        // if (project && window && window.core) {
-        let response = await fetch(
-          "https://m6l2svpb59.execute-api.us-east-2.amazonaws.com/Prod/etl/model",
-          { method: "POST", mode: "no-cors", body: JSON.stringify(body) }
-        );
-        console.log({ response });
-        // TODO: Set Url state to toggle drawer from bottom drawer
-        // window.core.OpenProject(JSON.stringify(response));
-      } else {
-        setFull(false);
+        if (project && window && window.core) {
+          let response = await fetch("https://api.glyphx.co/etl/model", {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify(body),
+          });
+          let res = await response.json();
+          console.log({ res });
+          console.log({
+            sdt: res.sdt,
+            signedUrl: res.url,
+            statusCode: res.statusCode,
+          });
+          // TODO: Set Url state to toggle drawer from bottom drawer
+          if (res.statusCode === 200) {
+            console.log("THIS IS BEING LOGGED NOW");
+            window.core.OpenProject(JSON.stringify(res.url));
+            setUrl(res.url);
+            setSdt(res.sdt);
+          } else {
+            window.core.OpenProject(JSON.stringify({}));
+          }
+        }
       }
     };
+    let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+    const equals = (a, b) =>
+      a.length === b.length && a.every((v, i) => v === b[i]);
+    let propsSliced = propsArr
+      .slice(0, 3)
+      .map((item) => item.lastDroppedItem.key);
 
-    handleETL();
+    let oldDroppedSliced = oldDropped.slice(0, 3).filter((el) => el);
+    let droppedSliced = droppedProps.slice(0, 3).filter((el) => el);
+    console.log({
+      propsArr,
+      oldDropped,
+      oldDroppedSliced,
+      propsSliced,
+      equals: !equals(propsSliced, oldDroppedSliced),
+    });
+    if (
+      oldDropped &&
+      oldDroppedSliced.length === 3 &&
+      !equals(propsSliced, oldDroppedSliced)
+    ) {
+      setReorderConfirm(true);
+      return;
+    }
+
+    if (
+      propsArr &&
+      propsArr.length >= 3 &&
+      propsSliced &&
+      propsSliced.length >= 3 &&
+      droppedSliced &&
+      droppedSliced.length >= 3 &&
+      equals(propsSliced, droppedSliced)
+    ) {
+      console.log("handleETl called");
+      handleETL();
+    }
   }, [propertiesArr, project, uploaded]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
-  const [sdt, setSdt] = useState("Hello");
-  const [filesOpen, setFilesOpen] = useState([]);
-  const { fileSystem, setFiles } = useFileSystem(project);
+
+  useEffect(() => {
+    setPropertiesArr([
+      { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    ]);
+    setOldDropped([]);
+    setReorderConfirm(false);
+    setDroppedProps([]);
+  }, [project]);
+
+  const {
+    fileSystem,
+    setFiles,
+    filesOpen,
+    setFilesOpen,
+    openFile,
+    selectFile,
+    closeFile,
+    clearFiles,
+    selectedFile,
+    setSelectedFile,
+    sdt,
+    setSdt,
+    dataGrid,
+    setDataGrid,
+    dataGridLoading,
+    setDataGridLoading,
+  } = useFileSystem(project);
 
   useEffect(() => {
     if ((share || reorderConfirm) && window && window.core) {
@@ -231,13 +289,21 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
+      {/* <ToastContainer
+        position="bottom-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      /> */}
       {showAddProject ? (
         <AddProjectModal
           user={user}
-          setFileSystem={setFiles}
-          setDataGrid={setDataGrid}
-          setFilesOpen={setFilesOpen}
-          setSelectedFile={setSelectedFile}
+          clearFiles={clearFiles}
           setShowAddProject={setShowAddProject}
           setProject={setProject}
         />
@@ -247,12 +313,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
           project={project}
           setReorderConfirm={setReorderConfirm}
           user={user}
-          setFileSystem={setFiles}
-          setDataGrid={setDataGrid}
-          setFilesOpen={setFilesOpen}
-          setSelectedFile={setSelectedFile}
           setShowAddProject={setShowAddProject}
           setProject={setProject}
+          setOldDropped={setOldDropped}
+          setPropertiesArr={setPropertiesArr}
         />
       ) : null}
 
@@ -287,6 +351,8 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
               <>
                 <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
+                    openFile={openFile}
+                    selectFile={selectFile}
                     selectedFile={selectedFile}
                     setSelectedFile={setSelectedFile}
                     setDataGridLoading={setDataGridLoading}
@@ -314,6 +380,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                     states={states}
                     setState={setState}
                     setStates={setStates}
+                    toastRef={toastRef}
                   />
                   <div className="w-full h-full flex">
                     <div className="min-w-0 flex-auto w-full">
@@ -325,14 +392,10 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                         <div className="flex-col mx-auto h-full">
                           {filesOpen && filesOpen.length > 0 && (
                             <FileHeader
-                              project={project}
+                              selectFile={selectFile}
+                              closeFile={closeFile}
                               selectedFile={selectedFile}
-                              setSelectedFile={setSelectedFile}
-                              setDataGrid={setDataGrid}
-                              setDataGridLoading={setDataGridLoading}
-                              fileSystem={fileSystem}
                               filesOpen={filesOpen}
-                              setFilesOpen={setFilesOpen}
                             />
                           )}
                           {dataGridLoading ? (

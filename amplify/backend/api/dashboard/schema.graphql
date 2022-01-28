@@ -7,6 +7,7 @@ type Project
 	name: String!
 	description: String!
 	filePath: String
+	properties: [String]
 	author: String!
 	shared: [String]
 	files: [String]

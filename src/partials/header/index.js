@@ -6,6 +6,9 @@ import Notifications from "../../components/DropdownNotifications";
 import Help from "../../components/DropdownHelp";
 import { Auth } from "aws-amplify";
 import DeleteModel from "../../components/DeleteModel";
+import { PencilIcon } from "@heroicons/react/outline";
+import { updateProject } from "../../graphql/mutations";
+import { API, graphqlOperation } from "aws-amplify";
 
 function Header({
   sidebarOpen,
@@ -18,23 +21,70 @@ function Header({
   setShare,
 }) {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-
-  useEffect(() => {
-    console.log({ project });
-  }, [project]);
+  const [projectName, setProjectName] = useState(project.name);
+  const [edit, setEdit] = useState(false);
+  const handleEdit = () => {
+    setEdit((prev) => !prev);
+    setProjectName(project.name);
+  };
+  const handleChange = (e) => {
+    setProjectName(e.target.value);
+  };
+  const handleSaveProjectName = async () => {
+    const updateProjectInput = {
+      id: project.id,
+      name: projectName,
+      // version: project._version,
+    };
+    console.log({ updateProjectInput });
+    try {
+      const result = await API.graphql(
+        graphqlOperation(updateProject, { input: updateProjectInput })
+      );
+      console.log({ result });
+      // setProject(result.data.updateProject);
+    } catch (error) {
+      console.log({ error });
+    }
+  };
   return (
     <header
       className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-primary-dark-blue max-h-16 ${
         project ? "ml-0" : "mx-6"
       }`}
     >
-      <div
-        className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
-          project ? "ml-6" : "ml-0"
-        }`}
-      >
-        {project ? project.name : "My Projects"}
-      </div>
+      {!edit ? (
+        <div className="flex items-center group">
+          <div
+            className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
+              project ? "ml-6" : "ml-0"
+            }`}
+          >
+            {project ? project.name : "My Projects"}
+          </div>
+          {project && (
+            <PencilIcon
+              onClick={handleEdit}
+              className="hidden h-6 w-6 group-hover:flex"
+            />
+          )}
+        </div>
+      ) : (
+        <div>
+          <input
+            onKeyPress={(ev) => {
+              console.log({ ev });
+              if (ev.key === "Enter") {
+                ev.preventDefault();
+                handleSaveProjectName();
+              }
+            }}
+            className="ml-6 text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate border border-gray-400 bg-transparent rounded-sm"
+            value={projectName}
+            onChange={handleChange}
+          />
+        </div>
+      )}
       <div className="px-4 sm:px-6 lg:px-0 lg:w-5/6">
         <div className="flex items-center justify-between h-16 -mb-px">
           {/* Header: Left side */}

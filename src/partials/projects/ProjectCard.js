@@ -57,9 +57,9 @@ export const ProjectCard = ({
                   width="28"
                   height="28"
                   filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
+                  colorInterpolationFilters="sRGB"
                 >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feColorMatrix
                     in="SourceAlpha"
                     type="matrix"
@@ -121,9 +121,9 @@ export const ProjectCard = ({
                   width="28"
                   height="28"
                   filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
+                  colorInterpolationFilters="sRGB"
                 >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feColorMatrix
                     in="SourceAlpha"
                     type="matrix"
@@ -186,9 +186,9 @@ export const ProjectCard = ({
                   width="28"
                   height="28"
                   filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
+                  colorInterpolationFilters="sRGB"
                 >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feColorMatrix
                     in="SourceAlpha"
                     type="matrix"
@@ -246,9 +246,9 @@ export const ProjectCard = ({
               width="28"
               height="28"
               filterUnits="userSpaceOnUse"
-              color-interpolation-filters="sRGB"
+              colorInterpolationFilters="sRGB"
             >
-              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feFlood floodOpacity="0" result="BackgroundImageFix" />
               <feColorMatrix
                 in="SourceAlpha"
                 type="matrix"
@@ -339,7 +339,9 @@ export const ProjectCard = ({
                 </>
               ) : (
                 <div className="rounded-full bg-blue-600 h-6 w-6 text-sm text-white flex items-center justify-center">
-                  {`${user.attributes.email.split("@")[0][0].toUpperCase()}`}
+                  {user.attributes
+                    ? `${user.attributes.email.split("@")[0][0].toUpperCase()}`
+                    : ""}
                 </div>
               )}
               {project.shared && project.shared.length > 4 ? (

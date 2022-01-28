@@ -7,6 +7,8 @@ import { States } from "./states";
 import { usePosition } from "../../../services/usePosition";
 
 export const ProjectSidebar = ({
+  openFile,
+  selectFile,
   selectedFile,
   setSelectedFile,
   setDataGrid,
@@ -34,6 +36,7 @@ export const ProjectSidebar = ({
   setStates,
   uploaded,
   setUploaded,
+  toastRef,
 }) => {
   //utilities
   const trigger = useRef(null);
@@ -100,10 +103,12 @@ export const ProjectSidebar = ({
         sidebarOpen ? "translate-x-0" : "-translate-x-64"
       }`}
     >
-      <div>
+      <div className="overflow-y-auto scrollbar-none">
         {/* Files */}
 
         <Files
+          openFile={openFile}
+          selectFile={selectFile}
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
           setDataGridLoading={setDataGridLoading}
@@ -117,6 +122,7 @@ export const ProjectSidebar = ({
           project={project}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
+          toastRef={toastRef}
         />
         <Properties
           handleDrop={handleDrop}

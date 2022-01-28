@@ -4,23 +4,23 @@ import { CustomNode } from "./CustomNode";
 import { CustomDragPreview } from "./CustomDragPreview";
 import styles from "./css/Sidebar.module.css";
 import { Header } from "./Header";
-import { useFileSystem } from "../../../../services/useFileSystem";
 import { Dropzone } from "../../../actions/Dropzone";
 
 export const Files = ({
+  openFile,
+  selectFile,
   setDataGrid,
-  setDataGridLoading,
   sidebarExpanded,
   setSidebarExpanded,
   project,
   fileSystem,
   setFiles,
-  filesOpen,
   setFilesOpen,
   uploaded,
   setUploaded,
   selectedFile,
   setSelectedFile,
+  toastRef,
 }) => {
   const [open, setOpen] = useState(true);
 
@@ -52,17 +52,13 @@ export const Files = ({
               rootId={0}
               render={(node, { depth, isOpen, onToggle }) => (
                 <CustomNode
-                  setDataGridLoading={setDataGridLoading}
-                  project={project}
-                  setDataGrid={setDataGrid}
-                  filesOpen={filesOpen}
-                  setFilesOpen={setFilesOpen}
+                  openFile={openFile}
+                  selectFile={selectFile}
                   node={node}
                   depth={depth}
                   isOpen={isOpen}
                   onToggle={onToggle}
                   selectedFile={selectedFile}
-                  setSelectedFile={setSelectedFile}
                 />
               )}
               dragPreviewRender={(monitorProps) => (
@@ -85,6 +81,7 @@ export const Files = ({
             project={project}
             fileSystem={fileSystem}
             setFileSystem={setFiles}
+            toastRef={toastRef}
           />
         </div>
       </div>
