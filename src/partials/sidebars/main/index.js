@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import ExpandCollapse from "./ExpandCollapse";
 import { UserMenu } from "../../../components/UserMenu";
 
-export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
+export const MainSidebar = ({ user, project, setProject, setIsLoggedIn, setProgress }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const location = useLocation();
@@ -137,6 +137,7 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn }) => {
                     if (window && window.core) {
                       window.core.ToggleDrawer(false);
                     }
+                    setProgress(false)
                     setProject(false);
                   }}
                   className={`block text-gray-200 hover:text-white truncate transition duration-150 ${

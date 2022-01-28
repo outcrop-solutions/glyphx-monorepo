@@ -328,6 +328,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
         setProject={setProject}
         user={user}
         setIsLoggedIn={setIsLoggedIn}
+        setProgress={setProgress}
         // sidebarOpen={sidebarOpen}
         // setSidebarOpen={setSidebarOpen}
       />
@@ -432,8 +433,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                                   )}
                                 </>
                               )}
-                              ) : (<Progress />
-                              )}
+
                               <ModelFooter
                                 setProgress={setProgress}
                                 sdt={sdt}
