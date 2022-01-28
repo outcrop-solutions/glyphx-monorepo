@@ -4,7 +4,6 @@ export const ModelFooter = ({ sdt, url, setProgress }) => {
   useEffect(() => {
     if (window && window.core) {
       if (url) {
-        setProgress(true);
         window.core.OpenProject(url);
       } else {
         window.core.OpenProject({});
@@ -13,6 +12,10 @@ export const ModelFooter = ({ sdt, url, setProgress }) => {
   }, [sdt, url]);
 
   const handleOpen = () => {
+    setProgress(true);
+    setTimeout(() => {
+      setProgress(false);
+    }, 3000);
     if (window && window.core) {
       if (url) {
         window.core.OpenProject(url);
