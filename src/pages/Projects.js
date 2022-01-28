@@ -23,6 +23,7 @@ import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 import { ToastContainer } from "react-toastify";
+import Progress from "../partials/toasts/progress";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -247,6 +248,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [share, setShare] = useState(false);
+  const [progress, setProgress] = useState(false);
 
   useEffect(() => {
     setPropertiesArr([
@@ -384,58 +386,65 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                   />
                   <div className="w-full h-full flex">
                     <div className="min-w-0 flex-auto w-full">
-                      {/* {full ? (
-                        <> */}
-                      {share ? (
-                        <Invite setShare={setShare} />
+                      {progress ? (
+                        <Progress />
                       ) : (
-                        <div className="flex-col mx-auto h-full">
-                          {filesOpen && filesOpen.length > 0 && (
-                            <FileHeader
-                              selectFile={selectFile}
-                              closeFile={closeFile}
-                              selectedFile={selectedFile}
-                              filesOpen={filesOpen}
-                            />
-                          )}
-                          {dataGridLoading ? (
-                            <div className="h-full w-full flex justify-center items-center border-none">
-                              <GridLoader
-                                loading={dataGridLoading}
-                                size={100}
-                                color={"yellow"}
-                              />
-                            </div>
+                        <>
+                          {share ? (
+                            <Invite setShare={setShare} />
                           ) : (
-                            <>
-                              {dataGrid.rows.length > 0 ? (
-                                <Datagrid
-                                  isDropped={isDropped}
-                                  setIsEditing={setIsEditing}
-                                  dataGrid={dataGrid}
-                                  setDataGrid={setDataGrid}
-                                />
-                              ) : (
-                                <AddFiles
-                                  setFilesOpen={setFilesOpen}
-                                  uploaded={uploaded}
-                                  setUploaded={setUploaded}
-                                  setDataGrid={setDataGrid}
-                                  project={project}
-                                  fileSystem={fileSystem}
-                                  setFileSystem={setFiles}
+                            <div className="flex-col mx-auto h-full">
+                              {filesOpen && filesOpen.length > 0 && (
+                                <FileHeader
+                                  selectFile={selectFile}
+                                  closeFile={closeFile}
+                                  selectedFile={selectedFile}
+                                  filesOpen={filesOpen}
                                 />
                               )}
-                            </>
+                              {dataGridLoading ? (
+                                <div className="h-full w-full flex justify-center items-center border-none">
+                                  <GridLoader
+                                    loading={dataGridLoading}
+                                    size={100}
+                                    color={"yellow"}
+                                  />
+                                </div>
+                              ) : (
+                                <>
+                                  {dataGrid.rows.length > 0 ? (
+                                    <Datagrid
+                                      isDropped={isDropped}
+                                      setIsEditing={setIsEditing}
+                                      dataGrid={dataGrid}
+                                      setDataGrid={setDataGrid}
+                                    />
+                                  ) : (
+                                    <AddFiles
+                                      setFilesOpen={setFilesOpen}
+                                      uploaded={uploaded}
+                                      setUploaded={setUploaded}
+                                      setDataGrid={setDataGrid}
+                                      project={project}
+                                      fileSystem={fileSystem}
+                                      setFileSystem={setFiles}
+                                    />
+                                  )}
+                                </>
+                              )}
+                              ) : (<Progress />
+                              )}
+                              <ModelFooter
+                                setProgress={setProgress}
+                                sdt={sdt}
+                                url={url}
+                              />
+                            </div>
                           )}
-
-                          <ModelFooter sdt={sdt} url={url} />
-                        </div>
+                        </>
                       )}
-
-                      {/* </>) : (<div className="text-3xl text-white">loading....</div>) */}
-                      {/* } */}
                     </div>
+
                     <CommentsSidebar
                       state={state}
                       states={states}

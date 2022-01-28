@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 
-export const ModelFooter = ({ sdt, url }) => {
+export const ModelFooter = ({ sdt, url, setProgress }) => {
   useEffect(() => {
     if (window && window.core) {
       if (url) {
+        setProgress(true);
         window.core.OpenProject(url);
       } else {
         window.core.OpenProject({});
