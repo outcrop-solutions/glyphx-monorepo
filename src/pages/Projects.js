@@ -24,6 +24,7 @@ import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 import { ToastContainer } from "react-toastify";
 import Progress from "../partials/toasts/progress";
+import { formatDiagnosticsWithColorAndContext } from "typescript";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -262,6 +263,9 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     setOldDropped([]);
     setReorderConfirm(false);
     setDroppedProps([]);
+    if (window.core && window.core) {
+      window.core.CloseModel()
+    }
   }, [project]);
 
   const {
