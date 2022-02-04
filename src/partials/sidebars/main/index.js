@@ -135,7 +135,8 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn, setProgr
                 <div
                   onClick={() => {
                     if (window && window.core) {
-                      window.core.ToggleDrawer(false);
+                      window.core.CloseModel();
+                      console.log('Close Model function called');
                     }
                     setProgress(false)
                     setProject(false);
