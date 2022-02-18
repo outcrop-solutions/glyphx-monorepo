@@ -12,6 +12,7 @@ import { AddProject } from "./AddProject";
 export const ProjectCard = ({
   project,
   setProjects,
+  setProjectDetails,
   setProject,
   updatedAt,
   idx,
@@ -41,6 +42,9 @@ export const ProjectCard = ({
       variables: { input: projectDelete },
     });
     console.log({ deletedProject });
+  };
+  const handleDetails = () => {
+    setProjectDetails(project);
   };
   const categoryIcon = (category) => {
     switch (category) {
@@ -326,6 +330,7 @@ export const ProjectCard = ({
         </svg>
         {/* info button */}
         <svg
+          onClick={handleDetails}
           width="24"
           height="25"
           viewBox="0 0 24 25"

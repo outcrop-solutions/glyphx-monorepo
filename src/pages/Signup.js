@@ -7,6 +7,7 @@ function Signup({ setSignUp, setIsLoggedIn }) {
   const [fullName, setFullName] = useState("");
   const [confirm, setConfirm] = useState(false);
   const [code, setCode] = useState("");
+  const [error, setError] = useState(false);
 
   const handleConfirm = async () => {
     try {
@@ -24,6 +25,10 @@ function Signup({ setSignUp, setIsLoggedIn }) {
           });
       }
     } catch (error) {
+      setError(error.message);
+      setTimeout(() => {
+        setError(false);
+      }, 3000);
       console.log("error confirming sign up", error);
     }
   };
@@ -40,6 +45,10 @@ function Signup({ setSignUp, setIsLoggedIn }) {
       setConfirm(true);
       console.log({ userSignup: user });
     } catch (error) {
+      setError(error.message);
+      setTimeout(() => {
+        setError(false);
+      }, 3000);
       console.log("error signing up" + error);
     }
   };
@@ -152,6 +161,11 @@ function Signup({ setSignUp, setIsLoggedIn }) {
                     </div>
                   )}
                 </div>
+                {error ? (
+                  <div className="btn bg-yellow-600 text-white my-4 w-full">
+                    {error}
+                  </div>
+                ) : null}
               </div>
               {/* Footer */}
             </div>

@@ -84,6 +84,7 @@ module.exports = {
     // eslint-disable-next-line global-require
     require("@tailwindcss/forms"),
     require("tailwind-scrollbar"),
+    require("@tailwindcss/aspect-ratio"),
     // add custom variant for expanding sidebar
     plugin(({ addVariant, e }) => {
       addVariant("main-sidebar-expanded", ({ modifySelectors, separator }) => {

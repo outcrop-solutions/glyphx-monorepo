@@ -25,6 +25,7 @@ import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 import { ToastContainer } from "react-toastify";
 import Progress from "../partials/toasts/progress";
 import { formatDiagnosticsWithColorAndContext } from "typescript";
+import { ProjectDetails } from "../partials/projects/ProjectDetails";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -32,6 +33,7 @@ let socket = null;
 export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [grid, setGrid] = useState(false);
   const [project, setProject] = useState(false);
+  const [projectDetails, setProjectDetails] = useState(false);
 
   const { states, state, setState, setStates } = useStates(project);
   useStateChange(state);
@@ -325,7 +327,6 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           setPropertiesArr={setPropertiesArr}
         />
       ) : null}
-
       {/* Sidebar */}
       <MainSidebar
         project={project}
@@ -336,7 +337,12 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         // sidebarOpen={sidebarOpen}
         // setSidebarOpen={setSidebarOpen}
       />
-
+      {projectDetails ? (
+        <ProjectDetails
+          projectDetails={projectDetails}
+          setProjectDetails={setProjectDetails}
+        />
+      ) : null}
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none overflow-x-hidden bg-primary-dark-blue">
         {/*  Site header */}
@@ -465,12 +471,14 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                   <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
                     {grid ? (
                       <TableView
+                        setProjectDetails={setProjectDetails}
                         user={user}
                         projects={projects}
                         setProject={setProject}
                       />
                     ) : (
                       <GridView
+                        setProjectDetails={setProjectDetails}
                         setProjects={setProjects}
                         showAddProject={showAddProject}
                         setShowAddProject={setShowAddProject}
