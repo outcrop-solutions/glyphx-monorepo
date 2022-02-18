@@ -5,6 +5,7 @@ import { Auth } from "aws-amplify";
 function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
 
   const handleUname = (e) => {
     setUsername(e.target.value);
@@ -24,6 +25,10 @@ function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
       console.log({ user });
       setIsLoggedIn(true);
     } catch (error) {
+      setError(error.message);
+      setTimeout(() => {
+        setError(false);
+      }, 3000);
       console.log("error on signin page" + error);
       setIsLoggedIn(false);
     }
@@ -111,6 +116,11 @@ function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
                 </div>
               </div>
             </div>
+            {error ? (
+              <div className="btn bg-yellow-600 text-white my-4 w-full">
+                {error}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
