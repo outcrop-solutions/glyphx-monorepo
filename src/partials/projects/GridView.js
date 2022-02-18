@@ -7,6 +7,7 @@ export const GridView = ({
   user,
   projects,
   setProject,
+  setProjects,
   fetchProjects,
   showAddProject,
   setShowAddProject,
@@ -30,6 +31,7 @@ export const GridView = ({
           return (
             <ProjectCard
               key={item.id}
+              setProjects={setProjects}
               project={item}
               setProject={setProject}
               idx={idx}

@@ -29,7 +29,7 @@ import { formatDiagnosticsWithColorAndContext } from "typescript";
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
 
-export const Projects = ({ user, setIsLoggedIn, projects }) => {
+export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [grid, setGrid] = useState(false);
   const [project, setProject] = useState(false);
 
@@ -264,7 +264,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
     setReorderConfirm(false);
     setDroppedProps([]);
     if (window.core && window.core) {
-      window.core.CloseModel()
+      window.core.CloseModel();
     }
   }, [project]);
 
@@ -471,6 +471,7 @@ export const Projects = ({ user, setIsLoggedIn, projects }) => {
                       />
                     ) : (
                       <GridView
+                        setProjects={setProjects}
                         showAddProject={showAddProject}
                         setShowAddProject={setShowAddProject}
                         user={user}

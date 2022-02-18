@@ -34,7 +34,7 @@ function App() {
   const { user, isLogged } = useUser(isLoggedIn);
   const [resetPass, setResetPass] = useState(false);
   const location = useLocation();
-  const { projects } = useProjects(isLoggedIn, user);
+  const { projects, setProjects } = useProjects(isLoggedIn, user);
   // handle scroll position on route change
   useEffect(() => {
     document.querySelector("html").style.scrollBehavior = "auto";
@@ -56,6 +56,7 @@ function App() {
               user={user}
               setIsLoggedIn={setIsLoggedIn}
               projects={projects}
+              setProjects={setProjects}
             />
           ) : resetPass ? (
             <ResetPassword setResetPass={setResetPass} setSignUp={setSignUp} />

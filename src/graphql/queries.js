@@ -1,51 +1,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const syncProjects = /* GraphQL */ `
-  query SyncProjects(
-    $filter: ModelProjectFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncProjects(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        name
-        description
-        filePath
-        properties
-        author
-        shared
-        files
-        states {
-          nextToken
-          startedAt
-        }
-        filters {
-          nextToken
-          startedAt
-        }
-        columns {
-          nextToken
-          startedAt
-        }
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
 export const getProject = /* GraphQL */ `
   query GetProject($id: ID!) {
     getProject(id: $id) {
@@ -64,28 +19,103 @@ export const getProject = /* GraphQL */ `
           description
           camera
           projectID
-          _version
-          _deleted
-          _lastChangedAt
+          project {
+            id
+            name
+            description
+            filePath
+            properties
+            author
+            shared
+            files
+            states {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            columns {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          comments {
+            items {
+              id
+              author
+              stateID
+              content
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              stateID
+              filterID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         nextToken
-        startedAt
       }
       filters {
         items {
           id
           name
           projectID
-          _version
-          _deleted
-          _lastChangedAt
+          project {
+            id
+            name
+            description
+            filePath
+            properties
+            author
+            shared
+            files
+            states {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            columns {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          columns {
+            items {
+              id
+              columnID
+              filterID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          states {
+            items {
+              id
+              stateID
+              filterID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         nextToken
-        startedAt
       }
       columns {
         items {
@@ -94,18 +124,42 @@ export const getProject = /* GraphQL */ `
           min
           max
           projectID
-          _version
-          _deleted
-          _lastChangedAt
+          project {
+            id
+            name
+            description
+            filePath
+            properties
+            author
+            shared
+            files
+            states {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            columns {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          filters {
+            items {
+              id
+              columnID
+              filterID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -128,78 +182,94 @@ export const listProjects = /* GraphQL */ `
         shared
         files
         states {
+          items {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         columns {
+          items {
+            id
+            name
+            min
+            max
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncStates = /* GraphQL */ `
-  query SyncStates(
-    $filter: ModelStateFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncStates(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        title
-        description
-        camera
-        projectID
-        project {
-          id
-          name
-          description
-          filePath
-          properties
-          author
-          shared
-          files
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        comments {
-          nextToken
-          startedAt
-        }
-        filters {
-          nextToken
-          startedAt
-        }
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -221,20 +291,90 @@ export const getState = /* GraphQL */ `
         shared
         files
         states {
+          items {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         columns {
+          items {
+            id
+            name
+            min
+            max
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -243,33 +383,101 @@ export const getState = /* GraphQL */ `
           id
           author
           stateID
+          state {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           content
           createdAt
-          _version
-          _deleted
-          _lastChangedAt
           updatedAt
         }
         nextToken
-        startedAt
       }
       filters {
         items {
           id
           stateID
           filterID
-          _version
-          _deleted
-          _lastChangedAt
+          state {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          filter {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           createdAt
           updatedAt
         }
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -297,177 +505,93 @@ export const listStates = /* GraphQL */ `
           author
           shared
           files
-          _version
-          _deleted
-          _lastChangedAt
+          states {
+            items {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          columns {
+            items {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         comments {
+          items {
+            id
+            author
+            stateID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            content
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            stateID
+            filterID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncStateFilters = /* GraphQL */ `
-  query SyncStateFilters(
-    $filter: ModelStateFilterFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncStateFilters(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        stateID
-        filterID
-        state {
-          id
-          title
-          description
-          camera
-          projectID
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        filter {
-          id
-          name
-          projectID
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const syncColumnFilters = /* GraphQL */ `
-  query SyncColumnFilters(
-    $filter: ModelColumnFilterFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncColumnFilters(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        columnID
-        filterID
-        column {
-          id
-          name
-          min
-          max
-          projectID
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        filter {
-          id
-          name
-          projectID
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const syncColumns = /* GraphQL */ `
-  query SyncColumns(
-    $filter: ModelColumnFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncColumns(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        name
-        min
-        max
-        projectID
-        project {
-          id
-          name
-          description
-          filePath
-          properties
-          author
-          shared
-          files
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        filters {
-          nextToken
-          startedAt
-        }
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -489,20 +613,90 @@ export const getColumn = /* GraphQL */ `
         shared
         files
         states {
+          items {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         columns {
+          items {
+            id
+            name
+            min
+            max
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -511,18 +705,60 @@ export const getColumn = /* GraphQL */ `
           id
           columnID
           filterID
-          _version
-          _deleted
-          _lastChangedAt
+          column {
+            id
+            name
+            min
+            max
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          filter {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           createdAt
           updatedAt
         }
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -550,75 +786,73 @@ export const listColumns = /* GraphQL */ `
           author
           shared
           files
-          _version
-          _deleted
-          _lastChangedAt
+          states {
+            items {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          columns {
+            items {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         filters {
+          items {
+            id
+            columnID
+            filterID
+            column {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncFilters = /* GraphQL */ `
-  query SyncFilters(
-    $filter: ModelFilterFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncFilters(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        name
-        projectID
-        project {
-          id
-          name
-          description
-          filePath
-          properties
-          author
-          shared
-          files
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        columns {
-          nextToken
-          startedAt
-        }
-        states {
-          nextToken
-          startedAt
-        }
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -638,20 +872,90 @@ export const getFilter = /* GraphQL */ `
         shared
         files
         states {
+          items {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         columns {
+          items {
+            id
+            name
+            min
+            max
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -660,32 +964,122 @@ export const getFilter = /* GraphQL */ `
           id
           columnID
           filterID
-          _version
-          _deleted
-          _lastChangedAt
+          column {
+            id
+            name
+            min
+            max
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          filter {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           createdAt
           updatedAt
         }
         nextToken
-        startedAt
       }
       states {
         items {
           id
           stateID
           filterID
-          _version
-          _deleted
-          _lastChangedAt
+          state {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          filter {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           createdAt
           updatedAt
         }
         nextToken
-        startedAt
       }
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -711,69 +1105,99 @@ export const listFilters = /* GraphQL */ `
           author
           shared
           files
-          _version
-          _deleted
-          _lastChangedAt
+          states {
+            items {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          columns {
+            items {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         columns {
+          items {
+            id
+            columnID
+            filterID
+            column {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         states {
+          items {
+            id
+            stateID
+            filterID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncComments = /* GraphQL */ `
-  query SyncComments(
-    $filter: ModelCommentFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncComments(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        author
-        stateID
-        state {
-          id
-          title
-          description
-          camera
-          projectID
-          _version
-          _deleted
-          _lastChangedAt
-          createdAt
-          updatedAt
-        }
-        content
-        createdAt
-        _version
-        _deleted
-        _lastChangedAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -798,31 +1222,94 @@ export const getComment = /* GraphQL */ `
           author
           shared
           files
-          _version
-          _deleted
-          _lastChangedAt
+          states {
+            items {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          columns {
+            items {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         comments {
+          items {
+            id
+            author
+            stateID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            content
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            stateID
+            filterID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       content
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
     }
   }
@@ -844,21 +1331,56 @@ export const listComments = /* GraphQL */ `
           description
           camera
           projectID
-          _version
-          _deleted
-          _lastChangedAt
+          project {
+            id
+            name
+            description
+            filePath
+            properties
+            author
+            shared
+            files
+            states {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            columns {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          comments {
+            items {
+              id
+              author
+              stateID
+              content
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              stateID
+              filterID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         content
         createdAt
-        _version
-        _deleted
-        _lastChangedAt
         updatedAt
       }
       nextToken
-      startedAt
     }
   }
 `;
@@ -887,20 +1409,90 @@ export const searchProjects = /* GraphQL */ `
         shared
         files
         states {
+          items {
+            id
+            title
+            description
+            camera
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            comments {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            name
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            columns {
+              nextToken
+            }
+            states {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         columns {
+          items {
+            id
+            name
+            min
+            max
+            projectID
+            project {
+              id
+              name
+              description
+              filePath
+              properties
+              author
+              shared
+              files
+              createdAt
+              updatedAt
+            }
+            filters {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -939,23 +1531,89 @@ export const searchStates = /* GraphQL */ `
           author
           shared
           files
-          _version
-          _deleted
-          _lastChangedAt
+          states {
+            items {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          columns {
+            items {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         comments {
+          items {
+            id
+            author
+            stateID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            content
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         filters {
+          items {
+            id
+            stateID
+            filterID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -994,19 +1652,69 @@ export const searchColumns = /* GraphQL */ `
           author
           shared
           files
-          _version
-          _deleted
-          _lastChangedAt
+          states {
+            items {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          columns {
+            items {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         filters {
+          items {
+            id
+            columnID
+            filterID
+            column {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -1043,23 +1751,95 @@ export const searchFilters = /* GraphQL */ `
           author
           shared
           files
-          _version
-          _deleted
-          _lastChangedAt
+          states {
+            items {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          columns {
+            items {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         columns {
+          items {
+            id
+            columnID
+            filterID
+            column {
+              id
+              name
+              min
+              max
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
         states {
+          items {
+            id
+            stateID
+            filterID
+            state {
+              id
+              title
+              description
+              camera
+              projectID
+              createdAt
+              updatedAt
+            }
+            filter {
+              id
+              name
+              projectID
+              createdAt
+              updatedAt
+            }
+            createdAt
+            updatedAt
+          }
           nextToken
-          startedAt
         }
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
@@ -1093,17 +1873,53 @@ export const searchComments = /* GraphQL */ `
           description
           camera
           projectID
-          _version
-          _deleted
-          _lastChangedAt
+          project {
+            id
+            name
+            description
+            filePath
+            properties
+            author
+            shared
+            files
+            states {
+              nextToken
+            }
+            filters {
+              nextToken
+            }
+            columns {
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          comments {
+            items {
+              id
+              author
+              stateID
+              content
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
+          filters {
+            items {
+              id
+              stateID
+              filterID
+              createdAt
+              updatedAt
+            }
+            nextToken
+          }
           createdAt
           updatedAt
         }
         content
         createdAt
-        _version
-        _deleted
-        _lastChangedAt
         updatedAt
       }
       nextToken

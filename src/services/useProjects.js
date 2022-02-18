@@ -21,15 +21,15 @@ export const useProjects = ({ isLoggedIn }) => {
     const fetchProjects = async () => {
       try {
         // if (user) {
-          const projectData = await API.graphql(graphqlOperation(listProjects));
-          // console.log({ projectData })
-          const projectList = projectData.data.listProjects.items;
+        const projectData = await API.graphql(graphqlOperation(listProjects));
+        // console.log({ projectData })
+        const projectList = projectData.data.listProjects.items;
 
-          console.log({ projectList });
-          setProjects((prev) => {
-            let newData = [...projectList];
-            return newData;
-          });
+        console.log({ projectList });
+        setProjects((prev) => {
+          let newData = [...projectList];
+          return newData;
+        });
         // } else {
         //   console.log("No User");
         // }
@@ -40,5 +40,5 @@ export const useProjects = ({ isLoggedIn }) => {
     // if (user && user.attributes)
     fetchProjects();
   }, [user, isLoggedIn]);
-  return { projects };
+  return { projects, setProjects };
 };
