@@ -12,6 +12,7 @@ import "./css/style.scss";
 
 // components
 import { Projects } from "./pages/Projects";
+import { Dashboard } from "./pages/Dashboard";
 import { Settings } from "./partials/settings";
 import SignIn from "./pages/Signin";
 import Signup from "./pages/Signup";
@@ -69,6 +70,9 @@ function App() {
               setIsLoggedIn={setIsLoggedIn}
             />
           )}
+        </Route>
+        <Route exact path="/dashboard">
+          <Dashboard />
         </Route>
         <Route exact path="/settings">
           <Settings />
