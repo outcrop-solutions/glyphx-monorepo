@@ -25,19 +25,18 @@ export const useProjects = ({ isLoggedIn }) => {
         const projectData = await API.graphql(graphqlOperation(listProjects));
         // console.log({ projectData })
         const projectList = projectData.data.listProjects.items;
-
-        let sorted = sortArray(projectList, {
+        const filtered = projectList.filter(
+          (el) => el.author === user.username
+        );
+        let sorted = sortArray(filtered, {
           by: "updatedAt",
           order: "desc",
         });
         console.log({ sorted });
         setProjects((prev) => {
-          let newData = [...projectList];
+          let newData = [...filtered];
           return newData;
         });
-        // } else {
-        //   console.log("No User");
-        // }
       } catch (error) {
         console.log("error on fetching projects", error);
       }

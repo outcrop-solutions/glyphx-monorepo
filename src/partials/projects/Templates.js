@@ -46,13 +46,16 @@ export const Templates = ({ setProject, setProjects, user }) => {
       // console.log({ projectData })
       const projectList = projectData.data.listProjects.items;
 
-      let sorted = sortArray(projectList, {
+      const filtered = projectList.filter((el) =>
+        el.shared.includes(user.username)
+      );
+      let sorted = sortArray(filtered, {
         by: "updatedAt",
         order: "desc",
       });
       console.log({ sorted });
       setProjects((prev) => {
-        let newData = [...projectList];
+        let newData = [...filtered];
         return newData;
       });
       // } else {
@@ -78,6 +81,7 @@ export const Templates = ({ setProject, setProjects, user }) => {
       name: "Template Project",
       description: "New project from empty template",
       author: user.username,
+      shared: [user.username],
     };
     try {
       console.log({ createProjectInput });

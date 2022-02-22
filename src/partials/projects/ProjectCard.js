@@ -348,32 +348,38 @@ export const ProjectCard = ({
         <footer className="mt-2 px-5 pb-5 pt-1">
           <div className="text-sm font-medium text-white mb-2">{name}</div>
           <div className="flex justify-between items-center">
-            <div className="flex flex-shrink-0 -space-x-3 -ml-px">
-              {project.shared && project.shared.length > 0 ? (
-                <>
-                  {project.shared.map((member, idx) => {
-                    if (idx < 4) {
-                      return (
-                        <div
-                          className={`rounded-full ${
-                            idx % 2 === 0 ? "bg-blue-600" : "bg-yellow-400"
-                          } h-6 w-6 text-sm text-white flex items-center justify-center`}
-                        >
-                          {`${member.split("@")[0][0].toUpperCase()}`}
-                        </div>
-                      );
-                    }
-                  })}
-                </>
-              ) : (
-                <div className="rounded-full bg-blue-600 h-6 w-6 text-sm text-white flex items-center justify-center">
-                  {project.author ? `${project.author[0].toUpperCase()}` : ""}
-                </div>
-              )}
+            <div className="flex items-center">
+              <div className="flex flex-shrink-0 -space-x-3 -ml-px mr-2">
+                {project.shared && project.shared.length > 0 ? (
+                  <>
+                    {project.shared.map((member, idx) => {
+                      if (idx < 3) {
+                        return (
+                          <div
+                            key={`${member}-${idx}`}
+                            className={`rounded-full ${
+                              idx % 2 === 0 ? "bg-blue-600" : "bg-yellow-400"
+                            } h-6 w-6 text-sm text-white flex items-center justify-center`}
+                          >
+                            {`${member.split("@")[0][0].toUpperCase()}`}
+                          </div>
+                        );
+                      }
+                    })}
+                  </>
+                ) : (
+                  <div className="rounded-full bg-blue-600 h-6 w-6 text-sm text-white flex items-center justify-center">
+                    {project.author ? `${project.author[0].toUpperCase()}` : ""}
+                  </div>
+                )}
+              </div>
               {project.shared && project.shared.length > 4 ? (
-                <div>{`+ ${project.shared.length - 3} more`}</div>
+                <div className="text-xs">{`+ ${
+                  project.shared.length - 3
+                } more`}</div>
               ) : null}
             </div>
+
             <div>
               <Link
                 className="text-sm font-medium text-gray-50 opacity-40"
