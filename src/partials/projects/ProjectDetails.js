@@ -1,7 +1,12 @@
 import Project from "../../images/project.png";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { FolderIcon, HeartIcon, XIcon } from "@heroicons/react/outline";
+import {
+  FolderIcon,
+  HeartIcon,
+  UserCircleIcon,
+  XIcon,
+} from "@heroicons/react/outline";
 import { PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
 import * as dayjs from "dayjs";
 import * as relativeTime from "dayjs/plugin/relativeTime";
@@ -15,6 +20,23 @@ function classNames(...classes) {
 }
 export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
   const [open, setOpen] = useState(true);
+  const [description, setDescription] = useState(projectDetails.desc);
+  const [members, setMembers] = useState([]);
+  const [chips, setChips] = useState([]);
+  const [editShare, setEditShare] = useState(false);
+
+  const handleChip = () => {
+    setChips((prev) => {
+      setMembers("");
+      return [...prev, members];
+    });
+  };
+  const handleDelete = (item) => {
+    setChips((prev) => {
+      let newChips = [...prev].filter((el) => el !== item);
+      return newChips;
+    });
+  };
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -179,48 +201,110 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-medium text-white">Shared with</h3>
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium text-white">Shared with</h3>
+                        <li
+                          onClick={() => setEditShare((prev) => !prev)}
+                          className="py-2 flex justify-between items-center"
+                        >
+                          <button
+                            type="button"
+                            className="group -ml-1 bg-gray-800 p-1 rounded-md flex items-center focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          >
+                            {/* <span className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-white"> */}
+                            {editShare ? (
+                              <XIcon className="h-5 w-5" aria-hidden="true" />
+                            ) : (
+                              <PlusSmIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            )}
+                            {/* </span> */}
+                          </button>
+                        </li>
+                      </div>
                       <ul
                         role="list"
                         className="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200"
                       >
                         <li className="py-3 flex justify-between items-center">
-                          <div className="flex items-center">
-                            <img
-                              src="/bryan.jpg"
-                              alt=""
-                              className="w-8 h-8 rounded-full"
-                            />
-                            <p className="ml-4 text-sm font-medium text-white">
-                              Bryan Holster
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            className="ml-6 bg-gray-800 rounded-md text-sm font-medium text-white hover:text-gray-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yelloy-500"
-                          >
-                            Remove
-                            <span className="sr-only"> Bryan Holster</span>
-                          </button>
-                        </li>
-
-                        <li className="py-2 flex justify-between items-center">
-                          <button
-                            type="button"
-                            className="group -ml-1 bg-gray-800 p-1 rounded-md flex items-center focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                          >
-                            <span className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-white">
-                              <PlusSmIcon
-                                className="h-5 w-5"
-                                aria-hidden="true"
-                              />
-                            </span>
-                            <span className="ml-4 text-sm px-2 py-1 font-medium text-white group-hover:text-gray-300">
-                              Share
-                            </span>
-                          </button>
+                          {projectDetails.shared.map((member, idx) => (
+                            <div
+                              className="flex justify-between w-full"
+                              key={`${member}-${idx}`}
+                            >
+                              <div className="flex items-center">
+                                <UserCircleIcon className="w-8 h-8 rounded-full" />
+                                <p className="ml-4 text-sm font-medium text-white truncate w-24">
+                                  {member}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleDelete(member)}
+                                type="button"
+                                className="ml-6 bg-gray-800 rounded-md text-sm font-medium text-white hover:text-gray-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yelloy-500"
+                              >
+                                Remove
+                                <span className="sr-only">{member}</span>
+                              </button>
+                            </div>
+                          ))}
                         </li>
                       </ul>
+                      {editShare ? (
+                        <div
+                          className="mt-3"
+                          onKeyPress={(ev) => {
+                            if (ev.key === "Enter") {
+                              ev.preventDefault();
+                              handleChip();
+                            }
+                          }}
+                        >
+                          <div className="flex overflow-x-auto scrollbar-none mb-4">
+                            {chips.map((item, idx) => (
+                              <span
+                                key={`${item}-${idx}`}
+                                className="px-2 py-1 rounded-full text-gray-500 border border-gray-300 font-semibold text-xs flex align-center cursor-pointer active:bg-gray-300 transition duration-300 ease"
+                              >
+                                {item}
+                                <button className="bg-transparent hover focus:outline-none">
+                                  <svg
+                                    onClick={() => handleDelete(item)}
+                                    aria-hidden="true"
+                                    focusable="false"
+                                    data-prefix="fas"
+                                    data-icon="times"
+                                    className="svg-inline--fa fa-times w-2 ml-1"
+                                    role="img"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 352 512"
+                                  >
+                                    <path
+                                      fill="currentColor"
+                                      d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                                    ></path>
+                                  </svg>
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            value={members}
+                            onChange={(e) => setMembers(e.target.value)}
+                            // autoComplete="email"
+                            // placeholder="Client email"
+                            className="mt-1 rounded-sm block w-full border-px bg-gray-800 border-gray-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          />
+                        </div>
+                      ) : null}
+                      <div className="mt-2 text-center bg-yellow-600 rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-gray-900">
+                        Save
+                      </div>
                     </div>
                   </div>
                 </div>

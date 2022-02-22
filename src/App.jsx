@@ -32,10 +32,10 @@ function App() {
   // const [user, setUser] = useState({})
   const [signup, setSignUp] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { user, isLogged } = useUser(isLoggedIn);
+  const { user, setUser, isLogged } = useUser(isLoggedIn);
   const [resetPass, setResetPass] = useState(false);
   const location = useLocation();
-  const { projects, setProjects } = useProjects(isLoggedIn, user);
+  const { projects, setProjects } = useProjects(isLoggedIn);
   // handle scroll position on route change
   useEffect(() => {
     document.querySelector("html").style.scrollBehavior = "auto";
@@ -65,6 +65,7 @@ function App() {
             <Signup setSignUp={setSignUp} setIsLoggedIn={setIsLoggedIn} />
           ) : (
             <SignIn
+              setUser={setUser}
               setResetPass={setResetPass}
               setSignUp={setSignUp}
               setIsLoggedIn={setIsLoggedIn}

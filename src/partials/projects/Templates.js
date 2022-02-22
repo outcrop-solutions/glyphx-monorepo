@@ -67,7 +67,7 @@ export const Templates = ({ setProject, setProjects, user }) => {
   };
   useEffect(() => {
     reloadProjects();
-  }, []);
+  }, [user]);
 
   const handleCreate = async () => {
     // upload project file

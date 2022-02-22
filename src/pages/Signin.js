@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Auth } from "aws-amplify";
 
-function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
+function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
@@ -23,6 +23,7 @@ function Signin({ setIsLoggedIn, setSignUp, setResetPass }) {
     try {
       const user = await Auth.signIn(username, password);
       console.log({ user });
+      setUser(user);
       setIsLoggedIn(true);
     } catch (error) {
       setError(error.message);
