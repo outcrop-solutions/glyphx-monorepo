@@ -41,26 +41,26 @@ function classNames(...classes) {
 export const Templates = ({ setProject, setProjects, user }) => {
   const reloadProjects = async () => {
     try {
-      // if (user) {
-      const projectData = await API.graphql(graphqlOperation(listProjects));
-      // console.log({ projectData })
-      const projectList = projectData.data.listProjects.items;
+      if (user) {
+        const projectData = await API.graphql(graphqlOperation(listProjects));
+        // console.log({ projectData })
+        const projectList = projectData.data.listProjects.items;
 
-      const filtered = projectList.filter((el) =>
-        el.shared.includes(user.username)
-      );
-      let sorted = sortArray(filtered, {
-        by: "updatedAt",
-        order: "desc",
-      });
-      console.log({ sorted });
-      setProjects((prev) => {
-        let newData = [...filtered];
-        return newData;
-      });
-      // } else {
-      //   console.log("No User");
-      // }
+        const filtered = projectList.filter((el) =>
+          el.shared.includes(user.username)
+        );
+        let sorted = sortArray(filtered, {
+          by: "updatedAt",
+          order: "desc",
+        });
+        console.log({ sorted });
+        setProjects((prev) => {
+          let newData = [...filtered];
+          return newData;
+        });
+      } else {
+        console.log("No User");
+      }
     } catch (error) {
       console.log("error on fetching projects", error);
     }

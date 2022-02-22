@@ -254,7 +254,6 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                       </ul>
                       {editShare ? (
                         <div
-                          className="mt-3"
                           onKeyPress={(ev) => {
                             if (ev.key === "Enter") {
                               ev.preventDefault();
@@ -302,7 +301,7 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                           />
                         </div>
                       ) : null}
-                      <div className="mt-2 text-center bg-yellow-600 rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-gray-900">
+                      <div className="mt-2 pointer-cursor text-center bg-yellow-600 rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-gray-900">
                         Save
                       </div>
                     </div>
