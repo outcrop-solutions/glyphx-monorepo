@@ -439,6 +439,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                                       project={project}
                                       fileSystem={fileSystem}
                                       setFileSystem={setFiles}
+                                      setSelectedFile={setSelectedFile}
                                     />
                                   )}
                                 </>

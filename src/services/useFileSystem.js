@@ -64,6 +64,7 @@ export const useFileSystem = (project) => {
               id: idx + 1,
               parent: 0,
               droppable: false,
+              // text: item[0] === "_" ? item.slice(1) : item,
               text: item,
               data: {
                 fileType: item.split(".")[1],
@@ -203,5 +204,6 @@ export const useFileSystem = (project) => {
     setSdt,
     dataGridLoading,
     setDataGridLoading,
+    setFilesOpen,
   };
 };

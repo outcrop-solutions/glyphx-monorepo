@@ -15,7 +15,7 @@ export const FileTab = ({ selectFile, closeFile, item, selectedFile }) => {
       } h-full px-4`}
     >
       <span className="text-yellow-500 mr-2 text-xs font-bold">CSV</span>
-      {item}
+      {item[0] === "_" ? item.slice(1) : item}
       <div className="h-4 w-4 ml-2">
         <XIcon onClick={handleClose} />
       </div>

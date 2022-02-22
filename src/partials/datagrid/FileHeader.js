@@ -22,7 +22,7 @@ export const FileHeader = ({
           ))}
         </>
       )}
-      <PlusIcon className="h-5 text-gray-600 mx-2" />
+      {/* <PlusIcon className="h-5 text-gray-600 mx-2" /> */}
     </div>
   );
 };

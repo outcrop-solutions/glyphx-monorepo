@@ -13,7 +13,7 @@ export const AddFiles = ({
   uploaded,
   setUploaded,
   setFilesOpen,
-  setSelectedFile,
+  setSelectedFile
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {

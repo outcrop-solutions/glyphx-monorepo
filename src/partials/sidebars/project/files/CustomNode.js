@@ -61,7 +61,9 @@ export const CustomNode = ({
         <TypeIcon droppable={droppable} fileType={data?.fileType} />
       </div>
       <div className={styles.labelGridItem}>
-        <div className="text-white text-sm truncate">{node.text}</div>
+        <div className="text-white text-sm truncate">
+          {node.text[0] === "_" ? node.text.slice(1) : node.text}
+        </div>
       </div>
     </div>
   );

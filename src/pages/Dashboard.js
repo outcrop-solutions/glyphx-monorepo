@@ -1,4 +1,3 @@
-/* This example requires Tailwind CSS v2.0+ */
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
@@ -27,6 +26,55 @@ const people = [
     models: "6",
     received: "$20,000",
   },
+  {
+    name: "Jane Cooper",
+    city: "Indianapolis",
+    invoice: "Sept 20th, 2021",
+    models: "6",
+    received: "$20,000",
+  },
+  {
+    name: "Jane Cooper",
+    city: "Indianapolis",
+    invoice: "Sept 20th, 2021",
+    models: "6",
+    received: "$20,000",
+  },
+  {
+    name: "Jane Cooper",
+    city: "Indianapolis",
+    invoice: "Sept 20th, 2021",
+    models: "6",
+    received: "$20,000",
+  },
+  {
+    name: "Jane Cooper",
+    city: "Indianapolis",
+    invoice: "Sept 20th, 2021",
+    models: "6",
+    received: "$20,000",
+  },
+  {
+    name: "Jane Cooper",
+    city: "Indianapolis",
+    invoice: "Sept 20th, 2021",
+    models: "6",
+    received: "$20,000",
+  },
+  {
+    name: "Jane Cooper",
+    city: "Indianapolis",
+    invoice: "Sept 20th, 2021",
+    models: "6",
+    received: "$20,000",
+  },
+  {
+    name: "Jane Cooper",
+    city: "Indianapolis",
+    invoice: "Sept 20th, 2021",
+    models: "6",
+    received: "$20,000",
+  }
 ];
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
