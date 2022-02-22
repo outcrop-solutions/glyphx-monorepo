@@ -317,6 +317,7 @@ export const ProjectCard = ({
         </svg>
         {/* add member */}
         <svg
+          onClick={handleDetails}
           width="24"
           height="25"
           viewBox="0 0 24 25"

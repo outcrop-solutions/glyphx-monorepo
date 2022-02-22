@@ -338,6 +338,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       />
       {projectDetails ? (
         <ProjectDetails
+          user={user}
           projectDetails={projectDetails}
           setProjectDetails={setProjectDetails}
         />

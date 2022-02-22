@@ -7,9 +7,12 @@ import {
   UserCircleIcon,
   XIcon,
 } from "@heroicons/react/outline";
-import { PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
+import { CheckIcon, PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
 import * as dayjs from "dayjs";
+import { updateProject } from "../../graphql/mutations";
+import { API, graphqlOperation } from "aws-amplify";
 import * as relativeTime from "dayjs/plugin/relativeTime";
+import userEvent from "@testing-library/user-event";
 
 const tabs = [
   { name: "Info", href: "#", current: true },
@@ -18,12 +21,17 @@ const tabs = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
+export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
   const [open, setOpen] = useState(true);
-  const [description, setDescription] = useState(projectDetails.desc);
+  const [title, setTitle] = useState(projectDetails.name);
+  const [description, setDescription] = useState(projectDetails.description);
   const [members, setMembers] = useState([]);
-  const [chips, setChips] = useState([]);
+  const [chips, setChips] = useState(projectDetails.shared);
+  const [msg, setMsg] = useState(false);
+  const [error, setError] = useState(false);
   const [editShare, setEditShare] = useState(false);
+  const [editTitle, setEditTitle] = useState(false);
+  const [editDesc, setEditDesc] = useState(false);
 
   const handleChip = () => {
     setChips((prev) => {
@@ -32,10 +40,48 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
     });
   };
   const handleDelete = (item) => {
+    if (item === user.username) {
+      setError("Cannot remove project author.");
+      setTimeout(() => {
+        setError(false);
+      }, 3000);
+      return;
+    }
     setChips((prev) => {
       let newChips = [...prev].filter((el) => el !== item);
       return newChips;
     });
+  };
+
+  const handleSave = async () => {
+    const updateProjectInput = {
+      id: projectDetails.id,
+      name: title,
+      description: description,
+      shared: chips,
+      // version: project._version,
+    };
+    console.log({ updateProjectInput });
+    setEditDesc(false);
+    setEditTitle(false);
+    setEditShare(false);
+    try {
+      const result = await API.graphql(
+        graphqlOperation(updateProject, { input: updateProjectInput })
+      );
+      console.log({ result });
+      setMsg("Successfully Saved!");
+      setTimeout(() => {
+        setMsg(false);
+      }, 3000);
+      // setProject(result.data.updateProject);
+    } catch (error) {
+      setError(error.message);
+      setTimeout(() => {
+        setError(false);
+      }, 3000);
+      console.log({ error });
+    }
   };
 
   return (
@@ -95,22 +141,51 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                 <div className="h-full bg-primary-dark-blue p-8 overflow-y-auto">
                   <div className="pb-16 space-y-6">
                     <div>
-                      <div className="mb-4 flex items-start justify-between">
-                        <div className="flex">
-                          <FolderIcon className="h-6 w-6 mr-2" />
-                          <h2 className="text-lg font-medium text-white">
-                            <span className="sr-only">Details for </span>
-                            {projectDetails.name}
-                          </h2>
-                        </div>
+                      <div className="mb-4 flex items-center justify-between">
+                        {editTitle ? (
+                          <input
+                            type="text"
+                            name="title"
+                            id="title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="mt-1 rounded-sm block border-px bg-gray-800 border-gray-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          />
+                        ) : (
+                          <div className="flex">
+                            <FolderIcon className="h-6 w-6 mr-2" />
+                            <h2 className="text-lg font-medium text-white">
+                              <span className="sr-only">Details for </span>
+                              {projectDetails.name}
+                            </h2>
+                          </div>
+                        )}
                         <button
                           type="button"
+                          onClick={() => setEditTitle((prev) => !prev)}
                           className="ml-4 h-8 w-8 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         >
-                          <PencilIcon className="h-6 w-6" aria-hidden="true" />
+                          {editTitle ? (
+                            <CheckIcon className="h-6 w-6" />
+                          ) : (
+                            <PencilIcon
+                              className="h-6 w-6"
+                              aria-hidden="true"
+                            />
+                          )}
                           <span className="sr-only">Favorite</span>
                         </button>
                       </div>
+                      {msg && (
+                        <div className="w-full py-2 px-1 my-2 bg-yellow-400 rounded-lg text-center font-bold text-gray-700">
+                          {msg}
+                        </div>
+                      )}
+                      {error && (
+                        <div className="w-full py-2 px-1 my-2 bg-red-500 rounded-lg text-center font-bold text-gray-900">
+                          {error}
+                        </div>
+                      )}
 
                       <div>
                         <div className="block mb-2">
@@ -155,7 +230,15 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-medium text-white">Information</h3>
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium text-white">Information</h3>
+                        <div
+                          onClick={handleSave}
+                          className="cursor-pointer text-center bg-yellow-600 rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-gray-900"
+                        >
+                          Save
+                        </div>
+                      </div>
                       <dl className="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white mr-2">Owner</dt>
@@ -188,15 +271,33 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                     <div>
                       <h3 className="font-medium text-white">Description</h3>
                       <div className="mt-2 flex items-center justify-between">
-                        <p className="text-sm text-white italic">
-                          {projectDetails.description}
-                        </p>
+                        {editDesc ? (
+                          <textarea
+                            type="text"
+                            name="title"
+                            id="title"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="mt-1 rounded-sm w-40 block border-px bg-gray-800 border-gray-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          />
+                        ) : (
+                          <p className="text-sm text-white italic">
+                            {projectDetails.description}
+                          </p>
+                        )}
                         <button
                           type="button"
+                          onClick={() => setEditDesc((prev) => !prev)}
                           className="-mr-2 h-8 w-8 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         >
-                          <PencilIcon className="h-5 w-5" aria-hidden="true" />
-                          <span className="sr-only">Add description</span>
+                          {editDesc ? (
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                          ) : (
+                            <PencilIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -213,7 +314,10 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                           >
                             {/* <span className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-white"> */}
                             {editShare ? (
-                              <XIcon className="h-5 w-5" aria-hidden="true" />
+                              <CheckIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
                             ) : (
                               <PlusSmIcon
                                 className="h-5 w-5"
@@ -224,14 +328,15 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                           </button>
                         </li>
                       </div>
-                      <ul
-                        role="list"
-                        className="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200"
-                      >
-                        <li className="py-3 flex justify-between items-center">
-                          {projectDetails.shared.map((member, idx) => (
-                            <div
-                              className="flex justify-between w-full"
+                      {chips && chips.length > 0 && (
+                        <ul
+                          role="list"
+                          // className="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200"
+                          className="mt-2 divide-y divide-gray-200"
+                        >
+                          {chips.map((member, idx) => (
+                            <li
+                              className="flex py-1 justify-between items-center w-full"
                               key={`${member}-${idx}`}
                             >
                               <div className="flex items-center">
@@ -248,10 +353,10 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                                 Remove
                                 <span className="sr-only">{member}</span>
                               </button>
-                            </div>
+                            </li>
                           ))}
-                        </li>
-                      </ul>
+                        </ul>
+                      )}
                       {editShare ? (
                         <div
                           onKeyPress={(ev) => {
@@ -261,49 +366,16 @@ export const ProjectDetails = ({ projectDetails, setProjectDetails }) => {
                             }
                           }}
                         >
-                          <div className="flex overflow-x-auto scrollbar-none mb-4">
-                            {chips.map((item, idx) => (
-                              <span
-                                key={`${item}-${idx}`}
-                                className="px-2 py-1 rounded-full text-gray-500 border border-gray-300 font-semibold text-xs flex align-center cursor-pointer active:bg-gray-300 transition duration-300 ease"
-                              >
-                                {item}
-                                <button className="bg-transparent hover focus:outline-none">
-                                  <svg
-                                    onClick={() => handleDelete(item)}
-                                    aria-hidden="true"
-                                    focusable="false"
-                                    data-prefix="fas"
-                                    data-icon="times"
-                                    className="svg-inline--fa fa-times w-2 ml-1"
-                                    role="img"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 352 512"
-                                  >
-                                    <path
-                                      fill="currentColor"
-                                      d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                                    ></path>
-                                  </svg>
-                                </button>
-                              </span>
-                            ))}
-                          </div>
                           <input
                             type="email"
                             name="email"
                             id="email"
                             value={members}
                             onChange={(e) => setMembers(e.target.value)}
-                            // autoComplete="email"
-                            // placeholder="Client email"
                             className="mt-1 rounded-sm block w-full border-px bg-gray-800 border-gray-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         </div>
                       ) : null}
-                      <div className="mt-2 pointer-cursor text-center bg-yellow-600 rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-gray-900">
-                        Save
-                      </div>
                     </div>
                   </div>
                 </div>
