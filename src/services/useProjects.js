@@ -28,7 +28,7 @@ export const useProjects = ({ isLoggedIn }) => {
 
         let sorted = sortArray(projectList, {
           by: "updatedAt",
-          order: 'desc'
+          order: "desc",
         });
         console.log({ sorted });
         setProjects((prev) => {

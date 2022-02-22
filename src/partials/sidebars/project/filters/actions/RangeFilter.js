@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { SemanticClassificationFormat } from "typescript";
 export const RangeFilter = ({ min, max, setMin, setMax }) => {
   return (
     <div className="py-2 mx-2 grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-6">

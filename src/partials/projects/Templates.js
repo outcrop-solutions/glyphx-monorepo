@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ChevronRightIcon } from "@heroicons/react/solid";
 import {
   CalendarIcon,
@@ -6,12 +7,13 @@ import {
 } from "@heroicons/react/outline";
 import { v4 as uuid } from "uuid";
 import { createProject } from "../../graphql/mutations";
+import { listProjects } from "../../graphql/queries";
 import { API, graphqlOperation } from "aws-amplify";
+import sortArray from "sort-array";
 const items = [
   {
     name: "Shipping Send by SKU",
-    description:
-      "Breakdown shipping send by SKU to discover new winners",
+    description: "Breakdown shipping send by SKU to discover new winners",
     href: "#",
     iconColor: "bg-pink-500",
     icon: SpeakerphoneIcon,
@@ -36,7 +38,34 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export const Templates = ({ setProject, user }) => {
+export const Templates = ({ setProject, setProjects, user }) => {
+  const reloadProjects = async () => {
+    try {
+      // if (user) {
+      const projectData = await API.graphql(graphqlOperation(listProjects));
+      // console.log({ projectData })
+      const projectList = projectData.data.listProjects.items;
+
+      let sorted = sortArray(projectList, {
+        by: "updatedAt",
+        order: "desc",
+      });
+      console.log({ sorted });
+      setProjects((prev) => {
+        let newData = [...projectList];
+        return newData;
+      });
+      // } else {
+      //   console.log("No User");
+      // }
+    } catch (error) {
+      console.log("error on fetching projects", error);
+    }
+  };
+  useEffect(() => {
+    reloadProjects();
+  }, []);
+
   const handleCreate = async () => {
     // upload project file
 
@@ -46,9 +75,9 @@ export const Templates = ({ setProject, user }) => {
 
     const createProjectInput = {
       id: uuid(),
-      name: "untitled",
+      name: "Template Project",
       description: "New project from empty template",
-      author: user.id,
+      author: user.username,
     };
     try {
       console.log({ createProjectInput });

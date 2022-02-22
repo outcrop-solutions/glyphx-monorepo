@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import ExpandCollapse from "./ExpandCollapse";
 import { UserMenu } from "../../../components/UserMenu";
 
-export const MainSidebar = ({ user, project, setProject, setIsLoggedIn, setProgress }) => {
+export const MainSidebar = ({
+  user,
+  project,
+  setProject,
+  setIsLoggedIn,
+  setProgress,
+}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const location = useLocation();
@@ -136,9 +142,9 @@ export const MainSidebar = ({ user, project, setProject, setIsLoggedIn, setProgr
                   onClick={() => {
                     if (window && window.core) {
                       window.core.CloseModel();
-                      console.log('Close Model function called');
+                      console.log("Close Model function called");
                     }
-                    setProgress(false)
+                    setProgress(false);
                     setProject(false);
                   }}
                   className={`block text-gray-200 hover:text-white truncate transition duration-150 ${

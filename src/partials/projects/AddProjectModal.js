@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ClickAwayListener from "react-click-away-listener";
 import {
   PlusIcon,
@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/outline";
 import { v4 as uuid } from "uuid";
 import { createProject } from "../../graphql/mutations";
-import { API, graphqlOperation, Storage } from "aws-amplify";
+import { API, graphqlOperation, Auth } from "aws-amplify";
 
 export const AddProjectModal = ({
   user,
@@ -28,7 +28,7 @@ export const AddProjectModal = ({
       id: uuid(),
       name,
       description,
-      author: user.id,
+      author: user.username,
     };
     try {
       console.log({ createProjectInput });

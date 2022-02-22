@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import QWebChannel from "qwebchannel";
 import Header from "../partials/header";
@@ -22,9 +22,8 @@ import { useStates } from "../services/useStates";
 import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
-import { ToastContainer } from "react-toastify";
+// import { ToastContainer } from "react-toastify";
 import Progress from "../partials/toasts/progress";
-import { formatDiagnosticsWithColorAndContext } from "typescript";
 import { ProjectDetails } from "../partials/projects/ProjectDetails";
 
 let socket = null;
@@ -491,7 +490,11 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                     )}
                   </div>
                 ) : (
-                  <Templates setProject={setProject} user={user} />
+                  <Templates
+                    setProject={setProject}
+                    setProjects={setProjects}
+                    user={user}
+                  />
                 )}
               </div>
             )}

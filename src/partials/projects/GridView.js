@@ -21,7 +21,7 @@ export const GridView = ({
         {/* Left: Title */}
         <div className="mb-4 sm:mb-0">
           <h1 className="text-xl md:text-2xl text-white font-thin">
-            Recently Used Templates
+            Recent Projects
           </h1>
         </div>
       </div>

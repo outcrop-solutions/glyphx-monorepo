@@ -1,96 +1,108 @@
 type Project
-	@model
-	@searchable
-	@auth(rules: [{ allow: private }])
-	@key(name: "projectByAuthor", fields: ["author"]) {
-	id: ID!
-	name: String!
-	description: String!
-	filePath: String
-	properties: [String]
-	author: String!
-	shared: [String]
-	files: [String]
-	states: [State] @connection(keyName: "byProject", fields: ["id"])
-	filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
-	columns: [Column] @connection(keyName: "byProject", fields: ["id"])
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "projectByAuthor", fields: ["author"]) {
+  id: ID!
+  name: String!
+  description: String!
+  filePath: String
+  properties: [String]
+  author: User @connection(keyName: "byProject", fields: ["id"])
+  shared: [User] @connection(keyName: "byProject", fields: ["id"])
+  files: [String]
+  states: [State] @connection(keyName: "byProject", fields: ["id"])
+  filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
+  columns: [Column] @connection(keyName: "byProject", fields: ["id"])
+}
+
+type User
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "byProject", fields: ["projectID"]) {
+  id: ID!
+  username: String!
+  userId: String!
+  projectID: ID!
+  project: Project @connection(fields: ["projectID"])
 }
 
 type State
-	@model
-	@searchable
-	@auth(rules: [{ allow: private }])
-	@key(name: "byProject", fields: ["projectID"]) {
-	id: ID!
-	title: String!
-	description: String!
-	camera: String
-	projectID: ID!
-	project: Project @connection(fields: ["projectID"])
-	comments: [Comment] @connection(keyName: "byState", fields: ["id"])
-	filters: [StateFilter] @connection(keyName: "byState", fields: ["id"])
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "byProject", fields: ["projectID"]) {
+  id: ID!
+  title: String!
+  description: String!
+  camera: String
+  projectID: ID!
+  project: Project @connection(fields: ["projectID"])
+  comments: [Comment] @connection(keyName: "byState", fields: ["id"])
+  filters: [StateFilter] @connection(keyName: "byState", fields: ["id"])
 }
 
 type StateFilter
-	@model(queries: null)
-	@auth(rules: [{ allow: private }])
-	@key(name: "byState", fields: ["stateID", "filterID"])
-	@key(name: "byFilter", fields: ["filterID", "stateID"]) {
-	id: ID!
-	stateID: ID!
-	filterID: ID!
-	state: State! @connection(fields: ["stateID"])
-	filter: Filter! @connection(fields: ["filterID"])
+  @model(queries: null)
+  @auth(rules: [{ allow: private }])
+  @key(name: "byState", fields: ["stateID", "filterID"])
+  @key(name: "byFilter", fields: ["filterID", "stateID"]) {
+  id: ID!
+  stateID: ID!
+  filterID: ID!
+  state: State! @connection(fields: ["stateID"])
+  filter: Filter! @connection(fields: ["filterID"])
 }
 
 type ColumnFilter
-	@model(queries: null)
-	@auth(rules: [{ allow: private }])
-	@key(name: "byColumn", fields: ["columnID", "filterID"])
-	@key(name: "byFilter", fields: ["filterID", "columnID"]) {
-	id: ID!
-	columnID: ID!
-	filterID: ID!
-	column: Column! @connection(fields: ["columnID"])
-	filter: Filter! @connection(fields: ["filterID"])
+  @model(queries: null)
+  @auth(rules: [{ allow: private }])
+  @key(name: "byColumn", fields: ["columnID", "filterID"])
+  @key(name: "byFilter", fields: ["filterID", "columnID"]) {
+  id: ID!
+  columnID: ID!
+  filterID: ID!
+  column: Column! @connection(fields: ["columnID"])
+  filter: Filter! @connection(fields: ["filterID"])
 }
 
 type Column
-	@model
-	@searchable
-	@auth(rules: [{ allow: private }])
-	@key(name: "byProject", fields: ["projectID"]) {
-	id: ID!
-	name: String!
-	min: String!
-	max: String!
-	projectID: ID!
-	project: Project @connection(fields: ["projectID"])
-	filters: [ColumnFilter] @connection(keyName: "byColumn", fields: ["id"])
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "byProject", fields: ["projectID"]) {
+  id: ID!
+  name: String!
+  min: String!
+  max: String!
+  projectID: ID!
+  project: Project @connection(fields: ["projectID"])
+  filters: [ColumnFilter] @connection(keyName: "byColumn", fields: ["id"])
 }
 
 type Filter
-	@model
-	@searchable
-	@auth(rules: [{ allow: private }])
-	@key(name: "byProject", fields: ["projectID"]) {
-	id: ID!
-	name: String!
-	projectID: ID!
-	project: Project @connection(fields: ["projectID"])
-	columns: [ColumnFilter] @connection(keyName: "byFilter", fields: ["id"])
-	states: [StateFilter] @connection(keyName: "byFilter", fields: ["id"])
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "byProject", fields: ["projectID"]) {
+  id: ID!
+  name: String!
+  projectID: ID!
+  project: Project @connection(fields: ["projectID"])
+  columns: [ColumnFilter] @connection(keyName: "byFilter", fields: ["id"])
+  states: [StateFilter] @connection(keyName: "byFilter", fields: ["id"])
 }
 
 type Comment
-	@model
-	@searchable
-	@auth(rules: [{ allow: private }])
-	@key(name: "byState", fields: ["stateID", "createdAt"]) {
-	id: ID!
-	author: String!
-	stateID: ID!
-	state: State @connection(fields: ["stateID"])
-	content: String!
-	createdAt: String!
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "byState", fields: ["stateID", "createdAt"]) {
+  id: ID!
+  author: String!
+  stateID: ID!
+  state: State @connection(fields: ["stateID"])
+  content: String!
+  createdAt: String!
 }

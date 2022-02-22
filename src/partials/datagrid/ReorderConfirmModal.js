@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import ClickAwayListener from "react-click-away-listener";
 import { CheckIcon } from "@heroicons/react/outline";
 import { v4 as uuid } from "uuid";
@@ -13,17 +11,18 @@ export const ReorderConfirmModal = ({
   setProject,
   setReorderConfirm,
   setOldDropped,
-  setPropertiesArr,
+  // setPropertiesArr,
 }) => {
-  const [current, setCurrent] = useState(0);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [projectFile, setProjectFile] = useState("");
+  // const [current, setCurrent] = useState(0);
+  // const [name, setName] = useState("");
+  // const [description, setDescription] = useState("");
+  // const [projectFile, setProjectFile] = useState("");
 
   const handleSave = async () => {
     // TODO: set old dropped to empty array
     setOldDropped([]);
     let newId = uuid();
+    console.log({ user });
     const createProjectInput = {
       id: newId,
       name: `${project.name} Copy`,
