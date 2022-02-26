@@ -27,7 +27,8 @@ export const ReorderConfirmModal = ({
       id: newId,
       name: `${project.name} Copy`,
       description: "",
-      author: user.id,
+      author: user.username,
+      shared: [user.username],
     };
     setReorderConfirm(false);
     try {
