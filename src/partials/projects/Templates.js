@@ -43,11 +43,11 @@ export const Templates = ({ setProject, setProjects, user }) => {
     try {
       if (user) {
         const projectData = await API.graphql(graphqlOperation(listProjects));
-        // console.log({ projectData })
         const projectList = projectData.data.listProjects.items;
+        console.log({ projectList });
 
         const filtered = projectList.filter((el) =>
-          el.shared.includes(user.username)
+          el.shared ? el.shared.includes(user.username) : el.author === user.id
         );
         let sorted = sortArray(filtered, {
           by: "updatedAt",
