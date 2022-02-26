@@ -44,6 +44,13 @@ export const useFilterChange = (filtersApplied) => {
         };
         console.log({ updateFilterInput });
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
+      } else {
+        let query = `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\``;
+        const updateFilterInput = {
+          filter: query,
+        };
+        console.log({ updateFilterInput });
+        window.core.UpdateFilter(JSON.stringify(updateFilterInput));
       }
     }
     console.log({ filtersApplied });

@@ -444,7 +444,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                                   )}
                                 </>
                               )}
-
+                              {/* <div style={{ height: "80px" }} /> */}
                               <ModelFooter
                                 setProgress={setProgress}
                                 sdt={sdt}

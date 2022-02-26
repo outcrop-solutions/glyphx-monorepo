@@ -26,9 +26,11 @@ export const Axes = ({
     setFiltersApplied((prev) => {
       if (applied) {
         let newArr = prev.filter((el) => el.name !== lastDroppedItem.key);
+        console.log({ appliedTrue: newArr });
         return [...newArr];
       } else {
         let newArr = [...prev, { name: lastDroppedItem.key, min, max }];
+        console.log({ appliedFalse: newArr });
         return [...newArr];
       }
     });

@@ -53,7 +53,7 @@ div div[role="columnheader"] {
   @apply border-0 bg-secondary-dark-blue;
 }
 div[role="grid"] {
-  @apply bg-primary-dark-blue max-h-full h-screen scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full;
+  @apply bg-primary-dark-blue max-h-full h-full scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full;
 }
 ::-webkit-scrollbar {
   width: 10px;
