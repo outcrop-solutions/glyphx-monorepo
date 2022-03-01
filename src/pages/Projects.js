@@ -48,6 +48,9 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   //position state dynamically changes with transitions
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
+  useEffect(() => {
+    console.log({ filterSidebarPosition, commentsPosition });
+  }, [commentsPosition, filterSidebarPosition]);
 
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
@@ -99,11 +102,30 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
   );
   useEffect(() => {
-    if (sendDrawerPositionApp) {
-      console.log({ filterSidebarPosition, commentsPosition });
+    if (sendDrawerPositionApp && window && window.core) {
+      console.log({
+        cool: true,
+        filterSidebar: filterSidebarPosition.values,
+        proj: {
+          y: filterSidebarPosition.values.y,
+          right:
+            filterSidebarPosition.values.width +
+            filterSidebarPosition.values.left,
+          height: filterSidebarPosition.values.height,
+        },
+        commentsPosition: commentsPosition
+          ? commentsPosition.values
+          : { ...filterSidebarPosition.values, left: window.innerWidth },
+      });
       window.core.SendDrawerPosition(
         JSON.stringify({
-          filterSidebar: filterSidebarPosition.values,
+          filterSidebar: {
+            y: filterSidebarPosition.values.y,
+            right:
+              filterSidebarPosition.values.width +
+              filterSidebarPosition.values.left,
+            height: filterSidebarPosition.values.height,
+          },
           commentsSidebar: commentsPosition
             ? commentsPosition.values
             : { ...filterSidebarPosition.values, left: window.innerWidth },
@@ -399,63 +421,63 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                   />
                   <div className="w-full h-full flex">
                     <div className="min-w-0 flex-auto w-full">
-                      {progress ? (
+                      {/* {progress ? (
                         <Progress />
-                      ) : (
-                        <>
-                          {share ? (
-                            <Invite setShare={setShare} />
-                          ) : (
-                            <div className="flex-col mx-auto h-full">
-                              {filesOpen && filesOpen.length > 0 && (
-                                <FileHeader
-                                  selectFile={selectFile}
-                                  closeFile={closeFile}
-                                  selectedFile={selectedFile}
-                                  filesOpen={filesOpen}
-                                />
-                              )}
-                              {dataGridLoading ? (
-                                <div className="h-full w-full flex justify-center items-center border-none">
-                                  <GridLoader
-                                    loading={dataGridLoading}
-                                    size={100}
-                                    color={"yellow"}
-                                  />
-                                </div>
-                              ) : (
-                                <>
-                                  {dataGrid.rows.length > 0 ? (
-                                    <Datagrid
-                                      isDropped={isDropped}
-                                      setIsEditing={setIsEditing}
-                                      dataGrid={dataGrid}
-                                      setDataGrid={setDataGrid}
-                                    />
-                                  ) : (
-                                    <AddFiles
-                                      setFilesOpen={setFilesOpen}
-                                      uploaded={uploaded}
-                                      setUploaded={setUploaded}
-                                      setDataGrid={setDataGrid}
-                                      project={project}
-                                      fileSystem={fileSystem}
-                                      setFileSystem={setFiles}
-                                      setSelectedFile={setSelectedFile}
-                                    />
-                                  )}
-                                </>
-                              )}
-                              {/* <div style={{ height: "80px" }} /> */}
-                              <ModelFooter
-                                setProgress={setProgress}
-                                sdt={sdt}
-                                url={url}
+                      ) : ( */}
+                      <>
+                        {share ? (
+                          <Invite setShare={setShare} />
+                        ) : (
+                          <div className="flex-col mx-auto h-full">
+                            {filesOpen && filesOpen.length > 0 && (
+                              <FileHeader
+                                selectFile={selectFile}
+                                closeFile={closeFile}
+                                selectedFile={selectedFile}
+                                filesOpen={filesOpen}
                               />
-                            </div>
-                          )}
-                        </>
-                      )}
+                            )}
+                            {dataGridLoading ? (
+                              <div className="h-full w-full flex justify-center items-center border-none">
+                                <GridLoader
+                                  loading={dataGridLoading}
+                                  size={100}
+                                  color={"yellow"}
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                {dataGrid.rows.length > 0 ? (
+                                  <Datagrid
+                                    isDropped={isDropped}
+                                    setIsEditing={setIsEditing}
+                                    dataGrid={dataGrid}
+                                    setDataGrid={setDataGrid}
+                                  />
+                                ) : (
+                                  <AddFiles
+                                    setFilesOpen={setFilesOpen}
+                                    uploaded={uploaded}
+                                    setUploaded={setUploaded}
+                                    setDataGrid={setDataGrid}
+                                    project={project}
+                                    fileSystem={fileSystem}
+                                    setFileSystem={setFiles}
+                                    setSelectedFile={setSelectedFile}
+                                  />
+                                )}
+                              </>
+                            )}
+                            {/* <div style={{ height: "80px" }} /> */}
+                            <ModelFooter
+                              setProgress={setProgress}
+                              sdt={sdt}
+                              url={url}
+                            />
+                          </div>
+                        )}
+                      </>
+                      // )}
                     </div>
 
                     <CommentsSidebar

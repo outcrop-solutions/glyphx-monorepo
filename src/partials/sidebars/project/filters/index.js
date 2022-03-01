@@ -15,7 +15,7 @@ export const Filters = ({
 }) => {
   const [open, setOpen] = useState(true);
   const [filtersApplied, setFiltersApplied] = useState([]);
-  useFilterChange(filtersApplied, projectId, sdt);
+  useFilterChange(filtersApplied, projectId, sdt, propertiesArr);
 
   const handleClick = () => {
     setOpen(!open);

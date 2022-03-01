@@ -11,9 +11,9 @@ export const useFileSystem = (project) => {
   const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
   const [dataGridLoading, setDataGridLoading] = useState(false);
 
-  useEffect(() => {
-    console.log({ sdt });
-  }, [sdt]);
+  // useEffect(() => {
+  //   console.log({ sdt });
+  // }, [sdt]);
 
   // utility to process storage list if unzipped
   function processStorageList(results) {

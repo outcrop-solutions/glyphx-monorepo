@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 export const ModelFooter = ({ sdt, url, setProgress }) => {
   useEffect(() => {
-    console.log({ url });
+    console.log({ url, sdt });
     if (window && window.core) {
       if (url) {
         window.core.OpenProject(url);

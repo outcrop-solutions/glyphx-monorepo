@@ -96,7 +96,7 @@ export const ProjectSidebar = ({
         };
       }
     });
-  }, [sidebarExpanded, projPosition, setFilterSidebarPosition]);
+  }, [sidebarExpanded, projPosition]);
   return (
     <div
       id="sidebar"

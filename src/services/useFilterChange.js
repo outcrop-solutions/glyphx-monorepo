@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 
-export const useFilterChange = (filtersApplied, projectId, sdt) => {
+export const useFilterChange = (
+  filtersApplied,
+  projectId,
+  sdt,
+  propertiesArr
+) => {
   useEffect(() => {
     if (window && window.core) {
       console.log({ projectId });
-      if (filtersApplied.length > 0) {
+      let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+      if (filtersApplied.length > 0 && propsArr.length >= 3) {
         // if (filtersApplied && filtersApplied.length > 0) {
         let filterStringArr = [];
 
@@ -44,7 +50,7 @@ export const useFilterChange = (filtersApplied, projectId, sdt) => {
         };
         console.log({ updateFilterInput });
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
-      } else if (sdt && filtersApplied.length === 0) {
+      } else if (sdt && filtersApplied.length === 0 && propsArr.length >= 3) {
         let query = `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\``;
         const updateFilterInput = {
           filter: query,
