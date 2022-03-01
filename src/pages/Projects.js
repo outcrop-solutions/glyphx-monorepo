@@ -34,8 +34,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [project, setProject] = useState(false);
   const [projectDetails, setProjectDetails] = useState(false);
 
-  const { states, state, setState, setStates } = useStates(project);
-  useStateChange(state);
+  const { states, state, setState, deleteState, setStates } =
+    useStates(project);
   useStateChange(state);
 
   const [showAddProject, setShowAddProject] = useState(false);
@@ -364,6 +364,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
               <>
                 <DndProvider backend={HTML5Backend}>
                   <ProjectSidebar
+                    sdt={sdt}
                     openFile={openFile}
                     selectFile={selectFile}
                     selectedFile={selectedFile}
@@ -391,6 +392,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                     handleDrop={handleDrop}
                     state={state}
                     states={states}
+                    deleteState={deleteState}
                     setState={setState}
                     setStates={setStates}
                     toastRef={toastRef}

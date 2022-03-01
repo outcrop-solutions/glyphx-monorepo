@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export const useFilterChange = (filtersApplied) => {
-  //build query and call filter change function
+export const useFilterChange = (filtersApplied, projectId, sdt) => {
   useEffect(() => {
     if (window && window.core) {
+      console.log({ projectId });
       if (filtersApplied.length > 0) {
         // if (filtersApplied && filtersApplied.length > 0) {
         let filterStringArr = [];
@@ -44,7 +44,7 @@ export const useFilterChange = (filtersApplied) => {
         };
         console.log({ updateFilterInput });
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
-      } else {
+      } else if (sdt && filtersApplied.length === 0) {
         let query = `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\``;
         const updateFilterInput = {
           filter: query,

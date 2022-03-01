@@ -9,30 +9,35 @@ export const Header = ({
   open,
   project,
   setStates,
+  filtersApplied,
+  setFiltersApplied,
 }) => {
   const addState = async () => {
-    // if (window && window.core) {
-      const createStateInput = {
-        id: uuid(),
-        title: "state_name",
-        description: "",
-        // camera: window.core.GetCameraPosition(),
-        camera: "camera-pos",
-        projectID: project.id,
-      };
+    if (window && window.core) {
+      const camera = await window.core.GetCameraPosition();
+      console.log({ camera });
+      // const createStateInput = {
+      //   id: uuid(),
+      //   title: "state_name",
+      //   description: "",
+      //   camera: window.core.GetCameraPosition(),
+      //   queries: [],
+      //   // camera: "camera-pos",
+      //   projectID: project.id,
+      // };
 
-      try {
-        console.log({ createStateInput });
-        const result = await API.graphql(
-          graphqlOperation(createState, { input: createStateInput })
-        );
-        console.log({ newState: result });
-        setStates(result.data.createState);
-        handleClick();
-      } catch (error) {
-        console.log({ error });
-      }
-    // }
+      // try {
+      //   console.log({ createStateInput });
+      //   const result = await API.graphql(
+      //     graphqlOperation(createState, { input: createStateInput })
+      //   );
+      //   console.log({ newState: result });
+      //   setStates(result.data.createState);
+      //   handleClick();
+      // } catch (error) {
+      //   console.log({ error });
+      // }
+    }
   };
   return (
     <a

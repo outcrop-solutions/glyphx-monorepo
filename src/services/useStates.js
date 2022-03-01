@@ -43,5 +43,11 @@ export const useStates = (project) => {
         return arg;
       });
     },
+    deleteState: (arg) => {
+      setStates((prev) => {
+        let newData = prev.filter((st) => st.id !== arg.id);
+        return newData;
+      });
+    },
   };
 };

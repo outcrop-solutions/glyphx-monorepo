@@ -4,6 +4,8 @@ import { useStates } from "../../../../services/useStates";
 import { StateList } from "./StateList";
 
 export const States = ({
+  filtersApplied,
+  setFiltersApplied,
   handleStateChange,
   sidebarExpanded,
   setSidebarExpanded,
@@ -11,6 +13,7 @@ export const States = ({
   states,
   state,
   setState,
+  deleteState,
   setStates,
 }) => {
   const [open, setOpen] = useState(true);
@@ -23,6 +26,8 @@ export const States = ({
     <React.Fragment>
       <Header
         open={open}
+        filtersApplied={filtersApplied}
+        setFiltersApplied={setFiltersApplied}
         sidebarExpanded={sidebarExpanded}
         setSidebarExpanded={setSidebarExpanded}
         handleClick={handleClick}
@@ -33,8 +38,11 @@ export const States = ({
         <StateList
           // handleStateChange={handleStateChange}
           // id={state.id}
+          states={states}
+          setStates={setStates}
           open={open}
           setState={setState}
+          deleteState={deleteState}
           state={state}
           states={states}
         />

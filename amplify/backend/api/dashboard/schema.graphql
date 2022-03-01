@@ -8,24 +8,12 @@ type Project
   description: String!
   filePath: String
   properties: [String]
-  author: User @connection(keyName: "byProject", fields: ["id"])
-  shared: [User] @connection(keyName: "byProject", fields: ["id"])
+  author: String!
+  shared: [String]
   files: [String]
   states: [State] @connection(keyName: "byProject", fields: ["id"])
   filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
   columns: [Column] @connection(keyName: "byProject", fields: ["id"])
-}
-
-type User
-  @model
-  @searchable
-  @auth(rules: [{ allow: private }])
-  @key(name: "byProject", fields: ["projectID"]) {
-  id: ID!
-  username: String!
-  userId: String!
-  projectID: ID!
-  project: Project @connection(fields: ["projectID"])
 }
 
 type State
@@ -37,6 +25,7 @@ type State
   title: String!
   description: String!
   camera: String
+  queries: [String]
   projectID: ID!
   project: Project @connection(fields: ["projectID"])
   comments: [Comment] @connection(keyName: "byState", fields: ["id"])

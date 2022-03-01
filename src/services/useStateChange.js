@@ -5,7 +5,7 @@ export const useStateChange = (state) => {
 	useEffect(() => {
 		if (window && window.core && state) {
 			//build array of query strings
-			if (typeof state.filters !== 'undefined') {
+			if (typeof state.queries !== 'undefined') {
 				let filterStringArr = []
 
 				for (let i = 0; i < state.filters.length; i++) {

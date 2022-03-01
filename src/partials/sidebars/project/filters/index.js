@@ -10,10 +10,12 @@ export const Filters = ({
   propertiesArr,
   setPropertiesArr,
   handleDrop,
+  projectId,
+  sdt,
 }) => {
   const [open, setOpen] = useState(true);
   const [filtersApplied, setFiltersApplied] = useState([]);
-  useFilterChange(filtersApplied);
+  useFilterChange(filtersApplied, projectId, sdt);
 
   const handleClick = () => {
     setOpen(!open);

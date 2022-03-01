@@ -18,6 +18,7 @@ export const getProject = /* GraphQL */ `
           title
           description
           camera
+          queries
           projectID
           project {
             id
@@ -187,6 +188,7 @@ export const listProjects = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -280,6 +282,7 @@ export const getState = /* GraphQL */ `
       title
       description
       camera
+      queries
       projectID
       project {
         id
@@ -296,6 +299,7 @@ export const getState = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -388,6 +392,7 @@ export const getState = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -426,6 +431,7 @@ export const getState = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -495,6 +501,7 @@ export const listStates = /* GraphQL */ `
         title
         description
         camera
+        queries
         projectID
         project {
           id
@@ -511,6 +518,7 @@ export const listStates = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -552,6 +560,7 @@ export const listStates = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -572,6 +581,7 @@ export const listStates = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -618,6 +628,7 @@ export const getColumn = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -792,6 +803,7 @@ export const listColumns = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -877,6 +889,7 @@ export const getFilter = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -1028,6 +1041,7 @@ export const getFilter = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -1111,6 +1125,7 @@ export const listFilters = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1178,6 +1193,7 @@ export const listFilters = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1212,6 +1228,7 @@ export const getComment = /* GraphQL */ `
         title
         description
         camera
+        queries
         projectID
         project {
           id
@@ -1228,6 +1245,7 @@ export const getComment = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1269,6 +1287,7 @@ export const getComment = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1289,6 +1308,7 @@ export const getComment = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1330,6 +1350,7 @@ export const listComments = /* GraphQL */ `
           title
           description
           camera
+          queries
           projectID
           project {
             id
@@ -1414,6 +1435,7 @@ export const searchProjects = /* GraphQL */ `
             title
             description
             camera
+            queries
             projectID
             project {
               id
@@ -1521,6 +1543,7 @@ export const searchStates = /* GraphQL */ `
         title
         description
         camera
+        queries
         projectID
         project {
           id
@@ -1537,6 +1560,7 @@ export const searchStates = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1578,6 +1602,7 @@ export const searchStates = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1598,6 +1623,7 @@ export const searchStates = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1658,6 +1684,7 @@ export const searchColumns = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1757,6 +1784,7 @@ export const searchFilters = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1824,6 +1852,7 @@ export const searchFilters = /* GraphQL */ `
               title
               description
               camera
+              queries
               projectID
               createdAt
               updatedAt
@@ -1872,6 +1901,7 @@ export const searchComments = /* GraphQL */ `
           title
           description
           camera
+          queries
           projectID
           project {
             id

@@ -8,6 +8,7 @@ import { usePosition } from "../../../services/usePosition";
 
 export const ProjectSidebar = ({
   openFile,
+  sdt,
   selectFile,
   selectedFile,
   setSelectedFile,
@@ -33,6 +34,7 @@ export const ProjectSidebar = ({
   states,
   state,
   setState,
+  deleteState,
   setStates,
   uploaded,
   setUploaded,
@@ -136,6 +138,8 @@ export const ProjectSidebar = ({
         />
         {/* properties={modelProps.propMap[key]} */}
         <Filters
+          sdt={sdt}
+          projectId={project.id}
           handleDrop={handleDrop}
           propertiesArr={propertiesArr}
           setPropertiesArr={setPropertiesArr}
@@ -145,12 +149,15 @@ export const ProjectSidebar = ({
           setSidebarExpanded={setSidebarExpanded}
         />
         <States
+          filtersApplied={filtersApplied}
+          setFiltersApplied={setFiltersApplied}
           project={project}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
           handleStateChange={handleStateChange}
           state={state}
           states={states}
+          deleteState={deleteState}
           setState={setState}
           setStates={setStates}
         />
