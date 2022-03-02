@@ -1,25 +1,35 @@
 import { useEffect } from "react";
 
-export const ModelFooter = ({ sdt, url, setProgress }) => {
-  useEffect(() => {
-    console.log({ url, sdt });
-    if (window && window.core) {
-      if (url) {
-        window.core.OpenProject(url);
-      } else {
-        window.core.OpenProject({});
-      }
-    }
-  }, [sdt, url]);
+export const ModelFooter = ({
+  sdt,
+  url,
+  setProgress,
+  isQtOpen,
+  setIsQtOpen,
+}) => {
+  // useEffect(() => {
+  //   console.log({ url, sdt });
+  //   if (window && window.core) {
+  //     if (url) {
+  //       window.core.OpenProject(url);
+  //     } else {
+  //       window.core.OpenProject({});
+  //     }
+  //   }
+  // }, [sdt, url]);
 
   const handleOpen = () => {
     if (window && window.core) {
-      if (url) {
+      if (isQtOpen && url && sdt) {
+        console.log("Toggling");
+        window.core.ToggleDrawer(true);
+        // window.core.OpenProject(url);
+        // setProgress(true);
+        // setTimeout(() => {
+        //   setProgress(false);
+        // }, 3000);
+      } else if (url) {
         window.core.OpenProject(url);
-        setProgress(true);
-        setTimeout(() => {
-          setProgress(false);
-        }, 3000);
       } else {
         window.core.OpenProject({});
       }

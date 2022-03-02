@@ -55,7 +55,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
     openSocket(baseUrl);
-  }, [location.pathname]);
+  }, []);
   const openSocket = (baseUrl) => {
     if (!socket) {
       socket = new WebSocket(baseUrl);
@@ -93,6 +93,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   };
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // keeps track of whether project is open in qt
+  const [isQtOpen, setIsQtOpen] = useState(false);
   // projectSidebar state and utilities
   const [showCols, setShowCols] = useState(false);
   const storedSidebarExpanded = localStorage.getItem(
@@ -108,9 +110,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         filterSidebar: filterSidebarPosition.values,
         proj: {
           y: filterSidebarPosition.values.y,
-          right:
-            filterSidebarPosition.values.width +
-            filterSidebarPosition.values.left,
+          right: Math.round(filterSidebarPosition.values.right),
           height: filterSidebarPosition.values.height,
         },
         commentsPosition: commentsPosition
@@ -121,9 +121,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         JSON.stringify({
           filterSidebar: {
             y: filterSidebarPosition.values.y,
-            right:
-              filterSidebarPosition.values.width +
-              filterSidebarPosition.values.left,
+            right: Math.round(filterSidebarPosition.values.right),
             height: filterSidebarPosition.values.height,
           },
           commentsSidebar: commentsPosition
@@ -223,6 +221,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           if (res.statusCode === 200) {
             console.log("THIS IS BEING LOGGED NOW");
             window.core.OpenProject(JSON.stringify(res.url));
+            setIsQtOpen(true);
             setUrl(res.url);
             setSdt(res.sdt);
           } else {
@@ -283,11 +282,14 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
       { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     ]);
+    setUrl(false);
+    setSdt(false);
     setOldDropped([]);
     setReorderConfirm(false);
     setDroppedProps([]);
     if (window.core && window.core) {
       window.core.CloseModel();
+      setIsQtOpen(false);
     }
   }, [project]);
 
@@ -353,6 +355,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         project={project}
         setProject={setProject}
         user={user}
+        setIsQtOpen={setIsQtOpen}
         setIsLoggedIn={setIsLoggedIn}
         setProgress={setProgress}
         // sidebarOpen={sidebarOpen}
@@ -470,6 +473,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                             )}
                             {/* <div style={{ height: "80px" }} /> */}
                             <ModelFooter
+                              isQtOpen={isQtOpen}
+                              setIsQtOpen={setIsQtOpen}
                               setProgress={setProgress}
                               sdt={sdt}
                               url={url}

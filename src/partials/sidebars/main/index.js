@@ -9,6 +9,7 @@ export const MainSidebar = ({
   setProject,
   setIsLoggedIn,
   setProgress,
+  setIsQtOpen,
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -142,6 +143,7 @@ export const MainSidebar = ({
                   onClick={() => {
                     if (window && window.core) {
                       window.core.CloseModel();
+                      setIsQtOpen(false);
                       console.log("Close Model function called");
                     }
                     setProgress(false);
