@@ -81,9 +81,10 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           window.core.GetDrawerPosition.connect(function (message) {
             setSendDrawerPositionApp(true);
           });
-          window.core.SendCameraPosition.connect(function (message) {
-            console.log({ message });
-          });
+          // window.core.SendCameraPosition.connect(function (message) {
+          //   console.log("SENDCAMERAPOSITIONFUNCTION");
+          //   console.log(message);
+          // });
 
           //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
           //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { createState } from "../../../../graphql/mutations";
 import { v4 as uuid } from "uuid";
@@ -12,36 +13,38 @@ export const Header = ({
   filtersApplied,
   setFiltersApplied,
 }) => {
+  useEffect(() => {
+    if (window && window.core) {
+      window.core.SendCameraPosition.connect(async function (message) {
+        console.log({ message: JSON.parse(`{${message}}`) });
+
+        const createStateInput = {
+          id: uuid(),
+          title: "new_state",
+          description: "",
+          camera: message,
+          queries: [],
+          projectID: project.id,
+        };
+
+        try {
+          console.log({ createStateInput });
+          const result = await API.graphql(
+            graphqlOperation(createState, { input: createStateInput })
+          );
+          console.log({ newState: result });
+          setStates(result.data.createState);
+          handleClick();
+        } catch (error) {
+          console.log({ error });
+        }
+      });
+    }
+  }, [window]);
+
   const addState = async () => {
     if (window && window.core) {
-      console.log("getcamera");
-      window.core.SendCameraPosition.connect(function (message) {
-        console.log({ message });
-      });
-      window.core.GetCameraPosition();
-      // console.log({ test });
-
-      // const createStateInput = {
-      //   id: uuid(),
-      //   title: "state_name",
-      //   description: "",
-      //   camera: window.core.GetCameraPosition(),
-      //   queries: [],
-      //   // camera: "camera-pos",
-      //   projectID: project.id,
-      // };
-
-      // try {
-      //   console.log({ createStateInput });
-      //   const result = await API.graphql(
-      //     graphqlOperation(createState, { input: createStateInput })
-      //   );
-      //   console.log({ newState: result });
-      //   setStates(result.data.createState);
-      //   handleClick();
-      // } catch (error) {
-      //   console.log({ error });
-      // }
+      await window.core.GetCameraPosition(true);
     }
   };
   return (
