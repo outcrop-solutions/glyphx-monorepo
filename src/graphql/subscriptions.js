@@ -9,6 +9,7 @@ export const onCreateProject = /* GraphQL */ `
       description
       filePath
       properties
+      url
       author
       shared
       files
@@ -26,6 +27,7 @@ export const onCreateProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -78,6 +80,7 @@ export const onCreateProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -131,6 +134,7 @@ export const onCreateProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -174,6 +178,7 @@ export const onUpdateProject = /* GraphQL */ `
       description
       filePath
       properties
+      url
       author
       shared
       files
@@ -191,6 +196,7 @@ export const onUpdateProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -243,6 +249,7 @@ export const onUpdateProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -296,6 +303,7 @@ export const onUpdateProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -339,6 +347,7 @@ export const onDeleteProject = /* GraphQL */ `
       description
       filePath
       properties
+      url
       author
       shared
       files
@@ -356,6 +365,7 @@ export const onDeleteProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -408,6 +418,7 @@ export const onDeleteProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -461,6 +472,7 @@ export const onDeleteProject = /* GraphQL */ `
             description
             filePath
             properties
+            url
             author
             shared
             files
@@ -511,6 +523,7 @@ export const onCreateState = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -528,6 +541,7 @@ export const onCreateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -556,6 +570,7 @@ export const onCreateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -586,6 +601,7 @@ export const onCreateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -621,6 +637,7 @@ export const onCreateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -660,6 +677,7 @@ export const onCreateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -685,6 +703,7 @@ export const onCreateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -725,6 +744,7 @@ export const onUpdateState = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -742,6 +762,7 @@ export const onUpdateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -770,6 +791,7 @@ export const onUpdateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -800,6 +822,7 @@ export const onUpdateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -835,6 +858,7 @@ export const onUpdateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -874,6 +898,7 @@ export const onUpdateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -899,6 +924,7 @@ export const onUpdateState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -939,6 +965,7 @@ export const onDeleteState = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -956,6 +983,7 @@ export const onDeleteState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -984,6 +1012,7 @@ export const onDeleteState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -1014,6 +1043,7 @@ export const onDeleteState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -1049,6 +1079,7 @@ export const onDeleteState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -1088,6 +1119,7 @@ export const onDeleteState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -1113,6 +1145,7 @@ export const onDeleteState = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -1157,6 +1190,7 @@ export const onCreateStateFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -1259,6 +1293,7 @@ export const onCreateStateFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -1380,6 +1415,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -1482,6 +1518,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -1603,6 +1640,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -1705,6 +1743,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -1825,6 +1864,7 @@ export const onCreateColumnFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -1905,6 +1945,7 @@ export const onCreateColumnFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -2025,6 +2066,7 @@ export const onUpdateColumnFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -2105,6 +2147,7 @@ export const onUpdateColumnFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -2225,6 +2268,7 @@ export const onDeleteColumnFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -2305,6 +2349,7 @@ export const onDeleteColumnFilter = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -2421,6 +2466,7 @@ export const onCreateColumn = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -2438,6 +2484,7 @@ export const onCreateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2466,6 +2513,7 @@ export const onCreateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2496,6 +2544,7 @@ export const onCreateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2530,6 +2579,7 @@ export const onCreateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2552,6 +2602,7 @@ export const onCreateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2591,6 +2642,7 @@ export const onUpdateColumn = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -2608,6 +2660,7 @@ export const onUpdateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2636,6 +2689,7 @@ export const onUpdateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2666,6 +2720,7 @@ export const onUpdateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2700,6 +2755,7 @@ export const onUpdateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2722,6 +2778,7 @@ export const onUpdateColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2761,6 +2818,7 @@ export const onDeleteColumn = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -2778,6 +2836,7 @@ export const onDeleteColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2806,6 +2865,7 @@ export const onDeleteColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2836,6 +2896,7 @@ export const onDeleteColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2870,6 +2931,7 @@ export const onDeleteColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2892,6 +2954,7 @@ export const onDeleteColumn = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2929,6 +2992,7 @@ export const onCreateFilter = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -2946,6 +3010,7 @@ export const onCreateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -2974,6 +3039,7 @@ export const onCreateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3004,6 +3070,7 @@ export const onCreateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3038,6 +3105,7 @@ export const onCreateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3060,6 +3128,7 @@ export const onCreateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3098,6 +3167,7 @@ export const onCreateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3123,6 +3193,7 @@ export const onCreateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3160,6 +3231,7 @@ export const onUpdateFilter = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -3177,6 +3249,7 @@ export const onUpdateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3205,6 +3278,7 @@ export const onUpdateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3235,6 +3309,7 @@ export const onUpdateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3269,6 +3344,7 @@ export const onUpdateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3291,6 +3367,7 @@ export const onUpdateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3329,6 +3406,7 @@ export const onUpdateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3354,6 +3432,7 @@ export const onUpdateFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3391,6 +3470,7 @@ export const onDeleteFilter = /* GraphQL */ `
         description
         filePath
         properties
+        url
         author
         shared
         files
@@ -3408,6 +3488,7 @@ export const onDeleteFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3436,6 +3517,7 @@ export const onDeleteFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3466,6 +3548,7 @@ export const onDeleteFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3500,6 +3583,7 @@ export const onDeleteFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3522,6 +3606,7 @@ export const onDeleteFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3560,6 +3645,7 @@ export const onDeleteFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3585,6 +3671,7 @@ export const onDeleteFilter = /* GraphQL */ `
               description
               filePath
               properties
+              url
               author
               shared
               files
@@ -3629,6 +3716,7 @@ export const onCreateComment = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -3746,6 +3834,7 @@ export const onUpdateComment = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files
@@ -3863,6 +3952,7 @@ export const onDeleteComment = /* GraphQL */ `
           description
           filePath
           properties
+          url
           author
           shared
           files

@@ -8,6 +8,7 @@ type Project
   description: String!
   filePath: String
   properties: [String]
+  url: String
   author: String!
   shared: [String]
   files: [String]

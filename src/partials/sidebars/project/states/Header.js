@@ -14,8 +14,13 @@ export const Header = ({
 }) => {
   const addState = async () => {
     if (window && window.core) {
-      const camera = await window.core.GetCameraPosition();
-      console.log({ camera });
+      console.log("getcamera");
+      window.core.SendCameraPosition.connect(function (message) {
+        console.log({ message });
+      });
+      window.core.GetCameraPosition();
+      // console.log({ test });
+
       // const createStateInput = {
       //   id: uuid(),
       //   title: "state_name",

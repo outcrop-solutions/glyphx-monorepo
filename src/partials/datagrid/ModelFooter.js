@@ -7,20 +7,20 @@ export const ModelFooter = ({
   isQtOpen,
   setIsQtOpen,
 }) => {
-  // useEffect(() => {
-  //   console.log({ url, sdt });
-  //   if (window && window.core) {
-  //     if (url) {
-  //       window.core.OpenProject(url);
-  //     } else {
-  //       window.core.OpenProject({});
-  //     }
-  //   }
-  // }, [sdt, url]);
+  useEffect(() => {
+    console.log({ url, sdt });
+    if (window && window.core) {
+      if (url) {
+        window.core.OpenProject(url);
+      } else {
+        window.core.OpenProject({});
+      }
+    }
+  }, [sdt, url]);
 
   const handleOpen = () => {
     if (window && window.core) {
-      if (isQtOpen && url && sdt) {
+      if (url && sdt) {
         console.log("Toggling");
         window.core.ToggleDrawer(true);
         // window.core.OpenProject(url);

@@ -25,6 +25,8 @@ import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 // import { ToastContainer } from "react-toastify";
 import Progress from "../partials/toasts/progress";
 import { ProjectDetails } from "../partials/projects/ProjectDetails";
+import { updateProject } from "../graphql/mutations";
+import { API, graphqlOperation } from "aws-amplify";
 
 let socket = null;
 // import { Horizontal } from '../partials/dnd/Pages'
@@ -78,6 +80,9 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           });
           window.core.GetDrawerPosition.connect(function (message) {
             setSendDrawerPositionApp(true);
+          });
+          window.core.SendCameraPosition.connect(function (message) {
+            console.log({ message });
           });
 
           //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
@@ -222,8 +227,32 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
             console.log("THIS IS BEING LOGGED NOW");
             window.core.OpenProject(JSON.stringify(res.url));
             setIsQtOpen(true);
+
             setUrl(res.url);
             setSdt(res.sdt);
+            // TODO: add project file path
+            const updateProjectInput = {
+              id: project.id,
+              filePath: res.sdt,
+              properties: propertiesArr.map((el) =>
+                el.lastDroppedItem
+                  ? el.lastDroppedItem.key
+                    ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
+                    : ""
+                  : ""
+              ),
+              url: res.url,
+            };
+            console.log({ updateProjectInput });
+            try {
+              const result = await API.graphql(
+                graphqlOperation(updateProject, { input: updateProjectInput })
+              );
+              console.log({ result });
+              // setProject(result.data.updateProject);
+            } catch (error) {
+              console.log({ error });
+            }
           } else {
             window.core.OpenProject(JSON.stringify({}));
           }
@@ -274,16 +303,116 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [progress, setProgress] = useState(false);
 
   useEffect(() => {
-    setPropertiesArr([
-      { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-      { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-      { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-      { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-      { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-      { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-    ]);
-    setUrl(false);
-    setSdt(false);
+    console.log({ project });
+    setPropertiesArr((prev) => {
+      if (project.properties && project.properties.length > 0) {
+        const existingProps = project.properties.map((el, idx) => {
+          switch (idx) {
+            case 0:
+              return {
+                axis: "X",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
+
+            case 1:
+              return {
+                axis: "Y",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
+
+            case 2:
+              return {
+                axis: "Z",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
+
+            case 3:
+              return {
+                axis: "1",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
+
+            case 4:
+              return {
+                axis: "2",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
+
+            case 5:
+              return {
+                axis: "3",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
+
+            default:
+              break;
+          }
+        });
+        console.log({ existingProps });
+        return existingProps;
+      } else {
+        const cleanProps = [
+          { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        ];
+        console.log({ cleanProps });
+        return cleanProps;
+      }
+    });
+    setSdt(project.filePath ? project.filePath : false);
+    setUrl(project.url ? project.url : false);
     setOldDropped([]);
     setReorderConfirm(false);
     setDroppedProps([]);
