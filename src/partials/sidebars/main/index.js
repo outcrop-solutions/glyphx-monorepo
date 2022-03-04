@@ -70,9 +70,10 @@ export const MainSidebar = ({
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 transform h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4 transition-all duration-200 ease-in-out ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-64"
-      }`}
+      // className={`flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 transform h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4 transition-all duration-200 ease-in-out ${
+      //   sidebarOpen ? "translate-x-0" : "-translate-x-64"
+      // }`}
+      className={`flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4`}
     >
       <div>
         {/* Sidebar header */}
