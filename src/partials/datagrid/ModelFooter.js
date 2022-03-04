@@ -11,7 +11,7 @@ export const ModelFooter = ({
     console.log({ url, sdt });
     if (window && window.core) {
       if (url) {
-        window.core.OpenProject(url);
+        window.core.OpenProject(JSON.stringify(url));
       } else {
         window.core.OpenProject({});
       }
@@ -29,7 +29,7 @@ export const ModelFooter = ({
         //   setProgress(false);
         // }, 3000);
       } else if (url) {
-        window.core.OpenProject(url);
+        window.core.OpenProject(JSON.stringify(url));
       } else {
         window.core.OpenProject({});
       }
