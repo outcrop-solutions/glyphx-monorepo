@@ -10,7 +10,10 @@ export const useFilterChange = (
   useEffect(() => {
     if (window && window.core) {
       console.log({ projectId });
-      let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+      let propsArr;
+      if (propertiesArr && propertiesArr.length > 0) {
+        propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+      }
       if (filtersApplied.length > 0 && propsArr.length >= 3) {
         // if (filtersApplied && filtersApplied.length > 0) {
         let filterStringArr = [];
