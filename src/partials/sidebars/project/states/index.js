@@ -4,6 +4,7 @@ import { useStates } from "../../../../services/useStates";
 import { StateList } from "./StateList";
 
 export const States = ({
+  query,
   filtersApplied,
   setFiltersApplied,
   handleStateChange,
@@ -26,6 +27,7 @@ export const States = ({
     <React.Fragment>
       <Header
         open={open}
+        query={query}
         filtersApplied={filtersApplied}
         setFiltersApplied={setFiltersApplied}
         sidebarExpanded={sidebarExpanded}

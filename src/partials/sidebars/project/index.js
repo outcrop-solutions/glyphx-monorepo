@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import ExpandCollapse from "./ExpandCollapse";
 import { Files } from "./files";
 import { Properties } from "./properties";
@@ -23,8 +23,7 @@ export const ProjectSidebar = ({
   isEditing,
   propertiesArr,
   setPropertiesArr,
-  filtersApplied,
-  setFiltersApplied,
+
   handleStateChange,
   handleDrop,
   fileSystem,
@@ -44,6 +43,8 @@ export const ProjectSidebar = ({
   const trigger = useRef(null);
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);
+  const [query, setQuery] = useState(false);
+  const [filtersApplied, setFiltersApplied] = useState([]);
 
   useEffect(() => {
     if (project) {
@@ -140,6 +141,7 @@ export const ProjectSidebar = ({
         {/* properties={modelProps.propMap[key]} */}
         <Filters
           sdt={sdt}
+          setQuery={setQuery}
           projectId={project.id}
           handleDrop={handleDrop}
           propertiesArr={propertiesArr}
@@ -152,6 +154,7 @@ export const ProjectSidebar = ({
         <States
           filtersApplied={filtersApplied}
           setFiltersApplied={setFiltersApplied}
+          query={query}
           project={project}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}

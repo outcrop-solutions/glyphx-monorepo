@@ -26,7 +26,7 @@ type State
   title: String!
   description: String!
   camera: String
-  queries: [String]
+  query: String
   projectID: ID!
   project: Project @connection(fields: ["projectID"])
   comments: [Comment] @connection(keyName: "byState", fields: ["id"])

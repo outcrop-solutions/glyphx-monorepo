@@ -19,7 +19,7 @@ export const onCreateProject = /* GraphQL */ `
           title
           description
           camera
-          queries
+          query
           projectID
           project {
             id
@@ -188,7 +188,7 @@ export const onUpdateProject = /* GraphQL */ `
           title
           description
           camera
-          queries
+          query
           projectID
           project {
             id
@@ -357,7 +357,7 @@ export const onDeleteProject = /* GraphQL */ `
           title
           description
           camera
-          queries
+          query
           projectID
           project {
             id
@@ -515,7 +515,7 @@ export const onCreateState = /* GraphQL */ `
       title
       description
       camera
-      queries
+      query
       projectID
       project {
         id
@@ -533,7 +533,7 @@ export const onCreateState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -629,7 +629,7 @@ export const onCreateState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -669,7 +669,7 @@ export const onCreateState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -736,7 +736,7 @@ export const onUpdateState = /* GraphQL */ `
       title
       description
       camera
-      queries
+      query
       projectID
       project {
         id
@@ -754,7 +754,7 @@ export const onUpdateState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -850,7 +850,7 @@ export const onUpdateState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -890,7 +890,7 @@ export const onUpdateState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -957,7 +957,7 @@ export const onDeleteState = /* GraphQL */ `
       title
       description
       camera
-      queries
+      query
       projectID
       project {
         id
@@ -975,7 +975,7 @@ export const onDeleteState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -1071,7 +1071,7 @@ export const onDeleteState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -1111,7 +1111,7 @@ export const onDeleteState = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -1182,7 +1182,7 @@ export const onCreateStateFilter = /* GraphQL */ `
         title
         description
         camera
-        queries
+        query
         projectID
         project {
           id
@@ -1200,7 +1200,7 @@ export const onCreateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1242,7 +1242,7 @@ export const onCreateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1263,7 +1263,7 @@ export const onCreateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1303,7 +1303,7 @@ export const onCreateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1371,7 +1371,7 @@ export const onCreateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1407,7 +1407,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
         title
         description
         camera
-        queries
+        query
         projectID
         project {
           id
@@ -1425,7 +1425,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1467,7 +1467,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1488,7 +1488,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1528,7 +1528,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1596,7 +1596,7 @@ export const onUpdateStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1632,7 +1632,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
         title
         description
         camera
-        queries
+        query
         projectID
         project {
           id
@@ -1650,7 +1650,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1692,7 +1692,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1713,7 +1713,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1753,7 +1753,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1821,7 +1821,7 @@ export const onDeleteStateFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1874,7 +1874,7 @@ export const onCreateColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -1955,7 +1955,7 @@ export const onCreateColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2023,7 +2023,7 @@ export const onCreateColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2076,7 +2076,7 @@ export const onUpdateColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2157,7 +2157,7 @@ export const onUpdateColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2225,7 +2225,7 @@ export const onUpdateColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2278,7 +2278,7 @@ export const onDeleteColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2359,7 +2359,7 @@ export const onDeleteColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2427,7 +2427,7 @@ export const onDeleteColumnFilter = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -2476,7 +2476,7 @@ export const onCreateColumn = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -2652,7 +2652,7 @@ export const onUpdateColumn = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -2828,7 +2828,7 @@ export const onDeleteColumn = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -3002,7 +3002,7 @@ export const onCreateFilter = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -3159,7 +3159,7 @@ export const onCreateFilter = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -3241,7 +3241,7 @@ export const onUpdateFilter = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -3398,7 +3398,7 @@ export const onUpdateFilter = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -3480,7 +3480,7 @@ export const onDeleteFilter = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -3637,7 +3637,7 @@ export const onDeleteFilter = /* GraphQL */ `
             title
             description
             camera
-            queries
+            query
             projectID
             project {
               id
@@ -3708,7 +3708,7 @@ export const onCreateComment = /* GraphQL */ `
         title
         description
         camera
-        queries
+        query
         projectID
         project {
           id
@@ -3726,7 +3726,7 @@ export const onCreateComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -3768,7 +3768,7 @@ export const onCreateComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -3789,7 +3789,7 @@ export const onCreateComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -3826,7 +3826,7 @@ export const onUpdateComment = /* GraphQL */ `
         title
         description
         camera
-        queries
+        query
         projectID
         project {
           id
@@ -3844,7 +3844,7 @@ export const onUpdateComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -3886,7 +3886,7 @@ export const onUpdateComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -3907,7 +3907,7 @@ export const onUpdateComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -3944,7 +3944,7 @@ export const onDeleteComment = /* GraphQL */ `
         title
         description
         camera
-        queries
+        query
         projectID
         project {
           id
@@ -3962,7 +3962,7 @@ export const onDeleteComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -4004,7 +4004,7 @@ export const onDeleteComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt
@@ -4025,7 +4025,7 @@ export const onDeleteComment = /* GraphQL */ `
               title
               description
               camera
-              queries
+              query
               projectID
               createdAt
               updatedAt

@@ -5,6 +5,9 @@ import { Axes } from "./Axes";
 import { useFilterChange } from "../../../../services/useFilterChange";
 
 export const Filters = ({
+  setQuery,
+  filtersApplied,
+  setFiltersApplied,
   sidebarExpanded,
   setSidebarExpanded,
   propertiesArr,
@@ -14,8 +17,8 @@ export const Filters = ({
   sdt,
 }) => {
   const [open, setOpen] = useState(true);
-  const [filtersApplied, setFiltersApplied] = useState([]);
-  useFilterChange(filtersApplied, projectId, sdt, propertiesArr);
+
+  useFilterChange(filtersApplied, projectId, sdt, propertiesArr, setQuery);
 
   const handleClick = () => {
     setOpen(!open);

@@ -4,6 +4,7 @@ import { createState } from "../../../../graphql/mutations";
 import { v4 as uuid } from "uuid";
 import { useStates } from "../../../../services/useStates";
 export const Header = ({
+  query,
   handleClick,
   setSidebarExpanded,
   sidebarExpanded,
@@ -17,13 +18,13 @@ export const Header = ({
     if (window && window.core) {
       window.core.SendCameraPosition.connect(async function (message) {
         console.log({ message: JSON.parse(`{${message}}`) });
-
+        console.log({ filtersApplied });
         const createStateInput = {
           id: uuid(),
           title: "new_state",
           description: "",
           camera: message,
-          queries: [],
+          queries: query ? query : "",
           projectID: project.id,
         };
 

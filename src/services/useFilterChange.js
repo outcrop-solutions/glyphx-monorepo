@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 export const useFilterChange = (
+  setQuery,
   filtersApplied,
   projectId,
   sdt,
@@ -48,6 +49,8 @@ export const useFilterChange = (
         const updateFilterInput = {
           filter: query,
         };
+        setQuery(query);
+
         console.log({ updateFilterInput });
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
       } else if (sdt && filtersApplied.length === 0 && propsArr.length >= 3) {
@@ -55,6 +58,7 @@ export const useFilterChange = (
         const updateFilterInput = {
           filter: query,
         };
+        setQuery([query]);
         console.log({ updateFilterInput });
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
       }
