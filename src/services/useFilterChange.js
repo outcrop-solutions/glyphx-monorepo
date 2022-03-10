@@ -12,7 +12,12 @@ export const useFilterChange = (
       console.log({ projectId });
       let propsArr = [];
       if (propertiesArr && propertiesArr.length > 0) {
-        propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+        try{
+          propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+        }
+        catch(exception){
+          console.log("FAILED HERE");
+        }
       }
       if (filtersApplied.length > 0 && propsArr.length >= 3) {
         // if (filtersApplied && filtersApplied.length > 0) {
