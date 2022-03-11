@@ -185,6 +185,17 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   // listen to properties array drops and call ETL on XYZ full
   useEffect(() => {
     const handleETL = async () => {
+      // check if file exists in s3 to prevent running ETL on non-existent keys
+      // TODO: track which properties come from which file keys once we add file delete funcitonality to ensure we don't run etl on non existent keys
+      try {
+        const data = await Storage.list(`${project.id}/input/`);
+        if (!data.map((el) => el.key).includes(selectedFile)) {
+          console.log("Error: FIle not uploaded before props dropped");
+          return;
+        }
+      } catch (error) {
+        console.log({ error });
+      }
       let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
       let filterArr = propertiesArr
         .slice(3)
