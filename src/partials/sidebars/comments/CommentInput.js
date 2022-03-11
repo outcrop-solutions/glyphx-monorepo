@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { API, graphqlOperation } from "aws-amplify";
 import { createComment } from "../../../graphql/mutations";
@@ -47,19 +47,6 @@ export const CommentInput = ({ user, state, setComments }) => {
         className="bg-primary-dark-blue border border-gray-400 rounded shadow-sm h-8 w-full"
         id=""
       />
-      {/* <svg
-				onClick={handleSaveComment}
-				aria-hidden='true'
-				role='img'
-				width='16'
-				height='16'
-				preserveAspectRatio='xMidYMid meet'
-				viewBox='0 0 24 24'>
-				<path
-					d='M21.426 11.095l-17-8A1 1 0 0 0 3.03 4.242l1.212 4.849L12 12l-7.758 2.909l-1.212 4.849a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81z'
-					fill='white'
-				/>
-			</svg> */}
     </div>
   );
 };

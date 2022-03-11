@@ -2,64 +2,9 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import DataGrid from "react-data-grid";
 import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
 
-// function createRows() {
-//   const rows = [];
-//   for (let i = 1; i < 500; i++) {
-//     rows.push({
-//       id: i,
-//       task: `Task ${i}`,
-//       complete: Math.min(100, Math.round(Math.random() * 110)),
-//       priority: ["Critical", "High", "Medium", "Low"][
-//         Math.round(Math.random() * 3)
-//       ],
-//       issueType: ["Bug", "Improvement", "Epic", "Story"][
-//         Math.round(Math.random() * 3)
-//       ],
-//     });
-//   }
-
-//   return rows;
-// }
-
-// function createColumns() {
-//   return [
-//     {
-//       key: "id",
-//       name: "ID",
-//       width: 80,
-//     },
-//     {
-//       key: "task",
-//       name: "Title",
-//       resizable: true,
-//       sortable: true,
-//     },
-//     {
-//       key: "priority",
-//       name: "Priority",
-//       resizable: true,
-//       sortable: true,
-//     },
-//     {
-//       key: "issueType",
-//       name: "Issue Type",
-//       resizable: true,
-//       sortable: true,
-//     },
-//     {
-//       key: "complete",
-//       name: "% Complete",
-//       resizable: true,
-//       sortable: true,
-//     },
-//   ];
-// }
-
 export const Datagrid = ({
   isDropped,
   dataGrid,
-  setIsEditing,
-  setDataGrid,
 }) => {
   const [rows, setRows] = useState(dataGrid.rows);
   const [columns, setColumns] = useState(dataGrid.columns);

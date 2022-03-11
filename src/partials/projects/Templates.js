@@ -34,10 +34,6 @@ const items = [
   },
 ];
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
 export const Templates = ({ setProject, setProjects, user }) => {
   const reloadProjects = async () => {
     try {
@@ -70,12 +66,6 @@ export const Templates = ({ setProject, setProjects, user }) => {
   }, [user]);
 
   const handleCreate = async () => {
-    // upload project file
-
-    // const { key } = await Storage.put(`${uuid()}.json`, projectFile, {
-    // 	contentType: 'json',
-    // })
-
     const createProjectInput = {
       id: uuid(),
       name: "Template Project",

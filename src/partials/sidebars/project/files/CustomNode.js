@@ -1,9 +1,5 @@
-import React from "react";
-import { Storage } from "aws-amplify";
 import { useDragOver } from "@minoru/react-dnd-treeview";
 import { TypeIcon } from "./TypeIcon";
-import { parse } from "papaparse";
-import { formatGridData } from "../../../../partials/actions/Dropzone";
 import styles from "./css/CustomNode.module.css";
 
 export const CustomNode = ({

@@ -7,15 +7,6 @@ import sortArray from "sort-array";
 export const useProjects = ({ isLoggedIn }) => {
   const { user, setUser, isLogged } = useUser();
   const [projects, setProjects] = useState([]);
-  // const [user, setUser] = useState(false);
-  // fetch project data from RDS
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     const user = await Auth.currentAuthenticatedUser();
-  //     setUser(user);
-  //   };
-  //   fetchUser();
-  // }, [isLoggedIn]);
 
   useEffect(() => {
     console.log({ user });

@@ -1,52 +1,45 @@
-import React, { useState } from 'react';
-import Transition from '../utils/Transition.js';
+import { useState } from "react";
+import Transition from "../utils/Transition.js";
 
-function Tooltip({
-  children,
-  className,
-  bg,
-  size,
-  position,
-}) {
-
+function Tooltip({ children, className, bg, size, position }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const positionOuterClasses = (position) => {
     switch (position) {
-      case 'right':
-        return 'left-full top-1/2 transform -translate-y-1/2';
-      case 'left':
-        return 'right-full top-1/2 transform -translate-y-1/2';
-      case 'bottom':
-        return 'top-full left-1/2 transform -translate-x-1/2';
+      case "right":
+        return "left-full top-1/2 transform -translate-y-1/2";
+      case "left":
+        return "right-full top-1/2 transform -translate-y-1/2";
+      case "bottom":
+        return "top-full left-1/2 transform -translate-x-1/2";
       default:
-        return 'bottom-full left-1/2 transform -translate-x-1/2';
+        return "bottom-full left-1/2 transform -translate-x-1/2";
     }
-  }
+  };
 
   const sizeClasses = (size) => {
     switch (size) {
-      case 'lg':
-        return 'min-w-72  p-3';
-      case 'md':
-        return 'min-w-56 p-3';
-      case 'sm':
-        return 'min-w-44 p-2';
+      case "lg":
+        return "min-w-72  p-3";
+      case "md":
+        return "min-w-56 p-3";
+      case "sm":
+        return "min-w-44 p-2";
       default:
-        return 'p-2';
+        return "p-2";
     }
   };
 
   const positionInnerClasses = (position) => {
     switch (position) {
-      case 'right':
-        return 'ml-2';
-      case 'left':
-        return 'mr-2';
-      case 'bottom':
-        return 'mt-2';
+      case "right":
+        return "ml-2";
+      case "left":
+        return "mr-2";
+      case "bottom":
+        return "mt-2";
       default:
-        return 'mb-2';
+        return "mb-2";
     }
   };
 
@@ -72,7 +65,11 @@ function Tooltip({
         <Transition
           show={tooltipOpen}
           tag="div"
-          className={`rounded overflow-hidden ${bg === 'dark' ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-lg'} ${sizeClasses(size)} ${positionInnerClasses(position)}`}
+          className={`rounded overflow-hidden ${
+            bg === "dark"
+              ? "bg-gray-800"
+              : "bg-white border border-gray-200 shadow-lg"
+          } ${sizeClasses(size)} ${positionInnerClasses(position)}`}
           enter="transition ease-out duration-200 transform"
           enterStart="opacity-0 -translate-y-2"
           enterEnd="opacity-100 translate-y-0"

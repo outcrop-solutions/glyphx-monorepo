@@ -11,15 +11,8 @@ export const ReorderConfirmModal = ({
   setProject,
   setReorderConfirm,
   setOldDropped,
-  // setPropertiesArr,
 }) => {
-  // const [current, setCurrent] = useState(0);
-  // const [name, setName] = useState("");
-  // const [description, setDescription] = useState("");
-  // const [projectFile, setProjectFile] = useState("");
-
   const handleSave = async () => {
-    // TODO: set old dropped to empty array
     setOldDropped([]);
     let newId = uuid();
     console.log({ user });
@@ -54,7 +47,6 @@ export const ReorderConfirmModal = ({
       console.log({ result });
 
       setProject(result.data.createProject);
-      // fetchProjects();
     } catch (error) {
       console.log({ error });
     }

@@ -1,5 +1,5 @@
-import { PlusIcon } from "@heroicons/react/solid";
 import { FileTab } from "./FileTab";
+// import { PlusIcon } from "@heroicons/react/solid";
 
 export const FileHeader = ({
   selectedFile,

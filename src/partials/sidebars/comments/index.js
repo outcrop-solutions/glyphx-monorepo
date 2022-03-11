@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePosition } from "../../../services/usePosition";
 import { Header } from "./Header";
 import { ExpandCollapse } from "./ExpandCollapse";
 import { CommentInput } from "./CommentInput";
 import { History } from "./History";
-import { useStates } from "../../../services/useStates";
 import { useComments } from "../../../services/useComments";
 
 export const CommentsSidebar = ({

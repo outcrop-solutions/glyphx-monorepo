@@ -18,12 +18,10 @@ export const AddProjectModal = ({
 }) => {
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("Untitled Project");
-
   const [chips, setChips] = useState([]);
-
   const [description, setDescription] = useState("Type note here");
   const [members, setMembers] = useState("");
-  const [projectFile, setProjectFile] = useState("");
+
   const handleChip = () => {
     setChips((prev) => {
       setMembers("");
@@ -54,16 +52,14 @@ export const AddProjectModal = ({
       console.log({ result });
       setShowAddProject(false);
       setProject(result.data.createProject);
-      // fetchProjects();
     } catch (error) {
       console.log({ error });
     }
   };
-
   const handleClickAway = () => {
     setShowAddProject(false);
   };
-  const handleCancel = () => {};
+
   return (
     <div className="absolute w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 z-60">
       <ClickAwayListener onClickAway={handleClickAway}>

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 import SortableHeaderCell from "./SortableHeaderCell";
@@ -22,15 +21,6 @@ export function DraggableHeaderRenderer({
     }),
   });
 
-  // useEffect(() => {
-  //   if (isDragging) {
-  //     setIsEditing((prev) => {
-  //       console.log("logging true");
-  //       return true;
-  //     });
-  //   }
-  // }, [isDragging, setIsEditing]);
-
   const [{ isOver }, drop] = useDrop({
     accept: "COLUMN_DRAG",
     drop({ key }) {
@@ -44,7 +34,7 @@ export function DraggableHeaderRenderer({
 
   return (
     <div
-    datatype={`${column.dataType}`}
+      datatype={`${column.dataType}`}
       ref={useCombinedRefs(drag, drop)}
       className={`${isDragging ? "opacity-80" : "opacity-100"} ${
         isOver ? "bg-blue-500" : ""

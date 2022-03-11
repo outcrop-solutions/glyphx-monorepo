@@ -22,14 +22,14 @@ import { useStates } from "../services/useStates";
 import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
-// import { ToastContainer } from "react-toastify";
-import Progress from "../partials/toasts/progress";
 import { ProjectDetails } from "../partials/projects/ProjectDetails";
 import { updateProject } from "../graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
 
+// import { ToastContainer } from "react-toastify";
+// import Progress from "../partials/toasts/progress";
+
 let socket = null;
-// import { Horizontal } from '../partials/dnd/Pages'
 
 export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [grid, setGrid] = useState(false);
@@ -162,10 +162,6 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   };
   const handleDrop = useCallback(
     (index, item) => {
-      // let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
-      // console.log({ droppedProps });
-      // if first three items have changed, throw modal, else do nothing
-
       const { key } = item;
       setOldDropped(droppedProps);
       setDroppedProps(update(droppedProps, { [index]: { $set: key } }));
@@ -185,13 +181,9 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [uploaded, setUploaded] = useState(false);
   const [url, setUrl] = useState(false);
   const toastRef = React.useRef(null);
+
   // listen to properties array drops and call ETL on XYZ full
   useEffect(() => {
-    // check if xyz are populated
-    // if yes set "full" to true, show spinner and call etl endpoint
-    // take signedurl response and pass to Bryan
-    // if no, do nothing
-
     const handleETL = async () => {
       let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
       let filterArr = propertiesArr
@@ -207,10 +199,9 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           z_axis: propertiesArr[2].lastDroppedItem.key,
           filters: filterArr,
         };
-        // window.core.ToggleDrawer(false);
+
         console.log({ body });
-        // let signedUrl = await Storage.get("mcgee_sku_model.zip");
-        // console.log({ signedUrl });
+
         if (project && window && window.core) {
           let response = await fetch("https://api.glyphx.co/etl/model", {
             method: "POST",
@@ -224,15 +215,14 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
             signedUrl: res.url,
             statusCode: res.statusCode,
           });
-          // TODO: Set Url state to toggle drawer from bottom drawer
+
           if (res.statusCode === 200) {
             console.log("THIS IS BEING LOGGED NOW");
             window.core.OpenProject(JSON.stringify(res.url));
-            setIsQtOpen(true);
 
+            setIsQtOpen(true);
             setUrl(res.url);
             setSdt(res.sdt);
-            // TODO: add project file path
             const updateProjectInput = {
               id: project.id,
               filePath: res.sdt,
@@ -584,9 +574,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                                 {dataGrid.rows.length > 0 ? (
                                   <Datagrid
                                     isDropped={isDropped}
-                                    setIsEditing={setIsEditing}
                                     dataGrid={dataGrid}
-                                    setDataGrid={setDataGrid}
                                   />
                                 ) : (
                                   <AddFiles
@@ -639,14 +627,12 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                       />
                     ) : (
                       <GridView
-                        setProjectDetails={setProjectDetails}
-                        setProjects={setProjects}
-                        showAddProject={showAddProject}
-                        setShowAddProject={setShowAddProject}
                         user={user}
                         projects={projects}
+                        setProjects={setProjects}
                         setProject={setProject}
-                        setFileSystem={setFiles}
+                        setProjectDetails={setProjectDetails}
+                        setShowAddProject={setShowAddProject}
                       />
                     )}
                   </div>

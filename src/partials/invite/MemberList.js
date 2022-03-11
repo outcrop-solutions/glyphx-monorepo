@@ -1,6 +1,5 @@
-// import { useMembers } from '../../../services/useMembers'
-
 import PermissionsDropDown from './PermissionsDropDown'
+// import { useMembers } from '../../../services/useMembers'
 
 export const MemberList = () => {
 	// const { results } = useMembers()

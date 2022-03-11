@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export const useFilterChange = (
   filtersApplied,
@@ -16,13 +16,11 @@ export const useFilterChange = (
         propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
       }
       if (filtersApplied.length > 0 && propsArr.length >= 3) {
-        // if (filtersApplied && filtersApplied.length > 0) {
         let filterStringArr = [];
 
         for (let i = 0; i < filtersApplied.length; i++) {
           let filter = filtersApplied[i];
-          // let cols = filter.columns
-          // for (let j = 0; j < cols.length; j++) {
+
           if (filter.keywords && filter.keywords.length > 0) {
             let name = filter.name;
             let keywords = filter.keywords;

@@ -10,7 +10,7 @@ export const useStates = (project) => {
     const fetchStates = async () => {
       try {
         const statesData = await API.graphql(graphqlOperation(listStates));
-        // console.log({ projectData })
+
         const stateList = statesData.data.listStates.items;
 
         console.log({ stateList });
@@ -25,9 +25,6 @@ export const useStates = (project) => {
       }
     };
     if (project) fetchStates();
-    // if (project && project.states.items) {
-    //   setStates(project.states.items);
-    // }
   }, [project]);
   return {
     states,

@@ -14,7 +14,6 @@ export const useUser = (isLoggedin) => {
         })
         .catch(() => {
           setIsLogged(false);
-          // history.push('/signin')
         });
     };
     const getUser = async () => {

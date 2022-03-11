@@ -14,10 +14,7 @@ export const useComments = (state) => {
             graphqlOperation(listComments)
           );
           const commentList = commentsData.data.listComments.items;
-          // const reordered = commentList.reverse();
-          // console.log({ reordered });
 
-          // console.log({ stateData })
           setComments((prev) => {
             let newData = [
               ...commentList.filter((el) => el.stateID === state.id),

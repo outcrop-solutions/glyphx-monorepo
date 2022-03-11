@@ -1,18 +1,11 @@
 import Project from "../../images/project.png";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import {
-  FolderIcon,
-  HeartIcon,
-  UserCircleIcon,
-  XIcon,
-} from "@heroicons/react/outline";
+import { FolderIcon, UserCircleIcon, XIcon } from "@heroicons/react/outline";
 import { CheckIcon, PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
 import * as dayjs from "dayjs";
 import { updateProject } from "../../graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
-import * as relativeTime from "dayjs/plugin/relativeTime";
-import userEvent from "@testing-library/user-event";
 
 const tabs = [
   { name: "Info", href: "#", current: true },
@@ -59,7 +52,6 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
       name: title,
       description: description,
       shared: chips,
-      // version: project._version,
     };
     console.log({ updateProjectInput });
     setEditDesc(false);
@@ -74,7 +66,6 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
       setTimeout(() => {
         setMsg(false);
       }, 3000);
-      // setProject(result.data.updateProject);
     } catch (error) {
       setError(error.message);
       setTimeout(() => {
@@ -258,14 +249,6 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
                             {dayjs().to(dayjs(projectDetails.updatedAt))}
                           </dd>
                         </div>
-                        {/* <div className="py-3 flex justify-between text-sm font-medium">
-                          <dt className="text-white">Dimensions</dt>
-                          <dd className="text-white">4032 x 3024</dd>
-                        </div>
-                        <div className="py-3 flex justify-between text-sm font-medium">
-                          <dt className="text-white">Resolution</dt>
-                          <dd className="text-white">72 x 72</dd>
-                        </div> */}
                       </dl>
                     </div>
                     <div>
@@ -312,7 +295,6 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
                             type="button"
                             className="group -ml-1 bg-gray-800 p-1 rounded-md flex items-center focus:outline-none focus:ring-2 focus:ring-yellow-500"
                           >
-                            {/* <span className="w-8 h-8 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-white"> */}
                             {editShare ? (
                               <CheckIcon
                                 className="h-5 w-5"
@@ -324,14 +306,12 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
                                 aria-hidden="true"
                               />
                             )}
-                            {/* </span> */}
                           </button>
                         </li>
                       </div>
                       {chips && chips.length > 0 && (
                         <ul
                           role="list"
-                          // className="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200"
                           className="mt-2 divide-y divide-gray-200"
                         >
                           {chips.map((member, idx) => (

@@ -1,10 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Transition from '../utils/Transition.js';
+import { useState, useRef, useEffect } from "react";
+import Transition from "../utils/Transition.js";
 
-function DropdownFilter({
-  align
-}) {
-
+function DropdownFilter({ align }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef(null);
@@ -14,11 +11,16 @@ function DropdownFilter({
   useEffect(() => {
     const clickHandler = ({ target }) => {
       if (!dropdown.current) return;
-      if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
+      if (
+        !dropdownOpen ||
+        dropdown.current.contains(target) ||
+        trigger.current.contains(target)
+      )
+        return;
       setDropdownOpen(false);
     };
-    document.addEventListener('click', clickHandler);
-    return () => document.removeEventListener('click', clickHandler);
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
   });
 
   // close if the esc key is pressed
@@ -27,8 +29,8 @@ function DropdownFilter({
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };
-    document.addEventListener('keydown', keyHandler);
-    return () => document.removeEventListener('keydown', keyHandler);
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
   });
 
   return (
@@ -40,7 +42,8 @@ function DropdownFilter({
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}
       >
-        <span className="sr-only">Filter</span><wbr />
+        <span className="sr-only">Filter</span>
+        <wbr />
         <svg className="w-4 h-4 fill-current" viewBox="0 0 16 16">
           <path d="M9 15H7a1 1 0 010-2h2a1 1 0 010 2zM11 11H5a1 1 0 010-2h6a1 1 0 010 2zM13 7H3a1 1 0 010-2h10a1 1 0 010 2zM15 3H1a1 1 0 010-2h14a1 1 0 010 2z" />
         </svg>
@@ -48,7 +51,9 @@ function DropdownFilter({
       <Transition
         show={dropdownOpen}
         tag="div"
-        className={`origin-top-right z-10 absolute top-full min-w-56 bg-white border border-gray-200 pt-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
+        className={`origin-top-right z-10 absolute top-full min-w-56 bg-white border border-gray-200 pt-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+          align === "right" ? "right-0" : "left-0"
+        }`}
         enter="transition ease-out duration-200 transform"
         enterStart="opacity-0 -translate-y-2"
         enterEnd="opacity-100 translate-y-0"
@@ -57,18 +62,24 @@ function DropdownFilter({
         leaveEnd="opacity-0"
       >
         <div ref={dropdown}>
-          <div className="text-xs font-semibold text-gray-400 uppercase pt-1.5 pb-2 px-4">Filters</div>
+          <div className="text-xs font-semibold text-gray-400 uppercase pt-1.5 pb-2 px-4">
+            Filters
+          </div>
           <ul className="mb-4">
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Direct VS Indirect</span>
+                <span className="text-sm font-medium ml-2">
+                  Direct VS Indirect
+                </span>
               </label>
             </li>
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Real Time Value</span>
+                <span className="text-sm font-medium ml-2">
+                  Real Time Value
+                </span>
               </label>
             </li>
             <li className="py-1 px-3">
@@ -80,7 +91,9 @@ function DropdownFilter({
             <li className="py-1 px-3">
               <label className="flex items-center">
                 <input type="checkbox" className="form-checkbox" />
-                <span className="text-sm font-medium ml-2">Sales VS Refunds</span>
+                <span className="text-sm font-medium ml-2">
+                  Sales VS Refunds
+                </span>
               </label>
             </li>
             <li className="py-1 px-3">
@@ -99,10 +112,18 @@ function DropdownFilter({
           <div className="py-2 px-3 border-t border-gray-200 bg-gray-50">
             <ul className="flex items-center justify-between">
               <li>
-                <button className="btn-xs bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-600">Clear</button>
+                <button className="btn-xs bg-white border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-600">
+                  Clear
+                </button>
               </li>
               <li>
-                <button className="btn-xs bg-indigo-500 hover:bg-indigo-600 text-white" onClick={() => setDropdownOpen(false)} onBlur={() => setDropdownOpen(false)}>Apply</button>
+                <button
+                  className="btn-xs bg-indigo-500 hover:bg-indigo-600 text-white"
+                  onClick={() => setDropdownOpen(false)}
+                  onBlur={() => setDropdownOpen(false)}
+                >
+                  Apply
+                </button>
               </li>
             </ul>
           </div>

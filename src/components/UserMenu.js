@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import Transition from "../utils/Transition";
 import { Auth } from "aws-amplify";
 export const UserMenu = ({ align, user, setIsLoggedIn }) => {
