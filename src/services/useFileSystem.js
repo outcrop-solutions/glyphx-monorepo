@@ -32,7 +32,7 @@ export const useFileSystem = (project) => {
 
   // set filesystem on project change and default open first csv
   useEffect(() => {
-    // get file list adn setFilesystem
+    // get file list and setFilesystem
     // set first file with setFileOpen
     // set first file as selected File
     //  set Data grid loading to be true

@@ -2,7 +2,7 @@ import * as dayjs from "dayjs";
 import * as relativeTime from "dayjs/plugin/relativeTime";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { API } from "aws-amplify";
+import { API, Storage } from "aws-amplify";
 import * as mutations from "../../graphql/mutations";
 import Project from "../../images/project.png";
 
@@ -35,6 +35,14 @@ export const ProjectCard = ({
       query: mutations.deleteProject,
       variables: { input: projectDelete },
     });
+
+    const s3Data = await Storage.list(`${project.id}/`);
+    if (s3Data && s3Data.length > 0) {
+      for (let i = 0; i < s3Data.length; i++) {
+        await Storage.remove(`${s3Data[i].key}`);
+      }
+    }
+
     console.log({ deletedProject });
   };
   const handleDetails = () => {
