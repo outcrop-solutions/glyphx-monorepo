@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 
 import SearchModal from "../../components/ModalSearch";
 import GridToggle from "../../components/GridToggle";
 import Notifications from "../../components/DropdownNotifications";
 import Help from "../../components/DropdownHelp";
-import { Auth } from "aws-amplify";
-import DeleteModel from "../../components/DeleteModel";
 import { PencilIcon } from "@heroicons/react/outline";
 import { updateProject } from "../../graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";

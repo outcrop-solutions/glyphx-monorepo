@@ -6,11 +6,9 @@ import { PinnedProjects } from "./PinnedProjects";
 export const GridView = ({
   user,
   projects,
-  setProject,
   setProjects,
+  setProject,
   setProjectDetails,
-  fetchProjects,
-  showAddProject,
   setShowAddProject,
 }) => {
   return (
@@ -38,11 +36,8 @@ export const GridView = ({
               setProject={setProject}
               idx={idx}
               updatedAt={item.updatedAt}
-              id={item.id}
               name={item.name}
               link={"#0"}
-              description={item.description}
-              user={user}
             />
           );
         })}

@@ -23,7 +23,6 @@ export const ProjectSidebar = ({
   isEditing,
   propertiesArr,
   setPropertiesArr,
-
   handleStateChange,
   handleDrop,
   fileSystem,
@@ -88,9 +87,7 @@ export const ProjectSidebar = ({
   }, [sidebarExpanded]);
   // set projectsSidebar position on transition
   useEffect(() => {
-    // console.log({ sidebarExpanded, projPosition, setFilterSidebarPosition });
     setFilterSidebarPosition((prev) => {
-      // console.log({ sidebar: sidebar });
       if (sidebar.current !== null) {
         return {
           values: sidebar.current.getBoundingClientRect(),
@@ -102,9 +99,6 @@ export const ProjectSidebar = ({
     <div
       id="sidebar"
       ref={sidebar}
-      // className={`flex flex-col bg-primary-dark-blue absolute z-30 left-0 top-0 lg:static border-r border-gray-400 lg:left-auto lg:top-auto lg:translate-x-0 transform  h-full scrollbar-none w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 flex-shrink-0 transition-all duration-200 ease-in-out ${
-      //   sidebarOpen ? "translate-x-0" : "-translate-x-64"
-      // }`}
       className={`flex flex-col bg-primary-dark-blue absolute z-30 left-0 top-0 lg:static border-r border-gray-400 lg:left-auto lg:top-auto  h-full scrollbar-none w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 flex-shrink-0`}
     >
       <div className="overflow-y-auto scrollbar-none">
@@ -135,10 +129,8 @@ export const ProjectSidebar = ({
           project={project}
           isEditing={isEditing}
           propertiesArr={propertiesArr}
-          // modelProps={modelProps}
-          // setModelProps={setModelProps}
         />
-        {/* properties={modelProps.propMap[key]} */}
+
         <Filters
           sdt={sdt}
           setQuery={setQuery}

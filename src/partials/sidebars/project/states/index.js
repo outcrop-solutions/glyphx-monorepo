@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Header } from "./Header";
-import { useStates } from "../../../../services/useStates";
 import { StateList } from "./StateList";
 
 export const States = ({
@@ -28,18 +27,16 @@ export const States = ({
       <Header
         open={open}
         query={query}
+        project={project}
+        handleClick={handleClick}
+        setStates={setStates}
         filtersApplied={filtersApplied}
-        setFiltersApplied={setFiltersApplied}
         sidebarExpanded={sidebarExpanded}
         setSidebarExpanded={setSidebarExpanded}
-        handleClick={handleClick}
-        project={project}
-        setStates={setStates}
+        setFiltersApplied={setFiltersApplied}
       />
       {states && states.length > 0 && (
         <StateList
-          // handleStateChange={handleStateChange}
-          // id={state.id}
           states={states}
           setStates={setStates}
           open={open}

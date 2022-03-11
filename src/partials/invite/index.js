@@ -1,4 +1,3 @@
-import React from 'react'
 import LinkDropDown from './LinkDropDown'
 import { MemberList } from './MemberList'
 import PermissionsDropDown from './PermissionsDropDown'

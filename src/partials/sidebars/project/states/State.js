@@ -22,6 +22,7 @@ export const State = ({
   };
 
   const handleDelete = async () => {
+    // TODO: update State list local state
     const stateDelete = {
       id: item.id,
     };
@@ -92,7 +93,6 @@ export const State = ({
           <PencilIcon
             onClick={() => {
               setEdit((prev) => !prev);
-              // document.getElementById(item.id).click();
             }}
             className="h-4 w-4"
           />

@@ -70,9 +70,6 @@ export const MainSidebar = ({
     <div
       id="sidebar"
       ref={sidebar}
-      // className={`flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 transform h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4 transition-all duration-200 ease-in-out ${
-      //   sidebarOpen ? "translate-x-0" : "-translate-x-64"
-      // }`}
       className={`flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4`}
     >
       <div>
@@ -95,10 +92,6 @@ export const MainSidebar = ({
                 strokeWidth="0.25"
               />
             </svg>
-
-            {/* <span className="hidden font-sans main-sidebar-expanded:block 2xl:hidden capitalize text-2xl text-white font-light">
-              GLYPH
-            </span> */}
           </div>
         </div>
 
@@ -125,7 +118,6 @@ export const MainSidebar = ({
                 </svg>
               </span>
               <span className="lg:hidden main-sidebar-expanded:block">
-                {/* <UserMenu user={user} /> */}
                 <UserMenu
                   align="right"
                   user={user}
@@ -235,20 +227,7 @@ export const MainSidebar = ({
                         />
                       </svg>
                     </div>
-                    {/* <svg className='flex-shrink-0 h-6 w-6' viewBox='0 0 24 24'>
-											<path
-												className={`fill-current text-gray-600 ${
-													pathname.includes('shared') && 'text-indigo-500'
-												}`}
-												d='M0 20h24v2H0z'
-											/>
-											<path
-												className={`fill-current text-gray-400 ${
-													pathname.includes('shared') && 'text-indigo-300'
-												}`}
-												d='M4 18h2a1 1 0 001-1V8a1 1 0 00-1-1H4a1 1 0 00-1 1v9a1 1 0 001 1zM11 18h2a1 1 0 001-1V3a1 1 0 00-1-1h-2a1 1 0 00-1 1v14a1 1 0 001 1zM17 12v5a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 00-1-1h-2a1 1 0 00-1 1z'
-											/>
-										</svg> */}
+
                     <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200">
                       Drafts
                     </span>
@@ -304,6 +283,5 @@ export const MainSidebar = ({
         </div>
       </div>
     </div>
-    // </div>
   );
 };

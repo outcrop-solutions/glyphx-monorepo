@@ -11,10 +11,6 @@ export const useFileSystem = (project) => {
   const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
   const [dataGridLoading, setDataGridLoading] = useState(false);
 
-  // useEffect(() => {
-  //   console.log({ sdt });
-  // }, [sdt]);
-
   // utility to process storage list if unzipped
   function processStorageList(results) {
     const files = {};
@@ -36,7 +32,7 @@ export const useFileSystem = (project) => {
 
   // set filesystem on project change and default open first csv
   useEffect(() => {
-    // get file list adn setFilesystem
+    // get file list and setFilesystem
     // set first file with setFileOpen
     // set first file as selected File
     //  set Data grid loading to be true
@@ -64,7 +60,6 @@ export const useFileSystem = (project) => {
               id: idx + 1,
               parent: 0,
               droppable: false,
-              // text: item[0] === "_" ? item.slice(1) : item,
               text: item,
               data: {
                 fileType: item.split(".")[1],
@@ -137,7 +132,6 @@ export const useFileSystem = (project) => {
         await selectAndLoad();
       } else if (!filesOpen.includes(arg) && selectedFile !== arg) {
         setFilesOpen((prev) => {
-          // console.log({ hookset: [...prev, arg] });
           if (prev.length > 0) {
             return [...prev, arg];
           } else return [arg];

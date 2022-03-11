@@ -1,11 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Transition from '../utils/Transition.js';
+import { useState, useRef, useEffect } from "react";
+import Transition from "../utils/Transition.js";
 
-function EditMenu({
-  children,
-  ...rest
-}) {
-
+function EditMenu({ children, ...rest }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef(null);
@@ -15,11 +11,16 @@ function EditMenu({
   useEffect(() => {
     const clickHandler = ({ target }) => {
       if (!dropdown.current) return;
-      if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
+      if (
+        !dropdownOpen ||
+        dropdown.current.contains(target) ||
+        trigger.current.contains(target)
+      )
+        return;
       setDropdownOpen(false);
     };
-    document.addEventListener('click', clickHandler);
-    return () => document.removeEventListener('click', clickHandler);
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
   });
 
   // close if the esc key is pressed
@@ -28,15 +29,17 @@ function EditMenu({
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };
-    document.addEventListener('keydown', keyHandler);
-    return () => document.removeEventListener('keydown', keyHandler);
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
   });
 
   return (
     <div {...rest}>
       <button
         ref={trigger}
-        className={`text-gray-400 hover:text-gray-500 rounded-full ${dropdownOpen && 'bg-gray-100 text-gray-500'}`}
+        className={`text-gray-400 hover:text-gray-500 rounded-full ${
+          dropdownOpen && "bg-gray-100 text-gray-500"
+        }`}
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}

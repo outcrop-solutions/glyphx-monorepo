@@ -4,6 +4,7 @@ export const SearchFilter = ({
   setFiltersApplied,
   lastDroppedItem,
 }) => {
+  // TODO: use FilterApplied to persist search filters applied?
   const [keyword, setKeyword] = useState("");
   const [chips, setChips] = useState([]);
   useEffect(() => {
@@ -22,7 +23,6 @@ export const SearchFilter = ({
       let newChips = [...prev].filter((el) => el !== item);
       return newChips;
     });
-    // TODO: update filters
   };
   return (
     <div

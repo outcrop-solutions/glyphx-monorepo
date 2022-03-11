@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
@@ -13,7 +13,7 @@ export const AddFiles = ({
   uploaded,
   setUploaded,
   setFilesOpen,
-  setSelectedFile
+  setSelectedFile,
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {

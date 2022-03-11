@@ -39,7 +39,6 @@ export const Header = ({
 
             <div className="pr-4">
               <svg
-                // onClick={addState}
                 width="16"
                 height="16"
                 viewBox="0 0 16 16"

@@ -54,35 +54,3 @@ export const Properties = ({
 };
 
 export default Properties;
-
-{
-  /* {Object.keys(modelProps.propMap).map((key, index) => {
-						if (key !== 'columnHeaders') {
-							return (
-								<Columns
-									key={key}
-									listId={key}
-									listType='CARD'
-									properties={modelProps.propMap[key]}
-								/>
-							)
-						}
-					})} */
-}
-
-{
-  /* <PropDrop modelProps={modelProps} setModelProps={setModelProps} /> */
-}
-
-{
-  /* {isEditing ? ( 
-					// ) : (
-					// 	<>
-					// 		{propertiesArr.length > 0
-					// 			? propertiesArr.map((item, idx) => (
-					// 					<Property key={item} item={item} idx={idx} />
-					// 			  ))
-					// 			: null}
-					// 	</>
-					// )} */
-}

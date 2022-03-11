@@ -2,17 +2,15 @@ import { useEffect } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { createState } from "../../../../graphql/mutations";
 import { v4 as uuid } from "uuid";
-import { useStates } from "../../../../services/useStates";
 export const Header = ({
-  query,
-  handleClick,
-  setSidebarExpanded,
-  sidebarExpanded,
   open,
+  query,
   project,
+  handleClick,
   setStates,
   filtersApplied,
-  setFiltersApplied,
+  sidebarExpanded,
+  setSidebarExpanded,
 }) => {
   useEffect(() => {
     if (window && window.core) {
