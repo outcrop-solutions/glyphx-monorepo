@@ -154,6 +154,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
   ]);
+
   const [droppedProps, setDroppedProps] = useState([]);
   const [oldDropped, setOldDropped] = useState([]);
   const isDropped = (propName) => {

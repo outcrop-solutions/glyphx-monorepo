@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 
 export const useFilterChange = (
-  setQuery,
   filtersApplied,
   projectId,
   sdt,
-  propertiesArr
+  propertiesArr,
+  setQuery
 ) => {
   useEffect(() => {
     if (window && window.core) {
       console.log({ projectId });
       let propsArr = [];
       if (propertiesArr && propertiesArr.length > 0) {
+        console.log({ propertiesArr });
         propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
       }
       if (filtersApplied.length > 0 && propsArr.length >= 3) {
