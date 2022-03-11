@@ -59,10 +59,11 @@ function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
                       className="block text-sm font-medium mb-1 text-white"
                       htmlFor="email"
                     >
-                      Email Address
+                      Email
                     </label>
                     <input
                       id="email"
+                      data-test="username-input"
                       value={username}
                       onChange={handleUname}
                       className="w-full bg-primary-dark-blue border-gray-400 text-white focus:border-0"
@@ -77,6 +78,7 @@ function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
                       Password
                     </label>
                     <input
+                      data-test="sign-in-password-input"
                       value={password}
                       onChange={handlePass}
                       id="password"
@@ -96,6 +98,7 @@ function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
                     </div>
                   </div>
                   <Link
+                    data-test="sign-in-sign-in-button"
                     onClick={signIn}
                     className="btn bg-yellow-400 select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow-600 text-gray-900 ml-3"
                     to="/"
