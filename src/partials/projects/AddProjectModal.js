@@ -49,7 +49,7 @@ export const AddProjectModal = ({
       const result = await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
       );
-      console.log({ result });
+
       setShowAddProject(false);
       setProject(result.data.createProject);
     } catch (error) {

@@ -40,8 +40,7 @@ export const Templates = ({ setProject, setProjects, user }) => {
       if (user) {
         const projectData = await API.graphql(graphqlOperation(listProjects));
         const projectList = projectData.data.listProjects.items;
-        console.log({ projectList });
-
+       
         const filtered = projectList.filter((el) =>
           el.shared ? el.shared.includes(user.username) : el.author === user.id
         );
@@ -49,7 +48,7 @@ export const Templates = ({ setProject, setProjects, user }) => {
           by: "updatedAt",
           order: "desc",
         });
-        console.log({ sorted });
+     
         setProjects((prev) => {
           let newData = [...filtered];
           return newData;
@@ -74,12 +73,12 @@ export const Templates = ({ setProject, setProjects, user }) => {
       shared: [user.username],
     };
     try {
-      console.log({ createProjectInput });
+  
       const result = await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
       );
       setProject(result.data.createProject);
-      console.log({ result });
+
     } catch (error) {
       console.log({ error });
     }

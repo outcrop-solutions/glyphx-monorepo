@@ -45,7 +45,7 @@ export const useStateChange = (state) => {
           camera: state.camera,
           filter: query,
         };
-        console.log({ changeStateInput });
+  
         window.core.ChangeState(JSON.stringify(changeStateInput));
       }
     }

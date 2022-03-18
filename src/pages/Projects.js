@@ -24,10 +24,8 @@ import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 import { ProjectDetails } from "../partials/projects/ProjectDetails";
 import { updateProject } from "../graphql/mutations";
-import { API, graphqlOperation } from "aws-amplify";
-
-// import { ToastContainer } from "react-toastify";
-// import Progress from "../partials/toasts/progress";
+import { API, graphqlOperation, Storage } from "aws-amplify";
+import * as dayjs from "dayjs";
 
 let socket = null;
 
@@ -180,130 +178,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   );
   const [uploaded, setUploaded] = useState(false);
   const [url, setUrl] = useState(false);
+  const [expiry, setExpiry] = useState(false);
   const toastRef = React.useRef(null);
-
-  // listen to properties array drops and call ETL on XYZ full
-  useEffect(() => {
-    const handleETL = async () => {
-      // check if file exists in s3 to prevent running ETL on non-existent keys
-      // TODO: track which properties come from which file keys once we add file delete funcitonality to ensure we don't run etl on non existent keys
-      try {
-        const data = await Storage.list(`${project.id}/input/`);
-        if (!data.map((el) => el.key).includes(selectedFile)) {
-          console.log("Error: FIle not uploaded before props dropped");
-          return;
-        }
-      } catch (error) {
-        console.log({ error });
-      }
-      let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
-      let filterArr = propertiesArr
-        .slice(3)
-        .filter((item) => item.lastDroppedItem);
-      console.log({ propsArr });
-      if (propsArr && propsArr.length >= 3) {
-        // setFull(true);
-        const body = {
-          model_id: project.id,
-          x_axis: propertiesArr[0].lastDroppedItem.key,
-          y_axis: propertiesArr[1].lastDroppedItem.key,
-          z_axis: propertiesArr[2].lastDroppedItem.key,
-          filters: filterArr,
-        };
-
-        console.log({ body });
-
-        if (project && window && window.core) {
-          let response = await fetch("https://api.glyphx.co/etl/model", {
-            method: "POST",
-            mode: "cors",
-            body: JSON.stringify(body),
-          });
-          let res = await response.json();
-          console.log({ res });
-          console.log({
-            sdt: res.sdt,
-            signedUrl: res.url,
-            statusCode: res.statusCode,
-          });
-
-          if (res.statusCode === 200) {
-            console.log("THIS IS BEING LOGGED NOW");
-            window.core.OpenProject(JSON.stringify(res.url));
-
-            setIsQtOpen(true);
-            setUrl(res.url);
-            setSdt(res.sdt);
-            const updateProjectInput = {
-              id: project.id,
-              filePath: res.sdt,
-              properties: propertiesArr.map((el) =>
-                el.lastDroppedItem
-                  ? el.lastDroppedItem.key
-                    ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
-                    : ""
-                  : ""
-              ),
-              url: res.url,
-            };
-            console.log({ updateProjectInput });
-            try {
-              const result = await API.graphql(
-                graphqlOperation(updateProject, { input: updateProjectInput })
-              );
-              console.log({ result });
-              // setProject(result.data.updateProject);
-            } catch (error) {
-              console.log({ error });
-            }
-          } else {
-            window.core.OpenProject(JSON.stringify({}));
-          }
-        }
-      }
-    };
-    let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
-    const equals = (a, b) =>
-      a.length === b.length && a.every((v, i) => v === b[i]);
-    let propsSliced = propsArr
-      .slice(0, 3)
-      .map((item) => item.lastDroppedItem.key);
-
-    let oldDroppedSliced = oldDropped.slice(0, 3).filter((el) => el);
-    let droppedSliced = droppedProps.slice(0, 3).filter((el) => el);
-    console.log({
-      propsArr,
-      oldDropped,
-      oldDroppedSliced,
-      propsSliced,
-      equals: !equals(propsSliced, oldDroppedSliced),
-    });
-    if (
-      oldDropped &&
-      oldDroppedSliced.length === 3 &&
-      !equals(propsSliced, oldDroppedSliced)
-    ) {
-      setReorderConfirm(true);
-      return;
-    }
-
-    if (
-      propsArr &&
-      propsArr.length >= 3 &&
-      propsSliced &&
-      propsSliced.length >= 3 &&
-      droppedSliced &&
-      droppedSliced.length >= 3 &&
-      equals(propsSliced, droppedSliced)
-    ) {
-      console.log("handleETl called");
-      handleETL();
-    }
-  }, [propertiesArr, project, uploaded]);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [share, setShare] = useState(false);
-  const [progress, setProgress] = useState(false);
 
   useEffect(() => {
     console.log({ project });
@@ -416,6 +292,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     });
     setSdt(project.filePath ? project.filePath : false);
     setUrl(project.url ? project.url : false);
+    setExpiry(project.expiry ? project.expiry : false);
     setOldDropped([]);
     setReorderConfirm(false);
     setDroppedProps([]);
@@ -424,6 +301,150 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       setIsQtOpen(false);
     }
   }, [project]);
+
+  // listen to properties array drops and call ETL on XYZ full
+  useEffect(() => {
+    // Formatted variables
+    let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+    let filteredArr = propertiesArr
+      .slice(3)
+      .filter((item) => item.lastDroppedItem);
+    let propsSliced = propsArr
+      .slice(0, 3)
+      .map((item) => item.lastDroppedItem.key);
+    let oldDroppedSliced = oldDropped.slice(0, 3).filter((el) => el);
+    let droppedSliced = droppedProps.slice(0, 3).filter((el) => el);
+
+    // utilties
+    const equals = (a, b) =>
+      a.length === b.length && a.every((v, i) => v === b[i]);
+    const isUrlValid = () => {
+      const date1 = dayjs();
+      let difference = date1.diff(dayjs(project.expiry), "minute");
+      if (difference > 10) {
+        return false;
+      } else {
+        return true;
+      }
+    };
+    const isPropsValid = () => {
+      if (
+        propsArr &&
+        propsArr.length >= 3 &&
+        propsSliced &&
+        propsSliced.length >= 3 &&
+        droppedSliced &&
+        droppedSliced.length >= 3 &&
+        equals(propsSliced, droppedSliced)
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    const doesKeyExist = async () => {
+      try {
+        const data = await Storage.list(`${project.id}/output/`);
+        if (
+          data
+            .map((el) => el.key)
+            .includes(`${project.id}/output/_etl_data_lake.csv`)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        console.log({ error });
+      }
+    };
+    const updateProjectState = async (res) => {
+      if (res.statusCode === 200) {
+        setIsQtOpen(true);
+        setUrl(res.url);
+        setSdt(res.sdt);
+
+        // update Dynamo Project Item
+        const updateProjectInput = {
+          id: project.id,
+          filePath: res.sdt,
+          expiry: new Date().toISOString(),
+          properties: propertiesArr.map((el) =>
+            el.lastDroppedItem
+              ? el.lastDroppedItem.key
+                ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
+                : ""
+              : ""
+          ),
+          url: res.url,
+        };
+        try {
+          const result = await API.graphql(
+            graphqlOperation(updateProject, { input: updateProjectInput })
+          );
+          console.log({ result });
+        } catch (error) {
+          console.log({ error });
+        }
+      }
+      // TODO: add error handling
+    };
+    const callETl = async (propsArr, filteredArr) => {
+      if (
+        project &&
+        window &&
+        window.core &&
+        propsArr &&
+        propsArr.length >= 3
+      ) {
+        // call ETl endpoint
+        let response = await fetch("https://api.glyphx.co/etl/model", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({
+            model_id: project.id,
+            x_axis: propertiesArr[0].lastDroppedItem.key,
+            y_axis: propertiesArr[1].lastDroppedItem.key,
+            z_axis: propertiesArr[2].lastDroppedItem.key,
+            filters: filteredArr,
+          }),
+        });
+        let res = await response.json();
+        await updateProjectState(res);
+      }
+    };
+    const handleETL = async () => {
+      // TODO: track which properties come from which file keys once we add file delete funcitonality to ensure we don't run etl on non existent keys
+      // check if file exists in s3 to prevent running ETL on non-existent keys
+      let isSafe = await doesKeyExist();
+      if (isSafe) {
+        callETl(propsArr, filteredArr);
+      } else {
+        console.log({ error: `File not available to ETL yet ${isSafe}` });
+      }
+    };
+
+    // If reordering props, create new model
+    if (
+      oldDropped &&
+      oldDroppedSliced.length === 3 &&
+      !equals(propsSliced, oldDroppedSliced)
+    ) {
+      setReorderConfirm(true);
+      return;
+    }
+
+    // handle initial ETL
+    if (project && project.id && isPropsValid() && isUrlValid()) {
+      handleETL();
+    }
+
+  }, [propertiesArr, project, uploaded, expiry]);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [share, setShare] = useState(false);
+  const [progress, setProgress] = useState(false);
 
   const {
     fileSystem,
@@ -444,6 +465,18 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     setDataGridLoading,
   } = useFileSystem(project);
 
+  // handle Open project
+  useEffect(() => {
+    console.log({ url, sdt, project });
+    if (project && window && window.core) {
+      if (url) {
+        window.core.OpenProject(JSON.stringify(url));
+      } else {
+        window.core.OpenProject({});
+      }
+    }
+  }, [sdt, url, project]);
+
   useEffect(() => {
     if ((share || reorderConfirm) && window && window.core) {
       window.core.ToggleDrawer(false);
@@ -452,17 +485,6 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
 
   return (
     <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
-      {/* <ToastContainer
-        position="bottom-left"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      /> */}
       {showAddProject ? (
         <AddProjectModal
           user={user}
@@ -603,11 +625,13 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                             )}
                             {/* <div style={{ height: "80px" }} /> */}
                             <ModelFooter
+                              sdt={sdt}
+                              url={url}
+                              project={project}
+                              setExpiry={setExpiry}
                               isQtOpen={isQtOpen}
                               setIsQtOpen={setIsQtOpen}
                               setProgress={setProgress}
-                              sdt={sdt}
-                              url={url}
                             />
                           </div>
                         )}

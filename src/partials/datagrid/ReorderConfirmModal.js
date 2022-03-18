@@ -15,7 +15,7 @@ export const ReorderConfirmModal = ({
   const handleSave = async () => {
     setOldDropped([]);
     let newId = uuid();
-    console.log({ user });
+
     const createProjectInput = {
       id: newId,
       name: `${project.name} Copy`,
@@ -26,7 +26,7 @@ export const ReorderConfirmModal = ({
     setReorderConfirm(false);
     try {
       const data = await Storage.list(`${project.id}/input/`);
-      console.log({ data });
+
       for (let i = 0; i < data.length; i++) {
         console.log({
           strings: [
@@ -40,7 +40,7 @@ export const ReorderConfirmModal = ({
         );
         console.log({ copied });
       }
-      console.log({ createProjectInput });
+     
       const result = await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
       );

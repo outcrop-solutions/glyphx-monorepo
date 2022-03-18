@@ -34,12 +34,12 @@ function Header({
       name: projectName,
       // version: project._version,
     };
-    console.log({ updateProjectInput });
+
     try {
       const result = await API.graphql(
         graphqlOperation(updateProject, { input: updateProjectInput })
       );
-      console.log({ result });
+ 
       // setProject(result.data.updateProject);
     } catch (error) {
       console.log({ error });
@@ -71,7 +71,7 @@ function Header({
         <div>
           <input
             onKeyPress={(ev) => {
-              console.log({ ev });
+      
               if (ev.key === "Enter") {
                 ev.preventDefault();
                 handleSaveProjectName();

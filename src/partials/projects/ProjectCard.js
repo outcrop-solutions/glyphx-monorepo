@@ -17,15 +17,13 @@ export const ProjectCard = ({
   link,
 }) => {
   dayjs.extend(relativeTime);
-  useEffect(() => {
-    if (idx > 0) console.log(`I'm rendering`);
-  }, []);
+
 
   const handleDelete = async () => {
     const projectDelete = {
       id: project.id,
     };
-    console.log({ projectDelete });
+
     setProjects((prev) => {
       let newData = prev.filter((proj) => proj.id !== project.id);
       return newData;
@@ -43,7 +41,7 @@ export const ProjectCard = ({
       }
     }
 
-    console.log({ deletedProject });
+
   };
   const handleDetails = () => {
     setProjectDetails(project);

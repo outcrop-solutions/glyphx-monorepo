@@ -45,9 +45,9 @@ export const useFileSystem = (project) => {
     const getFileSystem = async () => {
       try {
         const data = await Storage.list(`${project.id}/input/`);
-        console.log({ data });
+  
         const processed = processStorageList(data);
-        console.log({ processed });
+   
         const files = Object.keys(processed[`${project.id}`].input);
         const filteredFiles = files.filter(
           (fileName) =>
@@ -72,7 +72,7 @@ export const useFileSystem = (project) => {
         });
 
         if (filteredFiles && filteredFiles.length > 0) {
-          console.log({ prev: [filteredFiles[0]] });
+   
           setFilesOpen([filteredFiles[0]]);
           setSelectedFile(filteredFiles[0]);
           setDataGridLoading(true);
@@ -93,7 +93,9 @@ export const useFileSystem = (project) => {
         console.log({ error });
       }
     };
-    getFileSystem();
+    if (project && project.id) {
+      getFileSystem();
+    }
   }, [project]);
 
   return {

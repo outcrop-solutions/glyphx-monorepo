@@ -20,7 +20,7 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
     try {
       const data = await Auth.forgotPassword(email);
       setIsCodeSent(true);
-      console.log({ data });
+
     } catch (error) {
       console.log({ error });
     }
@@ -30,7 +30,7 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
       const data = await Auth.forgotPasswordSubmit(email, code, newPass);
       setSignUp(false);
       setResetPass(false);
-      console.log({ data });
+
     } catch (error) {
       console.log({ error });
     }

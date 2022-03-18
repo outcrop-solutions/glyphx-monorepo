@@ -1,26 +1,26 @@
 import { useEffect } from "react";
+import * as dayjs from "dayjs";
 // import { PlusIcon } from "@heroicons/react/solid";
 
 export const ModelFooter = ({
   sdt,
   url,
+  project,
+  setExpiry,
   setProgress,
   isQtOpen,
   setIsQtOpen,
 }) => {
-  useEffect(() => {
-    console.log({ url, sdt });
-    if (window && window.core) {
-      if (url) {
-        window.core.OpenProject(JSON.stringify(url));
-      } else {
-        window.core.OpenProject({});
-      }
-    }
-  }, [sdt, url]);
-
   const handleOpen = () => {
-    if (window && window.core) {
+    if (project && window && window.core) {
+      // expiry is not more that 10 minutes old
+      const date1 = dayjs();
+      let difference = date1.diff(dayjs(project.expiry), "minute");
+      if (difference > 10) {
+        console.log("Set Expiry!");
+        setExpiry(true);
+        return;
+      }
       if (url && sdt) {
         console.log("Toggling");
         window.core.ToggleDrawer(true);
