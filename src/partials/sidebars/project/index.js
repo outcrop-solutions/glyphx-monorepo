@@ -7,6 +7,7 @@ import { States } from "./states";
 import { usePosition } from "../../../services/usePosition";
 
 export const ProjectSidebar = ({
+  error,
   openFile,
   sdt,
   selectFile,
@@ -130,7 +131,11 @@ export const ProjectSidebar = ({
           isEditing={isEditing}
           propertiesArr={propertiesArr}
         />
-
+        {error ? (
+          <div className="btn bg-yellow-600 text-white my-4 w-full">
+            {error}
+          </div>
+        ) : null}
         <Filters
           sdt={sdt}
           setQuery={setQuery}

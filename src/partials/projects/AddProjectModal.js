@@ -45,7 +45,6 @@ export const AddProjectModal = ({
       shared: [user.username, ...chips],
     };
     try {
-      console.log({ createProjectInput });
       const result = await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
       );
