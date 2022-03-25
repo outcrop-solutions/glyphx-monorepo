@@ -107,7 +107,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: {
-            y: filterSidebarPosition.values.y,
+            // y: filterSidebarPosition.values.y,
+            y: 64,
             right: Math.round(filterSidebarPosition.values.right),
             height: filterSidebarPosition.values.height,
           },
