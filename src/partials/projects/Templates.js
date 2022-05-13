@@ -83,17 +83,14 @@ export const Templates = ({ setProject, setProjects, user }) => {
     }
   };
   return (
-    <div className="max-w-lg mx-auto my-auto h-full flex flex-col justify-center">
+    <div className="max-w-lg mx-auto my-auto h-full flex flex-col flex-grow justify-center">
       <h2 className="text-lg font-medium text-white">
         Create your first project
       </h2>
       <p className="mt-1 text-sm text-gray-200">
         Get started by selecting a template or start from an empty project.
       </p>
-      <ul
-        role="list"
-        className="mt-6 border-t border-b border-gray-200 divide-y divide-gray-200"
-      >
+      <ul className="mt-6 border-t border-b border-gray-200 divide-y divide-gray-200">
         {items.map((item, itemIdx) => (
           <li key={itemIdx}>
             <div className="relative group py-4 flex items-start space-x-3">

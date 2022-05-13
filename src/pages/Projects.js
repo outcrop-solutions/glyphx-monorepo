@@ -676,7 +676,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         />
 
         <main className="h-full">
-          <div className="flex relative h-full">
+          <div className="flex flex-grow relative h-full">
             {project ? (
               <>
                 <DndProvider backend={HTML5Backend}>
@@ -715,7 +715,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                     setStates={setStates}
                     toastRef={toastRef}
                   />
-                  <div className="w-full h-full flex">
+                  <div className="w-full flex">
                     <div className="min-w-0 flex-auto w-full">
                       {/* {progress ? (
                         <Progress />
@@ -724,7 +724,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                         {share ? (
                           <Invite setShare={setShare} />
                         ) : (
-                          <div className="flex-col mx-auto h-full">
+                          <div className="flex flex-col mx-auto h-full">
                             {filesOpen && filesOpen.length > 0 && (
                               <FileHeader
                                 selectFile={selectFile}
@@ -744,10 +744,23 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                             ) : (
                               <>
                                 {dataGrid.rows.length > 0 ? (
-                                  <Datagrid
-                                    isDropped={isDropped}
-                                    dataGrid={dataGrid}
-                                  />
+                                  <>
+                                    <div className="flex flex-col flex-grow max-h-full">
+                                      <Datagrid
+                                        isDropped={isDropped}
+                                        dataGrid={dataGrid}
+                                      />
+                                      <ModelFooter
+                                        sdt={sdt}
+                                        url={url}
+                                        project={project}
+                                        setExpiry={setExpiry}
+                                        isQtOpen={isQtOpen}
+                                        setIsQtOpen={setIsQtOpen}
+                                        setProgress={setProgress}
+                                      />
+                                    </div>
+                                  </>
                                 ) : (
                                   <AddFiles
                                     setFilesOpen={setFilesOpen}
@@ -763,19 +776,9 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                               </>
                             )}
                             {/* <div style={{ height: "80px" }} /> */}
-                            <ModelFooter
-                              sdt={sdt}
-                              url={url}
-                              project={project}
-                              setExpiry={setExpiry}
-                              isQtOpen={isQtOpen}
-                              setIsQtOpen={setIsQtOpen}
-                              setProgress={setProgress}
-                            />
                           </div>
                         )}
                       </>
-                      // )}
                     </div>
 
                     <CommentsSidebar
@@ -789,7 +792,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                 </DndProvider>
               </>
             ) : (
-              <div className="w-full">
+              <div className="w-full flex">
                 {projects && projects.length > 0 ? (
                   <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
                     {grid ? (
