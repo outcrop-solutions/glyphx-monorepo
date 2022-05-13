@@ -626,7 +626,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   }, [share, reorderConfirm]);
 
   return (
-    <div className="flex h-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
+    <div className="flex h-screen max-w-screen overflow-x-scroll scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
         <AddProjectModal
           user={user}
@@ -661,7 +661,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         />
       ) : null}
       {/* Content area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none overflow-x-hidden bg-primary-dark-blue">
+      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none bg-primary-dark-blue">
         {/*  Site header */}
         <Header
           project={project}
@@ -674,6 +674,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           setGrid={setGrid}
           setShare={setShare}
         />
+        <hr className={project ? "mx-0" : "mx-6"} />
 
         <main className="h-full">
           <div className="flex flex-grow relative h-full">
@@ -715,7 +716,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                     setStates={setStates}
                     toastRef={toastRef}
                   />
-                  <div className="w-full flex">
+                  <div className="w-full flex overflow-auto">
                     <div className="min-w-0 flex-auto w-full">
                       {/* {progress ? (
                         <Progress />
@@ -724,7 +725,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                         {share ? (
                           <Invite setShare={setShare} />
                         ) : (
-                          <div className="flex flex-col mx-auto h-full">
+                          <div className="flex flex-col h-full">
                             {filesOpen && filesOpen.length > 0 && (
                               <FileHeader
                                 selectFile={selectFile}

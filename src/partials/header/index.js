@@ -48,8 +48,8 @@ function Header({
   };
   return (
     <header
-      className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-primary-dark-blue max-h-16 ${
-        project ? "ml-0" : "mx-6"
+      className={`sticky w-full top-0 z-30 flex justify-between items-center bg-primary-dark-blue max-h-16 ${
+        project ? "ml-0" : "px-6"
       }`}
     >
       {!edit ? (
