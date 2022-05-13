@@ -39,8 +39,13 @@ export const Dropzone = ({
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
+      let filtered = acceptedFiles.filter((item) => item.type === "text/csv");
+      if (filtered.length === 0) {
+        alert("Please upload files in CSV format");
+        return;
+      }
       //update file system state with processed data
-      let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
+      let newData = filtered.map(({ name, type, size }, idx) => ({
         id: idx + fileSystem.length + 1,
         parent: 0,
         droppable: false,
@@ -52,7 +57,7 @@ export const Dropzone = ({
       }));
       setFileSystem(newData);
 
-      acceptedFiles.forEach(async (file) => {
+      filtered.forEach(async (file) => {
         const text = await file.text();
         const { data } = parse(text, { header: true });
         const grid = formatGridData(data);
@@ -62,7 +67,7 @@ export const Dropzone = ({
       });
 
       //send file to s3
-      acceptedFiles.forEach((file, idx) => {
+      filtered.forEach((file, idx) => {
         const reader = new FileReader();
 
         reader.onabort = () => console.log("file reading was aborted");
