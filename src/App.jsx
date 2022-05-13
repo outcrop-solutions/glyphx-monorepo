@@ -27,6 +27,7 @@ posthog.init("phc_flrvuYtat2QJ6aSiiWeuBZq69U3M3EmXKVLprmvZPIS", {
 });
 
 Amplify.configure(awsconfig);
+// testing
 
 function App() {
   // const [user, setUser] = useState({})
