@@ -1,4 +1,4 @@
-describe("States:", function () {
+describe("Annotations:", function () {
   // Step 1: setup the application state
   beforeEach(function () {
     cy.visit("/");
