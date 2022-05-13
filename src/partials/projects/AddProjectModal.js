@@ -41,6 +41,7 @@ export const AddProjectModal = ({
       id: uuid(),
       name,
       description,
+      expiry: new Date(),
       author: user.username,
       shared: [user.username, ...chips],
     };
