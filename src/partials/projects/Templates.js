@@ -69,9 +69,9 @@ export const Templates = ({ setProject, setProjects, user }) => {
       id: uuid(),
       name: "Template Project",
       description: "New project from empty template",
+      expiry: new Date(),
       author: user.username,
       shared: [user.username],
-      expiry: new Date(),
     };
     try {
       const result = await API.graphql(

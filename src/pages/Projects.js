@@ -41,13 +41,11 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   useStateChange(state);
 
   const [showAddProject, setShowAddProject] = useState(false);
-
-  const location = useLocation();
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
 
   // comments and filter sidebar positions
   // position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
-  //position state dynamically changes with transitions
+  // position state dynamically changes with transitions
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
 
@@ -559,9 +557,62 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   useEffect(() => {
     console.log({ url, sdt, project });
     if (project && window && window.core) {
-      if (url) {
+      const doesKeyExist = async () => {
+        try {
+          const data = await Storage.list(`${project.id}/output/`);
+          if (
+            data
+              .map((el) => el.key)
+              .includes(`${project.id}/output/_etl_data_lake.csv`)
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        } catch (error) {
+          console.log({ error });
+        }
+      };
+      const isUrlValid = () => {
+        const date1 = dayjs();
+        let difference = date1.diff(dayjs(project.expiry), "minute");
+        if (difference > 10) {
+          return false;
+        } else {
+          return true;
+        }
+      };
+      const updateProjectUrl = async (res) => {
+        if (res !== "") {
+          setUrl(res);
+          // update Dynamo Project Item
+          const updateProjectInput = {
+            id: project.id,
+            expiry: new Date().toISOString(),
+            url: res.url,
+          };
+          try {
+            const result = await API.graphql(
+              graphqlOperation(updateProject, { input: updateProjectInput })
+            );
+            setProject(result.data.updateProject);
+            console.log({ result });
+          } catch (error) {
+            console.log({ error });
+          }
+        }
+        // TODO: add error handling
+      };
+      const getNewUrl = async () => {
+        if (project && window && window.core && doesKeyExist()) {
+          const res = Storage.get(`${project.id}/output/_etl_data_lake.csv`);
+          await updateProjectUrl(res);
+        }
+      };
+      if (url && isUrlValid()) {
         window.core.OpenProject(JSON.stringify(url));
       } else {
+        getNewUrl();
         window.core.OpenProject({});
       }
     }
