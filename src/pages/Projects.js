@@ -23,8 +23,7 @@ import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
 import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
 import { ProjectDetails } from "../partials/projects/ProjectDetails";
-import { v4 as uuid } from "uuid";
-import { updateProject, createProject } from "../graphql/mutations";
+import { updateProject } from "../graphql/mutations";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 import * as dayjs from "dayjs";
 
@@ -41,8 +40,6 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   useStateChange(state);
 
   const [showAddProject, setShowAddProject] = useState(false);
-
-  const location = useLocation();
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
 
   // comments and filter sidebar positions
@@ -275,7 +272,6 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
               break;
           }
         });
-
         return existingProps;
       } else {
         const cleanProps = [

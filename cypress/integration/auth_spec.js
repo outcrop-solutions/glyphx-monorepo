@@ -7,7 +7,7 @@ describe("Authenticator:", function () {
   describe("Sign In:", () => {
     it("allows a user to signin", () => {
       // Step 2: Take an action (Sign in)
-      cy.get(selectors.usernameInput).type("jamesmurdockgraham@gmail.com");
+      cy.get(selectors.usernameInput).type("james@grahamallen.io");
       cy.get(selectors.signInPasswordInput).type("Hello123!");
       cy.get(selectors.signInSignInButton).contains("Sign In").click();
 
