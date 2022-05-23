@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { listFilters } from "../graphql/queries";
 
+/**
+ * returns all filters from the Filters class
+ * @returns {Object}
+ */
+
 export const useFilters = () => {
   const [filters, setFilters] = useState([]);
   useEffect(() => {

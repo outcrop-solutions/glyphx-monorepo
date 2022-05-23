@@ -1,6 +1,15 @@
 import { Auth } from "aws-amplify";
 import { useEffect, useState } from "react";
 
+/**
+ * Utility for interfacing with the User class in Cognito
+ * @param {boolean} isLoggedIn
+ * @returns {Object}
+ * user - {Object}
+ * setUser - {function}
+ * isLogged - {boolean}
+ */
+
 export const useUser = (isLoggedin) => {
   const [user, setUser] = useState(false);
   const [isLogged, setIsLogged] = useState(false);

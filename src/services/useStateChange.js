@@ -1,5 +1,12 @@
 import { useEffect } from "react";
 
+/**
+ * Utility for applying a change in the current state to a given vizualization
+ * @param {Object} state
+ * @returns {Object}
+ * isStateChanged - {boolean}
+ */
+
 export const useStateChange = (state) => {
   //build query string and call state change function
   useEffect(() => {

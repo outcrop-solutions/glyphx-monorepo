@@ -4,6 +4,14 @@ import { listProjects } from "../graphql/queries";
 import { useUser } from "../services/useUser";
 import sortArray from "sort-array";
 
+/**
+ * Utility for interfacing with the Projects class
+ * @param {boolean} isLoggedIn
+ * @returns {Object}
+ * projects - {Array}
+ * setProjects - {function}
+ */
+
 export const useProjects = ({ isLoggedIn }) => {
   const { user, setUser, isLogged } = useUser();
   const [projects, setProjects] = useState([]);

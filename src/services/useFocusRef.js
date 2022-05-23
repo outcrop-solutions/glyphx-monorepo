@@ -1,5 +1,11 @@
 import { useRef, useLayoutEffect } from "react";
 
+/**
+ * handles focus ref for SortableHeaderCell in DraggableHeaderRenderer
+ * @param {boolean} isSelected
+ * @returns {Object}
+ */
+
 export function useFocusRef(isSelected) {
   const ref = useRef(null);
 

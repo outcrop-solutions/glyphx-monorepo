@@ -3,6 +3,28 @@ import { Storage } from "aws-amplify";
 import { formatGridData } from "../partials/actions/Dropzone";
 import { parse } from "papaparse";
 
+/**
+ * Utilities for interfacting with the DataGrid component and filesystem
+ * @param {Array} filtersApplied
+ * @returns {Object}
+ * filesSystem - {Array}
+ * setFiles - {function}
+ * openFile - {function}
+ * selectFile - {function}
+ * closeFile - {function}
+ * clearFiles - {function}
+ * filesOpen - {Array}
+ * setFilesOpen - {function}
+ * dataGrid - {Object}
+ * setDataGrid - {function}
+ * selectedFile - {string}
+ * setSelectedFile - {function}
+ * sdt - {string}
+ * setsSdt - {function}
+ * dataGridLoading - {boolean}
+ * setDataGridLoading - {function}
+ */
+
 export const useFileSystem = (project) => {
   const [fileSystem, setFileSystem] = useState([]);
   const [filesOpen, setFilesOpen] = useState([]);

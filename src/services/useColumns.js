@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Storage } from 'aws-amplify'
 
+/**
+ * To handle Column titles from CSV data, to be stored as "Properties"
+ * @param {boolean} isSelected
+ * @returns {Object}
+ */
 export const useColumns = (project) => {
 	const [columns, setColumns] = useState([])
 	useEffect(() => {

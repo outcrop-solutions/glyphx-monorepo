@@ -2,6 +2,13 @@ import { useState, useEffect } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { listComments } from "../graphql/queries";
 
+/**
+ * Utility for interfacing with the annotations or "Comments" sidebar as a function of state
+ * @param {Object} state
+ * @returns {Object}
+ * comments - {Array}
+ * setComments - {function}
+ */
 export const useComments = (state) => {
   const [comments, setComments] = useState([]);
 

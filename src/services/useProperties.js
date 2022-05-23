@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { Storage } from "aws-amplify";
 
+/**
+ * Utility for interfacing with the Properties class
+ * @param {Object} project
+ * @returns {Object}
+ * properties - {Array}
+ * setProperties - {function}
+ */
+
 export const useProperties = (project) => {
   const [properties, setProperties] = useState(null);
 

@@ -1,5 +1,14 @@
 import { useEffect } from "react";
 
+/**
+ * Applies a filter change by building SQL qeury and passing to Qt
+ * @param {Array} filtersApplied
+ * @param {string} sdt
+ * @param {Array} propertiesArr
+ * @param {function} setQuery
+ * @returns {Object}
+ */
+
 export const useFilterChange = (
   filtersApplied,
   projectId,

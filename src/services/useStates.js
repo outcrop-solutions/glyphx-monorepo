@@ -2,6 +2,17 @@ import { useState, useEffect } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { listStates } from "../graphql/queries";
 
+/**
+ * Utility for interfacing with the States class
+ * @param {Object} project
+ * @returns {Object}
+ * states - {Array}
+ * setStates - {function}
+ * state - {Array}
+ * setState - {function}
+ * deleteState - {function}
+ */
+
 export const useStates = (project) => {
   const [state, setState] = useState(null);
   const [states, setStates] = useState([]);

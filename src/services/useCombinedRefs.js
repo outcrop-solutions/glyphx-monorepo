@@ -1,4 +1,10 @@
 import { useCallback } from "react";
+
+/**
+ * handles combined refs for DraggableHeaderRenderer in DataGrid
+ * @param {Array} refs
+ * @returns {Promise}
+ */
 export function useCombinedRefs(...refs) {
   return useCallback(
     (handle) => {
