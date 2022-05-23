@@ -1,11 +1,8 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import DataGrid from "react-data-grid";
+import DataGrid from "../../lib/react-data-grid";
 import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
 
-export const Datagrid = ({
-  isDropped,
-  dataGrid,
-}) => {
+export const Datagrid = ({ isDropped, dataGrid }) => {
   const [rows, setRows] = useState(dataGrid.rows);
   const [columns, setColumns] = useState(dataGrid.columns);
   const [sortColumns, setSortColumns] = useState([]);
@@ -27,11 +24,15 @@ export const Datagrid = ({
   const draggableColumns = useMemo(() => {
     function HeaderRenderer(props) {
       return (
-        <DraggableHeaderRenderer
-          {...props}
-          isDropped={isDropped}
-          onColumnsReorder={handleColumnsReorder}
-        />
+        <>
+          {columns && columns.length > 0 && (
+            <DraggableHeaderRenderer
+              {...props}
+              isDropped={isDropped}
+              onColumnsReorder={handleColumnsReorder}
+            />
+          )}
+        </>
       );
     }
 
