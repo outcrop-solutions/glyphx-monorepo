@@ -9,10 +9,8 @@ export const useFilterChange = (
 ) => {
   useEffect(() => {
     if (window && window.core) {
-      console.log({ projectId });
       let propsArr = [];
       if (propertiesArr && propertiesArr.length > 0) {
-        console.log({ propertiesArr });
         propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
       }
       if (filtersApplied.length > 0 && propsArr.length >= 3) {
@@ -53,7 +51,6 @@ export const useFilterChange = (
         };
         setQuery(query);
 
-        console.log({ updateFilterInput });
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
       } else if (sdt && filtersApplied.length === 0 && propsArr.length >= 3) {
         let query = `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\``;
@@ -61,11 +58,10 @@ export const useFilterChange = (
           filter: query,
         };
         setQuery([query]);
-        console.log({ updateFilterInput });
+
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
       }
     }
-    console.log({ filtersApplied });
   }, [filtersApplied]);
   return { isFilterChanged: true };
 };

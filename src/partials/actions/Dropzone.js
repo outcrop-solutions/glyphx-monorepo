@@ -23,7 +23,6 @@ export const formatGridData = (data) => {
   const newGrid = { columns: cols, rows };
 
   // add iterator column
-  console.log({ newGrid });
   return newGrid;
 };
 
@@ -40,7 +39,6 @@ export const Dropzone = ({
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
-      console.log({ acceptedFiles });
       //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
         id: idx + fileSystem.length + 1,
@@ -72,7 +70,7 @@ export const Dropzone = ({
         reader.onload = () => {
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
-          console.log({ project });
+  
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
               // let prog = progress.loaded / progress.total;

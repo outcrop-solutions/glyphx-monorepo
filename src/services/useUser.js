@@ -20,7 +20,7 @@ export const useUser = (isLoggedin) => {
       try {
         let user = await Auth.currentAuthenticatedUser();
         setUser(user);
-        console.log({ user });
+     
       } catch (error) {
         console.log(error);
         setIsLogged(false);

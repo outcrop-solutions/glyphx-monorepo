@@ -1,57 +1,7 @@
 import ClickAwayListener from "react-click-away-listener";
 import { CheckIcon } from "@heroicons/react/outline";
-import { v4 as uuid } from "uuid";
-import { createProject } from "../../graphql/mutations";
-import { API, graphqlOperation, Storage } from "aws-amplify";
 
-export const ReorderConfirmModal = ({
-  user,
-  project,
-  setShowAddProject,
-  setProject,
-  setReorderConfirm,
-  setOldDropped,
-}) => {
-  const handleSave = async () => {
-    setOldDropped([]);
-    let newId = uuid();
-    console.log({ user });
-    const createProjectInput = {
-      id: newId,
-      name: `${project.name} Copy`,
-      description: "",
-      author: user.username,
-      shared: [user.username],
-    };
-    setReorderConfirm(false);
-    try {
-      const data = await Storage.list(`${project.id}/input/`);
-      console.log({ data });
-      for (let i = 0; i < data.length; i++) {
-        console.log({
-          strings: [
-            { srckey: `${data[i].key}` },
-            { destkey: `${newId}${data[i].key.slice(36)}` },
-          ],
-        });
-        const copied = await Storage.copy(
-          { key: `${data[i].key}` },
-          { key: `${newId}${data[i].key.slice(36)}` }
-        );
-        console.log({ copied });
-      }
-      console.log({ createProjectInput });
-      const result = await API.graphql(
-        graphqlOperation(createProject, { input: createProjectInput })
-      );
-      console.log({ result });
-
-      setProject(result.data.createProject);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
-
+export const ReorderConfirmModal = ({ handleSave, setReorderConfirm, setShowAddProject }) => {
   const handleClickAway = () => {
     setShowAddProject(false);
   };
@@ -83,7 +33,7 @@ export const ReorderConfirmModal = ({
             <button
               type="button"
               className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-400 text-base font-medium text-gray-900 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-              onClick={handleSave}
+              // onClick={handleSave}
             >
               Create New Model
             </button>

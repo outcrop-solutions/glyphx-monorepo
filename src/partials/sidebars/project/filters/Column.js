@@ -40,7 +40,7 @@ export const Column = ({
   };
   const handleDeleteFilter = async () => {
     let deleteFilterInput = { id: lastDroppedItem.id };
-    // console.log({ deleteFilterInput }
+
     setPropertiesArr((prev) => {
       let newProps = prev;
       if (prev.length > 0) {

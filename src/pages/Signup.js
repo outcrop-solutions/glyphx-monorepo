@@ -17,7 +17,7 @@ function Signup({ setSignUp, setIsLoggedIn }) {
         Auth.signIn(username, password)
           .then(() => {
             setIsLoggedIn(true);
-            console.log("logged in after signup");
+     
           })
           .catch((error) => {
             setIsLoggedIn(false);
@@ -43,7 +43,7 @@ function Signup({ setSignUp, setIsLoggedIn }) {
         },
       });
       setConfirm(true);
-      console.log({ userSignup: user });
+ 
     } catch (error) {
       setError(error.message);
       setTimeout(() => {

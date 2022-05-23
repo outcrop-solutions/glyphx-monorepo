@@ -53,7 +53,6 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
       description: description,
       shared: chips,
     };
-    console.log({ updateProjectInput });
     setEditDesc(false);
     setEditTitle(false);
     setEditShare(false);
@@ -61,7 +60,7 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
       const result = await API.graphql(
         graphqlOperation(updateProject, { input: updateProjectInput })
       );
-      console.log({ result });
+   
       setMsg("Successfully Saved!");
       setTimeout(() => {
         setMsg(false);

@@ -41,15 +41,15 @@ export const AddProjectModal = ({
       id: uuid(),
       name,
       description,
+      expiry: new Date(),
       author: user.username,
       shared: [user.username, ...chips],
     };
     try {
-      console.log({ createProjectInput });
       const result = await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
       );
-      console.log({ result });
+
       setShowAddProject(false);
       setProject(result.data.createProject);
     } catch (error) {

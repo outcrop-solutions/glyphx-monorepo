@@ -15,8 +15,6 @@ export const Header = ({
   useEffect(() => {
     if (window && window.core) {
       window.core.SendCameraPosition.connect(async function (message) {
-        console.log({ message: JSON.parse(`{${message}}`) });
-        console.log({ filtersApplied });
         const createStateInput = {
           id: uuid(),
           title: "new_state",
@@ -27,11 +25,10 @@ export const Header = ({
         };
 
         try {
-          console.log({ createStateInput });
           const result = await API.graphql(
             graphqlOperation(createState, { input: createStateInput })
           );
-          console.log({ newState: result });
+
           setStates(result.data.createState);
           handleClick();
         } catch (error) {

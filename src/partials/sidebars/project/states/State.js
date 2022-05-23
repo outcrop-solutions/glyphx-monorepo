@@ -26,14 +26,13 @@ export const State = ({
     const stateDelete = {
       id: item.id,
     };
-    console.log({ stateDelete });
+
     deleteState(item);
 
     const deletedState = await API.graphql({
       query: mutations.deleteState,
       variables: { input: stateDelete },
     });
-    console.log({ deletedState });
   };
 
   const handleSave = () => {

@@ -137,7 +137,7 @@ export const MainSidebar = ({
                     if (window && window.core) {
                       window.core.CloseModel();
                       setIsQtOpen(false);
-                      console.log("Close Model function called");
+
                     }
                     setProgress(false);
                     setProject(false);

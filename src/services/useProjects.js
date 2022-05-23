@@ -9,12 +9,11 @@ export const useProjects = ({ isLoggedIn }) => {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    console.log({ user });
     const fetchProjects = async () => {
       try {
         if (user) {
           const projectData = await API.graphql(graphqlOperation(listProjects));
-          // console.log({ projectData })
+
           const projectList = projectData.data.listProjects.items;
           const filtered = projectList.filter((el) =>
             el.shared
@@ -25,7 +24,7 @@ export const useProjects = ({ isLoggedIn }) => {
             by: "updatedAt",
             order: "desc",
           });
-          console.log({ sorted });
+
           setProjects((prev) => {
             let newData = [...filtered];
             return newData;

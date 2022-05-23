@@ -22,7 +22,7 @@ function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
   const signIn = async () => {
     try {
       const user = await Auth.signIn(username, password);
-      console.log({ user });
+ 
       setUser(user);
       setIsLoggedIn(true);
     } catch (error) {
