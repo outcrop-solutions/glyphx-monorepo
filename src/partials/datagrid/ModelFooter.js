@@ -38,7 +38,7 @@ export const ModelFooter = ({
   };
 
   return (
-    <div className="w-full h-11 border border-gray-600 bg-primary-dark-blue text-xs flex items-center fixed bottom-0">
+    <div className="w-full h-11 border border-gray-600 bg-primary-dark-blue text-xs flex items-center">
       {sdt && (
         <div
           onClick={handleOpen}

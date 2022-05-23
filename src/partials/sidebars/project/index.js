@@ -100,7 +100,7 @@ export const ProjectSidebar = ({
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex flex-col bg-primary-dark-blue absolute z-30 left-0 top-0 lg:static border-r border-gray-400 lg:left-auto lg:top-auto  h-full scrollbar-none w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 flex-shrink-0`}
+      className={`flex flex-grow flex-col bg-primary-dark-blue absolute z-30 left-0 top-0 lg:static border-r border-gray-400 lg:left-auto lg:top-auto  h-full scrollbar-none w-64 lg:w-20 lg:project-sidebar-expanded:!w-64 flex-shrink-0`}
     >
       <div className="overflow-y-auto scrollbar-none">
         {/* Files */}

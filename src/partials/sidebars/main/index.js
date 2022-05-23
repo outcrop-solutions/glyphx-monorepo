@@ -70,7 +70,7 @@ export const MainSidebar = ({
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4`}
+      className={`hidden lg:flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 flex-shrink-0 p-4`}
     >
       <div>
         {/* Sidebar header */}
@@ -137,7 +137,6 @@ export const MainSidebar = ({
                     if (window && window.core) {
                       window.core.CloseModel();
                       setIsQtOpen(false);
-
                     }
                     setProgress(false);
                     setProject(false);
