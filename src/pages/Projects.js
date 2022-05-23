@@ -342,6 +342,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     const doesKeyExist = async () => {
       try {
         const data = await Storage.list(`${project.id}/output/`);
+        console.log({ data });
         if (
           data
             .map((el) => el.key)
@@ -387,6 +388,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       // TODO: add error handling
     };
     const callETl = async (propsArr, filteredArr) => {
+      console.log("callEtl");
       if (
         project &&
         window &&
@@ -394,6 +396,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         propsArr &&
         propsArr.length >= 3
       ) {
+        console.log("call endpoint");
         // call ETl endpoint
         let response = await fetch("https://api.glyphx.co/etl/model", {
           method: "POST",
@@ -411,20 +414,21 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       }
     };
     const handleETL = async () => {
+      console.log("handle etl");
       // TODO: track which properties come from which file keys once we add file delete funcitonality to ensure we don't run etl on non existent keys
       // check if file exists in s3 to prevent running ETL on non-existent keys
-      let isSafe = await doesKeyExist();
-      if (isSafe) {
+      // let isSafe = await doesKeyExist();
+      // if (isSafe) {
         await callETl(propsArr, filteredArr);
-      } else {
-        setError(
-          "File not available to ETL yet. Please wait and try again once the file has finished uploading"
-        );
-        setTimeout(() => {
-          setError(false);
-        }, 3000);
-        console.log({ error: `File not available to ETL yet ${isSafe}` });
-      }
+      // } else {
+      //   setError(
+      //     "File not available to ETL yet. Please wait and try again once the file has finished uploading"
+      //   );
+      //   setTimeout(() => {
+      //     setError(false);
+      //   }, 3000);
+      //   console.log({ error: `File not available to ETL yet ${isSafe}` });
+      // }
     };
     // If reordering props, create new model
     if (
@@ -437,10 +441,20 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       return;
     }
     // handle initial ETL
-    if (project && project.id && isPropsValid() && isUrlValid()) {
+    console.log({
+      project,
+      projectId: project.id,
+      propsValid: isPropsValid(),
+      urlValid: isUrlValid(),
+    });
+    if (project && project.id && isPropsValid()) {
       handleETL();
     }
   }, [propertiesArr, project, uploaded, expiry]);
+
+  useEffect(() => {
+    console.log({ propertiesArr });
+  }, [propertiesArr]);
 
   // const handleSave = async () => {
   //   let id = "";
