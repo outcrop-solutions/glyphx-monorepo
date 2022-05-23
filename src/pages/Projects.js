@@ -317,10 +317,10 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     const isUrlValid = () => {
       const date1 = dayjs();
       let difference = date1.diff(dayjs(project.expiry), "minute");
-      if (difference > 10) {
-        return false;
-      } else {
+      if (difference < 10 || typeof project.url === "undefined") {
         return true;
+      } else {
+        return false;
       }
     };
     const isPropsValid = () => {
@@ -417,18 +417,18 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       console.log("handle etl");
       // TODO: track which properties come from which file keys once we add file delete funcitonality to ensure we don't run etl on non existent keys
       // check if file exists in s3 to prevent running ETL on non-existent keys
-      // let isSafe = await doesKeyExist();
-      // if (isSafe) {
+      let isSafe = await doesKeyExist();
+      if (isSafe) {
         await callETl(propsArr, filteredArr);
-      // } else {
-      //   setError(
-      //     "File not available to ETL yet. Please wait and try again once the file has finished uploading"
-      //   );
-      //   setTimeout(() => {
-      //     setError(false);
-      //   }, 3000);
-      //   console.log({ error: `File not available to ETL yet ${isSafe}` });
-      // }
+      } else {
+        setError(
+          "File not available to ETL yet. Please wait and try again once the file has finished uploading"
+        );
+        setTimeout(() => {
+          setError(false);
+        }, 3000);
+        console.log({ error: `File not available to ETL yet ${isSafe}` });
+      }
     };
     // If reordering props, create new model
     if (
