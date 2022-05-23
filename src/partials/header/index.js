@@ -39,7 +39,7 @@ function Header({
       const result = await API.graphql(
         graphqlOperation(updateProject, { input: updateProjectInput })
       );
- 
+
       // setProject(result.data.updateProject);
     } catch (error) {
       console.log({ error });
@@ -47,8 +47,8 @@ function Header({
   };
   return (
     <header
-      className={`sticky top-0 border-b border-gray-400 z-30 flex justify-between items-center bg-primary-dark-blue max-h-16 ${
-        project ? "ml-0" : "mx-6"
+      className={`sticky w-full top-0 z-30 flex justify-between items-center bg-primary-dark-blue max-h-16 ${
+        project ? "ml-0" : "px-6"
       }`}
     >
       {!edit ? (
@@ -71,7 +71,6 @@ function Header({
         <div>
           <input
             onKeyPress={(ev) => {
-      
               if (ev.key === "Enter") {
                 ev.preventDefault();
                 handleSaveProjectName();
