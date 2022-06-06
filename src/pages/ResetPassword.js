@@ -18,19 +18,17 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
   };
   const handleResetPassword = async () => {
     try {
-      const data = await Auth.forgotPassword(email);
+      await Auth.forgotPassword(email);
       setIsCodeSent(true);
-
     } catch (error) {
       console.log({ error });
     }
   };
   const handleSubmitCode = async () => {
     try {
-      const data = await Auth.forgotPasswordSubmit(email, code, newPass);
+      await Auth.forgotPasswordSubmit(email, code, newPass);
       setSignUp(false);
       setResetPass(false);
-
     } catch (error) {
       console.log({ error });
     }

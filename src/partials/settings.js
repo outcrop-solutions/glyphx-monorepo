@@ -83,7 +83,7 @@ export const Settings = () => {
         >
           <div className="max-w-3xl mx-auto py-3 px-4 flex items-start sm:px-6 lg:px-8">
             <a
-              href="#"
+              href="/settings"
               className="-ml-1 inline-flex items-center space-x-3 text-sm font-medium text-white"
             >
               <ChevronLeftIcon

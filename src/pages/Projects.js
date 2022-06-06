@@ -1,35 +1,38 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
 import QWebChannel from "qwebchannel";
-import Header from "../partials/header";
-import TableView from "../partials/projects/TableView";
-import { GridView } from "../partials/projects/GridView";
-import { ProjectSidebar } from "../partials/sidebars/project";
-import { CommentsSidebar } from "../partials/sidebars/comments";
-import { MainSidebar } from "../partials/sidebars/main";
-import { useStateChange } from "../services/useStateChange";
-import { useFileSystem } from "../services/useFileSystem";
-import { Datagrid } from "../partials/datagrid";
-import { FileHeader } from "../partials/datagrid/FileHeader";
-import { ModelFooter } from "../partials/datagrid/ModelFooter";
-import { AddFiles } from "../partials/addFiles.js";
-import { Templates } from "../partials/projects/Templates";
-import { Invite } from "../partials/invite";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import update from "immutability-helper";
-import { useStates } from "../services/useStates";
-import { AddProjectModal } from "../partials/projects/AddProjectModal";
 import GridLoader from "react-spinners/GridLoader";
-import { ReorderConfirmModal } from "../partials/datagrid/ReorderConfirmModal";
-import { ProjectDetails } from "../partials/projects/ProjectDetails";
 import { updateProject } from "../graphql/mutations";
-import { API, graphqlOperation, Storage } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 import * as dayjs from "dayjs";
+
+import { useStateChange } from "../services/useStateChange";
+import { useFileSystem } from "../services/useFileSystem";
+import { useStates } from "../services/useStates";
+
+import Header from "../partials/Header";
+import TableView from "../partials/TableView";
+import { GridView } from "../partials/GridView";
+import { ProjectSidebar } from "../partials/ProjectSidebar";
+import { CommentsSidebar } from "../partials/CommentsSidebar";
+import { MainSidebar } from "../partials/MainSidebar";
+import { Datagrid } from "../partials/Datagrid";
+import { FileHeader } from "../partials/FileHeader";
+import { ModelFooter } from "../partials/ModelFooter";
+import { AddFiles } from "../partials/AddFiles.js";
+import { Templates } from "../partials/Templates";
+import { Invite } from "../partials/Invite";
+import { ReorderConfirmModal } from "../partials/ReorderConfirmModal";
+import { ProjectDetails } from "../partials/ProjectDetails";
+import { AddProjectModal } from "../partials/AddProjectModal";
 
 let socket = null;
 
 export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
+  // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState(false);
   const [grid, setGrid] = useState(false);
   const [project, setProject] = useState(false);
@@ -72,7 +75,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
             //Issued every 30 seconds from Qt to prevent websocket timeout
             console.log(message);
           });
-          window.core.GetDrawerPosition.connect(function (message) {
+          window.core.GetDrawerPosition.connect(function () {
             setSendDrawerPositionApp(true);
           });
 
@@ -118,7 +121,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     }
   }, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp]);
   const handleStateChange = (state) => {
-    setState((prev) => {
+    setState(() => {
       let data = state;
       return data;
     });
@@ -180,7 +183,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         })
         .filter((el) => el !== "");
     }
-    setPropertiesArr((prev) => {
+    setPropertiesArr(() => {
       if (project.properties && project.properties.length > 0) {
         const existingProps = project.properties.map((el, idx) => {
           switch (idx) {
@@ -296,6 +299,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       window.core.CloseModel();
       setIsQtOpen(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project]);
 
   // handle ETL
@@ -339,23 +343,6 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       }
     };
 
-    const doesKeyExist = async () => {
-      try {
-        const data = await Storage.list(`${project.id}/output/`);
-        console.log({ data });
-        if (
-          data
-            .map((el) => el.key)
-            .includes(`${project.id}/output/_etl_data_lake.csv`)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } catch (error) {
-        console.log({ error });
-      }
-    };
     const updateProjectState = async (res) => {
       if (res.statusCode === 200) {
         setIsQtOpen(true);
@@ -419,7 +406,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       // check if file exists in s3 to prevent running ETL on non-existent keys
       // let isSafe = await doesKeyExist();
       // if (isSafe) {
-        await callETl(propsArr, filteredArr);
+      await callETl(propsArr, filteredArr);
       // } else {
       //   setError(
       //     "File not available to ETL yet. Please wait and try again once the file has finished uploading"
@@ -450,6 +437,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     if (project && project.id && isPropsValid()) {
       handleETL();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertiesArr, project, uploaded, expiry]);
 
   useEffect(() => {

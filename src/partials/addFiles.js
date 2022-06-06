@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
-import { formatGridData } from "./actions/Dropzone";
+import { formatGridData } from "./Dropzone";
 import { PlusIcon } from "@heroicons/react/solid";
 
 export const AddFiles = ({
@@ -73,6 +73,7 @@ export const AddFiles = ({
       // add to filesystem state
       // upload files to S3
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setFileSystem, project, fileSystem, setDataGrid]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
