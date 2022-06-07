@@ -13,7 +13,7 @@ import "./css/style.scss";
 // components
 import { Projects } from "./pages/Projects";
 import { Dashboard } from "./pages/Dashboard";
-import { Settings } from "./partials/settings";
+import { Settings } from "./partials/Settings";
 import SignIn from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ResetPassword from "./pages/ResetPassword";

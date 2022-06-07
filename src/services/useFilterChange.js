@@ -11,7 +11,6 @@ import { useEffect } from "react";
 
 export const useFilterChange = (
   filtersApplied,
-  projectId,
   sdt,
   propertiesArr,
   setQuery
@@ -71,6 +70,7 @@ export const useFilterChange = (
         window.core.UpdateFilter(JSON.stringify(updateFilterInput));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersApplied]);
   return { isFilterChanged: true };
 };

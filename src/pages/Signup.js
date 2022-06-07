@@ -17,7 +17,6 @@ function Signup({ setSignUp, setIsLoggedIn }) {
         Auth.signIn(username, password)
           .then(() => {
             setIsLoggedIn(true);
-     
           })
           .catch((error) => {
             setIsLoggedIn(false);
@@ -34,7 +33,7 @@ function Signup({ setSignUp, setIsLoggedIn }) {
   };
   const handleSignUp = async () => {
     try {
-      const { user } = await Auth.signUp({
+      await Auth.signUp({
         username,
         password,
         attributes: {
@@ -43,7 +42,6 @@ function Signup({ setSignUp, setIsLoggedIn }) {
         },
       });
       setConfirm(true);
- 
     } catch (error) {
       setError(error.message);
       setTimeout(() => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Storage } from "aws-amplify";
-import { formatGridData } from "../partials/actions/Dropzone";
+import { formatGridData } from "../partials/Dropzone";
 import { parse } from "papaparse";
 
 /**

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { API, graphqlOperation, Auth } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 import { listProjects } from "../graphql/queries";
 import { useUser } from "../services/useUser";
-import sortArray from "sort-array";
+// import sortArray from "sort-array";
 
 /**
  * Utility for interfacing with the Projects class
@@ -28,17 +28,13 @@ export const useProjects = ({ isLoggedIn }) => {
               ? el.shared.includes(user.username)
               : el.author === user.id
           );
-          let sorted = sortArray(filtered, {
-            by: "updatedAt",
-            order: "desc",
-          });
 
           setProjects((prev) => {
             let newData = [...filtered];
             return newData;
           });
         } else {
-          throw "no user";
+          throw Error("no user");
         }
       } catch (error) {
         console.log("error on fetching projects", error);
