@@ -680,7 +680,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
             console.log("input tag in focused")
           }}
           style={{ //setting opacity to 0 so no onw sees it
-            opacity:0
+            opacity:0,
+            height:0
           }}
         />
         <hr className={project ? "mx-0" : "mx-6"} />
