@@ -613,6 +613,10 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     console.log("set focus to hidden input")
   }
 
+  /**
+   * Handles when someone clicks after loading animation called.
+   * Assuming that user won't click until loading completed
+   */
   const handleOnBlur = () =>{
     console.log("handle on blur called");
     setLoadingETL(false);

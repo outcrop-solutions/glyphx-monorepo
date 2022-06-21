@@ -282,7 +282,7 @@ export const MainSidebar = ({
             setSidebarExpanded={setSidebarExpanded}
           />
         </div>
-          {/* Input ref used for on blur */}
+          {/* Input ref used for on blur when loading animation is called.*/}
           <input 
           type="checkbox" //Seems to be that if you set it for hidden, it cant work
           ref={inputRef} 
