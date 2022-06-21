@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import QWebChannel from "qwebchannel";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -50,6 +50,10 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   //position state dynamically changes with transitions
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
+
+  // state for setting loading when sending data to ETL
+  const [isLoadingETL, setLoadingETL] = useState(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
@@ -137,13 +141,21 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
   ]);
 
+  // newly dropped headers
   const [droppedProps, setDroppedProps] = useState([]);
+  // old headers
   const [oldDropped, setOldDropped] = useState([]);
   const isDropped = (propName) => {
     return droppedProps.indexOf(propName) > -1;
   };
   const handleDrop = useCallback(
     (index, item) => {
+      // testing to see if I can identify count here
+      // cannot identify count here. although activates on when user drops something as name suggests
+      // maybe i can call handle loading here then check if there are 3 inside then set loading animation on
+      // need to know when to turn loading anumation off tho
+      console.log("Line: 150 handled drop called",index,item)
+      // 
       let dropped = [];
       if (project.properties) {
         dropped = project.properties
@@ -327,6 +339,12 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         return true;
       }
     };
+    /**
+     * 
+     * ARE THE HEADERS VALID TO SEND TO ETL
+     * 
+     * @returns {Boolean}
+     */
     const isPropsValid = () => {
       if (
         propsArr &&
@@ -343,6 +361,10 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       }
     };
 
+    /**
+     * UPDATE PROJECT STATE
+     * @param {*} res 
+     */
     const updateProjectState = async (res) => {
       if (res.statusCode === 200) {
         setIsQtOpen(true);
@@ -374,6 +396,12 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       }
       // TODO: add error handling
     };
+
+    /**
+     * CALLS ETL ENDPOINT
+     * @param {*} propsArr 
+     * @param {*} filteredArr 
+     */
     const callETl = async (propsArr, filteredArr) => {
       console.log("callEtl");
       if (
@@ -435,6 +463,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       urlValid: isUrlValid(),
     });
     if (project && project.id && isPropsValid()) {
+      // place animatoion on here
+      handleETLloading();
       handleETL();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -572,6 +602,27 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     }
   }, [share, reorderConfirm]);
 
+  // handle loading animation 
+  /**
+   *  Function activates on blur to invoke loading animation
+   */
+  const handleETLloading = () =>{
+    console.log("handle loading activated");
+    setLoadingETL(true);
+    inputRef.current.focus();
+    console.log("set focus to hidden input")
+  }
+
+  /**
+   * Handles when someone clicks after loading animation called.
+   * Assuming that user won't click until loading completed
+   */
+  const handleOnBlur = () =>{
+    console.log("handle on blur called");
+    setLoadingETL(false);
+    console.log("input field not in focus")
+  }
+
   return (
     <div className="flex h-screen max-w-screen overflow-x-scroll scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
@@ -599,6 +650,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         setProgress={setProgress}
         // sidebarOpen={sidebarOpen}
         // setSidebarOpen={setSidebarOpen}
+        inputRef={inputRef}
+        onBlur={handleOnBlur}
       />
       {projectDetails ? (
         <ProjectDetails
@@ -626,43 +679,60 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           <div className="flex flex-grow relative h-full">
             {project ? (
               <>
-                <DndProvider backend={HTML5Backend}>
-                  <ProjectSidebar
-                    error={error}
-                    sdt={sdt}
-                    openFile={openFile}
-                    selectFile={selectFile}
-                    selectedFile={selectedFile}
-                    setSelectedFile={setSelectedFile}
-                    setDataGridLoading={setDataGridLoading}
-                    uploaded={uploaded}
-                    setUploaded={setUploaded}
-                    fileSystem={fileSystem}
-                    setFiles={setFiles}
-                    filesOpen={filesOpen}
-                    setFilesOpen={setFilesOpen}
-                    setDataGrid={setDataGrid}
-                    setFilterSidebarPosition={setFilterSidebarPosition}
-                    sidebarOpen={sidebarOpen}
-                    setSidebarOpen={setSidebarOpen}
-                    sidebarExpanded={sidebarExpanded}
-                    setSidebarExpanded={setSidebarExpanded}
-                    project={project}
-                    isEditing={isEditing}
-                    propertiesArr={propertiesArr}
-                    setPropertiesArr={setPropertiesArr}
-                    handleStateChange={handleStateChange}
-                    showCols={showCols}
-                    setShowCols={setShowCols}
-                    handleDrop={handleDrop}
-                    state={state}
-                    states={states}
-                    deleteState={deleteState}
-                    setState={setState}
-                    setStates={setStates}
-                    toastRef={toastRef}
-                  />
-                  <div className="w-full flex overflow-auto">
+              {/* wrapped in div to allow on blur */}
+              
+              <DndProvider backend={HTML5Backend}>
+                {/* <div onBlur={handleloading}> */}
+                    <ProjectSidebar
+                      error={error}
+                      sdt={sdt}
+                      openFile={openFile}
+                      selectFile={selectFile}
+                      selectedFile={selectedFile}
+                      setSelectedFile={setSelectedFile}
+                      setDataGridLoading={setDataGridLoading}
+                      uploaded={uploaded}
+                      setUploaded={setUploaded}
+                      fileSystem={fileSystem}
+                      setFiles={setFiles}
+                      filesOpen={filesOpen}
+                      setFilesOpen={setFilesOpen}
+                      setDataGrid={setDataGrid}
+                      setFilterSidebarPosition={setFilterSidebarPosition}
+                      sidebarOpen={sidebarOpen}
+                      setSidebarOpen={setSidebarOpen}
+                      sidebarExpanded={sidebarExpanded}
+                      setSidebarExpanded={setSidebarExpanded}
+                      project={project}
+                      isEditing={isEditing}
+                      propertiesArr={propertiesArr}
+                      setPropertiesArr={setPropertiesArr}
+                      handleStateChange={handleStateChange}
+                      showCols={showCols}
+                      setShowCols={setShowCols}
+                      handleDrop={handleDrop}
+                      state={state}
+                      states={states}
+                      deleteState={deleteState}
+                      setState={setState}
+                      setStates={setStates}
+                      toastRef={toastRef}
+                    />
+                  {/* Below is the Spread sheet areea */}
+                  {
+                    // If loading etl is true
+                    isLoadingETL ? 
+                    <div className="w-full flex overflow-auto" id="spreadSheet">
+                      <div className="h-full w-full flex justify-center items-center border-none">
+                        <GridLoader
+                          loading={isLoadingETL}
+                          size={100}
+                          color={"yellow"}
+                        />
+                      </div>
+                    </div>
+                    :
+                    <div className="w-full flex overflow-auto" id="spreadSheet">
                     <div className="min-w-0 flex-auto w-full">
                       {/* {progress ? (
                         <Progress />
@@ -736,7 +806,11 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                       setCommentsPosition={setCommentsPosition}
                     />
                   </div>
-                </DndProvider>
+                  }
+                  
+                {/* </div> */}
+              </DndProvider>
+                
               </>
             ) : (
               <div className="w-full flex">

@@ -10,6 +10,10 @@ export const MainSidebar = ({
   setIsLoggedIn,
   setProgress,
   setIsQtOpen,
+
+  // for input blur concept
+  inputRef,
+  onBlur
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -280,6 +284,22 @@ export const MainSidebar = ({
             setSidebarExpanded={setSidebarExpanded}
           />
         </div>
+          {/* Input ref used for on blur when loading animation is called.*/}
+          <input 
+          type="checkbox" //Seems to be that if you set it for hidden, it cant work
+          ref={inputRef} 
+          onBlur={onBlur} 
+          onfocusout={()=>{
+            console.log("input tag off focus")
+          }}
+          onFocus={()=>{
+            console.log("input tag in focused")
+          }}
+          style={{ //setting opacity to 0 so no onw sees it
+            opacity:0,
+            height:0
+          }}
+        />
       </div>
     </div>
   );
