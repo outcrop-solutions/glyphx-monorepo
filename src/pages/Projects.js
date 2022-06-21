@@ -646,6 +646,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         setProgress={setProgress}
         // sidebarOpen={sidebarOpen}
         // setSidebarOpen={setSidebarOpen}
+        inputRef={inputRef}
+        onBlur={handleOnBlur}
       />
       {projectDetails ? (
         <ProjectDetails
@@ -667,22 +669,6 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           grid={grid}
           setGrid={setGrid}
           setShare={setShare}
-        />
-      {/* Input ref used for on blur */}
-        <input 
-          type="text" //Seems to be that if you set it for hidden, it cant work
-          ref={inputRef} 
-          onBlur={handleOnBlur} 
-          onfocusout={()=>{
-            console.log("input tag off focus")
-          }}
-          onFocus={()=>{
-            console.log("input tag in focused")
-          }}
-          style={{ //setting opacity to 0 so no onw sees it
-            opacity:0,
-            height:0
-          }}
         />
         <hr className={project ? "mx-0" : "mx-6"} />
         <main className="h-full">
