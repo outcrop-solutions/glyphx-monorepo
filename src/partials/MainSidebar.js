@@ -10,6 +10,8 @@ export const MainSidebar = ({
   setIsLoggedIn,
   setProgress,
   setIsQtOpen,
+
+  // for input blur concept
   inputRef,
   onBlur
 }) => {
