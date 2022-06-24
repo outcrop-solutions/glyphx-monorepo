@@ -21,6 +21,9 @@ import { useUser } from "./services/useUser";
 import { useProjects } from "./services/useProjects";
 import Amplify from "aws-amplify";
 
+// For testing share screen
+import Share from "./pages/Share";
+
 // TODO: set api key in environment variable
 posthog.init("phc_flrvuYtat2QJ6aSiiWeuBZq69U3M3EmXKVLprmvZPIS", {
   api_host: "https://app.posthog.com",
@@ -78,6 +81,10 @@ function App() {
         </Route>
         <Route exact path="/settings">
           <Settings />
+        </Route>
+        {/* For testing share view */}
+        <Route exact path="/share">
+            <Share/>
         </Route>
       </Switch>
     </>
