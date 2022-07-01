@@ -29,26 +29,30 @@ function Share({ }) {
                 {/* Content */}
                 <div className="relative flex flex-row justify-center h-full">
                     <div className="flex flex-col justify-center">
-                        <p className="text-lg">
+                        <p className="text-lg text-center">
                             Click the <b>launch</b> button below to open Glyph project
                         </p>
                         <br/>
                         <button
                             className="my-4 mx-6 h-10 rounded-md flex items-center justify-center bg-yellow-400 hover:bg-gray-200 transition duration-150 text-black"
+                            onClick={()=>{console.log("Open Glyphx button")}}
                         >
                             <p className="text-lg">
                                 Launch Glyphx
                             </p>
                         </button>
                         {/* ml-6  */}
-                        <p className="mt-6 text-decoration-line: underline tracking-wider text-center">
+                        <button
+                            className="mt-6 text-decoration-line: underline tracking-wider text-center"
+                            onClick={()=>{console.log("Download button pressed")}}
+                        >
                             Don't have Glyphx? Download Glyphx here
-                        </p>
+                        </button>
                     </div>
                     
                 </div>
 
-                <div className="relative flex flex-row justify-center">
+                <div className="relative flex flex-row justify-center text-center">
                     <p className="mb-6">
                         &copy;{new Date().getFullYear()} Synglyphx Holdings LLC. All rights reserved.
                     </p>
