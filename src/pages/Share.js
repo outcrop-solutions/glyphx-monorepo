@@ -1,7 +1,7 @@
 
-function Share({ }) {
+function Share() {
     return (
-        <div className="flex h-screen max-w-screen justify-center overflow-x-scroll scrollbar-none bg-primary-dark-blue text-white">
+        <div className="flex h-screen max-w-screen justify-center scrollbar-none bg-primary-dark-blue text-white">
             <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none bg-primary-dark-blue">
                 <div className="relative flex flex-row justify-left my-2">
                     {/* Logo */}
