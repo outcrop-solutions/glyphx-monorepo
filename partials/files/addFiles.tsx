@@ -99,7 +99,7 @@ export const AddFiles = ({
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accepts: "text/csv",
+    accept: "text/csv",
     multiple: false,
   });
   return (

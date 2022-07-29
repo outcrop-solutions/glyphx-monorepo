@@ -13,7 +13,7 @@ export const StatesHeader = ({
   setSidebarExpanded,
 }) => {
   useEffect(() => {
-    if (window && window.core) {
+    if (window && window?.core) {
       window.core.SendCameraPosition.connect(async function (message) {
         const createStateInput = {
           id: uuid(),
@@ -36,7 +36,7 @@ export const StatesHeader = ({
         }
       });
     }
-  }, [window]);
+  }, []);
 
   const addState = async () => {
     if (window && window.core) {
