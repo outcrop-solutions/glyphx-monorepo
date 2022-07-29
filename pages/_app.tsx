@@ -3,6 +3,11 @@ import "styles/globals.css";
 import type { AppProps } from "next/app";
 // import * as Sentry from "@sentry/react";
 // import { BrowserTracing } from "@sentry/tracing"
+import {
+  Amplify,
+} from "aws-amplify";
+import awsExports from "aws-exports";
+Amplify.configure({ ...awsExports, ssr: true });
 
 export default function App({
   Component,

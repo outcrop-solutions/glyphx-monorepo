@@ -31,6 +31,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "expiry": {
+                    "name": "expiry",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "properties": {
                     "name": "properties",
                     "isArray": true,
@@ -38,6 +45,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "isArrayNullable": true
+                },
+                "url": {
+                    "name": "url",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
                 },
                 "author": {
                     "name": "author",
@@ -185,6 +199,13 @@ export const schema = {
                 },
                 "camera": {
                     "name": "camera",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "query": {
+                    "name": "query",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -807,5 +828,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "899b9496acacc1b9479e71cc327420db"
+    "version": "6407403309791afa1c8fd5d57d0314bf"
 };

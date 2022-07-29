@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
-import * as dayjs from "dayjs";
-import * as relativeTime from "dayjs/plugin/relativeTime";
+import React from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import { API, Storage } from "aws-amplify";
 import * as mutations from "graphql/mutations";
+import { useRouter } from "next/router";
 
 export const ProjectCard = ({
   project,
@@ -16,7 +17,7 @@ export const ProjectCard = ({
   link,
 }) => {
   dayjs.extend(relativeTime);
-
+  const router = useRouter();
   const handleDelete = async () => {
     const projectDelete = {
       id: project.id,
@@ -143,7 +144,10 @@ export const ProjectCard = ({
           />
         </svg>
       </div>
-      <div onClick={() => setProject(project)} className="flex flex-col h-full">
+      <div
+        onClick={() => router.push(`/${project.id}`)}
+        className="flex flex-col h-full"
+      >
         <img className="w-full h-full rounded-t-md" src="/images/project.png" />
         <footer className="mt-2 px-5 pb-5 pt-1">
           <div className="text-sm font-medium text-white mb-2">{name}</div>

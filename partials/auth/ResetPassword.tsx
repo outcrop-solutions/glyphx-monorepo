@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Auth } from "aws-amplify";
 
-export default function ResetPassword({ setResetPass, setSignUp, setUser }) {
+export const ResetPassword = ({ setStatus, setUser }) => {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -20,25 +20,20 @@ export default function ResetPassword({ setResetPass, setSignUp, setUser }) {
     try {
       const data = await Auth.forgotPassword(email);
       setIsCodeSent(true);
-
     } catch (error) {
       console.log({ error });
     }
   };
   const handleSubmitCode = async () => {
     try {
-      const data = await Auth.forgotPasswordSubmit(email, code, newPass);
-      setSignUp(false);
-      setResetPass(false);
-
+      await Auth.forgotPasswordSubmit(email, code, newPass);
     } catch (error) {
       console.log({ error });
     }
   };
 
   const handleBack = () => {
-    setResetPass(false);
-    setSignUp(false);
+    setStatus("signin");
   };
 
   return (
@@ -143,4 +138,4 @@ export default function ResetPassword({ setResetPass, setSignUp, setUser }) {
       </div>
     </main>
   );
-}
+};

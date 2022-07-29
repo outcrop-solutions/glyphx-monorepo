@@ -7,7 +7,6 @@ export const MainSidebar = ({
   user,
   project,
   setProject,
-  setIsLoggedIn,
   setProgress,
   setIsQtOpen,
 }) => {
@@ -117,7 +116,6 @@ export const MainSidebar = ({
                 <UserMenu
                   align="right"
                   user={user}
-                  setIsLoggedIn={setIsLoggedIn}
                 />
               </span>
             </div>

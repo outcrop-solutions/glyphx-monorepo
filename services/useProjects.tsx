@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { API, graphqlOperation, Auth } from "aws-amplify";
-import { listProjects } from "../graphql/queries";
+import { listProjects } from "graphql/queries";
 import { useUser } from "./useUser";
 import sortArray from "sort-array";
+import { ListProjectsQuery } from "API";
 
 /**
  * Utility for interfacing with the Projects class
@@ -12,41 +13,37 @@ import sortArray from "sort-array";
  * setProjects - {function}
  */
 
-export const useProjects = ({ isLoggedIn }) => {
-  const { user, setUser, isLogged } = useUser();
-  const [projects, setProjects] = useState([]);
+export const useProjects = (projects) => {
+  // const { user, setUser, isLogged } = useUser();
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        if (user) {
-          const projectData = await API.graphql(graphqlOperation(listProjects));
+    setData([...projects]);
+  }, [projects]);
 
-          const projectList = projectData.data.listProjects.items;
-          const filtered = projectList.filter((el) =>
-            el.shared
-              ? el.shared.includes(user.username)
-              : el.author === user.id
-          );
-          let sorted = sortArray(filtered, {
-            by: "updatedAt",
-            order: "desc",
-          });
+  const fetchProjects = useCallback(async () => {
+    try {
+      const user = await Auth.currentAuthenticatedUser();
+      const response = (await API.graphql(graphqlOperation(listProjects))) as {
+        data: ListProjectsQuery;
+      };
+      const filtered = response.data.listProjects.items.filter(
+        (el) => el?.shared?.includes(user.username) || el.author === user.id
+      );
+      let sorted = sortArray(filtered, {
+        by: "updatedAt",
+        order: "desc",
+      });
 
-          setProjects((prev) => {
-            let newData = [...filtered];
-            return newData;
-          });
-        } else {
-          throw "no user";
-        }
-      } catch (error) {
-        console.log("error on fetching projects", error);
-      }
-    };
-    if (user && user.attributes) {
-      fetchProjects();
+      setData((prev) => {
+        let newData = [...sorted];
+        return newData;
+      });
+    } catch (error) {
+      console.log("error on fetching projects", error);
     }
-  }, [user, setUser, isLogged]);
-  return { projects, setProjects };
+    // }, [user, setUser, isLogged]);
+  }, [projects]);
+
+  return { projects: data, setProjects: setData, fetchProjects };
 };

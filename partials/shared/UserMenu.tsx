@@ -1,10 +1,11 @@
+import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Transition } from "utils/Transition";
 import { Auth } from "aws-amplify";
-import React from "react";
-export const UserMenu = ({ align, user, setIsLoggedIn }) => {
+import { useRouter } from "next/router";
+export const UserMenu = ({ align, user }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const router = useRouter();
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
@@ -37,7 +38,7 @@ export const UserMenu = ({ align, user, setIsLoggedIn }) => {
   const signOut = async () => {
     try {
       await Auth.signOut();
-      setIsLoggedIn(false);
+      router.push("/");
     } catch (error) {
       console.log("error sigingin out" + error);
     }

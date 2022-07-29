@@ -1,23 +1,31 @@
 import React, { useState } from "react";
 
 import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
-import { PencilIcon } from "@heroicons/react/outline"
+import { PencilIcon } from "@heroicons/react/outline";
 
 import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
+import { Project } from "API";
+
+interface Props {
+  grid?: boolean | null;
+  setProject?: React.Dispatch<React.SetStateAction<Project>> | null;
+  setGrid?: React.Dispatch<React.SetStateAction<boolean>> | null;
+  project?: Project | null;
+  setShowAddProject?: React.Dispatch<React.SetStateAction<boolean>> | null;
+  setShare?: React.Dispatch<React.SetStateAction<boolean>> | null;
+}
 
 export const Header = ({
-  sidebarOpen,
-  setSidebarOpen,
   grid,
   setProject,
   setGrid,
   project,
   setShowAddProject,
   setShare,
-}) => {
+}: Props) => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [projectName, setProjectName] = useState(project.name);
+  const [projectName, setProjectName] = useState(project?.name || "");
   const [edit, setEdit] = useState(false);
   const handleEdit = () => {
     setEdit((prev) => !prev);
