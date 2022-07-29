@@ -1,8 +1,8 @@
 // NOT USED
 import { useState, useRef, useEffect } from "react";
-import Transition from "utils/Transition";
+import { Transition } from "utils/Transition";
 
-function DeleteModel({ align }) {
+export function DeleteModel({ align }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef(null);
@@ -85,5 +85,3 @@ function DeleteModel({ align }) {
     </div>
   );
 }
-
-export default DeleteModel;

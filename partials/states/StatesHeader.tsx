@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { API, graphqlOperation } from "aws-amplify";
-import { createState } from "../../../../graphql/mutations";
+import { createState } from "graphql/mutations";
 import { v4 as uuid } from "uuid";
-export const Header = ({
+export const StatesHeader = ({
   open,
   query,
   project,

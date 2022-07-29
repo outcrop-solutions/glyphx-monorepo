@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Auth } from "aws-amplify";
+import React from "react";
 
-function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
+export default function Signin({
+  setIsLoggedIn,
+  setUser,
+  setSignUp,
+  setResetPass,
+}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
@@ -22,7 +28,7 @@ function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
   const signIn = async () => {
     try {
       const user = await Auth.signIn(username, password);
- 
+
       setUser(user);
       setIsLoggedIn(true);
     } catch (error) {
@@ -97,13 +103,13 @@ function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
                       Forgot Password?
                     </div>
                   </div>
-                  <Link
-                    data-test="sign-in-sign-in-button"
-                    onClick={signIn}
-                    className="btn bg-yellow-400 select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow-600 text-slate-900 ml-3"
-                    to="/"
-                  >
-                    Sign In
+                  <Link data-test="sign-in-sign-in-button" href="/">
+                    <a
+                      className="btn bg-yellow-400 select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow-600 text-slate-900 ml-3"
+                      onClick={signIn}
+                    >
+                      Sign In
+                    </a>
                   </Link>
                 </div>
               </div>
@@ -131,5 +137,3 @@ function Signin({ setIsLoggedIn, setUser, setSignUp, setResetPass }) {
     </main>
   );
 }
-
-export default Signin;

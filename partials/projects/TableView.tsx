@@ -139,4 +139,3 @@ export const TableView = ({ user, projects, setProject, fetchProjects }) => {
   );
 };
 
-export default TableView;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Auth } from "aws-amplify";
 
-function Signup({ setSignUp, setIsLoggedIn }) {
+export default function Signup({ setSignUp, setIsLoggedIn }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -175,5 +175,3 @@ function Signup({ setSignUp, setIsLoggedIn }) {
     </main>
   );
 }
-
-export default Signup;

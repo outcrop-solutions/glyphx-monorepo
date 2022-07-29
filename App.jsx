@@ -14,8 +14,8 @@ import { Settings } from "./pages/Settings";
 import SignIn from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ResetPassword from "./pages/ResetPassword";
-import { useUser } from "./services/useUser";
-import { useProjects } from "./services/useProjects";
+import { useUser } from "services/useUser";
+import { useProjects } from "services/useProjects";
 import Amplify from "aws-amplify";
 
 // TODO: set api key in environment variable
@@ -32,7 +32,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { user, setUser, isLogged } = useUser(isLoggedIn);
   const [resetPass, setResetPass] = useState(false);
-  const location = useLocation();
   const { projects, setProjects } = useProjects(isLoggedIn);
 
   useEffect(() => {

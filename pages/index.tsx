@@ -4,39 +4,44 @@ import update from "immutability-helper";
 import * as dayjs from "dayjs";
 
 // Layout
-import { Header } from "partials/layout/header";
-import { ProjectSidebar } from "partials/layout/ProjectSidebar";
-import { CommentsSidebar } from "partials/comments/CommentsSidebar";
-import { MainSidebar } from "partials/layout/MainSidebar";
+import { Header } from "partials";
+import { ProjectSidebar } from "partials";
+import { CommentsSidebar } from "partials";
+import { MainSidebar } from "partials";
 
 // Project Overiew
-import { Templates } from "partials/projects/Templates";
-import { TableView } from "partials/projects/TableView";
-import { GridView } from "partials/projects/GridView";
-import { AddProjectModal } from "partials/projects/AddProjectModal";
-import { ProjectDetails } from "partials/projects/ProjectDetails";
+import { Templates } from "partials";
+import { TableView } from "partials";
+import { GridView } from "partials";
+import { AddProjectModal } from "partials";
+import { ProjectDetails } from "partials";
 
 // Project View
 import GridLoader from "react-spinners/GridLoader";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Datagrid } from "partials/datagrid";
-import { FileHeader } from "partials/datagrid/FileHeader";
-import { ModelFooter } from "partials/datagrid/ModelFooter";
-import { AddFiles } from "partials/addFiles";
-import { Invite } from "partials/invite";
+import { Datagrid } from "partials";
+import { FileHeader } from "partials";
+import { ModelFooter } from "partials";
+import { AddFiles } from "partials";
+import { Invite } from "partials";
 
 // Hooks
 import { useStateChange } from "services/useStateChange";
 import { useFileSystem } from "services/useFileSystem";
 import { useStates } from "services/useStates";
-import { ReorderConfirmModal } from "partials/datagrid/ReorderConfirmModal";
+import { ReorderConfirmModal } from "partials";
 import { updateProject } from "../graphql/mutations";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 
 let socket = null;
 
-export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
+export default function Projects({
+  user,
+  setIsLoggedIn,
+  projects,
+  setProjects,
+}) {
   const [error, setError] = useState(false);
   const [grid, setGrid] = useState(false);
   const [project, setProject] = useState(false);
@@ -100,12 +105,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [isQtOpen, setIsQtOpen] = useState(false);
   // projectSidebar state and utilities
   const [showCols, setShowCols] = useState(false);
-  const storedSidebarExpanded = localStorage.getItem(
-    "project-sidebar-expanded"
-  );
-  const [sidebarExpanded, setSidebarExpanded] = useState(
-    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
-  );
+
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   useEffect(() => {
     if (sendDrawerPositionApp && window && window.core) {
       window.core.SendDrawerPosition(
@@ -578,9 +579,9 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
     console.log({ url, sdt, project });
     if (project && window && window.core) {
       if (url) {
-        window.core.OpenProject(JSON.stringify(url));
+        window?.core.OpenProject(JSON.stringify(url));
       } else {
-        window.core.OpenProject({});
+        window?.core.OpenProject({});
       }
     }
   }, [sdt, url, project]);
@@ -593,7 +594,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   }, [share, reorderConfirm]);
 
   return (
-    <div className="flex h-screen max-w-screen overflow-x-scroll scrollbar-none bg-primary-dark-blue">
+    <div className="flex h-screen max-w-screen scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
         <AddProjectModal
           user={user}
@@ -794,4 +795,4 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       </div>
     </div>
   );
-};
+}

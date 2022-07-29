@@ -52,9 +52,10 @@
     "start": "next start",
     "format:write": "prettier --write \"**/*.{css,js,json,jsx,ts,tsx}\"",
     "format": "prettier \"**/*.{css,js,json,jsx,ts,tsx}\"",
-    "type-check": "tsc",
+    "lint": "next lint",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "type-check": "tsc"
   },
   "resolutions": {
     "@types/react": "17.0.2",

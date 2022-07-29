@@ -56,5 +56,3 @@ export function ShowHide({ applied, handleApply }) {
     </div>
   );
 }
-
-export default ShowHide;

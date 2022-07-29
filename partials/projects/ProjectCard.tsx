@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as dayjs from "dayjs";
 import * as relativeTime from "dayjs/plugin/relativeTime";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { API, Storage } from "aws-amplify";
 import * as mutations from "graphql/mutations";
 
@@ -16,7 +16,6 @@ export const ProjectCard = ({
   link,
 }) => {
   dayjs.extend(relativeTime);
-
 
   const handleDelete = async () => {
     const projectDelete = {
@@ -39,8 +38,6 @@ export const ProjectCard = ({
         await Storage.remove(`${s3Data[i].key}`);
       }
     }
-
-
   };
   const handleDetails = () => {
     setProjectDetails(project);
@@ -184,11 +181,10 @@ export const ProjectCard = ({
             </div>
 
             <div>
-              <Link
-                className="text-sm font-medium text-slate-50 opacity-40"
-                to={link}
-              >
-                {dayjs().to(dayjs(updatedAt))}
+              <Link href={link}>
+                <a className="text-sm font-medium text-slate-50 opacity-40">
+                  {dayjs().to(dayjs(updatedAt))}
+                </a>
               </Link>
             </div>
           </div>
@@ -197,5 +193,3 @@ export const ProjectCard = ({
     </div>
   );
 };
-
-export default ProjectCard;

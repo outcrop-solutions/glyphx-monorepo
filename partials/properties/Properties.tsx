@@ -1,6 +1,6 @@
 /* eslint-disable no-lone-blocks */
 import React, { useEffect, useState } from "react";
-import { Header } from "./Header";
+import { PropertiesHeader } from "./PropertiesHeader";
 import { Property } from "./Property";
 
 export const Properties = ({
@@ -19,7 +19,7 @@ export const Properties = ({
 
   return (
     <React.Fragment>
-      <Header
+      <PropertiesHeader
         open={open}
         handleClick={handleClick}
         sidebarExpanded={sidebarExpanded}
@@ -52,5 +52,3 @@ export const Properties = ({
     </React.Fragment>
   );
 };
-
-export default Properties;

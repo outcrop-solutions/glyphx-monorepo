@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
-import { formatGridData } from "./actions/Dropzone";
+import { formatGridData } from "partials";
 import { PlusIcon } from "@heroicons/react/solid";
 
 export const AddFiles = ({

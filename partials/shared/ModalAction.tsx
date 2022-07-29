@@ -1,8 +1,8 @@
 // NOT USED
 import { useRef, useEffect } from "react";
-import Transition from "utils/Transition";
+import { Transition } from "utils/Transition";
 
-function ModalBasic({ children, id, title, modalOpen, setModalOpen }) {
+export function ModalAction({ children, id, modalOpen, setModalOpen }) {
   const modalContent = useRef(null);
 
   // close on click outside
@@ -57,12 +57,11 @@ function ModalBasic({ children, id, title, modalOpen, setModalOpen }) {
           ref={modalContent}
           className="bg-white rounded shadow-lg overflow-auto max-w-lg w-full max-h-full"
         >
-          {/* Modal header */}
-          <div className="px-5 py-3 border-b border-slate-200">
-            <div className="flex justify-between items-center">
-              <div className="font-semibold text-slate-800">{title}</div>
+          <div className="p-6">
+            <div className="relative">
+              {/* Close button */}
               <button
-                className="text-slate-400 hover:text-slate-500"
+                className="absolute top-0 right-0 text-slate-400 hover:text-slate-500"
                 onClick={(e) => {
                   e.stopPropagation();
                   setModalOpen(false);
@@ -73,13 +72,11 @@ function ModalBasic({ children, id, title, modalOpen, setModalOpen }) {
                   <path d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z" />
                 </svg>
               </button>
+              {children}
             </div>
           </div>
-          {children}
         </div>
       </Transition>
     </>
   );
 }
-
-export default ModalBasic;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Header } from "./Header";
+import { StatesHeader } from "./StatesHeader";
 import { StateList } from "./StateList";
 
 export const States = ({
@@ -24,7 +24,7 @@ export const States = ({
 
   return (
     <React.Fragment>
-      <Header
+      <StatesHeader
         open={open}
         query={query}
         project={project}
@@ -49,5 +49,3 @@ export const States = ({
     </React.Fragment>
   );
 };
-
-export default States;

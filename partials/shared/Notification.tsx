@@ -1,4 +1,4 @@
-function Notification({ children, className, type, open, setOpen }) {
+export function Notification({ children, className, type, open, setOpen }) {
   const typeIcon = (type) => {
     switch (type) {
       case "warning":
@@ -74,5 +74,3 @@ function Notification({ children, className, type, open, setOpen }) {
     </>
   );
 }
-
-export default Notification;

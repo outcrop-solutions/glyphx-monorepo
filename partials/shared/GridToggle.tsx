@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-function GridToggle({ align, grid, setGrid, setProject }) {
+export function GridToggle({ align, grid, setGrid, setProject }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef(null);
@@ -94,5 +94,3 @@ function GridToggle({ align, grid, setGrid, setProject }) {
     </div>
   );
 }
-
-export default GridToggle;

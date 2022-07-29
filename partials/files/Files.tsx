@@ -3,8 +3,8 @@ import { Tree } from "@minoru/react-dnd-treeview";
 import { CustomNode } from "./CustomNode";
 import { CustomDragPreview } from "./CustomDragPreview";
 import styles from "./css/Sidebar.module.css";
-import { Header } from "./Header";
-import { Dropzone } from "../../../actions/Dropzone";
+import { FilesHeader } from "./FilesHeader";
+import { Dropzone } from "partials";
 
 export const Files = ({
   openFile,
@@ -31,7 +31,7 @@ export const Files = ({
   const handleDrop = (newTree) => setFiles(newTree);
   return (
     <React.Fragment>
-      <Header
+      <FilesHeader
         open={open}
         sidebarExpanded={sidebarExpanded}
         setSidebarExpanded={setSidebarExpanded}

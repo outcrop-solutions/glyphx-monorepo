@@ -73,7 +73,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export const Settings = () => {
+export default function Settings() {
   return (
     <main className="flex-1 flex bg-primary-dark-blue overflow-hidden">
       <div className="flex-1 flex flex-col overflow-y-auto xl:overflow-hidden">
@@ -384,4 +384,4 @@ export const Settings = () => {
       </div>
     </main>
   );
-};
+}

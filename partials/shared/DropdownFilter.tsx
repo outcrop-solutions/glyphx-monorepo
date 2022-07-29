@@ -1,8 +1,8 @@
 // NOT USED
 import { useState, useRef, useEffect } from "react";
-import Transition from "utils/Transition";
+import { Transition } from "utils/Transition";
 
-function DropdownFilter({ align }) {
+export function DropdownFilter({ align }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef(null);
@@ -133,5 +133,3 @@ function DropdownFilter({ align }) {
     </div>
   );
 }
-
-export default DropdownFilter;

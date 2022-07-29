@@ -81,7 +81,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export const Dashboard = () => {
+export default function Dashboard() {
   return (
     <div className="h-screen bg-primary-dark-blue">
       <div className="h-screen">

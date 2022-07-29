@@ -1,5 +1,5 @@
 // import PlausibleProvider from "next-plausible";
-import "@/styles/globals.css";
+import "styles/globals.css";
 import type { AppProps } from "next/app";
 // import * as Sentry from "@sentry/react";
 // import { BrowserTracing } from "@sentry/tracing"

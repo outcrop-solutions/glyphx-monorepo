@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Transition from "utils/Transition";
+import { Transition } from "utils/Transition";
 
-function Tooltip({ children, className, bg, size, position }) {
+export function Tooltip({ children, className, bg, size, position }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const positionOuterClasses = (position) => {
@@ -83,5 +83,3 @@ function Tooltip({ children, className, bg, size, position }) {
     </div>
   );
 }
-
-export default Tooltip;

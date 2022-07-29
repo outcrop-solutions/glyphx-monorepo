@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Auth } from "aws-amplify";
 
-function ResetPassword({ setResetPass, setSignUp, setUser }) {
+export default function ResetPassword({ setResetPass, setSignUp, setUser }) {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -144,5 +144,3 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
     </main>
   );
 }
-
-export default ResetPassword;

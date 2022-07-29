@@ -1,8 +1,8 @@
 // NOT USED
 import { useState, useRef, useEffect } from 'react';
-import Transition from 'utils/Transition';
+import { Transition } from 'utils/Transition';
 
-function DropdownEditMenu({
+export function DropdownEditMenu({
   children,
   align,
   ...rest
@@ -71,5 +71,3 @@ function DropdownEditMenu({
     </div>
   );
 }
-
-export default DropdownEditMenu;

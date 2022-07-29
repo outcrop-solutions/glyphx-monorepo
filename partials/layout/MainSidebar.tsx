@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
 import { ExpandCollapse } from "./ExpandCollapse";
-import { UserMenu } from "components/UserMenu";
+import { UserMenu } from "partials";
+import {useRouter} from 'next/router'
 
 export const MainSidebar = ({
   user,
@@ -13,16 +13,12 @@ export const MainSidebar = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const location = useLocation();
-  const { pathname } = location;
+  const { pathname } = useRouter()
 
   const trigger = useRef(null);
   const sidebar = useRef(null);
-
-  const storedSidebarExpanded = localStorage.getItem("main-sidebar-expanded");
-  const [sidebarExpanded, setSidebarExpanded] = useState(
-    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
-  );
+  
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   useEffect(() => {
     if (project) {

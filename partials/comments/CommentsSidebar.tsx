@@ -14,14 +14,8 @@ export const CommentsSidebar = ({
   state,
   states,
 }) => {
-  // get sidebar exapanded from local storage
-  const storedSidebarExpanded = localStorage.getItem(
-    "comments-sidebar-expanded"
-  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(
-    storedSidebarExpanded === null ? false : storedSidebarExpanded === "true"
-  );
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   useEffect(() => {
     if (project) {
       setSidebarExpanded(false);
@@ -110,4 +104,3 @@ export const CommentsSidebar = ({
     </>
   );
 };
-export default CommentsSidebar;

@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState } from "react";
 import { ExpandCollapse } from "./ExpandCollapse";
-import { Files } from "./files";
-import { Properties } from "../properties";
-import { Filters } from "../filters";
-import { States } from "../states";
-import { usePosition } from "../../../services/usePosition";
+import { Files } from "partials";
+import { Properties } from "partials";
+import { Filters } from "partials";
+import { States } from "partials";
+import { usePosition } from "services/usePosition";
 
 export const ProjectSidebar = ({
   error,
@@ -172,4 +172,3 @@ export const ProjectSidebar = ({
     </div>
   );
 };
-export default ProjectSidebar;

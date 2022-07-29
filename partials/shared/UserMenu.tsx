@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import Transition from "utils/Transition";
+import { Transition } from "utils/Transition";
 import { Auth } from "aws-amplify";
+import React from "react";
 export const UserMenu = ({ align, user, setIsLoggedIn }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -64,13 +65,7 @@ export const UserMenu = ({ align, user, setIsLoggedIn }) => {
         </svg>
         <div className="flex items-center truncate">
           <span className="truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-slate-400">
-            {user.attributes
-              ? user.attributes.name
-                ? user.attributes.name
-                : user.attributes.email
-                ? user.attributes.email
-                : ""
-              : ""}
+            {user?.attributes?.name || user?.attributes?.email || ""}
           </span>
         </div>
       </button>

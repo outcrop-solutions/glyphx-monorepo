@@ -1,4 +1,4 @@
 export * from "./CommentInput";
-export * from "./Comments";
+export * from "./CommentsSidebar";
 export * from "./CommentsHeader";
 export * from "./CommentHistory";

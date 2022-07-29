@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 
-import {SearchModal} from "components/ModalSearch";
-import {GridToggle} from "components/GridToggle";
-import {Notifications} from "components/DropdownNotifications";
-import {Help }from "components/DropdownHelp";
-import { PencilIcon } from "@heroicons/react/outline";
+import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
+import { PencilIcon } from "@heroicons/react/outline"
+
 import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
 
@@ -200,12 +198,12 @@ export const Header = ({
             )}
             {!project && (
               <>
-                <SearchModal
+                {/* <SearchModal
                   id="search-modal"
                   searchId="search"
                   modalOpen={searchModalOpen}
                   setModalOpen={setSearchModalOpen}
-                />
+                /> */}
 
                 <GridToggle
                   align="right"
@@ -217,7 +215,7 @@ export const Header = ({
             )}
             {/* {project && <DeleteModel align="right" />} */}
             {project && <Help align="right" />}
-            <Notifications align="right" />
+            <DropdownNotifications align="right" />
             {/* {!project && (
 							<button
 								className='btn rounded-2xl bg-yellow-400 text-slate-800 text-xs font-bold hover:text-white py-1.5'
@@ -230,4 +228,4 @@ export const Header = ({
       </div>
     </header>
   );
-}
+};
