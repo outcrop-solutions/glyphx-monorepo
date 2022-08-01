@@ -1,6 +1,6 @@
 import { useDrag, useDrop } from "react-dnd";
 
-import SortableHeaderCell from "./SortableHeaderCell";
+import { SortableHeaderCell } from "./SortableHeaderCell";
 
 import { useCombinedRefs } from "services/useCombinedRefs";
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Transition } from "utils/Transition";
 import React from "react";
 
-export function DropdownNotifications({ align, grid, setGrid }) {
+export function DropdownNotifications({ align }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef(null);

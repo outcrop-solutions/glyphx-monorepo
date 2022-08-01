@@ -18,7 +18,7 @@ export const useProjects = (projects) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    setData([...projects]);
+    setData(projects && projects.length > 0 ? [...projects] : []);
   }, [projects]);
 
   const fetchProjects = useCallback(async () => {
@@ -44,6 +44,6 @@ export const useProjects = (projects) => {
     }
     // }, [user, setUser, isLogged]);
   }, [projects]);
-
+  console.log({ projects: data });
   return { projects: data, setProjects: setData, fetchProjects };
 };

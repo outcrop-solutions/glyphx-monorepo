@@ -4,6 +4,10 @@ import { ModelInit, MutableModel, PersistentModelConstructor } from "@aws-amplif
 
 
 
+type OrganizationMetaData = {
+  readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
 type ProjectMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
@@ -32,17 +36,40 @@ type ColumnMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
 
+export declare class Organization {
+  readonly id: string;
+  readonly name: string;
+  readonly slug?: string | null;
+  readonly members?: (string | null)[] | null;
+  readonly invites?: (string | null)[] | null;
+  readonly addressLine1?: string | null;
+  readonly addressLine2?: string | null;
+  readonly city?: string | null;
+  readonly postalCode?: string | null;
+  readonly country?: string | null;
+  readonly subscription?: string | null;
+  readonly stripeCustomerId?: string | null;
+  readonly owner: string;
+  readonly projects?: (Project | null)[] | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+  constructor(init: ModelInit<Organization, OrganizationMetaData>);
+  static copyOf(source: Organization, mutator: (draft: MutableModel<Organization, OrganizationMetaData>) => MutableModel<Organization, OrganizationMetaData> | void): Organization;
+}
+
 export declare class Project {
   readonly id: string;
   readonly name: string;
-  readonly description: string;
+  readonly slug?: string | null;
+  readonly description?: string | null;
   readonly filePath?: string | null;
   readonly expiry?: string | null;
   readonly properties?: (string | null)[] | null;
   readonly url?: string | null;
-  readonly author: string;
+  readonly author?: string | null;
   readonly shared?: (string | null)[] | null;
   readonly files?: (string | null)[] | null;
+  readonly organization?: Organization | null;
   readonly states?: (State | null)[] | null;
   readonly filters?: (Filter | null)[] | null;
   readonly columns?: (Column | null)[] | null;
@@ -55,7 +82,7 @@ export declare class Project {
 export declare class State {
   readonly id: string;
   readonly title: string;
-  readonly description: string;
+  readonly description?: string | null;
   readonly camera?: string | null;
   readonly query?: string | null;
   readonly project?: Project | null;
@@ -71,7 +98,7 @@ export declare class Comment {
   readonly id: string;
   readonly author: string;
   readonly state?: State | null;
-  readonly content: string;
+  readonly content?: string | null;
   readonly createdAt: string;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Comment, CommentMetaData>);
@@ -113,8 +140,8 @@ export declare class ColumnFilter {
 export declare class Column {
   readonly id: string;
   readonly name: string;
-  readonly min: string;
-  readonly max: string;
+  readonly min?: string | null;
+  readonly max?: string | null;
   readonly project?: Project | null;
   readonly filters?: (ColumnFilter | null)[] | null;
   readonly createdAt?: string | null;

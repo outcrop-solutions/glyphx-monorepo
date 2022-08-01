@@ -158,7 +158,7 @@ export default function Settings() {
                       name="first-name"
                       id="first-name"
                       autoComplete="given-name"
-                      className="mt-1 block w-full border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
@@ -174,7 +174,7 @@ export default function Settings() {
                       name="last-name"
                       id="last-name"
                       autoComplete="family-name"
-                      className="mt-1 block w-full border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
@@ -271,7 +271,7 @@ export default function Settings() {
                       type="text"
                       name="url"
                       id="url"
-                      className="mt-1 block w-full border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -299,7 +299,7 @@ export default function Settings() {
                       name="email-address"
                       id="email-address"
                       autoComplete="email"
-                      className="mt-1 block w-full border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
@@ -315,7 +315,7 @@ export default function Settings() {
                       name="phone-number"
                       id="phone-number"
                       autoComplete="tel"
-                      className="mt-1 block w-full border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
@@ -330,7 +330,7 @@ export default function Settings() {
                       id="country"
                       name="country"
                       autoComplete="country-name"
-                      className="mt-1 block w-full border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option />
                       <option>United States</option>
@@ -350,7 +350,7 @@ export default function Settings() {
                       type="text"
                       name="language"
                       id="language"
-                      className="mt-1 block w-full border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 

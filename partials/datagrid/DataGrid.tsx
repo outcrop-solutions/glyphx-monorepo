@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import DataGrid from "lib/react-data-grid/lib/bundle";
 import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
 
-export const Datagrid = ({ isDropped, dataGrid }) => {
+export const Datagrid = ({ isDropped, dataGrid, setDataGrid }) => {
   const [rows, setRows] = useState(dataGrid.rows);
   const [columns, setColumns] = useState(dataGrid.columns);
   const [sortColumns, setSortColumns] = useState([]);

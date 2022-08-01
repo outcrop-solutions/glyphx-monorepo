@@ -2,27 +2,13 @@ import { useEffect } from "react";
 import * as dayjs from "dayjs";
 // import { PlusIcon } from "@heroicons/react/solid";
 
-export const ModelFooter = ({
-  sdt,
-  url,
-  project,
-  setExpiry,
-  setProgress,
-  isQtOpen,
-  setIsQtOpen,
-}) => {
+export const ModelFooter = ({ sdt, url, project, setProgress }) => {
   const handleOpen = () => {
+    // @ts-ignore
     if (project && window && window.core) {
-      // expiry is not more that 10 minutes old
-      const date1 = dayjs();
-      let difference = date1.diff(dayjs(project.expiry), "minute");
-      if (difference > 10) {
-        console.log("Set Expiry!");
-        setExpiry(true);
-        return;
-      }
       if (url && sdt) {
         console.log("Toggling");
+        // @ts-ignore
         window.core.ToggleDrawer(true);
         // window.core.OpenProject(url);
         // setProgress(true);
@@ -30,8 +16,10 @@ export const ModelFooter = ({
         //   setProgress(false);
         // }, 3000);
       } else if (url) {
+        // @ts-ignore
         window.core.OpenProject(JSON.stringify(url));
       } else {
+        // @ts-ignore
         window.core.OpenProject({});
       }
     }

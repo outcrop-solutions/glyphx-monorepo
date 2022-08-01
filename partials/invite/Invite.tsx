@@ -4,6 +4,22 @@ import { MemberList } from "./MemberList";
 import { PermissionsDropDown } from "./PermissionsDropDown";
 
 export const Invite = ({ setShare }) => {
+  const handleInvite = async () => {
+    try {
+      const response = await fetch(`/api/invite`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+      console.log({ response });
+
+      setShare(false);
+    } catch (error) {
+    } finally {
+    }
+  };
   return (
     <div className="flex-none mt-20 justify-center h-screen items-center antialiased bg-primary-dark-blue">
       <div className="flex flex-col w-96 max-w-2xl rounded-lg border border-slate-300 shadow-xl py-4 px-5 mx-auto">
@@ -32,7 +48,7 @@ export const Invite = ({ setShare }) => {
             type="text"
             name=""
             placeholder="Email, comma separated..."
-            className="bg-primary-dark-blue border border-slate-400 rounded shadow-sm h-12"
+            className="bg-primary-dark-blue text-white border border-slate-400 rounded shadow-sm h-12"
             id=""
           />
           <div className="flex items-center pt-3 pb-1">
@@ -79,7 +95,10 @@ export const Invite = ({ setShare }) => {
 
             <p className="font-thin text-slate-600">Copy Link</p>
           </div>
-          <button className="px-4 py-2 text-slate-900 font-semibold bg-yellow-400 rounded-2xl">
+          <button
+            onClick={handleInvite}
+            className="px-4 py-2 text-slate-900 font-semibold bg-yellow-400 rounded-2xl"
+          >
             Send Invite
           </button>
         </div>

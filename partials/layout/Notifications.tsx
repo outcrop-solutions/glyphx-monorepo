@@ -61,7 +61,7 @@ export function Notifications() {
             d="M16 9.5c0-.987-.429-1.897-1.147-2.639C14.124 10.348 10.66 13 6.5 13c-.103 0-.202-.018-.305-.021C7.231 13.617 8.556 14 10 14c.449 0 .886-.04 1.307-.11L15 16v-4h-.012C15.627 11.285 16 10.425 16 9.5z"
           />
         </svg>
-        <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></div>
+        <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-rose-500 border-white rounded-full"></div>
       </button>
 
       <Transition

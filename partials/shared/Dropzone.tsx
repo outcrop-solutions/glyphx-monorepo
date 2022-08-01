@@ -1,8 +1,9 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
@@ -33,10 +34,33 @@ export const Dropzone = ({
   setFileSystem,
   project,
   setDataGrid,
-  uploaded,
-  setUploaded,
   toastRef,
 }) => {
+  const { query } = useRouter();
+  const { projectId } = query;
+  // status = 'uploading' | 'processing' | 'testing' | 'ready'
+  const [status, setStatus] = useState(null);
+
+  const handleUpload = useCallback(async (progress) => {
+    setStatus("uploading");
+    if (progress.loaded / progress.total === 1) {
+      let response = await fetch("https://api.glyphx.co/etl/file", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          model_id: projectId,
+          bucket_name: "sampleproject04827-staging",
+        }),
+      });
+      console.log({ response });
+    }
+
+    // Call process new file API /etl/file
+    // setStatus('file uploaded, processing ETL')
+    // Call JL's /api-check-crawler with crawlerID
+    // setStatus('checking Crawler')
+    // Take response and either setAvailable(true/false)
+  }, []);
   const onDrop = useCallback(
     (acceptedFiles) => {
       //update file system state with processed data
@@ -70,39 +94,15 @@ export const Dropzone = ({
         reader.onload = () => {
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
-  
-          Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
+
+          Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
-              // let prog = progress.loaded / progress.total;
-              // if (toastRef.current === null) {
-              //   toastRef.current = toast("Upload in Progress", {
-              //     position: "bottom-left",
-              //     autoClose: 5000,
-              //     hideProgressBar: false,
-              //     closeOnClick: true,
-              //     pauseOnHover: true,
-              //     draggable: true,
-              //     progress: prog,
-              //   });
-              // } else {
-              //   toast.update(toastRef.current, {
-              //     progress: prog,
-              //     position: "bottom-left",
-              //     autoClose: 5000,
-              //     hideProgressBar: false,
-              //     closeOnClick: true,
-              //     pauseOnHover: true,
-              //     draggable: true,
-              //   });
-              // }
+              handleUpload();
               if (progress.loaded / progress.total === 1) {
-                setUploaded(true);
                 toast.done(toastRef.current);
                 console.log("upload complete");
               } else {
                 console.log("upload incomplete");
-
-                setUploaded(false);
               }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
@@ -119,7 +119,7 @@ export const Dropzone = ({
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accepts: "text/csv",
+    accept: "text/csv",
     multiple: false,
   });
 

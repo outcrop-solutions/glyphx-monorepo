@@ -1,10 +1,8 @@
 import { useRef, useEffect, useState } from "react";
 import { ExpandCollapse } from "./ExpandCollapse";
-import { Files } from "partials";
-import { Properties } from "partials";
-import { Filters } from "partials";
-import { States } from "partials";
+import { Files, States, Properties, Filters } from "partials";
 import { usePosition } from "services/usePosition";
+import { useRouter } from "next/router";
 
 export const ProjectSidebar = ({
   error,
@@ -14,7 +12,6 @@ export const ProjectSidebar = ({
   selectedFile,
   setSelectedFile,
   setDataGrid,
-  setDataGridLoading,
   sidebarExpanded,
   setSidebarExpanded,
   setFilterSidebarPosition,
@@ -28,17 +25,17 @@ export const ProjectSidebar = ({
   handleDrop,
   fileSystem,
   setFiles,
-  filesOpen,
   setFilesOpen,
   states,
   state,
   setState,
   deleteState,
   setStates,
-  uploaded,
-  setUploaded,
   toastRef,
 }) => {
+  const router = useRouter();
+  const { id: projectId } = router.query;
+
   //utilities
   const trigger = useRef(null);
   const sidebar = useRef(null);
@@ -76,16 +73,6 @@ export const ProjectSidebar = ({
     return () => document.removeEventListener("keydown", keyHandler);
   });
   //handle sidebar state in localStorage
-  useEffect(() => {
-    localStorage.setItem("project-sidebar-expanded", sidebarExpanded);
-    if (sidebarExpanded) {
-      document.querySelector("body").classList.add("project-sidebar-expanded");
-    } else {
-      document
-        .querySelector("body")
-        .classList.remove("project-sidebar-expanded");
-    }
-  }, [sidebarExpanded]);
   // set projectsSidebar position on transition
   useEffect(() => {
     setFilterSidebarPosition((prev) => {
@@ -110,12 +97,8 @@ export const ProjectSidebar = ({
           selectFile={selectFile}
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
-          setDataGridLoading={setDataGridLoading}
-          uploaded={uploaded}
-          setUploaded={setUploaded}
           fileSystem={fileSystem}
           setFiles={setFiles}
-          filesOpen={filesOpen}
           setFilesOpen={setFilesOpen}
           setDataGrid={setDataGrid}
           project={project}
@@ -139,7 +122,7 @@ export const ProjectSidebar = ({
         <Filters
           sdt={sdt}
           setQuery={setQuery}
-          projectId={project.id}
+          projectId={projectId}
           handleDrop={handleDrop}
           propertiesArr={propertiesArr}
           setPropertiesArr={setPropertiesArr}

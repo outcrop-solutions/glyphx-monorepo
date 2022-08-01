@@ -4,38 +4,41 @@ import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
 import { formatGridData } from "partials";
 import { PlusIcon } from "@heroicons/react/solid";
+import { useRouter } from "next/router";
 
 export const AddFiles = ({
   fileSystem,
   setFileSystem,
   project,
   setDataGrid,
-  uploaded,
-  setUploaded,
   setFilesOpen,
   setSelectedFile,
 }) => {
+  const { query } = useRouter();
+  const { projectId } = query;
   // status = 'uploading' | 'processing' | 'testing' | 'ready'
   const [status, setStatus] = useState(null);
   const [progress, setProgress] = useState(null);
 
-  const handleUpload = useCallback(async () => {
+  const handleUpload = useCallback(async (progress) => {
     setStatus("uploading");
-    let response = await fetch("https://api.glyphx.co/etl/file", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify({
-        model_id: project.id,
-        bucket_name: "sampleproject04827-staging",
-      }),
-    });
+    if (progress.loaded / progress.total === 1) {
+      let response = await fetch("https://api.glyphx.co/etl/file", {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({
+          model_id: projectId,
+          bucket_name: "sampleproject04827-staging",
+        }),
+      });
+    }
 
     // Call process new file API /etl/file
     // setStatus('file uploaded, processing ETL')
     // Call JL's /api-check-crawler with crawlerID
     // setStatus('checking Crawler')
     // Take response and either setAvailable(true/false)
-  }, [progress]);
+  }, []);
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
@@ -72,16 +75,13 @@ export const AddFiles = ({
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
 
-          Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
+          Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
-              handleUpload(progress.loaded / progress.total);
+              handleUpload(progress);
               if (progress.loaded / progress.total === 1) {
-                setUploaded(true);
-
                 console.log("upload complete");
               } else {
                 console.log("upload incomplete");
-                setUploaded(false);
               }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
@@ -114,7 +114,9 @@ export const AddFiles = ({
             <h2 className="sr-only">Steps</h2>
 
             <div>
-              <p className="text-xs font-medium text-slate-500">2/3 - Address</p>
+              <p className="text-xs font-medium text-slate-500">
+                2/3 - Address
+              </p>
 
               <div className="mt-4 overflow-hidden bg-slate-200 rounded-full">
                 <div className="w-2/3 h-2 bg-blue-500 rounded-full"></div>

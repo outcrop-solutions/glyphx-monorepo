@@ -1,18 +1,43 @@
+type Organization
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "orgByOwner", fields: ["owner"]) {
+  id: ID!
+  name: String!
+  slug: String
+  members: [String]
+  invites: [String]
+  addressLine1: String
+  addressLine2: String
+  city: String
+  postalCode: String
+  country: String
+  subscription: String
+  stripeCustomerId: String
+  owner: String!
+  projects: [Project] @connection(keyName: "byOrg", fields: ["id"])
+}
+
 type Project
   @model
   @searchable
   @auth(rules: [{ allow: private }])
+  @key(name: "byOrg", fields: ["orgID"])
   @key(name: "projectByAuthor", fields: ["author"]) {
   id: ID!
   name: String!
-  description: String!
+  slug: String
+  description: String
   filePath: String
   expiry: AWSDateTime
   properties: [String]
   url: String
-  author: String!
+  author: String
   shared: [String]
   files: [String]
+  orgID: ID!
+  organization: Organization @connection(fields: ["orgID"])
   states: [State] @connection(keyName: "byProject", fields: ["id"])
   filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
   columns: [Column] @connection(keyName: "byProject", fields: ["id"])
@@ -25,7 +50,7 @@ type State
   @key(name: "byProject", fields: ["projectID"]) {
   id: ID!
   title: String!
-  description: String!
+  description: String
   camera: String
   query: String
   projectID: ID!
@@ -65,8 +90,8 @@ type Column
   @key(name: "byProject", fields: ["projectID"]) {
   id: ID!
   name: String!
-  min: String!
-  max: String!
+  min: String
+  max: String
   projectID: ID!
   project: Project @connection(fields: ["projectID"])
   filters: [ColumnFilter] @connection(keyName: "byColumn", fields: ["id"])
@@ -94,6 +119,6 @@ type Comment
   author: String!
   stateID: ID!
   state: State @connection(fields: ["stateID"])
-  content: String!
+  content: String
   createdAt: String!
 }

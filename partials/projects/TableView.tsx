@@ -1,7 +1,10 @@
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
+import { useRouter } from "next/router";
 import relativeTime from "dayjs/plugin/relativeTime";
 
-export const TableView = ({ user, projects, setProject, fetchProjects }) => {
+export const TableView = ({ user, projects }) => {
+  const router = useRouter();
+
   dayjs.extend(relativeTime);
   return (
     <div className="text-white rounded-sm">
@@ -38,7 +41,7 @@ export const TableView = ({ user, projects, setProject, fetchProjects }) => {
               {projects.map((item, idx) => (
                 <tr
                   className="group hover:bg-slate-800"
-                  onClick={() => setProject(item)}
+                  onClick={() => router.push(`/project/${item.id}`)}
                 >
                   <td className="p-2 whitespace-nowrap">
                     <div className="flex items-center">
@@ -138,4 +141,3 @@ export const TableView = ({ user, projects, setProject, fetchProjects }) => {
     </div>
   );
 };
-

@@ -11,7 +11,7 @@ const user = {
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
   { name: "Billing", href: "#", current: false },
-  { name: "Communications", href: "#", current: false },
+  { name: "Team", href: "#", current: false },
 ];
 const userNavigation = [
   { name: "Your Profile", href: "#" },

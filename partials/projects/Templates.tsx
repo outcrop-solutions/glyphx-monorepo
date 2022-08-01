@@ -10,6 +10,9 @@ import { createProject } from "../../graphql/mutations";
 import { listProjects } from "../../graphql/queries";
 import { API, graphqlOperation } from "aws-amplify";
 import sortArray from "sort-array";
+import { useUser } from "services";
+import { useRouter } from "next/router";
+import { CreateProjectMutation } from "API";
 const items = [
   {
     name: "Shipping Send by SKU",
@@ -34,35 +37,37 @@ const items = [
   },
 ];
 
-export const Templates = ({ setProject, setProjects, user }) => {
-  const reloadProjects = async () => {
-    try {
-      if (user) {
-        const projectData = await API.graphql(graphqlOperation(listProjects));
-        const projectList = projectData.data.listProjects.items;
+export const Templates = ({ userData, setProject, setProjects }) => {
+  const router = useRouter();
+  const { user } = useUser(userData);
+  // const reloadProjects = async () => {
+  //   try {
+  //     if (user) {
+  //       const projectData = await API.graphql(graphqlOperation(listProjects));
+  //       const projectList = projectData.data.listProjects.items;
 
-        const filtered = projectList.filter((el) =>
-          el.shared ? el.shared.includes(user.username) : el.author === user.id
-        );
-        let sorted = sortArray(filtered, {
-          by: "updatedAt",
-          order: "desc",
-        });
+  //       const filtered = projectList.filter((el) =>
+  //         el.shared ? el.shared.includes(user.username) : el.author === user.id
+  //       );
+  //       let sorted = sortArray(filtered, {
+  //         by: "updatedAt",
+  //         order: "desc",
+  //       });
 
-        setProjects((prev) => {
-          let newData = [...filtered];
-          return newData;
-        });
-      } else {
-        console.log("No User");
-      }
-    } catch (error) {
-      console.log("error on fetching projects", error);
-    }
-  };
-  useEffect(() => {
-    reloadProjects();
-  }, [user]);
+  //       setProjects((prev) => {
+  //         let newData = [...filtered];
+  //         return newData;
+  //       });
+  //     } else {
+  //       console.log("No User");
+  //     }
+  //   } catch (error) {
+  //     console.log("error on fetching projects", error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   reloadProjects();
+  // }, [user]);
 
   const handleCreate = async () => {
     const createProjectInput = {
@@ -74,10 +79,12 @@ export const Templates = ({ setProject, setProjects, user }) => {
       expiry: new Date(),
     };
     try {
-      const result = await API.graphql(
+      const result = (await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
-      );
-      setProject(result.data.createProject);
+      )) as {
+        data: CreateProjectMutation;
+      };
+      router.push(`/project/${result.data.createProject.id}`);
     } catch (error) {
       console.log({ error });
     }

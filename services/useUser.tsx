@@ -10,33 +10,26 @@ import { useEffect, useState } from "react";
  * isLogged - {boolean}
  */
 
-export const useUser = (isLoggedin) => {
-  const [user, setUser] = useState(false);
-  const [isLogged, setIsLogged] = useState(false);
+export const useUser = (userData: any) => {
+  const [user, setUser] = useState(null);
   // check if user is logged in
   useEffect(() => {
     // utility functions
-    const assessLoggedIn = () => {
-      Auth.currentAuthenticatedUser()
-        .then(() => {
-          setIsLogged(true);
-        })
-        .catch(() => {
-          setIsLogged(false);
-        });
-    };
+
     const getUser = async () => {
       try {
-        let user = await Auth.currentAuthenticatedUser();
-        setUser(user);
-     
+        let newUser = await Auth.currentAuthenticatedUser();
+        setUser(newUser);
       } catch (error) {
         console.log(error);
-        setIsLogged(false);
       }
     };
-    getUser();
-    assessLoggedIn();
-  }, [isLoggedin]);
-  return { user, setUser, isLogged };
+    if (userData) {
+      setUser(userData);
+      console.log({ OG: userData });
+    } else {
+      getUser();
+    }
+  }, [userData]);
+  return { user, setUser };
 };

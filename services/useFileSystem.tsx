@@ -25,7 +25,7 @@ import { parse } from "papaparse";
  * setDataGridLoading - {function}
  */
 
-export const useFileSystem = (project) => {
+export const useFileSystem = (projectId) => {
   const [fileSystem, setFileSystem] = useState([]);
   const [filesOpen, setFilesOpen] = useState([]);
   const [sdt, setSdt] = useState(false);
@@ -66,11 +66,11 @@ export const useFileSystem = (project) => {
     setFileSystem([]);
     const getFileSystem = async () => {
       try {
-        const data = await Storage.list(`${project.id}/input/`);
-  
+        const data = await Storage.list(`${projectId}/input/`);
+
         const processed = processStorageList(data);
-   
-        const files = Object.keys(processed[`${project.id}`].input);
+
+        const files = Object.keys(processed[`${projectId}`].input);
         const filteredFiles = files.filter(
           (fileName) =>
             fileName !== "etl_data_lake.csv" && fileName.split(".")[1] === "csv"
@@ -94,12 +94,11 @@ export const useFileSystem = (project) => {
         });
 
         if (filteredFiles && filteredFiles.length > 0) {
-   
           setFilesOpen([filteredFiles[0]]);
           setSelectedFile(filteredFiles[0]);
           setDataGridLoading(true);
           const fileData = await Storage.get(
-            `${project.id}/input/${filteredFiles[0]}`,
+            `${projectId}/input/${filteredFiles[0]}`,
             {
               download: true,
             }
@@ -115,10 +114,10 @@ export const useFileSystem = (project) => {
         console.log({ error });
       }
     };
-    if (project && project.id) {
+    if (projectId) {
       getFileSystem();
     }
-  }, [project]);
+  }, [projectId]);
 
   return {
     fileSystem,
@@ -140,7 +139,7 @@ export const useFileSystem = (project) => {
       const selectAndLoad = async () => {
         setSelectedFile(arg);
         setDataGridLoading(true);
-        const fileData = await Storage.get(`${project.id}/input/${arg}`, {
+        const fileData = await Storage.get(`${projectId}/input/${arg}`, {
           download: true,
         });
         const blobData = await fileData.Body.text();
@@ -173,7 +172,7 @@ export const useFileSystem = (project) => {
       }
       setSelectedFile(arg);
       setDataGridLoading(true);
-      const fileData = await Storage.get(`${project.id}/input/${arg}`, {
+      const fileData = await Storage.get(`${projectId}/input/${arg}`, {
         download: true,
       });
       const blobData = await fileData.Body.text();
@@ -191,7 +190,7 @@ export const useFileSystem = (project) => {
         setSelectedFile(newFilesOpen[newFilesOpen.length - 1]);
         setDataGridLoading(true);
         const fileData = await Storage.get(
-          `${project.id}/input/${newFilesOpen[newFilesOpen.length - 1]}`,
+          `${projectId}/input/${newFilesOpen[newFilesOpen.length - 1]}`,
           {
             download: true,
           }

@@ -24,20 +24,20 @@ import { ProjectDetails } from "partials";
 
 // Hooks
 import { useProjects } from "services/useProjects";
+import { useUser } from "services/useUser";
 import { useStateChange } from "services/useStateChange";
 import { useFileSystem } from "services/useFileSystem";
 import { useStates } from "services/useStates";
 import { updateProject } from "../graphql/mutations";
 
-let socket = null;
-
 export default function Projects({
-  user,
+  userData,
   authenticated,
   data,
   // setProjects,
 }) {
   const { projects, setProjects } = useProjects(data);
+  const { user, setUser } = useUser(userData);
   const [error, setError] = useState(null);
   const [grid, setGrid] = useState(null);
   const [project, setProject] = useState(null);
@@ -48,59 +48,17 @@ export default function Projects({
   useStateChange(state);
 
   const [showAddProject, setShowAddProject] = useState(false);
-  const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
 
-  useEffect(() => {
-    var baseUrl = "ws://localhost:12345";
-    openSocket(baseUrl);
-  }, []);
-  const openSocket = (baseUrl) => {
-    if (!socket) {
-      socket = new WebSocket(baseUrl);
-    }
-    socket.onclose = function () {
-      console.error("web channel closed");
-    };
-    socket.onerror = function (error) {
-      console.error("web channel error: " + error);
-    };
-    socket.onopen = function () {
-      console.log("WebSocket connected, setting up QWebChannel.");
-      new QWebChannel.QWebChannel(socket, function (channel) {
-        try {
-          // make core object accessible globally
-          window.core = channel.objects.core;
-          window.core.KeepAlive.connect(function (message) {
-            //Issued every 30 seconds from Qt to prevent websocket timeout
-            console.log(message);
-          });
-          window.core.GetDrawerPosition.connect(function (message) {
-            setSendDrawerPositionApp(true);
-          });
-
-          //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
-          //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
-          //core.UpdateFilter("Update Filter");	// Takes a SQL query based on current filters
-          //core.ChangeState("Change State");		// Takes the Json information for the selected state
-          //core.ReloadDrawer("Reload Drawer");	// Triggers a reload of the visualization currently in the drawer. This does not need to be called after a filter update.
-        } catch (e) {
-          console.error(e.message);
-        }
-      });
-    };
-  };
+  
   return (
-    <div className="flex h-screen max-w-screen scrollbar-none bg-primary-dark-blue">
+    <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
         <AddProjectModal user={user} setShowAddProject={setShowAddProject} />
       ) : null}
       {/* Sidebar */}
       <MainSidebar
         project={project}
-        setProject={setProject}
         user={user}
-        // sidebarOpen={sidebarOpen}
-        // setSidebarOpen={setSidebarOpen}
       />
       {projectDetails ? (
         <ProjectDetails
@@ -110,7 +68,7 @@ export default function Projects({
         />
       ) : null}
       {/* Content area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none bg-primary-dark-blue">
+      <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-none bg-primary-dark-blue">
         {/*  Site header */}
         <Header
           project={project}
@@ -119,19 +77,14 @@ export default function Projects({
           grid={grid}
           setGrid={setGrid}
         />
-        <hr className={project ? "mx-0" : "mx-6"} />
+        {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
         <main className="h-full">
           <div className="flex grow relative h-full">
             <div className="w-full flex">
-              {data && data.length > 0 ? (
+              {projects && projects.length > 0 ? (
                 <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
                   {grid ? (
-                    <TableView
-                      setProjectDetails={setProjectDetails}
-                      user={user}
-                      projects={projects}
-                      setProject={setProject}
-                    />
+                    <TableView user={user} projects={projects} />
                   ) : (
                     <GridView
                       user={user}
@@ -145,9 +98,9 @@ export default function Projects({
                 </div>
               ) : (
                 <Templates
+                  userData={userData}
                   setProject={setProject}
                   setProjects={setProjects}
-                  user={user}
                 />
               )}
             </div>
@@ -179,7 +132,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         authenticated: true,
-        user: JSON.stringify(user),
+        userData: JSON.stringify(user),
         data: sorted,
       },
     };

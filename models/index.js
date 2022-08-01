@@ -4,9 +4,10 @@ import { schema } from './schema';
 
 
 
-const { Project, State, Comment, StateFilter, Filter, ColumnFilter, Column } = initSchema(schema);
+const { Organization, Project, State, Comment, StateFilter, Filter, ColumnFilter, Column } = initSchema(schema);
 
 export {
+  Organization,
   Project,
   State,
   Comment,

@@ -1,5 +1,170 @@
 export const schema = {
     "models": {
+        "Organization": {
+            "name": "Organization",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "name": {
+                    "name": "name",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "slug": {
+                    "name": "slug",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "members": {
+                    "name": "members",
+                    "isArray": true,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true
+                },
+                "invites": {
+                    "name": "invites",
+                    "isArray": true,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true
+                },
+                "addressLine1": {
+                    "name": "addressLine1",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "addressLine2": {
+                    "name": "addressLine2",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "city": {
+                    "name": "city",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "postalCode": {
+                    "name": "postalCode",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "country": {
+                    "name": "country",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "subscription": {
+                    "name": "subscription",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "stripeCustomerId": {
+                    "name": "stripeCustomerId",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "owner": {
+                    "name": "owner",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "projects": {
+                    "name": "projects",
+                    "isArray": true,
+                    "type": {
+                        "model": "Project"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true,
+                    "association": {
+                        "connectionType": "HAS_MANY",
+                        "associatedWith": "organization"
+                    }
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isReadOnly": true
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isReadOnly": true
+                }
+            },
+            "syncable": true,
+            "pluralName": "Organizations",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                },
+                {
+                    "type": "searchable",
+                    "properties": {}
+                },
+                {
+                    "type": "key",
+                    "properties": {
+                        "name": "orgByOwner",
+                        "fields": [
+                            "owner"
+                        ]
+                    }
+                },
+                {
+                    "type": "auth",
+                    "properties": {
+                        "rules": [
+                            {
+                                "allow": "private",
+                                "operations": [
+                                    "create",
+                                    "update",
+                                    "delete",
+                                    "read"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
         "Project": {
             "name": "Project",
             "fields": {
@@ -17,11 +182,18 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "slug": {
+                    "name": "slug",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "description": {
                     "name": "description",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "filePath": {
@@ -57,7 +229,7 @@ export const schema = {
                     "name": "author",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "shared": {
@@ -75,6 +247,19 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "isArrayNullable": true
+                },
+                "organization": {
+                    "name": "organization",
+                    "isArray": false,
+                    "type": {
+                        "model": "Organization"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "orgID"
+                    }
                 },
                 "states": {
                     "name": "states",
@@ -149,6 +334,15 @@ export const schema = {
                 {
                     "type": "key",
                     "properties": {
+                        "name": "byOrg",
+                        "fields": [
+                            "orgID"
+                        ]
+                    }
+                },
+                {
+                    "type": "key",
+                    "properties": {
                         "name": "projectByAuthor",
                         "fields": [
                             "author"
@@ -194,7 +388,7 @@ export const schema = {
                     "name": "description",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "camera": {
@@ -341,7 +535,7 @@ export const schema = {
                     "name": "content",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "createdAt": {
@@ -733,14 +927,14 @@ export const schema = {
                     "name": "min",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "max": {
                     "name": "max",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "project": {
@@ -828,5 +1022,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "6407403309791afa1c8fd5d57d0314bf"
+    "version": "12b7a2a86754c3d453cc24f9717c719d"
 };

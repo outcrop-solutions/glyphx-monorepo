@@ -16,8 +16,6 @@ export const Files = ({
   fileSystem,
   setFiles,
   setFilesOpen,
-  uploaded,
-  setUploaded,
   selectedFile,
   setSelectedFile,
   toastRef,
@@ -75,8 +73,6 @@ export const Files = ({
           <Dropzone
             setSelectedFile={setSelectedFile}
             setFilesOpen={setFilesOpen}
-            uploaded={uploaded}
-            setUploaded={setUploaded}
             setDataGrid={setDataGrid}
             project={project}
             fileSystem={fileSystem}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/router";
 import ClickAwayListener from "react-click-away-listener";
 import {
   PlusIcon,
@@ -9,13 +10,11 @@ import {
 import { v4 as uuid } from "uuid";
 import { createProject } from "graphql/mutations";
 import { API, graphqlOperation, Auth } from "aws-amplify";
+import { CreateProjectInput, CreateProjectMutation } from "API";
+import Router from "next/router";
 
-export const AddProjectModal = ({
-  user,
-  setShowAddProject,
-  setProject,
-  clearFiles,
-}) => {
+export const AddProjectModal = ({ user, setShowAddProject }) => {
+  const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("Untitled Project");
   const [chips, setChips] = useState([]);
@@ -36,7 +35,6 @@ export const AddProjectModal = ({
   };
 
   const handleSave = async () => {
-    clearFiles();
     const createProjectInput = {
       id: uuid(),
       name,
@@ -46,12 +44,12 @@ export const AddProjectModal = ({
       shared: [user.username, ...chips],
     };
     try {
-      const result = await API.graphql(
+      const result = (await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
-      );
+      )) as { data: CreateProjectMutation };
 
       setShowAddProject(false);
-      setProject(result.data.createProject);
+      router.push(`/projects/${result.data.createProject.id}`);
     } catch (error) {
       console.log({ error });
     }

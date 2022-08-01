@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useRouter } from "next/router";
 import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
 import { PencilIcon } from "@heroicons/react/outline";
 
@@ -24,6 +24,9 @@ export const Header = ({
   setShowAddProject,
   setShare,
 }: Props) => {
+  const { pathname } = useRouter();
+  const isProject = pathname.includes("project")!!;
+  console.log({ isProject });
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [projectName, setProjectName] = useState(project?.name || "");
   const [edit, setEdit] = useState(false);
@@ -52,9 +55,9 @@ export const Header = ({
     }
   };
   return (
-    <header
-      className={`sticky w-full top-0 z-30 flex justify-between items-center bg-primary-dark-blue max-h-16 ${
-        project ? "ml-0" : "px-6"
+    <div
+      className={`sticky border-b top-0 z-30  flex justify-between items-center bg-primary-dark-blue max-h-16 w-full ${
+        isProject ? "px-4" : "mx-6"
       }`}
     >
       {!edit ? (
@@ -113,7 +116,7 @@ export const Header = ({
 
           {/* Search form */}
           {/* <SearchForm placeholder='Search GlyphX' /> */}
-          {!project && (
+          {!isProject && (
             <form
               onClick={(e) => {
                 e.stopPropagation();
@@ -151,7 +154,7 @@ export const Header = ({
             {/* <Help align='right' /> */}
             {/*  Divider */}
             {/* {!project && <hr className="w-px h-6 bg-slate-200 mx-3" />} */}
-            {project && (
+            {isProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-yellow-400 hover:bg-slate-200 transition duration-150 rounded-full ml-3 ${
                   searchModalOpen && "bg-slate-200"
@@ -178,7 +181,7 @@ export const Header = ({
                 <b className="text-slate-800 text-xs">Share</b>
               </button>
             )}
-            {!project && (
+            {!isProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-yellow-400 hover:bg-slate-200 transition duration-150 rounded-full ml-3 ${
                   searchModalOpen && "bg-slate-200"
@@ -204,7 +207,7 @@ export const Header = ({
                 <b className="text-slate-800 text-sm mx-2">New</b>
               </button>
             )}
-            {!project && (
+            {!isProject && (
               <>
                 {/* <SearchModal
                   id="search-modal"
@@ -222,7 +225,7 @@ export const Header = ({
               </>
             )}
             {/* {project && <DeleteModel align="right" />} */}
-            {project && <Help align="right" />}
+            {isProject && <Help />}
             <DropdownNotifications align="right" />
             {/* {!project && (
 							<button
@@ -234,6 +237,6 @@ export const Header = ({
           </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 };

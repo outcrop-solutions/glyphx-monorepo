@@ -28,7 +28,7 @@ export const ProjectCard = ({
       return newData;
     });
 
-    const deletedProject = await API.graphql({
+    await API.graphql({
       query: mutations.deleteProject,
       variables: { input: projectDelete },
     });
@@ -145,7 +145,7 @@ export const ProjectCard = ({
         </svg>
       </div>
       <div
-        onClick={() => router.push(`/${project.id}`)}
+        onClick={() => router.push(`/project/${project.id}`)}
         className="flex flex-col h-full"
       >
         <img className="w-full h-full rounded-t-md" src="/images/project.png" />
