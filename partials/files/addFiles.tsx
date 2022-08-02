@@ -23,7 +23,7 @@ export const AddFiles = ({
   const handleUpload = useCallback(async (progress) => {
     setStatus("uploading");
     if (progress.loaded / progress.total === 1) {
-      let response = await fetch("https://api.glyphx.co/etl/file", {
+      let response = await fetch("https://api.glyphx.co/etl-process-new-file", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
@@ -31,6 +31,7 @@ export const AddFiles = ({
           bucket_name: "sampleproject04827-staging",
         }),
       });
+      console.log({ response });
     }
 
     // Call process new file API /etl/file

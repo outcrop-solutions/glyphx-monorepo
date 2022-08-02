@@ -44,7 +44,7 @@ export const Dropzone = ({
   const handleUpload = useCallback(async (progress) => {
     setStatus("uploading");
     if (progress.loaded / progress.total === 1) {
-      let response = await fetch("https://api.glyphx.co/etl/file", {
+      let response = await fetch("https://api.glyphx.co/etl-process-new-file", {
         method: "POST",
         mode: "cors",
         body: JSON.stringify({
