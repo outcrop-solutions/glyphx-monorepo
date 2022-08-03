@@ -53,10 +53,29 @@ export const AddFiles = ({
    
 
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
-            progressCallback(progress) {
+            async progressCallback(progress) {
               if (progress.loaded / progress.total === 1) {
                 setUploaded(true);
                 console.log("upload complete");
+                console.log("about to do api call")
+                //api call here
+                try {
+                  const result = await fetch(
+                    "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
+                    {
+                      method:'post',
+                      // mode: 'cors',
+                      headers: {'Content-Type':'application/json'},
+                      body: JSON.stringify({
+                        "model_id": `${project.id}`,
+                        "bucket_name": "sampleproject04827-staging"
+                      })
+                    });
+                    const data = await result.json()
+                    console.log({data})
+                } catch (error) {
+                  console.log({error})
+                }
               } else {
                 console.log("upload incomplete");
                 setUploaded(false);
@@ -77,7 +96,7 @@ export const AddFiles = ({
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accepts: "text/csv",
+    accept: "text/csv",
     multiple: false,
   });
   return (
