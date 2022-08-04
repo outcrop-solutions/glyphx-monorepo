@@ -346,7 +346,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         if (
           data
             .map((el) => el.key)
-            .includes(`${project.id}/output/etl_data_lake.parquet`)
+            .includes(`${project.id}/output/_etl_data_lake.csv`)
         ) {
           return true;
         } else {
@@ -392,6 +392,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       if (
         project &&
         window &&
+        // TODO: Uncomment this guy before commit
         window.core &&
         propsArr &&
         propsArr.length >= 3
