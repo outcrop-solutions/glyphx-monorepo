@@ -388,6 +388,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       // TODO: add error handling
     };
     const callETl = async (propsArr, filteredArr) => {
+      setDataGridLoading(true);
       console.log("callEtl");
       if (
         project &&
@@ -413,6 +414,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         let res = await response.json();
         await updateProjectState(res);
       }
+      setDataGridLoading(false);
     };
     const handleETL = async () => {
       console.log("handle etl");
