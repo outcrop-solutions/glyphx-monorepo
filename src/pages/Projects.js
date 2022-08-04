@@ -403,9 +403,9 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           mode: "cors",
           body: JSON.stringify({
             model_id: project.id,
-            x_axis: propertiesArr[0].lastDroppedItem.key.replace(' ','_').replace('.',''),
-            y_axis: propertiesArr[1].lastDroppedItem.key.replace(' ','_').replace('.',''),
-            z_axis: propertiesArr[2].lastDroppedItem.key.replace(' ','_').replace('.',''),
+            x_axis: propertiesArr[0].lastDroppedItem.key,
+            y_axis: propertiesArr[1].lastDroppedItem.key,
+            z_axis: propertiesArr[2].lastDroppedItem.key,
             filters: filteredArr,
           }),
         });
