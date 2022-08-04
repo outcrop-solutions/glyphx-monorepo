@@ -730,6 +730,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
                                     fileSystem={fileSystem}
                                     setFileSystem={setFiles}
                                     setSelectedFile={setSelectedFile}
+                                    setDataGridLoading={setDataGridLoading}
                                   />
                                 )}
                               </>
