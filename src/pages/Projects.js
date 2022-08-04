@@ -346,7 +346,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         if (
           data
             .map((el) => el.key)
-            .includes(`${project.id}/output/_etl_data_lake.csv`)
+            .includes(`${project.id}/output/etl_data_lake.parquet`)
         ) {
           return true;
         } else {
