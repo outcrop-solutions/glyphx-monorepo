@@ -18,7 +18,7 @@ export const AddFiles = ({
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
-     
+      setDataGridLoading(true);
       //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
         id: idx + fileSystem.length + 1,
@@ -54,7 +54,6 @@ export const AddFiles = ({
 
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
-              setDataGridLoading(true);
               if (progress.loaded / progress.total === 1) {
                 setUploaded(true);
                 console.log("upload complete");
