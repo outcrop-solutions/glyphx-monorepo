@@ -14,6 +14,7 @@ export const AddFiles = ({
   setUploaded,
   setFilesOpen,
   setSelectedFile,
+  setDataGridLoading
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -50,16 +51,37 @@ export const AddFiles = ({
         reader.onload = () => {
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
-   
 
           Storage.put(`${project.id}/input/${file.name}`, binaryStr, {
-            progressCallback(progress) {
+            async progressCallback(progress) {
+              setDataGridLoading(true);
               if (progress.loaded / progress.total === 1) {
                 setUploaded(true);
                 console.log("upload complete");
+                console.log("about to do api call");
+                //api call here
+                try {
+                  const result = await fetch(
+                    "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
+                    {
+                      method:'post',
+                      // mode: 'cors',
+                      headers: {'Content-Type':'application/json'},
+                      body: JSON.stringify({
+                        "model_id": `${project.id}`,
+                        "bucket_name": "sampleproject04827-staging"
+                      })
+                    });
+                    const data = await result.json()
+                    console.log({data})
+                    setDataGridLoading(false);
+                } catch (error) {
+                  console.log({error})
+                }
               } else {
                 console.log("upload incomplete");
                 setUploaded(false);
+                setDataGridLoading(false);
               }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
@@ -77,7 +99,7 @@ export const AddFiles = ({
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accepts: "text/csv",
+    accept: "text/csv",
     multiple: false,
   });
   return (
