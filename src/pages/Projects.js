@@ -47,7 +47,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   //position state dynamically changes with transitions
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
-  const [reorderFuncRun,changeReorderFunc] = useState(false);
+  const [reorderFuncRun,changeReorderFunc] = useState(false); //a flag/trigger for when a reorder is done to run useEffect
 
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
@@ -395,7 +395,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         project &&
         window &&
         // TODO: Uncomment this guy before commit
-        // window.core &&
+        window.core &&
         propsArr &&
         propsArr.length >= 3
       ) {
@@ -550,7 +550,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         project &&
         window &&
         // TODO: Uncomment this guy before commit
-        // window.core &&
+        window.core &&
         propsArr &&
         propsArr.length >= 3
       ) {
