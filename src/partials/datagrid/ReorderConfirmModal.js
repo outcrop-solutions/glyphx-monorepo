@@ -33,7 +33,7 @@ export const ReorderConfirmModal = ({ handleSave, setReorderConfirm, setShowAddP
             <button
               type="button"
               className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-400 text-base font-medium text-gray-900 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-              // onClick={handleSave}
+              onClick={handleSave}
             >
               Create New Model
             </button>
