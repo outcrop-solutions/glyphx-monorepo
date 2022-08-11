@@ -5,6 +5,9 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPass, setNewPass] = useState("");
+  const [error,setError] = useState({
+    'show':false
+  });
   const [isCodeSent, setIsCodeSent] = useState(false);
 
   const handleEmail = (e) => {
@@ -15,6 +18,12 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
   };
   const handleNewPass = (e) => {
     setNewPass(e.target.value);
+    //change error to hide
+    setError((prevData)=>{
+      let newData = prevData;
+      newData['show'] = false;
+      return newData;
+    })
   };
   const handleResetPassword = async () => {
     try {
@@ -23,6 +32,12 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
 
     } catch (error) {
       console.log({ error });
+      setError((prevData)=>{
+        let newData = prevData;
+        newData['message'] = error.message;
+        newData['show'] = true;
+        return newData;
+      });
     }
   };
   const handleSubmitCode = async () => {
@@ -64,7 +79,7 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
                         id="code"
                         value={code}
                         onChange={handleCode}
-                        className="form-input w-full bg-primary-dark-blue focus:bg-primary-dark-blue border-gray-400 focus:border-0"
+                        className="form-input w-full text-white bg-primary-dark-blue focus:bg-primary-dark-blue border-gray-400 focus:border-0"
                         type="number"
                       />
                     </div>
@@ -76,11 +91,20 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
                         id="password"
                         value={newPass}
                         onChange={handleNewPass}
-                        className="form-input w-full bg-primary-dark-blue focus:bg-primary-dark-blue border-gray-400 focus:border-0"
+                        className="form-input w-full text-white bg-primary-dark-blue focus:bg-primary-dark-blue border-gray-400 focus:border-0"
                         type="password"
                       />
                     </div>
                   </div>
+                  {
+                    // to show error message on error 
+                    error.show ?
+                    <div className="text-sm text-red-900 font-medium mb-1">
+                        <p>{error.message}</p>
+                    </div>
+                    :
+                    <></>
+                  }
                   <div className="flex justify-between mt-6">
                     <span
                       onClick={handleResetPassword}

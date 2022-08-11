@@ -395,7 +395,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         project &&
         window &&
         // TODO: Uncomment this guy before commit
-        window.core &&
+        //window.core &&
         propsArr &&
         propsArr.length >= 3
       ) {
@@ -550,7 +550,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         project &&
         window &&
         // TODO: Uncomment this guy before commit
-        window.core &&
+        //window.core &&
         propsArr &&
         propsArr.length >= 3
       ) {
