@@ -48,6 +48,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   const [commentsPosition, setCommentsPosition] = useState({});
   const [filterSidebarPosition, setFilterSidebarPosition] = useState({});
   const [reorderFuncRun,changeReorderFunc] = useState(false); //a flag/trigger for when a reorder is done to run useEffect
+  const [zError,setZError] = useState(false);
 
   useEffect(() => {
     var baseUrl = "ws://localhost:12345";
@@ -395,7 +396,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         project &&
         window &&
         // TODO: Uncomment this guy before commit
-        window.core &&
+        //window.core &&
         propsArr &&
         propsArr.length >= 3
       ) {
@@ -433,6 +434,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
           setError(
             "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE"
           );
+          propertiesArr.pop(); //remove the z axis from there
           setTimeout(() => {
             setError(false);
           }, 3000);
@@ -455,7 +457,13 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       !equals(propsSliced, oldDroppedSliced)
     ) {
       console.log("Called Reorder Confirm");
-      setReorderConfirm(true);
+      // setReorderConfirm(true);
+      setError(
+        "Creating new module on reorder is not available yet :( . Create a new project instead."
+      );
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
       return;
     }
     // handle initial ETL
@@ -473,7 +481,8 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
       handleETL();
     }
     else{ //kicks in the reorder useEffect
-      changeReorderFunc(true);
+      console.log("unable to handle initial ETL")
+      // changeReorderFunc(true);
     }
   }, [propertiesArr, project, uploaded, expiry]);
 
@@ -482,136 +491,146 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   }, [propertiesArr]);
 
 
-  // Use Effect for if someone reorders and we need to hit ETL again
-  useEffect(()=>{
+  // // Use Effect for if someone reorders and we need to hit ETL again
+  // useEffect(()=>{
 
-    // Formatted variables
-    let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
-    let filteredArr = propertiesArr
-      .slice(3)
-      .filter((item) => item.lastDroppedItem);
+  //   // Formatted variables
+  //   let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
+  //   let filteredArr = propertiesArr
+  //     .slice(3)
+  //     .filter((item) => item.lastDroppedItem);
 
-    console.log("ReOrder function hit");
-    setReorderConfirm(false);
+  //   console.log("ReOrder function hit");
+  //   setReorderConfirm(false);
 
-    const updateProjectState = async (res) => {
-      if (res.statusCode === 200) {
-        setIsQtOpen(true);
-        setUrl(res.url);
-        setSdt(res.sdt);
+  //   const updateProjectState = async (res) => {
+  //     if (res.statusCode === 200) {
+  //       setIsQtOpen(true);
+  //       setUrl(res.url);
+  //       setSdt(res.sdt);
 
-        // update Dynamo Project Item
-        const updateProjectInput = {
-          id: project.id,
-          filePath: res.sdt,
-          expiry: new Date().toISOString(),
-          properties: propertiesArr.map((el) =>
-            el.lastDroppedItem
-              ? el.lastDroppedItem.key
-                ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
-                : ""
-              : ""
-          ),
-          url: res.url,
-        };
-        try {
-          const result = await API.graphql(
-            graphqlOperation(updateProject, { input: updateProjectInput })
-          );
-          console.log({ result });
-        } catch (error) {
-          console.log({ error });
-        }
-      }
-      // TODO: add error handling
-    };
+  //       // update Dynamo Project Item
+  //       const updateProjectInput = {
+  //         id: project.id,
+  //         filePath: res.sdt,
+  //         expiry: new Date().toISOString(),
+  //         properties: propertiesArr.map((el) =>
+  //           el.lastDroppedItem
+  //             ? el.lastDroppedItem.key
+  //               ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
+  //               : ""
+  //             : ""
+  //         ),
+  //         url: res.url,
+  //       };
+  //       try {
+  //         const result = await API.graphql(
+  //           graphqlOperation(updateProject, { input: updateProjectInput })
+  //         );
+  //         console.log({ result });
+  //       } catch (error) {
+  //         console.log({ error });
+  //       }
+  //     }
+  //     // TODO: add error handling
+  //   };
 
-    const doesKeyExist = async () => {
-      try {
-        const data = await Storage.list(`${project.id}/output/`);
-        console.log({ data });
-        if (
-          data
-            .map((el) => el.key)
-            .includes(`${project.id}/output/_etl_data_lake.csv`)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } catch (error) {
-        console.log({ error });
-      }
-    };
+  //   const doesKeyExist = async () => {
+  //     try {
+  //       const data = await Storage.list(`${project.id}/output/`);
+  //       console.log({ data });
+  //       if (
+  //         data
+  //           .map((el) => el.key)
+  //           .includes(`${project.id}/output/_etl_data_lake.csv`)
+  //       ) {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     } catch (error) {
+  //       console.log({ error });
+  //     }
+  //   };
 
-    const callETL = async (propsArr, filteredArr) => {
-      setDataGridLoading(true);
-      if (
-        project &&
-        window &&
-        // TODO: Uncomment this guy before commit
-        window.core &&
-        propsArr &&
-        propsArr.length >= 3
-      ) {
-        // call ETl endpoint
-        let response = await fetch("https://api.glyphx.co/etl/model", {
-          method: "POST",
-          mode: "cors",
-          body: JSON.stringify({
-            model_id: project.id,
-            x_axis: propertiesArr[0].lastDroppedItem.key,
-            y_axis: propertiesArr[1].lastDroppedItem.key,
-            z_axis: propertiesArr[2].lastDroppedItem.key,
-            filters: filteredArr,
-          }),
-        });
-        let res = await response.json();
-        console.log({res});
-        await updateProjectState(res);
-      }
-    };
+  //   const callETL = async (propsArr, filteredArr) => {
+  //     setDataGridLoading(true);
+  //     if (
+  //       project &&
+  //       window &&
+  //       // TODO: Uncomment this guy before commit
+  //       //window.core &&
+  //       propsArr &&
+  //       propsArr.length >= 3
+  //     ) {
+  //       // call ETl endpoint
+  //       let response = await fetch("https://api.glyphx.co/etl/model", {
+  //         method: "POST",
+  //         mode: "cors",
+  //         body: JSON.stringify({
+  //           model_id: project.id,
+  //           x_axis: propertiesArr[0].lastDroppedItem.key,
+  //           y_axis: propertiesArr[1].lastDroppedItem.key,
+  //           z_axis: propertiesArr[2].lastDroppedItem.key,
+  //           filters: filteredArr,
+  //         }),
+  //       });
+  //       let res = await response.json();
+  //       console.log({res});
+  //       await updateProjectState(res);
+  //     }
+  //   };
 
-    const handleETL = async () =>{
-      let isSafe = await doesKeyExist();
+  //   const handleETL = async () =>{
+  //     let isSafe = await doesKeyExist();
 
-      if (isSafe) {
-        if(propertiesArr[2].lastDroppedItem.dataType === "number"){
-          await callETL(propsArr, filteredArr);
-        }
-        else{
-          setError(
-            "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE"
-          );
-          setTimeout(() => {
-            setError(false);
-          }, 3000);
-          console.log({ error: `Z-Axis is not set to a numeric value.` });
-        }
-      }else{
-        console.log("Not safe doesKeyExist() had value: ",{isSafe})
-      }
-      setDataGridLoading(false);
-      changeReorderFunc(false);
-    }
+  //     if (isSafe) {
+  //       if(propertiesArr[2].lastDroppedItem?.dataType === "number"){
+  //         await callETL(propsArr, filteredArr);
+  //       }
+  //       else{
+  //         setError(
+  //           "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE"
+  //         );
+  //         setTimeout(() => {
+  //           setError(false);
+  //         }, 3000);
+  //         console.log({ error: `Z-Axis is not set to a numeric value.` });
+  //       }
+  //     }else{
+  //       console.log("Not safe doesKeyExist() had value: ",{isSafe})
+  //     }
+  //     setDataGridLoading(false);
+  //     changeReorderFunc(false);
+  //   }
 
     
-    console.log("in re-order useEffect")
+  //   console.log("in re-order useEffect")
 
-    if(reorderFuncRun){
-      console.log("runing reorder code");
-      handleETL();
-    }
-    changeReorderFunc(false);
-  },[reorderFuncRun])
+  //   if(reorderFuncRun){
+  //     console.log("runing reorder code");
+  //     handleETL();
+  //   }
+  //   changeReorderFunc(false);
+  // },[reorderFuncRun])
   
   /**
    *  Function that handles when a reorder is made by changing a state
    */
   const handleReOrder = async () => {
     console.log("reorder pressed");
-    changeReorderFunc(true);
     setReorderConfirm(false);
+    setError(
+      "Creating new module on reorder is not available yet :( . Create a new project instead."
+    );
+    setReorderConfirm(false);
+    setTimeout(() => {
+      setError(false);
+      setReorderConfirm(false);
+    }, 5000);
+    setReorderConfirm(false);
+    // changeReorderFunc(true);
+    
   };
 
   const [isEditing, setIsEditing] = useState(false);
@@ -640,11 +659,17 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
   // handle Open project
   useEffect(() => {
     console.log({ url, sdt, project });
-    if (project && window && window.core) {
+    if (
+      project && 
+      window && 
+      window.core
+      ) {
       if (url) {
         window.core.OpenProject(JSON.stringify(url));
+        console.log({url}, "URL PASSED")
       } else {
         window.core.OpenProject({});
+        console.log("URL Not Passed")
       }
     }
   }, [sdt, url, project]);
@@ -670,7 +695,7 @@ export const Projects = ({ user, setIsLoggedIn, projects, setProjects }) => {
         <ReorderConfirmModal
           setReorderConfirm={setReorderConfirm}
           setShowAddProject={setShowAddProject}
-          handleSave={handleReOrder}
+          // handleSave={handleReOrder}
         />
       ) : null}
       {/* Sidebar */}
