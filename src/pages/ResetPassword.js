@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Auth } from "aws-amplify";
 
 function ResetPassword({ setResetPass, setSignUp, setUser }) {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [newPass, setNewPass] = useState("");
-  const [error,setError] = useState({
-    'show':false
+  const [errorState,setError] = useState({
+    'show':false,
   });
   const [isCodeSent, setIsCodeSent] = useState(false);
 
@@ -18,12 +18,6 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
   };
   const handleNewPass = (e) => {
     setNewPass(e.target.value);
-    //change error to hide
-    setError((prevData)=>{
-      let newData = prevData;
-      newData['show'] = false;
-      return newData;
-    })
   };
   const handleResetPassword = async () => {
     try {
@@ -32,12 +26,14 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
 
     } catch (error) {
       console.log({ error });
-      setError((prevData)=>{
-        let newData = prevData;
-        newData['message'] = error.message;
-        newData['show'] = true;
-        return newData;
-      });
+      alert(error.message);
+      // setError((prevData)=>{
+      //   let newData = prevData;
+      //   newData['message'] = error.message;
+      //   newData['show'] = true;
+      //   return newData;
+      // });
+      // console.log({errorState})
     }
   };
   const handleSubmitCode = async () => {
@@ -48,6 +44,13 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
 
     } catch (error) {
       console.log({ error });
+      alert(error.message);
+      // setError((prevData)=>{
+      //   let newData = prevData;
+      //   newData['message'] = error.message;
+      //   newData['show'] = true;
+      //   return newData;
+      // });
     }
   };
 
@@ -55,6 +58,10 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
     setResetPass(false);
     setSignUp(false);
   };
+
+  useEffect(()=>{
+    console.log("At Start",{errorState})
+  })
 
   return (
     <main className="bg-primary-dark-blue">
@@ -96,15 +103,15 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
                       />
                     </div>
                   </div>
-                  {
+                  {/* {
                     // to show error message on error 
-                    error.show ?
+                    errorState.show ?
                     <div className="text-sm text-red-900 font-medium mb-1">
-                        <p>{error.message}</p>
+                        <p>{errorState.message}</p>
                     </div>
                     :
                     <></>
-                  }
+                  } */}
                   <div className="flex justify-between mt-6">
                     <span
                       onClick={handleResetPassword}
@@ -144,6 +151,15 @@ function ResetPassword({ setResetPass, setSignUp, setUser }) {
                         type="email"
                       />
                     </div>
+                    {/* <div className="text-sm text-red-900 font-medium mb-1">
+                      {
+                        errorState.show ?
+                        <p>{errorState.message}</p>
+                        :
+                        <></>
+                      }
+                        
+                    </div> */}
                   </div>
                   <div className="flex justify-between mt-6">
                     <span
