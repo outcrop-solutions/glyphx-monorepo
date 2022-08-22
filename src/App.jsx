@@ -17,6 +17,7 @@ import { Settings } from "./partials/settings";
 import SignIn from "./pages/Signin";
 import Signup from "./pages/Signup";
 import ResetPassword from "./pages/ResetPassword";
+import Share from "./pages/Share";
 import { useUser } from "./services/useUser";
 import { useProjects } from "./services/useProjects";
 import Amplify from "aws-amplify";
@@ -78,6 +79,10 @@ function App() {
         </Route>
         <Route exact path="/settings">
           <Settings />
+        </Route>
+        {/* Share model screen. Pass modelID into url */}
+        <Route exact path="/share/:modelID">
+          <Share />
         </Route>
       </Switch>
     </>
