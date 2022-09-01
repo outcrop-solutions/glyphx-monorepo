@@ -24,7 +24,7 @@ module.exports = {
         xl: "0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.01)",
       },
       colors: {
-        current: 'currentColor',
+        current: "currentColor",
         "primary-yellow": "#FFC00",
         "primary-dark-blue": "#0D1321",
         "secondary-dark-blue": "#151C2D",
@@ -79,9 +79,12 @@ module.exports = {
   plugins: [
     // eslint-disable-next-line global-require
     require("@tailwindcss/forms"),
+    require("tailwindcss-scoped-groups")({
+      groups: ["props", "filters", "states"],
+    }),
     // require("tailwind-scrollbar"),
     require("@tailwindcss/aspect-ratio"),
-    require('./utils/scrollbar.js'),
+    require("./utils/scrollbar.js"),
     // add custom variant for expanding sidebar
     plugin(({ addVariant, e }) => {
       addVariant("main-sidebar-expanded", ({ modifySelectors, separator }) => {

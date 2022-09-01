@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { GetServerSideProps } from "next";
-import QWebChannel from "qwebchannel";
-import update from "immutability-helper";
-import * as dayjs from "dayjs";
 import sortArray from "sort-array";
 // Amplify
-import { API, withSSRContext, graphqlOperation, Storage } from "aws-amplify";
+import { withSSRContext, graphqlOperation } from "aws-amplify";
 
 import { listProjects } from "graphql/queries";
 import { createProject } from "graphql/mutations";
@@ -29,6 +26,8 @@ import { useStateChange } from "services/useStateChange";
 import { useFileSystem } from "services/useFileSystem";
 import { useStates } from "services/useStates";
 import { updateProject } from "../graphql/mutations";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { isGridViewAtom, projectsAtom, showAddProjectAtom } from "../state";
 
 export default function Projects({
   userData,
@@ -36,30 +35,22 @@ export default function Projects({
   data,
   // setProjects,
 }) {
-  const { projects, setProjects } = useProjects(data);
+  const projects = useRecoilValue(projectsAtom);
+  const isGridView = useRecoilValue(isGridViewAtom);
   const { user, setUser } = useUser(userData);
-  const [error, setError] = useState(null);
-  const [grid, setGrid] = useState(null);
-  const [project, setProject] = useState(null);
+
   const [projectDetails, setProjectDetails] = useState(null);
 
-  const { states, state, setState, deleteState, setStates } =
-    useStates(project);
-  useStateChange(state);
+  const [showAddProject, setShowAddProject] =
+    useRecoilState(showAddProjectAtom);
 
-  const [showAddProject, setShowAddProject] = useState(false);
-
-  
   return (
     <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
       {showAddProject ? (
         <AddProjectModal user={user} setShowAddProject={setShowAddProject} />
       ) : null}
       {/* Sidebar */}
-      <MainSidebar
-        project={project}
-        user={user}
-      />
+      <MainSidebar user={user} />
       {projectDetails ? (
         <ProjectDetails
           user={user}
@@ -70,38 +61,21 @@ export default function Projects({
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-none bg-primary-dark-blue">
         {/*  Site header */}
-        <Header
-          project={project}
-          setProject={setProject}
-          setShowAddProject={setShowAddProject}
-          grid={grid}
-          setGrid={setGrid}
-        />
+        <Header setShowAddProject={setShowAddProject} />
         {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
         <main className="h-full">
           <div className="flex grow relative h-full">
             <div className="w-full flex">
               {projects && projects.length > 0 ? (
                 <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
-                  {grid ? (
-                    <TableView user={user} projects={projects} />
+                  {isGridView ? (
+                    <TableView user={user} />
                   ) : (
-                    <GridView
-                      user={user}
-                      projects={projects}
-                      setProjects={setProjects}
-                      setProject={setProject}
-                      setProjectDetails={setProjectDetails}
-                      setShowAddProject={setShowAddProject}
-                    />
+                    <GridView setProjectDetails={setProjectDetails} />
                   )}
                 </div>
               ) : (
-                <Templates
-                  userData={userData}
-                  setProject={setProject}
-                  setProjects={setProjects}
-                />
+                <Templates userData={userData} />
               )}
             </div>
           </div>
@@ -125,6 +99,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const filtered = response.data.listProjects.items.filter(
       (el) => el?.shared?.includes(user.username) || el.author === user.id
     );
+    console.log({ filtered });
     let sorted = sortArray(filtered, {
       by: "updatedAt",
       order: "desc",

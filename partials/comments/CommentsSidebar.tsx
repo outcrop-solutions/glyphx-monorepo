@@ -1,11 +1,12 @@
+import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { usePosition } from "services/usePosition";
 import { CommentsHeader } from "./CommentsHeader";
 import { ExpandCollapse } from "../layout/ExpandCollapse";
 import { CommentInput } from "./CommentInput";
 import { History } from "./CommentHistory";
-import { useComments } from "services/useComments";
-import React from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { commentsOpenAtom, commentsSelector } from "state/comments";
 
 export const CommentsSidebar = ({
   project,
@@ -14,57 +15,14 @@ export const CommentsSidebar = ({
   state,
   states,
 }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  useEffect(() => {
-    if (project) {
-      setSidebarExpanded(false);
-    } else {
-      setSidebarExpanded(true);
-    }
-  }, [project]);
+  const [commentsOpen, setCommentsOpen] = useRecoilState(commentsOpenAtom);
+  const [comments, setComments] = useRecoilState(commentsSelector);
+
   // refs for sidebar trigger and resize
   const trigger = useRef(null);
   const sidebar = useRef(null);
   const pos = usePosition(sidebar);
 
-  const { comments, setComments } = useComments(state);
-
-  // close on click outside
-  useEffect(() => {
-    const clickHandler = ({ target }) => {
-      if (!sidebar.current || !trigger.current) return;
-      if (
-        !sidebarOpen ||
-        sidebar.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
-  });
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
-      if (!sidebarOpen || keyCode !== 221) return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
-  });
-  //handle sidebar local storage
-  useEffect(() => {
-    localStorage.setItem("comments-sidebar-expanded", sidebarExpanded);
-    if (sidebarExpanded) {
-      document.querySelector("body").classList.add("comments-sidebar-expanded");
-    } else {
-      document
-        .querySelector("body")
-        .classList.remove("comments-sidebar-expanded");
-    }
-  }, [sidebarExpanded]);
   //fetch commentsSidebar position on layout resize
   useEffect(() => {
     setCommentsPosition((prev) => {
@@ -74,7 +32,7 @@ export const CommentsSidebar = ({
         };
       }
     });
-  }, [sidebarExpanded, pos, setCommentsPosition]);
+  }, [pos, setCommentsPosition]);
 
   return (
     <>
@@ -83,22 +41,22 @@ export const CommentsSidebar = ({
           id="sidebar"
           ref={sidebar}
           className={`hidden lg:flex flex-col absolute z-10 right-0 top-0 lg:static border-l border-slate-400 lg:right-auto lg:top-auto lg:translate-x-0 transform h-full scrollbar-none w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 shrink-0 transition-all duration-200 ease-in-out ${
-            sidebarOpen ? "translate-y-64" : "translate-x-0"
+            commentsOpen ? "translate-y-64" : "translate-x-0"
           }`}
         >
-          <CommentsHeader sidebarExpanded={sidebarExpanded} />
+          <CommentsHeader sidebarExpanded={commentsOpen} />
           <div className="m-2 hidden comments-sidebar-expanded:block overflow-y-scroll scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full">
             <History comments={comments} />
             <CommentInput user={user} state={state} setComments={setComments} />
           </div>
 
           {/* Expand / collapse button */}
-          <div className="sticky bottom-0">
+          {/* <div className="sticky bottom-0">
             <ExpandCollapse
-              sidebarExpanded={sidebarExpanded}
-              setSidebarExpanded={setSidebarExpanded}
+              sidebarExpanded={commentsOpen}
+              setSidebarExpanded={setCommentsOpen}
             />
-          </div>
+          </div> */}
         </div>
       ) : null}
     </>

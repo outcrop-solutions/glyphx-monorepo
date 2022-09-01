@@ -1,56 +1,19 @@
 import { useState, useEffect, useRef } from "react";
-import { ExpandCollapse } from "./ExpandCollapse";
+// import { ExpandCollapse } from "./ExpandCollapse";
 import { UserMenu } from "partials";
 import { useRouter } from "next/router";
 import Link from "next/link";
-export const MainSidebar = ({ user, project }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+import { isMainSidebarExpandedAtom } from "@/state/globals";
+import { useRecoilValue } from "recoil";
 
+export const MainSidebar = ({ user }) => {
+  const isMainSidebarExpanded = useRecoilValue(isMainSidebarExpandedAtom);
   const router = useRouter();
   const { pathname } = router;
-
-  const trigger = useRef(null);
-  const sidebar = useRef(null);
-
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
-
-  useEffect(() => {
-    if (project) {
-      setSidebarExpanded(false);
-    } else {
-      setSidebarExpanded(true);
-    }
-  }, [project]);
-  // close on click outside
-  useEffect(() => {
-    const clickHandler = ({ target }) => {
-      if (!sidebar.current || !trigger.current) return;
-      if (
-        !sidebarOpen ||
-        sidebar.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
-  });
-
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
-      if (!sidebarOpen || keyCode !== 27) return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
-  });
 
   return (
     <div
       id="sidebar"
-      ref={sidebar}
       className={`hidden lg:flex flex-col absolute z-40 bg-secondary-dark-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 shrink-0 p-4`}
     >
       <div>
@@ -109,18 +72,16 @@ export const MainSidebar = ({ user, project }) => {
                   pathname === "/" && "bg-slate-800"
                 }`}
               >
-                <Link
-                  href="/home"
-                  onClick={() => {
-                    // @ts-ignore
-                    if (window && window.core) {
-                      // @ts-ignore
-                      window.core.CloseModel();
-                    }
-                    router.push("/home");
-                  }}
-                >
+                <Link href="/home">
                   <a
+                    onClick={() => {
+                      // @ts-ignore
+                      if (window && window.core) {
+                        // @ts-ignore
+                        window.core.CloseModel();
+                      }
+                      router.push("/home");
+                    }}
                     className={`block text-slate-200 hover:text-white truncate transition duration-150 ${
                       pathname === "/" && "hover:text-slate-200"
                     }`}
@@ -255,12 +216,12 @@ export const MainSidebar = ({ user, project }) => {
         </div>
 
         {/* Expand / collapse button */}
-        <div className="sticky bottom-0">
+        {/* <div className="sticky bottom-0">
           <ExpandCollapse
             sidebarExpanded={sidebarExpanded}
             setSidebarExpanded={setSidebarExpanded}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

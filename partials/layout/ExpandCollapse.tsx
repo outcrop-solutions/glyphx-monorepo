@@ -2,12 +2,18 @@ import React from "react";
 
 export const ExpandCollapse = ({ setSidebarExpanded, sidebarExpanded }) => {
   return (
-    <div className="pt-3 hidden lg:inline-flex justify-center comments-sidebar-expanded:justify-start pb-4 mt-auto">
+    <div
+      className={`pt-3 w-full hidden lg:inline-flex  ${
+        sidebarExpanded ? "justify-start" : "justify-end"
+      } pb-4 mt-auto`}
+    >
       <div className="px-3 py-2">
         <button onClick={() => setSidebarExpanded(!sidebarExpanded)}>
           <span className="sr-only">Expand / collapse sidebar</span>
           <svg
-            className="w-6 h-6 fill-current rotate-180 comments-sidebar-expanded:rotate-0"
+            className={`w-6 h-6 fill-current ${
+              sidebarExpanded ? "rotate-0" : "rotate-180"
+            }`}
             viewBox="0 0 24 24"
           >
             <path

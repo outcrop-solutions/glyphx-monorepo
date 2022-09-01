@@ -114,7 +114,7 @@ export default function Projects({ user, authenticated, data }) {
     const createProj = async () => {
       try {
         const createProjectInput = {
-          id: newId,
+          // id: newId,
           name: `${project.name} Copy`,
           description: "",
           author: user.username,

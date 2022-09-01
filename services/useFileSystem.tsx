@@ -69,7 +69,7 @@ export const useFileSystem = (projectId) => {
         const data = await Storage.list(`${projectId}/input/`);
 
         const processed = processStorageList(data);
-
+        console.log({ processed });
         const files = Object.keys(processed[`${projectId}`].input);
         const filteredFiles = files.filter(
           (fileName) =>

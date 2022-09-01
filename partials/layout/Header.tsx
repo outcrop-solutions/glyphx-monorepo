@@ -6,117 +6,87 @@ import { PencilIcon } from "@heroicons/react/outline";
 import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
 import { Project } from "API";
+import { useRecoilValue } from "recoil";
+import { selectedProjectAtom } from "state";
 
 interface Props {
-  grid?: boolean | null;
   setProject?: React.Dispatch<React.SetStateAction<Project>> | null;
-  setGrid?: React.Dispatch<React.SetStateAction<boolean>> | null;
-  project?: Project | null;
+  selectedProject?: Project | null;
   setShowAddProject?: React.Dispatch<React.SetStateAction<boolean>> | null;
   setShare?: React.Dispatch<React.SetStateAction<boolean>> | null;
 }
 
-export const Header = ({
-  grid,
-  setProject,
-  setGrid,
-  project,
-  setShowAddProject,
-  setShare,
-}: Props) => {
-  const { pathname } = useRouter();
-  const isProject = pathname.includes("project")!!;
-  console.log({ isProject });
+export const Header = ({ setProject, setShowAddProject, setShare }: Props) => {
+  const selectedProject = useRecoilValue(selectedProjectAtom);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [projectName, setProjectName] = useState(project?.name || "");
   const [edit, setEdit] = useState(false);
-  const handleEdit = () => {
-    setEdit((prev) => !prev);
-    setProjectName(project.name);
-  };
-  const handleChange = (e) => {
-    setProjectName(e.target.value);
-  };
-  const handleSaveProjectName = async () => {
-    const updateProjectInput = {
-      id: project.id,
-      name: projectName,
-      // version: project._version,
-    };
+  // const handleEdit = () => {
+  //   setEdit((prev) => !prev);
+  //   setProjectName(selectedProject.name);
+  // };
+  // const handleChange = (e) => {
+  //   setProjectName(e.target.value);
+  // };
+  // const handleSaveProjectName = async () => {
+  //   const updateProjectInput = {
+  //     id: selectedProject.id,
+  //     name: selectedProjectName,
+  //     // version: selectedProject._version,
+  //   };
 
-    try {
-      const result = await API.graphql(
-        graphqlOperation(updateProject, { input: updateProjectInput })
-      );
+  //   try {
+  //     const result = await API.graphql(
+  //       graphqlOperation(updateProject, { input: updateProjectInput })
+  //     );
 
-      // setProject(result.data.updateProject);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
+  //     // setProject(result.data.updateProject);
+  //   } catch (error) {
+  //     console.log({ error });
+  //   }
+  // };
   return (
     <div
       className={`sticky border-b top-0 z-30  flex justify-between items-center bg-primary-dark-blue max-h-16 w-full ${
-        isProject ? "px-4" : "mx-6"
+        selectedProject ? "px-4" : "mx-6"
       }`}
     >
-      {!edit ? (
-        <div className="flex items-center group">
-          <div
-            className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
-              project ? "ml-6" : "ml-0"
-            }`}
-          >
-            {project ? project.name : "My Projects"}
-          </div>
-          {project && (
+      {/* {!edit ? ( */}
+      <div className="flex items-center group">
+        <div
+          className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
+            selectedProject ? "ml-6" : "ml-0"
+          }`}
+        >
+          {selectedProject ? selectedProject.name : "My Projects"}
+        </div>
+      </div>
+      {/* {selectedProject && (
             <PencilIcon
               onClick={handleEdit}
               className="hidden h-6 w-6 group-hover:flex"
             />
-          )}
-        </div>
-      ) : (
-        <div>
-          <input
-            onKeyPress={(ev) => {
-              if (ev.key === "Enter") {
-                ev.preventDefault();
-                handleSaveProjectName();
-              }
-            }}
-            className="ml-6 text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate border border-slate-400 bg-transparent rounded-sm"
-            value={projectName}
-            onChange={handleChange}
-          />
-        </div>
-      )}
+          )} */}
+      {/* </div>
+       ) : (
+         <div>
+           <input
+             onKeyPress={(ev) => {
+               if (ev.key === "Enter") {
+                 ev.preventDefault();
+                 // handleSaveProjectName();
+               }
+             }}
+             className="ml-6 text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate border border-slate-400 bg-transparent rounded-sm"
+             value={selectedProject.name || ""}
+             onChange={handleChange}
+           />
+         </div>
+       )} */}
       <div className="px-4 sm:px-6 lg:px-0 lg:w-5/6">
         <div className="flex items-center justify-between h-16 -mb-px">
-          {/* Header: Left side */}
-          <div className="flex">
-            {/* TODO: fix resizing here */}
-            {/* Hamburger button */}
-            {/* <button
-							className='text-slate-500 hover:text-slate-600 lg:hidden'
-							aria-controls='sidebar'
-							aria-expanded={sidebarOpen}
-							onClick={() => setSidebarOpen(!sidebarOpen)}>
-							<span className='sr-only'>Open sidebar</span>
-							<svg
-								className='w-6 h-6 fill-current'
-								viewBox='0 0 24 24'
-								xmlns='http://www.w3.org/2000/svg'>
-								<rect x='4' y='5' width='16' height='2' />
-								<rect x='4' y='11' width='16' height='2' />
-								<rect x='4' y='17' width='16' height='2' />
-							</svg>
-						</button> */}
-          </div>
-
           {/* Search form */}
           {/* <SearchForm placeholder='Search GlyphX' /> */}
-          {!isProject && (
+          {!selectedProject && (
             <form
               onClick={(e) => {
                 e.stopPropagation();
@@ -153,14 +123,14 @@ export const Header = ({
           <div className="flex items-center space-x-3 mr-6">
             {/* <Help align='right' /> */}
             {/*  Divider */}
-            {/* {!project && <hr className="w-px h-6 bg-slate-200 mx-3" />} */}
-            {isProject && (
+            {/* {!selectedProject && <hr className="w-px h-6 bg-slate-200 mx-3" />} */}
+            {selectedProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-yellow-400 hover:bg-slate-200 transition duration-150 rounded-full ml-3 ${
                   searchModalOpen && "bg-slate-200"
                 }`}
                 onClick={(e) => {
-                  // setShowAddProject(project ? true : false);
+                  // setShowAddProject(selectedProject ? true : false);
                   setShare(true);
                 }}
                 aria-controls="search-modal"
@@ -181,7 +151,7 @@ export const Header = ({
                 <b className="text-slate-800 text-xs">Share</b>
               </button>
             )}
-            {!isProject && (
+            {!selectedProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-yellow-400 hover:bg-slate-200 transition duration-150 rounded-full ml-3 ${
                   searchModalOpen && "bg-slate-200"
@@ -207,7 +177,7 @@ export const Header = ({
                 <b className="text-slate-800 text-sm mx-2">New</b>
               </button>
             )}
-            {!isProject && (
+            {!selectedProject && (
               <>
                 {/* <SearchModal
                   id="search-modal"
@@ -216,18 +186,13 @@ export const Header = ({
                   setModalOpen={setSearchModalOpen}
                 /> */}
 
-                <GridToggle
-                  align="right"
-                  grid={grid}
-                  setGrid={setGrid}
-                  setProject={setProject}
-                />
+                <GridToggle />
               </>
             )}
-            {/* {project && <DeleteModel align="right" />} */}
-            {isProject && <Help />}
+            {/* {selectedProject && <DeleteModel align="right" />} */}
+            {selectedProject && <Help />}
             <DropdownNotifications align="right" />
-            {/* {!project && (
+            {/* {!selectedProject && (
 							<button
 								className='btn rounded-2xl bg-yellow-400 text-slate-800 text-xs font-bold hover:text-white py-1.5'
 								onClick={signOut}>

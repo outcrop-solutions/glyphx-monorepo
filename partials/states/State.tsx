@@ -45,7 +45,7 @@ export const State = ({
       onClick={() => {
         setState(item);
       }}
-      className="py-2 group pl-2 hover:bg-slate-700 last:mb-0 flex items-center cursor-pointer"
+      className="py-2 group-states pl-2 hover:bg-slate-700 last:mb-0 flex items-center cursor-pointer"
     >
       <div className="flex items-center justify-center h-6 w-6">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -73,7 +73,7 @@ export const State = ({
           />
         </div>
       ) : (
-        <div className="block text-slate-400 group-hover:text-slate-200 transition duration-150 truncate">
+        <div className="block text-slate-400 group-states-hover:text-slate-200 transition duration-150 truncate">
           <span
             className={`text-sm ${
               item && item.id && state && state.id
@@ -87,7 +87,7 @@ export const State = ({
           </span>
         </div>
       )}
-      <div className="hidden ml-2 group-hover:flex justify-between text-white w-10">
+      <div className="hidden ml-2 group-states-hover:flex justify-between text-white w-10">
         {!edit ? (
           <PencilIcon
             onClick={() => {

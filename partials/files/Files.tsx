@@ -3,15 +3,14 @@ import { Tree } from "@minoru/react-dnd-treeview";
 import { CustomNode } from "./CustomNode";
 import { CustomDragPreview } from "./CustomDragPreview";
 import styles from "./css/Sidebar.module.css";
-import { FilesHeader } from "./FilesHeader";
 import { Dropzone } from "partials";
+import { PlusIcon } from "@heroicons/react/outline";
 
 export const Files = ({
   openFile,
   selectFile,
   setDataGrid,
   sidebarExpanded,
-  setSidebarExpanded,
   project,
   fileSystem,
   setFiles,
@@ -22,65 +21,74 @@ export const Files = ({
 }) => {
   const [open, setOpen] = useState(true);
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
-
   const handleDrop = (newTree) => setFiles(newTree);
   return (
     <React.Fragment>
-      <FilesHeader
-        open={open}
-        sidebarExpanded={sidebarExpanded}
-        setSidebarExpanded={setSidebarExpanded}
-        handleClick={handleClick}
-      />
-      <div
-        className={`lg:hidden lg:project-sidebar-expanded:block py-2 ${
-          !open && sidebarExpanded
-            ? "border-0 -my-2"
-            : "border-b border-slate-400"
-        }`}
-      >
-        <div className={`${!open && "hidden"}`}>
-          {fileSystem && fileSystem.length > 0 ? (
-            <Tree
-              initialOpen={true}
-              tree={fileSystem}
-              rootId={0}
-              render={(node, { depth, isOpen, onToggle }) => (
-                <CustomNode
-                  openFile={openFile}
-                  selectFile={selectFile}
-                  node={node}
-                  depth={depth}
-                  isOpen={isOpen}
-                  onToggle={onToggle}
-                  selectedFile={selectedFile}
+      <details open className="group">
+        <summary className="flex h-11 items-center justify-between w-full text-slate-200 hover:text-white truncate border-b border-slate-400">
+          <div className="flex ml-2 items-center">
+            <span className="transition text-slate-400  duration-300 shrink-0 group-open:-rotate-180">
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
                 />
-              )}
-              dragPreviewRender={(monitorProps) => (
-                <CustomDragPreview monitorProps={monitorProps} />
-              )}
-              onDrop={handleDrop}
-              classes={{
-                root: styles.treeRoot,
-                draggingSource: styles.draggingSource,
-                dropTarget: styles.dropTarget,
-              }}
+              </svg>
+            </span>
+            <a>
+              <span className="text-sm ml-3"> Files </span>
+            </a>
+          </div>
+          <PlusIcon className="w-5 h-5 opacity-75 mr-1" />
+        </summary>
+        <div
+          className={`${sidebarExpanded ? "lg:hidden" : "lg:block"} py-2 ${
+            !open && sidebarExpanded
+              ? "border-0 -my-2"
+              : "border-b border-slate-400"
+          }`}
+        >
+          <div className={`${!open && "hidden"}`}>
+            {fileSystem && fileSystem.length > 0 ? (
+              <Tree
+                initialOpen={true}
+                tree={fileSystem}
+                rootId={0}
+                render={(node, { depth, isOpen, onToggle }) => (
+                  <CustomNode
+                    openFile={openFile}
+                    selectFile={selectFile}
+                    node={node}
+                    depth={depth}
+                    isOpen={isOpen}
+                    onToggle={onToggle}
+                    selectedFile={selectedFile}
+                  />
+                )}
+                dragPreviewRender={(monitorProps) => (
+                  <CustomDragPreview monitorProps={monitorProps} />
+                )}
+                onDrop={handleDrop}
+                classes={{
+                  root: styles.treeRoot,
+                  draggingSource: styles.draggingSource,
+                  dropTarget: styles.dropTarget,
+                }}
+              />
+            ) : null}
+            <Dropzone
+              setSelectedFile={setSelectedFile}
+              setFilesOpen={setFilesOpen}
+              setDataGrid={setDataGrid}
+              project={project}
+              fileSystem={fileSystem}
+              setFileSystem={setFiles}
+              toastRef={toastRef}
             />
-          ) : null}
-          <Dropzone
-            setSelectedFile={setSelectedFile}
-            setFilesOpen={setFilesOpen}
-            setDataGrid={setDataGrid}
-            project={project}
-            fileSystem={fileSystem}
-            setFileSystem={setFiles}
-            toastRef={toastRef}
-          />
+          </div>
         </div>
-      </div>
+      </details>
     </React.Fragment>
   );
 };

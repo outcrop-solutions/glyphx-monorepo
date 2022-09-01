@@ -1,6 +1,9 @@
+import { showAddProjectAtom } from "@/state/globals";
 import { PlusIcon } from "@heroicons/react/solid";
+import { useSetRecoilState } from "recoil";
 
-export const AddProject = ({ setShowAddProject }) => {
+export const AddProject = () => {
+  const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   return (
     <div
       onClick={() => setShowAddProject(true)}

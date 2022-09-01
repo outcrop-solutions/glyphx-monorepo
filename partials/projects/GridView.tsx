@@ -2,15 +2,13 @@ import { ProjectCard } from "./ProjectCard";
 import { AddProject } from "./AddProject";
 import { PinnedProjects } from "./PinnedProjects";
 import React from "react";
+import { useRecoilValue } from "recoil";
+import { projectsAtom } from "@/state/globals";
 
 export const GridView = ({
-  user,
-  projects,
-  setProjects,
-  setProject,
   setProjectDetails,
-  setShowAddProject,
 }) => {
+  const projects = useRecoilValue(projectsAtom)
   return (
     <>
       {/* Page header */}
@@ -25,16 +23,13 @@ export const GridView = ({
       </div>
       {/* Cards */}
       <div className="grid grid-cols-12 gap-6">
-        <AddProject setShowAddProject={setShowAddProject} />
+        <AddProject/>
         {projects.map((item, idx) => {
           return (
             <ProjectCard
               setProjectDetails={setProjectDetails}
               key={item.id}
-              setProjects={setProjects}
               project={item}
-              setProject={setProject}
-              idx={idx}
               updatedAt={item.updatedAt}
               name={item.name}
               link={"#0"}

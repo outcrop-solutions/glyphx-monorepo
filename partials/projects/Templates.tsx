@@ -37,7 +37,7 @@ const items = [
   },
 ];
 
-export const Templates = ({ userData, setProject, setProjects }) => {
+export const Templates = ({ userData }) => {
   const router = useRouter();
   const { user } = useUser(userData);
   // const reloadProjects = async () => {

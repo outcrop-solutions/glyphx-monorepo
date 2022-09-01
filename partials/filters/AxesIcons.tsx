@@ -5,9 +5,9 @@ export const AxesIcons = ({ property }) => {
     switch (property) {
       case "X":
         return (
-          <div className="flex items-center justify-center h-6 w-6">
+          <div className="flex items-center justify-center h-6 w-6 text-slate-400 group-filters-hover:text-white">
             <svg
-              className="fill-current group-hover:text-white"
+              className="fill-current group-filters-hover:text-white"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -33,9 +33,9 @@ export const AxesIcons = ({ property }) => {
         );
       case "Y":
         return (
-          <div className="flex items-center justify-center h-6 w-6">
+          <div className="flex items-center justify-center h-6 w-6 text-slate-400 group-filters-hover:text-white">
             <svg
-              className="fill-current group-hover:text-white"
+              className="fill-current group-filters-hover:text-white"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -62,9 +62,9 @@ export const AxesIcons = ({ property }) => {
         );
       case "Z":
         return (
-          <div className="flex items-center justify-center h-6 w-6">
+          <div className="flex items-center justify-center h-6 w-6 text-slate-400 group-filters-hover:text-white">
             <svg
-              className="fill-current group-hover:text-white"
+              className="fill-current group-filters-hover:text-white"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -91,9 +91,9 @@ export const AxesIcons = ({ property }) => {
         );
       default:
         return (
-          <div className="flex items-center justify-center h-6 w-6">
+          <div className="flex items-center justify-center h-6 w-6 text-slate-400 group-filters-hover:text-white">
             <svg
-              className="fill-current group-hover:text-white"
+              className="fill-current group-filters-hover:text-white"
               width="16"
               height="16"
               viewBox="0 0 16 16"

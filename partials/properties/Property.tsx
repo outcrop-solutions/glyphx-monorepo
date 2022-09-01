@@ -16,7 +16,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
   return (
     <li
       ref={drop}
-      className="py-2 pl-2 group last:mb-0 flex items-center"
+      className="py-2 pl-2 group-props last:mb-0 flex items-center"
     >
       <AxesIcons property={axis} />
       {isActive ? (
@@ -27,8 +27,9 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
         </div>
       ) : (
         <div
+        // @ts-ignore
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-          className={`flex justify-center h-4 ml-4 bg-slate-800 group-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl`}
+          className={`flex justify-center h-4 ml-4 bg-slate-800 group-props-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl`}
         >
           <span className="text-xs font-medium mx-6 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}

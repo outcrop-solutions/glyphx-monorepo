@@ -1,8 +1,13 @@
 import { useState, useRef, useEffect } from "react";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { isGridViewAtom } from "state/globals";
+import { selectedProjectAtom } from "state/project";
 
-export function GridToggle({ align, grid, setGrid, setProject }) {
+export function GridToggle() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const [grid, setGrid] = useRecoilState(isGridViewAtom);
+  const setSelectedProject = useSetRecoilState(selectedProjectAtom);
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
@@ -47,7 +52,7 @@ export function GridToggle({ align, grid, setGrid, setProject }) {
           <svg
             onClick={() => {
               setGrid((prev) => !prev);
-              setProject(false);
+              setSelectedProject(null);
             }}
             width="24"
             height="24"
@@ -75,7 +80,7 @@ export function GridToggle({ align, grid, setGrid, setProject }) {
         ) : (
           <svg
             onClick={() => {
-              setProject(false);
+              setSelectedProject(null);
               setGrid((prev) => !prev);
             }}
             width="24"

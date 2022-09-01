@@ -60,15 +60,12 @@ export const Axes = ({
   return (
     <>
       <li
-        className={`py-2 group hover:bg-slate-700 hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${
+        className={`py-2 group-filters hover:bg-slate-700 hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${
           isFilter ? "border-b border-slate-500" : ""
         }`}
       >
         {/* axis icon */}
-        <AxesIcons
-          className="text-slate-400 group-hover:text-white"
-          property={axis}
-        />
+        <AxesIcons property={axis} />
         {/* filter icons */}
         {lastDroppedItem ? (
           <Filter
@@ -79,7 +76,7 @@ export const Axes = ({
         ) : (
           <div className="ml-2 flex bg-split-slate-yellow items-center px-2 py-1 border border-slate-400 rounded-2xl">
             <svg
-              className="mr-3 fill-current text-slate-500 group-hover:text-white"
+              className="mr-3 fill-current text-slate-500 group-filters-hover:text-white"
               width="12"
               height="6"
               viewBox="0 0 12 6"
@@ -90,7 +87,7 @@ export const Axes = ({
             </svg>
 
             <svg
-              className="fill-current text-slate-500 group-hover:text-white"
+              className="fill-current text-slate-500 group-filters-hover:text-white"
               width="10"
               height="10"
               viewBox="0 0 10 10"
@@ -104,14 +101,14 @@ export const Axes = ({
         {/* column header chip */}
         <div
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-          className={`flex justify-center bg-slate-800 h-4 ml-4 group-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl`}
+          className={`flex justify-center bg-slate-800 h-4 ml-4 group-filters-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl`}
         >
           <span className="text-xs font-medium mx-6 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
           </span>
         </div>
         {/* onHover filter actions */}
-        <div className="hidden group-hover:flex justify-between">
+        <div className="hidden group-filters-hover:flex justify-between">
           <ShowHide applied={applied} handleApply={handleApply} />
           <DeleteFilter handleDeleteFilter={handleDeleteFilter} />
         </div>
