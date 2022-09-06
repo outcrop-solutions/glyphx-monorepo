@@ -1,12 +1,110 @@
 import ClickAwayListener from "react-click-away-listener";
 import { CheckIcon } from "@heroicons/react/outline";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { showAddProjectAtom, showReorderConfirmAtom } from "@/state/globals";
+import { selectedProjectAtom } from "@/state/project";
+import { propertiesSelector } from "@/state/properties";
+import { filtersSelector } from "@/state/filters";
+import { Storage } from "aws-amplify";
 
-export const ReorderConfirmModal = ({ handleSave, setReorderConfirm, setShowAddProject }) => {
+export const ReorderConfirmModal = () => {
+  const setShowAddProject = useSetRecoilState(showAddProjectAtom);
+  const setReorderConfirm = useSetRecoilState(showReorderConfirmAtom);
+  const project = useRecoilValue(selectedProjectAtom);
+  const properties = useRecoilValue(propertiesSelector);
+  const filters = useRecoilValue(filtersSelector);
+  //  FORK PROJECT
+  const handleSave = async () => {
+    let id = "";
+    let proj = {};
+    // utilities
+    const createProj = async () => {
+      try {
+        const createProjectInput = {
+          // id: newId,
+          name: `${project.name} Copy`,
+          description: "",
+          author: user.username,
+          expiry: new Date().toISOString(),
+          properties: properties.map((el) =>
+            el.lastDroppedItem
+              ? el.lastDroppedItem.key
+                ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
+                : ""
+              : ""
+          ),
+          shared: [user.username],
+        };
+        const result = await API.graphql(
+          graphqlOperation(createProject, { input: createProjectInput })
+        );
+        return {
+          projId: result.data.createProject.id,
+          projectData: result.data.createProject,
+        };
+      } catch (error) {
+        console.log({ error });
+      }
+    };
+    const copyFiles = async (id) => {
+      try {
+        const data = await Storage.list(`${project.id}/input/`);
+        for (let i = 0; i < data.length; i++) {
+          const copied = await Storage.copy(
+            { key: `${data[i].key}` },
+            { key: `${id}${data[i].key.slice(36)}` }
+          );
+          return copied;
+        }
+      } catch (error) {
+        console.log({ error });
+      }
+    };
+
+    const callETL = async () => {
+      if (
+        project &&
+        window &&
+        // @ts-ignore
+        window.core &&
+        properties &&
+        properties.length >= 3
+      ) {
+        // call ETl endpoint
+        let response = await fetch("https://api.glyphx.co/etl/model", {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify({
+            model_id: project.id,
+            x_axis: properties[0].lastDroppedItem.key,
+            y_axis: properties[1].lastDroppedItem.key,
+            z_axis: properties[2].lastDroppedItem.key,
+            filters: filters,
+          }),
+        });
+        let res = await response.json();
+        // await updateProjectState(res);
+      }
+    };
+
+    let { projId } = await createProj();
+    let isCopied = await copyFiles(projId);
+    if (isCopied) {
+      await callETL();
+    }
+
+    // copy S3 files
+    // call ETL
+    // create new project with updated properties
+    // set project state
+    setReorderConfirm(false);
+  };
+
   const handleClickAway = () => {
     setShowAddProject(false);
   };
   const handleCancel = () => {
-    // TODO: restore properties array to old props
+    // TODO: restore properties array to old props using atom effect keying off trigger
     setReorderConfirm(false);
   };
   return (
@@ -50,155 +148,3 @@ export const ReorderConfirmModal = ({ handleSave, setReorderConfirm, setShowAddP
     </div>
   );
 };
-
-// {menu ? (
-// 	<div className='w-full flex justify-between space-x-4'>
-// 		<div
-// 			onClick={() => toggleMenu('file')}
-// 			className='btn select-none cursor-pointer bg-yellow-600 rounded-md py-1 hover:bg-yellow-400 text-white'>
-// 			Add from project file
-// 		</div>
-// 		<div
-// 			onClick={() => toggleMenu('manual')}
-// 			className='btn select-none cursor-pointer bg-slate-600 rounded-md py-1 hover:bg-yellow-600 text-white'>
-// 			Add Manually
-// 		</div>
-// 	</div>
-// ) : null}
-
-// {!menu ? (
-// 	<>
-// 		{view === 'file' ? (
-// 			<div className='p-4 bg-slate-800 w-max rounded-lg -m-10'>
-// 				<div className='file_upload p-5 relative w-80 border-4 border-dotted border-slate-300 rounded-lg'>
-// 					<svg
-// 						className='text-white w-24 mx-auto mb-4'
-// 						fill='none'
-// 						viewBox='0 0 24 24'
-// 						stroke='currentColor'>
-// 						<path
-// 							strokeLinecap='round'
-// 							strokeLinejoin='round'
-// 							strokeWidth='2'
-// 							d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'
-// 						/>
-// 					</svg>
-// 					<div className='input_field flex flex-col w-max mx-auto text-center'>
-// 						<label className='mb-4'>
-// 							<input
-// 								className='text-sm cursor-pointer w-36 hidden'
-// 								type='file'
-// 								multiple
-// 							/>
-// 							<div className='bg-yellow-400 text-slate-800 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-yellow-600'>
-// 								Select
-// 							</div>
-// 						</label>
-// 						<div className='title text-white uppercase'>
-// 							or drop files here
-// 						</div>
-// 					</div>
-// 					<div
-// 						onClick={() => setShowAddProject(false)}
-// 						className='absolute -top-10 -right-10 bg-slate-700 p-4 cursor-pointer hover:bg-slate-100 py-2 text-white hover:text-slate-900 rounded-full'>
-// 						X
-// 					</div>
-// 				</div>
-// 			</div>
-// 		) : (
-// 			<>
-// 				<h1 className='text-xl text-white font-bold mb-6'>
-// 					Add a new project
-// 				</h1>
-// 				{/* Form */}
-// 				<div
-// 					onKeyPress={(ev) => {
-// 						if (ev.key === 'Enter') {
-// 							ev.preventDefault()
-// 							handleSave()
-// 						}
-// 					}}>
-// 					<div className='space-y-4'>
-// 						<div>
-// 							<label className='block text-sm font-medium mb-1 text-white'>
-// 								Name
-// 							</label>
-// 							<input
-// 								id='name'
-// 								value={projectData.name}
-// 								onChange={(e) =>
-// 									setProjectData({
-// 										...projectData,
-// 										name: e.target.value,
-// 									})
-// 								}
-// 								className='form-input w-full bg-primary-dark-blue border-slate-400 text-white focus:border-0'
-// 							/>
-// 						</div>
-// 						<div>
-// 							<label className='block text-sm font-medium mb-1 text-white'>
-// 								Description
-// 							</label>
-// 							<input
-// 								value={projectData.description}
-// 								onChange={(e) =>
-// 									setProjectData({
-// 										...projectData,
-// 										description: e.target.value,
-// 									})
-// 								}
-// 								id='description'
-// 								className='form-input w-full bg-primary-dark-blue border-slate-400 focus:border-opacity-0 focus:ring-transparent text-white'
-// 							/>
-// 						</div>
-// 					</div>
-// 					<label className='block text-sm font-medium my-3 text-white'>
-// 						States
-// 					</label>
-// 					<div className='flex justify-start items-center mt-6'>
-// 						<div className='mr-2'>
-// 							<div className='btn select-none cursor-pointer bg-slate-600 rounded-md py-1 hover:bg-yellow-600 text-white'>
-// 								Link to an existing State
-// 							</div>
-// 						</div>
-// 						<div
-// 							className='btn select-none cursor-pointer bg-slate-600 rounded-md py-1 hover:bg-yellow-600 text-white'
-// 							to='/'>
-// 							Create & link to a new State
-// 						</div>
-// 					</div>
-// 					<label className='block text-sm font-medium my-3 text-white'>
-// 						Filters
-// 					</label>
-// 					<div className='flex justify-start items-center mt-6'>
-// 						<div className='mr-2'>
-// 							<div className='btn select-none cursor-pointer bg-slate-600 rounded-md py-1 hover:bg-yellow-600 text-white'>
-// 								Link to an existing Filter
-// 							</div>
-// 						</div>
-// 						<div
-// 							className='btn select-none cursor-pointer bg-slate-600 rounded-md py-1 hover:bg-yellow-600 text-white'
-// 							to='/'>
-// 							Create & link to a new Filter
-// 						</div>
-// 					</div>
-// 					<div className='flex items-center justify-between mt-6'>
-// 						<div className='mr-1'>
-// 							<div
-// 								onClick={() => setMenu(true)}
-// 								className='text-sm underline hover:no-underline text-slate-400'>
-// 								Cancel
-// 							</div>
-// 						</div>
-// 						<div
-// 							onClick={handleSave}
-// 							className='btn bg-yellow-400 select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow-600 text-slate-900 ml-3'
-// 							to='/'>
-// 							Save
-// 						</div>
-// 					</div>
-// 				</div>
-// 			</>
-// 		)}
-// 	</>
-// ) : null}

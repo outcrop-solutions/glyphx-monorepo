@@ -1,22 +1,186 @@
-import { atom, selector } from "recoil";
+import { selector } from "recoil";
 import { selectedProjectAtom } from "./project";
 
 export const propertiesSelector = selector({
-    key: "properties",
-    get: ({ get }) => {
-      let selectedProject = get(selectedProjectAtom);
-      // @ts-ignore
-      return selectedProject.properties;
-    },
-    set: ({ set, get }, newPropertiesValue) => {
-      // @ts-ignore
-      let selectedProject = get(selectedProjectAtom);
-      let newSelectedProjectValue = {
-        ...selectedProject,
-        properties: [...newPropertiesValue],
-      };
-  
-      set(selectedProjectAtom, newSelectedProjectValue);
-    },
-  });
-  
+  key: "properties",
+  get: ({ get }) => {
+    let selectedProject = get(selectedProjectAtom);
+    if (!selectedProject) return;
+    if (selectedProject?.properties && selectedProject?.properties.length > 0) {
+      const existingProps = selectedProject?.properties.map((el, idx) => {
+        switch (idx) {
+          case 0:
+            return {
+              axis: "X",
+              accepts: "COLUMN_DRAG",
+              lastDroppedItem:
+                el === ""
+                  ? null
+                  : {
+                      id: el.split("-")[2],
+                      key: el.split("-")[0],
+                      dataType: el.split("-")[1],
+                    },
+            };
+
+          case 1:
+            return {
+              axis: "Y",
+              accepts: "COLUMN_DRAG",
+              lastDroppedItem:
+                el === ""
+                  ? null
+                  : {
+                      id: el.split("-")[2],
+                      key: el.split("-")[0],
+                      dataType: el.split("-")[1],
+                    },
+            };
+
+          case 2:
+            return {
+              axis: "Z",
+              accepts: "COLUMN_DRAG",
+              lastDroppedItem:
+                el === ""
+                  ? null
+                  : {
+                      id: el.split("-")[2],
+                      key: el.split("-")[0],
+                      dataType: el.split("-")[1],
+                    },
+            };
+
+          case 3:
+            return {
+              axis: "1",
+              accepts: "COLUMN_DRAG",
+              lastDroppedItem:
+                el === ""
+                  ? null
+                  : {
+                      id: el.split("-")[2],
+                      key: el.split("-")[0],
+                      dataType: el.split("-")[1],
+                    },
+            };
+
+          case 4:
+            return {
+              axis: "2",
+              accepts: "COLUMN_DRAG",
+              lastDroppedItem:
+                el === ""
+                  ? null
+                  : {
+                      id: el.split("-")[2],
+                      key: el.split("-")[0],
+                      dataType: el.split("-")[1],
+                    },
+            };
+
+          case 5:
+            return {
+              axis: "3",
+              accepts: "COLUMN_DRAG",
+              lastDroppedItem:
+                el === ""
+                  ? null
+                  : {
+                      id: el.split("-")[2],
+                      key: el.split("-")[0],
+                      dataType: el.split("-")[1],
+                    },
+            };
+
+          default:
+            break;
+        }
+      });
+      return existingProps;
+    } else {
+      const cleanProps = [
+        { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      ];
+      return cleanProps;
+    }
+    // @ts-ignore
+  },
+  set: ({ set, get }, newPropertiesValue) => {
+    // @ts-ignore
+    return newPropertiesValue;
+  },
+});
+
+export const droppedPropertiesSelector = selector({
+  key: "droppedProperties",
+  get: ({ get }) => {
+    let properties = get(propertiesSelector);
+    // @ts-ignore
+    return properties.filter((item) => item.lastDroppedItem);
+  },
+});
+
+export const propsSlicedSelector = selector({
+  key: "slicedProperties",
+  get: ({ get }) => {
+    return get(propertiesSelector)
+      .slice(0, 3)
+      .map((item) => item.lastDroppedItem.key);
+  },
+});
+
+export const droppedSlicedSelector = selector({
+  key: "droppedSlicedProperties",
+  get: ({ get }) => {
+    return get(droppedPropertiesSelector)
+      .slice(0, 3)
+      .filter((el) => el);
+  },
+});
+
+// deep equals utility
+const equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
+// Boolean to check whether properties payload is valid
+export const isPropsValidSelector = selector({
+  key: "isPropertiesValid",
+  get: ({ get }) => {
+    const properties = get(propertiesSelector);
+    const propsSliced = get(propsSlicedSelector);
+    const droppedSliced = get(droppedSlicedSelector);
+    if (
+      properties &&
+      properties.length >= 3 &&
+      propsSliced &&
+      propsSliced.length >= 3 &&
+      droppedSliced &&
+      droppedSliced.length >= 3 &&
+      equals(propsSliced, droppedSliced)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  },
+});
+
+export const isPayloadValidSelector = selector({
+  key: "isPayloadValid",
+  get: ({ get }) => {},
+});
+
+// Formatted payload sent to API
+export const filterPayloadSelector = selector({
+  key: "firstThreeDroppedProperties",
+  get: ({ get }) => {
+    let properties = get(propertiesSelector);
+    // @ts-ignore
+    return properties.filter((item) => item.lastDroppedItem);
+  },
+});

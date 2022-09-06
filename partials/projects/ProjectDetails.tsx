@@ -3,8 +3,12 @@ import { Dialog, Transition } from "@headlessui/react";
 import { FolderIcon, UserCircleIcon, XIcon } from "@heroicons/react/outline";
 import { CheckIcon, PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
 import * as dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { projectDetailsAtom } from "@/state/project";
+import { userAtom } from "@/state/user";
 
 const tabs = [
   { name: "Info", href: "#", current: true },
@@ -13,9 +17,14 @@ const tabs = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
+export const ProjectDetails = () => {
+  const [projectDetails, setProjectDetails] = useRecoilState(
+    projectDetailsAtom
+  );
+  const user = useRecoilValue(userAtom);
+
   const [open, setOpen] = useState(true);
-  const [title, setTitle] = useState(projectDetails.name);
+  const [name, setName] = useState(projectDetails.name);
   const [description, setDescription] = useState(projectDetails.description);
   const [members, setMembers] = useState([]);
   const [chips, setChips] = useState(projectDetails.shared);
@@ -24,6 +33,8 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
   const [editShare, setEditShare] = useState(false);
   const [editTitle, setEditTitle] = useState(false);
   const [editDesc, setEditDesc] = useState(false);
+  
+  dayjs.extend(relativeTime);
 
   const handleChip = () => {
     setChips((prev) => {
@@ -48,7 +59,7 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
   const handleSave = async () => {
     const updateProjectInput = {
       id: projectDetails.id,
-      name: title,
+      name: name,
       description: description,
       shared: chips,
     };
@@ -120,7 +131,7 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
                     >
                       <span className="sr-only">Close panel</span>
                       <XIcon
-                        onClick={() => setProjectDetails(false)}
+                        onClick={() => setProjectDetails(null)}
                         className="h-6 w-6 text-white"
                         aria-hidden="true"
                       />
@@ -134,10 +145,10 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
                         {editTitle ? (
                           <input
                             type="text"
-                            name="title"
-                            id="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            name="name"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                             className="mt-1 rounded-sm block border-px bg-slate-800 border-slate-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         ) : (
@@ -259,8 +270,8 @@ export const ProjectDetails = ({ user, projectDetails, setProjectDetails }) => {
                         {editDesc ? (
                           <textarea
                             type="text"
-                            name="title"
-                            id="title"
+                            name="name"
+                            id="name"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             className="mt-1 rounded-sm w-40 block border-px bg-slate-800 border-slate-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"

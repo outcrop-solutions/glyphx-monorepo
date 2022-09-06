@@ -1,13 +1,16 @@
+import { useRecoilState, useRecoilValue } from "recoil";
+import { selectedFileAtom } from "@/state/files";
 import { XIcon } from "@heroicons/react/solid";
 
-export const FileTab = ({ selectFile, closeFile, item, selectedFile }) => {
+export const FileTab = ({ closeFile, item }) => {
+  const [selectedFile, setSelectedFile] = useRecoilState(selectedFileAtom);
   const handleClose = (e) => {
     e.stopPropagation();
     closeFile(item);
   };
   return (
     <div
-      onClick={() => selectFile(item)}
+      onClick={() => setSelectedFile(item)}
       className={`flex relative cursor-pointer hover:bg-slate-600 items-center ${
         selectedFile === item
           ? "border border-blue-600"

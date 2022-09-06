@@ -2,18 +2,20 @@ import React from "react";
 import { useDragOver } from "@minoru/react-dnd-treeview";
 import { TypeIcon } from "./TypeIcon";
 import styles from "./css/CustomNode.module.css";
+import { selectedFileAtom } from "@/state/files";
+import { useRecoilState } from "recoil";
 
 export const CustomNode = ({
   node,
   depth,
   onToggle,
   isOpen,
-  selectedFile,
   openFile,
-  selectFile,
 }) => {
   const { id, droppable, data } = node;
   const indent = depth * 24;
+
+  const [selectedFile, setSelectedFile] = useRecoilState(selectedFileAtom);
 
   const handleToggle = (e) => {
     e.stopPropagation();
@@ -26,7 +28,7 @@ export const CustomNode = ({
     <div
       onClick={() => {
         if (node.text === selectedFile) {
-          selectFile(node.text);
+          setSelectedFile(node.text);
         } else {
           openFile(node.text);
         }

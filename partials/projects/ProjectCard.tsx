@@ -7,19 +7,15 @@ import * as mutations from "graphql/mutations";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
 import { projectsAtom } from "@/state/globals";
-import { selectedProjectAtom } from "@/state/project";
+import { projectDetailsAtom, selectedProjectAtom } from "@/state/project";
 
-export const ProjectCard = ({
-  project,
-  setProjectDetails,
-  updatedAt,
-  name,
-  link,
-}) => {
-  const setProjects = useSetRecoilState(projectsAtom)
-  const setProject = useSetRecoilState(selectedProjectAtom)
-  dayjs.extend(relativeTime);
+export const ProjectCard = ({ project, updatedAt, name, link }) => {
   const router = useRouter();
+  dayjs.extend(relativeTime);
+
+  const setProjects = useSetRecoilState(projectsAtom);
+  const setProjectDetails = useSetRecoilState(projectDetailsAtom);
+
   const handleDelete = async () => {
     const projectDelete = {
       id: project.id,
@@ -41,9 +37,6 @@ export const ProjectCard = ({
         await Storage.remove(`${s3Data[i].key}`);
       }
     }
-  };
-  const handleDetails = () => {
-    setProjectDetails(project);
   };
 
   return (
@@ -119,7 +112,7 @@ export const ProjectCard = ({
         </svg>
         {/* add member */}
         <svg
-          onClick={handleDetails}
+          onClick={() => setProjectDetails(project)}
           width="24"
           height="25"
           viewBox="0 0 24 25"
@@ -133,7 +126,7 @@ export const ProjectCard = ({
         </svg>
         {/* info button */}
         <svg
-          onClick={handleDetails}
+          onClick={() => setProjectDetails(project)}
           width="24"
           height="25"
           viewBox="0 0 24 25"

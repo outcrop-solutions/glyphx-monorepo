@@ -302,7 +302,7 @@ export default function Dashboard() {
                           {/* TABLE BODY */}
                           <tbody className="bg-slate-900 divide-y divide-slate-200">
                             {people.map((person) => (
-                              <tr key={person.email}>
+                              <tr key={person.name}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-200">
                                   {person.name}
                                 </td>
@@ -338,4 +338,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-};
+}

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { GetServerSideProps } from "next";
 import sortArray from "sort-array";
+
 // Amplify
 import { withSSRContext, graphqlOperation } from "aws-amplify";
 
 import { listProjects } from "graphql/queries";
-import { createProject } from "graphql/mutations";
 import { ListProjectsQuery } from "../API";
 
 // Layout
@@ -20,62 +20,44 @@ import { AddProjectModal } from "partials";
 import { ProjectDetails } from "partials";
 
 // Hooks
-import { useProjects } from "services/useProjects";
-import { useUser } from "services/useUser";
-import { useStateChange } from "services/useStateChange";
-import { useFileSystem } from "services/useFileSystem";
-import { useStates } from "services/useStates";
-import { updateProject } from "../graphql/mutations";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { isGridViewAtom, projectsAtom, showAddProjectAtom } from "../state";
+import {
+  isGridViewAtom,
+  projectDetailsAtom,
+  projectsAtom,
+  showAddProjectAtom,
+} from "../state";
 
 export default function Projects({
   userData,
-  authenticated,
   data,
+  // authenticated,
   // setProjects,
 }) {
-  const projects = useRecoilValue(projectsAtom);
+  const [projects, setProjects] = useRecoilState(projectsAtom);
+  setProjects(data);
+
   const isGridView = useRecoilValue(isGridViewAtom);
-  const { user, setUser } = useUser(userData);
-
-  const [projectDetails, setProjectDetails] = useState(null);
-
-  const [showAddProject, setShowAddProject] =
-    useRecoilState(showAddProjectAtom);
+  const projectDetails = useRecoilValue(projectDetailsAtom);
+  const showAddProject = useRecoilValue(showAddProjectAtom);
 
   return (
     <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
-      {showAddProject ? (
-        <AddProjectModal user={user} setShowAddProject={setShowAddProject} />
-      ) : null}
-      {/* Sidebar */}
-      <MainSidebar user={user} />
-      {projectDetails ? (
-        <ProjectDetails
-          user={user}
-          projectDetails={projectDetails}
-          setProjectDetails={setProjectDetails}
-        />
-      ) : null}
-      {/* Content area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-none bg-primary-dark-blue">
+      {showAddProject ? <AddProjectModal /> : null}
+      <MainSidebar />
+      {projectDetails ? <ProjectDetails /> : null}
+      <div className="relative flex flex-col flex-1 overflow-hidden bg-primary-dark-blue scrollbar-none">
         {/*  Site header */}
-        <Header setShowAddProject={setShowAddProject} />
-        {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
-        <main className="h-full">
+        <Header />
+        <main className="h-full overflow-y-scroll">
           <div className="flex grow relative h-full">
             <div className="w-full flex">
               {projects && projects.length > 0 ? (
                 <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
-                  {isGridView ? (
-                    <TableView user={user} />
-                  ) : (
-                    <GridView setProjectDetails={setProjectDetails} />
-                  )}
+                  {isGridView ? <TableView /> : <GridView />}
                 </div>
               ) : (
-                <Templates userData={userData} />
+                <Templates />
               )}
             </div>
           </div>

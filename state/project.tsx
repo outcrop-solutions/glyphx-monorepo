@@ -3,7 +3,13 @@ import { atom, selector } from "recoil";
 // holds state of currently selected project
 export const selectedProjectAtom = atom({
   key: "selectedProject",
-  default: {},
+  default: null,
+});
+
+// holds state of currently selected project details
+export const selectedProjectDetailsAtom = atom({
+  key: "selectedProjectDetails",
+  default: null,
 });
 
 export const payloadSelector = selector({
@@ -11,7 +17,8 @@ export const payloadSelector = selector({
   get: ({ get }) => {
     let selectedProject = get(selectedProjectAtom);
     // @ts-ignore
-    return { url: selectedProject.url, sdt: selectedProject.sdt };
+    if (!selectedProject) return { url: null, sdt: null };
+    return { url: selectedProject.filePath, sdt: selectedProject.filePath };
   },
   set: ({ set, get }, { sdt, url }: { sdt: any; url: any }) => {
     // @ts-ignore
@@ -19,28 +26,14 @@ export const payloadSelector = selector({
     let newSelectedProjectValue = {
       ...selectedProject,
       url: url,
-      sdt: sdt,
+      filePath: sdt,
     };
 
     set(selectedProjectAtom, newSelectedProjectValue);
   },
 });
 
-export const membersSelector = selector({
-  key: "members",
-  get: ({ get }) => {
-    let selectedProject = get(selectedProjectAtom);
-    // @ts-ignore
-    return selectedProject.members;
-  },
-  set: ({ set, get }, newMembersValue) => {
-    // @ts-ignore
-    let selectedProject = get(selectedProjectAtom);
-    let newSelectedProjectValue = {
-      ...selectedProject,
-      members: [...newMembersValue],
-    };
-
-    set(selectedProjectAtom, newSelectedProjectValue);
-  },
+export const projectDetailsAtom = atom({
+  key: "projectDetails",
+  default: null,
 });

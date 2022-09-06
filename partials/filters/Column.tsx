@@ -8,21 +8,19 @@ import { deleteFilter } from "graphql/mutations";
 
 import { ShowHide } from "./actions/ShowHide";
 import { DeleteFilter } from "./actions/DeleteFilter";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { filtersAppliedAtom } from "@/state/filters";
+import { propertiesSelector } from "@/state/properties";
 
-export const Column = ({
-  setPropertiesArr,
-  filtersApplied,
-  setFiltersApplied,
-  axis,
-  accept,
-  lastDroppedItem,
-  onDrop,
-  idx,
-}) => {
-  const [isFilter, setIsFilter] = useState(false);
+export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
+  const [filtersApplied, setFiltersApplied] = useRecoilState(
+    filtersAppliedAtom
+  );
+  const setProperties = useSetRecoilState(propertiesSelector);
   const [applied, setApplied] = useState(
     filtersApplied.includes(lastDroppedItem) ? true : false
   );
+  const [isFilter, setIsFilter] = useState(false);
   const [min, setMin] = useState("");
   const [max, setMax] = useState("");
 
@@ -41,7 +39,7 @@ export const Column = ({
   const handleDeleteFilter = async () => {
     let deleteFilterInput = { id: lastDroppedItem.id };
 
-    setPropertiesArr((prev) => {
+    setProperties((prev) => {
       let newProps = prev;
       if (prev.length > 0) {
         newProps = prev.map((el) => {
@@ -120,6 +118,7 @@ export const Column = ({
           </div>
         ) : (
           <div
+            // @ts-ignore
             formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
             className="h-4 px-4 my-auto ml-4 bg-slate-800 group-filters-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl text-xs font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100"
           >
@@ -136,20 +135,9 @@ export const Column = ({
       </li>
       {isFilter && lastDroppedItem ? (
         lastDroppedItem.dataType === "number" ? (
-          <RangeFilter
-            min={min}
-            setMin={setMin}
-            max={max}
-            setMax={setMax}
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
-          />
+          <RangeFilter min={min} setMin={setMin} max={max} setMax={setMax} />
         ) : (
-          <SearchFilter
-            lastDroppedItem={lastDroppedItem}
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
-          />
+          <SearchFilter lastDroppedItem={lastDroppedItem} />
         )
       ) : null}
     </>

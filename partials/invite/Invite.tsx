@@ -71,8 +71,8 @@ export const Invite = ({ setShare }) => {
             </p>
           </div>
           <div className="flex items-center justify-between pb-4">
-            <LinkDropDown />
-            <PermissionsDropDown />
+            <LinkDropDown align={undefined} />
+            <PermissionsDropDown align={undefined} />
           </div>
           <hr />
           <MemberList />

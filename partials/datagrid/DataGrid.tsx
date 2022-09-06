@@ -1,24 +1,17 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import DataGrid from "lib/react-data-grid/lib/bundle";
 import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
+import { useRecoilState } from "recoil";
+import { columnsSelector, rowsSelector } from "@/state/files";
 
-export const Datagrid = ({ isDropped, dataGrid, setDataGrid }) => {
-  const [rows, setRows] = useState(dataGrid.rows);
-  const [columns, setColumns] = useState(dataGrid.columns);
+export const Datagrid = ({ isDropped }) => {
+  const [rows, setRows] = useRecoilState(rowsSelector);
+  const [columns, setColumns] = useRecoilState(columnsSelector);
+
   const [sortColumns, setSortColumns] = useState([]);
   const onSortColumnsChange = useCallback((sortColumns) => {
     setSortColumns(sortColumns.slice(-1));
   }, []);
-
-  //set datagrid data
-  useEffect(() => {
-    const newCols = dataGrid.columns;
-    setColumns(newCols);
-  }, [dataGrid.columns]);
-  useEffect(() => {
-    const newRows = dataGrid.rows;
-    setRows(newRows);
-  }, [dataGrid.rows]);
 
   // data grid column handling
   const draggableColumns = useMemo(() => {
@@ -80,6 +73,7 @@ export const Datagrid = ({ isDropped, dataGrid, setDataGrid }) => {
   }, [rows, sortColumns]);
 
   return (
+    // @ts-ignore - missing attributes
     <DataGrid
       headerRowHeight={20}
       rowHeight={20}

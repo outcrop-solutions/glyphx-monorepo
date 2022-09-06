@@ -1,27 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Column } from "./Column";
 import { Axes } from "./Axes";
 import { useFilterChange } from "services/useFilterChange";
+import { propertiesSelector } from "@/state/properties";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { filterQueryAtom, filtersAppliedAtom } from "@/state/filters";
+import { payloadSelector } from "@/state/project";
 
-export const Filters = ({
-  setQuery,
-  filtersApplied,
-  setFiltersApplied,
-  sidebarExpanded,
-  setSidebarExpanded,
-  propertiesArr,
-  setPropertiesArr,
-  handleDrop,
-  projectId,
-  sdt,
-}) => {
-  const [open, setOpen] = useState(true);
+export const Filters = ({ handleDrop, projectId }) => {
+  const [properties, setProperties] = useRecoilState(propertiesSelector);
+  const filtersApplied = useRecoilValue(filtersAppliedAtom);
+  // const { sdt } = useRecoilValue(payloadSelector);
+  const setQuery = useSetRecoilState(filterQueryAtom)
+  // useFilterChange(filtersApplied, projectId, sdt, properties, setQuery);
 
-  useFilterChange(filtersApplied, projectId, sdt, propertiesArr, setQuery);
-
-  const handleClick = () => {
-    setOpen((prev) => !prev);
-  };
   return (
     <React.Fragment>
       <details open className="group">
@@ -42,22 +34,18 @@ export const Filters = ({
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
         </summary>
-
         <div
           className={`block border-b border-slate-400
         `}
         >
-          <ul className={`overflow-auto ${!open && "hidden"}`}>
+          <ul className={`overflow-auto`}>
             {/* read only (no drag n drop) property filters */}
-            {propertiesArr.length > 0
-              ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => {
+            {properties?.length > 0
+              ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
                   if (idx < 3) {
                     return (
                       <Axes
-                        filtersApplied={filtersApplied}
-                        setFiltersApplied={setFiltersApplied}
                         axis={axis}
-                        setPropertiesArr={setPropertiesArr}
                         lastDroppedItem={lastDroppedItem}
                         key={idx}
                       />
@@ -65,9 +53,6 @@ export const Filters = ({
                   } else {
                     return (
                       <Column
-                        filtersApplied={filtersApplied}
-                        setFiltersApplied={setFiltersApplied}
-                        setPropertiesArr={setPropertiesArr}
                         axis={axis}
                         accept={accepts}
                         lastDroppedItem={lastDroppedItem}

@@ -13,6 +13,8 @@ import sortArray from "sort-array";
 import { useUser } from "services";
 import { useRouter } from "next/router";
 import { CreateProjectMutation } from "API";
+import { userAtom } from "@/state/user";
+import { useRecoilValue } from "recoil";
 const items = [
   {
     name: "Shipping Send by SKU",
@@ -37,9 +39,9 @@ const items = [
   },
 ];
 
-export const Templates = ({ userData }) => {
+export const Templates = () => {
   const router = useRouter();
-  const { user } = useUser(userData);
+  const user = useRecoilValue(userAtom);
   // const reloadProjects = async () => {
   //   try {
   //     if (user) {

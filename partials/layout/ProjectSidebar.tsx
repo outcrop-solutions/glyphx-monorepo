@@ -7,72 +7,17 @@ import { useRouter } from "next/router";
 export const ProjectSidebar = ({
   error,
   openFile,
-  sdt,
-  selectFile,
-  selectedFile,
-  setSelectedFile,
-  setDataGrid,
-  sidebarExpanded,
-  setSidebarExpanded,
   setFilterSidebarPosition,
-  sidebarOpen,
-  setSidebarOpen,
-  project,
-  isEditing,
-  propertiesArr,
-  setPropertiesArr,
-  handleStateChange,
   handleDrop,
-  fileSystem,
-  setFiles,
-  setFilesOpen,
-  states,
-  state,
-  setState,
-  deleteState,
-  setStates,
   toastRef,
 }) => {
   const router = useRouter();
   const { id: projectId } = router.query;
 
   //utilities
-  const trigger = useRef(null);
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);
-  const [query, setQuery] = useState(false);
-  const [filtersApplied, setFiltersApplied] = useState([]);
 
-  useEffect(() => {
-    if (project) {
-      setSidebarExpanded(true);
-    }
-  }, [project, setSidebarExpanded]);
-  // close on click outside
-  useEffect(() => {
-    const clickHandler = ({ target }) => {
-      if (!sidebar.current || !trigger.current) return;
-      if (
-        !sidebarOpen ||
-        sidebar.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
-  });
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
-      if (!sidebarOpen || keyCode !== 219) return;
-      setSidebarOpen(false);
-    };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
-  });
-  //handle sidebar state in localStorage
   // set projectsSidebar position on transition
   useEffect(() => {
     setFilterSidebarPosition((prev) => {
@@ -82,7 +27,8 @@ export const ProjectSidebar = ({
         };
       }
     });
-  }, [sidebarExpanded, projPosition]);
+  }, [projPosition]);
+
   return (
     <div
       id="sidebar"
@@ -91,57 +37,16 @@ export const ProjectSidebar = ({
     >
       <div className="overflow-y-auto scrollbar-none">
         {/* Files */}
-
-        <Files
-          openFile={openFile}
-          selectFile={selectFile}
-          selectedFile={selectedFile}
-          setSelectedFile={setSelectedFile}
-          fileSystem={fileSystem}
-          setFiles={setFiles}
-          setFilesOpen={setFilesOpen}
-          setDataGrid={setDataGrid}
-          project={project}
-          sidebarExpanded={sidebarExpanded}
-          toastRef={toastRef}
-        />
-        <Properties
-          handleDrop={handleDrop}
-          propertiesArr={propertiesArr}
-        />
+        <Files openFile={openFile} toastRef={toastRef} />
+        <Properties handleDrop={handleDrop} />
         {error ? (
           <div className="btn bg-yellow-600 text-white my-4 w-full">
             {error}
           </div>
         ) : null}
-        <Filters
-          sdt={sdt}
-          setQuery={setQuery}
-          projectId={projectId}
-          handleDrop={handleDrop}
-          propertiesArr={propertiesArr}
-          setPropertiesArr={setPropertiesArr}
-          filtersApplied={filtersApplied}
-          setFiltersApplied={setFiltersApplied}
-          sidebarExpanded={sidebarExpanded}
-          setSidebarExpanded={setSidebarExpanded}
-        />
-        <States
-          query={query}
-          project={project}
-          state={state}
-          states={states}
-          deleteState={deleteState}
-          setState={setState}
-          setStates={setStates}
-        />
+        <Filters projectId={projectId} handleDrop={handleDrop} />
+        <States />
       </div>
-      {/* <div className="sticky bottom-0">
-        <ExpandCollapse
-          sidebarExpanded={sidebarExpanded}
-          setSidebarExpanded={setSidebarExpanded}
-        />
-      </div> */}
     </div>
   );
 };

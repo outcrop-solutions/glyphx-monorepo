@@ -2,22 +2,28 @@ import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { API, graphqlOperation } from "aws-amplify";
 import { createComment } from "graphql/mutations";
+import { userAtom } from "@/state/user";
+import { useRecoilValue } from "recoil";
+import { activeStateAtom } from "@/state/states";
 
-export const CommentInput = ({ user, state, setComments }) => {
+export const CommentInput = ({ setComments }) => {
   const [commentContent, setCommentContent] = useState("");
+  const user = useRecoilValue(userAtom);
+  const activeState = useRecoilValue(activeStateAtom);
 
   // update comment state
   const handleComment = (e) => {
     setCommentContent(e.target.value);
   };
+
   // save comment to DynamoDB
   const handleSaveComment = async () => {
-    if (typeof state !== "undefined") {
+    if (typeof activeState !== "undefined") {
       let commentInput = {
         id: uuid(),
         author: user ? user.attributes.email : "",
         content: commentContent,
-        stateID: state.id,
+        stateID: activeState.id,
       };
       try {
         setComments(commentInput);

@@ -4,6 +4,14 @@ import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  dataGridAtom,
+  filesOpenAtom,
+  fileSystemAtom,
+  selectedFileAtom,
+} from "@/state/files";
+import { selectedProjectAtom } from "@/state/project";
 
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
@@ -27,17 +35,15 @@ export const formatGridData = (data) => {
   return newGrid;
 };
 
-export const Dropzone = ({
-  setSelectedFile,
-  setFilesOpen,
-  fileSystem,
-  setFileSystem,
-  project,
-  setDataGrid,
-  toastRef,
-}) => {
+export const Dropzone = ({ toastRef }) => {
   const { query } = useRouter();
   const { projectId } = query;
+
+  const setDataGrid = useSetRecoilState(dataGridAtom);
+  const setFilesOpen = useSetRecoilState(filesOpenAtom);
+  const setSelectedFile = useSetRecoilState(selectedFileAtom);
+  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
+  const selectedProject = useRecoilValue(selectedProjectAtom);
   // status = 'uploading' | 'processing' | 'testing' | 'ready'
   const [status, setStatus] = useState(null);
 
@@ -97,7 +103,7 @@ export const Dropzone = ({
 
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             progressCallback(progress) {
-              handleUpload();
+              handleUpload(progress);
               if (progress.loaded / progress.total === 1) {
                 toast.done(toastRef.current);
                 console.log("upload complete");
@@ -115,7 +121,7 @@ export const Dropzone = ({
       // add to filesystem state
       // upload files to S3
     },
-    [setFileSystem, project, fileSystem]
+    [setFileSystem, selectedProject, fileSystem]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

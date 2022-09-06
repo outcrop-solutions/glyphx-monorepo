@@ -1,8 +1,14 @@
 import { useEffect } from "react";
 import * as dayjs from "dayjs";
+import { useRecoilValue } from "recoil";
+import { payloadSelector, selectedProjectAtom } from "@/state/project";
 // import { PlusIcon } from "@heroicons/react/solid";
 
-export const ModelFooter = ({ sdt, url, project, setProgress }) => {
+export const ModelFooter = () => {
+  const payload = useRecoilValue(payloadSelector);
+  const { sdt, url } = payload;
+  const project = useRecoilValue(selectedProjectAtom);
+
   const handleOpen = () => {
     // @ts-ignore
     if (project && window && window.core) {

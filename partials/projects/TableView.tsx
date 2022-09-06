@@ -3,11 +3,13 @@ import { useRouter } from "next/router";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useRecoilValue } from "recoil";
 import { projectsAtom } from "@/state/globals";
+import { userAtom } from "@/state/user";
 
-export const TableView = ({ user }) => {
+export const TableView = () => {
   const router = useRouter();
   const projects = useRecoilValue(projectsAtom);
-
+  const user = useRecoilValue(userAtom);
+  
   dayjs.extend(relativeTime);
   return (
     <div className="text-white rounded-sm">

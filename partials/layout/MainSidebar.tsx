@@ -5,9 +5,11 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { isMainSidebarExpandedAtom } from "@/state/globals";
 import { useRecoilValue } from "recoil";
+import { userAtom } from "@/state/user";
 
-export const MainSidebar = ({ user }) => {
+export const MainSidebar = () => {
   const isMainSidebarExpanded = useRecoilValue(isMainSidebarExpandedAtom);
+  const user = useRecoilValue(userAtom);
   const router = useRouter();
   const { pathname } = router;
 

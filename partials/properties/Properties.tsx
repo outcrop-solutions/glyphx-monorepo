@@ -1,13 +1,11 @@
 /* eslint-disable no-lone-blocks */
-import React, { useState } from "react";
+import React from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { propertiesSelector } from "@/state/properties";
 import { Property } from "./Property";
 
-export const Properties = ({ propertiesArr, handleDrop }) => {
-  const [open, setOpen] = useState(true);
-
-  const handleClick = () => {
-    setOpen(!open);
-  };
+export const Properties = ({ handleDrop }) => {
+  const [properties, setProperties] = useRecoilState(propertiesSelector)
 
   return (
     <React.Fragment>
@@ -31,8 +29,8 @@ export const Properties = ({ propertiesArr, handleDrop }) => {
         </summary>
         <div className={`block border-b border-slate-400`}>
           <ul>
-            {propertiesArr.length > 0
-              ? propertiesArr.map(({ axis, accepts, lastDroppedItem }, idx) => {
+            {properties?.length > 0
+              ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
                   if (idx < 3) {
                     return (
                       <Property

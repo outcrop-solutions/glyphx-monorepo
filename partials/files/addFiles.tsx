@@ -5,17 +5,25 @@ import { parse } from "papaparse";
 import { formatGridData } from "partials";
 import { PlusIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
+import {
+  dataGridAtom,
+  filesOpenAtom,
+  fileSystemAtom,
+  selectedFileAtom,
+} from "@/state/files";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { selectedProjectAtom } from "@/state/project";
 
-export const AddFiles = ({
-  fileSystem,
-  setFileSystem,
-  project,
-  setDataGrid,
-  setFilesOpen,
-  setSelectedFile,
-}) => {
+export const AddFiles = () => {
   const { query } = useRouter();
   const { projectId } = query;
+
+  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
+  const setSelectedFile = useSetRecoilState(selectedFileAtom);
+  const setFilesOpen = useSetRecoilState(filesOpenAtom);
+  const setDataGrid = useSetRecoilState(dataGridAtom);
+  const project = useRecoilValue(selectedProjectAtom);
+
   // status = 'uploading' | 'processing' | 'testing' | 'ready'
   const [status, setStatus] = useState(null);
   const [progress, setProgress] = useState(null);

@@ -1,18 +1,19 @@
+import { filtersAppliedAtom } from "@/state/filters";
 import { useState, useEffect } from "react";
+import { useSetRecoilState } from "recoil";
 
-export const SearchFilter = ({
-  filterApplied,
-  setFiltersApplied,
-  lastDroppedItem,
-}) => {
+export const SearchFilter = ({ lastDroppedItem }) => {
+  const setFiltersApplied = useSetRecoilState(filtersAppliedAtom);
   // TODO: use FilterApplied to persist search filters applied?
   const [keyword, setKeyword] = useState("");
   const [chips, setChips] = useState([]);
+
   useEffect(() => {
     setFiltersApplied((prev) => {
       return [...prev, { name: lastDroppedItem, keywords: chips }];
     });
   }, [chips]);
+
   const handleChip = () => {
     setChips((prev) => {
       setKeyword("");

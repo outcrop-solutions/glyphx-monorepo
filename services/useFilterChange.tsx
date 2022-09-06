@@ -9,6 +9,7 @@ import { useEffect } from "react";
  * @returns {Object}
  */
 
+// TODO: to be transitioned to atom effect
 export const useFilterChange = (
   filtersApplied,
   projectId,

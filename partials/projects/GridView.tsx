@@ -5,9 +5,7 @@ import React from "react";
 import { useRecoilValue } from "recoil";
 import { projectsAtom } from "@/state/globals";
 
-export const GridView = ({
-  setProjectDetails,
-}) => {
+export const GridView = () => {
   const projects = useRecoilValue(projectsAtom)
   return (
     <>
@@ -27,7 +25,6 @@ export const GridView = ({
         {projects.map((item, idx) => {
           return (
             <ProjectCard
-              setProjectDetails={setProjectDetails}
               key={item.id}
               project={item}
               updatedAt={item.updatedAt}

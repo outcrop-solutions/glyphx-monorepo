@@ -5,22 +5,12 @@ import { CustomDragPreview } from "./CustomDragPreview";
 import styles from "./css/Sidebar.module.css";
 import { Dropzone } from "partials";
 import { PlusIcon } from "@heroicons/react/outline";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { fileSystemAtom } from "@/state/files";
 
-export const Files = ({
-  openFile,
-  selectFile,
-  setDataGrid,
-  sidebarExpanded,
-  project,
-  fileSystem,
-  setFiles,
-  setFilesOpen,
-  selectedFile,
-  setSelectedFile,
-  toastRef,
-}) => {
-  const [open, setOpen] = useState(true);
-
+export const Files = ({ openFile, toastRef }) => {
+  const setFiles = useSetRecoilState(fileSystemAtom);
+  const fileSystem = useRecoilValue(fileSystemAtom);
   const handleDrop = (newTree) => setFiles(newTree);
   return (
     <React.Fragment>
@@ -42,14 +32,8 @@ export const Files = ({
           </div>
           <PlusIcon className="w-5 h-5 opacity-75 mr-1" />
         </summary>
-        <div
-          className={`${sidebarExpanded ? "lg:hidden" : "lg:block"} py-2 ${
-            !open && sidebarExpanded
-              ? "border-0 -my-2"
-              : "border-b border-slate-400"
-          }`}
-        >
-          <div className={`${!open && "hidden"}`}>
+        <div className={`lg:block py-2 border-b border-slate-400`}>
+          <div>
             {fileSystem && fileSystem.length > 0 ? (
               <Tree
                 initialOpen={true}
@@ -58,12 +42,10 @@ export const Files = ({
                 render={(node, { depth, isOpen, onToggle }) => (
                   <CustomNode
                     openFile={openFile}
-                    selectFile={selectFile}
                     node={node}
                     depth={depth}
                     isOpen={isOpen}
                     onToggle={onToggle}
-                    selectedFile={selectedFile}
                   />
                 )}
                 dragPreviewRender={(monitorProps) => (
@@ -78,12 +60,6 @@ export const Files = ({
               />
             ) : null}
             <Dropzone
-              setSelectedFile={setSelectedFile}
-              setFilesOpen={setFilesOpen}
-              setDataGrid={setDataGrid}
-              project={project}
-              fileSystem={fileSystem}
-              setFileSystem={setFiles}
               toastRef={toastRef}
             />
           </div>

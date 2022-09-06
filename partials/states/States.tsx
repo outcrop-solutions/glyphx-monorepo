@@ -4,50 +4,40 @@ import { createState } from "graphql/mutations";
 import { v4 as uuid } from "uuid";
 import { StateList } from "./StateList";
 import { PlusIcon } from "@heroicons/react/outline";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { selectedProjectAtom } from "@/state/project";
+import { statesSelector } from "@/state/states";
 
-export const States = ({
-  query,
-  project,
-  states,
-  state,
-  setState,
-  deleteState,
-  setStates,
-}) => {
-  const [open, setOpen] = useState(true);
+export const States = () => {
+  const project = useRecoilValue(selectedProjectAtom);
+  const [states, setStates] = useRecoilState(statesSelector);
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
+  // useEffect(() => {
+  //   // @ts-ignore
+  //   if (window && window?.core) {
+  //     // @ts-ignore
+  //     window.core.SendCameraPosition.connect(async function (message) {
+  //       const createStateInput = {
+  //         id: uuid(),
+  //         title: "new_state",
+  //         description: "",
+  //         camera: message,
+  //         queries: query ? query : "",
+  //         projectID: project.id,
+  //       };
 
-  useEffect(() => {
-    // @ts-ignore
-    if (window && window?.core) {
-      // @ts-ignore
-      window.core.SendCameraPosition.connect(async function (message) {
-        const createStateInput = {
-          id: uuid(),
-          title: "new_state",
-          description: "",
-          camera: message,
-          queries: query ? query : "",
-          projectID: project.id,
-        };
-
-        try {
-          const result = await API.graphql(
-            graphqlOperation(createState, { input: createStateInput })
-          );
-
-          // @ts-ignore
-          setStates(result.data.createState);
-          handleClick();
-        } catch (error) {
-          console.log({ error });
-        }
-      });
-    }
-  }, []);
+  //       try {
+  //         const result = await API.graphql(
+  //           graphqlOperation(createState, { input: createStateInput })
+  //         );
+  //         // @ts-ignore
+  //         setStates(result.data.createState);
+  //       } catch (error) {
+  //         console.log({ error });
+  //       }
+  //     });
+  //   }
+  // }, []);
 
   const addState = async () => {
     // @ts-ignore
@@ -77,16 +67,7 @@ export const States = ({
           </div>
           <PlusIcon className="w-5 h-5 opacity-75 mr-1" onClick={addState} />
         </summary>
-        {states && states.length > 0 && (
-          <StateList
-            states={states}
-            setStates={setStates}
-            open={open}
-            setState={setState}
-            deleteState={deleteState}
-            state={state}
-          />
-        )}
+        {states && states.length > 0 && <StateList />}
       </details>
     </React.Fragment>
   );

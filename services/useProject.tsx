@@ -5,6 +5,15 @@ import { GetProjectQuery, ListProjectsQuery } from "API";
 import update from "immutability-helper";
 import dayjs from "dayjs";
 import sortArray from "sort-array";
+import {
+  isPropsValidSelector,
+  isQtOpenAtom,
+  payloadSelector,
+  propertiesSelector,
+  selectedProjectAtom,
+  showReorderConfirmAtom,
+} from "../state";
+import { useRecoilState, useRecoilValue } from "recoil";
 /**
  * Utility for interfacing with the Project class
  * @param {Project} project
@@ -13,24 +22,17 @@ import sortArray from "sort-array";
  * setProjects - {function}
  */
 
-export const useProject = (project, sdt, setSdt, projectId) => {
-  // Project State
-  const [data, setData] = useState(project || null);
-  // Project Fork
-  const [reorderConfirm, setReorderConfirm] = useState(false);
+export const useProject = (projectId) => {
+  const [reorderConfirm, setReorderConfirm] = useRecoilState(
+    showReorderConfirmAtom
+  );
+  const [isQtOpen, setIsQtOpen] = useRecoilState(isQtOpenAtom);
+  const selectedProject = useRecoilValue(selectedProjectAtom);
+  const [payload, setPayload] = useRecoilState(payloadSelector);
+  const [properties, setProperties] = useRecoilState(propertiesSelector);
 
-  // DnD State
-  const [propertiesArr, setPropertiesArr] = useState([
-    { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-    { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-    { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-    { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-    { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-    { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-  ]);
   const [droppedProps, setDroppedProps] = useState([]);
   const [oldDropped, setOldDropped] = useState([]);
-  const [url, setUrl] = useState(false);
 
   // DnD utilities
   const isDropped = (propName) => {
@@ -41,7 +43,7 @@ export const useProject = (project, sdt, setSdt, projectId) => {
     (index, item) => {
       let dropped = [];
 
-      dropped = project?.properties
+      dropped = selectedProject?.properties
         .map((el) => {
           return el.split("-")[0];
         })
@@ -51,8 +53,8 @@ export const useProject = (project, sdt, setSdt, projectId) => {
       setOldDropped(droppedProps?.length > 0 ? droppedProps : dropped);
       setDroppedProps(update(droppedProps, { [index]: { $set: key } }));
       // TODO:
-      setPropertiesArr(
-        update(propertiesArr, {
+      setProperties(
+        update(properties, {
           [index]: {
             lastDroppedItem: {
               $set: item,
@@ -61,143 +63,14 @@ export const useProject = (project, sdt, setSdt, projectId) => {
         })
       );
     },
-    [droppedProps, propertiesArr, project]
+    [droppedProps, properties, selectedProject]
   );
-
-  // hydrate Project State
-  useEffect(() => {
-    if (project) setData(project);
-  }, [project]);
-
-  // hydrate Functional State
-  useEffect(() => {
-    if (project) {
-      let dropped = project?.properties
-        .map((el) => {
-          return el.split("-")[0];
-        })
-        .filter((el) => el !== "");
-
-      // TODO: change this to columns property
-      setPropertiesArr((prev) => {
-        if (project?.properties && project?.properties.length > 0) {
-          const existingProps = project?.properties.map((el, idx) => {
-            switch (idx) {
-              case 0:
-                return {
-                  axis: "X",
-                  accepts: "COLUMN_DRAG",
-                  lastDroppedItem:
-                    el === ""
-                      ? null
-                      : {
-                          id: el.split("-")[2],
-                          key: el.split("-")[0],
-                          dataType: el.split("-")[1],
-                        },
-                };
-
-              case 1:
-                return {
-                  axis: "Y",
-                  accepts: "COLUMN_DRAG",
-                  lastDroppedItem:
-                    el === ""
-                      ? null
-                      : {
-                          id: el.split("-")[2],
-                          key: el.split("-")[0],
-                          dataType: el.split("-")[1],
-                        },
-                };
-
-              case 2:
-                return {
-                  axis: "Z",
-                  accepts: "COLUMN_DRAG",
-                  lastDroppedItem:
-                    el === ""
-                      ? null
-                      : {
-                          id: el.split("-")[2],
-                          key: el.split("-")[0],
-                          dataType: el.split("-")[1],
-                        },
-                };
-
-              case 3:
-                return {
-                  axis: "1",
-                  accepts: "COLUMN_DRAG",
-                  lastDroppedItem:
-                    el === ""
-                      ? null
-                      : {
-                          id: el.split("-")[2],
-                          key: el.split("-")[0],
-                          dataType: el.split("-")[1],
-                        },
-                };
-
-              case 4:
-                return {
-                  axis: "2",
-                  accepts: "COLUMN_DRAG",
-                  lastDroppedItem:
-                    el === ""
-                      ? null
-                      : {
-                          id: el.split("-")[2],
-                          key: el.split("-")[0],
-                          dataType: el.split("-")[1],
-                        },
-                };
-
-              case 5:
-                return {
-                  axis: "3",
-                  accepts: "COLUMN_DRAG",
-                  lastDroppedItem:
-                    el === ""
-                      ? null
-                      : {
-                          id: el.split("-")[2],
-                          key: el.split("-")[0],
-                          dataType: el.split("-")[1],
-                        },
-                };
-
-              default:
-                break;
-            }
-          });
-          return existingProps;
-        } else {
-          const cleanProps = [
-            { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-          ];
-          return cleanProps;
-        }
-      });
-      setSdt(project?.filePath ? project?.filePath : false);
-      setUrl(project?.url ? project?.url : false);
-      setOldDropped([...dropped]);
-      console.log({ dropped });
-      setReorderConfirm(false);
-      setDroppedProps([]);
-    }
-  }, [project]);
 
   // handle ETL
   useEffect(() => {
     // Formatted variables
-    let propsArr = propertiesArr.filter((item) => item.lastDroppedItem);
-    let filteredArr = propertiesArr
+    let propsArr = properties.filter((item) => item.lastDroppedItem);
+    let filteredArr = properties
       .slice(3)
       .filter((item) => item.lastDroppedItem);
     let propsSliced = propsArr
@@ -207,53 +80,20 @@ export const useProject = (project, sdt, setSdt, projectId) => {
     let droppedSliced = droppedProps.slice(0, 3).filter((el) => el);
 
     // utilties
-    const equals = (a, b) =>
-      a.length === b.length && a.every((v, i) => v === b[i]);
-    const isPropsValid = () => {
-      if (
-        propsArr &&
-        propsArr.length >= 3 &&
-        propsSliced &&
-        propsSliced.length >= 3 &&
-        droppedSliced &&
-        droppedSliced.length >= 3 &&
-        equals(propsSliced, droppedSliced)
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    };
 
-    const doesKeyExist = async () => {
-      try {
-        const data = await Storage.list(`${project.id}/output/`);
-        console.log({ data });
-        if (
-          data
-            .map((el) => el.key)
-            .includes(`${project.id}/output/_etl_data_lake.csv`)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } catch (error) {
-        console.log({ error });
-      }
-    };
+    const isPropsValid = useRecoilValue(isPropsValidSelector);
+
     const updateProjectState = async (res) => {
       if (res.statusCode === 200) {
         setIsQtOpen(true);
-        setUrl(res.url);
-        setSdt(res.sdt);
+        setPayload((prev) => ({ url: res.url, sdt: res.sdt }));
 
         // update Dynamo Project Item
         const updateProjectInput = {
-          id: project.id,
+          id: selectedProject.id,
           filePath: res.sdt,
           expiry: new Date().toISOString(),
-          properties: propertiesArr.map((el) =>
+          properties: properties.map((el) =>
             el.lastDroppedItem
               ? el.lastDroppedItem.key
                 ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
@@ -276,7 +116,7 @@ export const useProject = (project, sdt, setSdt, projectId) => {
     const callETl = async (propsArr, filteredArr) => {
       console.log("callEtl");
       if (
-        project &&
+        selectedProject &&
         window &&
         window.core &&
         propsArr &&
@@ -288,10 +128,10 @@ export const useProject = (project, sdt, setSdt, projectId) => {
           method: "POST",
           mode: "cors",
           body: JSON.stringify({
-            model_id: project.id,
-            x_axis: propertiesArr[0].lastDroppedItem.key,
-            y_axis: propertiesArr[1].lastDroppedItem.key,
-            z_axis: propertiesArr[2].lastDroppedItem.key,
+            model_id: selectedProject.id,
+            x_axis: properties[0].lastDroppedItem.key,
+            y_axis: properties[1].lastDroppedItem.key,
+            z_axis: properties[2].lastDroppedItem.key,
             filters: filteredArr,
           }),
         });
@@ -328,30 +168,26 @@ export const useProject = (project, sdt, setSdt, projectId) => {
     }
     // handle initial ETL
     console.log({
-      project,
+      selectedProject,
       projectId: projectId,
-      propsValid: isPropsValid(),
+      propsValid: isPropsValid,
     });
-    if (projectId && isPropsValid()) {
+    if (projectId && isPropsValid) {
       handleETL();
     }
-  }, [propertiesArr, project]);
-
-  useEffect(() => {
-    console.log({ propertiesArr });
-  }, [propertiesArr]);
+  }, [properties, selectedProject]);
 
   // handle Open project
   useEffect(() => {
-    console.log({ url, sdt, project });
-    if (project && window && window.core) {
-      if (url) {
-        window?.core.OpenProject(JSON.stringify(url));
+    console.log({ payload, selectedProject });
+    if (selectedProject && window && window.core) {
+      if (payload.url) {
+        window?.core.OpenProject(JSON.stringify(payload.url));
       } else {
         window?.core.OpenProject({});
       }
     }
-  }, [sdt, url, project]);
+  }, [payload, selectedProject]);
 
   // handle close project drawer
   useEffect(() => {
@@ -362,32 +198,7 @@ export const useProject = (project, sdt, setSdt, projectId) => {
     }
   }, [reorderConfirm]);
 
-  useEffect(() => {
-    setData(project);
-  }, [project]);
-
-  const fetchProject = useCallback(async () => {
-    try {
-      const user = await Auth.currentAuthenticatedUser();
-      const response = (await API.graphql(graphqlOperation(getProject))) as {
-        data: GetProjectQuery;
-      };
-      let newData = response.data.getProject;
-      setData(newData);
-    } catch (error) {
-      console.log("error on fetching projects", error);
-    }
-  }, [project]);
-
   return {
-    project: data,
-    setProject: setData,
-    reorderConfirm,
-    setReorderConfirm,
-    propertiesArr,
-    setPropertiesArr,
-    droppedProps,
-    setDroppedProps,
     isDropped,
     handleDrop,
   };

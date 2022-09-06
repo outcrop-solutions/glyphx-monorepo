@@ -10,11 +10,17 @@ import {
 import { v4 as uuid } from "uuid";
 import { createProject } from "graphql/mutations";
 import { API, graphqlOperation, Auth } from "aws-amplify";
-import { CreateProjectInput, CreateProjectMutation } from "API";
-import Router from "next/router";
+import { CreateProjectMutation } from "API";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { projectsAtom, showAddProjectAtom } from "@/state/globals";
+import { userAtom } from "@/state/user";
 
-export const AddProjectModal = ({ user, setShowAddProject }) => {
+export const AddProjectModal = () => {
   const router = useRouter();
+  const user = useRecoilValue(userAtom)
+  const setShowAddProject = useSetRecoilState(showAddProjectAtom);
+  const setProjects = useSetRecoilState(projectsAtom);
+
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("Untitled Project");
   const [chips, setChips] = useState([]);
@@ -27,6 +33,7 @@ export const AddProjectModal = ({ user, setShowAddProject }) => {
       return [...prev, members];
     });
   };
+
   const handleDelete = (item) => {
     setChips((prev) => {
       let newChips = [...prev].filter((el) => el !== item);

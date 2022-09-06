@@ -6,17 +6,16 @@ import {
 import { useState } from "react";
 import * as mutations from "graphql/mutations";
 import { API } from "aws-amplify";
+import { activeStateAtom } from "@/state/states";
+import { useRecoilState } from "recoil";
 
-export const State = ({
-  item,
-  state,
-  setState,
-  deleteState,
-  states,
-  setStates,
-}) => {
+export const State = ({ item }) => {
+  const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const [title, setTitle] = useState(item.title);
   const [edit, setEdit] = useState(false);
+
+  // TODO: put state change logic in activeStateAtom effect
+  // useStateChange(state);
   const handleRename = (e) => {
     setTitle(e.target.value);
   };
@@ -27,7 +26,7 @@ export const State = ({
       id: item.id,
     };
 
-    deleteState(item);
+    // deleteState(item);
 
     const deletedState = await API.graphql({
       query: mutations.deleteState,
@@ -43,7 +42,7 @@ export const State = ({
     <li
       key={item.id}
       onClick={() => {
-        setState(item);
+        setActiveState(item);
       }}
       className="py-2 group-states pl-2 hover:bg-slate-700 last:mb-0 flex items-center cursor-pointer"
     >
@@ -76,8 +75,8 @@ export const State = ({
         <div className="block text-slate-400 group-states-hover:text-slate-200 transition duration-150 truncate">
           <span
             className={`text-sm ${
-              item && item.id && state && state.id
-                ? item.id === state.id
+              item && item.id && activeState && activeState.id
+                ? item.id === activeState.id
                   ? "text-white"
                   : ""
                 : ""

@@ -1,25 +1,17 @@
 import React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { usePosition } from "services/usePosition";
 import { CommentsHeader } from "./CommentsHeader";
-import { ExpandCollapse } from "../layout/ExpandCollapse";
 import { CommentInput } from "./CommentInput";
 import { History } from "./CommentHistory";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { commentsOpenAtom, commentsSelector } from "state/comments";
 
-export const CommentsSidebar = ({
-  project,
-  setCommentsPosition,
-  user,
-  state,
-  states,
-}) => {
+export const CommentsSidebar = ({ setCommentsPosition }) => {
   const [commentsOpen, setCommentsOpen] = useRecoilState(commentsOpenAtom);
   const [comments, setComments] = useRecoilState(commentsSelector);
 
-  // refs for sidebar trigger and resize
-  const trigger = useRef(null);
+  // refs for sidebar resize
   const sidebar = useRef(null);
   const pos = usePosition(sidebar);
 
@@ -36,7 +28,7 @@ export const CommentsSidebar = ({
 
   return (
     <>
-      {states && state && states.length > 0 ? (
+      {comments && comments.length > 0 ? (
         <div
           id="sidebar"
           ref={sidebar}
@@ -47,16 +39,8 @@ export const CommentsSidebar = ({
           <CommentsHeader sidebarExpanded={commentsOpen} />
           <div className="m-2 hidden comments-sidebar-expanded:block overflow-y-scroll scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full">
             <History comments={comments} />
-            <CommentInput user={user} state={state} setComments={setComments} />
+            <CommentInput setComments={setComments} />
           </div>
-
-          {/* Expand / collapse button */}
-          {/* <div className="sticky bottom-0">
-            <ExpandCollapse
-              sidebarExpanded={commentsOpen}
-              setSidebarExpanded={setCommentsOpen}
-            />
-          </div> */}
         </div>
       ) : null}
     </>

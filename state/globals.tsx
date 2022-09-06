@@ -33,12 +33,17 @@ export const projectsAtom = atom({
 // holds current org
 export const currentOrgAtom = atom({
   key: "currentOrg",
-  default: {},
+  default: null,
 });
 
 // toggles grid vs list in overview
 export const isGridViewAtom = atom({
   key: "isGridView",
+  default: false,
+});
+
+export const isQtOpenAtom = atom({
+  key: "isQtOpen",
   default: false,
 });
 
@@ -59,6 +64,6 @@ export const showAddProjectAtom = atom({
 
 // toggles reorder confirmation modal
 export const showReorderConfirmAtom = atom({
-  key: "showAddProject",
+  key: "showreorderConfirm",
   default: false,
 });

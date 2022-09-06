@@ -1,39 +1,33 @@
 import { atom, selector } from "recoil";
 
+// holds the virtual filesystem displayed in files Tab
 export const fileSystemAtom = atom({
   key: "filesystem",
+  default: {},
   // add atom effect
 });
 
+// holds the currently selectedFile
 export const selectedFileAtom = atom({
   key: "selectedFile",
-  default: {},
+  default: "",
 });
 
-export const dataGridSelector = selector({
-  key: "dataGrid",
-  get: ({ get }) => {
-    let selectedFile = get(selectedFileAtom);
-    // TODO: format data grid
-    // @ts-ignore
-    return selectedFile;
-  },
-  // set: ({ set, get }, newFitlersValue) => {
-  //   // @ts-ignore
-  //   let selectedFile = get(selectedFileAtom);
-  //   let newSelectedFileValue = {
-  //     ...selectedFile,
-  //     fitlers: [...newFitlersValue],
-  //   };
+export const filesOpenAtom = atom({
+  key: "filesOpen",
+  default: [],
+});
 
-  //   set(selectedProjectAtom, newSelectedProjectValue);
-  // },
+// holds the excel data grid state
+export const dataGridAtom = atom({
+  key: "dataGrid",
+  default: {},
 });
 
 export const columnsSelector = selector({
   key: "columns",
   get: ({ get }) => {
-    let dataGrid = get(dataGridSelector);
+    let dataGrid = get(dataGridAtom);
     // TODO: format data grid
     // @ts-ignore
     return dataGrid.columns;
@@ -46,10 +40,20 @@ export const columnsSelector = selector({
 export const rowsSelector = selector({
   key: "rows",
   get: ({ get }) => {
-    let dataGrid = get(dataGridSelector);
+    let dataGrid = get(dataGridAtom);
     // TODO: format data grid
     // @ts-ignore
     return dataGrid.rows;
+  },
+  set: ({ get, set }) => {
+    // TODO: set datagrid based on changes to the new rows value
+  },
+});
+
+export const gridLoadingSelector = selector({
+  key: "gridLoading",
+  get: ({ get }) => {
+    return false;
   },
   set: ({ get, set }) => {
     // TODO: set datagrid based on changes to the new rows value

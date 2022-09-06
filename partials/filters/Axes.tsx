@@ -7,14 +7,16 @@ import { API, graphqlOperation } from "aws-amplify";
 import { deleteFilter } from "graphql/mutations";
 import { ShowHide } from "./actions/ShowHide";
 import { DeleteFilter } from "./actions/DeleteFilter";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { propertiesSelector } from "@/state/properties";
+import { filtersAppliedAtom } from "@/state/filters";
 
-export const Axes = ({
-  setPropertiesArr,
-  filtersApplied,
-  setFiltersApplied,
-  axis,
-  lastDroppedItem,
-}) => {
+export const Axes = ({ axis, lastDroppedItem }) => {
+  const setProperties = useSetRecoilState(propertiesSelector);
+  const [filtersApplied, setFiltersApplied] = useRecoilState(
+    filtersAppliedAtom
+  );
+
   const [isFilter, setIsFilter] = useState(false);
   const [applied, setApplied] = useState(
     filtersApplied.includes(lastDroppedItem) ? true : false
@@ -38,7 +40,7 @@ export const Axes = ({
   };
   const handleDeleteFilter = async () => {
     let deleteFilterInput = { id: lastDroppedItem.id };
-    setPropertiesArr((prev) => {
+    setProperties((prev) => {
       let newProps = prev;
       if (prev.length > 0) {
         newProps = prev.map((el) => {
@@ -100,6 +102,7 @@ export const Axes = ({
         )}
         {/* column header chip */}
         <div
+          // @ts-ignore
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
           className={`flex justify-center bg-slate-800 h-4 ml-4 group-filters-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl`}
         >
@@ -117,8 +120,6 @@ export const Axes = ({
       {isFilter && lastDroppedItem ? (
         lastDroppedItem.dataType === "number" ? (
           <RangeFilter
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
             min={min}
             setMin={setMin}
             max={max}
@@ -126,8 +127,6 @@ export const Axes = ({
           />
         ) : (
           <SearchFilter
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
             lastDroppedItem={lastDroppedItem}
           />
         )

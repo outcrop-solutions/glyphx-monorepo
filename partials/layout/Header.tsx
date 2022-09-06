@@ -6,19 +6,14 @@ import { PencilIcon } from "@heroicons/react/outline";
 import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
 import { Project } from "API";
-import { useRecoilValue } from "recoil";
-import { selectedProjectAtom } from "state";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { selectedProjectAtom, shareOpenAtom, showAddProjectAtom } from "state";
 
-interface Props {
-  setProject?: React.Dispatch<React.SetStateAction<Project>> | null;
-  selectedProject?: Project | null;
-  setShowAddProject?: React.Dispatch<React.SetStateAction<boolean>> | null;
-  setShare?: React.Dispatch<React.SetStateAction<boolean>> | null;
-}
-
-export const Header = ({ setProject, setShowAddProject, setShare }: Props) => {
+export const Header = () => {
   const selectedProject = useRecoilValue(selectedProjectAtom);
+  const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const setShare = useSetRecoilState(shareOpenAtom);
   const [edit, setEdit] = useState(false);
   // const handleEdit = () => {
   //   setEdit((prev) => !prev);
@@ -47,14 +42,14 @@ export const Header = ({ setProject, setShowAddProject, setShare }: Props) => {
   return (
     <div
       className={`sticky border-b top-0 z-30  flex justify-between items-center bg-primary-dark-blue max-h-16 w-full ${
-        selectedProject ? "px-4" : "mx-6"
+        !selectedProject ? "px-4" : "mx-6"
       }`}
     >
       {/* {!edit ? ( */}
       <div className="flex items-center group">
         <div
           className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
-            selectedProject ? "ml-6" : "ml-0"
+            !selectedProject ? "ml-6" : "ml-0"
           }`}
         >
           {selectedProject ? selectedProject.name : "My Projects"}
