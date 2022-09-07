@@ -28,7 +28,7 @@ export const Confirm = ({ user, setUser, setStatus }) => {
       {/* Content */}
       <div className="w-full">
         <div className="max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
-          <div className="w-full rounded-md p-8 bg-slate-800 border-slate-400 border">
+          <div className="w-full rounded-md p-8 bg-gray border-gray border">
             <h1 className="text-xl text-white font-bold mb-6">
               Create a new account
             </h1>
@@ -41,22 +41,22 @@ export const Confirm = ({ user, setUser, setStatus }) => {
                     className="block text-sm font-medium mb-1 text-white"
                     htmlFor="email"
                   >
-                    Verification Code <span className="text-yellow-500">*</span>
+                    Verification Code <span className="text-yellow">*</span>
                   </label>
                   <input
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     id="email"
-                    className="form-input w-full bg-primary-dark-blue text-white border-slate-400 focus:border-0"
+                    className="form-input w-full bg-primary-dark-blue text-white border-gray focus:border-0"
                     type="email"
                   />
                 </div>
               </div>
               <div className="flex items-center justify-between mt-6">
-                <div className="text-sm text-slate-400">
+                <div className="text-sm text-gray">
                   Have an account?{" "}
                   <span
-                    className="font-medium text-yellow-400 select-none cursor-pointer hover:text-yellow-300"
+                    className="font-medium text-yellow select-none cursor-pointer hover:text-yellow"
                     onClick={() => setStatus("signin")}
                   >
                     Sign In
@@ -64,13 +64,13 @@ export const Confirm = ({ user, setUser, setStatus }) => {
                 </div>
                 <div
                   onClick={handleConfirm}
-                  className="btn bg-yellow-400 hover:bg-yellow-600 select-none cursor-pointer text-slate-900 ml-3 whitespace-nowrap rounded-2xl py-1 font-bold text-xs"
+                  className="btn bg-yellow hover:bg-yellow select-none cursor-pointer text-gray ml-3 whitespace-nowrap rounded-2xl py-1 font-bold text-xs"
                 >
                   Confirm
                 </div>
               </div>
               {error ? (
-                <div className="btn bg-yellow-600 text-white my-4 w-full">
+                <div className="btn bg-yellow text-white my-4 w-full">
                   {error}
                 </div>
               ) : null}

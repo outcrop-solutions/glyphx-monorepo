@@ -12,7 +12,7 @@ export const MemberList = () => {
     { author: "Kyla McAndrews" },
   ];
   return (
-    <ul className="my-4 h-40 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300">
+    <ul className='my-4 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray'>
       {results.length > 0 ? (
         <>
           {results.map((item, idx) => (
@@ -21,7 +21,7 @@ export const MemberList = () => {
                 <div className="flex items-center">
                   <div
                     className={`rounded-full ${
-                      idx % 2 === 0 ? "bg-blue-600" : "bg-yellow-400"
+                      idx % 2 === 0 ? "bg-blue" : "bg-yellow"
                     } h-8 w-8 text-sm text-white flex items-center justify-center mr-2`}
                   >
                     {`${item.author.split("@")[0][0].toUpperCase()}`}
@@ -30,7 +30,7 @@ export const MemberList = () => {
                     {item.author}
                   </div>
                 </div>
-                <PermissionsDropDown />
+                <PermissionsDropDown align="right" />
               </div>
             </li>
           ))}

@@ -1,5 +1,5 @@
 import { atom, selector } from "recoil";
-import { selectedProjectAtom } from "./project";
+import { selectedProjectSelector } from "./project";
 
 export const shareOpenAtom = atom({
   key: "shareOpen",
@@ -9,18 +9,18 @@ export const shareOpenAtom = atom({
 export const membersSelector = selector({
   key: "members",
   get: ({ get }) => {
-    let selectedProject = get(selectedProjectAtom);
+    let selectedProject = get(selectedProjectSelector);
     // @ts-ignore
     return selectedProject.members;
   },
   set: ({ set, get }, newMembersValue) => {
     // @ts-ignore
-    let selectedProject = get(selectedProjectAtom);
+    let selectedProject = get(selectedProjectSelector);
     let newSelectedProjectValue = {
       ...selectedProject,
       members: [...newMembersValue],
     };
 
-    set(selectedProjectAtom, newSelectedProjectValue);
+    set(selectedProjectSelector, newSelectedProjectValue);
   },
 });

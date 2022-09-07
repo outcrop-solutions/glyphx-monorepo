@@ -44,7 +44,7 @@ export const State = ({ item }) => {
       onClick={() => {
         setActiveState(item);
       }}
-      className="py-2 group-states pl-2 hover:bg-slate-700 last:mb-0 flex items-center cursor-pointer"
+      className="py-2 group-states pl-2 hover:bg-gray last:mb-0 flex items-center cursor-pointer"
     >
       <div className="flex items-center justify-center h-6 w-6">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -65,14 +65,14 @@ export const State = ({ item }) => {
             }}
             type="text"
             name=""
-            className="bg-primary-dark-blue border border-slate-400 rounded shadow-sm h-8 w-full"
+            className="bg-primary-dark-blue border border-gray rounded shadow-sm h-8 w-full"
             id={item.id}
             value={title}
             onChange={handleRename}
           />
         </div>
       ) : (
-        <div className="block text-slate-400 group-states-hover:text-slate-200 transition duration-150 truncate">
+        <div className="block text-gray group-states-hover:text-gray transition duration-150 truncate">
           <span
             className={`text-sm ${
               item && item.id && activeState && activeState.id

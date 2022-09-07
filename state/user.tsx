@@ -1,7 +1,13 @@
-import { atom } from "recoil";
+import { Auth } from "aws-amplify";
+import { useRouter } from "next/router";
+import { atomFamily, selector } from "recoil";
 
-export const userAtom = atom({
+export const userSelector = atomFamily({
   key: "user",
-  default: {},
-//   TODO: set user via atom effects
+  default: (data: string) => {
+    // const router = useRouter();
+    return {};
+  },
+  dangerouslyAllowMutability: true,
+  //   TODO: set user via atom effects
 });

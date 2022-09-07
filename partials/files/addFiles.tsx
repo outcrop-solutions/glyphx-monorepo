@@ -12,7 +12,7 @@ import {
   selectedFileAtom,
 } from "@/state/files";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { selectedProjectAtom } from "@/state/project";
+import { selectedProjectSelector } from "@/state/project";
 
 export const AddFiles = () => {
   const { query } = useRouter();
@@ -22,7 +22,7 @@ export const AddFiles = () => {
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
   const setFilesOpen = useSetRecoilState(filesOpenAtom);
   const setDataGrid = useSetRecoilState(dataGridAtom);
-  const project = useRecoilValue(selectedProjectAtom);
+  const project = useRecoilValue(selectedProjectSelector);
 
   // status = 'uploading' | 'processing' | 'testing' | 'ready'
   const [status, setStatus] = useState(null);
@@ -85,10 +85,30 @@ export const AddFiles = () => {
           const binaryStr = reader.result;
 
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
-            progressCallback(progress) {
+            async progressCallback(progress) {
               handleUpload(progress);
               if (progress.loaded / progress.total === 1) {
                 console.log("upload complete");
+                console.log("about to do api call");
+                //api call here
+                try {
+                  const result = await fetch(
+                    "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
+                    {
+                      method: "post",
+                      // mode: 'cors',
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        model_id: `${project.id}`,
+                        bucket_name: "sampleproject04827-staging",
+                      }),
+                    }
+                  );
+                  const data = await result.json();
+                  console.log({ data });
+                } catch (error) {
+                  console.log({ error });
+                }
               } else {
                 console.log("upload incomplete");
               }
@@ -123,11 +143,9 @@ export const AddFiles = () => {
             <h2 className="sr-only">Steps</h2>
 
             <div>
-              <p className="text-xs font-medium text-slate-500">
-                2/3 - Address
-              </p>
+              <p className="text-xs font-medium text-gray">2/3 - Address</p>
 
-              <div className="mt-4 overflow-hidden bg-slate-200 rounded-full">
+              <div className="mt-4 overflow-hidden bg-gray rounded-full">
                 <div className="w-2/3 h-2 bg-blue-500 rounded-full"></div>
               </div>
             </div>
@@ -136,7 +154,7 @@ export const AddFiles = () => {
       ) : (
         <>
           <svg
-            className="mx-auto h-12 w-12 text-slate-400"
+            className="mx-auto h-12 w-12 text-gray"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -153,20 +171,20 @@ export const AddFiles = () => {
           <h3 className="mt-2 text-sm font-medium text-white">
             No files loaded...
           </h3>
-          <p className="mt-1 text-sm text-slate-200">
+          <p className="mt-1 text-sm text-gray">
             Add a new CSV file to your project or open an existing file form the
             Files drawer.
           </p>
           <div className="mt-6">
             <input {...getInputProps()} />
             {isDragActive ? (
-              <div className="text-slate-500 hover:text-slate-300 cursor-pointer m-4">
+              <div className="text-gray hover:text-slate-300 cursor-pointer m-4">
                 Drop the files here ...
               </div>
             ) : (
               <button
                 type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow hover:bg-yellow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 Add CSV

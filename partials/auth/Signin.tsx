@@ -3,12 +3,15 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Auth } from "aws-amplify";
 import React from "react";
+import { userSelector } from "@/state/user";
+import { useSetRecoilState } from "recoil";
 
 export const Signin = ({ setStatus }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
 
+  const setUser = useSetRecoilState(userSelector(userData));
   const router = useRouter();
   const handleUname = (e) => {
     setUsername(e.target.value);
@@ -20,6 +23,7 @@ export const Signin = ({ setStatus }) => {
   const signIn = async () => {
     try {
       const user = await Auth.signIn(username, password);
+      setUser(user);
       console.log({ user });
       router.push("/home");
       // setUser(user);
@@ -37,7 +41,7 @@ export const Signin = ({ setStatus }) => {
       {/* Content */}
       <div className="w-full">
         <div className="max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
-          <div className="w-full rounded-md p-8 bg-slate-800 border-slate-400 border">
+          <div className="w-full rounded-md p-8 bg-gray border-gray border">
             <h1 className="text-xl text-white font-bold mb-6">
               Sign in to your account
             </h1>
@@ -63,7 +67,7 @@ export const Signin = ({ setStatus }) => {
                     data-test="username-input"
                     value={username}
                     onChange={handleUname}
-                    className="w-full bg-primary-dark-blue border-slate-400 text-white focus:border-0"
+                    className="w-full bg-primary-dark-blue border-gray text-white focus:border-0"
                     type="email"
                   />
                 </div>
@@ -79,7 +83,7 @@ export const Signin = ({ setStatus }) => {
                     value={password}
                     onChange={handlePass}
                     id="password"
-                    className="w-full bg-primary-dark-blue border-slate-400 focus:border-opacity-0 focus:ring-transparent text-white"
+                    className="w-full bg-primary-dark-blue border-gray focus:border-opacity-0 focus:ring-transparent text-white"
                     type="password"
                     autoComplete="on"
                   />
@@ -89,14 +93,14 @@ export const Signin = ({ setStatus }) => {
                 <div className="mr-1">
                   <div
                     onClick={() => setStatus("reset")}
-                    className="text-sm underline hover:no-underline text-slate-400"
+                    className="text-sm underline hover:no-underline text-gray"
                   >
                     Forgot Password?
                   </div>
                 </div>
                 <div data-test="sign-in-sign-in-button">
                   <a
-                    className="btn bg-yellow-400 select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow-600 text-slate-900 ml-3"
+                    className="btn bg-yellow select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow text-gray ml-3"
                     onClick={signIn}
                   >
                     Sign In
@@ -105,12 +109,12 @@ export const Signin = ({ setStatus }) => {
               </div>
             </div>
             {/* Footer */}
-            <div className="pt-5 mt-6 border-t border-slate-200">
-              <div className="text-sm text-slate-400">
+            <div className="pt-5 mt-6 border-t border-gray">
+              <div className="text-sm text-gray">
                 Don’t you have an account?{" "}
                 <span
                   onClick={() => setStatus("register")}
-                  className="font-medium select-none text-yellow-400 cursor-pointer hover:text-yellow-300"
+                  className="font-medium select-none text-yellow cursor-pointer hover:text-yellow"
                 >
                   Sign Up
                 </span>
@@ -118,7 +122,7 @@ export const Signin = ({ setStatus }) => {
             </div>
           </div>
           {error ? (
-            <div className="btn bg-yellow-600 text-white my-4 w-full">
+            <div className="btn bg-yellow text-white my-4 w-full">
               {error}
             </div>
           ) : null}

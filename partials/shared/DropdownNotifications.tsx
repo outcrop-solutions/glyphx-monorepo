@@ -40,7 +40,7 @@ export function DropdownNotifications({ align }) {
       <button
         ref={trigger}
         className={
-          "flex items-center justify-center hover:bg-slate-800 transition duration-150 rounded-full"
+          "flex items-center justify-center hover:bg-gray transition duration-150 rounded-full"
         }
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -62,7 +62,7 @@ export function DropdownNotifications({ align }) {
       </button>
       {/* NOTIFICATION LIST */}
       <Transition
-        className={`origin-top-right absolute top-full -mr-48 sm:mr-0 min-w-80 border bg-primary-dark-blue border-slate-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+        className={`origin-top-right absolute top-full -mr-48 sm:mr-0 min-w-80 border bg-primary-dark-blue border-gray py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
           align === "right" ? "right-0" : "left-0"
         }`}
         show={dropdownOpen}
@@ -79,15 +79,15 @@ export function DropdownNotifications({ align }) {
           onFocus={() => setDropdownOpen(true)}
           onBlur={() => setDropdownOpen(false)}
         >
-          <div className="text-xs bg-primary-dark-blue font-semibold text-slate-400 uppercase pt-1.5 pb-2 px-4">
+          <div className="text-xs bg-primary-dark-blue font-semibold text-gray uppercase pt-1.5 pb-2 px-4">
             Notifications
           </div>
           <ul>
-            <li className="border-b bg-primary-dark-blue z-60 border-slate-200 last:border-0">
+            <li className="border-b bg-primary-dark-blue z-60 border-gray last:border-0">
               <Link href="#0">
                 <a
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="block py-2 px-4 hover:bg-slate-500"
+                  className="block py-2 px-4 hover:bg-gray"
                 >
                   <span className="block text-sm mb-2">
                     📣{" "}
@@ -97,17 +97,17 @@ export function DropdownNotifications({ align }) {
                     Sint occaecat cupidatat non proident, sunt in culpa qui
                     officia deserunt mollit anim.
                   </span>
-                  <span className="block text-xs font-medium text-slate-400">
+                  <span className="block text-xs font-medium text-gray">
                     Feb 12, 2021
                   </span>
                 </a>
               </Link>
             </li>
-            <li className="border-b bg-primary-dark-blue z-60 border-slate-200 last:border-0">
+            <li className="border-b bg-primary-dark-blue z-60 border-gray last:border-0">
               <Link href="#0">
                 <a
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="block py-2 px-4 hover:bg-slate-500"
+                  className="block py-2 px-4 hover:bg-gray"
                 >
                   <span className="block text-sm mb-2">
                     📣{" "}
@@ -117,17 +117,17 @@ export function DropdownNotifications({ align }) {
                     Sint occaecat cupidatat non proident, sunt in culpa qui
                     officia deserunt mollit anim.
                   </span>
-                  <span className="block text-xs font-medium text-slate-400">
+                  <span className="block text-xs font-medium text-gray">
                     Feb 12, 2021
                   </span>
                 </a>
               </Link>
             </li>
-            <li className="border-b bg-primary-dark-blue z-60 border-slate-200 last:border-0">
+            <li className="border-b bg-primary-dark-blue z-60 border-gray last:border-0">
               <Link href="#0">
                 <a
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="block py-2 px-4 hover:bg-slate-500"
+                  className="block py-2 px-4 hover:bg-gray"
                 >
                   <span className="block text-sm mb-2">
                     📣{" "}
@@ -137,7 +137,7 @@ export function DropdownNotifications({ align }) {
                     Sint occaecat cupidatat non proident, sunt in culpa qui
                     officia deserunt mollit anim.
                   </span>
-                  <span className="block text-xs font-medium text-slate-400">
+                  <span className="block text-xs font-medium text-gray">
                     Feb 12, 2021
                   </span>
                 </a>

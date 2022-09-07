@@ -32,12 +32,12 @@ export const CommentsSidebar = ({ setCommentsPosition }) => {
         <div
           id="sidebar"
           ref={sidebar}
-          className={`hidden lg:flex flex-col absolute z-10 right-0 top-0 lg:static border-l border-slate-400 lg:right-auto lg:top-auto lg:translate-x-0 transform h-full scrollbar-none w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 shrink-0 transition-all duration-200 ease-in-out ${
+          className={`hidden lg:flex flex-col absolute z-10 right-0 top-0 lg:static border-l border-gray lg:right-auto lg:top-auto lg:translate-x-0 transform h-full scrollbar-none w-64 lg:w-20 lg:comments-sidebar-expanded:!w-64 shrink-0 transition-all duration-200 ease-in-out ${
             commentsOpen ? "translate-y-64" : "translate-x-0"
           }`}
         >
           <CommentsHeader sidebarExpanded={commentsOpen} />
-          <div className="m-2 hidden comments-sidebar-expanded:block overflow-y-scroll scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded-full">
+          <div className="m-2 hidden comments-sidebar-expanded:block overflow-y-scroll scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full">
             <History comments={comments} />
             <CommentInput setComments={setComments} />
           </div>

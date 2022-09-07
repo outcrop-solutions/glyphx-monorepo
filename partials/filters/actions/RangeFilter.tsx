@@ -15,7 +15,7 @@ export const RangeFilter = ({ min, max, setMin, setMax }) => {
             }}
             value={min}
             autoComplete="number"
-            className="bg-transparent h-6 text-xs focus:ring-indigo-500 focus:border-indigo-500 block w-full border-slate-600"
+            className="bg-transparent h-6 text-xs focus:ring-indigo-500 focus:border-indigo-500 block w-full border-gray"
           />
         </div>
       </div>
@@ -32,7 +32,7 @@ export const RangeFilter = ({ min, max, setMin, setMax }) => {
             id="max"
             placeholder="000"
             autoComplete="number"
-            className="bg-transparent h-6 text-xs focus:ring-indigo-500 focus:border-indigo-500 block w-full border-slate-600"
+            className="bg-transparent h-6 text-xs focus:ring-indigo-500 focus:border-indigo-500 block w-full border-gray"
           />
         </div>
       </div>

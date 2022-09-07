@@ -70,14 +70,14 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
     <>
       <li
         ref={drop}
-        className={`py-2 group-filters hover:bg-slate-700 hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${
-          isFilter ? "border-b border-slate-500" : ""
+        className={`py-2 group-filters hover:bg-gray hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${
+          isFilter ? "border-b border-gray" : ""
         }`}
       >
         <div
           className={`${
             axis === "1" ? "mr-2" : "mr-1"
-          } text-slate-400 group-filters-hover:text-white pl-2`}
+          } text-gray group-filters-hover:text-white pl-2`}
         >{`${axis}`}</div>
         {lastDroppedItem ? (
           <Filter
@@ -86,9 +86,9 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
             type={lastDroppedItem.dataType}
           />
         ) : (
-          <div className="ml-2 flex items-center px-2 py-1 border border-slate-400 rounded-2xl">
+          <div className="ml-2 flex items-center px-2 py-1 border border-gray rounded-2xl">
             <svg
-              className="mr-3 fill-current text-slate-500 group-filters-hover:text-white"
+              className="mr-3 fill-current text-gray group-filters-hover:text-white"
               width="12"
               height="6"
               viewBox="0 0 12 6"
@@ -99,7 +99,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
             </svg>
 
             <svg
-              className="fill-current text-slate-500 group-filters-hover:text-white"
+              className="fill-current text-gray group-filters-hover:text-white"
               width="10"
               height="10"
               viewBox="0 0 10 10"
@@ -111,7 +111,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
           </div>
         )}
         {isActive ? (
-          <div className="block text-slate-400 hover:text-slate-200 transition duration-150 truncate">
+          <div className="block text-gray hover:text-gray transition duration-150 truncate">
             <span className="text-sm font-medium ml-3 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
               release to drop
             </span>
@@ -120,7 +120,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
           <div
             // @ts-ignore
             formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-            className="h-4 px-4 my-auto ml-4 bg-slate-800 group-filters-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl text-xs font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100"
+            className="h-4 px-4 my-auto ml-4 bg-gray group-filters-hover:text-gray transition duration-150 truncate cursor-pointer rounded-2xl text-xs font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100"
           >
             {/* <span className="text-xs font-medium lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200"> */}
             {lastDroppedItem ? `${lastDroppedItem.key}` : `Column ${idx + 1}`}

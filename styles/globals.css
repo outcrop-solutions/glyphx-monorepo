@@ -56,7 +56,7 @@ div div[role="columnheader"] {
 }
 
 div[role="grid"] {
-  @apply bg-primary-dark-blue overflow-scroll flex-col grow scrollbar-thin scrollbar-thumb-yellow-400 scrollbar-thumb-rounded;
+  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
 }
 ::-webkit-scrollbar {
   width: 10px;

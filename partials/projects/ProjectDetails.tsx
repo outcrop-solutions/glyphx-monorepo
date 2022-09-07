@@ -8,7 +8,7 @@ import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { projectDetailsAtom } from "@/state/project";
-import { userAtom } from "@/state/user";
+import { userSelector } from "@/state/user";
 
 const tabs = [
   { name: "Info", href: "#", current: true },
@@ -21,7 +21,7 @@ export const ProjectDetails = () => {
   const [projectDetails, setProjectDetails] = useRecoilState(
     projectDetailsAtom
   );
-  const user = useRecoilValue(userAtom);
+  const user = useRecoilValue(userSelector(userData));
 
   const [open, setOpen] = useState(true);
   const [name, setName] = useState(projectDetails.name);
@@ -101,7 +101,7 @@ export const ProjectDetails = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="absolute inset-0 bg-slate-800 bg-opacity-75 transition-opacity" />
+            <Dialog.Overlay className="absolute inset-0 bg-gray bg-opacity-75 transition-opacity" />
           </Transition.Child>
           <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
             <Transition.Child
@@ -149,7 +149,7 @@ export const ProjectDetails = () => {
                             id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="mt-1 rounded-sm block border-px bg-slate-800 border-slate-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 rounded-sm block border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         ) : (
                           <div className="flex">
@@ -163,7 +163,7 @@ export const ProjectDetails = () => {
                         <button
                           type="button"
                           onClick={() => setEditTitle((prev) => !prev)}
-                          className="ml-4 h-8 w-8 bg-slate-800 rounded-full flex items-center justify-center text-white hover:bg-slate-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          className="ml-4 h-8 w-8 bg-gray rounded-full flex items-center justify-center text-white hover:bg-gray hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow"
                         >
                           {editTitle ? (
                             <CheckIcon className="h-6 w-6" />
@@ -177,12 +177,12 @@ export const ProjectDetails = () => {
                         </button>
                       </div>
                       {msg && (
-                        <div className="w-full py-2 px-1 my-2 bg-yellow-400 rounded-lg text-center font-bold text-slate-700">
+                        <div className="w-full py-2 px-1 my-2 bg-yellow rounded-lg text-center font-bold text-gray">
                           {msg}
                         </div>
                       )}
                       {error && (
-                        <div className="w-full py-2 px-1 my-2 bg-rose-500 rounded-lg text-center font-bold text-slate-900">
+                        <div className="w-full py-2 px-1 my-2 bg-rose-500 rounded-lg text-center font-bold text-gray">
                           {error}
                         </div>
                       )}
@@ -190,7 +190,7 @@ export const ProjectDetails = () => {
                       <div>
                         <div className="block mb-2">
                           <nav
-                            className="relative z-0 rounded-lg shadow flex divide-x divide-slate-200"
+                            className="relative z-0 rounded-lg shadow flex divide-x divide-gray"
                             aria-label="Tabs"
                           >
                             {tabs.map((tab, tabIdx) => (
@@ -200,12 +200,12 @@ export const ProjectDetails = () => {
                                 className={classNames(
                                   tab.current
                                     ? "text-white"
-                                    : "text-slate-400 hover:text-slate-500",
+                                    : "text-gray hover:text-gray",
                                   tabIdx === 0 ? "rounded-l-lg" : "",
                                   tabIdx === tabs.length - 1
                                     ? "rounded-r-lg"
                                     : "",
-                                  "group relative min-w-0 flex-1 overflow-hidden bg-slate-800 py-2 px-3 text-sm font-medium text-center hover:bg-slate-50 focus:z-10"
+                                  "group relative min-w-0 flex-1 overflow-hidden bg-gray py-2 px-3 text-sm font-medium text-center hover:bg-gray focus:z-10"
                                 )}
                                 aria-current={tab.current ? "page" : undefined}
                               >
@@ -238,12 +238,12 @@ export const ProjectDetails = () => {
                         <h3 className="font-medium text-white">Information</h3>
                         <div
                           onClick={handleSave}
-                          className="cursor-pointer text-center bg-yellow-600 rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-slate-900"
+                          className="cursor-pointer text-center bg-yellow rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-gray"
                         >
                           Save
                         </div>
                       </div>
-                      <dl className="mt-2 border-t border-b border-slate-200 divide-y divide-slate-200">
+                      <dl className="mt-2 border-t border-b border-gray divide-y divide-gray">
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white mr-2">Owner</dt>
                           <dd className="text-slate-300 truncate">
@@ -274,7 +274,7 @@ export const ProjectDetails = () => {
                             id="name"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="mt-1 rounded-sm w-40 block border-px bg-slate-800 border-slate-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 rounded-sm w-40 block border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         ) : (
                           <p className="text-sm text-white italic">
@@ -284,7 +284,7 @@ export const ProjectDetails = () => {
                         <button
                           type="button"
                           onClick={() => setEditDesc((prev) => !prev)}
-                          className="-mr-2 h-8 w-8 bg-slate-800 rounded-full flex items-center justify-center text-white hover:bg-slate-100 hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          className="-mr-2 h-8 w-8 bg-gray rounded-full flex items-center justify-center text-white hover:bg-gray hover:text-white focus:outline-none focus:ring-2 focus:ring-yellow"
                         >
                           {editDesc ? (
                             <CheckIcon className="h-5 w-5" aria-hidden="true" />
@@ -306,7 +306,7 @@ export const ProjectDetails = () => {
                         >
                           <button
                             type="button"
-                            className="group -ml-1 bg-slate-800 p-1 rounded-md flex items-center focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            className="group -ml-1 bg-gray p-1 rounded-md flex items-center focus:outline-none focus:ring-2 focus:ring-yellow"
                           >
                             {editShare ? (
                               <CheckIcon
@@ -325,7 +325,7 @@ export const ProjectDetails = () => {
                       {chips && chips.length > 0 && (
                         <ul
                           role="list"
-                          className="mt-2 divide-y divide-slate-200"
+                          className="mt-2 divide-y divide-gray"
                         >
                           {chips.map((member, idx) => (
                             <li
@@ -341,7 +341,7 @@ export const ProjectDetails = () => {
                               <button
                                 onClick={() => handleDelete(member)}
                                 type="button"
-                                className="ml-6 bg-slate-800 rounded-md text-sm font-medium text-white hover:text-slate-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yelloy-500"
+                                className="ml-6 bg-gray rounded-md text-sm font-medium text-white hover:text-slate-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yelloy-500"
                               >
                                 Remove
                                 <span className="sr-only">{member}</span>
@@ -365,7 +365,7 @@ export const ProjectDetails = () => {
                             id="email"
                             value={members}
                             onChange={(e) => setMembers(e.target.value)}
-                            className="mt-1 rounded-sm block w-full border-px bg-slate-800 border-slate-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 rounded-sm block w-full border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         </div>
                       ) : null}

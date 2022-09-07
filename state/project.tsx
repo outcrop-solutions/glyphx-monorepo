@@ -1,9 +1,24 @@
-import { atom, selector } from "recoil";
+import { atom, selector, selectorFamily } from "recoil";
+import { GetProjectQuery } from "API";
+import { API, graphqlOperation } from "aws-amplify";
+import { getProject } from "graphql/queries";
 
-// holds state of currently selected project
-export const selectedProjectAtom = atom({
-  key: "selectedProject",
+export const projectIdAtom = atom({
+  key: "projectId",
   default: null,
+});
+// holds state of currently selected project
+export const selectedProjectSelector= selector({
+  key: "selectedProject",
+  get: async ({ get }) => {
+    const project = await API.graphql(
+      graphqlOperation(getProject, { id: get(projectIdAtom) })
+    );
+    return project;
+  },
+  set: ({ set }, project) => {
+    set(projectIdAtom, project.id);
+  },
 });
 
 // holds state of currently selected project details
@@ -15,21 +30,21 @@ export const selectedProjectDetailsAtom = atom({
 export const payloadSelector = selector({
   key: "payload",
   get: ({ get }) => {
-    let selectedProject = get(selectedProjectAtom);
+    let selectedProject = get(selectedProjectSelector);
     // @ts-ignore
     if (!selectedProject) return { url: null, sdt: null };
     return { url: selectedProject.filePath, sdt: selectedProject.filePath };
   },
   set: ({ set, get }, { sdt, url }: { sdt: any; url: any }) => {
     // @ts-ignore
-    let selectedProject = get(selectedProjectAtom);
+    let selectedProject = get(selectedProjectSelector);
     let newSelectedProjectValue = {
       ...selectedProject,
       url: url,
       filePath: sdt,
     };
 
-    set(selectedProjectAtom, newSelectedProjectValue);
+    set(selectedProjectSelector, newSelectedProjectValue);
   },
 });
 

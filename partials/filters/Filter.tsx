@@ -2,7 +2,7 @@ import React from "react";
 
 export const Filter = ({ isFilter, setIsFilter, type }) => {
   return (
-    <div className="ml-2 flex bg-split-slate-yellow items-center px-2 py-1 border border-slate-400 rounded-2xl">
+    <div className="ml-2 flex bg-split-slate-yellow items-center px-2 py-1 border border-gray rounded-2xl">
       {type === "number" ? (
         <svg
           onClick={() => setIsFilter((prev) => !prev)}

@@ -2,13 +2,13 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useRecoilValue } from "recoil";
-import { projectsAtom } from "@/state/globals";
-import { userAtom } from "@/state/user";
+import { projectsSelector } from "@/state/globals";
+import { userSelector } from "@/state/user";
 
 export const TableView = () => {
   const router = useRouter();
-  const projects = useRecoilValue(projectsAtom);
-  const user = useRecoilValue(userAtom);
+  const projects = useRecoilValue(projectsSelector);
+  const user = useRecoilValue(userSelector(userData));
   
   dayjs.extend(relativeTime);
   return (
@@ -17,11 +17,11 @@ export const TableView = () => {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="table-auto w-full">
-            <div className="ml-2 text-lg text-slate-100">
+            <div className="ml-2 text-lg text-gray">
               Recently Used Templates
             </div>
             {/* Table header */}
-            <thead className="text-xs uppercase text-slate-100 opacity-60 rounded-sm">
+            <thead className="text-xs uppercase text-gray opacity-60 rounded-sm">
               <tr>
                 <th className="p-2 whitespace-nowrap">
                   <div className="font-semibold text-left">Name</div>
@@ -45,7 +45,7 @@ export const TableView = () => {
               {/* Row */}
               {projects.map((item, idx) => (
                 <tr
-                  className="group hover:bg-slate-800"
+                  className="group hover:bg-gray"
                   onClick={() => router.push(`/project/${item.id}`)}
                 >
                   <td className="p-2 whitespace-nowrap">
@@ -70,7 +70,7 @@ export const TableView = () => {
                                 className={`rounded-full ${
                                   idx % 2 === 0
                                     ? "bg-blue-600"
-                                    : "bg-yellow-400"
+                                    : "bg-yellow"
                                 } h-8 w-8 text-sm text-white flex items-center justify-center`}
                               >
                                 {`${el.split("@")[0][0].toUpperCase()}`}

@@ -7,7 +7,7 @@ export const StateList = () => {
   const states = useRecoilValue(statesSelector);
 
   return (
-    <div className="lg:project-sidebar-expanded:block border-b border-slate-400">
+    <div className="lg:project-sidebar-expanded:block border-b border-gray">
       <ul
         style={{
           height: "200px",

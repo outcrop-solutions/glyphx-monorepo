@@ -13,11 +13,11 @@ import { API, graphqlOperation, Auth } from "aws-amplify";
 import { CreateProjectMutation } from "API";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { projectsAtom, showAddProjectAtom } from "@/state/globals";
-import { userAtom } from "@/state/user";
+import { userSelector } from "@/state/user";
 
 export const AddProjectModal = () => {
   const router = useRouter();
-  const user = useRecoilValue(userAtom)
+  const user = useRecoilValue(userSelector(userData))
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const setProjects = useSetRecoilState(projectsAtom);
 
@@ -66,16 +66,16 @@ export const AddProjectModal = () => {
   };
 
   return (
-    <div className="absolute w-full h-full flex justify-center items-center bg-slate-800 bg-opacity-50 z-60">
+    <div className="absolute w-full h-full flex justify-center items-center bg-gray bg-opacity-50 z-60">
       <ClickAwayListener onClickAway={handleClickAway}>
-        <div className="rounded-md min-w-80 bg-slate-800 z-60">
+        <div className="rounded-md min-w-80 bg-gray z-60">
           <div className="max-w-4xl bg-primary-dark-blue mx-auto flex flex-col justify-center rounded-lg overflow-hidden shadow-xl transform transition-all">
             <div className="lg:grid lg:grid-cols-12">
               <aside className="py-4 px-2 sm:px-6 rounded-tl-lg  lg:col-span-3 bg-secondary-dark-blue">
                 <nav className="space-y-1">
-                  <div className="cursor-pointer border-b mb-4 border-white text-white hover:text-white hover:bg-slate-800 group px-3 py-2 flex items-center text-sm font-bold">
+                  <div className="cursor-pointer border-b mb-4 border-white text-white hover:text-yellow hover:border-yellow group px-3 py-2 flex items-center text-sm font-bold">
                     <ArrowLeftIcon
-                      className="text-slate-400 group-hover:text-slate-500 shrink-0 -ml-1 mr-3 h-8 w-6"
+                      className="text-gray group-hover:text-yellow shrink-0 -ml-1 mr-3 h-8 w-6"
                       aria-hidden="true"
                     />
                     <span
@@ -87,36 +87,36 @@ export const AddProjectModal = () => {
                   </div>
                   <div
                     onClick={() => setCurrent(0)}
-                    className={`cursor-pointer text-white hover:text-white hover:bg-slate-800 group px-3 py-1 flex rounded-full items-center text-sm font-bold ${
-                      current === 0 ? "bg-slate-800" : ""
+                    className={`cursor-pointer text-white hover:text-white hover:bg-gray group px-3 py-1 flex rounded-full items-center text-sm font-bold ${
+                      current === 0 ? "bg-gray" : ""
                     }`}
                   >
                     <PlusIcon
-                      className="text-slate-400 group-hover:text-slate-500 shrink-0 -ml-1 mr-3 h-6 w-6"
+                      className={current === 0 ? "text-white group-hover:text-white flex-shrink-0 -ml-1 mr-3 h-6 w-6" : "text-gray group-hover:text-white flex-shrink-0 -ml-1 mr-3 h-6 w-6"}
                       aria-hidden="true"
                     />
                     <span className="text-xs truncate">Create Model</span>
                   </div>
                   <div
                     onClick={() => setCurrent(1)}
-                    className={`cursor-pointer text-white hover:text-white hover:bg-slate-800 group px-3 py-1 flex rounded-full items-center text-sm font-bold ${
-                      current === 1 ? "bg-slate-800" : ""
+                    className={`cursor-pointer text-white hover:text-white hover:bg-gray group px-3 py-1 flex rounded-full items-center text-sm font-bold ${
+                      current === 1 ? "bg-gray" : ""
                     }`}
                   >
                     <BookOpenIcon
-                      className="cursor-pointer text-slate-400 group-hover:text-slate-500 shrink-0 -ml-1 mr-3 h-6 w-6"
+                      className={current === 1 ? "cursor-pointer text-white group-hover:text-gray flex-shrink-0 -ml-1 mr-3 h-6 w-6" : "cursor-pointer text-gray group-hover:text-white flex-shrink-0 -ml-1 mr-3 h-6 w-6"}
                       aria-hidden="true"
                     />
                     <span className="text-xs truncate">Template Library</span>
                   </div>
                   <div
                     onClick={() => setCurrent(2)}
-                    className={`text-white hover:text-white hover:bg-slate-800 group px-3 py-1 flex rounded-full items-center text-sm font-bold ${
-                      current === 2 ? "bg-slate-800" : ""
+                    className={`text-white hover:text-white hover:bg-gray group px-3 py-1 flex rounded-full items-center text-sm font-bold ${
+                      current === 2 ? "bg-gray" : ""
                     }`}
                   >
                     <UploadIcon
-                      className="text-slate-400 group-hover:text-slate-500 shrink-0 -ml-1 mr-3 h-6 w-6"
+                      className={current === 2 ? "text-white group-hover:text-white flex-shrink-0 -ml-1 mr-3 h-6 w-6" : "text-gray group-hover:text-white flex-shrink-0 -ml-1 mr-3 h-6 w-6"}
                       aria-hidden="true"
                     />
                     <span className="text-xs truncate">Import Model</span>
@@ -128,7 +128,7 @@ export const AddProjectModal = () => {
                 <div>
                   <div className="shadow sm:rounded-md sm:overflow-hidden">
                     <div className="py-6 mb-4 px-4 space-y-6 sm:p-2">
-                      <div className="flex items-center justify-between border-b border-slate-200">
+                      <div className="flex items-center justify-between border-b border-gray">
                         <h3 className="text-2xl font-extralight leading-6 text-white">
                           {current === 0 ? "Create Model" : "Template Library"}
                         </h3>
@@ -137,7 +137,7 @@ export const AddProjectModal = () => {
                           {current === 0 ? (
                             <button
                               onClick={handleSave}
-                              className="bg-yellow-500 border border-transparent rounded-full shadow-sm py-1 px-4 inline-flex justify-center text-sm font-medium text-slate-900 hover:bg-yellow-700"
+                              className="border border-transparent rounded-full shadow-sm py-1 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-yellow hover:text-black"
                             >
                               Create
                             </button>
@@ -163,10 +163,10 @@ export const AddProjectModal = () => {
                               autoComplete="name"
                               value={name}
                               onChange={(e) => setName(e.target.value)}
-                              className="mt-1 rounded-sm text-white block w-full border-px bg-slate-800 border-slate-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              className="mt-1 rounded-sm text-white block w-full border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                           ) : (
-                            <div className="flex items-center justify-between border-b border-slate-50 py-2">
+                            <div className="flex items-center justify-between border-b border-gray py-2">
                               <div className="flex items-center">
                                 <svg
                                   width="32"
@@ -265,7 +265,7 @@ export const AddProjectModal = () => {
                             {chips.map((item, idx) => (
                               <span
                                 key={`${item}-${idx}`}
-                                className="px-2 py-1 rounded-full text-slate-500 border border-slate-300 font-semibold text-xs flex align-center cursor-pointer active:bg-slate-300 transition duration-300 ease"
+                                className="px-2 py-1 rounded-full text-gray border border-slate-300 font-semibold text-xs flex align-center cursor-pointer active:bg-slate-300 transition duration-300 ease"
                               >
                                 {item}
                                 <button className="bg-transparent hover focus:outline-none">
@@ -298,10 +298,10 @@ export const AddProjectModal = () => {
                               onChange={(e) => setMembers(e.target.value)}
                               // autoComplete="email"
                               // placeholder="Client email"
-                              className="mt-1 rounded-sm block w-full border-px bg-slate-800 border-slate-500 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              className="mt-1 rounded-sm block w-full border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                           ) : (
-                            <div className="flex items-center border-b border-slate-50 py-2">
+                            <div className="flex items-center border-b border-gray py-2">
                               <svg
                                 width="32"
                                 height="32"
@@ -343,11 +343,11 @@ export const AddProjectModal = () => {
                                 rows={3}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="shadow-sm bg-slate-800 text-white focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-slate-500 rounded-sm"
+                                className="shadow-sm bg-gray text-white focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray rounded-sm"
                               />
                             </div>
                           ) : (
-                            <div className="flex items-center border-b border-slate-50 py-2">
+                            <div className="flex items-center border-b border-gray py-2">
                               <svg
                                 width="32"
                                 height="32"

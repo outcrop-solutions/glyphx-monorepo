@@ -64,14 +64,14 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
           className="z-60 bg-white overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg"
         >
           {/* Search form */}
-          <form className="border-b border-slate-200">
+          <form className="border-b border-gray">
             <div className="relative">
               <label htmlFor={searchId} className="sr-only">
                 Search
               </label>
               <input
                 id={searchId}
-                className="w-full border-0 focus:ring-transparent placeholder-slate-400 appearance-none py-3 pl-10 pr-4"
+                className="w-full border-0 focus:ring-transparent placeholder-gray appearance-none py-3 pl-10 pr-4"
                 type="search"
                 placeholder="Search Anything…"
                 ref={searchInput}
@@ -82,7 +82,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
                 aria-label="Search"
               >
                 <svg
-                  className="w-4 h-4 shrink-0 fill-current text-slate-400 group-hover:text-slate-500 ml-4 mr-2"
+                  className="w-4 h-4 shrink-0 fill-current text-gray group-hover:text-gray ml-4 mr-2"
                   viewBox="0 0 16 16"
                   xmlns="http://www.w3.org/2000/svg"
                 >
@@ -95,18 +95,18 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
           <div className="py-4 px-2">
             {/* Recent searches */}
             <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-slate-400 uppercase px-2 mb-2">
+              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">
                 Recent searches
               </div>
               <ul className="text-sm">
                 <li>
                   <Link href="#0">
                     <a
-                      className="flex items-center p-2 text-slate-800 hover:text-white hover:bg-indigo-500 rounded group"
+                      className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                       onClick={() => setModalOpen(!modalOpen)}
                     >
                       <svg
-                        className="w-4 h-4 fill-current text-slate-400 group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                        className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
                         viewBox="0 0 16 16"
                       >
                         <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
@@ -119,7 +119,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
             </div>
             {/* Recent pages */}
             <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-slate-400 uppercase px-2 mb-2">
+              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">
                 Recent Projects
               </div>
               <ul className="text-sm">
@@ -127,16 +127,16 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
                   <Link href="#0">
                     <a
                       onClick={() => setModalOpen(!modalOpen)}
-                      className="flex items-center p-2 text-slate-800 hover:text-white hover:bg-indigo-500 rounded group"
+                      className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                     >
                       <svg
-                        className="w-4 h-4 fill-current text-slate-400 group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                        className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
                         viewBox="0 0 16 16"
                       >
                         <path d="M14 0H2c-.6 0-1 .4-1 1v14c0 .6.4 1 1 1h8l5-5V1c0-.6-.4-1-1-1zM3 2h10v8H9v4H3V2z" />
                       </svg>
                       <span>
-                        <span className="font-medium text-slate-800 group-hover:text-white">
+                        <span className="font-medium text-gray group-hover:text-white">
                           Project #1
                         </span>{" "}
                         - Filter#1 / … / Comments

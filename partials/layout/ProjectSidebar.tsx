@@ -33,14 +33,14 @@ export const ProjectSidebar = ({
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex grow flex-col bg-primary-dark-blue absolute z-30 left-0 top-0 lg:static border-r border-slate-400 lg:left-auto lg:top-auto  h-full scrollbar-none w-64 shrink-0`}
+      className={`flex grow flex-col bg-primary-dark-blue absolute z-30 left-0 top-0 lg:static border-r border-gray lg:left-auto lg:top-auto  h-full scrollbar-none w-64 shrink-0`}
     >
       <div className="overflow-y-auto scrollbar-none">
         {/* Files */}
         <Files openFile={openFile} toastRef={toastRef} />
         <Properties handleDrop={handleDrop} />
         {error ? (
-          <div className="btn bg-yellow-600 text-white my-4 w-full">
+          <div className="btn bg-yellow text-white my-4 w-full">
             {error}
           </div>
         ) : null}

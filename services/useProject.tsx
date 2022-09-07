@@ -10,10 +10,12 @@ import {
   isQtOpenAtom,
   payloadSelector,
   propertiesSelector,
-  selectedProjectAtom,
+  selectedProjectSelector,
   showReorderConfirmAtom,
+  toastAtom,
 } from "../state";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { updateProject } from "graphql/mutations";
 /**
  * Utility for interfacing with the Project class
  * @param {Project} project
@@ -27,9 +29,11 @@ export const useProject = (projectId) => {
     showReorderConfirmAtom
   );
   const [isQtOpen, setIsQtOpen] = useRecoilState(isQtOpenAtom);
-  const selectedProject = useRecoilValue(selectedProjectAtom);
+  const selectedProject = useRecoilValue(selectedProjectSelector);
   const [payload, setPayload] = useRecoilState(payloadSelector);
   const [properties, setProperties] = useRecoilState(propertiesSelector);
+  const isPropsValid = useRecoilValue(isPropsValidSelector);
+  const setToast = useSetRecoilState(toastAtom);
 
   const [droppedProps, setDroppedProps] = useState([]);
   const [oldDropped, setOldDropped] = useState([]);
@@ -43,7 +47,7 @@ export const useProject = (projectId) => {
     (index, item) => {
       let dropped = [];
 
-      dropped = selectedProject?.properties
+      dropped = properties
         .map((el) => {
           return el.split("-")[0];
         })
@@ -81,8 +85,6 @@ export const useProject = (projectId) => {
 
     // utilties
 
-    const isPropsValid = useRecoilValue(isPropsValidSelector);
-
     const updateProjectState = async (res) => {
       if (res.statusCode === 200) {
         setIsQtOpen(true);
@@ -113,7 +115,7 @@ export const useProject = (projectId) => {
       }
       // TODO: add error handling
     };
-    const callETl = async (propsArr, filteredArr) => {
+    const callETL = async (propsArr, filteredArr) => {
       console.log("callEtl");
       if (
         selectedProject &&
@@ -143,17 +145,17 @@ export const useProject = (projectId) => {
       console.log("handle etl");
       // TODO: track which properties come from which file keys once we add file delete funcitonality to ensure we don't run etl on non existent keys
       // check if file exists in s3 to prevent running ETL on non-existent keys
-      let isSafe = await doesKeyExist();
-      if (isSafe) {
-        await callETl(propsArr, filteredArr);
+
+      if (properties[2].lastDroppedItem.dataType === "number") {
+        await callETL(propsArr, filteredArr);
       } else {
-        setError(
-          "File not available to ETL yet. Please wait and try again once the file has finished uploading"
+        setToast(
+          "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE"
         );
+        properties.pop(); //remove the z axis from there
         setTimeout(() => {
-          setError(false);
+          setToast("");
         }, 3000);
-        console.log({ error: `File not available to ETL yet ${isSafe}` });
       }
     };
     // If reordering props, create new model

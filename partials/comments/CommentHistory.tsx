@@ -8,7 +8,7 @@ export const History = ({ comments }) => {
               <div className="flex justify-between mb-2">
                 <div
                   className={`rounded-full ${
-                    idx % 2 === 0 ? "bg-blue-600" : "bg-yellow-400"
+                    idx % 2 === 0 ? "bg-blue-600" : "bg-yellow"
                   } h-8 w-8 text-sm text-white flex items-center justify-center`}
                 >
                   {`${item.author.split("@")[0][0].toUpperCase()}`}

@@ -62,8 +62,8 @@ export const Axes = ({ axis, lastDroppedItem }) => {
   return (
     <>
       <li
-        className={`py-2 group-filters hover:bg-slate-700 hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${
-          isFilter ? "border-b border-slate-500" : ""
+        className={`py-2 group-filters hover:bg-gray hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${
+          isFilter ? "border-b border-gray" : ""
         }`}
       >
         {/* axis icon */}
@@ -76,9 +76,9 @@ export const Axes = ({ axis, lastDroppedItem }) => {
             type={lastDroppedItem.dataType}
           />
         ) : (
-          <div className="ml-2 flex bg-split-slate-yellow items-center px-2 py-1 border border-slate-400 rounded-2xl">
+          <div className="ml-2 flex bg-split-slate-yellow items-center px-2 py-1 border border-gray rounded-2xl">
             <svg
-              className="mr-3 fill-current text-slate-500 group-filters-hover:text-white"
+              className="mr-3 fill-current text-gray group-filters-hover:text-white"
               width="12"
               height="6"
               viewBox="0 0 12 6"
@@ -89,7 +89,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
             </svg>
 
             <svg
-              className="fill-current text-slate-500 group-filters-hover:text-white"
+              className="fill-current text-gray group-filters-hover:text-white"
               width="10"
               height="10"
               viewBox="0 0 10 10"
@@ -104,7 +104,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
         <div
           // @ts-ignore
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-          className={`flex justify-center bg-slate-800 h-4 ml-4 group-filters-hover:text-slate-400 transition duration-150 truncate cursor-pointer rounded-2xl`}
+          className={`flex justify-center bg-gray h-4 ml-4 group-filters-hover:text-gray transition duration-150 truncate cursor-pointer rounded-2xl`}
         >
           <span className="text-xs font-medium mx-6 lg:opacity-0 lg:project-sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}

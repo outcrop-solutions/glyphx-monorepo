@@ -6,14 +6,14 @@ import { API, Storage } from "aws-amplify";
 import * as mutations from "graphql/mutations";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
-import { projectsAtom } from "@/state/globals";
-import { projectDetailsAtom, selectedProjectAtom } from "@/state/project";
+import { projectsSelector } from "@/state/globals";
+import { projectDetailsAtom } from "@/state/project";
 
-export const ProjectCard = ({ project, updatedAt, name, link }) => {
+export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
   const router = useRouter();
   dayjs.extend(relativeTime);
 
-  const setProjects = useSetRecoilState(projectsAtom);
+  const setProjects = useSetRecoilState(projectsSelector);
   const setProjectDetails = useSetRecoilState(projectDetailsAtom);
 
   const handleDelete = async () => {
@@ -40,7 +40,7 @@ export const ProjectCard = ({ project, updatedAt, name, link }) => {
   };
 
   return (
-    <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg border border-opacity-50 border-slate-200">
+    <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue">
       <div className="absolute top-0 left-0">
         <svg
           width="28"
@@ -157,7 +157,7 @@ export const ProjectCard = ({ project, updatedAt, name, link }) => {
                           <div
                             key={`${member}-${idx}`}
                             className={`rounded-full ${
-                              idx % 2 === 0 ? "bg-blue-600" : "bg-yellow-400"
+                              idx % 2 === 0 ? "bg-blue-600" : "bg-yellow"
                             } h-6 w-6 text-sm text-white flex items-center justify-center`}
                           >
                             {`${member.split("@")[0][0].toUpperCase()}`}
@@ -167,7 +167,11 @@ export const ProjectCard = ({ project, updatedAt, name, link }) => {
                     })}
                   </>
                 ) : (
-                  <div className="rounded-full bg-blue-600 h-6 w-6 text-sm text-white flex items-center justify-center">
+                  <div
+                    className={`rounded-full ${
+                      idx % 2 === 0 ? "bg-cyan" : "bg-yellow"
+                    } h-6 w-6 text-sm text-white flex items-center justify-center`}
+                  >
                     {project.author ? `${project.author[0].toUpperCase()}` : ""}
                   </div>
                 )}
@@ -181,7 +185,7 @@ export const ProjectCard = ({ project, updatedAt, name, link }) => {
 
             <div>
               <Link href={link}>
-                <a className="text-sm font-medium text-slate-50 opacity-40">
+                <a className="text-sm font-medium text-white">
                   {dayjs().to(dayjs(updatedAt))}
                 </a>
               </Link>

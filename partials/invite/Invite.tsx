@@ -20,87 +20,116 @@ export const Invite = ({ setShare }) => {
     } finally {
     }
   };
+
   return (
-    <div className="flex-none mt-20 justify-center h-screen items-center antialiased bg-primary-dark-blue">
-      <div className="flex flex-col w-96 max-w-2xl rounded-lg border border-slate-300 shadow-xl py-4 px-5 mx-auto">
-        <div className="flex flex-row justify-between mb-4">
-          <p className="font-semibold text-white">Invite</p>
+    <div className="flex flex-col absolute z-10 right-0 top-0 w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1">
+      <div className="pt-5 pl-3 pr-3">
+        <div className="flex flex-row justify-between mb-2">
+          <p className="text-light-gray text-lg">
+            <span className="inline-block">
+              <svg
+                className="mr-2"
+                width="16"
+                height="12"
+                viewBox="0 0 16 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10.1818 5.81818C11.7891 5.81818 13.0909 4.51636 13.0909 2.90909C13.0909 1.30182 11.7891 0 10.1818 0C8.57455 0 7.27273 1.30182 7.27273 2.90909C7.27273 4.51636 8.57455 5.81818 10.1818 5.81818ZM3.63636 4.36364V2.90909C3.63636 2.50909 3.30909 2.18182 2.90909 2.18182C2.50909 2.18182 2.18182 2.50909 2.18182 2.90909V4.36364H0.727273C0.327273 4.36364 0 4.69091 0 5.09091C0 5.49091 0.327273 5.81818 0.727273 5.81818H2.18182V7.27273C2.18182 7.67273 2.50909 8 2.90909 8C3.30909 8 3.63636 7.67273 3.63636 7.27273V5.81818H5.09091C5.49091 5.81818 5.81818 5.49091 5.81818 5.09091C5.81818 4.69091 5.49091 4.36364 5.09091 4.36364H3.63636ZM10.1818 7.27273C8.24 7.27273 4.36364 8.24727 4.36364 10.1818V10.9091C4.36364 11.3091 4.69091 11.6364 5.09091 11.6364H15.2727C15.6727 11.6364 16 11.3091 16 10.9091V10.1818C16 8.24727 12.1236 7.27273 10.1818 7.27273Z"
+                  fill="#CECECE"
+                />
+              </svg>
+            </span>
+            Share
+          </p>
           <svg
             onClick={() => {
               setShare(false);
             }}
-            className="w-6 h-6"
+            className="w-6 h-6 rounded-xl p-1 border border-transparent hover:border-white hover:cursor-pointer hover:text-yellow"
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
             fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
+              d="M13.3 0.709971C12.91 0.319971 12.28 0.319971 11.89 0.709971L6.99997 5.58997L2.10997 0.699971C1.71997 0.309971 1.08997 0.309971 0.699971 0.699971C0.309971 1.08997 0.309971 1.71997 0.699971 2.10997L5.58997 6.99997L0.699971 11.89C0.309971 12.28 0.309971 12.91 0.699971 13.3C1.08997 13.69 1.71997 13.69 2.10997 13.3L6.99997 8.40997L11.89 13.3C12.28 13.69 12.91 13.69 13.3 13.3C13.69 12.91 13.69 12.28 13.3 11.89L8.40997 6.99997L13.3 2.10997C13.68 1.72997 13.68 1.08997 13.3 0.709971Z"
+              fill="#CECECE"
+            />
           </svg>
         </div>
-        <div className="flex flex-col w-full">
-          <input
-            type="text"
-            name=""
-            placeholder="Email, comma separated..."
-            className="bg-primary-dark-blue text-white border border-slate-400 rounded shadow-sm h-12"
-            id=""
-          />
-          <div className="flex items-center pt-3 pb-1">
-            <svg
-              className="mb-2 mr-2"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6.1665 9.04163C4.9965 9.04163 2.6665 9.62663 2.6665 10.7916V11.6666H9.6665V10.7916C9.6665 9.62663 7.3365 9.04163 6.1665 9.04163ZM3.8365 10.6666C4.2565 10.3766 5.2715 10.0416 6.1665 10.0416C7.0615 10.0416 8.0765 10.3766 8.4965 10.6666H3.8365ZM6.1665 8.16663C7.1315 8.16663 7.9165 7.38163 7.9165 6.41663C7.9165 5.45163 7.1315 4.66663 6.1665 4.66663C5.2015 4.66663 4.4165 5.45163 4.4165 6.41663C4.4165 7.38163 5.2015 8.16663 6.1665 8.16663ZM6.1665 5.66663C6.5815 5.66663 6.9165 6.00163 6.9165 6.41663C6.9165 6.83163 6.5815 7.16663 6.1665 7.16663C5.7515 7.16663 5.4165 6.83163 5.4165 6.41663C5.4165 6.00163 5.7515 5.66663 6.1665 5.66663ZM9.6865 9.07163C10.2665 9.49163 10.6665 10.0516 10.6665 10.7916V11.6666H12.6665V10.7916C12.6665 9.78163 10.9165 9.20663 9.6865 9.07163ZM9.1665 8.16663C10.1315 8.16663 10.9165 7.38163 10.9165 6.41663C10.9165 5.45163 10.1315 4.66663 9.1665 4.66663C8.8965 4.66663 8.6465 4.73163 8.4165 4.84163C8.7315 5.28663 8.9165 5.83163 8.9165 6.41663C8.9165 7.00163 8.7315 7.54663 8.4165 7.99163C8.6465 8.10163 8.8965 8.16663 9.1665 8.16663Z"
-                fill="#595E68"
-              />
-            </svg>
+        <div className="flex flex-row justify-between mb-2">
+          <p className="text-xs text-light-gray">
+            <span className="inline-block">
+              <svg
+                className="mr-2"
+                width="14"
+                height="10"
+                viewBox="0 0 14 10"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4.99998 5.00004C6.28665 5.00004 7.33331 3.95337 7.33331 2.66671C7.33331 1.38004 6.28665 0.333374 4.99998 0.333374C3.71331 0.333374 2.66665 1.38004 2.66665 2.66671C2.66665 3.95337 3.71331 5.00004 4.99998 5.00004ZM4.99998 1.66671C5.55331 1.66671 5.99998 2.11337 5.99998 2.66671C5.99998 3.22004 5.55331 3.66671 4.99998 3.66671C4.44665 3.66671 3.99998 3.22004 3.99998 2.66671C3.99998 2.11337 4.44665 1.66671 4.99998 1.66671ZM4.99998 6.16671C3.43998 6.16671 0.333313 6.94671 0.333313 8.50004V9.00004C0.333313 9.36671 0.633313 9.66671 0.99998 9.66671H8.99998C9.36665 9.66671 9.66665 9.36671 9.66665 9.00004V8.50004C9.66665 6.94671 6.55998 6.16671 4.99998 6.16671ZM1.89331 8.33337C2.45331 7.94671 3.80665 7.50004 4.99998 7.50004C6.19331 7.50004 7.54665 7.94671 8.10665 8.33337H1.89331ZM9.69331 6.20671C10.4666 6.76671 11 7.51337 11 8.50004V9.66671H13C13.3666 9.66671 13.6666 9.36671 13.6666 9.00004V8.50004C13.6666 7.15337 11.3333 6.38671 9.69331 6.20671ZM8.99998 5.00004C10.2866 5.00004 11.3333 3.95337 11.3333 2.66671C11.3333 1.38004 10.2866 0.333374 8.99998 0.333374C8.63998 0.333374 8.30665 0.420041 7.99998 0.566707C8.41998 1.16004 8.66665 1.88671 8.66665 2.66671C8.66665 3.44671 8.41998 4.17337 7.99998 4.76671C8.30665 4.91337 8.63998 5.00004 8.99998 5.00004Z"
+                  fill="#595E68"
+                />
+              </svg>
+            </span>
+            Everyone at Notre Dame Idea Center can access this file.
+          </p>
+        </div>
 
-            <p className="mb-2 text-slate-700 text-left text-xs">
-              Everyone at Robert Weed can access this file
-            </p>
+        <div className="flex flex-row justify-between mb-3">
+          <div>
+            <LinkDropDown align="right" />
           </div>
-          <div className="flex items-center justify-between pb-4">
-            <LinkDropDown align={undefined} />
-            <PermissionsDropDown align={undefined} />
+          <div>
+            <label></label>
+
+            <PermissionsDropDown align="right" />
           </div>
-          <hr />
+        </div>
+
+        <hr />
+
+        <div className="">
+          {/* <PermissionsDropDown />
+          <LinkDropDown/> */}
           <MemberList />
         </div>
-        <div className="flex flex-row items-center justify-between pt-3  border-t border-slate-200">
-          <div className="flex items-center">
-            <svg
-              className="mr-2"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8.36396 4.12118L6.6669 5.81823L7.51543 6.66675L9.21249 4.9697C9.91252 4.26967 11.058 4.26967 11.7581 4.9697C12.4581 5.66973 12.4581 6.81524 11.7581 7.51527L10.061 9.21232L10.9095 10.0608L12.6066 8.3638C13.7776 7.19283 13.7776 5.29214 12.6066 4.12118C11.4356 2.95021 9.53493 2.95021 8.36396 4.12118ZM9.21249 10.0608L7.51543 11.7579C6.8154 12.4579 5.66988 12.4579 4.96985 11.7579C4.26981 11.0579 4.26981 9.91235 4.96985 9.21232L6.6669 7.51527L5.81838 6.66675L4.12132 8.3638C2.95035 9.53476 2.95035 11.4355 4.12132 12.6064C5.29229 13.7774 7.19299 13.7774 8.36396 12.6064L10.061 10.9094L9.21249 10.0608ZM6.24264 9.63658L9.63675 6.24249L10.4853 7.09101L7.09117 10.4851L6.24264 9.63658Z"
-                fill="#595E68"
-              />
-            </svg>
+      </div>
 
-            <p className="font-thin text-slate-600">Copy Link</p>
+      <div className="  absolute bottom-0 w-full pl-3 pr-3">
+        <hr />
+        <div className="flex flex-row justify-between mb-3 mt-2">
+          <div className="rounded-2xl border border-transparent p-2 hover:border-white hover:cursor-pointer">
+            <p className="text-white text-sm">
+              <span className="inline-block">
+                <svg
+                  className="mr-2"
+                  width="14"
+                  height="8"
+                  viewBox="0 0 14 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10.3333 0.666626H8.33331C7.96665 0.666626 7.66665 0.966626 7.66665 1.33329C7.66665 1.69996 7.96665 1.99996 8.33331 1.99996H10.3333C11.4333 1.99996 12.3333 2.89996 12.3333 3.99996C12.3333 5.09996 11.4333 5.99996 10.3333 5.99996H8.33331C7.96665 5.99996 7.66665 6.29996 7.66665 6.66663C7.66665 7.03329 7.96665 7.33329 8.33331 7.33329H10.3333C12.1733 7.33329 13.6666 5.83996 13.6666 3.99996C13.6666 2.15996 12.1733 0.666626 10.3333 0.666626ZM4.33331 3.99996C4.33331 4.36663 4.63331 4.66663 4.99998 4.66663H8.99998C9.36665 4.66663 9.66665 4.36663 9.66665 3.99996C9.66665 3.63329 9.36665 3.33329 8.99998 3.33329H4.99998C4.63331 3.33329 4.33331 3.63329 4.33331 3.99996ZM5.66665 5.99996H3.66665C2.56665 5.99996 1.66665 5.09996 1.66665 3.99996C1.66665 2.89996 2.56665 1.99996 3.66665 1.99996H5.66665C6.03331 1.99996 6.33331 1.69996 6.33331 1.33329C6.33331 0.966626 6.03331 0.666626 5.66665 0.666626H3.66665C1.82665 0.666626 0.333313 2.15996 0.333313 3.99996C0.333313 5.83996 1.82665 7.33329 3.66665 7.33329H5.66665C6.03331 7.33329 6.33331 7.03329 6.33331 6.66663C6.33331 6.29996 6.03331 5.99996 5.66665 5.99996Z"
+                    fill="#CECECE"
+                  />
+                </svg>
+              </span>
+              Copy Link
+            </p>
           </div>
-          <button
-            onClick={handleInvite}
-            className="px-4 py-2 text-slate-900 font-semibold bg-yellow-400 rounded-2xl"
-          >
-            Send Invite
-          </button>
+
+          <div>
+            <button className="text-secondary-space-blue text-sm font-medium rounded-2xl border bg-yellow border-yellow p-2">
+              Send Invite
+            </button>
+          </div>
         </div>
       </div>
     </div>

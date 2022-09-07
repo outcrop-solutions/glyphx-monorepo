@@ -2,13 +2,13 @@ import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { API, graphqlOperation } from "aws-amplify";
 import { createComment } from "graphql/mutations";
-import { userAtom } from "@/state/user";
+import { userSelector } from "@/state/user";
 import { useRecoilValue } from "recoil";
 import { activeStateAtom } from "@/state/states";
 
 export const CommentInput = ({ setComments }) => {
   const [commentContent, setCommentContent] = useState("");
-  const user = useRecoilValue(userAtom);
+  const user = useRecoilValue(userSelector(userData));
   const activeState = useRecoilValue(activeStateAtom);
 
   // update comment state
@@ -50,7 +50,7 @@ export const CommentInput = ({ setComments }) => {
         value={commentContent}
         onChange={handleComment}
         placeholder="Type comments..."
-        className="bg-primary-dark-blue border border-slate-400 rounded shadow-sm h-8 w-full"
+        className="bg-primary-dark-blue border border-gray rounded shadow-sm h-8 w-full"
         id=""
       />
     </div>

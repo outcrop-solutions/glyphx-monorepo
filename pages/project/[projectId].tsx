@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 // Amplify
 import { withSSRContext, graphqlOperation } from "aws-amplify";
@@ -21,41 +21,38 @@ import { Invite } from "partials";
 
 // Hooks
 import { useFileSystem } from "services/useFileSystem";
-import { ReorderConfirmModal } from "partials";
+// import { ReorderConfirmModal } from "partials";
 import { GetProjectQuery } from "API";
 import { useRouter } from "next/router";
 import { useProject } from "services";
 import { useSocket } from "services";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { gridLoadingSelector } from "@/state/files";
 import { GridContainer } from "@/partials/datagrid/GridContainer";
-import { showReorderConfirmAtom } from "@/state/globals";
-import { selectedProjectAtom } from "@/state/project";
-import { userAtom } from "@/state/user";
+import { showReorderConfirmAtom } from "@/state/properties";
+import { projectIdAtom, selectedProjectSelector } from "@/state/project";
+import { userSelector } from "@/state/user";
+import { ErrorFallback } from "@/partials/errors";
+import { ErrorBoundary } from "react-error-boundary";
 
-export default function Projects({ user, data }) {
+export default function Project({ user, data }) {
   const [error, setError] = useState(false);
-
+  // console.log({ data, user });
   const { query } = useRouter();
   const { projectId } = query;
-
-  console.log({ data, user });
-
-  const setSelectedProject = useSetRecoilState(selectedProjectAtom);
-  const setUser = useSetRecoilState(userAtom);
+  const setProjectId = useSetRecoilState(projectIdAtom);
 
   useEffect(() => {
-    if (data) setSelectedProject(data);
-  }, [data]);
-  useEffect(() => {
-    if (user) setUser(user);
-  }, [user]);
+    if (projectId) setProjectId(projectId);
+  }, [projectId]);
+
+  const setUser = useSetRecoilState(userSelector(userData));
 
   // setUser(user);
   // setUser(JSON.parse(user));
 
   const dataGridLoading = useRecoilValue(gridLoadingSelector);
-  const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
+  // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook
   const { setCommentsPosition, setFilterSidebarPosition } = useSocket();
@@ -71,53 +68,62 @@ export default function Projects({ user, data }) {
 
   return (
     <div className="flex h-screen max-w-5xl-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
-      {showReorderConfirm ? <ReorderConfirmModal /> : null}
+      {/* {showReorderConfirm ? <ReorderConfirmModal /> : null} */}
       {/* Sidebar */}
-      <MainSidebar />
-      {/* Content area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none bg-primary-dark-blue">
-        {/*  Site header */}
-        <Header />
-        {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
-        <main className="h-full">
-          <div className="flex grow relative h-full">
-            <DndProvider backend={HTML5Backend}>
-              <ProjectSidebar
-                error={error}
-                openFile={openFile}
-                setFilterSidebarPosition={setFilterSidebarPosition}
-                handleDrop={handleDrop}
-                toastRef={toastRef}
-              />
-              <div className="w-full flex overflow-auto">
-                <div className="min-w-0 flex-auto w-full">
-                  {share ? (
-                    <Invite setShare={setShare} />
-                  ) : (
-                    <div className="flex flex-col h-full">
-                      {filesOpen && filesOpen.length > 0 && (
-                        <GridHeader closeFile={closeFile} />
-                      )}
-                      {dataGridLoading ? (
-                        <div className="h-full w-full flex justify-center items-center border-none">
-                          <GridLoader
-                            loading={dataGridLoading}
-                            size={100}
-                            color={"yellow"}
-                          />
-                        </div>
-                      ) : (
-                        <GridContainer isDropped={isDropped} />
-                      )}
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        resetKeys={[projectId]}
+        onReset={() => {
+          setProjectId([projectId]);
+        }}
+      >
+        <Suspense fallback={<div>Loading ...</div>}>
+          <MainSidebar />
+          {/* Content area */}
+          <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none bg-primary-dark-blue">
+            {/*  Site header */}
+            <Header />
+            {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
+            <main className="h-full">
+              <div className="flex grow relative h-full">
+                <DndProvider backend={HTML5Backend}>
+                  <ProjectSidebar
+                    error={error}
+                    openFile={openFile}
+                    setFilterSidebarPosition={setFilterSidebarPosition}
+                    handleDrop={handleDrop}
+                    toastRef={toastRef}
+                  />
+                  <div className="w-full flex overflow-auto">
+                    <div className="min-w-0 flex-auto w-full">
+                      <div className="flex flex-col h-full">
+                        {filesOpen && filesOpen.length > 0 && (
+                          <GridHeader closeFile={closeFile} />
+                        )}
+                        {dataGridLoading ? (
+                          <div className="h-full w-full flex justify-center items-center border-none">
+                            <GridLoader
+                              loading={dataGridLoading}
+                              size={100}
+                              color={"yellow"}
+                            />
+                          </div>
+                        ) : (
+                          <GridContainer isDropped={isDropped} />
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-                <CommentsSidebar setCommentsPosition={setCommentsPosition} />
+                    <>{share ? <Invite setShare={setShare} /> : <></>}</>
+                    <CommentsSidebar
+                      setCommentsPosition={setCommentsPosition}
+                    />
+                  </div>
+                </DndProvider>
               </div>
-            </DndProvider>
+            </main>
           </div>
-        </main>
-      </div>
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }
@@ -128,8 +134,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { Auth } = await withSSRContext(context);
   const SSR = withSSRContext({ req: context.req });
 
+  // not technically necessary if fetched client side
   try {
     const user = await Auth.currentAuthenticatedUser();
+    if (!user)
+      return {
+        redirect: {
+          permanent: false,
+          destination: "/",
+        },
+      };
     const response = (await SSR.API.graphql(
       graphqlOperation(getProject, { id: params.projectId })
     )) as {
@@ -147,8 +161,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   } catch (error) {
     console.log({ error, msg: error.errors });
     return {
-      props: {
-        authenticated: false,
+      redirect: {
+        permanent: false,
+        destination: "/",
       },
     };
   }

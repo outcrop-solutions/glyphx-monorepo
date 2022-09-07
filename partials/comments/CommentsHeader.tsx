@@ -2,7 +2,7 @@ import React from "react";
 
 export const CommentsHeader = ({ sidebarExpanded }) => {
   return (
-    <div className="flex items-center justify-between h-11 text-white border-b border-slate-400">
+    <div className="flex items-center justify-between h-11 text-white border-b border-gray">
       <div className="flex items-center justify-center mx-auto">
         {/* Icon */}
         {sidebarExpanded ? (

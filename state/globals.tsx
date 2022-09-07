@@ -22,12 +22,30 @@
 // selectedProject --> members
 // selectedFIle --> dataGrid
 
+import { ListProjectsQuery } from "API";
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { listProjects } from "graphql/queries";
 import { atom, selector } from "recoil";
-import { selectedProjectAtom } from "./project";
+import { selectedProjectSelector } from "./project";
+import { userSelector } from "./user";
 // holds project list for given user/org combo
-export const projectsAtom = atom({
+export const projectsSelector = selector({
   key: "projects",
-  default: [],
+  get: async ({ get }) => {
+    // const user = get(userSelector(userData));
+    const user = await Auth.currentAuthenticatedUser();
+    if (user) {
+      try {
+        const response = await API.graphql(graphqlOperation(listProjects));
+        return response;
+      } catch (error) {
+        console.log({ error });
+      }
+    } else return null;
+  },
+  set: (_, newValue) => {
+    return newValue;
+  },
 });
 
 // holds current org
@@ -51,7 +69,7 @@ export const isQtOpenAtom = atom({
 export const isMainSidebarExpandedAtom = selector({
   key: "isMainSidebarExpanded",
   get: ({ get }) => {
-    const selectedProject = get(selectedProjectAtom);
+    const selectedProject = get(selectedProjectSelector);
     return !!selectedProject;
   },
 });
@@ -62,8 +80,7 @@ export const showAddProjectAtom = atom({
   default: false,
 });
 
-// toggles reorder confirmation modal
-export const showReorderConfirmAtom = atom({
-  key: "showreorderConfirm",
-  default: false,
+export const toastAtom = atom({
+  key: "toastAtom",
+  default: "",
 });

@@ -120,7 +120,7 @@ function classNames(...classes) {
 export const PinnedProjects = () => {
   return (
     <div className="pt-8 mb-8">
-      <h2 className="text-slate-500 text-xs font-medium uppercase tracking-wide">
+      <h2 className="text-white text-lg font-medium uppercase tracking-wide">
         Pinned templates
       </h2>
       <ul
@@ -130,32 +130,32 @@ export const PinnedProjects = () => {
         {projects.map((project) => (
           <li
             key={project.name}
-            className="col-span-1 flex shadow-sm rounded-md"
+            className="col-span-1 flex shadow-sm rounded-md border  border-transparent bg-secondary-space-blue"
           >
             <div
               className={classNames(
                 project.bgColor,
-                "shrink-0 flex border-t border-l border-b border-slate-400 items-center justify-center w-16 text-white text-sm font-medium rounded-l-md "
+                "shrink-0 flex items-center justify-center w-16 text-white text-sm font-medium rounded-l-md "
               )}
             >
               {project.initials}
             </div>
-            <div className="flex-1 flex items-center justify-between border-t border-r border-b border-slate-400  rounded-r-md truncate">
+            <div className="flex-1 flex items-center justify-between border-t border-r border-b border-transparent  rounded-r-md truncate">
               <div className="flex-1 px-4 py-2 text-sm truncate">
                 <a
                   href={project.href}
-                  className="text-slate-100 font-medium hover:text-slate-600"
+                  className="text-white font-medium hover:text-gray"
                 >
                   {project.name}
                 </a>
-                <p className="text-slate-500">
+                <p className="text-gray">
                   {project.derivatives} Derivative Projects
                 </p>
               </div>
               <div className="shrink-0 pr-2">
                 <button
                   type="button"
-                  className="w-8 h-8 bg-white inline-flex items-center justify-center text-slate-400 rounded-full bg-transparent hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray rounded-full bg-transparent hover:text-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <span className="sr-only">Open options</span>
                   <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />

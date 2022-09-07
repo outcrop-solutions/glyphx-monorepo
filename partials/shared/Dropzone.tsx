@@ -11,7 +11,7 @@ import {
   fileSystemAtom,
   selectedFileAtom,
 } from "@/state/files";
-import { selectedProjectAtom } from "@/state/project";
+import { selectedProjectSelector } from "@/state/project";
 
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
@@ -43,7 +43,7 @@ export const Dropzone = ({ toastRef }) => {
   const setFilesOpen = useSetRecoilState(filesOpenAtom);
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
-  const selectedProject = useRecoilValue(selectedProjectAtom);
+  const selectedProject = useRecoilValue(selectedProjectSelector);
   // status = 'uploading' | 'processing' | 'testing' | 'ready'
   const [status, setStatus] = useState(null);
 
@@ -102,10 +102,29 @@ export const Dropzone = ({ toastRef }) => {
           const binaryStr = reader.result;
 
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
-            progressCallback(progress) {
+            async progressCallback(progress) {
               handleUpload(progress);
               if (progress.loaded / progress.total === 1) {
                 toast.done(toastRef.current);
+                console.log("about to do api call");
+                //api call here
+                try {
+                  const result = await fetch(
+                    "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
+                    {
+                      method: "post",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        model_id: `${selectedProject.id}`,
+                        bucket_name: "sampleproject04827-staging",
+                      }),
+                    }
+                  );
+                  console.log({ result });
+                } catch (error) {
+                  console.log({ error });
+                }
+
                 console.log("upload complete");
               } else {
                 console.log("upload incomplete");
@@ -138,12 +157,12 @@ export const Dropzone = ({ toastRef }) => {
     >
       <input {...getInputProps()} />
       {isDragActive ? (
-        <div className="text-slate-500 hover:text-slate-300 cursor-pointer">
+        <div className="text-white cursor-pointer">
           Drop the files here ...
         </div>
       ) : (
         <div className="text-xs cursor-pointer">
-          <span className="text-slate-500 hover:text-slate-300 ">
+          <span className="text-white ">
             Add files here...
           </span>
         </div>

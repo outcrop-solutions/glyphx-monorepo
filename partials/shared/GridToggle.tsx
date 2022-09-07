@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { isGridViewAtom } from "state/globals";
-import { selectedProjectAtom } from "state/project";
+import { selectedProjectSelector } from "state/project";
 
 export function GridToggle() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [grid, setGrid] = useRecoilState(isGridViewAtom);
-  const setSelectedProject = useSetRecoilState(selectedProjectAtom);
+  const setSelectedProject = useSetRecoilState(selectedProjectSelector);
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
@@ -42,7 +42,7 @@ export function GridToggle() {
       <button
         ref={trigger}
         className={
-          "flex items-center justify-center hover:bg-slate-800 transition duration-150 rounded-full"
+          "flex items-center justify-center hover:bg-gray transition duration-150 rounded-full"
         }
         aria-haspopup="true"
         aria-expanded={dropdownOpen}

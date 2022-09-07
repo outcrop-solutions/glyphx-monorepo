@@ -80,7 +80,7 @@ export default function Settings() {
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className=" border-b border-slate-800 xl:hidden"
+          className=" border-b border-gray xl:hidden"
         >
           <div className="max-w-3xl mx-auto py-3 px-4 flex items-start sm:px-6 lg:px-8">
             <a
@@ -88,7 +88,7 @@ export default function Settings() {
               className="-ml-1 inline-flex items-center space-x-3 text-sm font-medium text-white"
             >
               <ChevronLeftIcon
-                className="h-5 w-5 text-slate-400"
+                className="h-5 w-5 text-gray"
                 aria-hidden="true"
               />
               <span>Settings</span>
@@ -100,9 +100,9 @@ export default function Settings() {
           {/* Secondary sidebar */}
           <nav
             aria-label="Sections"
-            className="hidden shrink-0 w-96 bg-primary-dark-blue border-r border-slate-800 xl:flex xl:flex-col"
+            className="hidden shrink-0 w-96 bg-primary-dark-blue border-r border-gray xl:flex xl:flex-col"
           >
-            <div className="shrink-0 h-16 px-6 border-b border-slate-800 flex items-center">
+            <div className="shrink-0 h-16 px-6 border-b border-gray flex items-center">
               <p className="text-lg font-medium text-white">Settings</p>
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto">
@@ -114,17 +114,17 @@ export default function Settings() {
                     item.current
                       ? "bg-blue-900 bg-opacity-50"
                       : "hover:bg-blue-900 hover:bg-opacity-50",
-                    "flex p-6 border-b border-slate-800"
+                    "flex p-6 border-b border-gray"
                   )}
                   aria-current={item.current ? "page" : undefined}
                 >
                   <item.icon
-                    className="shrink-0 -mt-0.5 h-6 w-6 text-slate-400"
+                    className="shrink-0 -mt-0.5 h-6 w-6 text-gray"
                     aria-hidden="true"
                   />
                   <div className="ml-3 text-sm">
                     <p className="font-medium text-white">{item.name}</p>
-                    <p className="mt-1 text-slate-500">{item.description}</p>
+                    <p className="mt-1 text-gray">{item.description}</p>
                   </div>
                 </a>
               ))}
@@ -136,11 +136,11 @@ export default function Settings() {
             <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:py-12 lg:px-8">
               <h1 className="text-3xl font-extrabold text-white">Account</h1>
 
-              <form className="mt-6 space-y-8 divide-y divide-y-slate-200">
+              <form className="mt-6 space-y-8 divide-y divide-y-gray">
                 <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-6 sm:gap-x-6">
                   <div className="sm:col-span-6">
                     <h2 className="text-xl font-medium text-white">Profile</h2>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-gray">
                       This information will be displayed publicly so be careful
                       what you share.
                     </p>
@@ -186,7 +186,7 @@ export default function Settings() {
                       Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
-                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-300 bg-slate-50 text-slate-500 sm:text-sm">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-300 bg-gray text-gray sm:text-sm">
                         workcation.com/
                       </span>
                       <input
@@ -214,7 +214,7 @@ export default function Settings() {
                         alt=""
                       />
                       <div className="ml-4 flex">
-                        <div className="relative bg-primary-dark-blue py-2 px-3 border border-slate-300 rounded-md shadow-sm flex items-center cursor-pointer hover:bg-slate-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-slate-50 focus-within:ring-blue-500">
+                        <div className="relative bg-primary-dark-blue py-2 px-3 border border-slate-300 rounded-md shadow-sm flex items-center cursor-pointer hover:bg-gray focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray focus-within:ring-blue-500">
                           <label
                             htmlFor="user-photo"
                             className="relative text-sm font-medium text-white pointer-events-none"
@@ -231,7 +231,7 @@ export default function Settings() {
                         </div>
                         <button
                           type="button"
-                          className="ml-3 bg-transparent py-2 px-3 border border-transparent rounded-md text-sm font-medium text-white hover:text-slate-700 focus:outline-none focus:border-slate-300 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 focus:ring-blue-500"
+                          className="ml-3 bg-transparent py-2 px-3 border border-transparent rounded-md text-sm font-medium text-white hover:text-gray focus:outline-none focus:border-slate-300 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray focus:ring-blue-500"
                         >
                           Remove
                         </button>
@@ -255,7 +255,7 @@ export default function Settings() {
                         defaultValue={""}
                       />
                     </div>
-                    <p className="mt-3 text-sm text-slate-500">
+                    <p className="mt-3 text-sm text-gray">
                       Brief description for your profile. URLs are hyperlinked.
                     </p>
                   </div>
@@ -281,7 +281,7 @@ export default function Settings() {
                     <h2 className="text-xl font-medium text-white">
                       Personal Information
                     </h2>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-gray">
                       This information will be displayed publicly so be careful
                       what you share.
                     </p>
@@ -354,7 +354,7 @@ export default function Settings() {
                     />
                   </div>
 
-                  <p className="text-sm text-slate-500 sm:col-span-6">
+                  <p className="text-sm text-gray sm:col-span-6">
                     This account was created on{" "}
                     <time dateTime="2017-01-05T20:35:40">
                       January 5, 2017, 8:35:40 PM
@@ -366,7 +366,7 @@ export default function Settings() {
                 <div className="pt-8 flex justify-end">
                   <button
                     type="button"
-                    className="bg-primary-dark-blue py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="bg-primary-dark-blue py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-white hover:bg-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Cancel
                   </button>

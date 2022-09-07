@@ -58,11 +58,11 @@ export function ModalBasic({ children, id, title, modalOpen, setModalOpen }) {
           className="bg-white rounded shadow-lg overflow-auto max-w-lg w-full max-h-full"
         >
           {/* Modal header */}
-          <div className="px-5 py-3 border-b border-slate-200">
+          <div className="px-5 py-3 border-b border-gray">
             <div className="flex justify-between items-center">
-              <div className="font-semibold text-slate-800">{title}</div>
+              <div className="font-semibold text-gray">{title}</div>
               <button
-                className="text-slate-400 hover:text-slate-500"
+                className="text-gray hover:text-gray"
                 onClick={(e) => {
                   e.stopPropagation();
                   setModalOpen(false);

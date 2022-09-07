@@ -40,8 +40,8 @@ export function SearchModal() {
       {/* Button */}
       <button
         ref={trigger}
-        className={`w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition duration-150 rounded-full ml-3 ${
-          searchOpen && "bg-slate-200"
+        className={`w-8 h-8 flex items-center justify-center bg-gray hover:bg-gray transition duration-150 rounded-full ml-3 ${
+          searchOpen && "bg-gray"
         }`}
         onClick={() => {
           setSearchOpen(!searchOpen);
@@ -56,11 +56,11 @@ export function SearchModal() {
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            className="fill-current text-slate-500"
+            className="fill-current text-gray"
             d="M7 14c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zM7 2C4.243 2 2 4.243 2 7s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5z"
           />
           <path
-            className="fill-current text-slate-400"
+            className="fill-current text-gray"
             d="M15.707 14.293L13.314 11.9a8.019 8.019 0 01-1.414 1.414l2.393 2.393a.997.997 0 001.414 0 .999.999 0 000-1.414z"
           />
         </svg>
@@ -92,18 +92,18 @@ export function SearchModal() {
         leaveEnd="opacity-0 translate-y-4"
       >
         <div
-          className="bg-white overflow-auto scrollbar-track-transparent scrollbar-thumb-yellow-400 max-w-2xl w-full max-h-full rounded shadow-lg"
+          className="bg-white overflow-auto scrollbar-track-transparent scrollbar-thumb-yellow max-w-2xl w-full max-h-full rounded shadow-lg"
           ref={searchContent}
         >
           {/* Search form */}
-          <form className="border-b border-slate-200">
+          <form className="border-b border-gray">
             <div className="relative">
               <label htmlFor="modal-search" className="sr-only">
                 Search
               </label>
               <input
                 id="modal-search"
-                className="w-full border-0 focus:ring-transparent placeholder-slate-400 appearance-none py-3 pl-10 pr-4"
+                className="w-full border-0 focus:ring-transparent placeholder-gray appearance-none py-3 pl-10 pr-4"
                 type="search"
                 placeholder="Search Anything…"
                 ref={searchInput}
@@ -114,7 +114,7 @@ export function SearchModal() {
                 aria-label="Search"
               >
                 <svg
-                  className="w-4 h-4 shrink-0 fill-current text-slate-400 group-hover:text-slate-500 ml-4 mr-2"
+                  className="w-4 h-4 shrink-0 fill-current text-gray group-hover:text-gray ml-4 mr-2"
                   viewBox="0 0 16 16"
                   xmlns="http://www.w3.org/2000/svg"
                 >
@@ -131,7 +131,7 @@ export function SearchModal() {
           >
             {/* Recent searches */}
             <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-slate-400 uppercase px-2 mb-2">
+              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">
                 Recent searches
               </div>
               <ul className="text-sm">
@@ -139,10 +139,10 @@ export function SearchModal() {
                   <Link href="#0">
                     <a
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="flex items-center p-2 text-slate-800 hover:text-white hover:bg-indigo-500 rounded group"
+                      className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                     >
                       <svg
-                        className="w-4 h-4 fill-current text-slate-400 group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                        className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
                         viewBox="0 0 16 16"
                       >
                         <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
@@ -155,10 +155,10 @@ export function SearchModal() {
                   <Link href="#0">
                     <a
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="flex items-center p-2 text-slate-800 hover:text-white hover:bg-indigo-500 rounded group"
+                      className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                     >
                       <svg
-                        className="w-4 h-4 fill-current text-slate-400 group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                        className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
                         viewBox="0 0 16 16"
                       >
                         <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
@@ -171,10 +171,10 @@ export function SearchModal() {
                   <Link href="#0">
                     <a
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="flex items-center p-2 text-slate-800 hover:text-white hover:bg-indigo-500 rounded group"
+                      className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                     >
                       <svg
-                        className="w-4 h-4 fill-current text-slate-400 group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                        className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
                         viewBox="0 0 16 16"
                       >
                         <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
@@ -187,7 +187,7 @@ export function SearchModal() {
             </div>
             {/* Recent pages */}
             <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-slate-400 uppercase px-2 mb-2">
+              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">
                 Recent pages
               </div>
               <ul className="text-sm"></ul>

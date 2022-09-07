@@ -8,7 +8,7 @@ export const GridHeader = ({
 }) => {
   const filesOpen = useRecoilValue(filesOpenAtom)
   return (
-    <div className="w-full h-11 border-b border-slate-600 text-white text-xs flex items-center">
+    <div className="w-full h-11 border-b border-gray text-white text-xs flex items-center">
       {filesOpen && filesOpen.length > 0 && (
         <>
           {filesOpen.map((item, idx) => (
@@ -20,7 +20,7 @@ export const GridHeader = ({
           ))}
         </>
       )}
-      {/* <PlusIcon className="h-5 text-slate-600 mx-2" /> */}
+      {/* <PlusIcon className="h-5 text-gray mx-2" /> */}
     </div>
   );
 };

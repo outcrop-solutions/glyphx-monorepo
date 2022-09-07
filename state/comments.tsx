@@ -1,5 +1,5 @@
 import { atom, selector } from "recoil";
-import { selectedProjectAtom } from "./project";
+import { selectedProjectSelector } from "./project";
 import { activeStateAtom } from "./states";
 
 export const commentsOpenAtom = selector({
@@ -13,20 +13,20 @@ export const commentsOpenAtom = selector({
 export const commentsSelector = selector({
     key: "comments",
     get: ({ get }) => {
-      let selectedProject = get(selectedProjectAtom);
+      let selectedProject = get(selectedProjectSelector);
       if (!selectedProject) return;
       // @ts-ignore
       return selectedProject.comments.items;
     },
     set: ({ set, get }, newCommentsValue) => {
       // @ts-ignore
-      let selectedProject = get(selectedProjectAtom);
+      let selectedProject = get(selectedProjectSelector);
       if (!selectedProject) return;
       let newSelectedProjectValue = {
         ...selectedProject,
         comments: [...newCommentsValue],
       };
   
-      set(selectedProjectAtom, newSelectedProjectValue);
+      set(selectedProjectSelector, newSelectedProjectValue);
     },
   });

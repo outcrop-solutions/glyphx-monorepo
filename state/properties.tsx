@@ -1,10 +1,10 @@
 import { selector } from "recoil";
-import { selectedProjectAtom } from "./project";
+import { selectedProjectSelector } from "./project";
 
 export const propertiesSelector = selector({
   key: "properties",
   get: ({ get }) => {
-    let selectedProject = get(selectedProjectAtom);
+    let selectedProject = get(selectedProjectSelector);
     if (!selectedProject) return;
     if (selectedProject?.properties && selectedProject?.properties.length > 0) {
       const existingProps = selectedProject?.properties.map((el, idx) => {
@@ -182,5 +182,24 @@ export const filterPayloadSelector = selector({
     let properties = get(propertiesSelector);
     // @ts-ignore
     return properties.filter((item) => item.lastDroppedItem);
+  },
+});
+
+// toggles reorder confirmation modal based on propped properties
+export const showReorderConfirmAtom = selector({
+  key: "showreorderConfirm",
+  get: ({ get }) => {
+    //  if (
+    //   oldDropped &&
+    //   oldDroppedSliced.length === 3 &&
+    //   !equals(propsSliced, oldDroppedSliced)
+    // ) {
+  },
+  set: ({ set }) => {
+    //  if (
+    //   oldDropped &&
+    //   oldDroppedSliced.length === 3 &&
+    //   !equals(propsSliced, oldDroppedSliced)
+    // ) {
   },
 });

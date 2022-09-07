@@ -107,7 +107,7 @@ export default function Dashboard() {
                             className={classNames(
                               item.current
                                 ? "border-indigo-500 text-white"
-                                : "border-transparent text-slate-200 hover:text-slate-700 hover:border-slate-300",
+                                : "border-transparent text-gray hover:text-gray hover:border-slate-300",
                               "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
                             )}
                             aria-current={item.current ? "page" : undefined}
@@ -120,7 +120,7 @@ export default function Dashboard() {
                     <div className="hidden sm:ml-6 sm:flex sm:items-center">
                       <button
                         type="button"
-                        className="bg-slate-800 p-1 rounded-full text-slate-400 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="bg-gray p-1 rounded-full text-gray hover:text-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         <span className="sr-only">View notifications</span>
                         <BellIcon className="h-6 w-6" aria-hidden="true" />
@@ -154,8 +154,8 @@ export default function Dashboard() {
                                   <a
                                     href={item.href}
                                     className={classNames(
-                                      active ? "bg-slate-100" : "",
-                                      "block px-4 py-2 text-sm text-slate-700"
+                                      active ? "bg-gray" : "",
+                                      "block px-4 py-2 text-sm text-gray"
                                     )}
                                   >
                                     {item.name}
@@ -169,7 +169,7 @@ export default function Dashboard() {
                     </div>
                     <div className="-mr-2 flex items-center sm:hidden">
                       {/* Mobile menu button */}
-                      <Disclosure.Button className="bg-white inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      <Disclosure.Button className="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray hover:text-gray hover:bg-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         <span className="sr-only">Open main menu</span>
                         {open ? (
                           <XIcon className="block h-6 w-6" aria-hidden="true" />
@@ -194,7 +194,7 @@ export default function Dashboard() {
                         className={classNames(
                           item.current
                             ? "bg-indigo-50 border-indigo-500 text-indigo-700"
-                            : "border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800",
+                            : "border-transparent text-gray hover:bg-gray hover:border-slate-300 hover:text-gray",
                           "block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
                         )}
                         aria-current={item.current ? "page" : undefined}
@@ -203,7 +203,7 @@ export default function Dashboard() {
                       </Disclosure.Button>
                     ))}
                   </div>
-                  <div className="pt-4 pb-3 border-t border-slate-200">
+                  <div className="pt-4 pb-3 border-t border-gray">
                     <div className="flex items-center px-4">
                       <div className="shrink-0">
                         <img
@@ -213,16 +213,16 @@ export default function Dashboard() {
                         />
                       </div>
                       <div className="ml-3">
-                        <div className="text-base font-medium text-slate-800">
+                        <div className="text-base font-medium text-gray">
                           {user.name}
                         </div>
-                        <div className="text-sm font-medium text-slate-200">
+                        <div className="text-sm font-medium text-gray">
                           {user.email}
                         </div>
                       </div>
                       <button
                         type="button"
-                        className="ml-auto bg-white shrink-0 p-1 rounded-full text-slate-400 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="ml-auto bg-white shrink-0 p-1 rounded-full text-gray hover:text-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         <span className="sr-only">View notifications</span>
                         <BellIcon className="h-6 w-6" aria-hidden="true" />
@@ -234,7 +234,7 @@ export default function Dashboard() {
                           key={item.name}
                           as="a"
                           href={item.href}
-                          className="block px-4 py-2 text-base font-medium text-slate-200 hover:text-slate-800 hover:bg-slate-100"
+                          className="block px-4 py-2 text-base font-medium text-gray hover:text-gray hover:bg-gray"
                         >
                           {item.name}
                         </Disclosure.Button>
@@ -259,38 +259,38 @@ export default function Dashboard() {
                 <div className="flex flex-col">
                   <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                      <div className="shadow overflow-hidden border-b border-slate-800 sm:rounded-lg">
-                        <table className="min-w-full divide-y divide-slate-200">
+                      <div className="shadow overflow-hidden border-b border-gray sm:rounded-lg">
+                        <table className="min-w-full divide-y divide-gray">
                           {/* TABLE HEADER */}
-                          <thead className="bg-slate-800">
+                          <thead className="bg-gray">
                             <tr>
                               <th
                                 scope="col"
-                                className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider"
                               >
                                 Name
                               </th>
                               <th
                                 scope="col"
-                                className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider"
                               >
                                 City
                               </th>
                               <th
                                 scope="col"
-                                className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider"
                               >
                                 Last Invoice
                               </th>
                               <th
                                 scope="col"
-                                className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider"
                               >
                                 Total Models
                               </th>
                               <th
                                 scope="col"
-                                className="px-6 py-3 text-left text-xs font-medium text-slate-200 uppercase tracking-wider"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider"
                               >
                                 Receivables
                               </th>
@@ -300,22 +300,22 @@ export default function Dashboard() {
                             </tr>
                           </thead>
                           {/* TABLE BODY */}
-                          <tbody className="bg-slate-900 divide-y divide-slate-200">
+                          <tbody className="bg-gray divide-y divide-gray">
                             {people.map((person) => (
                               <tr key={person.name}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-200">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray">
                                   {person.name}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
                                   {person.city}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
                                   {person.invoice}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
                                   {person.models}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
                                   {person.received}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

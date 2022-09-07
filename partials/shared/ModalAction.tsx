@@ -61,7 +61,7 @@ export function ModalAction({ children, id, modalOpen, setModalOpen }) {
             <div className="relative">
               {/* Close button */}
               <button
-                className="absolute top-0 right-0 text-slate-400 hover:text-slate-500"
+                className="absolute top-0 right-0 text-gray hover:text-gray"
                 onClick={(e) => {
                   e.stopPropagation();
                   setModalOpen(false);

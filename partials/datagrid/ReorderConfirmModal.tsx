@@ -1,16 +1,16 @@
 import ClickAwayListener from "react-click-away-listener";
 import { CheckIcon } from "@heroicons/react/outline";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { showAddProjectAtom, showReorderConfirmAtom } from "@/state/globals";
-import { selectedProjectAtom } from "@/state/project";
-import { propertiesSelector } from "@/state/properties";
+import { showAddProjectAtom } from "@/state/globals";
+import { selectedProjectSelector } from "@/state/project";
+import { propertiesSelector, showReorderConfirmAtom } from "@/state/properties";
 import { filtersSelector } from "@/state/filters";
 import { Storage } from "aws-amplify";
 
 export const ReorderConfirmModal = () => {
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const setReorderConfirm = useSetRecoilState(showReorderConfirmAtom);
-  const project = useRecoilValue(selectedProjectAtom);
+  const project = useRecoilValue(selectedProjectSelector);
   const properties = useRecoilValue(propertiesSelector);
   const filters = useRecoilValue(filtersSelector);
   //  FORK PROJECT
@@ -108,7 +108,7 @@ export const ReorderConfirmModal = () => {
     setReorderConfirm(false);
   };
   return (
-    <div className="absolute w-full h-full flex justify-center items-center bg-slate-800 bg-opacity-50 z-60">
+    <div className="absolute w-full h-full flex justify-center items-center bg-gray bg-opacity-50 z-60">
       <ClickAwayListener onClickAway={handleClickAway}>
         <div className="inline-block align-bottom bg-primary-dark-blue rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
           <div>
@@ -130,14 +130,14 @@ export const ReorderConfirmModal = () => {
           <div className="mt-6 grid grid-cols-2 gap-3 grid-flow-row-dense">
             <button
               type="button"
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-400 text-base font-medium text-slate-900 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
-              // onClick={handleSave}
+              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow text-base font-medium text-gray hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm"
+              onClick={handleSave}
             >
               Create New Model
             </button>
             <button
               type="button"
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-slate-500 text-base font-medium text-slate-900 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 sm:mt-0 sm:col-start-1 sm:text-sm"
+              className="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-gray text-base font-medium text-gray hover:bg-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray sm:mt-0 sm:col-start-1 sm:text-sm"
               onClick={handleCancel}
             >
               Cancel

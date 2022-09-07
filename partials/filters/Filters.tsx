@@ -11,17 +11,18 @@ export const Filters = ({ handleDrop, projectId }) => {
   const [properties, setProperties] = useRecoilState(propertiesSelector);
   const filtersApplied = useRecoilValue(filtersAppliedAtom);
   // const { sdt } = useRecoilValue(payloadSelector);
-  const setQuery = useSetRecoilState(filterQueryAtom)
+  const setQuery = useSetRecoilState(filterQueryAtom);
   // useFilterChange(filtersApplied, projectId, sdt, properties, setQuery);
 
   return (
     <React.Fragment>
       <details open className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-slate-200 hover:text-white truncate border-b border-slate-400">
+        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white truncate border-b border-gray">
           <div className="flex ml-2 items-center">
-            <span className="transition text-slate-400  duration-300 shrink-0 group-open:-rotate-180">
+            <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
               <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                 <path
+                  fill="#CECECE"
                   fillRule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                   clipRule="evenodd"
@@ -29,13 +30,13 @@ export const Filters = ({ handleDrop, projectId }) => {
               </svg>
             </span>
             <a>
-              <span className="text-sm ml-3"> Filters </span>
+              <span className="text-sm ml-3 text-white"> Filters </span>
             </a>
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
         </summary>
         <div
-          className={`block border-b border-slate-400
+          className={`block border-b border-gray
         `}
         >
           <ul className={`overflow-auto`}>

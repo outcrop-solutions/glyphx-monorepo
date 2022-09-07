@@ -38,7 +38,7 @@ export function DropdownFilter({ align }) {
     <div className="hidden md:relative md:inline-flex">
       <button
         ref={trigger}
-        className="btn bg-transparentborder-slate-200 text-white"
+        className="btn bg-transparentborder-gray text-white"
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}
@@ -52,7 +52,7 @@ export function DropdownFilter({ align }) {
       <Transition
         show={dropdownOpen}
         tag="div"
-        className={`origin-top-right z-10 absolute top-full min-w-56 bg-white border border-slate-200 pt-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+        className={`origin-top-right z-10 absolute top-full min-w-56 bg-white border border-gray pt-1.5 rounded shadow-lg overflow-hidden mt-1 ${
           align === "right" ? "right-0" : "left-0"
         }`}
         enter="transition ease-out duration-200 transform"
@@ -63,7 +63,7 @@ export function DropdownFilter({ align }) {
         leaveEnd="opacity-0"
       >
         <div ref={dropdown}>
-          <div className="text-xs font-semibold text-slate-400 uppercase pt-1.5 pb-2 px-4">
+          <div className="text-xs font-semibold text-gray uppercase pt-1.5 pb-2 px-4">
             Filters
           </div>
           <ul className="mb-4">
@@ -110,10 +110,10 @@ export function DropdownFilter({ align }) {
               </label>
             </li>
           </ul>
-          <div className="py-2 px-3 border-t border-slate-200 bg-slate-50">
+          <div className="py-2 px-3 border-t border-gray bg-gray">
             <ul className="flex items-center justify-between">
               <li>
-                <button className="btn-xs bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                <button className="btn-xs bg-white border-gray hover:border-slate-300 text-gray hover:text-gray">
                   Clear
                 </button>
               </li>

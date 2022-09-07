@@ -38,7 +38,7 @@ export const SearchFilter = ({ lastDroppedItem }) => {
     >
       <div className="flex overflow-x-auto scrollbar-none">
         {chips.map((item, idx) => (
-          <span className="px-2 py-1 rounded-full text-slate-500 border border-slate-300 font-semibold text-xs flex align-center cursor-pointer active:bg-slate-300 transition duration-300 ease">
+          <span className="px-2 py-1 rounded-full text-gray border border-slate-300 font-semibold text-xs flex align-center cursor-pointer active:bg-slate-300 transition duration-300 ease">
             {item}
             <button className="bg-transparent hover focus:outline-none">
               <svg

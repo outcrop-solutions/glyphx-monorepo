@@ -38,7 +38,7 @@ export function PermissionsDropDown({ align }) {
       <button
         ref={trigger}
         className={
-          "flex items-center justify-center hover:bg-slate-200 transition duration-150 rounded-full"
+          "flex items-center justify-center hover:bg-gray transition duration-150 rounded-full"
         }
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -62,7 +62,7 @@ export function PermissionsDropDown({ align }) {
       </button>
 
       <Transition
-        className={`origin-top-right z-10 absolute top-full min-w-44 bg-primary-dark-blue border border-slate-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+        className={`origin-top-right z-10 absolute top-full min-w-44 bg-primary-dark-blue border border-gray py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
           align === "right" ? "right-0" : "left-0"
         }`}
         show={dropdownOpen}
@@ -84,7 +84,7 @@ export function PermissionsDropDown({ align }) {
           <ul>
             <li>
               <a
-                className="font-medium text-sm text-slate-200 hover:text-slate-300 flex items-center py-1 px-3"
+                className="font-medium text-sm text-gray hover:text-slate-300 flex items-center py-1 px-3"
                 href="https://docs.glyphx.co"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
@@ -100,7 +100,7 @@ export function PermissionsDropDown({ align }) {
             </li>
             <li>
               <a
-                className="font-medium text-sm text-slate-200 hover:text-slate-300 flex items-center py-1 px-3"
+                className="font-medium text-sm text-gray hover:text-slate-300 flex items-center py-1 px-3"
                 href="https://glyphx.co"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
@@ -115,7 +115,7 @@ export function PermissionsDropDown({ align }) {
             </li>
             <li>
               <a
-                className="font-medium text-sm text-slate-200 hover:text-slate-300 flex items-center py-1 px-3"
+                className="font-medium text-sm text-gray hover:text-slate-300 flex items-center py-1 px-3"
                 href="https://glyphx.co/company"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >

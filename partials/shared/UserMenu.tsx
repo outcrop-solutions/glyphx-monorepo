@@ -65,14 +65,14 @@ export const UserMenu = ({ align, user }) => {
           />
         </svg>
         <div className="flex items-center truncate">
-          <span className="truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-slate-400">
+          <span className="truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-gray">
             {user?.attributes?.name || user?.attributes?.email || ""}
           </span>
         </div>
       </button>
 
       <Transition
-        className={`origin-top-right z-10 absolute top-full min-w-2/3 bg-primary-dark-blue border border-slate-800 py-1.5 rounded shadow-lg overflow-hidden mt-1`}
+        className={`origin-top-right z-10 absolute top-full min-w-2/3 bg-primary-dark-blue border border-gray py-1.5 rounded shadow-lg overflow-hidden mt-1`}
         show={dropdownOpen}
         enter="transition ease-out duration-200 transform"
         enterStart="opacity-0 -translate-y-2"
@@ -88,7 +88,7 @@ export const UserMenu = ({ align, user }) => {
         >
           <li>
             <a
-              className="font-medium text-sm text-slate-200 hover:text-slate-800 block py-1.5 px-3"
+              className="font-medium text-sm text-gray hover:text-gray block py-1.5 px-3"
               href="/settings"
               onClick={() => setDropdownOpen(false)}
             >
@@ -101,7 +101,7 @@ export const UserMenu = ({ align, user }) => {
           </li>
           <li>
             <a
-              className="font-medium text-sm text-slate-200 hover:text-slate-800 block py-1.5 px-3"
+              className="font-medium text-sm text-gray hover:text-gray block py-1.5 px-3"
               href="#0"
               onClick={() => {
                 signOut();
