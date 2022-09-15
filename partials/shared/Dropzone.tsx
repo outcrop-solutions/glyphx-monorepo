@@ -27,6 +27,7 @@ export const formatGridData = (data) => {
     };
   });
 
+  // @ts-ignore
   cols.unshift({ key: "id", name: "", width: 40 });
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
   const newGrid = { columns: cols, rows };
@@ -71,6 +72,7 @@ export const Dropzone = ({ toastRef }) => {
     (acceptedFiles) => {
       //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
+         // @ts-ignore
         id: idx + fileSystem.length + 1,
         parent: 0,
         droppable: false,

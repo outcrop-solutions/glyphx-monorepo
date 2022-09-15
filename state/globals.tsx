@@ -23,7 +23,7 @@
 // selectedFIle --> dataGrid
 
 import { ListProjectsQuery } from "API";
-import { API, Auth, graphqlOperation } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 import { listProjects } from "graphql/queries";
 import { atom, selector } from "recoil";
 import { selectedProjectSelector } from "./project";
@@ -32,14 +32,19 @@ import { userSelector } from "./user";
 export const projectsSelector = selector({
   key: "projects",
   get: async ({ get }) => {
-    // const user = get(userSelector(userData));
-    const user = await Auth.currentAuthenticatedUser();
+    const user = get(userSelector);
+    console.log({ user });
+    // const user = await Auth.currentAuthenticatedUser();
     if (user) {
       try {
-        const response = await API.graphql(graphqlOperation(listProjects));
-        return response;
+        const response = (await API.graphql(
+          graphqlOperation(listProjects)
+        )) as {
+          data: ListProjectsQuery;
+        };
+        return response.data.listProjects.items;
       } catch (error) {
-        console.log({ error });
+        console.log({ error, cool: "" });
       }
     } else return null;
   },
@@ -54,15 +59,22 @@ export const currentOrgAtom = atom({
   default: null,
 });
 
+// UI STATE
+
 // toggles grid vs list in overview
 export const isGridViewAtom = atom({
   key: "isGridView",
-  default: false,
+  default: true,
 });
 
 export const isQtOpenAtom = atom({
   key: "isQtOpen",
   default: false,
+});
+
+export const orientationAtom = atom({
+  key: "orientation",
+  default: "horizontal",
 });
 
 // toggles grid vs list in overview
@@ -83,4 +95,9 @@ export const showAddProjectAtom = atom({
 export const toastAtom = atom({
   key: "toastAtom",
   default: "",
+});
+
+export const dataGridLoadingAtom = atom({
+  key: "dataGridLoading",
+  default: false,
 });

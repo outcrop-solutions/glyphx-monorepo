@@ -35,31 +35,35 @@ export const Files = ({ openFile, toastRef }) => {
         </summary>
         <div className={`lg:block py-2 border-b border-gray`}>
           <div>
-            {fileSystem && fileSystem.length > 0 ? (
-              <Tree
-                initialOpen={true}
-                tree={fileSystem}
-                rootId={0}
-                render={(node, { depth, isOpen, onToggle }) => (
-                  <CustomNode
-                    openFile={openFile}
-                    node={node}
-                    depth={depth}
-                    isOpen={isOpen}
-                    onToggle={onToggle}
-                  />
-                )}
-                dragPreviewRender={(monitorProps) => (
-                  <CustomDragPreview monitorProps={monitorProps} />
-                )}
-                onDrop={handleDrop}
-                classes={{
-                  root: styles.treeRoot,
-                  draggingSource: styles.draggingSource,
-                  dropTarget: styles.dropTarget,
-                }}
-              />
-            ) : null}
+            {
+              // @ts-ignore
+              fileSystem && fileSystem.length > 0 ? (
+                <Tree
+                  initialOpen={true}
+                  // @ts-ignore
+                  tree={fileSystem}
+                  rootId={0}
+                  render={(node, { depth, isOpen, onToggle }) => (
+                    <CustomNode
+                      openFile={openFile}
+                      node={node}
+                      depth={depth}
+                      isOpen={isOpen}
+                      onToggle={onToggle}
+                    />
+                  )}
+                  dragPreviewRender={(monitorProps) => (
+                    <CustomDragPreview monitorProps={monitorProps} />
+                  )}
+                  onDrop={handleDrop}
+                  classes={{
+                    root: styles.treeRoot,
+                    draggingSource: styles.draggingSource,
+                    dropTarget: styles.dropTarget,
+                  }}
+                />
+              ) : null
+            }
             <Dropzone toastRef={toastRef} />
           </div>
         </div>

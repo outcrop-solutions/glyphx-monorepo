@@ -13,6 +13,7 @@ import {
 } from "@/state/files";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedProjectSelector } from "@/state/project";
+import { dataGridLoadingAtom } from "@/state/globals";
 
 export const AddFiles = () => {
   const { query } = useRouter();
@@ -24,35 +25,15 @@ export const AddFiles = () => {
   const setDataGrid = useSetRecoilState(dataGridAtom);
   const project = useRecoilValue(selectedProjectSelector);
 
-  // status = 'uploading' | 'processing' | 'testing' | 'ready'
-  const [status, setStatus] = useState(null);
+  const [dataGridState, setDataGridState] = useRecoilState(dataGridLoadingAtom);
   const [progress, setProgress] = useState(null);
-
-  const handleUpload = useCallback(async (progress) => {
-    setStatus("uploading");
-    if (progress.loaded / progress.total === 1) {
-      let response = await fetch("https://api.glyphx.co/etl-process-new-file", {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({
-          model_id: projectId,
-          bucket_name: "sampleproject04827-staging",
-        }),
-      });
-      console.log({ response });
-    }
-
-    // Call process new file API /etl/file
-    // setStatus('file uploaded, processing ETL')
-    // Call JL's /api-check-crawler with crawlerID
-    // setStatus('checking Crawler')
-    // Take response and either setAvailable(true/false)
-  }, []);
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
+      setDataGridState(true);
       //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
+        // @ts-ignore
         id: idx + fileSystem.length + 1,
         parent: 0,
         droppable: false,
@@ -86,7 +67,6 @@ export const AddFiles = () => {
 
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
-              handleUpload(progress);
               if (progress.loaded / progress.total === 1) {
                 console.log("upload complete");
                 console.log("about to do api call");
@@ -106,6 +86,7 @@ export const AddFiles = () => {
                   );
                   const data = await result.json();
                   console.log({ data });
+                  setDataGridState(false);
                 } catch (error) {
                   console.log({ error });
                 }

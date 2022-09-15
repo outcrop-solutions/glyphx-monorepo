@@ -13,7 +13,9 @@ export function DraggableHeaderRenderer({
   isCellSelected,
   isDropped,
 }) {
+  // @ts-ignore
   const [{ isDragging }, drag] = useDrag({
+    // @ts-ignore
     type: "COLUMN_DRAG",
     item: { key: column.key, type: "COLUMN_DRAG", dataType: column.dataType },
     collect: (monitor) => ({
@@ -23,6 +25,7 @@ export function DraggableHeaderRenderer({
 
   const [{ isOver }, drop] = useDrop({
     accept: "COLUMN_DRAG",
+    // @ts-ignore
     drop({ key }) {
       onColumnsReorder(key, column.key);
     },

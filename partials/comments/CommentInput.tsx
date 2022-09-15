@@ -8,7 +8,7 @@ import { activeStateAtom } from "@/state/states";
 
 export const CommentInput = ({ setComments }) => {
   const [commentContent, setCommentContent] = useState("");
-  const user = useRecoilValue(userSelector(userData));
+  const user = useRecoilValue(userSelector);
   const activeState = useRecoilValue(activeStateAtom);
 
   // update comment state
@@ -23,7 +23,7 @@ export const CommentInput = ({ setComments }) => {
         id: uuid(),
         author: user ? user.attributes.email : "",
         content: commentContent,
-        stateID: activeState.id,
+        stateID: activeState,
       };
       try {
         setComments(commentInput);

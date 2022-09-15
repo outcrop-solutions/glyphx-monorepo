@@ -13,7 +13,9 @@ function interceptStdout(text) {
 intercept(interceptStdout);
 
 module.exports = {
-  experimental: {
-    concurrentFeatures: true,
+  reactStrictMode: true,
+  swcMinify: true,
+  compiler: {
+    removeConsole: true,
   },
 };

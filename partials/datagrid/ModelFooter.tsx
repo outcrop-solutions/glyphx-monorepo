@@ -10,7 +10,7 @@ export const ModelFooter = () => {
 
   const handleOpen = () => {
     // @ts-ignore
-    if (project && window && window.core) {
+    if (project) {
       if (url && sdt) {
         console.log("Toggling");
         // @ts-ignore

@@ -8,6 +8,7 @@ import { API, graphqlOperation } from "aws-amplify";
 import { Project } from "API";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  orientationAtom,
   selectedProjectSelector,
   shareOpenAtom,
   showAddProjectAtom,
@@ -22,7 +23,7 @@ export const Header = () => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const setShare = useSetRecoilState(shareOpenAtom);
   // move into atom
-  const [paneOrientation, setOrientation] = useState("horizontal");
+  const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
   const [edit, setEdit] = useState(false);
 
   const backPresssed = () => {
@@ -67,8 +68,8 @@ export const Header = () => {
   // };
   return (
     <div
-      className={`sticky border-b top-0 z-30  flex justify-between items-center bg-secondary-midnight max-h-16 w-full ${
-        !selectedProject ? "px-4" : "mx-6"
+      className={`sticky top-0 z-30  flex justify-between items-center bg-secondary-midnight max-h-16 w-full ${
+        !selectedProject ? "px-4" : "px-6"
       }`}
     >
       {selectedProject && (

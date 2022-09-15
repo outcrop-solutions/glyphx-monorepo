@@ -21,7 +21,7 @@ export const ProjectDetails = () => {
   const [projectDetails, setProjectDetails] = useRecoilState(
     projectDetailsAtom
   );
-  const user = useRecoilValue(userSelector(userData));
+  const user = useRecoilValue(userSelector);
 
   const [open, setOpen] = useState(true);
   const [name, setName] = useState(projectDetails.name);

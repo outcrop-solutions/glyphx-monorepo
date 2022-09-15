@@ -41,7 +41,7 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
-  const user = useRecoilValue(userSelector(userData));
+  const user = useRecoilValue(userSelector);
   // const reloadProjects = async () => {
   //   try {
   //     if (user) {
@@ -93,12 +93,12 @@ export const Templates = () => {
   };
   return (
     <div className="max-w-lg mx-auto my-auto h-full flex flex-col grow justify-center">
-      <h2 className="text-lg font-medium text-white">
+      <div className="text-lg font-medium text-white">
         Create your first project
-      </h2>
-      <p className="mt-1 text-sm text-gray">
+      </div>
+      <div className="mt-1 text-sm text-gray">
         Get started by selecting a template or start from an empty project.
-      </p>
+      </div>
       <ul className="mt-6 border-t border-b border-gray divide-y divide-gray">
         {items.map((item, itemIdx) => (
           <li key={itemIdx}>
@@ -121,9 +121,7 @@ export const Templates = () => {
                     <span className="absolute inset-0" aria-hidden="true" />
                     {item.name}
                   </a>
-                  <span className="text-sm text-yellow ml-2">
-                    Coming Soon!
-                  </span>
+                  <span className="text-sm text-yellow ml-2">Coming Soon!</span>
                 </div>
                 <p className="text-sm text-gray">{item.description}</p>
               </div>

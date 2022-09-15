@@ -30,7 +30,7 @@ export const isFilterSafeAtom = selector({
   key: "isFilterSafe",
   get: ({ get }) => {
     const droppedProps = get(droppedPropertiesSelector);
-    const filtersApplied = get(fitlersAppliedAtom);
+    const filtersApplied = get(filtersAppliedAtom);
     return filtersApplied.length > 0 && droppedProps.length >= 3;
   },
 });
@@ -38,7 +38,7 @@ export const isFilterSafeAtom = selector({
 export const filterQueryAtom = selector({
   key: "filterQuery",
   get: ({ get }) => {
-    const filtersApplied = get(fitlersAppliedAtom);
+    const filtersApplied = get(filtersAppliedAtom);
     const isFilterSafe = get(isFilterSafeAtom);
     const droppedProps = get(droppedPropertiesSelector);
     const { sdt } = get(payloadSelector);
@@ -88,5 +88,8 @@ export const filterQueryAtom = selector({
     } else {
       return undefined;
     }
+  },
+  set: ({ set }, newValue) => {
+    return newValue;
   },
 });

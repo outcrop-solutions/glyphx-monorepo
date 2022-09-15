@@ -8,7 +8,7 @@ import { userSelector } from "@/state/user";
 export const TableView = () => {
   const router = useRouter();
   const projects = useRecoilValue(projectsSelector);
-  const user = useRecoilValue(userSelector(userData));
+  const user = useRecoilValue(userSelector);
   
   dayjs.extend(relativeTime);
   return (

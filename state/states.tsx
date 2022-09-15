@@ -8,16 +8,18 @@ export const selectedStateAtom = atom({
   // add atom effect to handle state change via we
 });
 
+// holds the ID of the currently selected state
+export const activeStateAtom = atom({
+  key: "activeState",
+  default: "",
+});
+
 export const stateQueryAtom = atom({
   key: "stateQuery",
   default: "",
   // TODO: use atom effect to pass query to Qt
 });
 
-export const activeStateAtom = atom({
-  key: "activeState",
-  default: {},
-});
 
 export const statesSelector = selector({
   key: "states",

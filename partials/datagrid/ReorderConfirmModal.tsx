@@ -5,9 +5,13 @@ import { showAddProjectAtom } from "@/state/globals";
 import { selectedProjectSelector } from "@/state/project";
 import { propertiesSelector, showReorderConfirmAtom } from "@/state/properties";
 import { filtersSelector } from "@/state/filters";
-import { Storage } from "aws-amplify";
+import { API, graphqlOperation, Storage } from "aws-amplify";
+import { CreateProjectInput, CreateProjectMutation } from "API";
+import { userSelector } from "@/state/user";
+import { createProject } from "graphql/mutations";
 
 export const ReorderConfirmModal = () => {
+  const user = useRecoilValue(userSelector);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const setReorderConfirm = useSetRecoilState(showReorderConfirmAtom);
   const project = useRecoilValue(selectedProjectSelector);
@@ -24,7 +28,7 @@ export const ReorderConfirmModal = () => {
           // id: newId,
           name: `${project.name} Copy`,
           description: "",
-          author: user.username,
+          author: user?.username,
           expiry: new Date().toISOString(),
           properties: properties.map((el) =>
             el.lastDroppedItem
@@ -35,9 +39,12 @@ export const ReorderConfirmModal = () => {
           ),
           shared: [user.username],
         };
-        const result = await API.graphql(
+        const result = (await API.graphql(
           graphqlOperation(createProject, { input: createProjectInput })
-        );
+        )) as {
+          data: CreateProjectMutation;
+        };
+
         return {
           projId: result.data.createProject.id,
           projectData: result.data.createProject,

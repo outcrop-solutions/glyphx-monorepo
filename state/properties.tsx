@@ -5,7 +5,7 @@ export const propertiesSelector = selector({
   key: "properties",
   get: ({ get }) => {
     let selectedProject = get(selectedProjectSelector);
-    if (!selectedProject) return;
+    if (!selectedProject) return [];
     if (selectedProject?.properties && selectedProject?.properties.length > 0) {
       const existingProps = selectedProject?.properties.map((el, idx) => {
         switch (idx) {
@@ -120,27 +120,31 @@ export const propertiesSelector = selector({
 export const droppedPropertiesSelector = selector({
   key: "droppedProperties",
   get: ({ get }) => {
-    let properties = get(propertiesSelector);
+    const properties = get(propertiesSelector);
     // @ts-ignore
-    return properties.filter((item) => item.lastDroppedItem);
+    return properties?.filter((item) => item.lastDroppedItem);
   },
 });
 
 export const propsSlicedSelector = selector({
   key: "slicedProperties",
   get: ({ get }) => {
-    return get(propertiesSelector)
-      .slice(0, 3)
-      .map((item) => item.lastDroppedItem.key);
+    const properties = get(propertiesSelector);
+
+    if (properties === undefined) return;
+
+    return properties?.slice(0, 3).map((item) => item?.lastDroppedItem?.key);
   },
 });
 
 export const droppedSlicedSelector = selector({
   key: "droppedSlicedProperties",
   get: ({ get }) => {
-    return get(droppedPropertiesSelector)
-      .slice(0, 3)
-      .filter((el) => el);
+    const properties = get(droppedPropertiesSelector);
+    if (!properties) return;
+    else {
+      return properties?.slice(0, 3).filter((el) => el);
+    }
   },
 });
 
@@ -189,13 +193,15 @@ export const filterPayloadSelector = selector({
 export const showReorderConfirmAtom = selector({
   key: "showreorderConfirm",
   get: ({ get }) => {
+    return false;
     //  if (
     //   oldDropped &&
     //   oldDroppedSliced.length === 3 &&
     //   !equals(propsSliced, oldDroppedSliced)
     // ) {
   },
-  set: ({ set }) => {
+  set: ({ set }, newValue) => {
+    return newValue;
     //  if (
     //   oldDropped &&
     //   oldDroppedSliced.length === 3 &&

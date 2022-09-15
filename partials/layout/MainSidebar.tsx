@@ -5,12 +5,10 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { isMainSidebarExpandedAtom } from "@/state/globals";
 import { useRecoilValue } from "recoil";
-import { userSelector } from "@/state/user";
 import { selectedProjectSelector } from "@/state/project";
 
 export const MainSidebar = () => {
-  const isMainSidebarExpanded = useRecoilValue(isMainSidebarExpandedAtom);
-  const user = useRecoilValue(userSelector(userData));
+  // const isMainSidebarExpanded = useRecoilValue(isMainSidebarExpandedAtom);
   const router = useRouter();
   const { pathname } = router;
 
@@ -19,11 +17,19 @@ export const MainSidebar = () => {
   return (
     <div
       id="sidebar"
-      className={`hidden lg:flex flex-col absolute z-40 bg-secondary-space-blue border border-white left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen overflow-y-scroll lg:overflow-y-auto scrollbar-none w-64 lg:w-20 lg:main-sidebar-expanded:!w-64 shrink-0 p-4`}
+      className={`hidden lg:flex flex-col absolute z-40 bg-secondary-space-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen scrollbar-none ${
+        pathname === "/" ? "w-64" : "w-20"
+      } shrink-0 p-4`}
     >
-      <div>
+      <div className="">
         {/* Sidebar header */}
-        <div className="flex justify-between mb-2 pr-3 sm:px-2 border-b border-gray py-3">
+        <div
+          className={
+            selectedProject
+              ? "flex justify-center mb-2 pr-3 sm:px-2 border-white border-b-2 py-3"
+              : "flex justify-between mb-2 pr-3 sm:px-2 border-white border-b-2 py-3"
+          }
+        >
           {/* Logo */}
           <div className="flex">
             <svg
@@ -84,21 +90,23 @@ export const MainSidebar = () => {
             </svg>
           </div>
           <div className="flex border border-transparent rounded-lg pr-2 pl-2">
-            <div className="flex items-center justify-center ">
-              <svg
-                width="8"
-                height="12"
-                viewBox="0 0 8 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M6.70998 9.88001L2.82998 6.00001L6.70998 2.12001C7.09998 1.73001 7.09998 1.10001 6.70998 0.710011C6.31998 0.320011 5.68998 0.320011 5.29998 0.710011L0.70998 5.30001C0.31998 5.69001 0.31998 6.32001 0.70998 6.71001L5.29998 11.3C5.68998 11.69 6.31998 11.69 6.70998 11.3C7.08998 10.91 7.09998 10.27 6.70998 9.88001Z"
-                  fill="#CECECE"
-                />
-              </svg>
-              <span className="text-white ml-2">Dashboard</span>
-            </div>
+            {pathname === "/" && (
+              <div className="flex items-center justify-center ">
+                <svg
+                  width="8"
+                  height="12"
+                  viewBox="0 0 8 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M6.70998 9.88001L2.82998 6.00001L6.70998 2.12001C7.09998 1.73001 7.09998 1.10001 6.70998 0.710011C6.31998 0.320011 5.68998 0.320011 5.29998 0.710011L0.70998 5.30001C0.31998 5.69001 0.31998 6.32001 0.70998 6.71001L5.29998 11.3C5.68998 11.69 6.31998 11.69 6.70998 11.3C7.08998 10.91 7.09998 10.27 6.70998 9.88001Z"
+                    fill="#CECECE"
+                  />
+                </svg>
+                <span className="text-white ml-2">Dashboard</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -106,9 +114,9 @@ export const MainSidebar = () => {
         <div className="space-y-8 mt-1">
           {/* Pages group */}
           <div>
-            <div className="text-xs uppercase text-gray font-semibold border-b pb-2 border-white flex justify-center lg:main-sidebar-expanded:justify-start lg:main-sidebar-expanded:ml-3 items-center">
+            {/* <div className="text-xs uppercase text-gray font-semibold border-b pb-2 border-white flex justify-center lg:justify-start lg:ml-3 items-center">
               <span
-                className="hidden lg:block lg:main-sidebar-expanded:hidden text-center w-6"
+                className="hidden lg:block lg:hidden text-center w-6"
                 aria-hidden="true"
               >
                 <svg
@@ -124,64 +132,58 @@ export const MainSidebar = () => {
                   />
                 </svg>
               </span>
-              <span className="lg:hidden main-sidebar-expanded:block">
-                <UserMenu align="right" user={user} />
+              <span className="lg:hidden block">
+                <UserMenu
+                  align="right"
+                  user={user}
+                  setIsLoggedIn={setIsLoggedIn}
+                />
               </span>
-            </div>
+            </div> */}
             <ul className="mt-3">
-              {/* HOME */}
+              {/* Dashboard */}
               <li
                 className={`px-3 py-1 rounded-full mb-0.5 last:mb-0 ${
-                  pathname === "/" && "bg-gray"
+                  pathname === "/" && "bg-transparent"
                 }`}
               >
-                <Link href="/home">
-                  <a
-                    onClick={() => {
-                      // @ts-ignore
-                      if (window && window.core) {
-                        // @ts-ignore
-                        window.core.CloseModel();
-                      }
-                      router.push("/home");
-                    }}
-                    className={`block text-gray hover:text-white truncate transition duration-150 ${
-                      pathname === "/" && "hover:text-gray"
-                    }`}
+                <div
+                  className={`block text-gray hover:text-white truncate transition duration-150 ${
+                    pathname === "/" && "hover:text-gray"
+                  }`}
+                >
+                  <div
+                    className={
+                      selectedProject
+                        ? "flex rounded-lg pr-5 pt-1 pb-1 border border-transparent hover:border-white hover:cursor-pointer"
+                        : "flex border border-white rounded-lg pr-4 pt-1 pb-1 hover:cursor-pointer"
+                    }
                   >
-                    <div
-                      className={
-                        selectedProject
-                          ? "flex rounded-lg pr-5 pt-1 pb-1 border border-transparent hover:border-white hover:cursor-pointer"
-                          : "flex border border-white rounded-lg pr-4 pt-1 pb-1 hover:cursor-pointer"
-                      }
-                    >
-                      <div className="flex items-center justify-center h-6 w-6">
-                        <svg
-                          width="24"
-                          height="16"
-                          viewBox="0 0 14 16"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M14 10.6198V4.87968C14.0019 4.52884 13.9106 4.18379 13.7354 3.87983C13.5602 3.57587 13.3073 3.3239 13.0028 3.1497L7.99975 0.270148C7.69612 0.0932194 7.35099 0 6.99957 0C6.64815 0 6.30302 0.0932194 5.99938 0.270148L0.999772 3.14282C0.695568 3.31935 0.443091 3.57273 0.267631 3.87755C0.0921702 4.18238 -0.000113808 4.52796 2.19083e-05 4.87968V10.6198C-0.00162925 10.9709 0.0900791 11.3162 0.265752 11.6201C0.441425 11.9241 0.694748 12.176 0.999772 12.3498L5.99938 15.2302C6.30302 15.4072 6.64815 15.5004 6.99957 15.5004C7.35099 15.5004 7.69612 15.4072 7.99975 15.2302L13.0028 12.3498C13.3073 12.1756 13.5602 11.9237 13.7354 11.6197C13.9106 11.3157 14.0019 10.9707 14 10.6198ZM6.00025 12.9199L2.00038 10.6198V5.98965L6.00025 8.31982V12.9199ZM7 6.58726L3.03975 4.27948L7.00086 1.99926L10.962 4.27948L7 6.58726ZM11.9996 10.6173L7.99975 12.9199V8.31982L11.9996 5.98965V10.6173Z"
-                            fill="#fff"
-                          />
-                        </svg>
-                      </div>
-
-                      <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200 text-white">
-                        My Projects
-                      </span>
+                    <div className="flex items-center justify-center h-6 w-6">
+                      <svg
+                        width="24"
+                        height="16"
+                        viewBox="0 0 14 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M14 10.6198V4.87968C14.0019 4.52884 13.9106 4.18379 13.7354 3.87983C13.5602 3.57587 13.3073 3.3239 13.0028 3.1497L7.99975 0.270148C7.69612 0.0932194 7.35099 0 6.99957 0C6.64815 0 6.30302 0.0932194 5.99938 0.270148L0.999772 3.14282C0.695568 3.31935 0.443091 3.57273 0.267631 3.87755C0.0921702 4.18238 -0.000113808 4.52796 2.19083e-05 4.87968V10.6198C-0.00162925 10.9709 0.0900791 11.3162 0.265752 11.6201C0.441425 11.9241 0.694748 12.176 0.999772 12.3498L5.99938 15.2302C6.30302 15.4072 6.64815 15.5004 6.99957 15.5004C7.35099 15.5004 7.69612 15.4072 7.99975 15.2302L13.0028 12.3498C13.3073 12.1756 13.5602 11.9237 13.7354 11.6197C13.9106 11.3157 14.0019 10.9707 14 10.6198ZM6.00025 12.9199L2.00038 10.6198V5.98965L6.00025 8.31982V12.9199ZM7 6.58726L3.03975 4.27948L7.00086 1.99926L10.962 4.27948L7 6.58726ZM11.9996 10.6173L7.99975 12.9199V8.31982L11.9996 5.98965V10.6173Z"
+                          fill="#FFFFFF"
+                        />
+                      </svg>
                     </div>
-                  </a>
-                </Link>
+
+                    <span className="text-sm font-medium ml-3 lg:opacity-100 duration-200 text-white">
+                      My Projects
+                    </span>
+                  </div>
+                </div>
               </li>
-              {/* SHARED WITH ME */}
+              {/* Analytics */}
               <li
                 className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-                  pathname.includes("shared") && "bg-gray"
+                  pathname.includes("shared") && "bg-gray-800"
                 }`}
               >
                 <div
@@ -200,26 +202,26 @@ export const MainSidebar = () => {
                       >
                         <path
                           d="M9.25 13.5625C7.495 13.5625 4 14.44 4 16.1875V17.5H14.5V16.1875C14.5 14.44 11.005 13.5625 9.25 13.5625ZM5.755 16C6.385 15.565 7.9075 15.0625 9.25 15.0625C10.5925 15.0625 12.115 15.565 12.745 16H5.755ZM9.25 12.25C10.6975 12.25 11.875 11.0725 11.875 9.625C11.875 8.1775 10.6975 7 9.25 7C7.8025 7 6.625 8.1775 6.625 9.625C6.625 11.0725 7.8025 12.25 9.25 12.25ZM9.25 8.5C9.8725 8.5 10.375 9.0025 10.375 9.625C10.375 10.2475 9.8725 10.75 9.25 10.75C8.6275 10.75 8.125 10.2475 8.125 9.625C8.125 9.0025 8.6275 8.5 9.25 8.5ZM14.53 13.6075C15.4 14.2375 16 15.0775 16 16.1875V17.5H19V16.1875C19 14.6725 16.375 13.81 14.53 13.6075ZM13.75 12.25C15.1975 12.25 16.375 11.0725 16.375 9.625C16.375 8.1775 15.1975 7 13.75 7C13.345 7 12.97 7.0975 12.625 7.2625C13.0975 7.93 13.375 8.7475 13.375 9.625C13.375 10.5025 13.0975 11.32 12.625 11.9875C12.97 12.1525 13.345 12.25 13.75 12.25Z"
-                          fill="gray"
+                          fill="#FFFFFF"
                         />
                       </svg>
                     </div>
 
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200 text-white">
+                    <span className="text-sm font-medium ml-3 lg:opacity-100 duration-200 text-white">
                       Shared with Me
                     </span>
                   </div>
                 </div>
               </li>
-              {/* DRAFTS */}
+              {/* Analytics */}
               <li
                 className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-                  pathname.includes("drafts") && "bg-primary-dark-blue"
+                  pathname.includes("shared") && "bg-primary-dark-blue"
                 }`}
               >
                 <div
                   className={`block text-gray truncate transition duration-150 ${
-                    pathname.includes("drafts") && "hover:text-gray"
+                    pathname.includes("shared") && "hover:text-gray"
                   }`}
                 >
                   <div className="flex">
@@ -233,18 +235,18 @@ export const MainSidebar = () => {
                       >
                         <path
                           d="M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z"
-                          fill="#fff"
+                          fill="#FFFFFF"
                         />
                       </svg>
                     </div>
 
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200 text-white">
+                    <span className="text-sm font-medium ml-3 lg:opacity-100 duration-200 text-white">
                       Drafts
                     </span>
                   </div>
                 </div>
               </li>
-              {/* TRASH */}
+              {/* Analytics */}
               <li
                 className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
                   pathname.includes("shared") && "bg-primary-dark-blue"
@@ -268,13 +270,13 @@ export const MainSidebar = () => {
                         >
                           <path
                             d="M1.28571 12.5714C1.28571 13.4357 1.99286 14.1429 2.85714 14.1429H9.14286C10.0071 14.1429 10.7143 13.4357 10.7143 12.5714V4.71429C10.7143 3.85 10.0071 3.14286 9.14286 3.14286H2.85714C1.99286 3.14286 1.28571 3.85 1.28571 4.71429V12.5714ZM3.64286 4.71429H8.35714C8.78929 4.71429 9.14286 5.06786 9.14286 5.5V11.7857C9.14286 12.2179 8.78929 12.5714 8.35714 12.5714H3.64286C3.21071 12.5714 2.85714 12.2179 2.85714 11.7857V5.5C2.85714 5.06786 3.21071 4.71429 3.64286 4.71429ZM8.75 0.785714L8.19214 0.227857C8.05071 0.0864285 7.84643 0 7.64214 0H4.35786C4.15357 0 3.94929 0.0864285 3.80786 0.227857L3.25 0.785714H1.28571C0.853571 0.785714 0.5 1.13929 0.5 1.57143C0.5 2.00357 0.853571 2.35714 1.28571 2.35714H10.7143C11.1464 2.35714 11.5 2.00357 11.5 1.57143C11.5 1.13929 11.1464 0.785714 10.7143 0.785714H8.75Z"
-                            fill="#fff"
+                            fill="#FFFFFF"
                           />
                         </svg>
                       </div>
                     </div>
 
-                    <span className="text-sm font-medium ml-3 lg:opacity-0 lg:main-sidebar-expanded:opacity-100 duration-200 text-white">
+                    <span className="text-sm font-medium ml-3 lg:opacity-100 duration-200 text-white">
                       Trash
                     </span>
                   </div>

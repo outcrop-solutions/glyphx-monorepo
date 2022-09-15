@@ -3,12 +3,15 @@ import { useState, useRef, useEffect } from "react";
 import { Transition } from "utils/Transition";
 import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
-export const UserMenu = ({ align, user }) => {
+import { userSelector } from "@/state/user";
+import { useRecoilValue } from "recoil";
+export const UserMenu = ({ align }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
+  const user = useRecoilValue(userSelector)
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }) => {
@@ -79,8 +82,7 @@ export const UserMenu = ({ align, user }) => {
         enterEnd="opacity-100 translate-y-0"
         leave="transition ease-out duration-200"
         leaveStart="opacity-100"
-        leaveEnd="opacity-0"
-      >
+        leaveEnd="opacity-0" appear={undefined}      >
         <ul
           ref={dropdown}
           onFocus={() => setDropdownOpen(true)}
