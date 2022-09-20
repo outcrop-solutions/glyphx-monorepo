@@ -2,6 +2,7 @@ import React, { useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { GetServerSideProps } from "next";
 import sortArray from "sort-array";
+
 // Amplify
 import { withSSRContext, graphqlOperation, Auth } from "aws-amplify";
 
@@ -34,6 +35,17 @@ import { useRouter } from "next/router";
 export default function Home() {
   const setUser = useSetRecoilState(userSelector);
   const router = useRouter();
+
+  /**
+   * Check's if Qt has passed modelID to Front end
+   */
+  function checkParams(){
+    var params = router.query;
+      if(params.model !== null && params.model !== undefined){
+        router.push('/project/'+params.model);
+      }
+  }
+
   useEffect(() => {
     const getUser = async () => {
       const user = await Auth.currentAuthenticatedUser();
@@ -42,6 +54,7 @@ export default function Home() {
         router.push("/auth/signIn");
       }
       setUser(JSON.stringify(user));
+      checkParams();
     };
     getUser();
   }, []);
@@ -50,6 +63,8 @@ export default function Home() {
   const isGridView = useRecoilValue(isGridViewAtom);
   const projectDetails = useRecoilValue(projectDetailsAtom);
   const showAddProject = useRecoilValue(showAddProjectAtom);
+
+
 
   return (
     <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
