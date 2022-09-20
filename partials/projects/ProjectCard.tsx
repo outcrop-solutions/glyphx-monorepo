@@ -157,7 +157,7 @@ export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
                           <div
                             key={`${member}-${idx}`}
                             className={`rounded-full ${
-                              idx % 2 === 0 ? "bg-blue-600" : "bg-yellow"
+                              idx % 2 === 0 ? "bg-blue" : "bg-primary-yellow"
                             } h-6 w-6 text-sm text-white flex items-center justify-center`}
                           >
                             {`${member.split("@")[0][0].toUpperCase()}`}
@@ -169,7 +169,7 @@ export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
                 ) : (
                   <div
                     className={`rounded-full ${
-                      idx % 2 === 0 ? "bg-cyan" : "bg-yellow"
+                      idx % 2 === 0 ? "bg-cyan" : "bg-primary-yellow"
                     } h-6 w-6 text-sm text-white flex items-center justify-center`}
                   >
                     {project.author ? `${project.author[0].toUpperCase()}` : ""}

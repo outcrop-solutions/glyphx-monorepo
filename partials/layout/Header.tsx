@@ -26,8 +26,11 @@ export const Header = () => {
   const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
   const [edit, setEdit] = useState(false);
 
+  const router = useRouter();
+
   const backPresssed = () => {
-    console.log("Back Pressed");
+    setSelectedProject(null);
+    router.push("/");
   };
 
   const handleChange = (e) => {
@@ -68,7 +71,7 @@ export const Header = () => {
   // };
   return (
     <div
-      className={`sticky top-0 z-30  flex justify-between items-center bg-secondary-midnight max-h-16 w-full ${
+      className={`sticky top-0 z-30 flex justify-between items-center bg-secondary-midnight max-h-16 w-full ${
         !selectedProject ? "px-4" : "px-6"
       }`}
     >
@@ -172,7 +175,7 @@ export const Header = () => {
             </form>
           )}
           {/* Header: Right side */}
-          <div className="flex items-center space-x-3 mr-6">
+          <div className="flex justify-end w-full  items-center space-x-3 mr-6">
             {/* <Help align='right' /> */}
             {/*  Divider */}
             {/* {!selectedProject && <hr className="w-px h-6 bg-gray mx-3" />} */}
@@ -239,7 +242,7 @@ export const Header = () => {
             )}
             {!selectedProject && (
               <button
-                className={`h-8 px-2 flex items-center justify-center bg-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${
+                className={`h-8 px-2 flex items-center justify-center bg-primary-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${
                   searchModalOpen && "bg-gray"
                 }`}
                 onClick={(e) => {

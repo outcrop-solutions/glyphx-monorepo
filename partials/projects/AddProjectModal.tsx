@@ -298,7 +298,7 @@ export const AddProjectModal = () => {
                               onChange={(e) => setMembers(e.target.value)}
                               // autoComplete="email"
                               // placeholder="Client email"
-                              className="mt-1 rounded-sm block w-full border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              className="mt-1 text-white rounded-sm block w-full border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             />
                           ) : (
                             <div className="flex items-center border-b border-gray py-2">
