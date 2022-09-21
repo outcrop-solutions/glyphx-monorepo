@@ -7,7 +7,7 @@ export const AxesIcons = ({ property }) => {
         return (
           <div className="flex items-center justify-center h-6 w-6 text-gray group-filters-hover:text-white">
             <svg
-              className="fill-current group-filters-hover:text-white"
+              className="fill-light-gray group-filters-hover:text-white"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -35,7 +35,7 @@ export const AxesIcons = ({ property }) => {
         return (
           <div className="flex items-center justify-center h-6 w-6 text-gray group-filters-hover:text-white">
             <svg
-              className="fill-current group-filters-hover:text-white"
+              className="fill-light-gray group-filters-hover:text-white"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -64,7 +64,7 @@ export const AxesIcons = ({ property }) => {
         return (
           <div className="flex items-center justify-center h-6 w-6 text-gray group-filters-hover:text-white">
             <svg
-              className="fill-current group-filters-hover:text-white"
+              className="fill-light-gray group-filters-hover:text-white"
               width="16"
               height="16"
               viewBox="0 0 16 16"

@@ -17,9 +17,8 @@ export const MainSidebar = () => {
   return (
     <div
       id="sidebar"
-      className={`hidden lg:flex flex-col absolute z-40 bg-secondary-space-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen scrollbar-none ${
-        pathname === "/" ? "w-64" : "w-20"
-      } shrink-0 p-4`}
+      className={`hidden lg:flex flex-col absolute z-40 bg-secondary-space-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen scrollbar-none ${pathname === "/" ? "w-64" : "w-20"
+        } shrink-0 p-4`}
     >
       <div className="">
         {/* Sidebar header */}
@@ -143,14 +142,12 @@ export const MainSidebar = () => {
             <ul className="mt-3">
               {/* Dashboard */}
               <li
-                className={`px-3 py-1 rounded-full mb-0.5 last:mb-0 ${
-                  pathname === "/" && "bg-transparent"
-                }`}
+                className={`px-3 py-1 rounded-full mb-0.5 last:mb-0 ${pathname === "/" && "bg-transparent"
+                  }`}
               >
                 <div
-                  className={`block text-gray hover:text-white truncate transition duration-150 ${
-                    pathname === "/" && "hover:text-gray"
-                  }`}
+                  className={`block text-gray hover:text-white truncate transition duration-150 ${pathname === "/" && "hover:text-gray"
+                    }`}
                 >
                   <div
                     className={
@@ -182,14 +179,12 @@ export const MainSidebar = () => {
               </li>
               {/* Analytics */}
               <li
-                className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-                  pathname.includes("shared") && "bg-gray-800"
-                }`}
+                className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes("shared") && "bg-gray-800"
+                  }`}
               >
                 <div
-                  className={`block text-gray truncate transition duration-150 ${
-                    pathname.includes("shared") && "hover:text-gray"
-                  }`}
+                  className={`block text-gray truncate transition duration-150 ${pathname.includes("shared") && "hover:text-gray"
+                    }`}
                 >
                   <div className="flex">
                     <div className="flex items-center justify-center h-6 w-6">
@@ -215,48 +210,36 @@ export const MainSidebar = () => {
               </li>
               {/* Analytics */}
               <li
-                className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-                  pathname.includes("shared") && "bg-primary-dark-blue"
-                }`}
+                className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes("shared") && "bg-primary-dark-blue"
+                  }`}
               >
                 <div
-                  className={`block text-gray truncate transition duration-150 ${
-                    pathname.includes("shared") && "hover:text-gray"
-                  }`}
+                  className={`block text-gray truncate transition duration-150 ${pathname.includes("shared") && "hover:text-gray"
+                    }`}
                 >
                   <div className="flex">
                     <div className="flex items-center justify-center h-6 w-6">
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z"
-                          fill="#FFFFFF"
-                        />
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="#FFF" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.6422 1.73444L12.5611 0.427778C12.3511 0.163333 12.0322 0 11.6667 0H2.33333C1.96778 0 1.64889 0.163333 1.43111 0.427778L0.357778 1.73444C0.132222 1.99889 0 2.34889 0 2.72222V12.4444C0 13.3 0.7 14 1.55556 14H12.4444C13.3 14 14 13.3 14 12.4444V2.72222C14 2.34889 13.8678 1.99889 13.6422 1.73444ZM2.52 1.55556H11.48L12.11 2.31H1.89778L2.52 1.55556ZM1.55556 12.4444V3.88889H12.4444V12.4444H1.55556ZM8.12778 5.44444H5.87222V7.77778H3.88889L7 10.8889L10.1111 7.77778H8.12778V5.44444Z" fill="#FFFFFF" />
                       </svg>
+
                     </div>
 
                     <span className="text-sm font-medium ml-3 lg:opacity-100 duration-200 text-white">
-                      Drafts
+                      Archived
                     </span>
                   </div>
                 </div>
               </li>
               {/* Analytics */}
               <li
-                className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
-                  pathname.includes("shared") && "bg-primary-dark-blue"
-                }`}
+                className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes("shared") && "bg-primary-dark-blue"
+                  }`}
               >
                 <a
                   href="/trash"
-                  className={`block text-gray truncate transition duration-150 ${
-                    pathname.includes("shared") && "hover:text-gray"
-                  }`}
+                  className={`block text-gray truncate transition duration-150 ${pathname.includes("shared") && "hover:text-gray"
+                    }`}
                 >
                   <div className="flex">
                     <div className="flex items-center justify-center h-6 w-6">
