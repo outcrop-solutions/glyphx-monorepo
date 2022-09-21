@@ -22,7 +22,7 @@ export const Invite = ({ setShare }) => {
   };
 
   return (
-    <div className="flex flex-col absolute z-10 right-0 top-0 w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1">
+    <div className="flex flex-col absolute z-50 right-0 top-0 w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1">
       <div className="pt-5 pl-3 pr-3">
         <div className="flex flex-row justify-between mb-2">
           <p className="text-light-gray text-lg">

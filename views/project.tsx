@@ -29,6 +29,7 @@ import { GridContainer } from "@/partials/datagrid/GridContainer";
 import { showReorderConfirmAtom } from "@/state/properties";
 import { projectIdAtom, selectedProjectSelector } from "@/state/project";
 import { userSelector } from "@/state/user";
+import {shareOpenAtom} from "@/state/share";
 
 export default function Project() {
   const [error, setError] = useState(false);
@@ -61,6 +62,9 @@ export default function Project() {
   const toastRef = React.useRef(null);
   const [share, setShare] = useState(false);
 
+  // Check if share model has been turned on
+  const [showShareModel,setShareModel] = useRecoilState(shareOpenAtom);
+
   return (
     <div className="flex h-screen max-w-5xl-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       {/* {showReorderConfirm ? <ReorderConfirmModal /> : null} */}
@@ -68,6 +72,13 @@ export default function Project() {
       <MainSidebar />
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none bg-primary-dark-blue">
+        {
+          showShareModel ? 
+          <Invite setShare={setShareModel}/>
+          :
+
+          <></>
+        }
         {/*  Site header */}
         <Header />
         {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
