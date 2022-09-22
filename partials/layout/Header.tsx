@@ -12,6 +12,7 @@ import {
   selectedProjectSelector,
   shareOpenAtom,
   showAddProjectAtom,
+  showSearchModalAtom
 } from "state";
 import { prepareServerlessUrl } from "next/dist/server/base-server";
 
@@ -20,7 +21,7 @@ export const Header = () => {
     selectedProjectSelector
   );
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
-  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const setShare = useSetRecoilState(shareOpenAtom);
   // move into atom
   const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
@@ -129,7 +130,7 @@ export const Header = () => {
             <form
               onClick={(e) => {
                 e.stopPropagation();
-                setSearchModalOpen(true);
+                setShowSearchModalOpen(true);
               }}
               className="relative rounded-2xl border border-gray z-60"
             >
@@ -182,7 +183,7 @@ export const Header = () => {
             {selectedProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${
-                  searchModalOpen && "bg-gray"
+                  showSearchModalOpen && "bg-gray"
                 }`}
                 onClick={(e) => {
                   // setShowAddProject(selectedProject ? true : false);
@@ -243,7 +244,7 @@ export const Header = () => {
             {!selectedProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-primary-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${
-                  searchModalOpen && "bg-gray"
+                  setShowSearchModalOpen && "bg-gray"
                 }`}
                 onClick={(e) => {
                   setShowAddProject(true);
@@ -266,20 +267,21 @@ export const Header = () => {
                 <b className="text-black text-sm mx-2">New Model</b>
               </button>
             )}
-            {!selectedProject && (
+            {!selectedProject && showSearchModalOpen &&  (
               <>
-                {/* <SearchModal
-                  id="search-modal"
-                  searchId="search"
-                  modalOpen={searchModalOpen}
-                  setModalOpen={setSearchModalOpen}
-                /> */}
+                <SearchModal
+                  // id="search-modal"
+                  // searchId="search"
+                  // modalOpen={searchModalOpen}
+                  // setModalOpen={setSearchModalOpen}
+                />
 
                 <GridToggle />
               </>
             )}
             {/* {selectedProject && <DeleteModel align="right" />} */}
-            {selectedProject && <Help />}
+            {/* Below is causing empty user bubble */}
+            {/* {selectedProject && <Help />} */}
             <DropdownNotifications align="right" />
             {/* {!selectedProject && (
 							<button

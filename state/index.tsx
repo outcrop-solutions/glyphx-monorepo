@@ -7,3 +7,4 @@ export * from "./properties";
 export * from "./share";
 export * from "./states";
 export * from "./user";
+export * from "./searchModal";
