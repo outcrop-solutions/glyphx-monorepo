@@ -46,6 +46,10 @@ export const Header = () => {
     }
   };
 
+  const handleEditProjectName = () =>{
+    alert("Edit Project Name now");
+  }
+
   // const handleEdit = () => {
   //   setEdit((prev) => !prev);
   //   setProjectName(selectedProject.name);
@@ -102,6 +106,7 @@ export const Header = () => {
             className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
               !selectedProject ? "ml-6" : "ml-0"
             }`}
+            onClick={handleEditProjectName}
           >
             {selectedProject ? selectedProject.name : "My Projects"}
           </div>
@@ -127,12 +132,12 @@ export const Header = () => {
           {/* Search form */}
           {/* <SearchForm placeholder='Search GlyphX' /> */}
           {!selectedProject && (
-            <form
+            <div
               onClick={(e) => {
                 e.stopPropagation();
                 setShowSearchModalOpen(true);
               }}
-              className="relative rounded-2xl border border-gray z-60"
+              className="input-group  flex flex-col justify-center relative rounded-2xl border border-gray z-60"
             >
               <label htmlFor="action-search" className="sr-only">
                 Search
@@ -158,6 +163,7 @@ export const Header = () => {
                     />
                   </svg>
                 </div>
+                
               </div>
               <button
                 className="absolute inset-0 right-auto group"
@@ -173,7 +179,7 @@ export const Header = () => {
                   <path d="M15.707 14.293L13.314 11.9a8.019 8.019 0 01-1.414 1.414l2.393 2.393a.997.997 0 001.414 0 .999.999 0 000-1.414z" />
                 </svg>
               </button>
-            </form>
+            </div>
           )}
           {/* Header: Right side */}
           <div className="flex justify-end w-full  items-center space-x-3 mr-6">
@@ -267,17 +273,18 @@ export const Header = () => {
                 <b className="text-black text-sm mx-2">New Model</b>
               </button>
             )}
-            {!selectedProject && showSearchModalOpen &&  (
-              <>
+            {
+              !selectedProject && showSearchModalOpen && (
                 <SearchModal
                   // id="search-modal"
                   // searchId="search"
                   // modalOpen={searchModalOpen}
                   // setModalOpen={setSearchModalOpen}
                 />
-
+              )
+            }
+            {!selectedProject &&  (                
                 <GridToggle />
-              </>
             )}
             {/* {selectedProject && <DeleteModel align="right" />} */}
             {/* Below is causing empty user bubble */}
