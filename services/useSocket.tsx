@@ -66,9 +66,9 @@ export const useSocket = () => {
         JSON.stringify({
           filterSidebar: {
             // y: filterSidebarPosition.values.y,
-            y: 64,
-            right: Math.round(filterSidebarPosition.values.right),
-            height: filterSidebarPosition.values.height,
+            y: 64, //pixel valiue of header height
+            right: Math.round(filterSidebarPosition.values.right), //left side of browser to right side of project sidebar
+            height: filterSidebarPosition.values.height, // height of grid view window
           },
           commentsSidebar: commentsPosition
             ? commentsPosition.values

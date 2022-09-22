@@ -46,8 +46,9 @@ export const Header = () => {
     }
   };
 
-  const handleEditProjectName = () =>{
-    alert("Edit Project Name now");
+  const handleEditProjectName = () => {
+    // alert("Edit Project Name now");
+    console.log("Test")
   }
 
   // const handleEdit = () => {
@@ -101,12 +102,12 @@ export const Header = () => {
         </button>
       )}
       {!edit ? (
-        <div className="flex items-center group border border-transparent rounded-lg pr-2 ml-6 bg-transparent">
+        <div onClick={handleEditProjectName} className="flex items-center group border border-transparent rounded-lg pr-2 ml-6 bg-transparent">
           <div
             className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
               !selectedProject ? "ml-6" : "ml-0"
             }`}
-            onClick={handleEditProjectName}
+            
           >
             {selectedProject ? selectedProject.name : "My Projects"}
           </div>

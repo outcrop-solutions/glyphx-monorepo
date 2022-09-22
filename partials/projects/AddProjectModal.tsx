@@ -42,21 +42,30 @@ export const AddProjectModal = () => {
   };
 
   const handleSave = async () => {
+    // Convert String user atom to object
+    let obj = JSON.stringify(user);
+    obj = JSON.parse(obj);
+    obj = JSON.parse(obj);
+    // console.log({obj})
+    // 
     const createProjectInput = {
       id: uuid(),
       name,
       description,
       expiry: new Date(),
-      author: user.username,
-      shared: [user.username, ...chips],
+      author: obj.username,
+      shared: [obj.username, ...chips],
     };
+    console.log({createProjectInput})
     try {
       const result = (await API.graphql(
         graphqlOperation(createProject, { input: createProjectInput })
       )) as { data: CreateProjectMutation };
 
+      console.log({result})
+
       setShowAddProject(false);
-      router.push(`/projects/${result.data.createProject.id}`);
+      router.push(`/project/${result.data.createProject.id}`);
     } catch (error) {
       console.log({ error });
     }
