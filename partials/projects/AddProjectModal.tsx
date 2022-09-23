@@ -45,7 +45,7 @@ export const AddProjectModal = () => {
     // Convert String user atom to object
     let obj = JSON.stringify(user);
     obj = JSON.parse(obj);
-    obj = JSON.parse(obj);
+    let data = JSON.parse(obj);
     // console.log({obj})
     // 
     const createProjectInput = {
@@ -53,8 +53,8 @@ export const AddProjectModal = () => {
       name,
       description,
       expiry: new Date(),
-      author: obj.username,
-      shared: [obj.username, ...chips],
+      author: data.username,
+      shared: [data.username, ...chips],
     };
     console.log({createProjectInput})
     try {

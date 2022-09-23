@@ -25,7 +25,6 @@ export const Header = () => {
   const setShare = useSetRecoilState(shareOpenAtom);
   // move into atom
   const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
-  const [edit, setEdit] = useState(false);
 
   const router = useRouter();
 
@@ -46,9 +45,14 @@ export const Header = () => {
     }
   };
 
-  const handleEditProjectName = () => {
-    // alert("Edit Project Name now");
-    console.log("Test")
+  /**
+   * Changes name to what the selected project name is
+   * @param e 
+   */
+  const handleEditProjectName = (e) => {
+    // TODO: Ask James on how to change project name on the go
+    console.log(e.target.value);
+
   }
 
   // const handleEdit = () => {
@@ -77,9 +81,8 @@ export const Header = () => {
   // };
   return (
     <div
-      className={`sticky top-0 z-30 flex justify-between items-center bg-secondary-midnight max-h-16 w-full ${
-        !selectedProject ? "px-4" : "px-6"
-      }`}
+      className={`sticky top-0 z-30 flex justify-between items-center bg-secondary-space-blue border-l border-gray max-h-16 w-full ${!selectedProject ? "px-4" : "px-6"
+        }`}
     >
       {selectedProject && (
         <button
@@ -101,86 +104,32 @@ export const Header = () => {
           <span className="text-white font-medium text-sm ml-2">Back</span>
         </button>
       )}
-      {!edit ? (
-        <div onClick={handleEditProjectName} className="flex items-center group border border-transparent rounded-lg pr-2 ml-6 bg-transparent">
-          <div
-            className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${
-              !selectedProject ? "ml-6" : "ml-0"
-            }`}
-            
-          >
-            {selectedProject ? selectedProject.name : "My Projects"}
+      {/* if there is a selected project, name should be the project name */}
+      {
+        !selectedProject ? (
+          <div onClick={handleEditProjectName} className="flex items-center group border border-transparent rounded-lg pr-2 ml-6 bg-transparent">
+            <div
+              className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${!selectedProject ? "ml-6" : "ml-0"
+                }`}
+
+            >
+              {selectedProject ? selectedProject.name : "My Projects"}
+            </div>
           </div>
-        </div>
-      ) : (
-        <div>
+        ) :
           <input
-            onKeyPress={(ev) => {
-              if (ev.key === "Enter") {
-                ev.preventDefault();
-                // handleSaveProjectName();
-              }
-            }}
-            className="ml-6 text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate border border-gray bg-transparent rounded-sm"
-            // @ts-ignore
-            value={selectedProject?.name || ""}
-            onChange={handleChange}
+            // group
+            className="pl-2 text-white font-extralight text-2xl flex items-center outline-none border border-transparent rounded-lg pr-2 ml-6 bg-transparent hover:border-yellow"
+            defaultValue={selectedProject ? selectedProject.name : "My Projects"}
+            onChange={handleEditProjectName}
           />
-        </div>
-      )}
+      }
       <div className="px-4 sm:px-6 lg:px-0 lg:w-5/6">
         <div className="flex items-center justify-between h-16 -mb-px">
           {/* Search form */}
           {/* <SearchForm placeholder='Search GlyphX' /> */}
           {!selectedProject && (
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowSearchModalOpen(true);
-              }}
-              className="input-group  flex flex-col justify-center relative rounded-2xl border border-gray z-60"
-            >
-              <label htmlFor="action-search" className="sr-only">
-                Search
-              </label>
-              <div className="flex justify-end items-center relative">
-                <input
-                  id="action-search"
-                  className="rounded-2xl pl-9 text-white placeholder-white border-transparent w-96 bg-transparent hover:border-white"
-                  type="search"
-                  placeholder="Search My Projects"
-                />
-                <div className=" w-8 h-8 absolute pt-3">
-                  <svg
-                    width="17"
-                    height="11"
-                    viewBox="0 0 17 11"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.7778 10.6667H9.55558C10.0445 10.6667 10.4445 10.2667 10.4445 9.77778C10.4445 9.28889 10.0445 8.88889 9.55558 8.88889H7.7778C7.28891 8.88889 6.88891 9.28889 6.88891 9.77778C6.88891 10.2667 7.28891 10.6667 7.7778 10.6667ZM0.666687 0.888889C0.666687 1.37778 1.06669 1.77778 1.55558 1.77778H15.7778C16.2667 1.77778 16.6667 1.37778 16.6667 0.888889C16.6667 0.4 16.2667 0 15.7778 0H1.55558C1.06669 0 0.666687 0.4 0.666687 0.888889ZM4.22224 6.22222H13.1111C13.6 6.22222 14 5.82222 14 5.33333C14 4.84444 13.6 4.44444 13.1111 4.44444H4.22224C3.73335 4.44444 3.33335 4.84444 3.33335 5.33333C3.33335 5.82222 3.73335 6.22222 4.22224 6.22222Z"
-                      fill="#CECECE"
-                    />
-                  </svg>
-                </div>
-                
-              </div>
-              <button
-                className="absolute inset-0 right-auto group"
-                type="submit"
-                aria-label="Search"
-              >
-                <svg
-                  className="w-4 h-4 shrink-0 fill-current text-white group-hover:text-gray ml-3 mr-2"
-                  viewBox="0 0 16 16"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M7 14c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zM7 2C4.243 2 2 4.243 2 7s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5z" />
-                  <path d="M15.707 14.293L13.314 11.9a8.019 8.019 0 01-1.414 1.414l2.393 2.393a.997.997 0 001.414 0 .999.999 0 000-1.414z" />
-                </svg>
-              </button>
-            </div>
+            <SearchModal/>
           )}
           {/* Header: Right side */}
           <div className="flex justify-end w-full  items-center space-x-3 mr-6">
@@ -189,9 +138,8 @@ export const Header = () => {
             {/* {!selectedProject && <hr className="w-px h-6 bg-gray mx-3" />} */}
             {selectedProject && (
               <button
-                className={`h-8 px-2 flex items-center justify-center bg-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${
-                  showSearchModalOpen && "bg-gray"
-                }`}
+                className={`h-8 px-2 flex items-center justify-center bg-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${showSearchModalOpen && "bg-gray"
+                  }`}
                 onClick={(e) => {
                   // setShowAddProject(selectedProject ? true : false);
                   setShare(true);
@@ -250,9 +198,8 @@ export const Header = () => {
             )}
             {!selectedProject && (
               <button
-                className={`h-8 px-2 flex items-center justify-center bg-primary-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${
-                  setShowSearchModalOpen && "bg-gray"
-                }`}
+                className={`h-8 px-2 flex items-center justify-center bg-primary-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${setShowSearchModalOpen && "bg-gray"
+                  }`}
                 onClick={(e) => {
                   setShowAddProject(true);
                 }}
@@ -274,7 +221,7 @@ export const Header = () => {
                 <b className="text-black text-sm mx-2">New Model</b>
               </button>
             )}
-            {
+            {/* {
               !selectedProject && showSearchModalOpen && (
                 <SearchModal
                   // id="search-modal"
@@ -283,9 +230,9 @@ export const Header = () => {
                   // setModalOpen={setSearchModalOpen}
                 />
               )
-            }
-            {!selectedProject &&  (                
-                <GridToggle />
+            } */}
+            {!selectedProject && (
+              <GridToggle />
             )}
             {/* {selectedProject && <DeleteModel align="right" />} */}
             {/* Below is causing empty user bubble */}

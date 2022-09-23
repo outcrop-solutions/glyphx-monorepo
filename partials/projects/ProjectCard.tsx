@@ -40,7 +40,7 @@ export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
   };
 
   return (
-    <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue">
+    <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue hover:cursor-pointer">
       <div className="absolute top-0 left-0">
         <svg
           width="28"

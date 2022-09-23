@@ -16,12 +16,17 @@ export const GridContainer = ({ isDropped }) => {
     <>
       {rows?.length > 0 ? (
         <>
-        <SplitPane split={orientation === "horizontal" ? "horizontal" : "vertical"} allowResize={true} defaultSize={700} primary={"first"}>
-        <div className="flex flex-col grow max-h-full">
+        <SplitPane 
+          split={orientation === "horizontal" ? "horizontal" : "vertical"} 
+          allowResize={true} defaultSize={700} 
+          maxSize={orientation === "horizontal" ? 700: null} 
+          minSize={orientation === "horizontal" ? null: 270}
+          primary={"first"}>
+        <div className={`flex flex-col grow  ${orientation === "horizontal" ? 'max-h-full' : 'h-full pl-64'} overflow-scroll`}>
             <Datagrid isDropped={isDropped} />
             {/* <ModelFooter /> */}
           </div>
-          <div className="flex flex-col grow max-h-full">
+          <div className={`flex flex-col grow ${orientation === "horizontal" ? 'max-h-full' : 'h-full'}`}>
             {/* <Datagrid isDropped={isDropped} /> */}
             <ModelFooter />
           </div>

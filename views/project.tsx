@@ -71,12 +71,11 @@ export default function Project() {
       {/* Sidebar */}
       <MainSidebar />
       {/* Content area */}
-      <div className="relative flex flex-col flex-1 overflow-y-auto scrollbar-none bg-primary-dark-blue">
+      <div className="relative flex flex-col flex-1 overflow-y-clip scrollbar-none bg-primary-dark-blue">
         {
           showShareModel ? 
           <Invite setShare={setShareModel}/>
           :
-
           <></>
         }
         {/*  Site header */}
@@ -111,8 +110,8 @@ export default function Project() {
                     )}
                   </div>
                 </div>
-                <>{share ? <Invite setShare={setShare} /> : <></>}</>
-                <CommentsSidebar setCommentsPosition={setCommentsPosition} />
+                {/* <>{share ? <Invite setShare={setShare} /> : <></>}</>
+                <CommentsSidebar setCommentsPosition={setCommentsPosition} /> */}
               </div>
             </DndProvider>
           </div>
