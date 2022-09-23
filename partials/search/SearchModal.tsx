@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { useRecoilState } from "recoil";
 import { useRouter } from "next/router";
@@ -7,11 +7,6 @@ import { showSearchModalAtom } from "state";
 import Fuse from "fuse.js"; // importing fuse
 
 export function SearchModal() {
-
-  const trigger = useRef(null);
-  const searchContent = useRef(null);
-  const searchInput = useRef(null);
-
 
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const [query, setQuery] = useState('');
@@ -56,10 +51,8 @@ export function SearchModal() {
     ]
   };
 
+  // configure fuse
   const fuse = new Fuse(testData, options);
-
-  // const result = fuse.search("Robert Weed");
-  // console.log({result});
 
   function queryChange(e){
     e.preventDefault();
@@ -68,11 +61,6 @@ export function SearchModal() {
     setQueryResult(prev=>{
       return fuse.search(e.target.value)
     });
-  }
-
-  function handleClickResult(e){
-    console.log(e.target)
-    setShowSearchModalOpen(!showSearchModalOpen)
   }
 
   // close if the esc key is pressed
@@ -151,8 +139,8 @@ export function SearchModal() {
                           <li key={index} className="hover:cursor-pointer" >
                               <a
                                 onClick={()=>{
-                                  router.push(`/project/${value.modelID}`);
                                   setShowSearchModalOpen(!showSearchModalOpen);
+                                  router.push(`/project/${value.modelID}`);
                                 }}
                                 className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                               >
@@ -184,8 +172,8 @@ export function SearchModal() {
                           <li key={index} className="hover:cursor-pointer">
                               <a
                                 onClick={()=>{
-                                  router.push(`/project/${value.item.modelID}`);
                                   setShowSearchModalOpen(!showSearchModalOpen);
+                                  router.push(`/project/${value.item.modelID}`);
                                 }}
                                 className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                               >

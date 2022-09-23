@@ -8,6 +8,7 @@ import { RecoilRoot } from "recoil";
 import { ErrorFallback } from "@/partials/fallback";
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
+import BarLoader from "react-spinners/BarLoader"
 Amplify.configure({ ...awsExports, ssr: true });
 
 // To safely ignore recoil stdout warning messages
@@ -59,7 +60,16 @@ export default function App({
         }}
       >
         {/* Root Fallback for when data is loading */}
-        <Suspense fallback={<div>The Root Fallback UI ...</div>}>
+        <Suspense fallback={
+        <div className="flex flex-col justify-center items-center h-[100vh] bg-secondary-midnight">
+          <BarLoader
+            color="#EBB500"
+            height={10}
+            width={300}
+          />
+          <p className="text-white text-2xl font-light p-2">Loading...</p>
+        </div>
+        }>
           <Component {...pageProps} />
         </Suspense>
       </ErrorBoundary>
