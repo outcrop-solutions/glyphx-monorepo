@@ -22,7 +22,7 @@ export const GridContainer = ({ isDropped }) => {
           maxSize={orientation === "horizontal" ? 700: null} 
           minSize={orientation === "horizontal" ? null: 270}
           primary={"first"}>
-        <div className={`flex flex-col grow  ${orientation === "horizontal" ? 'max-h-full' : 'h-full pl-64'} overflow-scroll`}>
+        <div className={`flex flex-col grow  ${orientation === "horizontal" ? 'max-h-full mr-[15.5rem]' : 'h-full ml-64'} overflow-scroll`}>
             <Datagrid isDropped={isDropped} />
             {/* <ModelFooter /> */}
           </div>

@@ -12,7 +12,8 @@ import {
   selectedProjectSelector,
   shareOpenAtom,
   showAddProjectAtom,
-  showSearchModalAtom
+  showSearchModalAtom,
+  showInfoAtom
 } from "state";
 import { prepareServerlessUrl } from "next/dist/server/base-server";
 
@@ -23,6 +24,7 @@ export const Header = () => {
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const setShare = useSetRecoilState(shareOpenAtom);
+  const setShowInfo = useSetRecoilState(showInfoAtom);
   // move into atom
   const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
 
@@ -30,6 +32,8 @@ export const Header = () => {
 
   const backPresssed = () => {
     setSelectedProject(null);
+    setShare(false);
+    setShowInfo(false);
     router.push("/");
   };
 
@@ -119,7 +123,7 @@ export const Header = () => {
         ) :
           <input
             // group
-            className="pl-2 text-white font-extralight text-2xl flex items-center outline-none border border-transparent rounded-lg pr-2 ml-6 bg-transparent hover:border-yellow"
+            className="pl-2 text-white font-extralight text-2xl flex items-center outline-none border-2 border-transparent rounded-lg pr-2 ml-6 bg-transparent hover:border-yellow"
             defaultValue={selectedProject ? selectedProject.name : "My Projects"}
             onChange={handleEditProjectName}
           />
@@ -129,10 +133,10 @@ export const Header = () => {
           {/* Search form */}
           {/* <SearchForm placeholder='Search GlyphX' /> */}
           {!selectedProject && (
-            <SearchModal/>
+            <SearchModal />
           )}
           {/* Header: Right side */}
-          <div className="flex justify-end w-full  items-center space-x-3 mr-6">
+          <div className="flex justify-end w-full  items-center space-x-2 mr-6">
             {/* <Help align='right' /> */}
             {/*  Divider */}
             {/* {!selectedProject && <hr className="w-px h-6 bg-gray mx-3" />} */}
@@ -142,9 +146,10 @@ export const Header = () => {
                   }`}
                 onClick={(e) => {
                   // setShowAddProject(selectedProject ? true : false);
+                  setShowInfo(false);
                   setShare(true);
                 }}
-                aria-controls="search-modal"
+                aria-controls="share-modal"
               >
                 <svg
                   width="16"
@@ -233,6 +238,21 @@ export const Header = () => {
             } */}
             {!selectedProject && (
               <GridToggle />
+            )}
+            {selectedProject && (
+              <button
+                className={`h-8 px-2 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-full ml-3`}
+                onClick={(e) => {
+                  // setShowAddProject(selectedProject ? true : false);
+                  setShare(false);
+                  setShowInfo(true);
+                }}
+                aria-controls="info-modal"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7.2 4H8.8V5.6H7.2V4ZM7.2 7.2H8.8V12H7.2V7.2ZM8 0C3.584 0 0 3.584 0 8C0 12.416 3.584 16 8 16C12.416 16 16 12.416 16 8C16 3.584 12.416 0 8 0ZM8 14.4C4.472 14.4 1.6 11.528 1.6 8C1.6 4.472 4.472 1.6 8 1.6C11.528 1.6 14.4 4.472 14.4 8C14.4 11.528 11.528 14.4 8 14.4Z" fill="white" />
+                </svg>
+              </button>
             )}
             {/* {selectedProject && <DeleteModel align="right" />} */}
             {/* Below is causing empty user bubble */}

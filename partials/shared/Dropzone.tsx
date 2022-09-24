@@ -53,7 +53,7 @@ export const Dropzone = ({ toastRef }) => {
     if (progress.loaded / progress.total === 1) {
       let response = await fetch("https://api.glyphx.co/etl-process-new-file", {
         method: "POST",
-        mode: "cors",
+        mode: "no-cors",
         body: JSON.stringify({
           model_id: projectId,
           bucket_name: "sampleproject04827-staging",
@@ -114,7 +114,8 @@ export const Dropzone = ({ toastRef }) => {
                   const result = await fetch(
                     "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
                     {
-                      method: "post",
+                      method: "POST",
+                      mode: "no-cors",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
                         model_id: `${selectedProject.id}`,

@@ -15,7 +15,7 @@ export const Files = ({ openFile, toastRef }) => {
   return (
     <React.Fragment>
       <details open className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white truncate border-b border-gray">
+        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight truncate border-b border-gray">
           <div className="flex ml-2 items-center">
             <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
               <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
@@ -32,8 +32,8 @@ export const Files = ({ openFile, toastRef }) => {
             </a>
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
-          <div className="group group-hover:border-2 group-hover:border-white group-hover:rounded-full p-1 mr-1">
-          <svg className="w-4 h-4 group-hover:h-3 group-hover:w-3" width="5" height="5" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div className="border-2 border-transparent hover:border-white hover:cursor-pointer rounded-full p-1 mr-1 bg-secondary-space-blue">
+          <svg className="w-4 h-4" width="5" height="5" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M3.57143 9.10713H6.42857C6.82143 9.10713 7.14286 8.78168 7.14286 8.38391V4.76782H8.27857C8.91429 4.76782 9.23571 3.98674 8.78571 3.53111L5.50714 0.211541C5.22857 -0.0705138 4.77857 -0.0705138 4.5 0.211541L1.22143 3.53111C0.771429 3.98674 1.08571 4.76782 1.72143 4.76782H2.85714V8.38391C2.85714 8.78168 3.17857 9.10713 3.57143 9.10713ZM0.714286 10.5536H9.28571C9.67857 10.5536 10 10.879 10 11.2768C10 11.6746 9.67857 12 9.28571 12H0.714286C0.321429 12 0 11.6746 0 11.2768C0 10.879 0.321429 10.5536 0.714286 10.5536Z" fill="#CECECE" />
           </svg>
           </div>

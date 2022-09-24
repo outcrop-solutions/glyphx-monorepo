@@ -14,7 +14,8 @@ import GridLoader from "react-spinners/GridLoader";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { GridHeader } from "partials";
-import { Invite } from "partials";
+import { ShareModule } from "partials";
+import { Info } from "partials/info";
 
 // Hooks
 import { useFileSystem } from "services/useFileSystem";
@@ -30,6 +31,7 @@ import { showReorderConfirmAtom } from "@/state/properties";
 import { projectIdAtom, selectedProjectSelector } from "@/state/project";
 import { userSelector } from "@/state/user";
 import {shareOpenAtom} from "@/state/share";
+import {showInfoAtom} from "@/state/info";
 
 export default function Project() {
   const [error, setError] = useState(false);
@@ -60,10 +62,11 @@ export default function Project() {
   const { isDropped, handleDrop } = useProject(projectId);
 
   const toastRef = React.useRef(null);
-  const [share, setShare] = useState(false);
+  // const [share, setShare] = useState(false);
 
   // Check if share model has been turned on
   const [showShareModel,setShareModel] = useRecoilState(shareOpenAtom);
+  const [showInfo, setShowInfo] = useRecoilState(showInfoAtom);
 
   return (
     <div className="flex h-screen max-w-5xl-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
@@ -72,16 +75,11 @@ export default function Project() {
       <MainSidebar />
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-clip scrollbar-none bg-primary-dark-blue">
-        {
-          showShareModel ? 
-          <Invite setShare={setShareModel}/>
-          :
-          <></>
-        }
+        
         {/*  Site header */}
         <Header />
         {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
-        <main className="h-full">
+        <main className="flex flex-row h-full">
           <div className="flex grow relative h-full">
             <DndProvider backend={HTML5Backend}>
               <ProjectSidebar
@@ -109,11 +107,31 @@ export default function Project() {
                       <GridContainer isDropped={isDropped} />
                     )}
                   </div>
+                  
                 </div>
-                {/* <>{share ? <Invite setShare={setShare} /> : <></>}</>
-                <CommentsSidebar setCommentsPosition={setCommentsPosition} /> */}
+                {/* <div className="z-50 bg-yellow">
+              <p>sasmpjhhjhjhjhjle</p>
+            </div> */}
+                {/* <>{share ? <Invite setShare={setShare} /> : <></>}</> */}
+                {/* <CommentsSidebar setCommentsPosition={setCommentsPosition} /> */}
               </div>
             </DndProvider>
+            
+          </div>
+          {/* TODO: FIGURE OUT HOW TO GET SIDEBAR TO BE A SIDEBAR AND NOT AN OVERLAY */}
+          <div id="right-side-bars" className="z-50">
+          {
+          showShareModel ? 
+          <ShareModule setShare={setShareModel}/>
+          :
+          <></>
+        }
+        {
+          showInfo ?
+            <Info setInfo={setShowInfo}/>
+          :
+          <></>
+        }
           </div>
         </main>
       </div>
