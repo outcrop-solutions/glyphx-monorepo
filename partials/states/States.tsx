@@ -66,7 +66,7 @@ export const States = () => {
               <span className="text-sm ml-3 text-white "> States </span>
             </a>
           </div>
-          <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-1" onClick={addState} />
+          <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-1 border-2 border-transparent rounded-full hover:border-white" onClick={addState} />
         </summary>
         {states && states.length > 0 && <StateList />}
       </details>

@@ -18,6 +18,13 @@ export const ProjectSidebar = ({
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);
 
+  /**
+   * 0: Project
+   * 1: Model
+   * 2: Visuals
+   */
+  const [selectedMenu,setMenu] = useState(0); //sets menu index
+
   // set projectsSidebar position on transition
   useEffect(() => {
     setFilterSidebarPosition((prev) => {
@@ -37,15 +44,62 @@ export const ProjectSidebar = ({
     >
       <div className="overflow-y-auto scrollbar-none">
         {/* Files */}
-        <Files openFile={openFile} toastRef={toastRef} />
-        <Properties handleDrop={handleDrop} />
+        <div className="flex flex-row justify-evenly my-2 hover:cursor-pointer">
+          <div 
+          onClick={
+            ()=>{
+              setMenu(0)
+            }
+          } 
+          className={`justify-center font-medium text-white border-0 ${selectedMenu === 0 ? "border-b-[1px] border-b-white" : "border-b-[1px] border-b-gray hover:border-b-white"}  bg-transparent hover:bg-secondary-midnight`}>
+            <p>Project</p>
+          </div>
+          <div
+         onClick={
+          ()=>{
+            setMenu(1)
+          }
+        } 
+         className={`justify-center font-medium text-white border-0 ${selectedMenu === 1 ? "border-b-[1px] border-b-white" : "border-b-[1px] border-b-gray hover:border-b-white"}  bg-transparent hover:bg-secondary-midnight`}>
+            <p>Model</p>
+          </div>
+          <div
+          onClick={
+            ()=>{
+              setMenu(2)
+            }
+          }  
+          className={`justify-center font-medium text-white border-0 ${selectedMenu === 2 ? "border-b-[1px] border-b-white" : "border-b-[1px] border-b-gray hover:border-b-white"}  bg-transparent hover:bg-secondary-midnight`}>
+            <p>Visuals</p>
+          </div>
+        </div>
+        {
+          selectedMenu === 0 && (
+            <>
+              <Files openFile={openFile} toastRef={toastRef} />
+            <States />
+            </>
+            
+          )
+        }
+
+{
+          selectedMenu === 1 && (
+            <>
+              <Properties handleDrop={handleDrop} />
         {error ? (
           <div className="btn bg-yellow text-white my-4 w-full">
             {error}
           </div>
         ) : null}
         <Filters projectId={projectId} handleDrop={handleDrop} />
-        <States />
+            </>
+            
+          )
+        }
+        
+        
+       
       </div>
     </div>
   );

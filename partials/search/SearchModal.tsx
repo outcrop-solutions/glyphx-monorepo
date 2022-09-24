@@ -10,7 +10,7 @@ export function SearchModal() {
 
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const [query, setQuery] = useState('');
-  const [queryResult,setQueryResult] = useState([]);
+  const [queryResult, setQueryResult] = useState([]);
   const router = useRouter();
 
   const testData = [
@@ -54,11 +54,11 @@ export function SearchModal() {
   // configure fuse
   const fuse = new Fuse(testData, options);
 
-  function queryChange(e){
+  function queryChange(e) {
     e.preventDefault();
     // console.log(e.target.value);
     setQuery(e.target.value);
-    setQueryResult(prev=>{
+    setQueryResult(prev => {
       return fuse.search(e.target.value)
     });
   }
@@ -137,21 +137,21 @@ export function SearchModal() {
                       testData.map((value, index) => {
                         return (
                           <li key={index} className="hover:cursor-pointer" >
-                              <a
-                                onClick={()=>{
-                                  setShowSearchModalOpen(!showSearchModalOpen);
-                                  router.push(`/project/${value.modelID}`);
-                                }}
-                                className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                            <a
+                              onClick={() => {
+                                setShowSearchModalOpen(!showSearchModalOpen);
+                                router.push(`/project/${value.modelID}`);
+                              }}
+                              className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                            >
+                              <svg
+                                className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                                viewBox="0 0 16 16"
                               >
-                                <svg
-                                  className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
-                                </svg>
-                                <span>{value.name}</span>
-                              </a>
+                                <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
+                              </svg>
+                              <span>{value.name}</span>
+                            </a>
                           </li>
                         );
                       })
@@ -161,7 +161,7 @@ export function SearchModal() {
               )
             }
 
-{
+            {
               query !== '' && showSearchModalOpen && (
                 <div className="bg-white p-2 rounded-b-2xl">
                   <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Search Results</p>
@@ -170,21 +170,19 @@ export function SearchModal() {
                       queryResult.map((value, index) => {
                         return (
                           <li key={index} className="hover:cursor-pointer">
-                              <a
-                                onClick={()=>{
-                                  setShowSearchModalOpen(!showSearchModalOpen);
-                                  router.push(`/project/${value.item.modelID}`);
-                                }}
-                                className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
-                              >
-                                <svg
-                                  className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
-                                </svg>
-                                <span>{value.item.name}</span>
-                              </a>
+                            <a
+                              onClick={() => {
+                                setShowSearchModalOpen(!showSearchModalOpen);
+                                router.push(`/project/${value.item.modelID}`);
+                              }}
+                              className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                            >
+                              <svg className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3" width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 10.6198V4.87968C14.0019 4.52884 13.9106 4.18379 13.7354 3.87983C13.5602 3.57587 13.3073 3.3239 13.0028 3.1497L7.99975 0.270148C7.69612 0.0932194 7.35099 0 6.99957 0C6.64815 0 6.30302 0.0932194 5.99938 0.270148L0.999772 3.14282C0.695568 3.31935 0.443091 3.57273 0.267631 3.87755C0.0921702 4.18238 -0.000113808 4.52796 2.19083e-05 4.87968V10.6198C-0.00162925 10.9709 0.0900791 11.3162 0.265752 11.6201C0.441425 11.9241 0.694748 12.176 0.999772 12.3498L5.99938 15.2302C6.30302 15.4072 6.64815 15.5004 6.99957 15.5004C7.35099 15.5004 7.69612 15.4072 7.99975 15.2302L13.0028 12.3498C13.3073 12.1756 13.5602 11.9237 13.7354 11.6197C13.9106 11.3157 14.0019 10.9707 14 10.6198ZM6.00025 12.9199L2.00038 10.6198V5.98965L6.00025 8.31982V12.9199ZM7 6.58726L3.03975 4.27948L7.00086 1.99926L10.962 4.27948L7 6.58726ZM11.9996 10.6173L7.99975 12.9199V8.31982L11.9996 5.98965V10.6173Z" fill="#CECECE" />
+                              </svg>
+
+                              <span>{value.item.name}</span>
+                            </a>
                           </li>
                         );
                       })
