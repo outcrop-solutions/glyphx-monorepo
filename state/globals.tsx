@@ -37,6 +37,7 @@ export const projectsSelector = selector({
     // const user = await Auth.currentAuthenticatedUser();
     if (user) {
       try {
+        // TODO: ASK JAMES HOW TO LOCK QUERY TO PROJECTS OWNED BY USER OR SHARED TO USER
         const response = (await API.graphql(
           graphqlOperation(listProjects)
         )) as {

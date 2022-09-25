@@ -15,6 +15,7 @@ export const selectedProjectSelector = selector({
     const user = get(userSelector);
     if (user) {
       try {
+        console.log({projectIdAtom})
         const response = (await API.graphql(
           graphqlOperation(getProject, { id: get(projectIdAtom) })
         )) as {

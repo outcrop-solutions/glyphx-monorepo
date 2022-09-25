@@ -13,7 +13,7 @@ export const Info = ({ setInfo }) => {
     );
 
     return (
-        <div className="flex flex-col absolute z-50 right-0  w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
+        <div className="flex flex-col absolute z-50 right-0 w-96 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
             <div className="pt-4 pl-4 pr-4  overflow-auto">
                 <div className="flex flex-row justify-between mb-2">
                     <div className="flex flex-row justify-between space-x-3">
@@ -45,7 +45,7 @@ export const Info = ({ setInfo }) => {
 
 
             </div>
-            <img className="w-64 h-auto" src="../images/project.png" alt="sample" />
+            <img className="w-full h-auto" src="../images/project.png" alt="sample" />
             <div className="mt-2 pl-4 pr-4">
                 <p className="text-light-gray text-lg">Owner</p>
                 <div className="flex flex-row justify-between items-center mt-2 ">
@@ -57,7 +57,7 @@ export const Info = ({ setInfo }) => {
                         <p className="text-white text-xs">{selectedProject.author}</p>
                     </div>
                     <div>
-                        <p className="text-white text-xs">{selectedProject.createdAt.split('T')[0].replace(/-/g, '/')}</p>
+                        <p className="text-gray text-xs">{selectedProject.createdAt.split('T')[0].replace(/-/g, '/')}</p>
                     </div>
 
                 </div>

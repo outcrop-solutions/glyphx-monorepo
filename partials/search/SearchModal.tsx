@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import React from "react";
-import { useRecoilState,useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { useRouter } from "next/router";
 
 import { showSearchModalAtom } from "state";
@@ -136,7 +136,7 @@ export function SearchModal() {
                   <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Recent Projects</p>
                   <ul>
                     {
-                      projects.slice(0,5).map((value, index) => {
+                      projects.slice(0, 5).map((value, index) => {
                         return (
                           <li key={index} className="hover:cursor-pointer" >
                             <a
@@ -169,7 +169,7 @@ export function SearchModal() {
                   <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Search Results</p>
                   <ul>
                     {
-                      queryResult.splice(0,10).map((value, index) => {
+                      queryResult.splice(0, 10).map((value, index) => {
                         return (
                           <li key={index} className="hover:cursor-pointer">
                             <a
@@ -179,8 +179,8 @@ export function SearchModal() {
                               }}
                               className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                             >
-                              <svg className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3" width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M14 10.6198V4.87968C14.0019 4.52884 13.9106 4.18379 13.7354 3.87983C13.5602 3.57587 13.3073 3.3239 13.0028 3.1497L7.99975 0.270148C7.69612 0.0932194 7.35099 0 6.99957 0C6.64815 0 6.30302 0.0932194 5.99938 0.270148L0.999772 3.14282C0.695568 3.31935 0.443091 3.57273 0.267631 3.87755C0.0921702 4.18238 -0.000113808 4.52796 2.19083e-05 4.87968V10.6198C-0.00162925 10.9709 0.0900791 11.3162 0.265752 11.6201C0.441425 11.9241 0.694748 12.176 0.999772 12.3498L5.99938 15.2302C6.30302 15.4072 6.64815 15.5004 6.99957 15.5004C7.35099 15.5004 7.69612 15.4072 7.99975 15.2302L13.0028 12.3498C13.3073 12.1756 13.5602 11.9237 13.7354 11.6197C13.9106 11.3157 14.0019 10.9707 14 10.6198ZM6.00025 12.9199L2.00038 10.6198V5.98965L6.00025 8.31982V12.9199ZM7 6.58726L3.03975 4.27948L7.00086 1.99926L10.962 4.27948L7 6.58726ZM11.9996 10.6173L7.99975 12.9199V8.31982L11.9996 5.98965V10.6173Z" fill="#CECECE" />
+                              <svg className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z" fill="#CECECE" />
                               </svg>
 
                               <span>{value.item.name}</span>
