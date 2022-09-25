@@ -48,7 +48,7 @@ export function GridToggle() {
         aria-expanded={dropdownOpen}
       >
         <span className="sr-only">Grid Toggle</span>
-        {grid ? (
+        {!grid ? (
           <svg
             onClick={() => {
               setGrid((prev) => !prev);

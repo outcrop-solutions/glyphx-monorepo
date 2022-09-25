@@ -122,7 +122,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
           className={`flex min-w-[10rem] justify-center bg-gray h-4 ml-4 truncate cursor-pointer rounded-2xl`}
         >
-          <span className="text-xs text-black font-medium mx-6 uppercase lg:opacity-100 2xl:opacity-100 hover:text-black transition duration-150 truncate">
+          <span className="text-xs text-white font-medium mx-6 uppercase lg:opacity-100 2xl:opacity-100 group-filters-hover:text-black transition duration-150 truncate">
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
           </span>
         </div>

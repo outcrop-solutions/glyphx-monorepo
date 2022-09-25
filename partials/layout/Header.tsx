@@ -54,9 +54,27 @@ export const Header = () => {
    * Changes name to what the selected project name is
    * @param e 
    */
-  const handleEditProjectName = (e) => {
+  const handleEditProjectName = async (e) => {
     // TODO: Ask James on how to change project name on the go
     console.log(e.target.value);
+    // update project info on dynamoDB
+    const updateProjectInput = {
+      id: selectedProject.id,
+      name: e.target.value.trim(),
+      description: selectedProject.description,
+      shared: selectedProject.shared,
+    }; 
+    try {
+      const result = await API.graphql(
+        graphqlOperation(updateProject, { input: updateProjectInput })
+      );
+
+      console.log("name changed",{result});
+      // TODO: Update local version of projects. Ask James on how local atoms storing is
+    } catch (error) {
+      console.log({ error });
+    }
+  
 
   }
 
@@ -112,13 +130,13 @@ export const Header = () => {
       {/* if there is a selected project, name should be the project name */}
       {
         !selectedProject ? (
-          <div onClick={handleEditProjectName} className="flex items-center group border border-transparent rounded-lg pr-2 ml-6 bg-transparent">
+          <div className="flex items-center group border border-transparent rounded-lg pr-2 ml-6 bg-transparent">
             <div
               className={`text-left hidden lg:block text-white font-extralight text-2xl mr-6 truncate ${!selectedProject ? "ml-6" : "ml-0"
                 }`}
 
             >
-              {selectedProject ? selectedProject.name : "My Projects"}
+              {selectedProject ? selectedProject.name : "My Project"}
             </div>
           </div>
         ) :

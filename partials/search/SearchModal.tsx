@@ -133,7 +133,7 @@ export function SearchModal() {
             {
               query === '' && showSearchModalOpen && (
                 <div className="bg-white p-2 rounded-b-2xl">
-                  <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Recent Searches</p>
+                  <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Recent Projects</p>
                   <ul>
                     {
                       projects.slice(0,5).map((value, index) => {
