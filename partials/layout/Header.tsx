@@ -34,6 +34,7 @@ export const Header = () => {
     setSelectedProject(null);
     setShare(false);
     setShowInfo(false);
+    setShowSearchModalOpen(false);
     router.push("/");
   };
 

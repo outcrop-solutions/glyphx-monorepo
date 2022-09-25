@@ -141,7 +141,7 @@ export function SearchModal() {
                           <li key={index} className="hover:cursor-pointer" >
                             <a
                               onClick={() => {
-                                setShowSearchModalOpen(!showSearchModalOpen);
+                                setShowSearchModalOpen(false);
                                 router.push(`/project/${value.id}`);
                               }}
                               className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
@@ -174,8 +174,8 @@ export function SearchModal() {
                           <li key={index} className="hover:cursor-pointer">
                             <a
                               onClick={() => {
-                                setShowSearchModalOpen(!showSearchModalOpen);
-                                router.push(`/project/${value.item.modelID}`);
+                                setShowSearchModalOpen(false);
+                                router.push(`/project/${value.item.id}`);
                               }}
                               className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                             >
