@@ -49,7 +49,7 @@ export const VisualizationProps = () => {
     return (
         <React.Fragment>
             <details open className="group">
-                <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white truncate border-b border-gray">
+                <summary className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white truncate border-b border-gray">
                     <div className="flex ml-2 items-center">
                         <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
                             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">

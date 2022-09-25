@@ -50,7 +50,7 @@ export const States = () => {
   return (
     <React.Fragment>
       <details open className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white truncate border-b border-gray">
+        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight truncate border-b border-gray">
           <div className="flex ml-2 items-center">
             <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
               <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
@@ -66,7 +66,7 @@ export const States = () => {
               <span className="text-sm ml-3 text-white "> States </span>
             </a>
           </div>
-          <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-1 border-2 border-transparent rounded-full hover:border-white" onClick={addState} />
+          <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-1 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white" onClick={addState} />
         </summary>
         {states && states.length > 0 && <StateList />}
       </details>

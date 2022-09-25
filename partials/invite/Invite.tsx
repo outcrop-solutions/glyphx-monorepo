@@ -121,7 +121,7 @@ export const ShareModule = ({ setShare }) => {
         </div>
       </div>
 
-      <div className=" mt-5 w-full pl-3 pr-3">
+      <div className="absolute bottom-20 mt-5 w-full pl-3 pr-3">
         <hr className="text-gray mb-2" />
         <div className="flex flex-row justify-between mb-3 mt-2">
           <div onClick={copyLinkToClipBoard} className="rounded-2xl border border-transparent p-2 hover:border-white hover:cursor-pointer">
@@ -151,13 +151,13 @@ export const ShareModule = ({ setShare }) => {
             </button>
           </div>
         </div>
-      </div>
-      <div className="mt-1 w-full pl-3 pr-3">
+        <div className="mt-0 w-full pl-3 pr-3">
         {
           showShareText && (
             <p className="text-white text-base">Link copied to clipboard</p>
           )
         }
+      </div>
       </div>
     </div>
   );

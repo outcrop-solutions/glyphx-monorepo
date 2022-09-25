@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ProjectCard } from "./ProjectCard";
 import { AddProject } from "./AddProject";
 import { PinnedProjects } from "./PinnedProjects";
@@ -7,6 +8,19 @@ import { projectsSelector } from "@/state/globals";
 
 export const GridView = () => {
   const projects = useRecoilValue(projectsSelector);
+  
+
+  // TODO: Projects are not ordered by date
+  // TODO: Newly made projects do not appear in recent projects
+  useEffect(()=>{
+    console.log({projects});
+    let sample = [...projects];
+    let test = sample.sort(
+      (objA, objB) => Date.parse(objB.updatedAt) - Date.parse(objA.updatedAt)
+    )
+    console.log(test[1])
+  },[])
+
   return (
     <>
       {/* Page header */}

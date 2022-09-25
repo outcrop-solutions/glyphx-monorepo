@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import React from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState,useRecoilValue } from "recoil";
 import { useRouter } from "next/router";
 
 import { showSearchModalAtom } from "state";
+import { projectsSelector } from "@/state/globals";
 import Fuse from "fuse.js"; // importing fuse
 
 export function SearchModal() {
 
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
+  const projects = useRecoilValue(projectsSelector);
   const [query, setQuery] = useState('');
   const [queryResult, setQueryResult] = useState([]);
   const router = useRouter();
@@ -52,7 +54,7 @@ export function SearchModal() {
   };
 
   // configure fuse
-  const fuse = new Fuse(testData, options);
+  const fuse = new Fuse(projects, options);
 
   function queryChange(e) {
     e.preventDefault();
@@ -134,13 +136,13 @@ export function SearchModal() {
                   <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Recent Searches</p>
                   <ul>
                     {
-                      testData.map((value, index) => {
+                      projects.slice(0,5).map((value, index) => {
                         return (
                           <li key={index} className="hover:cursor-pointer" >
                             <a
                               onClick={() => {
                                 setShowSearchModalOpen(!showSearchModalOpen);
-                                router.push(`/project/${value.modelID}`);
+                                router.push(`/project/${value.id}`);
                               }}
                               className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                             >
@@ -167,7 +169,7 @@ export function SearchModal() {
                   <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Search Results</p>
                   <ul>
                     {
-                      queryResult.map((value, index) => {
+                      queryResult.splice(0,10).map((value, index) => {
                         return (
                           <li key={index} className="hover:cursor-pointer">
                             <a
