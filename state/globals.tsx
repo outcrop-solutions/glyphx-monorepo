@@ -42,7 +42,9 @@ export const projectsSelector = selector({
         )) as {
           data: ListProjectsQuery;
         };
-        return response.data.listProjects.items;
+        return response.data.listProjects.items.sort( //this little bit here sorts the data in relation to latest update date :)
+          (objA, objB) => Date.parse(objB.updatedAt) - Date.parse(objA.updatedAt)
+        );
       } catch (error) {
         console.log({ error, cool: "" });
       }

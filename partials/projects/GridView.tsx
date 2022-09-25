@@ -10,15 +10,14 @@ export const GridView = () => {
   const projects = useRecoilValue(projectsSelector);
   
 
-  // TODO: Projects are not ordered by date
   // TODO: Newly made projects do not appear in recent projects
   useEffect(()=>{
-    console.log({projects});
-    let sample = [...projects];
-    let test = sample.sort(
-      (objA, objB) => Date.parse(objB.updatedAt) - Date.parse(objA.updatedAt)
-    )
-    console.log(test[1])
+    // console.log({projects});
+    // let sample = [...projects];
+    // let test = sample.sort(
+    //   (objA, objB) => Date.parse(objB.updatedAt) - Date.parse(objA.updatedAt)
+    // )
+    // console.log(test[1],projects[1])
   },[])
 
   return (
