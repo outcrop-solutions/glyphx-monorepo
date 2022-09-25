@@ -49,7 +49,7 @@ export function DraggableHeaderRenderer({
         priority={priority}
         isCellSelected={isCellSelected}
       >
-        {isDropped(column.key) ? <s>{column.name}</s> : column.name}
+        <p>{isDropped(column.key) ? <s>{column.name}</s> : column.name}</p>
       </SortableHeaderCell>
     </div>
   );

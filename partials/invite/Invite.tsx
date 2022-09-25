@@ -1,9 +1,18 @@
-import React from "react";
+import React,{ useState } from "react";
 import { LinkDropDown } from "./LinkDropDown";
 import { MemberList } from "./MemberList";
 import { PermissionsDropDown } from "./PermissionsDropDown";
 
+import {
+  selectedProjectSelector,
+} from "state";
+import { useRecoilValue } from "recoil";
+
 export const ShareModule = ({ setShare }) => {
+
+  const [showShareText, setShareText] = useState(false);
+  const selectedProject= useRecoilValue(selectedProjectSelector);
+
   const handleInvite = async () => {
     try {
       const response = await fetch(`/api/invite`, {
@@ -20,6 +29,17 @@ export const ShareModule = ({ setShare }) => {
     } finally {
     }
   };
+
+  /**
+   * Copies Model Link to clipboard
+   */
+  function copyLinkToClipBoard(){
+    navigator.clipboard.writeText("https://app.glyphx.co/share/"+selectedProject.id);
+    setShareText(true);
+    setTimeout(() => { //take away text after 3 seconds
+      setShareText(false);
+    }, 3000);
+  }
 
   return (
     <div className="flex flex-col absolute z-50 right-0 w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1">
@@ -92,7 +112,7 @@ export const ShareModule = ({ setShare }) => {
           </div>
         </div>
 
-        <hr />
+        <hr className="text-gray"/>
 
         <div className="">
           {/* <PermissionsDropDown />
@@ -101,10 +121,10 @@ export const ShareModule = ({ setShare }) => {
         </div>
       </div>
 
-      <div className="  absolute bottom-0 w-full pl-3 pr-3">
-        <hr />
+      <div className=" mt-5 w-full pl-3 pr-3">
+        <hr className="text-gray mb-2" />
         <div className="flex flex-row justify-between mb-3 mt-2">
-          <div className="rounded-2xl border border-transparent p-2 hover:border-white hover:cursor-pointer">
+          <div onClick={copyLinkToClipBoard} className="rounded-2xl border border-transparent p-2 hover:border-white hover:cursor-pointer">
             <p className="text-white text-sm">
               <span className="inline-block">
                 <svg
@@ -131,6 +151,13 @@ export const ShareModule = ({ setShare }) => {
             </button>
           </div>
         </div>
+      </div>
+      <div className="mt-1 w-full pl-3 pr-3">
+        {
+          showShareText && (
+            <p className="text-white text-base">Link copied to clipboard</p>
+          )
+        }
       </div>
     </div>
   );

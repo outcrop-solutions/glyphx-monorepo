@@ -1,29 +1,30 @@
 import React from "react";
+import { MemberList } from "../invite/MemberList";
 import {
     selectedProjectSelector,
-  } from "state";
-  import { useRecoilState } from "recoil";
+} from "state";
+import { useRecoilState } from "recoil";
 
 
 export const Info = ({ setInfo }) => {
 
     const [selectedProject, setSelectedProject] = useRecoilState(
         selectedProjectSelector
-      );
+    );
 
     return (
         <div className="flex flex-col absolute z-50 right-0  w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
-            <div className="pt-4 pl-4 pr-4">
+            <div className="pt-4 pl-4 pr-4  overflow-auto">
                 <div className="flex flex-row justify-between mb-2">
                     <div className="flex flex-row justify-between space-x-3">
-                    <svg className="mt-1" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z" fill="white" />
-                            </svg>
-                            <p className="text-light-gray text-lg">
+                        <svg className="mt-1" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z" fill="white" />
+                        </svg>
+                        <p className="text-light-gray text-lg">
                             {selectedProject ? selectedProject.name : "My Projects"}
-                    </p>
+                        </p>
                     </div>
-                    
+
                     <svg
                         onClick={() => {
                             setInfo(false);
@@ -41,18 +42,34 @@ export const Info = ({ setInfo }) => {
                         />
                     </svg>
                 </div>
-                
+
 
             </div>
             <img className="w-64 h-auto" src="../images/project.png" alt="sample" />
-            <div>
-                <p className="text-white">Owner</p>
+            <div className="mt-2 pl-4 pr-4">
+                <p className="text-light-gray text-lg">Owner</p>
+                <div className="flex flex-row justify-between items-center mt-2 ">
+                    <div className="flex items-center">
+                        <div
+                            className="rounded-full bg-secondary-blue h-5 w-5 text-sm text-white flex items-center justify-center mr-2">
+                            {`${selectedProject.author.split("@")[0][0].toUpperCase()}`}
+                        </div>
+                        <p className="text-white text-xs">{selectedProject.author}</p>
+                    </div>
+                    <div>
+                        <p className="text-white text-xs">{selectedProject.createdAt.split('T')[0].replace(/-/g, '/')}</p>
+                    </div>
+
+                </div>
+
             </div>
-            <div>
-                <p className="text-white">Shared with</p>
+            <div className="mt-4 pl-4 pr-4">
+                <p className="text-light-gray text-lg border-b-[1px] border-gray">Shared with</p>
+                <MemberList />
             </div>
-            <div>
-                <p className="text-white">Activity</p>
+            <div className="mt-2 pl-4 pr-4">
+                <p className="text-light-gray text-lg border-b-[1px] border-gray">Activity</p>
+                <p className="text-white text-xs mt-2 font-bold">Under Development :)</p>
             </div>
         </div>
     );
