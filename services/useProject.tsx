@@ -11,6 +11,7 @@ import {
   selectedProjectSelector,
   showReorderConfirmAtom,
   toastAtom,
+  userIdSelector,
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { updateProject } from "graphql/mutations";
@@ -33,6 +34,8 @@ export const useProject = () => {
   const isPropsValid = useRecoilValue(isPropsValidSelector);
   const isZnumber = useRecoilValue(isZnumberSelector);
   const setToast = useSetRecoilState(toastAtom);
+
+  const userId = useRecoilValue(userIdSelector);
 
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
 
@@ -101,8 +104,7 @@ export const useProject = () => {
               x_axis: droppedProps[0].lastDroppedItem.key,
               y_axis: droppedProps[1].lastDroppedItem.key,
               z_axis: droppedProps[2].lastDroppedItem.key,
-              // TODO: is this necessary anymore?
-              // filters: filteredArr,
+              user_id: userId,
             }),
           });
           let res = await response.json();
@@ -120,7 +122,6 @@ export const useProject = () => {
       }
     };
     callETL();
-
   }, [properties, selectedProject]);
 
   // handle Open project
