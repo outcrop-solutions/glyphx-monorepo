@@ -4,6 +4,7 @@ import { useRecoilValue } from "recoil";
 import { AddFiles } from "../files";
 import { Datagrid } from "./DataGrid";
 import { ModelFooter } from "./ModelFooter";
+import { GridHeader } from "partials";
 import SplitPane from 'react-split-pane';
 
 import {orientationAtom} from "state";
@@ -22,7 +23,8 @@ export const GridContainer = ({ isDropped }) => {
           maxSize={orientation === "horizontal" ? 700: null} 
           minSize={orientation === "horizontal" ? null: 270}
           primary={"first"}>
-        <div className={`flex flex-col grow  ${orientation === "horizontal" ? 'max-h-full mr-[15.5rem]' : 'h-full ml-64'} overflow-scroll`}>
+        <div className={`flex flex-col grow ${orientation === "horizontal" ? 'max-h-full mr-[15.5rem]' : 'h-full ml-64'} overflow-scroll`}>
+            <GridHeader />
             <Datagrid isDropped={isDropped} />
             {/* <ModelFooter /> */}
           </div>

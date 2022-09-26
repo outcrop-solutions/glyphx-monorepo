@@ -36,5 +36,8 @@ export const useProjects = () => {
       console.log("error on fetching projects", error);
     }
   }, []);
-  fetchProjects();
+  useEffect(()=>{
+    fetchProjects();
+  },[])
+  
 };

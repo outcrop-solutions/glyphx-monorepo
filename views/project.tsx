@@ -13,7 +13,7 @@ import { MainSidebar } from "partials";
 import GridLoader from "react-spinners/GridLoader";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { GridHeader } from "partials";
+
 import { ShareModule } from "partials";
 import { Info } from "partials/info";
 
@@ -75,7 +75,7 @@ export default function Project() {
               <div className="w-full flex overflow-auto">
                 <div className="min-w-0 flex-auto w-full">
                   <div className="flex flex-col h-full">
-                    <GridHeader />
+                    
                     {dataGridLoading ? (
                       <div className="h-full w-full flex justify-center items-center border-none">
                         <GridLoader

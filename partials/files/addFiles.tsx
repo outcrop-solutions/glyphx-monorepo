@@ -117,23 +117,7 @@ export const AddFiles = () => {
       {...getRootProps()}
       className="text-center h-full flex flex-col justify-center"
     >
-      {status ? (
-        <>
-          {" "}
-          <div>
-            <h2 className="sr-only">Steps</h2>
-
-            <div>
-              <p className="text-xs font-medium text-gray">2/3 - Address</p>
-
-              <div className="mt-4 overflow-hidden bg-gray rounded-full">
-                <div className="w-2/3 h-2 bg-blue-500 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
+      
           <svg
             className="mx-auto h-12 w-12 text-gray"
             fill="none"
@@ -164,7 +148,7 @@ export const AddFiles = () => {
               </div>
             ) : (
               <button
-              // onClick={()=>{console.log("click")}}
+                // onClick={()=>{console.log("click")}}
                 type="button"
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow hover:bg-yellow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
@@ -173,8 +157,6 @@ export const AddFiles = () => {
               </button>
             )}
           </div>
-        </>
-      )}
     </div>
   );
 };

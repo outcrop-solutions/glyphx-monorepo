@@ -13,7 +13,7 @@ export function SearchModal() {
   const [showSearchModalOpen, setShowSearchModalOpen] =
     useRecoilState(showSearchModalAtom);
   const projects = useRecoilValue(projectsAtom);
-  const [query, setQuery] = useState(null);
+  const [query, setQuery] = useState("");
   const [queryResult, setQueryResult] = useState([]);
 
   const testData = [
@@ -55,6 +55,7 @@ export function SearchModal() {
   // configure fuse
   const fuse = new Fuse(projects, options);
 
+  // TODO: Fix this use effect and stop it from constantly running
   useEffect(() => {
     if (query) {
       setQueryResult((prev) => {
@@ -73,8 +74,6 @@ export function SearchModal() {
     return () => document.removeEventListener("keydown", keyHandler);
   });
 
-  //TODO: Figure out how to turn off search suggestion on click off. onBlur didnt work
-
   return (
     <div
       onClick={(e) => {
@@ -83,8 +82,14 @@ export function SearchModal() {
       }}
       className="input-group flex flex-col justify-center relative rounded-2xl border border-gray z-60"
     >
-      <div className="flex flex-col ">
-        <div className="fixed top-2">
+      <div
+      className="flex flex-col ">
+        <div
+        onBlur={()=>{
+          setShowSearchModalOpen(false);
+        }
+        } 
+        className="fixed top-2">
           <label htmlFor="action-search" className="sr-only">
             Search
           </label>

@@ -34,8 +34,9 @@ import { useRouter } from "next/router";
 import { useProjects, useUser } from "../services";
 
 export default function Home() {
-  useUser()
-  useProjects()
+  
+  useUser(); //gets user
+  useProjects(); //gets projects assigned to user
 
 
   const projects = useRecoilValue(projectsAtom);
