@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { API, graphqlOperation, Auth } from "aws-amplify";
-import { getProject, listProjects } from "graphql/queries";
-import { GetProjectQuery, ListProjectsQuery } from "API";
+import { API, graphqlOperation } from "aws-amplify";
 import update from "immutability-helper";
-import dayjs from "dayjs";
-import sortArray from "sort-array";
 import {
+  droppedPropertiesSelector,
   isPropsValidSelector,
   isQtOpenAtom,
+  isZnumberSelector,
   payloadSelector,
-  propertiesSelector,
+  propertiesAtom,
   selectedProjectSelector,
   showReorderConfirmAtom,
   toastAtom,
@@ -18,25 +16,25 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { updateProject } from "graphql/mutations";
 /**
  * Utility for interfacing with the Project class
- * @param {Project} project
  * @returns {Object}
- * projects - {Array}
- * setProjects - {function}
+ * isDropped - {function}
+ * handleDrop - {function}
  */
 
-export const useProject = (projectId) => {
+export const useProject = () => {
   const [reorderConfirm, setReorderConfirm] = useRecoilState(
     showReorderConfirmAtom
   );
-  const [isQtOpen, setIsQtOpen] = useRecoilState(isQtOpenAtom);
+  const setIsQtOpen = useSetRecoilState(isQtOpenAtom);
   const selectedProject = useRecoilValue(selectedProjectSelector);
+  const [properties, setProperties] = useRecoilState(propertiesAtom);
   const [payload, setPayload] = useRecoilState(payloadSelector);
-  const [properties, setProperties] = useRecoilState(propertiesSelector);
+
   const isPropsValid = useRecoilValue(isPropsValidSelector);
+  const isZnumber = useRecoilValue(isZnumberSelector);
   const setToast = useSetRecoilState(toastAtom);
 
-  const [droppedProps, setDroppedProps] = useState([]);
-  const [oldDropped, setOldDropped] = useState([]);
+  const droppedProps = useRecoilValue(droppedPropertiesSelector);
 
   // DnD utilities
   const isDropped = (propName) => {
@@ -45,18 +43,7 @@ export const useProject = (projectId) => {
 
   const handleDrop = useCallback(
     (index, item) => {
-      let dropped = [];
-
-      dropped = properties
-        .map((el) => {
-          return el.split("-")[0];
-        })
-        .filter((el) => el !== "");
-
       const { key } = item;
-      setOldDropped(droppedProps?.length > 0 ? droppedProps : dropped);
-      setDroppedProps(update(droppedProps, { [index]: { $set: key } }));
-      // TODO:
       setProperties(
         update(properties, {
           [index]: {
@@ -67,29 +54,16 @@ export const useProject = (projectId) => {
         })
       );
     },
-    [droppedProps, properties, selectedProject]
+    [properties, selectedProject]
   );
 
   // handle ETL
   useEffect(() => {
-    // Formatted variables
-    let propsArr = properties.filter((item) => item.lastDroppedItem);
-    let filteredArr = properties
-      .slice(3)
-      .filter((item) => item.lastDroppedItem);
-    let propsSliced = propsArr
-      .slice(0, 3)
-      .map((item) => item.lastDroppedItem.key);
-    let oldDroppedSliced = oldDropped.slice(0, 3).filter((el) => el);
-    let droppedSliced = droppedProps.slice(0, 3).filter((el) => el);
-
     // utilties
-
     const updateProjectState = async (res) => {
       if (res.statusCode === 200) {
         setIsQtOpen(true);
         setPayload((prev) => ({ url: res.url, sdt: res.sdt }));
-
         // update Dynamo Project Item
         const updateProjectInput = {
           id: selectedProject.id,
@@ -110,82 +84,54 @@ export const useProject = (projectId) => {
           );
           console.log({ result });
         } catch (error) {
+          // TODO: put error handling in toast
           console.log({ error });
         }
       }
-      // TODO: add error handling
     };
-    const callETL = async (propsArr, filteredArr) => {
-      console.log("callEtl");
-      if (
-        selectedProject &&
-        window &&
-        window.core &&
-        propsArr &&
-        propsArr.length >= 3
-      ) {
-        console.log("call endpoint");
-        // call ETl endpoint
-        let response = await fetch("https://api.glyphx.co/etl/model", {
-          method: "POST",
-          mode: "cors",
-          body: JSON.stringify({
-            model_id: selectedProject.id,
-            x_axis: properties[0].lastDroppedItem.key,
-            y_axis: properties[1].lastDroppedItem.key,
-            z_axis: properties[2].lastDroppedItem.key,
-            filters: filteredArr,
-          }),
-        });
-        let res = await response.json();
-        await updateProjectState(res);
-      }
-    };
-    const handleETL = async () => {
-      console.log("handle etl");
-      // TODO: track which properties come from which file keys once we add file delete funcitonality to ensure we don't run etl on non existent keys
-      // check if file exists in s3 to prevent running ETL on non-existent keys
-
-      if (properties[2].lastDroppedItem.dataType === "number") {
-        await callETL(propsArr, filteredArr);
+    const callETL = async () => {
+      if (isZnumber) {
+        if (isPropsValid) {
+          // call ETl endpoint
+          let response = await fetch("https://api.glyphx.co/etl/model", {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify({
+              model_id: selectedProject.id,
+              x_axis: droppedProps[0].lastDroppedItem.key,
+              y_axis: droppedProps[1].lastDroppedItem.key,
+              z_axis: droppedProps[2].lastDroppedItem.key,
+              // TODO: is this necessary anymore?
+              // filters: filteredArr,
+            }),
+          });
+          let res = await response.json();
+          await updateProjectState(res);
+        }
       } else {
         setToast(
           "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE"
         );
-        properties.pop(); //remove the z axis from there
+        // FIXME: not sure this is correct @johnathan
+        // properties.pop(); //remove the z axis from there
         setTimeout(() => {
           setToast("");
         }, 3000);
       }
     };
-    // If reordering props, create new model
-    if (
-      oldDropped &&
-      oldDroppedSliced.length === 3 &&
-      !equals(propsSliced, oldDroppedSliced)
-    ) {
-      console.log("Called Reorder Confirm");
-      setReorderConfirm(true);
-      return;
-    }
-    // handle initial ETL
-    console.log({
-      selectedProject,
-      projectId: projectId,
-      propsValid: isPropsValid,
-    });
-    if (projectId && isPropsValid) {
-      handleETL();
-    }
+    callETL();
+
   }, [properties, selectedProject]);
 
   // handle Open project
   useEffect(() => {
-    console.log({ payload, selectedProject });
+    // @ts-ignore
     if (selectedProject && window && window.core) {
       if (payload.url) {
+        // @ts-ignore
         window?.core.OpenProject(JSON.stringify(payload.url));
       } else {
+        // @ts-ignore
         window?.core.OpenProject({});
       }
     }

@@ -1,135 +1,140 @@
-import { selector } from "recoil";
+import { atom, selector } from "recoil";
 import { selectedProjectSelector } from "./project";
 
-export const propertiesSelector = selector({
+// selects properties off active project
+export const propertiesAtom = atom({
   key: "properties",
-  get: ({ get }) => {
-    let selectedProject = get(selectedProjectSelector);
-    if (!selectedProject) return [];
-    if (selectedProject?.properties && selectedProject?.properties.length > 0) {
-      const existingProps = selectedProject?.properties.map((el, idx) => {
-        switch (idx) {
-          case 0:
-            return {
-              axis: "X",
-              accepts: "COLUMN_DRAG",
-              lastDroppedItem:
-                el === ""
-                  ? null
-                  : {
-                      id: el.split("-")[2],
-                      key: el.split("-")[0],
-                      dataType: el.split("-")[1],
-                    },
-            };
+  default: selector({
+    key: "properties/default",
+    get: ({ get }) => {
+      let selectedProject = get(selectedProjectSelector);
+      if (!selectedProject) return [];
+      if (
+        selectedProject?.properties &&
+        selectedProject?.properties.length > 0
+      ) {
+        const existingProps = selectedProject?.properties.map((el, idx) => {
+          switch (idx) {
+            case 0:
+              return {
+                axis: "X",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
 
-          case 1:
-            return {
-              axis: "Y",
-              accepts: "COLUMN_DRAG",
-              lastDroppedItem:
-                el === ""
-                  ? null
-                  : {
-                      id: el.split("-")[2],
-                      key: el.split("-")[0],
-                      dataType: el.split("-")[1],
-                    },
-            };
+            case 1:
+              return {
+                axis: "Y",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
 
-          case 2:
-            return {
-              axis: "Z",
-              accepts: "COLUMN_DRAG",
-              lastDroppedItem:
-                el === ""
-                  ? null
-                  : {
-                      id: el.split("-")[2],
-                      key: el.split("-")[0],
-                      dataType: el.split("-")[1],
-                    },
-            };
+            case 2:
+              return {
+                axis: "Z",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
 
-          case 3:
-            return {
-              axis: "1",
-              accepts: "COLUMN_DRAG",
-              lastDroppedItem:
-                el === ""
-                  ? null
-                  : {
-                      id: el.split("-")[2],
-                      key: el.split("-")[0],
-                      dataType: el.split("-")[1],
-                    },
-            };
+            case 3:
+              return {
+                axis: "1",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
 
-          case 4:
-            return {
-              axis: "2",
-              accepts: "COLUMN_DRAG",
-              lastDroppedItem:
-                el === ""
-                  ? null
-                  : {
-                      id: el.split("-")[2],
-                      key: el.split("-")[0],
-                      dataType: el.split("-")[1],
-                    },
-            };
+            case 4:
+              return {
+                axis: "2",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
 
-          case 5:
-            return {
-              axis: "3",
-              accepts: "COLUMN_DRAG",
-              lastDroppedItem:
-                el === ""
-                  ? null
-                  : {
-                      id: el.split("-")[2],
-                      key: el.split("-")[0],
-                      dataType: el.split("-")[1],
-                    },
-            };
+            case 5:
+              return {
+                axis: "3",
+                accepts: "COLUMN_DRAG",
+                lastDroppedItem:
+                  el === ""
+                    ? null
+                    : {
+                        id: el.split("-")[2],
+                        key: el.split("-")[0],
+                        dataType: el.split("-")[1],
+                      },
+              };
 
-          default:
-            break;
-        }
-      });
-      return existingProps;
-    } else {
-      const cleanProps = [
-        { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-        { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-        { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-        { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-        { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-        { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-      ];
-      return cleanProps;
-    }
-    // @ts-ignore
-  },
-  set: ({ set, get }, newPropertiesValue) => {
-    // @ts-ignore
-    return newPropertiesValue;
-  },
+            default:
+              break;
+          }
+        });
+        return existingProps;
+      } else {
+        const cleanProps = [
+          { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+          { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        ];
+        return cleanProps;
+      }
+      // @ts-ignore
+    },
+  }),
 });
 
+// selects the lastItemDropped from the properties array for conveniece
 export const droppedPropertiesSelector = selector({
   key: "droppedProperties",
   get: ({ get }) => {
-    const properties = get(propertiesSelector);
+    const properties = get(propertiesAtom);
     // @ts-ignore
     return properties?.filter((item) => item.lastDroppedItem);
   },
 });
 
+// selects keys from lastDroppedItems for convenience
 export const propsSlicedSelector = selector({
   key: "slicedProperties",
   get: ({ get }) => {
-    const properties = get(propertiesSelector);
+    const properties = get(propertiesAtom);
 
     if (properties === undefined) return;
 
@@ -137,6 +142,7 @@ export const propsSlicedSelector = selector({
   },
 });
 
+// might not be necessary with new ETL
 export const droppedSlicedSelector = selector({
   key: "droppedSlicedProperties",
   get: ({ get }) => {
@@ -155,7 +161,7 @@ const equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 export const isPropsValidSelector = selector({
   key: "isPropertiesValid",
   get: ({ get }) => {
-    const properties = get(propertiesSelector);
+    const properties = get(propertiesAtom);
     const propsSliced = get(propsSlicedSelector);
     const droppedSliced = get(droppedSlicedSelector);
     if (
@@ -174,38 +180,52 @@ export const isPropsValidSelector = selector({
   },
 });
 
-export const isPayloadValidSelector = selector({
-  key: "isPayloadValid",
-  get: ({ get }) => {},
+export const isReordering = selector({
+  key: "isReordering",
+  get: ({ get }) => {
+    // TODO: NEW ETL LOGIC NECESSARY
+    // if (
+    //   oldDropped &&
+    //   oldDroppedSliced.length === 3 &&
+    //   !equals(propsSliced, oldDroppedSliced)
+    // ) {
+    //   console.log("Called Reorder Confirm");
+    //   setReorderConfirm(true);
+    //   return;
+    // }
+  },
+});
+
+// check if z-axis locked to numeric
+export const isZnumberSelector = selector({
+  key: "",
+  get: ({ get }) => {
+    const properties = get(propertiesAtom);
+    if (properties[2]?.lastDroppedItem?.dataType === "number") {
+      return true;
+    } else {
+      return false;
+    }
+  },
 });
 
 // Formatted payload sent to API
 export const filterPayloadSelector = selector({
   key: "firstThreeDroppedProperties",
   get: ({ get }) => {
-    let properties = get(propertiesSelector);
+    let properties = get(propertiesAtom);
     // @ts-ignore
     return properties.filter((item) => item.lastDroppedItem);
   },
 });
 
 // toggles reorder confirmation modal based on propped properties
-export const showReorderConfirmAtom = selector({
+export const showReorderConfirmAtom = atom({
   key: "showreorderConfirm",
-  get: ({ get }) => {
-    return false;
-    //  if (
-    //   oldDropped &&
-    //   oldDroppedSliced.length === 3 &&
-    //   !equals(propsSliced, oldDroppedSliced)
-    // ) {
-  },
-  set: ({ set }, newValue) => {
-    return newValue;
-    //  if (
-    //   oldDropped &&
-    //   oldDroppedSliced.length === 3 &&
-    //   !equals(propsSliced, oldDroppedSliced)
-    // ) {
-  },
+  default: selector({
+    key: "showReorderConfirm/default",
+    get: ({ get }) => {
+      // TODO: determine if reordering based on property state
+    },
+  }),
 });

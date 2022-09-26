@@ -12,14 +12,14 @@ import { createProject } from "graphql/mutations";
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { CreateProjectMutation } from "API";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { projectsSelector, showAddProjectAtom } from "@/state/globals";
-import { userSelector } from "@/state/user";
+import { projectsAtom, showAddProjectAtom } from "@/state/globals";
+import {userAtom } from "@/state/user";
 
 export const AddProjectModal = () => {
   const router = useRouter();
-  const user = useRecoilValue(userSelector)
+  const user = useRecoilValue(userAtom)
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
-  const setProjects = useSetRecoilState(projectsSelector);
+  const setProjects = useSetRecoilState(projectsAtom);
 
   const [current, setCurrent] = useState(0);
   const [name, setName] = useState("Untitled Project");

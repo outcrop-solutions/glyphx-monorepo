@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Transition } from "utils/Transition";
 import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
-import { userSelector } from "@/state/user";
+import {userAtom } from "@/state/user";
 import { useRecoilValue } from "recoil";
 export const UserMenu = ({ align }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -11,7 +11,7 @@ export const UserMenu = ({ align }) => {
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
-  const user = useRecoilValue(userSelector)
+  const user = useRecoilValue(userAtom)
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }) => {

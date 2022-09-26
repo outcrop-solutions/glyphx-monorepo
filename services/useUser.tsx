@@ -1,35 +1,42 @@
 import { Auth } from "aws-amplify";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useSetRecoilState } from "recoil";
+import { userAtom } from "../state";
 
 /**
  * Utility for interfacing with the User class in Cognito
- * @param {boolean} isLoggedIn
- * @returns {Object}
+ * @returns {void}
  * user - {Object}
  * setUser - {function}
  * isLogged - {boolean}
  */
 
-export const useUser = (userData: any) => {
-  const [user, setUser] = useState(null);
+export const useUser = () => {
+  const router = useRouter();
+  const setUser = useSetRecoilState(userAtom);
+  /**
+   * Check's if Qt has passed modelID to Front end
+   */
+  function checkParams() {
+    var params = router.query;
+    if (params.model !== null && params.model !== undefined) {
+      router.push("/project/" + params.model);
+    }
+  }
   // check if user is logged in
   useEffect(() => {
     // utility functions
-
     const getUser = async () => {
-      try {
-        let newUser = await Auth.currentAuthenticatedUser();
-        setUser(newUser);
-      } catch (error) {
-        console.log(error);
+      const user = await Auth.currentAuthenticatedUser();
+      if (!user) {
+        console.log({ user, msg: "no USER" });
+        router.push("/auth/signIn");
+      } else {
+        setUser(JSON.stringify(user));
+        checkParams();
       }
     };
-    if (userData) {
-      setUser(userData);
-      console.log({ OG: userData });
-    } else {
-      getUser();
-    }
-  }, [userData]);
-  return { user, setUser };
+    getUser();
+  }, [setUser]);
 };

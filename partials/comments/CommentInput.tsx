@@ -2,13 +2,13 @@ import { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { API, graphqlOperation } from "aws-amplify";
 import { createComment } from "graphql/mutations";
-import { userSelector } from "@/state/user";
+import {userAtom } from "@/state/user";
 import { useRecoilValue } from "recoil";
 import { activeStateAtom } from "@/state/states";
 
 export const CommentInput = ({ setComments }) => {
   const [commentContent, setCommentContent] = useState("");
-  const user = useRecoilValue(userSelector);
+  const user = useRecoilValue(userAtom);
   const activeState = useRecoilValue(activeStateAtom);
 
   // update comment state

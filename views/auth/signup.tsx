@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
-// import { userSelector } from "../state";
+// import {userAtom } from "../state";
 // import { useSetRecoilState } from "recoil";
 import Link from "next/link";
 
@@ -13,7 +13,7 @@ export default function Signup() {
   const [confirm, setConfirm] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
-  // const setUser = useSetRecoilState(userSelector);
+  // const setUser = useSetRecoilState(userAtom);
 
   const handleSignUp = async () => {
     try {

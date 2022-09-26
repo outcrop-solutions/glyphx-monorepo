@@ -1,6 +1,6 @@
 import { atom, selector } from "recoil";
 import { payloadSelector, selectedProjectSelector } from "./project";
-import { droppedPropertiesSelector, propertiesSelector } from "./properties";
+import { droppedPropertiesSelector } from "./properties";
 
 export const filtersSelector = selector({
   key: "filters",
@@ -9,14 +9,15 @@ export const filtersSelector = selector({
     // @ts-ignore
     return selectedProject.filters.items;
   },
-  set: ({ set, get }, newFitlersValue) => {
+  set: ({ set, get }, newFiltersValue) => {
     // @ts-ignore
     let selectedProject = get(selectedProjectSelector);
     let newSelectedProjectValue = {
       ...selectedProject,
-      fitlers: [...newFitlersValue],
+      // @ts-ignore
+      filters: [...newFiltersValue],
     };
-
+    // @ts-ignore
     set(selectedProjectSelector, newSelectedProjectValue);
   },
 });
@@ -88,8 +89,5 @@ export const filterQueryAtom = selector({
     } else {
       return undefined;
     }
-  },
-  set: ({ set }, newValue) => {
-    return newValue;
   },
 });

@@ -4,7 +4,7 @@ import { useSetRecoilState } from "recoil";
 
 export const SearchFilter = ({ lastDroppedItem }) => {
   const setFiltersApplied = useSetRecoilState(filtersAppliedAtom);
-  // TODO: use FilterApplied to persist search filters applied?
+  // TODO: consider persisting applied filters in localStorage
   const [keyword, setKeyword] = useState("");
   const [chips, setChips] = useState([]);
 

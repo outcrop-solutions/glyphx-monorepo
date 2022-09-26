@@ -8,7 +8,7 @@ import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { fileSystemAtom } from "@/state/files";
 
-export const Files = ({ openFile, toastRef }) => {
+export const Files = ({ toastRef }) => {
   const setFiles = useSetRecoilState(fileSystemAtom);
   const fileSystem = useRecoilValue(fileSystemAtom);
   const handleDrop = (newTree) => setFiles(newTree);
@@ -52,7 +52,6 @@ export const Files = ({ openFile, toastRef }) => {
                   rootId={0}
                   render={(node, { depth, isOpen, onToggle }) => (
                     <CustomNode
-                      openFile={openFile}
                       node={node}
                       depth={depth}
                       isOpen={isOpen}

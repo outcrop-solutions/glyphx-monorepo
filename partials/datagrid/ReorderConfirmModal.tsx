@@ -3,19 +3,19 @@ import { CheckIcon } from "@heroicons/react/outline";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { showAddProjectAtom } from "@/state/globals";
 import { selectedProjectSelector } from "@/state/project";
-import { propertiesSelector, showReorderConfirmAtom } from "@/state/properties";
+import { propertiesAtom, showReorderConfirmAtom } from "@/state/properties";
 import { filtersSelector } from "@/state/filters";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 import { CreateProjectInput, CreateProjectMutation } from "API";
-import { userSelector } from "@/state/user";
+import {userAtom } from "@/state/user";
 import { createProject } from "graphql/mutations";
 
 export const ReorderConfirmModal = () => {
-  const user = useRecoilValue(userSelector);
+  const user = useRecoilValue(userAtom);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const setReorderConfirm = useSetRecoilState(showReorderConfirmAtom);
   const project = useRecoilValue(selectedProjectSelector);
-  const properties = useRecoilValue(propertiesSelector);
+  const properties = useRecoilValue(propertiesAtom);
   const filters = useRecoilValue(filtersSelector);
   //  FORK PROJECT
   const handleSave = async () => {
@@ -28,6 +28,7 @@ export const ReorderConfirmModal = () => {
           // id: newId,
           name: `${project.name} Copy`,
           description: "",
+          // @ts-ignore
           author: user?.username,
           expiry: new Date().toISOString(),
           properties: properties.map((el) =>
@@ -37,6 +38,7 @@ export const ReorderConfirmModal = () => {
                 : ""
               : ""
           ),
+            // @ts-ignore
           shared: [user.username],
         };
         const result = (await API.graphql(

@@ -1,37 +1,38 @@
-import { useState, useEffect } from "react";
 import React from "react";
+import { useState, useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 import { showSearchModalAtom } from "state";
-import { projectsSelector } from "@/state/globals";
+import { projectsAtom } from "@/state/globals";
 import Fuse from "fuse.js"; // importing fuse
 
 export function SearchModal() {
-
-  const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-  const projects = useRecoilValue(projectsSelector);
-  const [query, setQuery] = useState('');
-  const [queryResult, setQueryResult] = useState([]);
   const router = useRouter();
+  const [showSearchModalOpen, setShowSearchModalOpen] =
+    useRecoilState(showSearchModalAtom);
+  const projects = useRecoilValue(projectsAtom);
+  const [query, setQuery] = useState(null);
+  const [queryResult, setQueryResult] = useState([]);
 
   const testData = [
     {
-      "name": "Sample Project 1",
-      "modelID": "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
+      name: "Sample Project 1",
+      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
     },
     {
-      "name": "Sample Project 2",
-      "modelID": "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
+      name: "Sample Project 2",
+      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
     },
     {
-      "name": "Robert Weed Project",
-      "modelID": "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
+      name: "Robert Weed Project",
+      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
     },
     {
-      "name": "Complicated Data",
-      "modelID": "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
-    }
+      name: "Complicated Data",
+      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
+    },
   ];
 
   const options = {
@@ -48,22 +49,19 @@ export function SearchModal() {
     // ignoreLocation: false,
     // ignoreFieldNorm: false,
     // fieldNormWeight: 1,
-    keys: [
-      "name",
-    ]
+    keys: ["name"],
   };
 
   // configure fuse
   const fuse = new Fuse(projects, options);
 
-  function queryChange(e) {
-    e.preventDefault();
-    // console.log(e.target.value);
-    setQuery(e.target.value);
-    setQueryResult(prev => {
-      return fuse.search(e.target.value)
-    });
-  }
+  useEffect(() => {
+    if (query) {
+      setQueryResult((prev) => {
+        return fuse.search(query);
+      });
+    }
+  }, [query]);
 
   // close if the esc key is pressed
   useEffect(() => {
@@ -75,8 +73,8 @@ export function SearchModal() {
     return () => document.removeEventListener("keydown", keyHandler);
   });
 
-
   //TODO: Figure out how to turn off search suggestion on click off. onBlur didnt work
+
   return (
     <div
       onClick={(e) => {
@@ -94,10 +92,12 @@ export function SearchModal() {
             <input
               autoComplete={"off"}
               id="action-search"
-              className={`outline-none ${showSearchModalOpen ? "rounded-b-none" : "rounded-2xl"} pl-9 text-white placeholder-white border-white w-96 bg-transparent`}
+              className={`outline-none ${
+                showSearchModalOpen ? "rounded-b-none" : "rounded-2xl"
+              } pl-9 text-white placeholder-white border-white w-96 bg-transparent`}
               type="search"
               placeholder="Search My Projects"
-              onChange={queryChange}
+              onChange={(e) => setQuery(e.target.value)}
             />
             <div className=" w-8 h-8 absolute pt-3">
               <svg
@@ -130,69 +130,77 @@ export function SearchModal() {
           </div>
 
           <div>
-            {
-              query === '' && showSearchModalOpen && (
-                <div className="bg-white p-2 rounded-b-2xl">
-                  <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Recent Projects</p>
-                  <ul>
-                    {
-                      projects.slice(0, 5).map((value, index) => {
-                        return (
-                          <li key={index} className="hover:cursor-pointer" >
-                            <a
-                              onClick={() => {
-                                setShowSearchModalOpen(false);
-                                router.push(`/project/${value.id}`);
-                              }}
-                              className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+            {!query && showSearchModalOpen && (
+              <div className="bg-white p-2 rounded-b-2xl">
+                <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">
+                  Recent Projects
+                </p>
+                <ul>
+                  {projects.slice(0, 5).map((value, index) => {
+                    return (
+                      <li key={index} className="hover:cursor-pointer">
+                        <Link href={`/project/${value.id}`}>
+                          <a
+                            className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                            onClick={() => {
+                              setShowSearchModalOpen(false);
+                            }}
+                          >
+                            <svg
+                              className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                              viewBox="0 0 16 16"
                             >
-                              <svg
-                                className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
-                                viewBox="0 0 16 16"
-                              >
-                                <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
-                              </svg>
-                              <span>{value.name}</span>
-                            </a>
-                          </li>
-                        );
-                      })
-                    }
-                  </ul>
-                </div>
-              )
-            }
+                              <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
+                            </svg>
+                            <span>{value.name}</span>
+                          </a>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
 
-            {
-              query !== '' && showSearchModalOpen && (
-                <div className="bg-white p-2 rounded-b-2xl">
-                  <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">Search Results</p>
-                  <ul>
-                    {
-                      queryResult.splice(0, 10).map((value, index) => {
-                        return (
-                          <li key={index} className="hover:cursor-pointer">
-                            <a
-                              onClick={() => {
-                                setShowSearchModalOpen(false);
-                                router.push(`/project/${value.item.id}`);
-                              }}
-                              className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+            {query && showSearchModalOpen && (
+              <div className="bg-white p-2 rounded-b-2xl">
+                <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">
+                  Search Results
+                </p>
+                <ul>
+                  {queryResult.slice(0, 10).map((value, index) => {
+                    return (
+                      <li key={index} className="hover:cursor-pointer">
+                        <Link href={`/project/${value.item.id}`}>
+                          <a
+                            onClick={() => {
+                              setShowSearchModalOpen(false);
+                            }}
+                            className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                          >
+                            <svg
+                              className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              <svg className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z" fill="#CECECE" />
-                              </svg>
+                              <path
+                                d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z"
+                                fill="#CECECE"
+                              />
+                            </svg>
 
-                              <span>{value.item.name}</span>
-                            </a>
-                          </li>
-                        );
-                      })
-                    }
-                  </ul>
-                </div>
-              )
-            }
+                            <span>{value.item.name}</span>
+                          </a>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>

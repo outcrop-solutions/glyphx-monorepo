@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Auth } from "aws-amplify";
 import React from "react";
-import { userSelector } from "@/state/user";
+import {userAtom } from "@/state/user";
 import { useSetRecoilState } from "recoil";
 
 export default function Signin() {
@@ -11,7 +11,7 @@ export default function Signin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
 
-  // const setUser = useSetRecoilState(userSelector);
+  // const setUser = useSetRecoilState(userAtom);
 
   const router = useRouter();
   const handleUname = (e) => {

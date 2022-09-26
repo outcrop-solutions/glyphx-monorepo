@@ -6,14 +6,13 @@ import { API, Storage } from "aws-amplify";
 import * as mutations from "graphql/mutations";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
-import { projectsSelector } from "@/state/globals";
+import { projectsAtom } from "@/state/globals";
 import { projectDetailsAtom } from "@/state/project";
 
 export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
   const router = useRouter();
   dayjs.extend(relativeTime);
-
-  const setProjects = useSetRecoilState(projectsSelector);
+  const setProjects = useSetRecoilState(projectsAtom);
   const setProjectDetails = useSetRecoilState(projectDetailsAtom);
 
   const handleDelete = async () => {

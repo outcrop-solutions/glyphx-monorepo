@@ -10,13 +10,13 @@ import { ShowHide } from "./actions/ShowHide";
 import { DeleteFilter } from "./actions/DeleteFilter";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { filtersAppliedAtom } from "@/state/filters";
-import { propertiesSelector } from "@/state/properties";
+import { propertiesAtom } from "@/state/properties";
 
 export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
   const [filtersApplied, setFiltersApplied] = useRecoilState(
     filtersAppliedAtom
   );
-  const setProperties = useSetRecoilState(propertiesSelector);
+  const setProperties = useSetRecoilState(propertiesAtom);
   const [applied, setApplied] = useState(
     filtersApplied.includes(lastDroppedItem) ? true : false
   );

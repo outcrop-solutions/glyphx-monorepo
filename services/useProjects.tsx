@@ -1,26 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { listProjects } from "graphql/queries";
-import { useUser } from "./useUser";
 import sortArray from "sort-array";
 import { ListProjectsQuery } from "API";
+import { useSetRecoilState } from "recoil";
+import { projectsAtom } from "../state";
 
 /**
  * Utility for interfacing with the Projects class
- * @param {boolean} isLoggedIn
- * @returns {Object}
- * projects - {Array}
- * setProjects - {function}
+ * @returns {void}
  */
 
-export const useProjects = (projects) => {
+export const useProjects = () => {
   // const { user, setUser, isLogged } = useUser();
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    setData(projects && projects.length > 0 ? [...projects] : []);
-  }, [projects]);
-
+  const setProjects = useSetRecoilState(projectsAtom);
   const fetchProjects = useCallback(async () => {
     try {
       const user = await Auth.currentAuthenticatedUser();
@@ -35,15 +28,13 @@ export const useProjects = (projects) => {
         order: "desc",
       });
 
-      setData((prev) => {
+      setProjects((prev) => {
         let newData = [...sorted];
         return newData;
       });
     } catch (error) {
       console.log("error on fetching projects", error);
     }
-    // }, [user, setUser, isLogged]);
-  }, [projects]);
-  console.log({ projects: data });
-  return { projects: data, setProjects: setData, fetchProjects };
+  }, []);
+  fetchProjects();
 };

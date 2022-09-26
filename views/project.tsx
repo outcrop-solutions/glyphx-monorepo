@@ -18,54 +18,39 @@ import { ShareModule } from "partials";
 import { Info } from "partials/info";
 
 // Hooks
-import { useFileSystem } from "services/useFileSystem";
-// import { ReorderConfirmModal } from "partials";
-import { GetProjectQuery } from "API";
 import { useRouter } from "next/router";
 import { useProject } from "services";
 import { useSocket } from "services";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { gridLoadingSelector } from "@/state/files";
 import { GridContainer } from "@/partials/datagrid/GridContainer";
-import { showReorderConfirmAtom } from "@/state/properties";
-import { projectIdAtom, selectedProjectSelector } from "@/state/project";
-import { userSelector } from "@/state/user";
-import {shareOpenAtom} from "@/state/share";
-import {showInfoAtom} from "@/state/info";
+import { projectIdAtom } from "@/state/project";
+import { shareOpenAtom } from "@/state/share";
+import { showInfoAtom } from "@/state/info";
+import { dataGridLoadingAtom } from "../state";
 
 export default function Project() {
   const [error, setError] = useState(false);
-  // console.log({ data, user });
   const { query } = useRouter();
   const { projectId } = query;
   const setProjectId = useSetRecoilState(projectIdAtom);
-
   useEffect(() => {
     if (projectId) setProjectId(projectId);
   }, [projectId]);
 
-  const setUser = useSetRecoilState(userSelector);
-
-  // setUser(user);
-  // setUser(JSON.parse(user));
-
-  const dataGridLoading = useRecoilValue(gridLoadingSelector);
+  const dataGridLoading = useRecoilValue(dataGridLoadingAtom);
   // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook
-  const { setCommentsPosition, setFilterSidebarPosition } = useSocket();
-
-  // Filesystem hook
-  const { filesOpen, openFile, closeFile } = useFileSystem(projectId);
+  const { setFilterSidebarPosition } = useSocket();
 
   // Project Hook
-  const { isDropped, handleDrop } = useProject(projectId);
+  const { isDropped, handleDrop } = useProject();
 
   const toastRef = React.useRef(null);
   // const [share, setShare] = useState(false);
 
   // Check if share model has been turned on
-  const [showShareModel,setShareModel] = useRecoilState(shareOpenAtom);
+  const [showShareModel, setShareModel] = useRecoilState(shareOpenAtom);
   const [showInfo, setShowInfo] = useRecoilState(showInfoAtom);
 
   return (
@@ -75,7 +60,6 @@ export default function Project() {
       <MainSidebar />
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-clip scrollbar-none bg-primary-dark-blue">
-        
         {/*  Site header */}
         <Header />
         {/* <hr className={project ? "mx-0" : "mx-6"} /> */}
@@ -84,7 +68,6 @@ export default function Project() {
             <DndProvider backend={HTML5Backend}>
               <ProjectSidebar
                 error={error}
-                openFile={openFile}
                 setFilterSidebarPosition={setFilterSidebarPosition}
                 handleDrop={handleDrop}
                 toastRef={toastRef}
@@ -92,9 +75,7 @@ export default function Project() {
               <div className="w-full flex overflow-auto">
                 <div className="min-w-0 flex-auto w-full">
                   <div className="flex flex-col h-full">
-                    {filesOpen && filesOpen.length > 0 && (
-                      <GridHeader closeFile={closeFile} />
-                    )}
+                    <GridHeader />
                     {dataGridLoading ? (
                       <div className="h-full w-full flex justify-center items-center border-none">
                         <GridLoader
@@ -107,31 +88,16 @@ export default function Project() {
                       <GridContainer isDropped={isDropped} />
                     )}
                   </div>
-                  
                 </div>
-                {/* <div className="z-50 bg-yellow">
-              <p>sasmpjhhjhjhjhjle</p>
-            </div> */}
                 {/* <>{share ? <Invite setShare={setShare} /> : <></>}</> */}
                 {/* <CommentsSidebar setCommentsPosition={setCommentsPosition} /> */}
               </div>
             </DndProvider>
-            
           </div>
-          {/* TODO: FIGURE OUT HOW TO GET SIDEBAR TO BE A SIDEBAR AND NOT AN OVERLAY */}
+          {/* FIXME: FIGURE OUT HOW TO GET SIDEBAR TO BE A SIDEBAR AND NOT AN OVERLAY */}
           <div id="right-side-bars" className="z-50">
-          {
-          showShareModel ? 
-          <ShareModule setShare={setShareModel}/>
-          :
-          <></>
-        }
-        {
-          showInfo ?
-            <Info setInfo={setShowInfo}/>
-          :
-          <></>
-        }
+            {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
+            {showInfo ? <Info setInfo={setShowInfo} /> : <></>}
           </div>
         </main>
       </div>

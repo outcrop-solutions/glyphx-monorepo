@@ -1,11 +1,11 @@
 /* eslint-disable no-lone-blocks */
 import React from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { propertiesSelector } from "@/state/properties";
+import { propertiesAtom } from "@/state/properties";
 import { Property } from "./Property";
 
 export const Properties = ({ handleDrop }) => {
-  const [properties, setProperties] = useRecoilState(propertiesSelector);
+  const [properties, setProperties] = useRecoilState(propertiesAtom);
 
   return (
     <React.Fragment>

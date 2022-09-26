@@ -8,7 +8,7 @@ import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { projectDetailsAtom } from "@/state/project";
-import { userSelector } from "@/state/user";
+import {userAtom } from "@/state/user";
 
 const tabs = [
   { name: "Info", href: "#", current: true },
@@ -21,7 +21,7 @@ export const ProjectDetails = () => {
   const [projectDetails, setProjectDetails] = useRecoilState(
     projectDetailsAtom
   );
-  const user = useRecoilValue(userSelector);
+  const user = useRecoilValue(userAtom);
 
   const [open, setOpen] = useState(true);
   const [name, setName] = useState(projectDetails.name);

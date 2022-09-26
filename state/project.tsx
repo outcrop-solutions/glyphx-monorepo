@@ -2,26 +2,26 @@ import { atom, selector, selectorFamily } from "recoil";
 import { GetProjectQuery } from "API";
 import { API, graphqlOperation } from "aws-amplify";
 import { getProject } from "graphql/queries";
-import { userSelector } from "./user";
+import {userAtom } from "./user";
 
 export const projectIdAtom = atom({
   key: "projectId",
   default: null,
 });
+
 // holds state of currently selected project
 export const selectedProjectSelector = selector({
   key: "selectedProject",
   get: async ({ get }) => {
-    const user = get(userSelector);
-    if (user) {
+    const user = get(userAtom);
+    const projectId = get(projectIdAtom)
+    if (user && projectId) {
       try {
-        console.log({projectIdAtom})
         const response = (await API.graphql(
-          graphqlOperation(getProject, { id: get(projectIdAtom) })
+          graphqlOperation(getProject, { id: projectId })
         )) as {
           data: GetProjectQuery;
         };
-        console.log({ project: response.data.getProject });
         return response.data.getProject;
       } catch (error) {
         console.log({ error, recoil: "selectedProjectSelector" });
@@ -39,6 +39,7 @@ export const selectedProjectDetailsAtom = atom({
   default: null,
 });
 
+// extracts Qt payload for opening a project from currently selected project
 export const payloadSelector = selector({
   key: "payload",
   get: ({ get }) => {

@@ -25,10 +25,7 @@ export const State = ({ item }) => {
     const stateDelete = {
       id: item.id,
     };
-
-    // deleteState(item);
-
-    const deletedState = await API.graphql({
+    await API.graphql({
       query: mutations.deleteState,
       variables: { input: stateDelete },
     });

@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 
 export const ProjectSidebar = ({
   error,
-  openFile,
   setFilterSidebarPosition,
   handleDrop,
   toastRef,
@@ -76,13 +75,12 @@ export const ProjectSidebar = ({
         {
           selectedMenu === 0 && (
             <>
-              <Files openFile={openFile} toastRef={toastRef} />
+              <Files toastRef={toastRef} />
               <States />
             </>
 
           )
         }
-
         {
           selectedMenu === 1 && (
             <>
@@ -97,7 +95,6 @@ export const ProjectSidebar = ({
 
           )
         }
-
         {
           selectedMenu === 2 && (
             <>
@@ -106,9 +103,6 @@ export const ProjectSidebar = ({
             </>
           )
         }
-
-
-
       </div>
     </div>
   );

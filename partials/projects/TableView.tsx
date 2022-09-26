@@ -2,13 +2,13 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useRecoilValue } from "recoil";
-import { projectsSelector } from "@/state/globals";
-import { userSelector } from "@/state/user";
+import { projectsAtom } from "@/state/globals";
+import {userAtom } from "@/state/user";
 
 export const TableView = () => {
   const router = useRouter();
-  const projects = useRecoilValue(projectsSelector);
-  const user = useRecoilValue(userSelector);
+  const projects = useRecoilValue(projectsAtom);
+  const user = useRecoilValue(userAtom);
   
   dayjs.extend(relativeTime);
   return (

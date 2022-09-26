@@ -4,22 +4,10 @@ import { AddProject } from "./AddProject";
 import { PinnedProjects } from "./PinnedProjects";
 import React from "react";
 import { useRecoilValue } from "recoil";
-import { projectsSelector } from "@/state/globals";
+import { projectsAtom } from "@/state/globals";
 
 export const GridView = () => {
-  const projects = useRecoilValue(projectsSelector);
-  
-
-  // TODO: Newly made projects do not appear in recent projects
-  useEffect(()=>{
-    // console.log({projects});
-    // let sample = [...projects];
-    // let test = sample.sort(
-    //   (objA, objB) => Date.parse(objB.updatedAt) - Date.parse(objA.updatedAt)
-    // )
-    // console.log(test[1],projects[1])
-  },[])
-
+  const projects = useRecoilValue(projectsAtom);
   return (
     <>
       {/* Page header */}

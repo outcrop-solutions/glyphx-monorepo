@@ -2,17 +2,12 @@ import React from "react";
 import { Column } from "./Column";
 import { Axes } from "./Axes";
 import { useFilterChange } from "services/useFilterChange";
-import { propertiesSelector } from "@/state/properties";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { filterQueryAtom, filtersAppliedAtom } from "@/state/filters";
-import { payloadSelector } from "@/state/project";
+import { propertiesAtom } from "@/state/properties";
+import { useRecoilValue } from "recoil";
 
 export const Filters = ({ handleDrop, projectId }) => {
-  const [properties, setProperties] = useRecoilState(propertiesSelector);
-  const filtersApplied = useRecoilValue(filtersAppliedAtom);
-  // const { sdt } = useRecoilValue(payloadSelector);
-  const setQuery = useSetRecoilState(filterQueryAtom);
-  // useFilterChange(filtersApplied, projectId, sdt, properties, setQuery);
+  const properties = useRecoilValue(propertiesAtom);
+  useFilterChange();
 
   return (
     <React.Fragment>

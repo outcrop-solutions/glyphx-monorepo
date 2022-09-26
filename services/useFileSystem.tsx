@@ -1,126 +1,35 @@
-import { useState, useEffect } from "react";
 import { Storage } from "aws-amplify";
 import { formatGridData } from "partials";
 import { parse } from "papaparse";
+import {
+  fileSystemAtom,
+  selectedFileAtom,
+  dataGridAtom,
+  dataGridLoadingAtom,
+  filesOpenAtom,
+  projectIdAtom,
+} from "../state";
+import { useSetRecoilState, useRecoilState, useRecoilValue } from "recoil";
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
  * @param {Array} filtersApplied
  * @returns {Object}
- * filesSystem - {Array}
- * setFiles - {function}
  * openFile - {function}
  * selectFile - {function}
  * closeFile - {function}
  * clearFiles - {function}
- * filesOpen - {Array}
- * setFilesOpen - {function}
- * dataGrid - {Object}
- * setDataGrid - {function}
- * selectedFile - {string}
- * setSelectedFile - {function}
- * sdt - {string}
- * setsSdt - {function}
- * dataGridLoading - {boolean}
- * setDataGridLoading - {function}
  */
 
-export const useFileSystem = (projectId) => {
-  const [fileSystem, setFileSystem] = useState([]);
-  const [filesOpen, setFilesOpen] = useState([]);
-  const [sdt, setSdt] = useState(false);
-  const [selectedFile, setSelectedFile] = useState("");
-  const [dataGrid, setDataGrid] = useState({ rows: [], columns: [] });
-  const [dataGridLoading, setDataGridLoading] = useState(false);
-
-  // utility to process storage list if unzipped
-  function processStorageList(results) {
-    const files = {};
-
-    const add = (source, target, item) => {
-      const elements = source.split("/");
-      const element = elements.shift();
-      if (!element) return; // blank
-      target[element] = target[element] || { __data: item }; // element;
-      if (elements.length) {
-        target[element] =
-          typeof target[element] === "object" ? target[element] : {};
-        add(elements.join("/"), target[element], item);
-      }
-    };
-    results.forEach((item) => add(item.key, files, item));
-    return files;
-  }
-
-  // set filesystem on project change and default open first csv
-  useEffect(() => {
-    // get file list and setFilesystem
-    // set first file with setFileOpen
-    // set first file as selected File
-    //  set Data grid loading to be true
-    //  format data and set it
-    //  set data grid loading false
-    setDataGrid({ columns: [], rows: [] });
-    setSelectedFile("");
-    setFilesOpen([]);
-    setFileSystem([]);
-    const getFileSystem = async () => {
-      try {
-        const data = await Storage.list(`${projectId}/input/`);
-
-        const processed = processStorageList(data);
-        console.log({ processed });
-        const files = Object.keys(processed[`${projectId}`].input);
-        const filteredFiles = files.filter(
-          (fileName) =>
-            fileName !== "etl_data_lake.csv" && fileName.split(".")[1] === "csv"
-        );
-
-        setFileSystem((prev) => {
-          let newData = filteredFiles.map((item, idx) => {
-            return {
-              id: idx + 1,
-              parent: 0,
-              droppable: false,
-              text: item,
-              data: {
-                fileType: item.split(".")[1],
-                fileSize: "0.5MB",
-              },
-            };
-          });
-
-          return newData;
-        });
-
-        if (filteredFiles && filteredFiles.length > 0) {
-          setFilesOpen([filteredFiles[0]]);
-          setSelectedFile(filteredFiles[0]);
-          setDataGridLoading(true);
-          const fileData = await Storage.get(
-            `${projectId}/input/${filteredFiles[0]}`,
-            {
-              download: true,
-            }
-          );
-          const blobData = await fileData.Body.text();
-          const { data } = parse(blobData, { header: true });
-          const grid = formatGridData(data);
-          setDataGridLoading(false);
-          setDataGrid(grid);
-        }
-        // });
-      } catch (error) {
-        console.log({ error });
-      }
-    };
-    if (projectId) {
-      getFileSystem();
-    }
-  }, [projectId]);
+export const useFileSystem = () => {
+  const setFileSystem = useSetRecoilState(fileSystemAtom);
+  const projectId = useRecoilValue(projectIdAtom);
+  const [filesOpen, setFilesOpen] = useRecoilState(filesOpenAtom);
+  const [selectedFile, setSelectedFile] = useRecoilState(selectedFileAtom);
+  const setDataGrid = useSetRecoilState(dataGridAtom);
+  const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
 
   return {
-    fileSystem,
     setFiles: (arg) => {
       console.log({ arg });
       setFileSystem((prev) => {
@@ -142,6 +51,7 @@ export const useFileSystem = (projectId) => {
         const fileData = await Storage.get(`${projectId}/input/${arg}`, {
           download: true,
         });
+        // @ts-ignore
         const blobData = await fileData.Body.text();
         const { data } = parse(blobData, { header: true });
         const grid = formatGridData(data);
@@ -163,7 +73,6 @@ export const useFileSystem = (projectId) => {
       }
     },
     selectFile: async (arg) => {
-      console.log({ arg });
       // if already selected, do nothing
       // if not selected, add to dataGrid && set as selected File
 
@@ -175,6 +84,7 @@ export const useFileSystem = (projectId) => {
       const fileData = await Storage.get(`${projectId}/input/${arg}`, {
         download: true,
       });
+      // @ts-ignore
       const blobData = await fileData.Body.text();
       const { data } = parse(blobData, { header: true });
       const grid = formatGridData(data);
@@ -195,6 +105,7 @@ export const useFileSystem = (projectId) => {
             download: true,
           }
         );
+        // @ts-ignore
         const blobData = await fileData.Body.text();
         const { data } = parse(blobData, { header: true });
         const grid = formatGridData(data);
@@ -212,15 +123,5 @@ export const useFileSystem = (projectId) => {
       setFilesOpen([]);
       setFileSystem([]);
     },
-    filesOpen,
-    dataGrid,
-    setDataGrid,
-    selectedFile,
-    setSelectedFile,
-    sdt,
-    setSdt,
-    dataGridLoading,
-    setDataGridLoading,
-    setFilesOpen,
   };
 };

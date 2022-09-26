@@ -1,61 +1,20 @@
 import { useEffect } from "react";
+import { useRecoilValue } from "recoil";
+import { stateQueryAtom } from "../state";
 
 /**
  * Utility for applying a change in the current state to a given vizualization
- * @param {Object} state
- * @returns {Object}
+ * @returns {void}
  * isStateChanged - {boolean}
  */
 
-export const useStateChange = (state) => {
-  //build query string and call state change function
+export const useStateChange = () => {
+  const stateQuery = useRecoilValue(stateQueryAtom);
   useEffect(() => {
-    if (window && window.core && state) {
-      //build array of query strings
-      if (typeof state.queries !== "undefined") {
-        let filterStringArr = [];
-
-        // for (let i = 0; i < state.queries.length; i++) {
-        // 	let filter = state.queries[i]
-        // 	let cols = filter.columns
-        // 	for (let j = 0; j < cols.length; j++) {
-        // 		let name = cols[j].name
-        // 		let min = cols[j].min
-        // 		let max = cols[j].max
-
-        // 		let queryStr = `${name || '-'} BETWEEN ${min || '-'} AND ${
-        // 			max || '-'
-        // 		}`
-        // 		filterStringArr.push(queryStr)
-        // 	}
-        // }
-        for (let i = 0; i < state.queries.length; i++) {
-          let filter = state.queries[i];
-
-          let name = filter.split("-")[0];
-          let min = filter.split("-")[1];
-          let max = filter.split("-")[2];
-
-          let queryStr = `${name || "-"} BETWEEN ${min || "-"} AND ${
-            max || "-"
-          }`;
-          filterStringArr.push(queryStr);
-        }
-
-        let query =
-          filterStringArr.length > 0
-            ? `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\` WHERE ${filterStringArr.join(
-                " AND "
-              )}`
-            : "";
-        const changeStateInput = {
-          camera: state.camera,
-          filter: query,
-        };
-  
-        window.core.ChangeState(JSON.stringify(changeStateInput));
-      }
+    // @ts-ignore
+    if (stateQuery && window && window.core) {
+      // @ts-ignore
+      window.core.ChangeState(JSON.stringify(stateQuery));
     }
-  }, [state]);
-  return { isStateChanged: true };
+  }, [stateQuery]);
 };

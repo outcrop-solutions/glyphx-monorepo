@@ -10,6 +10,7 @@ export * from "./signup.error"; // SignUp Error UI
 export * from "./admin.error"; // Admin Panel UI
 
 // SUSPENSE FALLBACKS
+// TODO: THESE CAN BE CUSTOMIZED TO FIT LOADING STATE NEEDS
 // Suspense fallbacks are rendered while data is loading in child components
 export * from "./root.suspense"; // Root Suspense UI
 export * from "./home.suspense"; // Home Suspense UI

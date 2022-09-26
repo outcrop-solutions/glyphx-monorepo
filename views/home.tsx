@@ -25,46 +25,23 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   isGridViewAtom,
   projectDetailsAtom,
-  projectsSelector,
+  projectsAtom,
   showAddProjectAtom,
-  userSelector,
-  // userSelector,
+ userAtom,
+  //userAtom,
 } from "state";
 import { useRouter } from "next/router";
+import { useProjects, useUser } from "../services";
 
 export default function Home() {
-  const setUser = useSetRecoilState(userSelector);
-  const router = useRouter();
+  useUser()
+  useProjects()
 
-  /**
-   * Check's if Qt has passed modelID to Front end
-   */
-  function checkParams(){
-    var params = router.query;
-      if(params.model !== null && params.model !== undefined){
-        router.push('/project/'+params.model);
-      }
-  }
 
-  useEffect(() => {
-    const getUser = async () => {
-      const user = await Auth.currentAuthenticatedUser();
-      if (!user) {
-        console.log({ user, msg: "no USER" });
-        router.push("/auth/signIn");
-      }
-      setUser(JSON.stringify(user));
-      checkParams();
-    };
-    getUser();
-  }, []);
-
-  const projects = useRecoilValue(projectsSelector);
+  const projects = useRecoilValue(projectsAtom);
   const isGridView = useRecoilValue(isGridViewAtom);
   const projectDetails = useRecoilValue(projectDetailsAtom);
   const showAddProject = useRecoilValue(showAddProjectAtom);
-
-
 
   return (
     <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">

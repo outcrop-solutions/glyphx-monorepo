@@ -22,41 +22,16 @@
 // selectedProject --> members
 // selectedFIle --> dataGrid
 
-import { ListProjectsQuery } from "API";
-import { API, graphqlOperation } from "aws-amplify";
-import { listProjects } from "graphql/queries";
 import { atom, selector } from "recoil";
 import { selectedProjectSelector } from "./project";
-import { userSelector } from "./user";
 // holds project list for given user/org combo
-export const projectsSelector = selector({
+export const projectsAtom = atom({
   key: "projects",
-  get: async ({ get }) => {
-    const user = get(userSelector);
-    console.log({ user });
-    // const user = await Auth.currentAuthenticatedUser();
-    if (user) {
-      try {
-        // TODO: ASK JAMES HOW TO LOCK QUERY TO PROJECTS OWNED BY USER OR SHARED TO USER
-        const response = (await API.graphql(
-          graphqlOperation(listProjects)
-        )) as {
-          data: ListProjectsQuery;
-        };
-        return response.data.listProjects.items.sort( //this little bit here sorts the data in relation to latest update date :)
-          (objA, objB) => Date.parse(objB.updatedAt) - Date.parse(objA.updatedAt)
-        );
-      } catch (error) {
-        console.log({ error, cool: "" });
-      }
-    } else return null;
-  },
-  set: (_, newValue) => {
-    return newValue;
-  },
+  default: [],
 });
 
 // holds current org
+// TODO: to be set via a [orgId] wildcard route
 export const currentOrgAtom = atom({
   key: "currentOrg",
   default: null,
@@ -70,17 +45,19 @@ export const isGridViewAtom = atom({
   default: true,
 });
 
+// to be used to keep track of Qt toggle state
 export const isQtOpenAtom = atom({
   key: "isQtOpen",
   default: false,
 });
 
+// split pane orientation
 export const orientationAtom = atom({
   key: "orientation",
   default: "horizontal",
 });
 
-// toggles grid vs list in overview
+// keeps track of main sidebar expansion
 export const isMainSidebarExpandedAtom = selector({
   key: "isMainSidebarExpanded",
   get: ({ get }) => {
@@ -95,6 +72,7 @@ export const showAddProjectAtom = atom({
   default: false,
 });
 
+// 
 export const toastAtom = atom({
   key: "toastAtom",
   default: "",

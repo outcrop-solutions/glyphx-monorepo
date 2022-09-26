@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
-import { userSelector } from "@/state/user";
+import {userAtom } from "@/state/user";
 import { useRecoilState } from "recoil";
 
 // default for clean dynamic import
@@ -9,7 +9,7 @@ export default function Confirm() {
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
   const router = useRouter();
-  const [user, setUser] = useRecoilState(userSelector);
+  const [user, setUser] = useRecoilState(userAtom);
 
   const handleConfirm = async () => {
     try {

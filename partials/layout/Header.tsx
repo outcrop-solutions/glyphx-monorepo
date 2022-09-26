@@ -55,8 +55,6 @@ export const Header = () => {
    * @param e 
    */
   const handleEditProjectName = async (e) => {
-    // TODO: Ask James on how to change project name on the go
-    console.log(e.target.value);
     // update project info on dynamoDB
     const updateProjectInput = {
       id: selectedProject.id,
@@ -68,9 +66,6 @@ export const Header = () => {
       const result = await API.graphql(
         graphqlOperation(updateProject, { input: updateProjectInput })
       );
-
-      console.log("name changed",{result});
-      // TODO: Update local version of projects. Ask James on how local atoms storing is
     } catch (error) {
       console.log({ error });
     }
