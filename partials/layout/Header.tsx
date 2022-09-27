@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
 import { PencilIcon } from "@heroicons/react/outline";
@@ -13,22 +13,24 @@ import {
   shareOpenAtom,
   showAddProjectAtom,
   showSearchModalAtom,
-  showInfoAtom
+  showInfoAtom,
+  payloadSelector
 } from "state";
-import { prepareServerlessUrl } from "next/dist/server/base-server";
-
 export const Header = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(
     selectedProjectSelector
   );
+  // console.log({selectedProject})
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const setShare = useSetRecoilState(shareOpenAtom);
   const setShowInfo = useSetRecoilState(showInfoAtom);
-  // move into atom
   const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
+  const payload = useRecoilValue(payloadSelector);
 
   const router = useRouter();
+
+  
 
   const backPresssed = () => {
     setSelectedProject(null);
@@ -97,6 +99,7 @@ export const Header = () => {
   //     console.log({ error });
   //   }
   // };
+  
   return (
     <div
       className={`sticky top-0 z-30 flex justify-between items-center bg-secondary-space-blue border-l border-gray max-h-16 w-full ${!selectedProject ? "px-4" : "px-6"
@@ -181,7 +184,7 @@ export const Header = () => {
                 <b className="text-black text-xs">Share</b>
               </button>
             )}
-            {selectedProject && (
+            {selectedProject && payload.sdt && (
               <button
                 className="h-8 px-2 flex items-center justify-center rounded-lg hover:bg-gray"
                 onClick={handlePaneSwitch}
