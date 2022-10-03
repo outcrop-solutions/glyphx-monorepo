@@ -70,19 +70,30 @@ export function SearchModal() {
       if (!showSearchModalOpen || keyCode !== 27) return;
       setShowSearchModalOpen(false);
     };
+    /**
+     * Used to handle clicking outside of search modal
+     * @param e 
+     */
     const clickHandler = (e) =>{
-      if (document.getElementById('search').contains(e.target)){
-        // Clicked in box
-        console.log("in search")
-      } else{
-        // Clicked outside the box
-        console.log("out of search");
-        setShowSearchModalOpen(false);
+      try {
+        if (document.getElementById('search').contains(e.target)){
+          // Clicked in box
+          console.log("in search")
+        } else{
+          // Clicked outside the box
+          console.log("out of search");
+          setShowSearchModalOpen(false);
+        }
+      } catch (error) {
+        // do nothing
       }
     }
     document.addEventListener("keydown", keyHandler);
     window.addEventListener('click',clickHandler);
-    return () => {document.removeEventListener("keydown", keyHandler);document.removeEventListener("click", clickHandler);}
+    return () => {
+      document.removeEventListener("keydown", keyHandler);
+      document.removeEventListener("click", clickHandler);
+    }
   });
 
   return (

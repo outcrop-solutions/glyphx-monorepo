@@ -4,9 +4,26 @@ import { selectedProjectSelector } from "./project";
 /**
  * ATOM THAT HOLDS DISPLAY TYPE OF EACH AXIS
  */
-export const displayTypeAtom = atom({
-  key: "displayType",
-  default: {}
+export const AxisInterpolationAtom = atom({
+  key: "AxisInterpolation",
+  default: {
+    "X":"LIN",
+    "Y":"LIN",
+    "Z":"LIN"
+  }
+})
+
+/**
+ * ATOM THAT HOLDS AXIS DIRECTION
+ * EITHER ASC OR DESC
+ */
+export const AxisDirectionAtom = atom({
+  key:"AxisDirection",
+  default: {
+    "X":"ASC",
+    "Y":"ASC",
+    "Z":"ASC"
+  }
 })
 
 // selects properties off active project
@@ -112,6 +129,7 @@ export const propertiesAtom = atom({
           }
         });
         // TODO: ADD LIN/LOG PROPS HERE
+        
         return existingProps;
       } else {
         const cleanProps = [
@@ -173,8 +191,8 @@ export const isPropsValidSelector = selector({
     const properties = get(propertiesAtom);
     const propsSliced = get(propsSlicedSelector);
     const droppedSliced = get(droppedSlicedSelector);
-    console.log("Inside isPropsvalidSelector",{properties},{propsSliced},{droppedSliced})
-    console.log({funciton: equals(propsSliced, droppedSliced)})
+    // console.log("Inside isPropsvalidSelector",{properties},{propsSliced},{droppedSliced})
+    // console.log({funciton: equals(propsSliced, droppedSliced)})
     if (
       properties &&
       properties.length >= 3 &&

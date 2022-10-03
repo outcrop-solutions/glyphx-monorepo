@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { AxesIcons } from "../filters/AxesIcons";
+import { AxisInterpolationAtom,AxisDirectionAtom } from "@/state/properties";
+import { useRecoilState } from "recoil";
 
 
 export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
@@ -17,12 +19,67 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
   const [swap, setSwap] = useState(true); //true is orignal, false is reversed
   const [clearAxis, setClearAxis] = useState(false); //true means show X false means show axis
 
+  const [AxisInterpolation,setAxisInterpolation] = useRecoilState(AxisInterpolationAtom); // recoil state for axis type 
+  const [AxisDirection,setAxisDirection] = useRecoilState(AxisDirectionAtom); // recoil state for axis direction 
+
+  /**
+   * Assign value of axis type to the atom
+   * @param value 
+   */
+  function assignInterpolation(value){
+    if(value){
+      setAxisInterpolation(prev =>{
+        let data = {...prev}
+        data[axis] = "LIN"
+        return data
+      });
+    }
+    else{
+      setAxisInterpolation(prev =>{
+        let data = {...prev}
+        data[axis] = "LOG"
+        return data
+      });
+    }
+  }
+
+  /**
+   * Assign value of axis direction to the atom
+   * @param value 
+   */
+  function assignDirection(value){
+    if(value){
+      setAxisDirection(prev =>{
+        let data = {...prev}
+        data[axis] = "ASC"
+        return data
+      });
+    }
+    else{
+      setAxisDirection(prev =>{
+        let data = {...prev}
+        data[axis] = "DESC"
+        return data
+      });
+    }
+  }
+
   function change_LOG_LIN() {
-    setLIN(!isLIN);
+    if(lastDroppedItem.dataType !== "string"){ // if it is not a string then we can change default interpolation
+      assignInterpolation(!isLIN);
+      setLIN(!isLIN);
+    }
+    
   }
 
   function change_SWAP() {
+    assignDirection(!swap);
     setSwap(!swap);
+  }
+
+  function clearPressed(){
+    console.log("Clear pressed for",axis);
+    //set last dropped to empty
   }
 
   function showClear() {
@@ -45,9 +102,12 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
           !clearAxis ?
             <AxesIcons property={axis} />
             :
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div onClick={clearPressed}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12.7782 3.22943C12.4824 2.93364 12.0045 2.93364 11.7088 3.22943L8 6.9306L4.29124 3.22184C3.99545 2.92605 3.51763 2.92605 3.22184 3.22184C2.92605 3.51763 2.92605 3.99545 3.22184 4.29124L6.9306 8L3.22184 11.7088C2.92605 12.0045 2.92605 12.4824 3.22184 12.7782C3.51763 13.0739 3.99545 13.0739 4.29124 12.7782L8 9.0694L11.7088 12.7782C12.0045 13.0739 12.4824 13.0739 12.7782 12.7782C13.0739 12.4824 13.0739 12.0045 12.7782 11.7088L9.0694 8L12.7782 4.29124C13.0664 4.00303 13.0664 3.51763 12.7782 3.22943Z" fill="white" />
             </svg>
+            </div>
+            
         }
       </div>
       {isActive ? (
