@@ -74,9 +74,12 @@ export function SearchModal() {
     return () => document.removeEventListener("keydown", keyHandler);
   });
 
+  // TODO: FIX ON BLUR AND ON CLICK ISSUE WITH SEARCH BAR
+
   return (
     <div
       onClick={(e) => {
+        console.log("on click hit")
         e.stopPropagation();
         setShowSearchModalOpen(true);
       }}
@@ -86,6 +89,8 @@ export function SearchModal() {
       className="flex flex-col ">
         <div
         onBlur={()=>{
+          console.log("running on blur")
+          setQuery("");
           setShowSearchModalOpen(false);
         }
         } 
@@ -103,6 +108,7 @@ export function SearchModal() {
               type="search"
               placeholder="Search My Projects"
               onChange={(e) => setQuery(e.target.value)}
+              value={query}
             />
             <div className=" w-8 h-8 absolute pt-3">
               <svg
@@ -144,11 +150,15 @@ export function SearchModal() {
                   {projects.slice(0, 5).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/project/${value.id}`}>
+                        {/* <Link href={`/project/${value.id}`}> */}
                           <a
                             className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                             onClick={() => {
-                              setShowSearchModalOpen(false);
+                              console.log("in")
+                              setShowSearchModalOpen(prev=>{
+                                return false
+                              });
+                              console.log({showSearchModalOpen})
                             }}
                           >
                             <svg
@@ -159,7 +169,7 @@ export function SearchModal() {
                             </svg>
                             <span>{value.name}</span>
                           </a>
-                        </Link>
+                        {/* </Link> */}
                       </li>
                     );
                   })}

@@ -12,10 +12,12 @@ export const userIdSelector = selector({
   get: ({ get }) => {
     const user = get(userAtom);
     if (Object.keys(user).length == 0) {
-      return;
+      return Auth.currentUserInfo().then((userInfo) => {
+        return userInfo.id
+      })
     } else {
       // @ts-ignore
       return user.id;
     }
-  },
+  }
 });

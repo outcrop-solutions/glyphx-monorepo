@@ -11,7 +11,7 @@ export default function Signin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
 
-  // const setUser = useSetRecoilState(userAtom);
+  const setUser = useSetRecoilState(userAtom);
 
   const router = useRouter();
   const handleUname = (e) => {
@@ -24,7 +24,7 @@ export default function Signin() {
   const signIn = async () => {
     try {
       const user = await Auth.signIn(username, password);
-      // setUser(user);
+      setUser(user);
       console.log({ user });
       router.push("/");
       // setUser(user);
@@ -38,11 +38,11 @@ export default function Signin() {
     }
   };
   return (
-    <div className="relative md:flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
+    <div className="relative md:flex h-screen w-screen scrollbar-none bg-secondary-midnight pt-5">
       {/* Content */}
-      <div className="w-full">
-        <div className="max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
-          <div className="w-full rounded-md p-8 bg-gray border-gray border">
+      <div className="">
+        <div className=" mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
+          <div className="w-80 rounded-md p-8 bg-secondary-space-blue border-gray border-2">
             <h1 className="text-xl text-white font-bold mb-6">
               Sign in to your account
             </h1>
@@ -100,7 +100,7 @@ export default function Signin() {
                 </div>
                 <div data-test="sign-in-sign-in-button">
                   <a
-                    className="btn bg-yellow select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow text-gray ml-3"
+                    className="btn bg-yellow select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow text-black ml-3"
                     onClick={signIn}
                   >
                     Sign In
@@ -112,7 +112,7 @@ export default function Signin() {
             <div className="pt-5 mt-6 border-t border-gray">
               <div className="text-sm text-gray">
                 Don’t you have an account?{" "}
-                <Link href="/auth/signup">
+                <Link href="/auth/signUp">
                   <span className="font-medium select-none text-yellow cursor-pointer hover:text-yellow">
                     Sign Up
                   </span>

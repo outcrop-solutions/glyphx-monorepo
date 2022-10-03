@@ -155,7 +155,7 @@ export const droppedSlicedSelector = selector({
 });
 
 // deep equals utility
-const equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+const equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i].lastDroppedItem.key);
 
 // Boolean to check whether properties payload is valid
 export const isPropsValidSelector = selector({
@@ -164,6 +164,8 @@ export const isPropsValidSelector = selector({
     const properties = get(propertiesAtom);
     const propsSliced = get(propsSlicedSelector);
     const droppedSliced = get(droppedSlicedSelector);
+    console.log("Inside isPropsvalidSelector",{properties},{propsSliced},{droppedSliced})
+    console.log({funciton: equals(propsSliced, droppedSliced)})
     if (
       properties &&
       properties.length >= 3 &&
@@ -171,7 +173,7 @@ export const isPropsValidSelector = selector({
       propsSliced.length >= 3 &&
       droppedSliced &&
       droppedSliced.length >= 3 &&
-      equals(propsSliced, droppedSliced)
+      equals(propsSliced, droppedSliced) //something up here
     ) {
       return true;
     } else {
@@ -196,9 +198,10 @@ export const isReordering = selector({
   },
 });
 
+
 // check if z-axis locked to numeric
 export const isZnumberSelector = selector({
-  key: "",
+  key: "isZnumber",
   get: ({ get }) => {
     const properties = get(propertiesAtom);
     if (properties[2]?.lastDroppedItem?.dataType === "number") {

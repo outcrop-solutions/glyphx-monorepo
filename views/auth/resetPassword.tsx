@@ -36,7 +36,7 @@ export default function ResetPassword() {
   };
 
   const handleBack = () => {
-    router.push("/auth/signin");
+    router.push("/auth/signIn");
   };
 
   return (

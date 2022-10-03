@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { API, graphqlOperation, Auth } from "aws-amplify";
+import Router, { useRouter } from "next/router";
 import { listProjects } from "graphql/queries";
 import sortArray from "sort-array";
 import { ListProjectsQuery } from "API";
@@ -12,6 +13,7 @@ import { projectsAtom } from "../state";
  */
 
 export const useProjects = () => {
+  const router = useRouter();
   // const { user, setUser, isLogged } = useUser();
   const setProjects = useSetRecoilState(projectsAtom);
   const fetchProjects = useCallback(async () => {
@@ -34,6 +36,7 @@ export const useProjects = () => {
       });
     } catch (error) {
       console.log("error on fetching projects", error);
+      router.push("/auth/signIn");
     }
   }, []);
   useEffect(()=>{

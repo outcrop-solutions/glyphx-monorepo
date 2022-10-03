@@ -26,6 +26,7 @@ export const useUser = () => {
   }
   // check if user is logged in
   useEffect(() => {
+    // console.log("in useEffect")
     // utility functions
     const getUser = async () => {
       const user = await Auth.currentAuthenticatedUser();

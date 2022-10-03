@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
-// import {userAtom } from "../state";
-// import { useSetRecoilState } from "recoil";
+import {userAtom } from "@/state/user";
+import { useSetRecoilState } from "recoil";
 import Link from "next/link";
 
 export default function Signup() {
@@ -13,11 +13,11 @@ export default function Signup() {
   const [confirm, setConfirm] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
-  // const setUser = useSetRecoilState(userAtom);
+  const setUser = useSetRecoilState(userAtom);
 
   const handleSignUp = async () => {
     try {
-      await Auth.signUp({
+      const user = await Auth.signUp({
         username,
         password,
         attributes: {
@@ -25,7 +25,7 @@ export default function Signup() {
           name: fullName,
         },
       });
-
+      setUser(user);
       // setUser({
       //   username: username,
       //   password: password,
@@ -40,11 +40,11 @@ export default function Signup() {
     }
   };
   return (
-    <div className="relative md:flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
+    <div className="relative md:flex h-screen w-screen scrollbar-none bg-secondary-midnight pt-5">
       {/* Content */}
       <div className="w-full">
         <div className="max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
-          <div className="w-full rounded-md p-8 bg-gray border-gray border">
+          <div className="w-80 rounded-md p-8 bg-secondary-space-blue border-gray border-2">
             <h1 className="text-xl text-white font-bold mb-6">
               Create a new account
             </h1>
@@ -103,20 +103,20 @@ export default function Signup() {
               <div className="flex items-center justify-between mt-6">
                 <div className="text-sm text-gray">
                   Have an account?{" "}
-                  <Link href="/auth/signin">
+                  <Link href="/auth/signIn">
                     <span className="font-medium text-yellow select-none cursor-pointer hover:text-yellow">
                       Sign In
                     </span>
                   </Link>
                 </div>
-                <Link href="/auth/signup">
+                {/* <Link href="/auth/signup"> */}
                   <div
                     onClick={handleSignUp}
-                    className="btn bg-yellow hover:bg-yellow select-none cursor-pointer text-gray ml-3 whitespace-nowrap rounded-2xl py-1 font-bold text-xs"
+                    className="btn bg-yellow select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow text-black ml-3"
                   >
                     Sign Up
                   </div>
-                </Link>
+                {/* </Link> */}
               </div>
               {error ? (
                 <div className="btn bg-yellow text-white my-4 w-full">

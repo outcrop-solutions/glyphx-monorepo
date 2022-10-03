@@ -38,47 +38,59 @@ export default function Project({ user, data }) {
   );
 }
 
+/**
+ * Jonathan:
+ * When we check if user is authenticated server side, it will fail. I believe this is because the user details
+ * are not stored server side. Rather let's take this out. 
+ * 
+ */
+
 // GET LATEST DATA TO POPULATE INITAL RENDER
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { params } = context;
-  const { projectId } = params;
-  console.log({ params });
-  const { Auth } = await withSSRContext(context);
-  const SSR = withSSRContext({ req: context.req });
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+//   const { params } = context;
+//   const { projectId } = params;
+//   console.log({ params });
+//   const { Auth } = await withSSRContext(context);
+//   const SSR = withSSRContext({ req: context.req });
 
-  try {
-    // if user not authenticated, redirect serverside to prevent flash
-    const user = await Auth.currentAuthenticatedUser();
-    if (!user)
-      return {
-        redirect: {
-          permanent: false,
-          destination: "/",
-        },
-      };
+//   try {
+//     //testing 
+//     // const test = await Auth.signIn("jlamptey@nd.edu", "Test1234567");
+//     // console.log({test})
+//     // await Auth.signOut()
+//     // if user not authenticated, redirect serverside to prevent flash
+//     const user = await Auth.currentAuthenticatedUser();
+//     if (!user)
+//       return {
+//         redirect: {
+//           permanent: false,
+//           destination: "/",
+//         },
+//       };
 
-    // Get Fallback data
-    const response = (await SSR.API.graphql(
-      graphqlOperation(getProject, { id: projectId })
-    )) as {
-      data: GetProjectQuery;
-    };
-    console.log({ user, response });
+//     // Get Fallback data
+//     const response = (await SSR.API.graphql(
+//       graphqlOperation(getProject, { id: projectId })
+//     )) as {
+//       data: GetProjectQuery;
+//     };
+//     console.log({ user, response });
 
-    return {
-      props: {
-        user: JSON.stringify(user),
-        data: response.data.getProject,
-      },
-    };
-  } catch (error) {
-    // TODO: hook up SENTRY here
-    // console.log({ error, msg: error.errors });
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/",
-      },
-    };
-  }
-};
+//     return {
+//       props: {
+//         user: JSON.stringify(user),
+//         data: response.data.getProject,
+//       },
+//     };
+//   } catch (error) {
+//     // TODO: hook up SENTRY here
+//     console.log({ error, msg: error.errors });
+//     console.log("help");
+//     return {
+//       redirect: {
+//         permanent: false,
+//         destination: "/",
+//       },
+//     };
+//   }
+// };

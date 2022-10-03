@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { API, graphqlOperation } from "aws-amplify";
+import { API, graphqlOperation, Auth } from "aws-amplify";
 import update from "immutability-helper";
 import {
   droppedPropertiesSelector,
@@ -12,6 +12,7 @@ import {
   showReorderConfirmAtom,
   toastAtom,
   userIdSelector,
+  dataGridLoadingAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { updateProject } from "graphql/mutations";
@@ -28,16 +29,21 @@ export const useProject = () => {
   );
   const setIsQtOpen = useSetRecoilState(isQtOpenAtom);
   const selectedProject = useRecoilValue(selectedProjectSelector);
+  // console.log({selectedProject})
   const [properties, setProperties] = useRecoilState(propertiesAtom);
   const [payload, setPayload] = useRecoilState(payloadSelector);
 
   const isPropsValid = useRecoilValue(isPropsValidSelector);
   const isZnumber = useRecoilValue(isZnumberSelector);
+
   const setToast = useSetRecoilState(toastAtom);
 
   const userId = useRecoilValue(userIdSelector);
+  // console.log({userId});
 
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
+
+  const [dataGridState, setDataGridState] = useRecoilState(dataGridLoadingAtom);
 
   // DnD utilities
   const isDropped = (propName) => {
@@ -62,6 +68,7 @@ export const useProject = () => {
 
   // handle ETL
   useEffect(() => {
+    console.log("in handle etl useffect")
     // utilties
     const updateProjectState = async (res) => {
       if (res.statusCode === 200) {
@@ -93,12 +100,20 @@ export const useProject = () => {
       }
     };
     const callETL = async () => {
+      // console.log({isZnumber});
+      // console.log({properties});
       if (isZnumber) {
+      // if(properties[2]?.lastDroppedItem?.dataType === "number"){
+        
         if (isPropsValid) {
-          // call ETl endpoint
-          let response = await fetch("https://api.glyphx.co/etl/model", {
+          console.log("calling etl");
+          setDataGridState(true);
+          // console.log({selectedProject})
+          // call ETl endpoint for second half of ETL pipeline
+          try {
+            let response = await fetch("https://adj71mzk16.execute-api.us-east-2.amazonaws.com/default/sgx-api-build-model", {
             method: "POST",
-            mode: "cors",
+            mode: "no-cors",
             body: JSON.stringify({
               model_id: selectedProject.id,
               x_axis: droppedProps[0].lastDroppedItem.key,
@@ -109,8 +124,16 @@ export const useProject = () => {
           });
           let res = await response.json();
           await updateProjectState(res);
+          } catch (error) {
+            console.log("Something went wrong with 2nd ETL Call",{error})
+          }
+          setDataGridState(false);
+        }
+        else{
+          console.log("Props not valid")
         }
       } else {
+        console.log("Z-Axis is not number")
         setToast(
           "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE"
         );
@@ -126,6 +149,7 @@ export const useProject = () => {
 
   // handle Open project
   useEffect(() => {
+    console.log("in handle open project useeffect")
     // @ts-ignore
     if (selectedProject && window && window.core) {
       if (payload.url) {
