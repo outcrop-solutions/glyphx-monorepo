@@ -7,6 +7,36 @@ import { Property } from "./Property";
 export const Properties = ({ handleDrop }) => {
   const [properties, setProperties] = useRecoilState(propertiesAtom);
 
+  /**
+   * TAKES IN AXIS TO CLEAR IN PROPERTIES ATOM
+   * @param axis 
+   */
+  function clearAxis(axis){
+    let newObj = null;
+    let prev_X = properties[0];
+    let prev_Y = properties[1];
+    let prev_Z = properties[2];
+    switch(axis){
+      case "X":
+        newObj = [{axis:"X",accepts:"COLUMN_DRAG",lastDroppedItem:null},prev_Y,prev_Z];
+        setProperties(newObj);
+        break;
+      
+        case "Y":
+          newObj = [prev_X,{axis:"Y",accepts:"COLUMN_DRAG",lastDroppedItem:null},prev_Z];
+          setProperties(newObj);
+          break;
+        
+        case "Z":
+          newObj = [prev_X,prev_Y,{axis:"Z",accepts:"COLUMN_DRAG",lastDroppedItem:null}];
+          setProperties(newObj);
+          break;
+
+      default:
+        break;
+    }
+  }
+
   return (
     <React.Fragment>
       <details open className="group">
@@ -40,6 +70,7 @@ export const Properties = ({ handleDrop }) => {
                         lastDroppedItem={lastDroppedItem}
                         onDrop={(item) => handleDrop(idx, item)}
                         key={idx}
+                        ClearProperty={clearAxis}
                       />
                     );
                   } else return null;

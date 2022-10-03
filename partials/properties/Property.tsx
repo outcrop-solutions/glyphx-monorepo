@@ -5,7 +5,7 @@ import { AxisInterpolationAtom,AxisDirectionAtom } from "@/state/properties";
 import { useRecoilState } from "recoil";
 
 
-export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
+export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept,
     drop: onDrop,
@@ -65,7 +65,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
   }
 
   function change_LOG_LIN() {
-    if(lastDroppedItem.dataType !== "string"){ // if it is not a string then we can change default interpolation
+    if(lastDroppedItem !== null && lastDroppedItem.dataType !== "string"){ // if it is not a string then we can change default interpolation
       assignInterpolation(!isLIN);
       setLIN(!isLIN);
     }
@@ -77,9 +77,11 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop }) => {
     setSwap(!swap);
   }
 
+  // what to do when clear is pressed
   function clearPressed(){
-    console.log("Clear pressed for",axis);
-    //set last dropped to empty
+    if (lastDroppedItem) { // if last dropped is not null
+      ClearProperty(axis);
+    }
   }
 
   function showClear() {

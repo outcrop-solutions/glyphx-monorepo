@@ -124,9 +124,9 @@ export const useProject = () => {
               x_func : interpolation.X, // X-axis Interpolation
               y_func : interpolation.Y, // y-axis Interpolation
               z_func : interpolation.Z, // Z-axis Interpolation
-              x_direction : direction.X, // X-axis Interpolation
-              y_direction : direction.Y, // y-axis Interpolation
-              z_direction : direction.Z // Z-axis Interpolation
+              x_direction : direction.X, // X-axis Direction
+              y_direction : direction.Y, // y-axis Direction
+              z_direction : direction.Z // Z-axis Direction
             }),
           });
           let res = await response.json();
