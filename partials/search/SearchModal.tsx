@@ -70,14 +70,24 @@ export function SearchModal() {
       if (!showSearchModalOpen || keyCode !== 27) return;
       setShowSearchModalOpen(false);
     };
+    const clickHandler = (e) =>{
+      if (document.getElementById('search').contains(e.target)){
+        // Clicked in box
+        console.log("in search")
+      } else{
+        // Clicked outside the box
+        console.log("out of search");
+        setShowSearchModalOpen(false);
+      }
+    }
     document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
+    window.addEventListener('click',clickHandler);
+    return () => {document.removeEventListener("keydown", keyHandler);document.removeEventListener("click", clickHandler);}
   });
-
-  // TODO: FIX ON BLUR AND ON CLICK ISSUE WITH SEARCH BAR
 
   return (
     <div
+    id="search"
       onClick={(e) => {
         console.log("on click hit")
         e.stopPropagation();
@@ -88,12 +98,6 @@ export function SearchModal() {
       <div
       className="flex flex-col ">
         <div
-        onBlur={()=>{
-          console.log("running on blur")
-          setQuery("");
-          setShowSearchModalOpen(false);
-        }
-        } 
         className="fixed top-2">
           <label htmlFor="action-search" className="sr-only">
             Search
@@ -150,16 +154,9 @@ export function SearchModal() {
                   {projects.slice(0, 5).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        {/* <Link href={`/project/${value.id}`}> */}
+                        <Link href={`/project/${value.id}`}>
                           <a
                             className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
-                            onClick={() => {
-                              console.log("in")
-                              setShowSearchModalOpen(prev=>{
-                                return false
-                              });
-                              console.log({showSearchModalOpen})
-                            }}
                           >
                             <svg
                               className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
@@ -169,7 +166,7 @@ export function SearchModal() {
                             </svg>
                             <span>{value.name}</span>
                           </a>
-                        {/* </Link> */}
+                        </Link>
                       </li>
                     );
                   })}
@@ -188,9 +185,9 @@ export function SearchModal() {
                       <li key={index} className="hover:cursor-pointer">
                         <Link href={`/project/${value.item.id}`}>
                           <a
-                            onClick={() => {
-                              setShowSearchModalOpen(false);
-                            }}
+                            // onClick={() => {
+                            //   setShowSearchModalOpen(false);
+                            // }}
                             className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                           >
                             <svg

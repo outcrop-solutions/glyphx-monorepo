@@ -1,6 +1,14 @@
 import { atom, selector } from "recoil";
 import { selectedProjectSelector } from "./project";
 
+/**
+ * ATOM THAT HOLDS DISPLAY TYPE OF EACH AXIS
+ */
+export const displayTypeAtom = atom({
+  key: "displayType",
+  default: {}
+})
+
 // selects properties off active project
 export const propertiesAtom = atom({
   key: "properties",
@@ -103,6 +111,7 @@ export const propertiesAtom = atom({
               break;
           }
         });
+        // TODO: ADD LIN/LOG PROPS HERE
         return existingProps;
       } else {
         const cleanProps = [
