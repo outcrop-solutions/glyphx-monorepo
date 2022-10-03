@@ -16,7 +16,7 @@ export const Properties = ({ handleDrop }) => {
     let prev_X = properties[0];
     let prev_Y = properties[1];
     let prev_Z = properties[2];
-    let others = properties.slice(3,5);
+    let others = properties.slice(3,6);
     switch(axis){
       case "X":
         newObj = [{axis:"X",accepts:"COLUMN_DRAG",lastDroppedItem:null},prev_Y,prev_Z,...others];
