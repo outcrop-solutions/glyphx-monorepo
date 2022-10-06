@@ -12,6 +12,7 @@ import {
   selectedFileAtom,
 } from "@/state/files";
 import { selectedProjectSelector } from "@/state/project";
+import { postUploadCall } from "@/services/ETLCalls";
 
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
@@ -39,6 +40,7 @@ export const formatGridData = (data) => {
 export const Dropzone = ({ toastRef }) => {
   const { query } = useRouter();
   const { projectId } = query;
+
 
   const setDataGrid = useSetRecoilState(dataGridAtom);
   const setFilesOpen = useSetRecoilState(filesOpenAtom);
@@ -105,25 +107,14 @@ export const Dropzone = ({ toastRef }) => {
 
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
-              handleUpload(progress);
+              // handleUpload(progress);
               if (progress.loaded / progress.total === 1) {
                 toast.done(toastRef.current);
                 console.log("about to do api call");
                 //api call here
                 try {
-                  const result = await fetch(
-                    "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
-                    {
-                      method: "POST",
-                      mode: "no-cors",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        model_id: `${selectedProject.id}`,
-                        bucket_name: "sampleproject04827-staging",
-                      }),
-                    }
-                  );
-                  console.log({ result });
+                  const result = await postUploadCall(selectedProject.id);
+                  console.log({result});
                 } catch (error) {
                   console.log({ error });
                 }
@@ -151,25 +142,28 @@ export const Dropzone = ({ toastRef }) => {
     multiple: false,
   });
 
+  // FIXME: DROPZONE NOT WORKING. FAILS WHEN FETCHING
+
   return (
-    <div
-      className={`px-4 py-2 mr-3 ${
-        isDragActive ? "border border-white py-0 px-0 h-48" : ""
-      } rounded-lg`}
-      {...getRootProps()}
-    >
-      <input {...getInputProps()} />
-      {isDragActive ? (
-        <div className="text-white cursor-pointer">
-          Drop the files here ...
-        </div>
-      ) : (
-        <div className="text-xs cursor-pointer">
-          <span className="text-white ">
-            Add files here...
-          </span>
-        </div>
-      )}
-    </div>
+    // <div
+    //   className={`px-4 py-2 mr-3 ${
+    //     isDragActive ? "border border-white py-0 px-0 h-48" : ""
+    //   } rounded-lg`}
+    //   {...getRootProps()}
+    // >
+    //   <input {...getInputProps()} />
+    //   {isDragActive ? (
+    //     <div className="text-white cursor-pointer">
+    //       Drop the files here ...
+    //     </div>
+    //   ) : (
+    //     <div className="text-xs cursor-pointer">
+    //       <span className="text-white ">
+    //         Add files here...
+    //       </span>
+    //     </div>
+    //   )}
+    // </div>
+    <></>
   );
 };

@@ -14,6 +14,7 @@ import {
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedProjectSelector } from "@/state/project";
 import { dataGridLoadingAtom } from "@/state/globals";
+import { postUploadCall } from "@/services/ETLCalls";
 
 export const AddFiles = () => {
   const { query } = useRouter();
@@ -72,20 +73,8 @@ export const AddFiles = () => {
                 console.log("about to do api call");
                 //api call here
                 try {
-                  const result = await fetch(
-                    "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
-                    {
-                      method: "post",
-                      // mode: 'cors',
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        model_id: `${project.id}`,
-                        bucket_name: "sampleproject04827-staging",
-                      }),
-                    }
-                  );
-                  const data = await result.json();
-                  console.log({ data });
+                  const result = await postUploadCall(project.id);
+                  console.log({result});
                   setDataGridState(false);
                 } catch (error) {
                   console.log({ error });
