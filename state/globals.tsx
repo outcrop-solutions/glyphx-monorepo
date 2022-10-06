@@ -82,3 +82,26 @@ export const dataGridLoadingAtom = atom({
   key: "dataGridLoading",
   default: false,
 });
+
+/**
+ * ATOM HOLDS PROGRESS OF ANYTHING. SHOULD BE USED TO USE ANY THING WHERE
+ * WE NEED TO TRACK PROGRESS
+ */
+export const progressDetailAtom = atom({
+  key: "progressDetail",
+  default: {
+    "progress":100,
+    "total": 100,
+  }
+});
+
+/**
+ * RETURNS PROGRESS IN PERCENTAGE STRING FORM
+ */
+export const progressDetailSelector = selector({
+  key: "progressDetailValue",
+  get: ({get}) =>{
+    const progress = get(progressDetailAtom);
+    return `${Math.round(progress.progress/progress.total) * 100}%`
+  }
+})

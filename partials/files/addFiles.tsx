@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
@@ -11,6 +11,7 @@ import {
   fileSystemAtom,
   selectedFileAtom,
 } from "@/state/files";
+import { progressDetailAtom } from "@/state/globals";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedProjectSelector } from "@/state/project";
 import { dataGridLoadingAtom } from "@/state/globals";
@@ -24,10 +25,10 @@ export const AddFiles = () => {
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
   const setFilesOpen = useSetRecoilState(filesOpenAtom);
   const setDataGrid = useSetRecoilState(dataGridAtom);
+  const setProgress = useSetRecoilState(progressDetailAtom);
   const project = useRecoilValue(selectedProjectSelector);
 
   const [dataGridState, setDataGridState] = useRecoilState(dataGridLoadingAtom);
-  const [progress, setProgress] = useState(null);
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
@@ -68,6 +69,12 @@ export const AddFiles = () => {
 
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
+              setProgress(
+                {
+                  progress:progress.loaded,
+                  total:progress.total
+                }
+                );
               if (progress.loaded / progress.total === 1) {
                 console.log("upload complete");
                 console.log("about to do api call");
