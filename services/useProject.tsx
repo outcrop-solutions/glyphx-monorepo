@@ -14,7 +14,9 @@ import {
   userIdSelector,
   dataGridLoadingAtom,
   AxisInterpolationAtom,
-  AxisDirectionAtom
+  AxisDirectionAtom,
+  GridModalErrorAtom,
+  progressDetailAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { updateProject } from "graphql/mutations";
@@ -46,7 +48,9 @@ export const useProject = () => {
 
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
 
-  const [dataGridState, setDataGridState] = useRecoilState(dataGridLoadingAtom);
+  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
+  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
+  const setProgress = useSetRecoilState(progressDetailAtom);
 
   // DnD utilities
   const isDropped = (propName) => {
@@ -132,6 +136,12 @@ export const useProject = () => {
           let res = await response.json();
           await updateProjectState(res);
           } catch (error) {
+            setGridErrorModal({
+              show:true,
+              title:"Fatal Error",
+              message:"Failed to create Model",
+              devError: error.message
+            })
             console.log("Something went wrong with 2nd ETL Call",{error})
           }
           setDataGridState(false);

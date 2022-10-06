@@ -84,6 +84,19 @@ export const dataGridLoadingAtom = atom({
 });
 
 /**
+ * ATOM HOLDING GRID ERROR MODAL DETAILS
+ */
+export const GridModalErrorAtom = atom({
+  key: "gridErrorModal",
+  default: {
+    "show":false,
+    "title":"SAMPLE",
+    "message":"SAMPLE",
+    "devError":"SAMPLE"
+  }
+});
+
+/**
  * ATOM HOLDS PROGRESS OF ANYTHING. SHOULD BE USED TO USE ANY THING WHERE
  * WE NEED TO TRACK PROGRESS
  */

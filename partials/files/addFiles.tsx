@@ -11,10 +11,9 @@ import {
   fileSystemAtom,
   selectedFileAtom,
 } from "@/state/files";
-import { progressDetailAtom } from "@/state/globals";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedProjectSelector } from "@/state/project";
-import { dataGridLoadingAtom } from "@/state/globals";
+import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
 import { postUploadCall } from "@/services/ETLCalls";
 
 export const AddFiles = () => {
@@ -26,9 +25,10 @@ export const AddFiles = () => {
   const setFilesOpen = useSetRecoilState(filesOpenAtom);
   const setDataGrid = useSetRecoilState(dataGridAtom);
   const setProgress = useSetRecoilState(progressDetailAtom);
+  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
   const project = useRecoilValue(selectedProjectSelector);
 
-  const [dataGridState, setDataGridState] = useRecoilState(dataGridLoadingAtom);
+  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
@@ -82,10 +82,16 @@ export const AddFiles = () => {
                 try {
                   const result = await postUploadCall(project.id);
                   console.log({result});
-                  setDataGridState(false);
                 } catch (error) {
+                  setGridErrorModal({
+                    show:true,
+                    title:"Fatal Error",
+                    message:"Failed to Call ETL Post File Upload",
+                    devError: error.message
+                  })
                   console.log({ error });
                 }
+                setDataGridState(false);
               } else {
                 console.log("upload incomplete");
               }

@@ -12,6 +12,7 @@ import {
   selectedFileAtom,
 } from "@/state/files";
 import { selectedProjectSelector } from "@/state/project";
+import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
 import { postUploadCall } from "@/services/ETLCalls";
 
 export const formatGridData = (data) => {
@@ -50,6 +51,10 @@ export const Dropzone = ({ toastRef }) => {
   // status = 'uploading' | 'processing' | 'testing' | 'ready'
   const [status, setStatus] = useState(null);
 
+  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
+  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
+  const setProgress = useSetRecoilState(progressDetailAtom);
+
   const handleUpload = useCallback(async (progress) => {
     setStatus("uploading");
     if (progress.loaded / progress.total === 1) {
@@ -72,6 +77,7 @@ export const Dropzone = ({ toastRef }) => {
   }, []);
   const onDrop = useCallback(
     (acceptedFiles) => {
+      setDataGridState(true);
       //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
          // @ts-ignore
@@ -108,6 +114,12 @@ export const Dropzone = ({ toastRef }) => {
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
               // handleUpload(progress);
+              setProgress(
+                {
+                  progress:progress.loaded,
+                  total:progress.total
+                }
+                );
               if (progress.loaded / progress.total === 1) {
                 toast.done(toastRef.current);
                 console.log("about to do api call");
@@ -116,9 +128,15 @@ export const Dropzone = ({ toastRef }) => {
                   const result = await postUploadCall(selectedProject.id);
                   console.log({result});
                 } catch (error) {
+                  setGridErrorModal({
+                    show:true,
+                    title:"Fatal Error",
+                    message:"Failed to Call ETL Post File Upload",
+                    devError: error.message
+                  })
                   console.log({ error });
                 }
-
+                setDataGridState(false);
                 console.log("upload complete");
               } else {
                 console.log("upload incomplete");

@@ -8,6 +8,7 @@ import { Header } from "partials";
 import { ProjectSidebar } from "partials";
 import { CommentsSidebar } from "partials";
 import { MainSidebar } from "partials";
+import { GridErrorModal } from "partials";
 
 // Project View
 import { DndProvider } from "react-dnd";
@@ -26,7 +27,7 @@ import { GridContainer } from "@/partials/datagrid/GridContainer";
 import { projectIdAtom } from "@/state/project";
 import { shareOpenAtom } from "@/state/share";
 import { showInfoAtom } from "@/state/info";
-import { dataGridLoadingAtom } from "../state";
+import { dataGridLoadingAtom, GridModalErrorAtom } from "../state";
 
 export default function Project() {
   const [error, setError] = useState(false);
@@ -38,6 +39,7 @@ export default function Project() {
   }, [projectId]);
 
   const dataGridLoading = useRecoilValue(dataGridLoadingAtom);
+  const gridModalError = useRecoilValue(GridModalErrorAtom);
   // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook
@@ -76,13 +78,23 @@ export default function Project() {
                 <div className="min-w-0 flex-auto w-full">
                   <div className="flex flex-col h-full">
 
+                    {
+                      gridModalError.show ? //if error
+                      <GridErrorModal
+                        title={gridModalError.title}
+                        message={gridModalError.message}
+                        devErrorMessage={gridModalError.devError}
+                      />
+                      :
+                      dataGridLoading ? ( //if something is loading
+                        <GridLoadingAnimation/>
+                      ) : (
+                        <GridContainer isDropped={isDropped} />
+                      )
+                    }
                     
                     
-                    {dataGridLoading ? (
-                      <GridLoadingAnimation/>
-                    ) : (
-                      <GridContainer isDropped={isDropped} />
-                    )}
+                    
                   </div>
                 </div>
                 {/* <>{share ? <Invite setShare={setShare} /> : <></>}</> */}
