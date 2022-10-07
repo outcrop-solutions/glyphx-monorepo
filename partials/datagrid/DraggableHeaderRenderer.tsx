@@ -17,7 +17,7 @@ export function DraggableHeaderRenderer({
   const [{ isDragging }, drag] = useDrag({
     // @ts-ignore
     type: "COLUMN_DRAG",
-    item: { key: column.key, type: "COLUMN_DRAG", dataType: column.dataType },
+    item: { key: column.key, type: "COLUMN_DRAG", dataType: column.dataType, index:column.idx - 1 },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),

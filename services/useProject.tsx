@@ -16,7 +16,8 @@ import {
   AxisInterpolationAtom,
   AxisDirectionAtom,
   GridModalErrorAtom,
-  progressDetailAtom
+  progressDetailAtom,
+  DataFieldsAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { updateProject } from "graphql/mutations";
@@ -47,6 +48,7 @@ export const useProject = () => {
   const direction = useRecoilValue(AxisDirectionAtom);
 
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
+  const dataFields = useRecoilValue(DataFieldsAtom);
 
   const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
   const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
@@ -107,6 +109,7 @@ export const useProject = () => {
       }
     };
     const callETL = async () => {
+      console.log({droppedProps},{dataFields},{userId});
       if (isZnumber) {
         if (isPropsValid) {
           console.log("calling etl");
@@ -121,9 +124,9 @@ export const useProject = () => {
             },
             body: JSON.stringify({
               model_id: selectedProject.id, // Model Name
-              x_axis : droppedProps[0].lastDroppedItem.key, // X-axis name
-              y_axis : droppedProps[1].lastDroppedItem.key, // Y-axis name
-              z_axis : droppedProps[2].lastDroppedItem.key, // Z-axis name
+              x_axis : dataFields[droppedProps[0].lastDroppedItem.index], // X-axis name
+              y_axis : dataFields[droppedProps[1].lastDroppedItem.index], // Y-axis name
+              z_axis : dataFields[droppedProps[2].lastDroppedItem.index], // Z-axis name
               user_id : userId, // AWS Cognito UserID
               x_func : interpolation.X, // X-axis Interpolation
               y_func : interpolation.Y, // y-axis Interpolation

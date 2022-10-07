@@ -67,3 +67,11 @@ export const projectDetailsAtom = atom({
   key: "projectDetails",
   default: null,
 });
+
+/**
+ * Maps original field to what is on athena table
+ */
+export const DataFieldsAtom = atom({
+  key: "DataFields",
+  default: []
+})
