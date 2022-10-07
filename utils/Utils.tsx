@@ -1,7 +1,7 @@
 export const hexToRGB = (h) => {
-  let r = 0;
-  let g = 0;
-  let b = 0;
+  let r = '';
+  let g = '';
+  let b = '';
   if (h.length === 4) {
     r = `0x${h[1]}${h[1]}`;
     g = `0x${h[2]}${h[2]}`;
