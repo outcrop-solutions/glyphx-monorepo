@@ -110,58 +110,58 @@ export const useProject = () => {
     };
     const callETL = async () => {
       console.log({droppedProps},{dataFields},{userId});
-      if (isZnumber) {
-        if (isPropsValid) {
-          console.log("calling etl");
-          setDataGridState(true);
-          // call ETl endpoint for second half of ETL pipeline
-          try {
-            let response = await fetch("https://adj71mzk16.execute-api.us-east-2.amazonaws.com/default/sgx-api-build-model", {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              model_id: selectedProject.id, // Model Name
-              x_axis : dataFields[droppedProps[0].lastDroppedItem.index], // X-axis name
-              y_axis : dataFields[droppedProps[1].lastDroppedItem.index], // Y-axis name
-              z_axis : dataFields[droppedProps[2].lastDroppedItem.index], // Z-axis name
-              user_id : userId, // AWS Cognito UserID
-              x_func : interpolation.X, // X-axis Interpolation
-              y_func : interpolation.Y, // y-axis Interpolation
-              z_func : interpolation.Z, // Z-axis Interpolation
-              x_direction : direction.X, // X-axis Direction
-              y_direction : direction.Y, // y-axis Direction
-              z_direction : direction.Z // Z-axis Direction
-            }),
-          });
-          let res = await response.json();
-          await updateProjectState(res);
-          } catch (error) {
-            setGridErrorModal({
-              show:true,
-              title:"Fatal Error",
-              message:"Failed to create Model",
-              devError: error.message
-            })
-            console.log("Something went wrong with 2nd ETL Call",{error})
+      if(droppedProps.length === 3){
+        if (isZnumber) {
+          if (isPropsValid) {
+            console.log("calling etl");
+            setDataGridState(true);
+            // call ETl endpoint for second half of ETL pipeline
+            try {
+              let response = await fetch("https://adj71mzk16.execute-api.us-east-2.amazonaws.com/default/sgx-api-build-model", {
+              method: "POST",
+              mode: "no-cors",
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                model_id: selectedProject.id, // Model Name
+                x_axis : dataFields[droppedProps[0].lastDroppedItem.index], // X-axis name
+                y_axis : dataFields[droppedProps[1].lastDroppedItem.index], // Y-axis name
+                z_axis : dataFields[droppedProps[2].lastDroppedItem.index], // Z-axis name
+                user_id : userId, // AWS Cognito UserID
+                x_func : interpolation.X, // X-axis Interpolation
+                y_func : interpolation.Y, // y-axis Interpolation
+                z_func : interpolation.Z, // Z-axis Interpolation
+                x_direction : direction.X, // X-axis Direction
+                y_direction : direction.Y, // y-axis Direction
+                z_direction : direction.Z // Z-axis Direction
+              }),
+            });
+            let res = await response.json();
+            await updateProjectState(res);
+            } catch (error) {
+              setGridErrorModal({
+                show:true,
+                title:"Fatal Error",
+                message:"Failed to create Model",
+                devError: error.message
+              })
+              console.log("Something went wrong with 2nd ETL Call",{error})
+            }
+            setDataGridState(false);
           }
-          setDataGridState(false);
+          else{
+            console.log("Props not valid")
+          }
+        } else {
+          console.log("Z-Axis is not number");
+          setGridErrorModal({
+            show:true,
+            title:"Z-Axis Error",
+            message:"Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE",
+            devError: "N/A"
+          });
         }
-        else{
-          console.log("Props not valid")
-        }
-      } else {
-        console.log("Z-Axis is not number")
-        setToast(
-          "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE"
-        );
-        // FIXME: not sure this is correct @johnathan
-        // properties.pop(); //remove the z axis from there
-        setTimeout(() => {
-          setToast("");
-        }, 3000);
       }
     };
     callETL();
