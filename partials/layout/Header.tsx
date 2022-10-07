@@ -14,7 +14,8 @@ import {
   showAddProjectAtom,
   showSearchModalAtom,
   showInfoAtom,
-  payloadSelector
+  payloadSelector,
+  propertiesAtom
 } from "state";
 export const Header = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(
@@ -27,6 +28,7 @@ export const Header = () => {
   const setShowInfo = useSetRecoilState(showInfoAtom);
   const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
   const payload = useRecoilValue(payloadSelector);
+  const setProperties = useSetRecoilState(propertiesAtom);
 
   const router = useRouter();
 
@@ -37,6 +39,14 @@ export const Header = () => {
     setShare(false);
     setShowInfo(false);
     setShowSearchModalOpen(false);
+    setProperties([ // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
+      { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+      { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+    ]);
     router.push("/");
   };
 

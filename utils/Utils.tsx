@@ -25,3 +25,24 @@ export const formatThousands = (value) => Intl.NumberFormat('en-US', {
   maximumSignificantDigits: 3,
   notation: 'compact',
 }).format(value);
+
+
+/**
+ * FORMAT COLUMN HEADER TO MATCH ATHENA TABLE
+ * @param header 
+ * @returns 
+ */
+export const formatColumnHeader = (header) =>{
+
+  let value = header;
+
+  value = value.replace(/\./g,'');
+  value = value.replace(/ /g,'_');
+  value = value.replace(/\(/g,'_');
+  value = value.replace(/\)/g,'_');
+  value = value.replace(/\-/g,'_');
+
+  
+
+  return value.toLowerCase();
+}

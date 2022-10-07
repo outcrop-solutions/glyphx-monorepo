@@ -231,6 +231,9 @@ export const isZnumberSelector = selector({
   key: "isZnumber",
   get: ({ get }) => {
     const properties = get(propertiesAtom);
+    if(!properties){
+      return false;
+    }
     if (properties[2]?.lastDroppedItem?.dataType === "number") {
       return true;
     } else {

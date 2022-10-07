@@ -16,11 +16,12 @@ import {
   AxisInterpolationAtom,
   AxisDirectionAtom,
   GridModalErrorAtom,
-  progressDetailAtom,
-  DataFieldsAtom
+  progressDetailAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { updateProject } from "graphql/mutations";
+import { createModelCall } from "./ETLCalls";
+import { formatColumnHeader } from "@/utils/Utils";
 /**
  * Utility for interfacing with the Project class
  * @returns {Object}
@@ -48,7 +49,6 @@ export const useProject = () => {
   const direction = useRecoilValue(AxisDirectionAtom);
 
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
-  const dataFields = useRecoilValue(DataFieldsAtom);
 
   const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
   const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
@@ -109,63 +109,55 @@ export const useProject = () => {
       }
     };
     const callETL = async () => {
-      console.log({droppedProps},{dataFields},{userId});
-      if(droppedProps.length === 3){
+      console.log({ droppedProps }, { userId });
+      if (droppedProps?.length === 3 && selectedProject?.id) {
         if (isZnumber) {
           if (isPropsValid) {
             console.log("calling etl");
             setDataGridState(true);
+            console.log({ selectedProject })
             // call ETl endpoint for second half of ETL pipeline
             try {
-              let response = await fetch("https://adj71mzk16.execute-api.us-east-2.amazonaws.com/default/sgx-api-build-model", {
-              method: "POST",
-              mode: "no-cors",
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                model_id: selectedProject.id, // Model Name
-                x_axis : dataFields[droppedProps[0].lastDroppedItem.index], // X-axis name
-                y_axis : dataFields[droppedProps[1].lastDroppedItem.index], // Y-axis name
-                z_axis : dataFields[droppedProps[2].lastDroppedItem.index], // Z-axis name
-                user_id : userId, // AWS Cognito UserID
-                x_func : interpolation.X, // X-axis Interpolation
-                y_func : interpolation.Y, // y-axis Interpolation
-                z_func : interpolation.Z, // Z-axis Interpolation
-                x_direction : direction.X, // X-axis Direction
-                y_direction : direction.Y, // y-axis Direction
-                z_direction : direction.Z // Z-axis Direction
-              }),
-            });
-            let res = await response.json();
-            await updateProjectState(res);
+              let response = await createModelCall(
+                selectedProject?.id,
+                {
+                  X: formatColumnHeader(droppedProps[0].lastDroppedItem.key),
+                  Y: formatColumnHeader(droppedProps[1].lastDroppedItem.key),
+                  Z: formatColumnHeader(droppedProps[2].lastDroppedItem.key)
+                },
+                userId,
+                interpolation,
+                direction
+              );
+              let res = await response.json();
+              await updateProjectState(res);
             } catch (error) {
               setGridErrorModal({
-                show:true,
-                title:"Fatal Error",
-                message:"Failed to create Model",
+                show: true,
+                title: "Fatal Error",
+                message: "Failed to create Model",
                 devError: error.message
               })
-              console.log("Something went wrong with 2nd ETL Call",{error})
+              console.log("Something went wrong with 2nd ETL Call", { error })
             }
             setDataGridState(false);
           }
-          else{
+          else {
             console.log("Props not valid")
           }
         } else {
           console.log("Z-Axis is not number");
           setGridErrorModal({
-            show:true,
-            title:"Z-Axis Error",
-            message:"Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE",
+            show: true,
+            title: "Z-Axis Error",
+            message: "Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE",
             devError: "N/A"
           });
         }
       }
     };
     callETL();
-  }, [properties, selectedProject,interpolation,direction]);
+  }, [properties, selectedProject, interpolation, direction]);
 
   // handle Open project
   useEffect(() => {

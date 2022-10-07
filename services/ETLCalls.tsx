@@ -1,12 +1,3 @@
-import { useRecoilValue } from "recoil";
-import {
-    droppedPropertiesSelector,
-    selectedProjectSelector,
-    userIdSelector,
-    AxisInterpolationAtom,
-    AxisDirectionAtom
-} from "../state";
-
 
 /**
  * CALLS 1ST HALF OF ETL AFTER FILE UPLOAD AND RETURNS RESPONSE
@@ -34,13 +25,15 @@ export const postUploadCall = async (ID) => {
 
 /**
  * CREATE'S MODEL USING 2ND HALF OF ETL PIPELINE AND RETURNS RESPONSE
+ * @param modelID 
+ * @param axis 
+ * @param userId 
+ * @param interpolation 
+ * @param direction 
+ * @returns 
  */
-export const createModelCall = async () => {
-    const selectedProject = useRecoilValue(selectedProjectSelector);
-    const userId = useRecoilValue(userIdSelector);
-    const interpolation = useRecoilValue(AxisInterpolationAtom);
-    const direction = useRecoilValue(AxisDirectionAtom);
-    const droppedProps = useRecoilValue(droppedPropertiesSelector);
+export const createModelCall = async (modelID,axis,userId,interpolation,direction) => {
+    
     let response = await fetch("https://adj71mzk16.execute-api.us-east-2.amazonaws.com/default/sgx-api-build-model", {
         method: "POST",
         // mode: "no-cors",
@@ -48,10 +41,10 @@ export const createModelCall = async () => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model_id: selectedProject.id, // Model Name
-            x_axis: droppedProps[0].lastDroppedItem.key, // X-axis name
-            y_axis: droppedProps[1].lastDroppedItem.key, // Y-axis name
-            z_axis: droppedProps[2].lastDroppedItem.key, // Z-axis name
+            model_id: modelID, // Model Name
+            x_axis: axis.X, // X-axis name
+            y_axis: axis.Y, // Y-axis name
+            z_axis: axis.Z, // Z-axis name
             user_id: userId, // AWS Cognito UserID
             x_func: interpolation.X, // X-axis Interpolation
             y_func: interpolation.Y, // y-axis Interpolation

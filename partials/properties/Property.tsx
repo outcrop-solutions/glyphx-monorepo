@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { AxesIcons } from "../filters/AxesIcons";
 import { AxisInterpolationAtom,AxisDirectionAtom } from "@/state/properties";
-import { useRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 
 
 export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty }) => {
@@ -19,8 +19,8 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
   const [swap, setSwap] = useState(true); //true is orignal, false is reversed
   const [clearAxis, setClearAxis] = useState(false); //true means show X false means show axis
 
-  const [AxisInterpolation,setAxisInterpolation] = useRecoilState(AxisInterpolationAtom); // recoil state for axis type 
-  const [AxisDirection,setAxisDirection] = useRecoilState(AxisDirectionAtom); // recoil state for axis direction 
+  const setAxisInterpolation = useSetRecoilState(AxisInterpolationAtom); // recoil state for axis type 
+  const setAxisDirection = useSetRecoilState(AxisDirectionAtom); // recoil state for axis direction 
 
   /**
    * Assign value of axis type to the atom

@@ -14,7 +14,7 @@ export const GridLoadingAnimation = () => {
                 size={100}
                 color={"yellow"}
             />
-            <p className="text-white font-bold mt-5">{progress} Uploaded</p>
+            <p className="text-white font-bold mt-5">{progress} progress</p>
         </div>
     );
 }

@@ -12,7 +12,7 @@ import {
   selectedFileAtom,
 } from "@/state/files";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { selectedProjectSelector,DataFieldsAtom } from "@/state/project";
+import { selectedProjectSelector } from "@/state/project";
 import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
 import { postUploadCall } from "@/services/ETLCalls";
 
@@ -29,7 +29,6 @@ export const AddFiles = () => {
   const project = useRecoilValue(selectedProjectSelector);
 
   const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
-  const setDataFields = useSetRecoilState(DataFieldsAtom);
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
@@ -83,10 +82,13 @@ export const AddFiles = () => {
                 try {
                   const result = await postUploadCall(project.id);
                   console.log({result});
-                  if(!result.Error){
-                    setDataFields(()=>{
-                      return result.Fields.map(input => input.field); //build array where the index refers to the column name on athena
-                    });
+                  if(result.Error){ // if there is an error
+                    setGridErrorModal({
+                      show:true,
+                      title:"Fatal Error",
+                      message:"Error Occured When Processing Your Spreadsheet",
+                      devError: result.message
+                    })
                   }
                   
                 } catch (error) {

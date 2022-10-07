@@ -78,10 +78,10 @@ export function SearchModal() {
       try {
         if (document.getElementById('search').contains(e.target)){
           // Clicked in box
-          console.log("in search")
+          // console.log("in search")
         } else{
           // Clicked outside the box
-          console.log("out of search");
+          // console.log("out of search");
           setShowSearchModalOpen(false);
         }
       } catch (error) {
