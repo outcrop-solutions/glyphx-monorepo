@@ -83,6 +83,11 @@ export const dataGridLoadingAtom = atom({
   default: false,
 });
 
+export const modelCreationLoadingAtion = atom({
+  key: "modelCreationLoading",
+  default: false,
+});
+
 /**
  * ATOM HOLDING GRID ERROR MODAL DETAILS
  */

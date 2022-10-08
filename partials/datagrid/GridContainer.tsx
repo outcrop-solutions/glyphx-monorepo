@@ -20,7 +20,7 @@ export const GridContainer = ({ isDropped }) => {
         <>
         {/* FIXME: FIGURE OUT WHY WHEN FALSE THE TOP HEADER IS NOT VISIBLE */}
           {
-            true ?
+            false ?
               <SplitPane
                 split={orientation === "horizontal" ? "horizontal" : "vertical"}
                 allowResize={true} defaultSize={700}
@@ -36,11 +36,18 @@ export const GridContainer = ({ isDropped }) => {
                 </div>
               </SplitPane>
               :
-              // TODO : FIGURE OUT HOW TO FIX WIDTH SO THAT IT CAN MATCH CONTENT. NEED HELP FROM EXPERT JAMES
-              <div className={`flex flex-col grow h-full w-screen overflow-scroll`}>
+              (
+                <>
                 <GridHeader />
+                <div className={`flex flex-col grow h-full w-screen pr-80 `}>
+                
                 <Datagrid isDropped={isDropped} />
               </div>
+                </>
+                
+              )
+              // TODO : FIGURE OUT HOW TO FIX WIDTH SO THAT IT CAN MATCH CONTENT. NEED HELP FROM EXPERT JAMES
+              
           }
         </>
       ) : (

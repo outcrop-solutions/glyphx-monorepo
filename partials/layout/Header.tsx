@@ -163,7 +163,7 @@ export const Header = () => {
             <SearchModal />
           )}
           {/* Header: Right side */}
-          <div className="flex justify-end w-full  items-center space-x-2 mr-6">
+          <div className="flex justify-end items-center space-x-2">
             {/* <Help align='right' /> */}
             {/*  Divider */}
             {/* {!selectedProject && <hr className="w-px h-6 bg-gray mx-3" />} */}

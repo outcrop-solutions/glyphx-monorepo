@@ -80,7 +80,7 @@ export const useProject = () => {
     // console.log("in handle etl useffect")
     // utilties
     const updateProjectState = async (res) => {
-      if (res.statusCode === 200) {
+      if (res?.statusCode === 200) {
         setIsQtOpen(true);
         setPayload((prev) => ({ url: res.url, sdt: res.sdt }));
         // update Dynamo Project Item
@@ -129,8 +129,20 @@ export const useProject = () => {
                 interpolation,
                 direction
               );
-              let res = await response.json();
-              await updateProjectState(res);
+              console.log({response});
+              if(response?.errorMessage){ // if there was an error
+                setGridErrorModal({
+                  show: true,
+                  title: "Fatal Error",
+                  message: "Failed to create Model",
+                  devError: response.errorMessage
+                });
+              }
+              else{
+                await updateProjectState({}); // on success send data to payload
+              }
+              // let res = await response.json();
+              // await updateProjectState(res);
             } catch (error) {
               setGridErrorModal({
                 show: true,
@@ -164,7 +176,7 @@ export const useProject = () => {
     // console.log("in handle open project useeffect")
     // @ts-ignore
     if (selectedProject && window && window.core) {
-      if (payload.url) {
+      if (payload?.url) {
         // @ts-ignore
         window?.core.OpenProject(JSON.stringify(payload.url));
       } else {
