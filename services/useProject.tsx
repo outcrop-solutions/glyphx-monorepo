@@ -16,7 +16,8 @@ import {
   AxisInterpolationAtom,
   AxisDirectionAtom,
   GridModalErrorAtom,
-  progressDetailAtom
+  progressDetailAtom,
+  selectedFileAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { updateProject } from "graphql/mutations";
@@ -49,6 +50,7 @@ export const useProject = () => {
   const direction = useRecoilValue(AxisDirectionAtom);
 
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
+  const selectedFile = useRecoilValue(selectedFileAtom);
 
   const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
   const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
@@ -82,7 +84,7 @@ export const useProject = () => {
     const updateProjectState = async (res) => {
       if (res?.statusCode === 200) {
         setIsQtOpen(true);
-        setPayload((prev) => ({ url: res.url, sdt: res.sdt }));
+        setPayload({ url: res.url, sdt: res.sdt });
         // update Dynamo Project Item
         const updateProjectInput = {
           id: selectedProject.id,
@@ -107,9 +109,11 @@ export const useProject = () => {
           console.log({ error });
         }
       }
+      console.log({payload});
     };
     const callETL = async () => {
       console.log({ droppedProps }, { userId });
+      console.log({selectedFile});
       if (droppedProps?.length === 3 && selectedProject?.id) {
         if (isZnumber) {
           if (isPropsValid) {
@@ -139,7 +143,12 @@ export const useProject = () => {
                 });
               }
               else{
-                await updateProjectState({}); // on success send data to payload
+                
+                await updateProjectState({
+                  url:`s3://glyphx-model-output-bucket/${userId}/${selectedProject?.id}/`,
+                  cache:false,
+                  sdt: `${selectedFile}`
+                }); // on success send data to payload
               }
               // let res = await response.json();
               // await updateProjectState(res);

@@ -56,7 +56,6 @@ export const payloadSelector = selector({
       url: url,
       filePath: sdt,
     };
-
     set(selectedProjectSelector, newSelectedProjectValue);
   },
 });

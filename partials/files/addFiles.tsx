@@ -90,6 +90,10 @@ export const AddFiles = () => {
                       devError: result.message
                     })
                   }
+                  else{
+                    // TODO: SAVE FILE NAME TO PROJECT
+                    
+                  }
                   
                 } catch (error) {
                   setGridErrorModal({
