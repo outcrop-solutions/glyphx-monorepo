@@ -12,7 +12,7 @@ import {
   showReorderConfirmAtom,
   toastAtom,
   userIdSelector,
-  dataGridLoadingAtom,
+  modelCreationLoadingAtion,
   AxisInterpolationAtom,
   AxisDirectionAtom,
   GridModalErrorAtom,
@@ -52,7 +52,7 @@ export const useProject = () => {
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
   const selectedFile = useRecoilValue(selectedFileAtom);
 
-  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
+  const setModelCreationLoadingState = useSetRecoilState(modelCreationLoadingAtion);
   const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
   const setProgress = useSetRecoilState(progressDetailAtom);
 
@@ -118,7 +118,7 @@ export const useProject = () => {
         if (isZnumber) {
           if (isPropsValid) {
             console.log("calling etl");
-            setDataGridState(true);
+            setModelCreationLoadingState(true);
             console.log({ selectedProject })
             // call ETl endpoint for second half of ETL pipeline
             try {
@@ -161,7 +161,7 @@ export const useProject = () => {
               })
               console.log("Something went wrong with 2nd ETL Call", { error })
             }
-            setDataGridState(false);
+            setModelCreationLoadingState(false);
           }
           else {
             console.log("Props not valid")

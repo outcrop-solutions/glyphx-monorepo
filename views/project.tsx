@@ -16,7 +16,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { ShareModule } from "partials";
 import { Info } from "partials/info";
-import { GridLoadingAnimation } from "@/partials/loaders";
+import { GridLoadingAnimation, LoadingModelAnimation } from "@/partials/loaders";
 
 // Hooks
 import { useRouter } from "next/router";
@@ -27,7 +27,7 @@ import { GridContainer } from "@/partials/datagrid/GridContainer";
 import { projectIdAtom } from "@/state/project";
 import { shareOpenAtom } from "@/state/share";
 import { showInfoAtom } from "@/state/info";
-import { dataGridLoadingAtom, GridModalErrorAtom } from "../state";
+import { dataGridLoadingAtom, GridModalErrorAtom,modelCreationLoadingAtion } from "../state";
 
 export default function Project() {
   const [error, setError] = useState(false);
@@ -40,6 +40,7 @@ export default function Project() {
 
   const dataGridLoading = useRecoilValue(dataGridLoadingAtom);
   const gridModalError = useRecoilValue(GridModalErrorAtom);
+  const modelCreationLoading = useRecoilValue(modelCreationLoadingAtion);
   // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook
@@ -89,7 +90,14 @@ export default function Project() {
                       dataGridLoading ? ( //if something is loading
                         <GridLoadingAnimation/>
                       ) : (
-                        <GridContainer isDropped={isDropped} />
+                        modelCreationLoading ? //if creating model
+                        (
+                          <LoadingModelAnimation/>
+                        )
+                        :(
+                          <GridContainer isDropped={isDropped} />
+                        )
+                        
                       )
                     }
                     

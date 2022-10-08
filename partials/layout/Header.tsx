@@ -156,9 +156,8 @@ export const Header = () => {
           />
       }
       <div className="px-4 sm:px-6 lg:px-0 lg:w-5/6">
-        <div className="flex items-center justify-between h-16 -mb-px">
+        <div className={`flex items-center ${selectedProject ? "justify-center":"justify-between"} h-16`}>
           {/* Search form */}
-          {/* <SearchForm placeholder='Search GlyphX' /> */}
           {!selectedProject && (
             <SearchModal />
           )}
