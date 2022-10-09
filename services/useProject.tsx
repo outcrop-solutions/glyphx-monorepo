@@ -104,12 +104,13 @@ export const useProject = () => {
             graphqlOperation(updateProject, { input: updateProjectInput })
           );
           console.log({ result });
+          console.log({payload});
         } catch (error) {
           // TODO: put error handling in toast
           console.log({ error });
         }
       }
-      console.log({payload});
+      
     };
     const callETL = async () => {
       console.log({ droppedProps }, { userId });
