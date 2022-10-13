@@ -33,6 +33,7 @@ export const filesAtom = atom({
           const data = await Storage.list(`${projectId}/input/`);
 
           const processed = processStorageList(data);
+          console.log({processed})
           const files = Object.keys(processed[`${projectId}`].input);
           const filteredFiles = files.filter(
             (fileName) => fileName.split(".")[1] === "csv"

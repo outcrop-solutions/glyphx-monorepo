@@ -40,7 +40,7 @@ export const Properties = ({ handleDrop }) => {
 
   return (
     <React.Fragment>
-      <details open className="group">
+      <div className="group">
         <summary className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white truncate border-b border-gray">
           <div className="flex ml-2 items-center">
             <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
@@ -79,7 +79,7 @@ export const Properties = ({ handleDrop }) => {
               : null}
           </ul>
         </div>
-      </details>
+      </div>
     </React.Fragment>
   );
 };

@@ -47,6 +47,12 @@ export const Header = () => {
       { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
       { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
     ]);
+    try { //close glyph viewer
+      //@ts-ignore
+      window?.core.CloseModel();
+    } catch (error) {
+      // do nothng
+    }
     router.push("/");
   };
 

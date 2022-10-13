@@ -14,7 +14,7 @@ export const Files = ({ toastRef }) => {
   const handleDrop = (newTree) => setFiles(newTree);
   return (
     <React.Fragment>
-      <details open className="group">
+      <div className="group">
         <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight truncate border-b border-gray">
           <div className="flex ml-2 items-center">
             <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
@@ -73,7 +73,7 @@ export const Files = ({ toastRef }) => {
             <Dropzone toastRef={toastRef} />
           </div>
         </div>
-      </details>
+      </div>
     </React.Fragment>
   );
 };

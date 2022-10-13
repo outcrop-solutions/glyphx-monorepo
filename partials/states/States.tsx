@@ -49,7 +49,7 @@ export const States = () => {
 
   return (
     <React.Fragment>
-      <details open className="group">
+      <div className="group">
         <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight truncate border-b border-gray">
           <div className="flex ml-2 items-center">
             <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
@@ -69,7 +69,7 @@ export const States = () => {
           <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-1 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white" onClick={addState} />
         </summary>
         {states && states.length > 0 && <StateList />}
-      </details>
+      </div>
     </React.Fragment>
   );
 };

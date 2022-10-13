@@ -103,6 +103,7 @@ export const AddFiles = () => {
                     devError: error.message
                   })
                   console.log({ error });
+                  setDataGridState(false);
                 }
                 setDataGridState(false);
               } else {

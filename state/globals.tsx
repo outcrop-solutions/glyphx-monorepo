@@ -122,4 +122,16 @@ export const progressDetailSelector = selector({
     const progress = get(progressDetailAtom);
     return `${Math.round(progress.progress/progress.total) * 100}%`
   }
-})
+});
+
+/**
+ * ATOM THAT HOLDS INFORMATION FOR GLYPHVIEWER
+ */
+export const glyphViewerDetails = atom({
+  key: "glyphViewerDetails",
+  default: {
+    commentsPosition: null,
+    filterSidebarPosition: null,
+    sendDrawerPositionApp: false
+  }
+});

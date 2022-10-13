@@ -44,7 +44,7 @@ export default function Project() {
   // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook
-  const { setFilterSidebarPosition } = useSocket();
+  useSocket();
 
   // Project Hook
   const { isDropped, handleDrop } = useProject();
@@ -71,7 +71,7 @@ export default function Project() {
             <DndProvider backend={HTML5Backend}>
               <ProjectSidebar
                 error={error}
-                setFilterSidebarPosition={setFilterSidebarPosition}
+                // setFilterSidebarPosition={setFilterSidebarPosition}
                 handleDrop={handleDrop}
                 toastRef={toastRef}
               />

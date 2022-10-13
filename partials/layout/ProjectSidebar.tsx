@@ -3,10 +3,12 @@ import { useRef, useEffect, useState } from "react";
 import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from "partials";
 import { usePosition } from "services/usePosition";
 import { useRouter } from "next/router";
+import { useRecoilState } from "recoil";
+import { glyphViewerDetails } from "@/state/globals";
 
 export const ProjectSidebar = ({
   error,
-  setFilterSidebarPosition,
+  // setFilterSidebarPosition,
   handleDrop,
   toastRef,
 }) => {
@@ -17,6 +19,8 @@ export const ProjectSidebar = ({
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);
 
+  const [glyphxDetails,setGlyphxViewer] = useRecoilState(glyphViewerDetails);
+
   /**
    * 0: Project
    * 1: Model
@@ -26,13 +30,16 @@ export const ProjectSidebar = ({
 
   // set projectsSidebar position on transition
   useEffect(() => {
-    setFilterSidebarPosition((prev) => {
       if (sidebar.current !== null) {
-        return {
-          values: sidebar.current.getBoundingClientRect(),
-        };
+        setGlyphxViewer({
+          ...glyphxDetails,
+          filterSidebarPosition: {
+            values: sidebar.current.getBoundingClientRect(),
+          }
+        })
+        
       }
-    });
+
   }, [projPosition]);
 
   return (

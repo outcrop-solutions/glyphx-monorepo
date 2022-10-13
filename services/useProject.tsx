@@ -79,7 +79,7 @@ export const useProject = () => {
 
   // handle ETL
   useEffect(() => {
-    // console.log("in handle etl useffect")
+    console.log("in first use effect")
     // utilties
     const updateProjectState = async (res) => {
       if (res?.statusCode === 200) {
@@ -144,12 +144,18 @@ export const useProject = () => {
                 });
               }
               else{
-                
                 await updateProjectState({
                   url:`s3://glyphx-model-output-bucket/${userId}/${selectedProject?.id}/`,
                   cache:false,
-                  sdt: `${selectedFile}`
+                  sdt: `${selectedProject?.id}`
                 }); // on success send data to payload
+
+                // create window
+                // @ts-ignore
+                window?.core.OpenProject(JSON.stringify({
+                  user_id:userId,
+                  model_id:selectedProject?.id,
+                }),false);
               }
               // let res = await response.json();
               // await updateProjectState(res);
@@ -182,28 +188,30 @@ export const useProject = () => {
   }, [properties, selectedProject, interpolation, direction]);
 
   // handle Open project
-  useEffect(() => {
-    // console.log("in handle open project useeffect")
-    // @ts-ignore
-    if (selectedProject && window && window.core) {
-      if (payload?.url) {
-        // @ts-ignore
-        window?.core.OpenProject(JSON.stringify(payload.url));
-      } else {
-        // @ts-ignore
-        window?.core.OpenProject({});
-      }
-    }
-  }, [payload, selectedProject]);
+  // useEffect(() => {
+  //   console.log("In second use effect");
+  //   // console.log("in handle open project useeffect")
+  //   // @ts-ignore
+  //   if (selectedProject && window && window.core) {
+  //     if (payload?.url) {
+  //       // @ts-ignore
+  //       window?.core.OpenProject(JSON.stringify(payload.url));
+  //     } else {
+  //       // @ts-ignore
+  //       window?.core.OpenProject({});
+  //     }
+  //   }
+  // }, [payload, selectedProject]);
 
   // handle close project drawer
-  useEffect(() => {
-    // @ts-ignore
-    if (reorderConfirm && window && window.core) {
-      // @ts-ignore
-      window.core.ToggleDrawer(false);
-    }
-  }, [reorderConfirm]);
+  // useEffect(() => {
+  //   console.log("Third useEffect called");
+  //   // @ts-ignore
+  //   if (reorderConfirm && window && window.core) {
+  //     // @ts-ignore
+  //     window.core.ToggleDrawer(false);
+  //   }
+  // }, [reorderConfirm]);
 
   return {
     isDropped,

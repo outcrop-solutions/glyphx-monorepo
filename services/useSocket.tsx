@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import QWebChannel from "qwebchannel";
+import { glyphViewerDetails } from "../state";
+import { useRecoilState } from "recoil";
 /**
  * To handle Socket Connection and Communications with Qt window
  * @param {boolean} isSelected
@@ -9,6 +11,9 @@ export const useSocket = () => {
   // comments and filter sidebar positions
   // position state can be destructured as follows... { bottom, height, left, right, top, width, x, y } = position
   //position state dynamically changes with transitions
+
+  const [glyphViewer, setGlyphViewer] = useRecoilState(glyphViewerDetails);
+
   const [commentsPosition, setCommentsPosition] = useState(null);
   const [filterSidebarPosition, setFilterSidebarPosition] = useState(null);
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
@@ -37,7 +42,10 @@ export const useSocket = () => {
           });
           //   @ts-ignore
           window.core.GetDrawerPosition.connect(function (message) {
-            setSendDrawerPositionApp(true);
+            setGlyphViewer({
+              ...glyphViewer,
+              sendDrawerPositionApp: true
+            });
           });
           //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
           //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
@@ -60,28 +68,27 @@ export const useSocket = () => {
   //   TODO: make our lives much easier by just setting fixed width header and sidebars
   useEffect(() => {
     // @ts-ignore
-    if (sendDrawerPositionApp && window && window.core) {
+    if (glyphViewer.sendDrawerPositionApp && window && window.core) {
       // @ts-ignore
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: {
             // y: filterSidebarPosition.values.y,
-            y: 64, //pixel valiue of header height
-            right: Math.round(filterSidebarPosition.values.right), //left side of browser to right side of project sidebar
-            height: filterSidebarPosition.values.height, // height of grid view window
+            y: 850, //pixel value of header height start was 64
+            // right: Math.round(glyphViewer.filterSidebarPosition.values.right), //left side of browser to right side of project sidebar
+            // height: glyphViewer.filterSidebarPosition.values.height, // height of grid view window
+            right: 335,
+            height: 1000,
           },
-          commentsSidebar: commentsPosition
-            ? commentsPosition.values
-            : { ...filterSidebarPosition.values, left: window.innerWidth },
+          commentsSidebar: glyphViewer.commentsPosition
+            ? glyphViewer.commentsPosition?.values
+            : { ...glyphViewer.filterSidebarPosition?.values, left: window.innerWidth },
         })
       );
-      setSendDrawerPositionApp(false);
+      setGlyphViewer({
+        ...glyphViewer,
+        sendDrawerPositionApp: false
+      });
     }
-  }, [commentsPosition, filterSidebarPosition, sendDrawerPositionApp]);
-  return {
-    commentsPosition,
-    setCommentsPosition,
-    filterSidebarPosition,
-    setFilterSidebarPosition,
-  };
+  }, []); //commentsPosition, filterSidebarPosition, sendDrawerPositionApp
 };
