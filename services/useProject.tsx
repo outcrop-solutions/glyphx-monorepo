@@ -119,6 +119,13 @@ export const useProject = () => {
         if (isZnumber) {
           if (isPropsValid) {
             console.log("calling etl");
+            try { //close existing model
+              // @ts-ignore
+              window?.core.ToggleDrawer(false);
+            } catch (error) {
+              console.log({error})
+            }
+            
             setModelCreationLoadingState(true);
             console.log({ selectedProject })
             // call ETl endpoint for second half of ETL pipeline

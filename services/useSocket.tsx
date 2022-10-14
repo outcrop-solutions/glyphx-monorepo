@@ -78,7 +78,7 @@ export const useSocket = () => {
             // right: Math.round(glyphViewer.filterSidebarPosition.values.right), //left side of browser to right side of project sidebar
             // height: glyphViewer.filterSidebarPosition.values.height, // height of grid view window
             right: 335,
-            height: 1000,
+            height: 10,
           },
           commentsSidebar: glyphViewer.commentsPosition
             ? glyphViewer.commentsPosition?.values
