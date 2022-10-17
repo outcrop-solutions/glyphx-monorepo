@@ -13,7 +13,8 @@ export const Info = ({ setInfo }) => {
     );
 
     return (
-        <div className="flex flex-col absolute z-50 right-0 w-96 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
+        // <div className="flex flex-col absolute z-50 right-0 w-96 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
+        <div className="flex flex-col w-96 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
             <div className="pt-4 pl-4 pr-4  overflow-auto">
                 <div className="flex flex-row justify-between mb-2">
                     <div className="flex flex-row justify-between space-x-3">

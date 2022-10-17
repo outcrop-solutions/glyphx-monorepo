@@ -82,7 +82,7 @@ export const useProject = () => {
     console.log("in first use effect")
     // utilties
     const updateProjectState = async (res) => {
-      if (res?.statusCode === 200) {
+      // if (res?.statusCode === 200) {
         setIsQtOpen(true);
         setPayload({ url: res.url, sdt: res.sdt });
         // update Dynamo Project Item
@@ -104,17 +104,17 @@ export const useProject = () => {
             graphqlOperation(updateProject, { input: updateProjectInput })
           );
           console.log({ result });
-          console.log({payload});
+          console.log({ payload });
         } catch (error) {
           // TODO: put error handling in toast
           console.log({ error });
         }
-      }
-      
+      // }
+
     };
     const callETL = async () => {
       console.log({ droppedProps }, { userId });
-      console.log({selectedFile});
+      console.log({ selectedFile });
       if (droppedProps?.length === 3 && selectedProject?.id) {
         if (isZnumber) {
           if (isPropsValid) {
@@ -123,9 +123,9 @@ export const useProject = () => {
               // @ts-ignore
               window?.core.ToggleDrawer(false);
             } catch (error) {
-              console.log({error})
+              console.log({ error })
             }
-            
+
             setModelCreationLoadingState(true);
             console.log({ selectedProject })
             // call ETl endpoint for second half of ETL pipeline
@@ -141,8 +141,8 @@ export const useProject = () => {
                 interpolation,
                 direction
               );
-              console.log({response});
-              if(response?.errorMessage){ // if there was an error
+              console.log({ response });
+              if (response?.errorMessage) { // if there was an error
                 setGridErrorModal({
                   show: true,
                   title: "Fatal Error",
@@ -150,22 +150,23 @@ export const useProject = () => {
                   devError: response.errorMessage
                 });
               }
-              else{
+              else {
                 await updateProjectState({
-                  url:`s3://glyphx-model-output-bucket/${userId}/${selectedProject?.id}/`,
-                  cache:false,
+                  url: `s3://glyphx-model-output-bucket/${userId}/${selectedProject?.id}/`,
+                  cache: false,
                   sdt: `${selectedProject?.id}`
                 }); // on success send data to payload
-
-                // create window
-                // @ts-ignore
-                window?.core.OpenProject(JSON.stringify({
-                  user_id:userId,
-                  model_id:selectedProject?.id,
-                }),false);
+                try {
+                  // create window
+                  // @ts-ignore
+                  window?.core.OpenProject(JSON.stringify({
+                    user_id: userId,
+                    model_id: selectedProject?.id,
+                  }), false);
+                } catch (error) {
+                  console.log({ error })
+                }
               }
-              // let res = await response.json();
-              // await updateProjectState(res);
             } catch (error) {
               setGridErrorModal({
                 show: true,

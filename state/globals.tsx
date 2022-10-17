@@ -39,13 +39,17 @@ export const currentOrgAtom = atom({
 
 // UI STATE
 
-// toggles grid vs list in overview
+/**
+ * toggles grid vs list in overview
+ */
 export const isGridViewAtom = atom({
   key: "isGridView",
   default: true,
 });
 
-// to be used to keep track of Qt toggle state
+/**
+ * to be used to keep track of Qt toggle state
+ */
 export const isQtOpenAtom = atom({
   key: "isQtOpen",
   default: false,

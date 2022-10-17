@@ -15,7 +15,8 @@ import {
   showSearchModalAtom,
   showInfoAtom,
   payloadSelector,
-  propertiesAtom
+  propertiesAtom,
+  sdtValue
 } from "state";
 export const Header = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(
@@ -29,6 +30,7 @@ export const Header = () => {
   const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
   const payload = useRecoilValue(payloadSelector);
   const setProperties = useSetRecoilState(propertiesAtom);
+  const [sdtName,setSDTName] = useRecoilState(sdtValue);
 
   const router = useRouter();
 
@@ -39,6 +41,7 @@ export const Header = () => {
     setShare(false);
     setShowInfo(false);
     setShowSearchModalOpen(false);
+    setSDTName(null);
     setProperties([ // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
       { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
       { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
@@ -172,7 +175,7 @@ export const Header = () => {
             {/* <Help align='right' /> */}
             {/*  Divider */}
             {/* {!selectedProject && <hr className="w-px h-6 bg-gray mx-3" />} */}
-            {selectedProject && (
+            {selectedProject && sdtName && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${showSearchModalOpen && "bg-gray"
                   }`}
@@ -199,7 +202,7 @@ export const Header = () => {
                 <b className="text-black text-xs">Share</b>
               </button>
             )}
-            {selectedProject && payload.sdt && (
+            {selectedProject && sdtName && (
               <button
                 className="h-8 px-2 flex items-center justify-center rounded-lg hover:bg-gray"
                 onClick={handlePaneSwitch}
@@ -271,7 +274,7 @@ export const Header = () => {
             {!selectedProject && (
               <GridToggle />
             )}
-            {selectedProject && (
+            {selectedProject && sdtName && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-full ml-3`}
                 onClick={(e) => {
@@ -289,7 +292,12 @@ export const Header = () => {
             {/* {selectedProject && <DeleteModel align="right" />} */}
             {/* Below is causing empty user bubble */}
             {/* {selectedProject && <Help />} */}
-            <DropdownNotifications align="right" />
+            {
+              selectedProject && sdtName && (
+                <DropdownNotifications align="right" />
+              )
+            }
+            
             {/* {!selectedProject && (
 							<button
 								className='btn rounded-2xl bg-yellow text-gray text-xs font-bold hover:text-white py-1.5'

@@ -6,15 +6,22 @@ import { Datagrid } from "./DataGrid";
 import { ModelFooter } from "./ModelFooter";
 import { GridHeader } from "partials";
 import SplitPane from 'react-split-pane';
-
-import { orientationAtom, payloadSelector, glyphViewerDetails } from "state";
+import { 
+  orientationAtom, 
+  glyphViewerDetails,
+  sdtValue,
+  showInfoAtom,
+  shareOpenAtom
+} from "state";
 
 export const GridContainer = ({ isDropped }) => {
   const rows = useRecoilValue(rowsSelector);
   const orientation = useRecoilValue(orientationAtom);
-  const payload = useRecoilValue(payloadSelector);
+  const stdName = useRecoilValue(sdtValue);
   const glyphxViewer = useRecoilValue(glyphViewerDetails);
-  const [localSize,setSize] = useState(null);
+  const isInfoOpen = useRecoilValue(showInfoAtom);
+  const isShareOpen = useRecoilValue(shareOpenAtom);
+  const [localSize,setSize] = useState(null); //set a local size state
 
   function startDrag(){
     try { //hide glyph viewer
@@ -78,11 +85,11 @@ export const GridContainer = ({ isDropped }) => {
 
   //kicks in on orientation change
   useEffect(()=>{
-    if (localSize) {
+    if (localSize || isInfoOpen || isShareOpen) {
       completedDrag(localSize);
     }
     
-  },[orientation])
+  },[orientation,isInfoOpen,isShareOpen])
 
   return (
     <>
@@ -90,7 +97,7 @@ export const GridContainer = ({ isDropped }) => {
         <>
         {/* FIXME: FIGURE OUT WHY WHEN FALSE THE TOP HEADER IS NOT VISIBLE */}
           {
-            payload.url ?
+            stdName !== null ?
               <SplitPane
                 split={orientation === "horizontal" ? "horizontal" : "vertical"}
                 allowResize={true} defaultSize={700}
@@ -109,13 +116,13 @@ export const GridContainer = ({ isDropped }) => {
               </SplitPane>
               :
               (
-                <>
-                <GridHeader />
-                <div className={`flex flex-col grow h-full w-screen pr-80 `}>
                 
+                
+                <div className={`flex flex-col h-full w-screen pr-80 `}>
+                <GridHeader />
                 <Datagrid isDropped={isDropped} />
               </div>
-                </>
+                
                 
               )
               // TODO : FIGURE OUT HOW TO FIX WIDTH SO THAT IT CAN MATCH CONTENT. NEED HELP FROM EXPERT JAMES

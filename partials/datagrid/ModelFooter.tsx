@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import * as dayjs from "dayjs";
 import { useRecoilValue } from "recoil";
-import { payloadSelector, selectedProjectSelector } from "@/state/project";
+import { payloadSelector, selectedProjectSelector,sdtValue } from "@/state/project";
 // import { PlusIcon } from "@heroicons/react/solid";
 
 export const ModelFooter = () => {
   const payload = useRecoilValue(payloadSelector);
+  const name = useRecoilValue(sdtValue)
   const { sdt, url } = payload;
 
   const handleOpen = () => {
@@ -29,15 +30,19 @@ export const ModelFooter = () => {
     }
   };
 
+  // useEffect(()=>{
+  //   console.log({name})
+  // },[name])
+
   return (
     <div className="w-full h-11 border border-gray bg-primary-dark-blue text-xs flex items-center">
-      {sdt && (
+      {name && (
         <div
-          onClick={handleOpen}
+          // onClick={handleOpen}
           className="flex relative cursor-pointer group hover:bg-gray items-center border-r border-r-gray h-full px-4"
         >
           <div className="text-cyan mr-2 text-xs font-bold">SDT</div>
-          <span className="text-white font-bold">{sdt}</span>
+          <span className="text-white font-bold">{name}</span>
         </div>
       )}
       {/* <PlusIcon className="h-5 text-gray mx-2" /> */}

@@ -34,11 +34,18 @@ export const filesAtom = atom({
 
           const processed = processStorageList(data);
           console.log({processed})
-          const files = Object.keys(processed[`${projectId}`].input);
+          console.log(Object.keys(processed).length)
+          if(Object.keys(processed).length !== 0){ // if empty then return empty array
+            const files = Object.keys(processed[`${projectId}`].input);
           const filteredFiles = files.filter(
             (fileName) => fileName.split(".")[1] === "csv"
           );
           return filteredFiles || [];
+          }
+          else{
+            return [];
+          }
+          
         } catch (error) {
           console.log({ error });
         }

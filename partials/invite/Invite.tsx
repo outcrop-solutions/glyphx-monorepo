@@ -5,6 +5,7 @@ import { PermissionsDropDown } from "./PermissionsDropDown";
 
 import {
   selectedProjectSelector,
+  sdtValue
 } from "state";
 import { useRecoilValue } from "recoil";
 
@@ -12,6 +13,7 @@ export const ShareModule = ({ setShare }) => {
 
   const [showShareText, setShareText] = useState(false);
   const selectedProject= useRecoilValue(selectedProjectSelector);
+  const sdtName = useRecoilValue(sdtValue)
 
   const handleInvite = async () => {
     try {
@@ -41,8 +43,17 @@ export const ShareModule = ({ setShare }) => {
     }, 3000);
   }
 
+  // <div className={sdtName === null ? 
+  //   "flex flex-col absolute z-60 ml-10 w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"
+  // :
+  // "flex flex-col w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"
+  // }>
+
   return (
-    <div className="flex flex-col absolute z-50 right-0 w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1">
+    <div className=
+    "flex flex-col w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"
+    >
+    {/* <div className="flex flex-col w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"> */}
       <div className="pt-5 pl-3 pr-3">
         <div className="flex flex-row justify-between mb-2">
           <p className="text-light-gray text-lg">

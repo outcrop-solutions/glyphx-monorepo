@@ -34,6 +34,7 @@ export default function Project() {
   const { query } = useRouter();
   const { projectId } = query;
   const setProjectId = useSetRecoilState(projectIdAtom);
+  // setProjectId(projectId);
   useEffect(() => {
     if (projectId) setProjectId(projectId);
   }, [projectId]);
@@ -104,19 +105,24 @@ export default function Project() {
                     
                     
                   </div>
+                  
                 </div>
+                
                 {/* <>{share ? <Invite setShare={setShare} /> : <></>}</> */}
                 {/* <CommentsSidebar setCommentsPosition={setCommentsPosition} /> */}
               </div>
             </DndProvider>
+          
           </div>
           {/* FIXME: FIGURE OUT HOW TO GET SIDEBAR TO BE A SIDEBAR AND NOT AN OVERLAY */}
-          <div id="right-side-bars" className="z-50">
+      <div id="right-side-bars" className="z-50">
             {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
             {showInfo ? <Info setInfo={setShowInfo} /> : <></>}
           </div>
         </main>
+        
       </div>
+      
     </div>
   );
 }

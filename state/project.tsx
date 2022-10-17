@@ -14,8 +14,9 @@ export const selectedProjectSelector = selector({
   key: "selectedProject",
   get: async ({ get }) => {
     const user = get(userAtom);
-    const projectId = get(projectIdAtom)
+    const projectId = get(projectIdAtom);
     if (user && projectId) {
+      console.log("Attempting to get selectedProjectSelector");
       try {
         const response = (await API.graphql(
           graphqlOperation(getProject, { id: projectId })
@@ -29,7 +30,13 @@ export const selectedProjectSelector = selector({
     } else return null;
   },
   set: ({ set, get }, id) => {
-    set(projectIdAtom, id);
+    console.log("New project id passed in",{id})
+    if (id === null || id === undefined) {
+      set(projectIdAtom, null);
+    }else{
+      set(projectIdAtom, id["id"]);
+    }
+    
   },
 });
 
@@ -39,14 +46,22 @@ export const selectedProjectDetailsAtom = atom({
   default: null,
 });
 
+export const sdtValue = atom({
+  key:"sdtValue",
+  default : null
+})
+
 // extracts Qt payload for opening a project from currently selected project
 export const payloadSelector = selector({
   key: "payload",
   get: ({ get }) => {
-    let selectedProject = get(selectedProjectSelector);
-    // @ts-ignore
+    const selectedProject = get(selectedProjectSelector);
+
+    console.log("getting payload from payload selector")
+    console.log("selectedProject in payload selector:",{selectedProject})
+    
     if (!selectedProject) return { url: null, sdt: null };
-    return { url: selectedProject.filePath, sdt: selectedProject.filePath };
+    return { url: selectedProject.url, sdt: selectedProject.filePath };
   },
   set: ({ set, get }, { sdt, url }: { sdt: any; url: any }) => {
     // @ts-ignore
@@ -56,7 +71,9 @@ export const payloadSelector = selector({
       url: url,
       filePath: sdt,
     };
+    console.log("Setting new selectedProjectSelector:",{newSelectedProjectValue})
     set(selectedProjectSelector, newSelectedProjectValue);
+    set(sdtValue,sdt);
   },
 });
 
@@ -66,3 +83,5 @@ export const projectDetailsAtom = atom({
   key: "projectDetails",
   default: null,
 });
+
+
