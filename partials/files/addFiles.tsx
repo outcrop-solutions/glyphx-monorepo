@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
@@ -45,6 +45,7 @@ export const AddFiles = () => {
           fileSize: size,
         },
       }));
+      console.log({newData});
       setFileSystem(newData);
 
       acceptedFiles.forEach(async (file) => {
@@ -66,7 +67,7 @@ export const AddFiles = () => {
         reader.onload = () => {
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
-
+          console.log("inside reader.onLOAD")
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
               setProgress(
@@ -75,6 +76,7 @@ export const AddFiles = () => {
                   total:progress.total
                 }
                 );
+                console.log("Inside storage.put")
               if (progress.loaded / progress.total === 1) {
                 console.log("upload complete");
                 console.log("about to do api call");
@@ -125,9 +127,16 @@ export const AddFiles = () => {
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: "text/csv",
-    multiple: false,
+    //@ts-ignore
+    accept:".csv",
+    multiple: false
   });
+
+  useEffect(() => {
+    console.log({fileSystem});
+  }, [fileSystem])
+  
+
   return (
     <div
       {...getRootProps()}

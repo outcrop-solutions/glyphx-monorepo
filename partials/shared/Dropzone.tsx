@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState,useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
@@ -110,23 +110,36 @@ export const Dropzone = ({ toastRef }) => {
         reader.onload = () => {
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
-
+          console.log("inside reader.onLOAD")
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
-              // handleUpload(progress);
               setProgress(
                 {
                   progress:progress.loaded,
                   total:progress.total
                 }
                 );
+                console.log("Inside storage.put")
               if (progress.loaded / progress.total === 1) {
-                toast.done(toastRef.current);
+                console.log("upload complete");
                 console.log("about to do api call");
                 //api call here
                 try {
                   const result = await postUploadCall(selectedProject.id);
                   console.log({result});
+                  if(result.Error){ // if there is an error
+                    setGridErrorModal({
+                      show:true,
+                      title:"Fatal Error",
+                      message:"Error Occured When Processing Your Spreadsheet",
+                      devError: result.message
+                    })
+                  }
+                  else{
+                    // TODO: SAVE FILE NAME TO PROJECT
+                    
+                  }
+                  
                 } catch (error) {
                   setGridErrorModal({
                     show:true,
@@ -135,15 +148,16 @@ export const Dropzone = ({ toastRef }) => {
                     devError: error.message
                   })
                   console.log({ error });
+                  setDataGridState(false);
                 }
                 setDataGridState(false);
-                console.log("upload complete");
               } else {
                 console.log("upload incomplete");
               }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
           });
+
           console.log(`sent ${file.name} to S3`);
         };
         reader.readAsArrayBuffer(file);
@@ -156,32 +170,35 @@ export const Dropzone = ({ toastRef }) => {
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: "text/csv",
+    accept: ".csv",
     multiple: false,
   });
+
+  useEffect(() => {
+    console.log({fileSystem});
+  }, [fileSystem])
 
   // FIXME: DROPZONE NOT WORKING. FAILS WHEN FETCHING
 
   return (
-    // <div
-    //   className={`px-4 py-2 mr-3 ${
-    //     isDragActive ? "border border-white py-0 px-0 h-48" : ""
-    //   } rounded-lg`}
-    //   {...getRootProps()}
-    // >
-    //   <input {...getInputProps()} />
-    //   {isDragActive ? (
-    //     <div className="text-white cursor-pointer">
-    //       Drop the files here ...
-    //     </div>
-    //   ) : (
-    //     <div className="text-xs cursor-pointer">
-    //       <span className="text-white ">
-    //         Add files here...
-    //       </span>
-    //     </div>
-    //   )}
-    // </div>
-    <></>
+    <div
+      className={`px-4 py-2 mr-3 ${
+        isDragActive ? "border border-white py-0 px-0 h-48" : ""
+      } rounded-lg`}
+      {...getRootProps()}
+    >
+      <input {...getInputProps()} />
+      {isDragActive ? (
+        <div className="text-white cursor-pointer">
+          Drop the files here ...
+        </div>
+      ) : (
+        <div className="text-xs cursor-pointer">
+          <span className="text-white ">
+            Add files here...
+          </span>
+        </div>
+      )}
+    </div>
   );
 };
