@@ -90,7 +90,8 @@ export const Dropzone = ({ toastRef }) => {
           fileSize: size,
         },
       }));
-      setFileSystem(newData);
+      console.log({fileSystem},{newData});
+      setFileSystem([...fileSystem,newData]);
 
       acceptedFiles.forEach(async (file) => {
         const text = await file.text();
@@ -170,7 +171,7 @@ export const Dropzone = ({ toastRef }) => {
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: ".csv",
+    accept: [".csv"],
     multiple: false,
   });
 

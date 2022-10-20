@@ -67,28 +67,32 @@ export const useSocket = () => {
   //   Send Drawer position
   //   TODO: make our lives much easier by just setting fixed width header and sidebars
   useEffect(() => {
+    console.log("in set up in useSocket")
     // @ts-ignore
-    if (glyphViewer.sendDrawerPositionApp && window && window.core) {
-      // @ts-ignore
+    console.log({glyphViewer})
+    if (true ) {
+      console.log("in setting width")
+      try {
+         // @ts-ignore
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: {
-            // y: filterSidebarPosition.values.y,
-            y: 850, //pixel value of header height start was 64
-            // right: Math.round(glyphViewer.filterSidebarPosition.values.right), //left side of browser to right side of project sidebar
-            // height: glyphViewer.filterSidebarPosition.values.height, // height of grid view window
+            y: 843, 
             right: 335,
-            height: 10,
+            height: window.innerHeight,
           },
-          commentsSidebar: glyphViewer.commentsPosition
-            ? glyphViewer.commentsPosition?.values
-            : { ...glyphViewer.filterSidebarPosition?.values, left: window.innerWidth },
+          commentsSidebar: {
+            left: window.innerWidth
+          },
         })
       );
       setGlyphViewer({
         ...glyphViewer,
         sendDrawerPositionApp: false
       });
+      } catch (error) {
+        console.log("useSocket UseEffect:",{error});
+      }
     }
   }, []); //commentsPosition, filterSidebarPosition, sendDrawerPositionApp
 };

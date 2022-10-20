@@ -6,6 +6,8 @@
  */
 export const postUploadCall = async (ID) => {
 
+    console.log("ID IN POST UPLOAD CALL",{ID})
+
     const result = await fetch(
         "https://hs02lfxf71.execute-api.us-east-2.amazonaws.com/default/etl-process-new-file-GLUE_API",
         {

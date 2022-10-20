@@ -45,8 +45,8 @@ export const AddFiles = () => {
           fileSize: size,
         },
       }));
-      console.log({newData});
-      setFileSystem(newData);
+      console.log({fileSystem},{newData});
+      setFileSystem([...fileSystem,newData]);
 
       acceptedFiles.forEach(async (file) => {
         const text = await file.text();
@@ -127,9 +127,10 @@ export const AddFiles = () => {
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    //@ts-ignore
-    accept:".csv",
-    multiple: false
+    
+    // accept: [".csv"],
+    accept:[".csv", "application/vnd.ms-excel", "text/csv"],
+    multiple: false,
   });
 
   useEffect(() => {
@@ -173,7 +174,6 @@ export const AddFiles = () => {
               </div>
             ) : (
               <button
-                // onClick={()=>{console.log("click")}}
                 type="button"
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-yellow hover:bg-yellow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >

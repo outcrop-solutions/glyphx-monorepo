@@ -34,7 +34,26 @@ export const GridContainer = ({ isDropped }) => {
 
   function completedDrag(size){
     console.log({completedDrag: size});
+    console.log(window.innerWidth - 240);
+    console.log({windowHeight: window.innerHeight});
+    console.log({isShareOpen});
     setSize(size);
+    // doResize(size);
+    
+  }
+
+  function doResize(size){
+
+    var leftSide = window.innerWidth;
+
+    if(isShareOpen){
+      leftSide = leftSide - 350;
+    }
+
+    if(isInfoOpen){
+      leftSide = leftSide  - 300
+    }
+
     try {
       //@ts-ignore
       window?.core.ToggleDrawer(true);
@@ -43,36 +62,32 @@ export const GridContainer = ({ isDropped }) => {
       window?.core.ResizeEvent(
         JSON.stringify({
           filterSidebar: {
-            // y: filterSidebarPosition.values.y,
-            // y: ()=>{return orientation === "horizontal" ? size+150 : size+150}, //pixel value of header height start was 64
-            // right: Math.round(glyphxViewer.filterSidebarPosition?.values.right), //left side of browser to right side of project sidebar
-            // height: glyphxViewer.filterSidebarPosition?.values.height, // height of grid view window
             right: 335,
-            height: 1000,
+            height: window.innerWidth,
             y:size+150
           },
-          commentsSidebar: glyphxViewer.commentsPosition
-            ? glyphxViewer.commentsPosition?.values
-            : { ...glyphxViewer.filterSidebarPosition?.values, left: window.innerWidth },
+          commentsSidebar :{
+            left:leftSide
+          }
         })
       );
       }
       else{
+
+        console.log(size+90);
+        console.log({size})
+
          //@ts-ignore
       window?.core.ResizeEvent(
         JSON.stringify({
           filterSidebar: {
-            // y: filterSidebarPosition.values.y,
-            // y: ()=>{return orientation === "horizontal" ? size+150 : size+150}, //pixel value of header height start was 64
-            // right: Math.round(glyphxViewer.filterSidebarPosition?.values.right), //left side of browser to right side of project sidebar
-            // height: glyphxViewer.filterSidebarPosition?.values.height, // height of grid view window
-            right: size+90,
-            height: 1000,
+            right: size+90 < 500 ? 580 : size+90 ,
+            height: window.innerWidth,
             y:150
           },
-          commentsSidebar: glyphxViewer.commentsPosition
-            ? glyphxViewer.commentsPosition?.values
-            : { ...glyphxViewer.filterSidebarPosition?.values, left: window.innerWidth },
+          commentsSidebar:{
+            left:leftSide
+          }
         })
       );
       }
@@ -80,16 +95,17 @@ export const GridContainer = ({ isDropped }) => {
     } catch (error) {
       console.log({error})
     }
-    
   }
 
   //kicks in on orientation change
   useEffect(()=>{
+    console.log("RERUN USEFFECT");
     if (localSize || isInfoOpen || isShareOpen) {
-      completedDrag(localSize);
+      console.log("ABOUT TO ALL DO RESIZE")
+      doResize(localSize);
     }
     
-  },[orientation,isInfoOpen,isShareOpen])
+  },[orientation,isInfoOpen,isShareOpen,localSize])
 
   return (
     <>
@@ -102,7 +118,7 @@ export const GridContainer = ({ isDropped }) => {
                 split={orientation === "horizontal" ? "horizontal" : "vertical"}
                 allowResize={true} defaultSize={700}
                 maxSize={orientation === "horizontal" ? 700 : null}
-                minSize={orientation === "horizontal" ? null : 270}
+                minSize={orientation === "horizontal" ? null : 500}
                 onDragStarted={startDrag}
                 onDragFinished={completedDrag}
                 primary={"first"}>
