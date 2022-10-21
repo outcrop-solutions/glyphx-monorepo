@@ -84,6 +84,7 @@ div[role="row"] {
 
 div[role="gridcell"] {
   @apply bg-primary-dark-blue text-white;
+  /* @apply bg-[#354773] text-white; */
 }
 
 .c1wupbe700-beta13[aria-selected="true"]{

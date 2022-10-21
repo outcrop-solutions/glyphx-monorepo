@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Tree } from "@minoru/react-dnd-treeview";
 import { CustomNode } from "./CustomNode";
 import { CustomDragPreview } from "./CustomDragPreview";
@@ -12,6 +12,10 @@ export const Files = ({ toastRef }) => {
   const setFiles = useSetRecoilState(fileSystemAtom);
   const fileSystem = useRecoilValue(fileSystemAtom);
   const handleDrop = (newTree) => setFiles(newTree);
+  useEffect(() => {
+    console.log("rerunning files sidebar useeffect")
+  }, [fileSystem]);
+  
   return (
     <React.Fragment>
       <div className="group">

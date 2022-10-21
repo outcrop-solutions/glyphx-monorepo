@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { useDragOver } from "@minoru/react-dnd-treeview";
 import { TypeIcon } from "./TypeIcon";
 import styles from "./css/CustomNode.module.css";
@@ -18,6 +18,10 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
   };
 
   const dragOverProps = useDragOver(id, isOpen, onToggle);
+
+  useEffect(()=>{
+    // console.log({node});
+  },[])
 
   return (
     <div
@@ -68,7 +72,8 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
       </div>
       <div className={styles.labelGridItem}>
         <div className="text-white text-sm truncate">
-          {node.text[0] === "_" ? node.text.slice(1) : node.text}
+          {/* {node.text[0] === "_" ? node.text.slice(1) : node.text} */}
+          {node.text}
         </div>
       </div>
     </div>

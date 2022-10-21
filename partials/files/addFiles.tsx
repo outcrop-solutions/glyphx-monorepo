@@ -46,7 +46,7 @@ export const AddFiles = () => {
         },
       }));
       console.log({fileSystem},{newData});
-      setFileSystem([...fileSystem,newData]);
+      setFileSystem([...fileSystem,newData[0]]);
 
       acceptedFiles.forEach(async (file) => {
         const text = await file.text();
