@@ -93,31 +93,6 @@ export const Header = () => {
   
 
   }
-
-  // const handleEdit = () => {
-  //   setEdit((prev) => !prev);
-  //   setProjectName(selectedProject.name);
-  // };
-  // const handleChange = (e) => {
-  //   setProjectName(e.target.value);
-  // };
-  // const handleSaveProjectName = async () => {
-  //   const updateProjectInput = {
-  //     id: selectedProject.id,
-  //     name: selectedProjectName,
-  //     // version: selectedProject._version,
-  //   };
-
-  //   try {
-  //     const result = await API.graphql(
-  //       graphqlOperation(updateProject, { input: updateProjectInput })
-  //     );
-
-  //     // setProject(result.data.updateProject);
-  //   } catch (error) {
-  //     console.log({ error });
-  //   }
-  // };
   
   return (
     <div
@@ -164,8 +139,8 @@ export const Header = () => {
             onChange={handleEditProjectName}
           />
       }
-      <div className="px-4 sm:px-6 lg:px-0 lg:w-5/6">
-        <div className={`flex items-center ${selectedProject ? "justify-center":"justify-between"} h-16`}>
+      <div className="px-4 sm:px-6 lg:px-0 lg:w-full">
+        <div className={`flex items-center ${selectedProject ? "justify-end":"justify-between"} h-16`}>
           {/* Search form */}
           {!selectedProject && (
             <SearchModal />
@@ -175,7 +150,7 @@ export const Header = () => {
             {/* <Help align='right' /> */}
             {/*  Divider */}
             {/* {!selectedProject && <hr className="w-px h-6 bg-gray mx-3" />} */}
-            {selectedProject && sdtName && (
+            {selectedProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-yellow hover:bg-gray transition duration-150 rounded-full ml-3 ${showSearchModalOpen && "bg-gray"
                   }`}
@@ -274,7 +249,7 @@ export const Header = () => {
             {!selectedProject && (
               <GridToggle />
             )}
-            {selectedProject && sdtName && (
+            {selectedProject && (
               <button
                 className={`h-8 px-2 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-full ml-3`}
                 onClick={(e) => {
@@ -293,7 +268,7 @@ export const Header = () => {
             {/* Below is causing empty user bubble */}
             {/* {selectedProject && <Help />} */}
             {
-              selectedProject && sdtName && (
+              selectedProject && (
                 <DropdownNotifications align="right" />
               )
             }

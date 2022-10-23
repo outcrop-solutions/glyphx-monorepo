@@ -5,7 +5,7 @@ import { useFilterChange } from "services/useFilterChange";
 import { propertiesAtom } from "@/state/properties";
 import { useRecoilValue } from "recoil";
 
-export const Filters = ({ handleDrop, projectId }) => {
+export const Filters = ({ handleDrop }) => {
   const properties = useRecoilValue(propertiesAtom);
   useFilterChange();
 

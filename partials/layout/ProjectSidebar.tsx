@@ -51,7 +51,7 @@ export const ProjectSidebar = ({
       <div className="overflow-y-auto w-full scrollbar-none">
         <Files toastRef={toastRef} />
         <Axes handleDrop={handleDrop} />
-        <Filters projectId={projectId} handleDrop={handleDrop} />
+        <Filters handleDrop={handleDrop} />
         <States />
       </div>
     </div>
