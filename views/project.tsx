@@ -27,7 +27,7 @@ import { GridContainer } from "@/partials/datagrid/GridContainer";
 import { projectIdAtom } from "@/state/project";
 import { shareOpenAtom } from "@/state/share";
 import { showInfoAtom } from "@/state/info";
-import { dataGridLoadingAtom, GridModalErrorAtom,modelCreationLoadingAtion } from "../state";
+import { dataGridLoadingAtom, GridModalErrorAtom,modelCreationLoadingAtom } from "../state";
 
 export default function Project() {
   const [error, setError] = useState(false);
@@ -41,7 +41,7 @@ export default function Project() {
 
   const dataGridLoading = useRecoilValue(dataGridLoadingAtom);
   const gridModalError = useRecoilValue(GridModalErrorAtom);
-  const modelCreationLoading = useRecoilValue(modelCreationLoadingAtion);
+  const modelCreationLoading = useRecoilValue(modelCreationLoadingAtom);
   // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook

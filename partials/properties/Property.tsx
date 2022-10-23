@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { AxesIcons } from "../filters/AxesIcons";
 import { AxisInterpolationAtom,AxisDirectionAtom } from "@/state/properties";
-import { useSetRecoilState } from "recoil";
+import { modelCreationLoadingAtom } from "@/state/globals";
+import { useSetRecoilState,useRecoilValue } from "recoil";
 
 
 export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty }) => {
@@ -21,6 +22,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
 
   const setAxisInterpolation = useSetRecoilState(AxisInterpolationAtom); // recoil state for axis type 
   const setAxisDirection = useSetRecoilState(AxisDirectionAtom); // recoil state for axis direction 
+  const isCreatingModel = useRecoilValue(modelCreationLoadingAtom);
 
   /**
    * Assign value of axis type to the atom
@@ -65,16 +67,19 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
   }
 
   function change_LOG_LIN() {
-    if(lastDroppedItem !== null && lastDroppedItem.dataType !== "string"){ // if it is not a string then we can change default interpolation
+    if(lastDroppedItem !== null && lastDroppedItem.dataType !== "string" && !isCreatingModel){ // if it is not a string then we can change default interpolation
       assignInterpolation(!isLIN);
       setLIN(!isLIN);
     }
     
   }
 
-  function change_SWAP() {
-    assignDirection(!swap);
-    setSwap(!swap);
+  function change_Direction() {
+    if(!isCreatingModel){
+      assignDirection(!swap);
+      setSwap(!swap);
+    }
+    
   }
 
   // what to do when clear is pressed
@@ -131,7 +136,8 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
         </div>
       )}
       <div className="flex ml-3 space-x-1">
-        <div onClick={change_LOG_LIN} className="flex items-center justify-center bg-secondary-space-blue border-2 border-transparent hover:border-white p-0 rounded-full hover:cursor-pointer">
+        <div onClick={change_LOG_LIN} 
+        className={`flex items-center justify-center bg-secondary-space-blue border-2 border-transparent  p-0 rounded-full  ${isCreatingModel ? "opacity-30" : "opacity-100 hover:border-white hover:cursor-pointer"}`}>
 
           {
             isLIN ?
@@ -162,7 +168,8 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
 
 
         </div>
-        <div onClick={change_SWAP} className="flex items-center justify-center bg-secondary-space-blue border-2 border-transparent hover:border-white rounded-full p-1 hover:cursor-pointer">
+        <div onClick={change_Direction} 
+        className={`flex items-center justify-center bg-secondary-space-blue border-2 border-transparent  rounded-full p-1  ${isCreatingModel ? "opacity-30" : "opacity-100 hover:border-white hover:cursor-pointer"}`}>
           {/* border on same elements as heigh and witg */}
           {
             swap ?

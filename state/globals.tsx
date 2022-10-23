@@ -87,7 +87,7 @@ export const dataGridLoadingAtom = atom({
   default: false,
 });
 
-export const modelCreationLoadingAtion = atom({
+export const modelCreationLoadingAtom = atom({
   key: "modelCreationLoading",
   default: false,
 });
