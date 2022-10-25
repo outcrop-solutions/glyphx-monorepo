@@ -44,6 +44,8 @@ module.exports = {
       },
       fontFamily: {
         inter: ["Inter", "sans-serif"],
+        roboto: ["Roboto",...defaultTheme.fontFamily.sans],
+        rubik: ["Rubik",...defaultTheme.fontFamily.sans]
       },
       fontSize: {
         xs: ["0.75rem", { lineHeight: "1.5" }],

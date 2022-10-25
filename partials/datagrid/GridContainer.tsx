@@ -54,6 +54,8 @@ export const GridContainer = ({ isDropped }) => {
       leftSide = leftSide  - 300
     }
 
+    
+
     try {
       //@ts-ignore
       window?.core.ToggleDrawer(true);
@@ -63,7 +65,7 @@ export const GridContainer = ({ isDropped }) => {
         JSON.stringify({
           filterSidebar: {
             right: 335,
-            height: window.innerWidth,
+            height: size+150,
             y:size+150
           },
           commentsSidebar :{
@@ -71,6 +73,7 @@ export const GridContainer = ({ isDropped }) => {
           }
         })
       );
+      console.log("Horizontal:",{left:leftSide,right:335,height:window.innerWidth, y:size+150});
       }
       else{
 
@@ -90,6 +93,7 @@ export const GridContainer = ({ isDropped }) => {
           }
         })
       );
+      console.log("Vertical:",{left:leftSide,right:size+90 < 500 ? 580 : size+90,height:window.innerWidth, y:150});
       }
       
     } catch (error) {
