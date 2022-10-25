@@ -71,7 +71,7 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
         </svg>
       </div>
       <div className={styles.labelGridItem}>
-        <p className="text-light-gray text-[12px] leading-[14px] font-roboto font-normal truncate pl-2">
+        <p className="text-light-gray text-[12px] leading-[14px] font-roboto font-normal truncate pl-1">
           {/* {node.text[0] === "_" ? node.text.slice(1) : node.text} */}
           {node.text}
         </p>
