@@ -54,7 +54,7 @@ export const Properties = ({ handleDrop }) => {
               </svg>
             </span>
             <a>
-              <span className="text-sm ml-3 text-white"> Axes </span>
+              <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray"> Axes </span>
             </a>
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}

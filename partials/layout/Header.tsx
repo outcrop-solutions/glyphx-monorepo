@@ -102,7 +102,7 @@ export const Header = () => {
       {selectedProject && (
         <button
           onClick={backPresssed}
-          className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 hover:border-white"
+          className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
         >
           <svg
             width="8"
@@ -116,7 +116,7 @@ export const Header = () => {
               fill="#CECECE"
             />
           </svg>
-          <span className="text-white font-medium text-sm ml-2">Back</span>
+          <span className="text-light-gray font-roboto font-medium text-[14px] leading-[16px] text-center ml-2">Back</span>
         </button>
       )}
       {/* if there is a selected project, name should be the project name */}
@@ -134,7 +134,7 @@ export const Header = () => {
         ) :
           <input
             // group
-            className="pl-2 text-white font-extralight text-2xl flex items-center outline-none border-2 border-transparent rounded-lg pr-2 ml-6 bg-transparent hover:border-yellow"
+            className="p-2 text-white font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] flex text-left outline-none border-2 border-transparent rounded-lg pr-2 ml-6 bg-transparent hover:border-yellow"
             defaultValue={selectedProject ? selectedProject.name : "My Projects"}
             onChange={handleEditProjectName}
           />
@@ -174,7 +174,7 @@ export const Header = () => {
                   />
                 </svg>
 
-                <b className="text-black text-xs">Share</b>
+                <b className="text-secondary-midnight font-roboto font-medium font-[14px] leading-[16px] pl-1">Share</b>
               </button>
             )}
             {selectedProject && sdtName && (

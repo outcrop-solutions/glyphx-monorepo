@@ -25,7 +25,7 @@ export const Filters = ({ handleDrop }) => {
               </svg>
             </span>
             <a>
-              <span className="text-sm ml-3 text-white"> Filters </span>
+              <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray"> Filters </span>
             </a>
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}

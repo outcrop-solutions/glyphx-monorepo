@@ -32,7 +32,7 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
           openFile(node.text);
         }
       }}
-      className={`tree-node ${selectedFile === node.text ? "bg-gray" : ""} ${
+      className={`hover:bg-secondary-midnight tree-node ${selectedFile === node.text ? "" : ""} ${
         styles.root
       }`}
       style={{ paddingInlineStart: indent }}
@@ -71,10 +71,10 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
         </svg>
       </div>
       <div className={styles.labelGridItem}>
-        <div className="text-white text-sm truncate">
+        <p className="text-light-gray text-[12px] leading-[14px] font-roboto font-normal truncate pl-2">
           {/* {node.text[0] === "_" ? node.text.slice(1) : node.text} */}
           {node.text}
-        </div>
+        </p>
       </div>
     </div>
   );
