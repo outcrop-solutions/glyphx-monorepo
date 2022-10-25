@@ -129,7 +129,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
           className={`flex min-w-[8rem] text-white uppercase justify-center h-4 ml-4 bg-gray group-props-hover:text-black transition duration-150 truncate cursor-pointer rounded-2xl`}
         >
-          <span className="truncate text-xs font-medium mx-6 lg:opacity-100 2xl:opacity-100 duration-200">
+          <span className="truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium mx-6 lg:opacity-100 2xl:opacity-100 duration-200">
             {/* trancate or wrap */}
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
           </span>
