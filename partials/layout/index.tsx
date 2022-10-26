@@ -4,3 +4,4 @@ export * from "./ProjectSidebar";
 export * from "./ExpandCollapse";
 export * from "./Notifications";
 export * from "./GridErrorModal";
+export * from "./ProjectHeader";

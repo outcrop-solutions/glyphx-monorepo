@@ -33,6 +33,7 @@ module.exports = {
         "light-gray": "#CECECE",
         "primary-dark-blue": "#1F273A",
         "secondary-dark-blue": "#192033",
+        "secondary-deep-blue": "#192033",
         "secondary-space-blue": "#151C2D",
         "secondary-midnight": "#0D1321",
         current: "currentColor",

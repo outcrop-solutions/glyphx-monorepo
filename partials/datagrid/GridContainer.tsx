@@ -104,7 +104,7 @@ export const GridContainer = ({ isDropped }) => {
   //kicks in on orientation change
   useEffect(()=>{
     console.log("RERUN USEFFECT");
-    if (localSize || isInfoOpen || isShareOpen) {
+    if ((localSize || isInfoOpen || isShareOpen) && stdName !== null) {
       console.log("ABOUT TO ALL DO RESIZE")
       doResize(localSize);
     }
@@ -138,7 +138,7 @@ export const GridContainer = ({ isDropped }) => {
               (
                 
                 
-                <div className={`flex flex-col h-full w-screen pr-80 `}>
+                <div className={`flex flex-col h-full w-full `}>
                 <GridHeader />
                 <Datagrid isDropped={isDropped} />
               </div>

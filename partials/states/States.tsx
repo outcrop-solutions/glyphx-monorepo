@@ -66,7 +66,7 @@ export const States = () => {
               <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray"> States </span>
             </a>
           </div>
-          <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-1 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white" onClick={addState} />
+          <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white" onClick={addState} />
         </summary>
         {states && states.length > 0 && <StateList />}
       </div>

@@ -96,7 +96,7 @@ export const Header = () => {
   
   return (
     <div
-      className={`sticky top-0 z-30 flex justify-between items-center bg-secondary-space-blue border-l border-gray max-h-16 w-full ${!selectedProject ? "px-4" : "px-6"
+      className={`sticky flex justify-between items-center bg-secondary-space-blue border-l border-b border-gray h-[42px] w-full pt-2 pb-2 ${!selectedProject ? "px-4" : "px-6"
         }`}
     >
       {selectedProject && (

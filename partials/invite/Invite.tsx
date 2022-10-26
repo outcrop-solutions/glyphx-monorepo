@@ -51,7 +51,7 @@ export const ShareModule = ({ setShare }) => {
 
   return (
     <div className=
-    "flex flex-col w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"
+    "flex flex-col w-[250px] bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"
     >
     {/* <div className="flex flex-col w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"> */}
       <div className="pt-5 pl-3 pr-3">
@@ -132,7 +132,7 @@ export const ShareModule = ({ setShare }) => {
         </div>
       </div>
 
-      <div className="absolute bottom-20 mt-5 w-full pl-3 pr-3">
+      {/* <div className="absolute bottom-20 mt-5 w-full pl-3 pr-3">
         <hr className="text-gray mb-2" />
         <div className="flex flex-row justify-between mb-3 mt-2">
           <div onClick={copyLinkToClipBoard} className="rounded-2xl border border-transparent p-2 hover:border-white hover:cursor-pointer">
@@ -169,7 +169,7 @@ export const ShareModule = ({ setShare }) => {
           )
         }
       </div>
-      </div>
+      </div> */}
     </div>
   );
 };

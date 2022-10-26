@@ -1,12 +1,16 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import DataGrid from "lib/react-data-grid/lib/bundle";
 import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
-import { useRecoilState } from "recoil";
+import { useRecoilState,useRecoilValue } from "recoil";
 import { columnsSelector, rowsSelector } from "@/state/files";
+import { shareOpenAtom } from "@/state/share";
+import { showInfoAtom } from "@/state/info";
 
 export const Datagrid = ({ isDropped }) => {
   const [rows, setRows] = useRecoilState(rowsSelector);
   const [columns, setColumns] = useRecoilState(columnsSelector);
+  const isShareModelOpen = useRecoilValue(shareOpenAtom);
+  const isShowInfoOpen = useRecoilValue(showInfoAtom);
 
   const [sortColumns, setSortColumns] = useState([]);
   const onSortColumnsChange = useCallback((sortColumns) => {
@@ -72,6 +76,11 @@ export const Datagrid = ({ isDropped }) => {
     return direction === "DESC" ? sortedRows.reverse() : sortedRows;
   }, [rows, sortColumns]);
 
+  useEffect(() => {
+    console.log({windowWidth:window.innerWidth})
+  }, [])
+  
+
   return (
     // @ts-ignore - missing attributes
     <DataGrid
@@ -81,6 +90,20 @@ export const Datagrid = ({ isDropped }) => {
       rows={sortedRows}
       sortColumns={sortColumns}
       onSortColumnsChange={onSortColumnsChange}
+      className={
+        isShareModelOpen || isShowInfoOpen ?
+        // `w-[1010px]` 
+        // "w-[63.12%]" 
+        // `w-[${window.innerWidth*63.12}%]`
+        // `w-[1330px]`
+        `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
+        :
+        // `w-[${window.innerWidth-40-192-100}px]`
+        // "w-[1268px]"
+        // "w-[79.25%]"
+        `${window.innerWidth > 1600 ? "w-[82.25%]" :"w-[79.25%]"}`
+      }
     />
+    // 1268
   );
 };

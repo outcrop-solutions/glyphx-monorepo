@@ -133,7 +133,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
           <div
             // @ts-ignore
             formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-            className="h-4 min-w-[10rem] text-center text-white uppercase px-4 my-auto ml-4 bg-gray hover:text-black transition duration-150 truncate cursor-pointer rounded-2xl text-xs font-medium lg:opacity-100 2xl:opacity-100"
+            className="h-4 min-w-[10rem] text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium  uppercase px-4 my-auto ml-4 bg-gray hover:text-black transition duration-150 truncate cursor-pointer rounded-2xl lg:opacity-100 2xl:opacity-100"
           >
             {/* <span className="text-xs font-medium lg:opacity-100 2xl:opacity-100 duration-200"> */}
             {lastDroppedItem ? `${lastDroppedItem.key}` : `Column ${idx + 1}`}
