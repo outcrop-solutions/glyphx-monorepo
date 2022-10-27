@@ -9,3 +9,4 @@ export * from "./states";
 export * from "./user";
 export * from "./searchModal";
 export * from "./info";
+export * from "./notification";

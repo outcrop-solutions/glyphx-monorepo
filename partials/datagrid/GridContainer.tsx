@@ -115,9 +115,10 @@ export const GridContainer = ({ isDropped }) => {
     <>
       {rows?.length > 0 ? (
         <>
-        {/* FIXME: FIGURE OUT WHY WHEN FALSE THE TOP HEADER IS NOT VISIBLE */}
+        {/* FIXME: FIGURE OUT FIX FOR GRID */}
           {
             stdName !== null ?
+            <div className="">
               <SplitPane
                 split={orientation === "horizontal" ? "horizontal" : "vertical"}
                 allowResize={true} defaultSize={700}
@@ -126,14 +127,18 @@ export const GridContainer = ({ isDropped }) => {
                 onDragStarted={startDrag}
                 onDragFinished={completedDrag}
                 primary={"first"}>
-                <div className={`flex flex-col grow ${orientation === "horizontal" ? 'max-h-full mr-[15.5rem]' : 'h-full ml-64'} overflow-scroll`}>
+                {/* <div className={`flex flex-col grow ${orientation === "horizontal" ? 'max-h-full mr-[15.5rem]' : 'h-full ml-64'} overflow-scroll`}> */}
+                <div className={`flex flex-col `}>
                   <GridHeader />
                   <Datagrid isDropped={isDropped} />
                 </div>
-                <div className={`flex flex-col grow ${orientation === "horizontal" ? 'max-h-full' : 'h-full'}`}>
+                {/* <div className={`flex flex-col grow ${orientation === "horizontal" ? 'max-h-full' : 'h-full'}`}> */}
+                <div className={`flex flex-col`}>
                   <ModelFooter />
                 </div>
               </SplitPane>
+            </div>
+              
               :
               (
                 

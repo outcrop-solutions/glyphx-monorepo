@@ -52,7 +52,7 @@
 }
 
 div div[role="columnheader"] {
-  @apply border-l border-b border-gray bg-secondary-dark-blue;
+  @apply  bg-secondary-dark-blue;
 }
 
 div[role="grid"] {
@@ -64,6 +64,10 @@ div[role="grid"] {
 
 div[role="grid"]::-webkit-scrollbar-thumb {
   background: rgb(253, 229, 8);
+}
+
+div[class="SplitPane  horizontal "]{
+  @apply top-[50px] w-[1240px] !important 
 }
 
 ::-webkit-scrollbar-track {

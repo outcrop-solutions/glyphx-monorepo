@@ -16,6 +16,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { ShareModule } from "partials";
 import { Info } from "partials/info";
+import { Notification } from "@/partials/Notification";
 import { GridLoadingAnimation, LoadingModelAnimation } from "@/partials/loaders";
 
 // Hooks
@@ -27,6 +28,7 @@ import { GridContainer } from "@/partials/datagrid/GridContainer";
 import { projectIdAtom } from "@/state/project";
 import { shareOpenAtom } from "@/state/share";
 import { showInfoAtom } from "@/state/info";
+import { showNotificationAtom } from "@/state/notification";
 import { dataGridLoadingAtom, GridModalErrorAtom,modelCreationLoadingAtom } from "../state";
 
 export default function Project() {
@@ -56,6 +58,7 @@ export default function Project() {
   // Check if share model has been turned on
   const [showShareModel, setShareModel] = useRecoilState(shareOpenAtom);
   const [showInfo, setShowInfo] = useRecoilState(showInfoAtom);
+  const [showNotification, setNotification] = useRecoilState(showNotificationAtom);
 
   return(
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
@@ -105,6 +108,8 @@ export default function Project() {
         <div id="right-side-bars" className="">
             {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
             {showInfo ? <Info setInfo={setShowInfo} /> : <></>}
+            {/* TODO: FIGURE OUT WHY NOTIFICATION SIDE PANEL DOES NOT SHOW LIKE THE OTHERS */}
+            {showNotification ? <Notification setNotif={setNotification}/> : <></>}
           </div>
       </div>
       </div>

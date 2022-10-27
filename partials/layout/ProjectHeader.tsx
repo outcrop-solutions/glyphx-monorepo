@@ -14,6 +14,7 @@ import {
     showAddProjectAtom,
     showSearchModalAtom,
     showInfoAtom,
+    showNotificationAtom,
     payloadSelector,
     propertiesAtom,
     sdtValue,
@@ -26,8 +27,9 @@ export const ProjectHeader = () => {
     // console.log({selectedProject})
     const setShowAddProject = useSetRecoilState(showAddProjectAtom);
     const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-    const setShare = useSetRecoilState(shareOpenAtom);
-    const setShowInfo = useSetRecoilState(showInfoAtom);
+    const [isShareOpen,setShare] = useRecoilState(shareOpenAtom);
+    const [isInfoOpen,setShowInfo] = useRecoilState(showInfoAtom);
+    const [isNotificationOpen,setNotification] = useRecoilState(showNotificationAtom);
     const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
     const payload = useRecoilValue(payloadSelector);
     const setProperties = useSetRecoilState(propertiesAtom);
@@ -98,7 +100,7 @@ export const ProjectHeader = () => {
 
     return (
         <div
-            className={`sticky flex items-center bg-secondary-space-blue border-l border-b border-gray h-[50px] w-full pl-[16px] ${rows?.length > 0 ? "pr-[100px]" : "pr-[16px]"}`}
+            className={`sticky flex items-center bg-secondary-space-blue border-l border-b border-gray h-[50px] w-full pl-[16px] ${rows?.length > 0 && (!isShareOpen && !isInfoOpen && !isNotificationOpen)  ? "pr-[96px]" : "pr-[16px]"}`}
         >
 
             <button
@@ -144,6 +146,7 @@ export const ProjectHeader = () => {
                                 // setShowAddProject(selectedProject ? true : false);
                                 setShowInfo(false);
                                 setShare(true);
+                                setNotification(false);
                             }}
                             aria-controls="share-modal"
                         >
@@ -206,6 +209,7 @@ export const ProjectHeader = () => {
                                 // setShowAddProject(selectedProject ? true : false);
                                 setShare(false);
                                 setShowInfo(true);
+                                setNotification(false);
                             }}
                             aria-controls="info-modal"
                         >
@@ -218,7 +222,23 @@ export const ProjectHeader = () => {
                         {/* Below is causing empty user bubble */}
                         {/* {selectedProject && <Help />} */}
 
-                        <DropdownNotifications align="right" />
+                        <button
+                            className={`h-8 p-1 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-full ml-0`}
+                            onClick={(e) => {
+                                // setShowAddProject(selectedProject ? true : false);
+                                setShare(false);
+                                setShowInfo(false);
+                                setNotification(true);
+                            }}
+                            aria-controls="notifications-modal"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M17.7658 16.1354L16.7455 15.0769V10.9744C16.7455 8.45538 15.4485 6.34667 13.1865 5.78872V5.23077C13.1865 4.54974 12.6566 4 12.0001 4C11.3437 4 10.8138 4.54974 10.8138 5.23077V5.78872C8.54391 6.34667 7.25474 8.44718 7.25474 10.9744V15.0769L6.23448 16.1354C5.73622 16.6523 6.08421 17.5385 6.78811 17.5385H17.2042C17.9161 17.5385 18.2641 16.6523 17.7658 16.1354ZM15.1637 15.8974H8.83654V10.9744C8.83654 8.93949 10.0308 7.28205 12.0001 7.28205C13.9695 7.28205 15.1637 8.93949 15.1637 10.9744V15.8974ZM12.0001 20C12.8701 20 13.5819 19.2615 13.5819 18.359H10.4183C10.4183 19.2615 11.1222 20 12.0001 20Z" fill="white"/>
+</svg>
+
+                        </button>
+
+                        {/* <DropdownNotifications align="right" /> */}
 
 
 
