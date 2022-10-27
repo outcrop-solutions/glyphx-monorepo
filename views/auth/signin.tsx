@@ -24,7 +24,7 @@ export default function Signin() {
   const signIn = async () => {
     try {
       const user = await Auth.signIn(username, password);
-      // setUser(user);
+      setUser(user);
       console.log({ user });
       router.push("/");
       // setUser(user);
