@@ -101,6 +101,8 @@ export const GridContainer = ({ isDropped }) => {
     }
   }
 
+  // LOOK AT IMMUTABLE UPDATE
+
   //kicks in on orientation change
   useEffect(()=>{
     console.log("RERUN USEFFECT");

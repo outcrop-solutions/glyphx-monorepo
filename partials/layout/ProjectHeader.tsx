@@ -100,7 +100,7 @@ export const ProjectHeader = () => {
 
     return (
         <div
-            className={`sticky flex items-center bg-secondary-space-blue border-l border-b border-gray h-[50px] w-full pl-[16px] ${rows?.length > 0 && (!isShareOpen && !isInfoOpen && !isNotificationOpen)  ? "pr-[96px]" : "pr-[16px]"}`}
+            className={`sticky flex items-center bg-secondary-space-blue border-l border-b border-gray h-[50px] w-full pl-[16px] ${rows?.length > 0 && (!isShareOpen && !isInfoOpen && !isNotificationOpen)  ? "pr-[16px]" : "pr-[16px]"}`}
         >
 
             <button

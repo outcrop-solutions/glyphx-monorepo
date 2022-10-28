@@ -105,7 +105,7 @@ export default function Project() {
         </div>
         </DndProvider>
         {/* Right Sidebar */}
-        <div id="right-side-bars" className="">
+        <div id="right-side-bars" className="z-50">
             {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
             {showInfo ? <Info setInfo={setShowInfo} /> : <></>}
             {/* TODO: FIGURE OUT WHY NOTIFICATION SIDE PANEL DOES NOT SHOW LIKE THE OTHERS */}
