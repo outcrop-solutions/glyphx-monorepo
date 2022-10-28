@@ -40,9 +40,10 @@ export default function Signup() {
     }
   };
   return (
-    <div className="relative md:flex h-screen w-screen scrollbar-none bg-secondary-midnight pt-5">
+    // TODO: @Johnathan I fixed the width and centering of the form here as well as the sign in form
+    <div className="flex h-full w-full items-center justify-center scrollbar-none bg-secondary-midnight pt-5">
       {/* Content */}
-      <div className="w-full">
+      {/* <div className="w-full"> */}
         <div className="max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
           <div className="w-80 rounded-md p-8 bg-secondary-space-blue border-gray border-2">
             <h1 className="text-xl text-white font-bold mb-6">
@@ -127,7 +128,7 @@ export default function Signup() {
             {/* Footer */}
           </div>
         </div>
-      </div>
+      {/* </div> */}
     </div>
   );
 }
