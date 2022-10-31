@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities; 
 
+/* TRY MAKING A GLOBAL CSS VARIABLE THAT WILL HOLD SIZE OF COL then change in javascript */
+:root {
+  --col: 0; /* HOLDS COUNT OF COLS*/
+}
+
+
 .h1 {
   @apply text-4xl font-extrabold tracking-tighter;
 }
@@ -52,11 +58,12 @@
 }
 
 div div[role="columnheader"] {
-  @apply  bg-secondary-dark-blue;
+  @apply  bg-secondary-dark-blue first:bg-secondary-dark-blue;
 }
 
 div[role="grid"] {
-  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full grid grid-cols-[40px_repeat(var(--col),minmax(80px,300px))] !important;
+  /*  */
 }
 ::-webkit-scrollbar {
   width: 10px;
@@ -66,6 +73,7 @@ div[role="grid"]::-webkit-scrollbar-thumb {
   background: rgb(253, 229, 8);
 }
 
+/* FOR TESTIG PURPOSES */
 div[class="SplitPane  horizontal "]{
   @apply top-[50px] w-[1240px] !important 
 }
@@ -87,9 +95,10 @@ div[role="row"] {
 }
 
 div[role="gridcell"] {
-  @apply bg-primary-dark-blue text-white font-roboto text-right text-[10px] font-normal leading-[12px] pt-1 pr-1;
+  @apply bg-primary-dark-blue first:bg-secondary-deep-blue text-white font-roboto text-right text-[10px] font-normal leading-[12px] pt-1 pr-1;
   /* @apply bg-[#354773] text-white; */
 }
+
 
 /* .c1wupbe700-beta13[aria-colindex = '1'] {
   @apply w-[16px]

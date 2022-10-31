@@ -14,6 +14,7 @@ export const Datagrid = ({ isDropped }) => {
   const isShowInfoOpen = useRecoilValue(showInfoAtom);
   const isShowNotificationOpen = useRecoilValue(showNotificationAtom);
 
+
   const [sortColumns, setSortColumns] = useState([]);
   const onSortColumnsChange = useCallback((sortColumns) => {
     setSortColumns(sortColumns.slice(-1));
@@ -108,6 +109,7 @@ export const Datagrid = ({ isDropped }) => {
         `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
         
       }
+      
     />
     // 1268
   );

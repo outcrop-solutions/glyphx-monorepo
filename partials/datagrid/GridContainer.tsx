@@ -1,4 +1,4 @@
-import { rowsSelector } from "@/state/files";
+import { rowsSelector,columnsSelector } from "@/state/files";
 import React,{useEffect,useState} from "react";
 import { useRecoilValue } from "recoil";
 import { AddFiles } from "../files";
@@ -16,6 +16,8 @@ import {
 
 export const GridContainer = ({ isDropped }) => {
   const rows = useRecoilValue(rowsSelector);
+  const cols = useRecoilValue(columnsSelector);
+  var r = document.querySelector(':root');
   const orientation = useRecoilValue(orientationAtom);
   const stdName = useRecoilValue(sdtValue);
   const glyphxViewer = useRecoilValue(glyphViewerDetails);
@@ -105,13 +107,18 @@ export const GridContainer = ({ isDropped }) => {
 
   //kicks in on orientation change
   useEffect(()=>{
+    console.log({ColumnLength: cols?.length});
+    if(cols?.length > 0){
+      //@ts-ignore
+      r.style.setProperty('--col', cols.length); //set the column length to column length of csv for globals.css
+    }
     console.log("RERUN USEFFECT");
     if ((localSize || isInfoOpen || isShareOpen) && stdName !== null) {
       console.log("ABOUT TO ALL DO RESIZE")
       doResize(localSize);
     }
     
-  },[orientation,isInfoOpen,isShareOpen,localSize])
+  },[orientation,isInfoOpen,isShareOpen,localSize,cols])
 
   return (
     <>
