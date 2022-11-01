@@ -100,7 +100,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
   return (
     <li
       ref={drop}
-      className="py-2 pl-2 group-props last:mb-0 flex items-center hover:bg-secondary-midnight"
+      className="py-0 pl-2 group-props last:mb-0 flex items-center hover:bg-secondary-midnight"
       onMouseOver={showClear}
       onMouseOut={hideClear}
     >

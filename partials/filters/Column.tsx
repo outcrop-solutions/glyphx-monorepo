@@ -81,7 +81,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
     <>
       <li
         ref={drop}
-        className={`py-2 group-filters hover:bg-gray hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${isFilter ? "border-b border-gray" : ""
+        className={`py-0 group-filters hover:bg-gray hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${isFilter ? "border-b border-gray" : ""
           }`}
         onMouseOver={showHide}
         onMouseOut={hideHide}

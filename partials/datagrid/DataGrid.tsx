@@ -13,6 +13,8 @@ export const Datagrid = ({ isDropped }) => {
   const isShareModelOpen = useRecoilValue(shareOpenAtom);
   const isShowInfoOpen = useRecoilValue(showInfoAtom);
   const isShowNotificationOpen = useRecoilValue(showNotificationAtom);
+  var r = document.querySelector(':root');
+  const [width, setWidth] = useState(0);
 
 
   const [sortColumns, setSortColumns] = useState([]);
@@ -80,8 +82,19 @@ export const Datagrid = ({ isDropped }) => {
   }, [rows, sortColumns]);
 
   useEffect(() => {
-    console.log({windowWidth:window.innerWidth})
-  }, [])
+    console.log({windowWidth:window.innerWidth});
+    console.log({calcWidth: Math.round(window.innerWidth-40-192-100)});
+    if(isShareModelOpen || isShowInfoOpen || isShowNotificationOpen){
+      //@ts-ignore
+      r.style.setProperty('--width', `${Math.round(window.innerWidth-40-192-350)}px`);
+      console.log("in here")
+    }
+    else{
+      //@ts-ignore
+      r.style.setProperty('--width', `${Math.round(window.innerWidth-40-300)}px`);
+      console.log("out here")
+    }
+  }, [isShareModelOpen,isShowInfoOpen,isShowNotificationOpen])
   
 
   return (
@@ -93,22 +106,23 @@ export const Datagrid = ({ isDropped }) => {
       rows={sortedRows}
       sortColumns={sortColumns}
       onSortColumnsChange={onSortColumnsChange}
-      className={
-        // FIXME: FIGURE OUT HOW TO FIX PADDING RIGHT CONDITIONAL RENDER
-        isShareModelOpen || isShowInfoOpen || isShowNotificationOpen ?
-        // `w-[1010px]` 
-        // "w-[63.12%]" 
-        // `w-[${window.innerWidth*63.12}%]`
-        // `w-[1330px]`
-        `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
-        :
-        // `w-[${window.innerWidth-40-192-100}px]`
-        // "w-[1268px]"
-        // "w-[79.25%]"
-        // `${window.innerWidth > 1600 ? "w-[82.25%]" :"w-[79.25%]"}`
-        `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
+      // className={
+      //   // FIXME: FIGURE OUT HOW TO FIX PADDING RIGHT CONDITIONAL RENDER
+      //   isShareModelOpen || isShowInfoOpen || isShowNotificationOpen ?
+      //   `w-[${width}px]` 
+      //   // "w-[63.12%]" 
+      //   // `w-[${window.innerWidth*63.12}%]`
+      //   // `w-[1330px]`
+      //   // `w-[${width}px]`
+      //   // `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
+      //   :
+      //   // `w-[${window.innerWidth-40-192-100}px]`
+      //   // "w-[1268px]"
+      //   // "w-[79.25%]"
+      //   // `${window.innerWidth > 1600 ? "w-[82.25%]" :"w-[79.25%]"}`
+      //   `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
         
-      }
+      // }
       
     />
     // 1268

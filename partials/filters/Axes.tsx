@@ -74,7 +74,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
   return (
     <>
       <li
-        className={`py-2 group-filters hover:bg-secondary-midnight hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${isFilter ? "border-b border-gray" : ""
+        className={`py-0 group-filters hover:bg-secondary-midnight hover:bg-opacity-70 pl-2 last:mb-0 flex items-center ${isFilter ? "border-b border-gray" : ""
           }`}
         onMouseOver={showHide}
         onMouseOut={hideHide}

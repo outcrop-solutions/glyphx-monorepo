@@ -5,6 +5,7 @@
 /* TRY MAKING A GLOBAL CSS VARIABLE THAT WILL HOLD SIZE OF COL then change in javascript */
 :root {
   --col: 0; /* HOLDS COUNT OF COLS*/
+  --width:857px; /* HOLDS WIDTH OF GRID*/
 }
 
 
@@ -62,8 +63,9 @@ div div[role="columnheader"] {
 }
 
 div[role="grid"] {
-  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full grid grid-cols-[40px_repeat(var(--col),minmax(80px,300px))] !important;
-  /*  */
+  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+  @apply grid grid-cols-[40px_repeat(var(--col),minmax(80px,100px))] !important;
+  @apply w-[var(--width)] !important;
 }
 ::-webkit-scrollbar {
   width: 10px;
@@ -99,6 +101,9 @@ div[role="gridcell"] {
   /* @apply bg-[#354773] text-white; */
 }
 
+.rdg-cell.c1wupbe700-beta13[aria-colindex="1"]{
+  @apply min-w-[40px] !important
+}
 
 /* .c1wupbe700-beta13[aria-colindex = '1'] {
   @apply w-[16px]
@@ -118,16 +123,16 @@ div[aria-colindex="1"] {
 }
 
 div[formattype="string"] {
-  @apply bg-sky-300 text-black rounded-2xl text-center w-32;
+  @apply bg-blue text-white rounded-2xl text-center w-32;
 }
 div[formattype="number"] {
-  @apply bg-green-400 text-black rounded-2xl text-center w-32;
+  @apply bg-cyan text-white rounded-2xl text-center w-32;
 }
 div[datatype="string"] {
-  @apply bg-sky-300 text-black rounded-2xl text-center;
+  @apply bg-blue text-white rounded-2xl text-center;
 }
 div[datatype="number"] {
-  @apply bg-green-400 text-black rounded-2xl text-center;
+  @apply bg-cyan text-white rounded-2xl text-center;
 }
 
 .Resizer {

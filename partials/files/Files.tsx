@@ -4,7 +4,7 @@ import { Tree } from "@minoru/react-dnd-treeview";
 import { CustomNode } from "./CustomNode";
 import { CustomDragPreview } from "./CustomDragPreview";
 import styles from "./css/Sidebar.module.css";
-import { formatGridData } from "partials";
+import { Dropzone, formatGridData } from "partials";
 import { Storage } from "aws-amplify";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/router";
@@ -205,7 +205,7 @@ export const Files = ({ toastRef }) => {
                 />
               ) : null
             }
-            {/* <Dropzone toastRef={toastRef} /> */}
+            <Dropzone toastRef={toastRef} />
           </div>
         </div>
       </div>

@@ -56,7 +56,7 @@ export const ShareModule = ({ setShare }) => {
     {/* <div className="flex flex-col w-67 bg-secondary-space-blue h-full border border-l-gray border-l-1  border-t-gray border-t-1"> */}
       <div className="pt-5 pl-3 pr-3">
         <div className="flex flex-row justify-between mb-2">
-          <p className="text-light-gray text-lg">
+          <p className="text-light-gray font-roboto font-medium text-[14px] leading-[16.41px]">
             <span className="inline-block">
               <svg
                 className="mr-2"
@@ -92,7 +92,7 @@ export const ShareModule = ({ setShare }) => {
           </svg>
         </div>
         <div className="flex flex-row justify-between mb-2">
-          <p className="text-xs text-light-gray">
+          <p className="text-gray font-roboto font-normal text-[10px] leading-[11.72px]">
             <span className="inline-block">
               <svg
                 className="mr-2"

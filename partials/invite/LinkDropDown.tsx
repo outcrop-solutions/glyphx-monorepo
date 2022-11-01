@@ -58,7 +58,7 @@ export function LinkDropDown({ align }) {
           />
         </svg>
 
-        <span className="mx-2 text-white text-sm">Anyone with the link</span>
+        <span className="mx-1 text-light-gray font-roboto font-medium text-[10px] leading-[11.72px]">Anyone with the link</span>
         <svg
           width="16"
           height="16"
