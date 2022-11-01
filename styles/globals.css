@@ -5,7 +5,8 @@
 /* TRY MAKING A GLOBAL CSS VARIABLE THAT WILL HOLD SIZE OF COL then change in javascript */
 :root {
   --col: 0; /* HOLDS COUNT OF COLS*/
-  --width:857px; /* HOLDS WIDTH OF GRID*/
+  --width:0px; /* HOLDS WIDTH OF GRID*/
+  --screen:0px;
 }
 
 
@@ -77,7 +78,7 @@ div[role="grid"]::-webkit-scrollbar-thumb {
 
 /* FOR TESTIG PURPOSES */
 div[class="SplitPane  horizontal "]{
-  @apply top-[50px] w-[1240px] !important 
+  @apply  w-[var(--width)] z-0 relative !important 
 }
 
 ::-webkit-scrollbar-track {

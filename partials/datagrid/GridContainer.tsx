@@ -11,7 +11,8 @@ import {
   glyphViewerDetails,
   sdtValue,
   showInfoAtom,
-  shareOpenAtom
+  shareOpenAtom,
+  showNotificationAtom
 } from "state";
 
 export const GridContainer = ({ isDropped }) => {
@@ -23,6 +24,7 @@ export const GridContainer = ({ isDropped }) => {
   const glyphxViewer = useRecoilValue(glyphViewerDetails);
   const isInfoOpen = useRecoilValue(showInfoAtom);
   const isShareOpen = useRecoilValue(shareOpenAtom);
+  const isNotificationOpen = useRecoilValue(showNotificationAtom);
   const [localSize,setSize] = useState(null); //set a local size state
 
   function startDrag(){
@@ -108,6 +110,8 @@ export const GridContainer = ({ isDropped }) => {
   //kicks in on orientation change
   useEffect(()=>{
     console.log({ColumnLength: cols?.length});
+    //@ts-ignore
+    r.style.setProperty('--screen', `${window.innerHeight}px`);
     if(cols?.length > 0){
       //@ts-ignore
       r.style.setProperty('--col', cols.length); //set the column length to column length of csv for globals.css
@@ -117,8 +121,20 @@ export const GridContainer = ({ isDropped }) => {
       console.log("ABOUT TO ALL DO RESIZE")
       doResize(localSize);
     }
+
+    // Resize grid if right sidebar is open
+    if(isShareOpen || isInfoOpen || isNotificationOpen){
+      //@ts-ignore
+      r.style.setProperty('--width', `${Math.round(window.innerWidth-40-192-350)}px`);
+      console.log("in here")
+    }
+    else{
+      //@ts-ignore
+      r.style.setProperty('--width', `${Math.round(window.innerWidth-40-300)}px`);
+      console.log("out here")
+    }
     
-  },[orientation,isInfoOpen,isShareOpen,localSize,cols])
+  },[orientation,isInfoOpen,isShareOpen,isNotificationOpen,localSize,cols])
 
   return (
     <>
@@ -150,8 +166,6 @@ export const GridContainer = ({ isDropped }) => {
               
               :
               (
-                
-                
                 <div className={`flex flex-col h-full w-full `}>
                 <GridHeader />
                 <Datagrid isDropped={isDropped} />

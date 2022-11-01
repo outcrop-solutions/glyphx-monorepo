@@ -13,8 +13,6 @@ export const Datagrid = ({ isDropped }) => {
   const isShareModelOpen = useRecoilValue(shareOpenAtom);
   const isShowInfoOpen = useRecoilValue(showInfoAtom);
   const isShowNotificationOpen = useRecoilValue(showNotificationAtom);
-  var r = document.querySelector(':root');
-  const [width, setWidth] = useState(0);
 
 
   const [sortColumns, setSortColumns] = useState([]);
@@ -82,18 +80,9 @@ export const Datagrid = ({ isDropped }) => {
   }, [rows, sortColumns]);
 
   useEffect(() => {
-    console.log({windowWidth:window.innerWidth});
-    console.log({calcWidth: Math.round(window.innerWidth-40-192-100)});
-    if(isShareModelOpen || isShowInfoOpen || isShowNotificationOpen){
-      //@ts-ignore
-      r.style.setProperty('--width', `${Math.round(window.innerWidth-40-192-350)}px`);
-      console.log("in here")
-    }
-    else{
-      //@ts-ignore
-      r.style.setProperty('--width', `${Math.round(window.innerWidth-40-300)}px`);
-      console.log("out here")
-    }
+    // console.log({windowWidth:window.innerWidth});
+    // console.log({calcWidth: Math.round(window.innerWidth-40-192-100)});
+    
   }, [isShareModelOpen,isShowInfoOpen,isShowNotificationOpen])
   
 
