@@ -95,25 +95,6 @@ export const Datagrid = ({ isDropped }) => {
       rows={sortedRows}
       sortColumns={sortColumns}
       onSortColumnsChange={onSortColumnsChange}
-      // className={
-      //   // FIXME: FIGURE OUT HOW TO FIX PADDING RIGHT CONDITIONAL RENDER
-      //   isShareModelOpen || isShowInfoOpen || isShowNotificationOpen ?
-      //   `w-[${width}px]` 
-      //   // "w-[63.12%]" 
-      //   // `w-[${window.innerWidth*63.12}%]`
-      //   // `w-[1330px]`
-      //   // `w-[${width}px]`
-      //   // `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
-      //   :
-      //   // `w-[${window.innerWidth-40-192-100}px]`
-      //   // "w-[1268px]"
-      //   // "w-[79.25%]"
-      //   // `${window.innerWidth > 1600 ? "w-[82.25%]" :"w-[79.25%]"}`
-      //   `${window.innerWidth > 1600 ? "w-[1330px]" :"w-[1010px]"}`
-        
-      // }
-      
     />
-    // 1268
   );
 };

@@ -81,6 +81,10 @@ div[class="SplitPane  horizontal "]{
   @apply  w-[var(--width)] z-0 relative !important 
 }
 
+div[class="SplitPane  vertical "]{
+  @apply  h-screen z-0 relative !important 
+}
+
 ::-webkit-scrollbar-track {
   background: #f1f1f100;
 }
