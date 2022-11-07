@@ -128,7 +128,9 @@ export const ShareModule = ({ setShare }) => {
         <div className="">
           {/* <PermissionsDropDown />
           <LinkDropDown/> */}
-          <MemberList />
+          <MemberList 
+            size="large"
+          />
         </div>
       </div>
 

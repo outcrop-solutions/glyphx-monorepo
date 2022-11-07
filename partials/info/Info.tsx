@@ -16,61 +16,75 @@ export const Info = ({ setInfo }) => {
         // <div className="flex flex-col absolute z-50 right-0 w-96 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
         <div className="flex flex-col w-[250px] bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
             <div className="pt-4 pl-4 pr-4  overflow-auto">
-                <div className="flex flex-row justify-between mb-2">
+                <div className="flex flex-row justify-between mb-2 items-center">
                     <div className="flex flex-row justify-between space-x-3">
-                        <svg className="mt-1" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z" fill="white" />
+
+                        <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.3775 1.5L6.8775 3H13.5V10.5H1.5V1.5H5.3775ZM6 0H1.5C0.675 0 0.00749999 0.675 0.00749999 1.5L0 10.5C0 11.325 0.675 12 1.5 12H13.5C14.325 12 15 11.325 15 10.5V3C15 2.175 14.325 1.5 13.5 1.5H7.5L6 0Z" fill="#CECECE" />
                         </svg>
-                        <p className="text-light-gray text-lg">
+
+                        <p className="text-light-gray text-[14px] leading-[16px] font-medium font-roboto">
                             {selectedProject ? selectedProject.name : "My Projects"}
                         </p>
                     </div>
 
-                    <svg
-                        onClick={() => {
-                            setInfo(false);
-                        }}
-                        className="w-6 h-6 rounded-xl p-1 border-2 border-transparent hover:border-white hover:cursor-pointer hover:text-yellow"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 14 14"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M13.3 0.709971C12.91 0.319971 12.28 0.319971 11.89 0.709971L6.99997 5.58997L2.10997 0.699971C1.71997 0.309971 1.08997 0.309971 0.699971 0.699971C0.309971 1.08997 0.309971 1.71997 0.699971 2.10997L5.58997 6.99997L0.699971 11.89C0.309971 12.28 0.309971 12.91 0.699971 13.3C1.08997 13.69 1.71997 13.69 2.10997 13.3L6.99997 8.40997L11.89 13.3C12.28 13.69 12.91 13.69 13.3 13.3C13.69 12.91 13.69 12.28 13.3 11.89L8.40997 6.99997L13.3 2.10997C13.68 1.72997 13.68 1.08997 13.3 0.709971Z"
-                            fill="#CECECE"
-                        />
+
+                    <svg onClick={() => {
+                        setInfo(false);
+                    }} className="p-0 rounded-xl border-2 border-transparent hover:border-white hover:cursor-pointer" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="12" fill="none" />
+                        <path d="M18.3 5.70997C17.91 5.31997 17.28 5.31997 16.89 5.70997L12 10.59L7.10997 5.69997C6.71997 5.30997 6.08997 5.30997 5.69997 5.69997C5.30997 6.08997 5.30997 6.71997 5.69997 7.10997L10.59 12L5.69997 16.89C5.30997 17.28 5.30997 17.91 5.69997 18.3C6.08997 18.69 6.71997 18.69 7.10997 18.3L12 13.41L16.89 18.3C17.28 18.69 17.91 18.69 18.3 18.3C18.69 17.91 18.69 17.28 18.3 16.89L13.41 12L18.3 7.10997C18.68 6.72997 18.68 6.08997 18.3 5.70997V5.70997Z" fill="#CECECE" />
                     </svg>
+
+
+
                 </div>
 
 
             </div>
-            <img className="w-full h-auto" src="../images/project.png" alt="sample" />
+            <img className="w-full h-auto" src="../images/project.png" alt="Sample Project" />
             <div className="mt-2 pl-4 pr-4">
-                <p className="text-light-gray text-lg">Owner</p>
+                <p className="text-light-gray font-roboto font-medium text-[14px] leading-[16.41px]">Owner</p>
                 <div className="flex flex-row justify-between items-center mt-2 ">
                     <div className="flex items-center">
                         <div
                             className="rounded-full bg-secondary-blue h-5 w-5 text-sm text-white flex items-center justify-center mr-2">
                             {`${selectedProject.author.split("@")[0][0].toUpperCase()}`}
                         </div>
-                        <p className="text-white text-xs">{selectedProject.author}</p>
+                        <p className="text-light-gray font-roboto text-[10px] leading-[12px]">{selectedProject.author}</p>
                     </div>
                     <div>
-                        <p className="text-gray text-xs">{selectedProject.createdAt.split('T')[0].replace(/-/g, '/')}</p>
+                        <p className="text-gray font-roboto font-normal text-[10px] leading-[12px]">{new Date(selectedProject.createdAt).toLocaleDateString()}</p>
                     </div>
 
                 </div>
 
             </div>
             <div className="mt-4 pl-4 pr-4">
-                <p className="text-light-gray text-lg border-b-[1px] border-gray">Shared with</p>
-                <MemberList />
+                <div className="flex flex-row justify-between items-center font-roboto font-medium text-light-gray text-[14px] leading-[16px]">
+                    <p>Shared with</p>
+
+                    <div className="flex flex-row item-center justify-center space-x-2 px-2 py-[0.5px] border border-transparent rounded-xl hover:border-white hover:cursor-pointer hover:bg-secondary-midnight">
+                        <p>Edit</p>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.37231 4.01333L7.98556 4.62667L1.9464 10.6667H1.33315V10.0533L7.37231 4.01333ZM9.77198 0C9.60533 0 9.43202 0.0666666 9.30537 0.193333L8.08554 1.41333L10.5852 3.91333L11.805 2.69333C12.065 2.43333 12.065 2.01333 11.805 1.75333L10.2452 0.193333C10.1119 0.06 9.94529 0 9.77198 0ZM7.37231 2.12667L0 9.5V12H2.49965L9.87196 4.62667L7.37231 2.12667Z" fill="#CECECE" />
+                        </svg>
+
+                    </div>
+
+                </div>
+
+                <div className="mt-2 border-b-[1px] border-t-[1px] border-gray">
+                <MemberList 
+                    size="small"
+                />
+                </div>
+
+                
             </div>
-            <div className="mt-2 pl-4 pr-4">
-                <p className="text-light-gray text-lg border-b-[1px] border-gray">Activity</p>
-                <p className="text-white text-xs mt-2 font-bold">Under Development :)</p>
+            <div className="mt-4 pl-4 pr-4 font-roboto">
+                <p className="text-light-gray  font-medium text-[14px] leading-[16px] border-b-[1px] border-gray pb-2">Activity</p>
+                <p className="text-light-gray font-normal text-[10px] mt-2 leading-[12px]">Under Development :)</p>
             </div>
         </div>
     );

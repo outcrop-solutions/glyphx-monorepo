@@ -44,6 +44,7 @@ export const ProjectHeader = () => {
         setSelectedProject(null);
         setShare(false);
         setShowInfo(false);
+        setNotification(false);
         setShowSearchModalOpen(false);
         setSDTName(null);
         setProperties([ // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES

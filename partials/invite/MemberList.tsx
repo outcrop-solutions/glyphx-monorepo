@@ -7,9 +7,9 @@ import {
 } from "state";
 import { useRecoilValue } from "recoil";
 
-export const MemberList = () => {
+export const MemberList = ({size}) => {
   // const { results } = useMembers()
-  const results = [
+  const results = [ // this is a test list
     { author: "James Graham" },
     { author: "Michael Wicks" },
     { author: "Bryan Holster" },
@@ -30,11 +30,11 @@ export const MemberList = () => {
                   <div
                     className={`rounded-full ${
                       idx % 2 === 0 ? "bg-blue" : "bg-yellow"
-                    } h-5 w-5 text-sm text-white flex items-center justify-center mr-2`}
+                    } h-4 w-4 font-roboto font-medium text-[12px] text-center leading-[14px] tracking-[0.01em] text-white flex items-center justify-center mr-2`}
                   >
                     {`${item.split("@")[0][0].toUpperCase()}`}
                   </div>
-                  <div className="w-10/12 text-white text-xs">
+                  <div className={`w-10/12 text-light-gray ${size==="small" ? "text-[10px]" : "text-[12px]"}  font-roboto font-normal leading-[14px]`}>
                     {item}
                   </div>
                 </div>

@@ -46,7 +46,8 @@ export function PermissionsDropDown({ align }) {
       >
         <span className="sr-only">can view</span>
 
-        <span className="mx-2 text-white text-sm">can view</span>
+        <div className="flex items-center justify-center hover:bg-secondary-midnight transition duration-150 rounded-full border border-transparent hover:border-white">
+        <span className="mx-2 text-light-gray font-roboto font-medium text-[12px] leading-[14.06px] tracking-[0.01em]">Viewer</span>
         <svg
           width="16"
           height="16"
@@ -56,9 +57,12 @@ export function PermissionsDropDown({ align }) {
         >
           <path
             d="M11.0969 6.21938L8.18687 9.12938L5.27687 6.21938C4.98437 5.92687 4.51187 5.92687 4.21937 6.21938C3.92688 6.51188 3.92688 6.98438 4.21937 7.27688L7.66188 10.7194C7.95438 11.0119 8.42688 11.0119 8.71938 10.7194L12.1619 7.27688C12.4544 6.98438 12.4544 6.51188 12.1619 6.21938C11.8694 5.93437 11.3894 5.92687 11.0969 6.21938Z"
-            fill="#595E68"
+            fill="#CECECE"
           />
         </svg>
+        </div>
+
+        
       </button>
 
       <Transition

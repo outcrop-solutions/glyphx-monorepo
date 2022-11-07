@@ -122,26 +122,26 @@ export const GridContainer = ({ isDropped }) => {
     }
     if ((localSize || isInfoOpen || isShareOpen) && stdName !== null) {
       console.log("ABOUT TO ALL DO RESIZE")
-      // doResize(localSize);
+      // doResize(localSize); //TODO: uncomment and fix
     }
 
     // Resize grid if right sidebar is open
     if (isShareOpen || isInfoOpen || isNotificationOpen) {
       if (orientation === "vertical") {
         //@ts-ignore
-        r.style.setProperty('--width', `${localSize}px`);
+        r.style.setProperty('--width', `${localSize}px`); //set width of grid to the size of pane
       } else {
         //@ts-ignore
-        r.style.setProperty('--width', `${Math.round(window.innerWidth - 40 - 192 - 350)}px`);
+        r.style.setProperty('--width', `${Math.round(window.innerWidth - 40 - 192 - 350)}px`); //set width of grid to size between right sidebar and left content
       }
     }
     else {
       if (orientation === "vertical") {
         //@ts-ignore
-        r.style.setProperty('--width', `${localSize}px`);
+        r.style.setProperty('--width', `${localSize}px`); //set width of grid to the size of pane
       } else {
         //@ts-ignore
-        r.style.setProperty('--width', `${Math.round(window.innerWidth - 40 - 300)}px`);
+        r.style.setProperty('--width', `${Math.round(window.innerWidth - 40 - 300)}px`); //set width of grid to size between right sidebar and left content
       }
     }
 
@@ -165,7 +165,7 @@ export const GridContainer = ({ isDropped }) => {
                   onChange={onDragChange}
                   primary={"first"}>
                   {/* <div className={`flex flex-col grow ${orientation === "horizontal" ? 'max-h-full mr-[15.5rem]' : 'h-full ml-64'} overflow-scroll`}> */}
-                  <div className={`flex flex-col ${orientation === "vertical" ? `h-[95vh]` : null}`}>
+                  <div className={`flex flex-col ${orientation === "vertical" ? `h-[93vh]` : ``}`}>
                     <GridHeader />
                     <Datagrid isDropped={isDropped} />
                   </div>

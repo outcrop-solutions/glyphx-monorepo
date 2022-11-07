@@ -65,15 +65,17 @@ div div[role="columnheader"] {
 
 div[role="grid"] {
   @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
-  @apply grid grid-cols-[40px_repeat(var(--col),minmax(80px,100px))] !important;
+  @apply grid grid-cols-[40px_repeat(var(--col),minmax(90px,100px))] !important;
   @apply w-[var(--width)] !important;
 }
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 4px;
+  height: 10px;
 }
 
 div[role="grid"]::-webkit-scrollbar-thumb {
-  background: rgb(253, 229, 8);
+  background: rgba(255, 197, 0, 0.5);
+  
 }
 
 /* FOR TESTIG PURPOSES */
@@ -90,11 +92,12 @@ div[class="SplitPane  vertical "]{
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(253, 229, 8);
+  background: rgba(255, 197, 0, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(235, 202, 17);
+  /* background: rgb(235, 202, 17); */
+  background: rgba(255, 197, 0, 0.5);
 }
 
 div[role="row"] {
@@ -141,7 +144,7 @@ div[datatype="number"] {
 }
 
 .Resizer {
-  background: rgb(253, 229, 8);
+  background: rgb(31, 39, 58); /*PRIMARY DARK BLUE*/
   opacity: 1;
   z-index: 1;
   -moz-box-sizing: border-box;
@@ -158,30 +161,30 @@ div[datatype="number"] {
 }
 
 .Resizer.horizontal {
-  height: 2px;
-  margin: -5px 0;
-  border-top: 0px solid rgb(253, 229, 8);
-  border-bottom: 0px solid rgb(253, 229, 8);
+  height: 4px;
+  margin: -0px 0;
+  border-top: 2px solid rgba(89, 94, 104, 1);
+  border-bottom: 2px solid rgba(89, 94, 104, 1);
   cursor: row-resize;
   width: 100%;
 }
 
 .Resizer.horizontal:hover {
-  border-top: 2px solid rgb(235, 202, 17);
-  border-bottom: 2px solid rgb(235, 202, 17);
+  border-top: 2px solid rgba(89, 94, 104, 1);
+  border-bottom: 2px solid rgba(89, 94, 104, 1);
 }
 
 .Resizer.vertical {
-  width: 2px;
-  margin: 0 -5px;
-  border-left: 0px solid rgb(253, 229, 8);
-  border-right: 0px solid rgb(253, 229, 8);
+  width: 4px;
+  margin: 0 -0px;
+  border-left: 2px solid rgba(89, 94, 104, 1);
+  border-right: 2px solid rgba(89, 94, 104, 1);
   cursor: col-resize;
 }
 
 .Resizer.vertical:hover {
-  border-left: 2px solid rgb(235, 202, 17);
-  border-right: 2px solid rgb(235, 202, 17);
+  border-left: 2px solid rgba(89, 94, 104, 1);
+  border-right: 2px solid rgba(89, 94, 104, 1);
 }
 
 .Resizer.disabled {

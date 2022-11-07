@@ -41,8 +41,8 @@ export const ModelFooter = () => {
           // onClick={handleOpen}
           className="flex relative cursor-pointer group hover:bg-gray items-center border-r border-r-gray h-full px-4"
         >
-          <div className="text-cyan mr-2 text-xs font-bold">SDT</div>
-          <span className="text-white font-bold">{name}</span>
+          <div className="text-secondary-blue mr-2 text-xs font-roboto font-medium leading-[14px] tracking-[0.01em]">SDT</div>
+          <p className=" text-light-gray font-roboto font-normal leading-[14px] text-xs">{name}</p>
         </div>
       )}
       {/* <PlusIcon className="h-5 text-gray mx-2" /> */}
