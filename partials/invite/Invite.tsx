@@ -134,11 +134,11 @@ export const ShareModule = ({ setShare }) => {
         </div>
       </div>
 
-      {/* <div className="absolute bottom-20 mt-5 w-full pl-3 pr-3">
+      <div className="absolute bottom-0 mt-5 pl-3 pr-3">
         <hr className="text-gray mb-2" />
-        <div className="flex flex-row justify-between mb-3 mt-2">
-          <div onClick={copyLinkToClipBoard} className="rounded-2xl border border-transparent p-2 hover:border-white hover:cursor-pointer">
-            <p className="text-white text-sm">
+        <div className="flex flex-row justify-between items-center space-x-3 mb-3 mt-2">
+          <div onClick={copyLinkToClipBoard} className="rounded-xl border border-transparent py-1 px-2 hover:bg-secondary-midnight hover:border-white hover:cursor-pointer">
+            <p className="text-light-gray font-roboto font-medium leading-[16px] text-center text-[14px]">
               <span className="inline-block">
                 <svg
                   className="mr-2"
@@ -159,19 +159,19 @@ export const ShareModule = ({ setShare }) => {
           </div>
 
           <div>
-            <button className="text-secondary-space-blue text-sm font-medium rounded-2xl border bg-yellow border-yellow p-2">
+            <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
               Send Invite
             </button>
           </div>
         </div>
-        <div className="mt-0 w-full pl-3 pr-3">
+        <div className="mt-0 w-full pl-3 pr-3 mb-2">
         {
           showShareText && (
             <p className="text-white text-base">Link copied to clipboard</p>
           )
         }
       </div>
-      </div> */}
+      </div>
     </div>
   );
 };
