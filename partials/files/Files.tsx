@@ -203,9 +203,10 @@ export const Files = ({ toastRef }) => {
                     dropTarget: styles.dropTarget,
                   }}
                 />
-              ) : null
+              ) : <Dropzone toastRef={toastRef} />
             }
-            <Dropzone toastRef={toastRef} />
+            
+            
           </div>
         </div>
       </div>
