@@ -1,11 +1,17 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import DataGrid from "lib/react-data-grid/lib/bundle";
+// import DataGrid from "lib/react-data-grid/lib/bundle";
 import { DraggableHeaderRenderer } from "./DraggableHeaderRenderer";
 import { useRecoilState,useRecoilValue } from "recoil";
 import { columnsSelector, rowsSelector } from "@/state/files";
 import { shareOpenAtom } from "@/state/share";
 import { showInfoAtom } from "@/state/info";
 import { showNotificationAtom } from "@/state/notification";
+
+import dynamic from 'next/dynamic';
+
+const DataGrid = dynamic(() => import('lib/react-data-grid/lib/bundle'), {
+  ssr:false
+})
 
 export const Datagrid = ({ isDropped }) => {
   const [rows, setRows] = useRecoilState(rowsSelector);

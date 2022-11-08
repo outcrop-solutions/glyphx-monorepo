@@ -24,15 +24,19 @@ export const formatGridData = (data) => {
       key: item,
       dataType: !isNaN(parseInt(data[0][item])) ? "number" : "string",
       name: capitalized,
+      width:120,
       resizable: true,
       sortable: true,
     };
   });
 
+  // Generates first column
   // @ts-ignore
-  cols.unshift({ key: "id", name: "", width: 40 });
+  cols.unshift({ key: "id", name: "", width: 40, resizable:true }); 
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
   const newGrid = { columns: cols, rows };
+
+  console.log({newGrid});
 
   // add iterator column
   return newGrid;
