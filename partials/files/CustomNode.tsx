@@ -34,7 +34,7 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
 
   return (
     <div
-    onMouseOver={showReorder}
+      onMouseOver={showReorder}
       onMouseOut={hideReorder}
       onClick={() => {
         if (node.text === selectedFile) {
