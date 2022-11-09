@@ -107,7 +107,7 @@ export default function Project() {
         {/* Right Sidebar */}
         <div id="right-side-bars" className="">
             {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
-            {showInfo ? <Info setInfo={setShowInfo} /> : <></>}
+            {showInfo ? <Info setInfo={setShowInfo} setShare={setShareModel} /> : <></>}
             {showNotification ? <Notification setNotif={setNotification}/> : <></>}
           </div>
       </div>

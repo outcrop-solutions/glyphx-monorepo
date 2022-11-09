@@ -36,6 +36,15 @@ export const isFilterSafeAtom = selector({
   },
 });
 
+
+//TODO: RENAME TO SELECTOR
+/**
+ * TAKES FILTERS THAT ARE APPLIED
+  TAKES WHETHER OR NOT FILTER IS SAFE
+  ... 
+  CREATES SQL QUERY
+  TAKE RESULT AND PASS TO QT
+ */
 export const filterQueryAtom = selector({
   key: "filterQuery",
   get: ({ get }) => {
@@ -71,6 +80,7 @@ export const filterQueryAtom = selector({
       }
       let query =
         filterStringArr.length > 0
+        // TODO: MAKE IT DYNAMIC PROJECT ID
           ? `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\` WHERE ${filterStringArr.join(
               " AND "
             )}`
@@ -81,6 +91,7 @@ export const filterQueryAtom = selector({
       };
       return updateFilterInput;
     } else if (sdt && filtersApplied.length === 0 && droppedProps.length >= 3) {
+      // TODO: MAKE IT DYNAMIC PROJECT ID
       let query = `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\``;
       const updateFilterInput = {
         filter: query,

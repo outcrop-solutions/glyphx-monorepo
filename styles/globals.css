@@ -79,6 +79,16 @@ div[role="grid"] {
   height: 10px;
 }
 
+/* FOR REMOVING AUTO INCREMENT BUTTONS ON NUMBER INPUT TYPE */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 div[role="grid"]::-webkit-scrollbar-thumb {
   background: rgba(255, 197, 0, 0.5);
   
