@@ -12,9 +12,11 @@ export const useStateChange = () => {
   const stateQuery = useRecoilValue(stateQueryAtom);
   useEffect(() => {
     // @ts-ignore
-    if (stateQuery && window && window.core) {
+    if (stateQuery && window 
+      //&& window.core
+      ) {
       // @ts-ignore
-      window.core.ChangeState(JSON.stringify(stateQuery));
+      //window.core.ChangeState(JSON.stringify(stateQuery));
     }
   }, [stateQuery]);
 };

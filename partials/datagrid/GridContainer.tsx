@@ -28,12 +28,12 @@ export const GridContainer = ({ isDropped }) => {
   const [localSize, setSize] = useState(null); //set a local size state
 
   function startDrag() {
-    try { //hide glyph viewer
-      //@ts-ignore
-      window?.core.ToggleDrawer(false);
-    } catch (error) {
-      console.log({ error })
-    }
+    // try { //hide glyph viewer
+    //   //@ts-ignore
+    //   window?.core.ToggleDrawer(false);
+    // } catch (error) {
+    //   console.log({ error })
+    // }
   }
 
   function completedDrag(size) {
@@ -66,21 +66,21 @@ export const GridContainer = ({ isDropped }) => {
 
     try {
       //@ts-ignore
-      window?.core.ToggleDrawer(true);
+      // window?.core.ToggleDrawer(true);
       if (orientation === "horizontal") {
         //@ts-ignore
-        window?.core.ResizeEvent(
-          JSON.stringify({
-            filterSidebar: {
-              right: 335,
-              height: size + 150,
-              y: size + 150
-            },
-            commentsSidebar: {
-              left: leftSide
-            }
-          })
-        );
+        // window?.core.ResizeEvent(
+        //   JSON.stringify({
+        //     filterSidebar: {
+        //       right: 335,
+        //       height: size + 150,
+        //       y: size + 150
+        //     },
+        //     commentsSidebar: {
+        //       left: leftSide
+        //     }
+        //   })
+        // );
         console.log("Horizontal:", { left: leftSide, right: 335, height: window.innerWidth, y: size + 150 });
       }
       else {
@@ -89,18 +89,18 @@ export const GridContainer = ({ isDropped }) => {
         console.log({ size })
 
         //@ts-ignore
-        window?.core.ResizeEvent(
-          JSON.stringify({
-            filterSidebar: {
-              right: size + 90 < 500 ? 580 : size + 90,
-              height: window.innerWidth,
-              y: 150
-            },
-            commentsSidebar: {
-              left: leftSide
-            }
-          })
-        );
+        // window?.core.ResizeEvent(
+        //   JSON.stringify({
+        //     filterSidebar: {
+        //       right: size + 90 < 500 ? 580 : size + 90,
+        //       height: window.innerWidth,
+        //       y: 150
+        //     },
+        //     commentsSidebar: {
+        //       left: leftSide
+        //     }
+        //   })
+        // );
         console.log("Vertical:", { left: leftSide, right: size + 90 < 500 ? 580 : size + 90, height: window.innerWidth, y: 150 });
       }
 

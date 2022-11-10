@@ -36,7 +36,7 @@ export const formatGridData = (data) => {
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
   const newGrid = { columns: cols, rows };
 
-  console.log({newGrid});
+  // console.log({newGrid});
 
   // add iterator column
   return newGrid;
@@ -180,7 +180,7 @@ export const Dropzone = ({ toastRef }) => {
   });
 
   useEffect(() => {
-    console.log({fileSystem});
+    // console.log({fileSystem});
   }, [fileSystem])
 
   // FIXME: DROPZONE NOT WORKING. FAILS WHEN FETCHING

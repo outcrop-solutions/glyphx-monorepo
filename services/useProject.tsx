@@ -119,12 +119,12 @@ export const useProject = () => {
         if (isZnumber) {
           if (isPropsValid) {
             console.log("calling etl");
-            try { //close existing model
-              // @ts-ignore
-              window?.core.ToggleDrawer(false);
-            } catch (error) {
-              console.log({ error })
-            }
+            // try { //close existing model
+            //   // @ts-ignore
+            //   window?.core.ToggleDrawer(false);
+            // } catch (error) {
+            //   console.log({ error })
+            // }
 
             setModelCreationLoadingState(true);
             console.log({ selectedProject })
@@ -159,10 +159,10 @@ export const useProject = () => {
                 try {
                   // create window
                   // @ts-ignore
-                  window?.core.OpenProject(JSON.stringify({
+                  window.core.OpenProject(JSON.stringify({
                     user_id: userId,
                     model_id: selectedProject?.id,
-                  }), false);
+                  }));
                 } catch (error) {
                   console.log({ error })
                 }
@@ -200,7 +200,7 @@ export const useProject = () => {
   //   console.log("In second use effect");
   //   // console.log("in handle open project useeffect")
   //   // @ts-ignore
-  //   if (selectedProject && window && window.core) {
+  //   if (selectedProject && window && //window.core) {
   //     if (payload?.url) {
   //       // @ts-ignore
   //       window?.core.OpenProject(JSON.stringify(payload.url));
@@ -215,9 +215,9 @@ export const useProject = () => {
   // useEffect(() => {
   //   console.log("Third useEffect called");
   //   // @ts-ignore
-  //   if (reorderConfirm && window && window.core) {
+  //   if (reorderConfirm && window && //window.core) {
   //     // @ts-ignore
-  //     window.core.ToggleDrawer(false);
+  //     //window.core.ToggleDrawer(false);
   //   }
   // }, [reorderConfirm]);
 

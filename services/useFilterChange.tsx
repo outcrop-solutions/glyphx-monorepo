@@ -11,9 +11,11 @@ export const useFilterChange = () => {
   const filterQuery = useRecoilValue(filterQueryAtom);
   useEffect(() => {
     // @ts-ignore
-    if (filterQuery && window && window.core) {
+    if (filterQuery && window 
+      //&& window.core
+      ) {
       // @ts-ignore
-      window.core.UpdateFilter(JSON.stringify(filterQuery));
+      //window.core.UpdateFilter(JSON.stringify(filterQuery));
     }
   }, [filterQuery]);
 };

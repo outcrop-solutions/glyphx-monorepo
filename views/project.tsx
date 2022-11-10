@@ -47,7 +47,12 @@ export default function Project() {
   // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook
-  useSocket();
+  try {
+    useSocket();
+  } catch (error) {
+    console.log("Error calling useSocket():",{error})
+  }
+  
 
   // Project Hook
   const { isDropped, handleDrop } = useProject();

@@ -52,7 +52,7 @@ export function DraggableHeaderRenderer({
     if (droppedProps?.length > 0) {
       for (let index = 0; index < droppedProps.length; index++) {
         if (droppedProps[index].lastDroppedItem.key === column.key) {
-          console.log("setting axis to", droppedProps[index].axis)
+          // console.log("setting axis to", droppedProps[index].axis)
           setAxis(droppedProps[index].axis);
         }
       }

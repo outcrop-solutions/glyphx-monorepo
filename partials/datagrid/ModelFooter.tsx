@@ -15,18 +15,18 @@ export const ModelFooter = () => {
     if (url && sdt) {
       console.log("Toggling");
       // @ts-ignore
-      window.core.ToggleDrawer(true);
-      // window.core.OpenProject(url);
+      //window.core.ToggleDrawer(true);
+      // //window.core.OpenProject(url);
       // setProgress(true);
       // setTimeout(() => {
       //   setProgress(false);
       // }, 3000);
     } else if (url) {
       // @ts-ignore
-      window.core.OpenProject(JSON.stringify(url));
+      //window.core.OpenProject(JSON.stringify(url));
     } else {
       // @ts-ignore
-      window.core.OpenProject({});
+      //window.core.OpenProject({});
     }
   };
 

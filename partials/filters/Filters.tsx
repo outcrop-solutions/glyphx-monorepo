@@ -7,7 +7,8 @@ import { useRecoilValue } from "recoil";
 
 export const Filters = ({ handleDrop }) => {
   const properties = useRecoilValue(propertiesAtom);
-  useFilterChange();
+  // TODO: UNCOMMENT THIS AND WORK ON FILTERS FOR PRODUCTION
+  // useFilterChange();
 
   return (
     <React.Fragment>

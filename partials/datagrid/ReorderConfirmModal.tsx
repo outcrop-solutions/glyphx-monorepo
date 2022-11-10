@@ -75,7 +75,7 @@ export const ReorderConfirmModal = () => {
         project &&
         window &&
         // @ts-ignore
-        window.core &&
+        //window.core &&
         properties &&
         properties.length >= 3
       ) {

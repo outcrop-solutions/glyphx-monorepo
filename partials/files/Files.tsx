@@ -142,7 +142,7 @@ export const Files = ({ toastRef }) => {
   });
 
   useEffect(() => {
-    console.log("rerunning files sidebar useeffect")
+    // console.log("rerunning files sidebar useeffect")
   }, [fileSystem]);
   
   return (
