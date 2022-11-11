@@ -90,9 +90,12 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
           {
             !hide ?
               <div
-                className={`${axis === "1" ? "mr-2" : "mr-1"
-                  } text-light-gray group-filters-hover:text-white pl-2`}
-              >{`${axis}`}</div>
+              // `${axis === "1" ? "mr-2" : "mr-1"
+                className={`${axis === "1" ? "mr-0" : "mr-0"
+                  } flex justify-center items-center w-6 h-6 font-roboto font-medium text-[12px] leading-[14px] tracking-[0.01em] text-center rounded-full text-light-gray group-filters-hover:text-white `} //pl-2
+              >
+                <p>{`${axis}`}</p>
+                </div>
               :
               <div onClick={() => { setVisibility(!showVisibility) }}>
                 {
@@ -139,6 +142,15 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
             {lastDroppedItem ? `${lastDroppedItem.key}` : `Column ${idx + 1}`}
             {/* </span> */}
           </div>
+        //   <div
+        //   // @ts-ignore
+        //   formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
+        //   className={`flex min-w-[10rem] justify-center bg-gray h-4 ml-4 truncate cursor-pointer rounded-2xl`}
+        // >
+        //   <span className="text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium mx-6 uppercase lg:opacity-100 2xl:opacity-100 group-filters-hover:text-black transition duration-150 truncate">
+        //     {lastDroppedItem ? `${lastDroppedItem.key}` : `Column ${idx + 1}`}
+        //   </span>
+        // </div>
         )}
         <div className="flex justify-between ml-2 bg-secondary-dark-blue rounded-full border-2 border-transparent hover:border-white hover:cursor-pointer">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

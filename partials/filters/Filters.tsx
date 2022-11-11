@@ -35,7 +35,7 @@ export const Filters = ({ handleDrop }) => {
           className={`block border-b border-gray
         `}
         >
-          <ul className={`overflow-auto`}>
+          <ul className={`overflow-auto  space-y-1`}>
             {/* read only (no drag n drop) property filters */}
             {properties?.length > 0
               ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {

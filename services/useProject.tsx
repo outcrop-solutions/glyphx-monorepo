@@ -157,12 +157,15 @@ export const useProject = () => {
                   sdt: `${selectedProject?.id}`
                 }); // on success send data to payload
                 try {
-                  // create window
+                  // create glyph window
                   // @ts-ignore
-                  window.core.OpenProject(JSON.stringify({
-                    user_id: userId,
-                    model_id: selectedProject?.id,
-                  }));
+                  window.core.OpenProject(
+                    JSON.stringify({
+                      user_id: userId,
+                      model_id: selectedProject?.id,
+                    }),
+                    false
+                  );
                 } catch (error) {
                   console.log({ error })
                 }

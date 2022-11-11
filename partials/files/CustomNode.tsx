@@ -43,7 +43,7 @@ export const CustomNode = ({ node, depth, onToggle, isOpen }) => {
           openFile(node.text);
         }
       }}
-      className={`group hover:bg-secondary-midnight tree-node ${selectedFile === node.text ? "" : ""} ${
+      className={`group hover:bg-secondary-midnight -ml-2 tree-node ${selectedFile === node.text ? "" : ""} ${
         styles.root
       }`}
       style={{ paddingInlineStart: indent }}

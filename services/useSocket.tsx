@@ -34,10 +34,10 @@ export const useSocket = () => {
       new QWebChannel(socket, function (channel) {
         console.log({channel});
         
-        console.log("Without Core",{window})
+        // console.log("Without Core",{window})
         //@ts-ignore
         window.core = channel.objects.core; // making it global
-        console.log("With Core:",{window})
+        // console.log("With Core:",{window})
         try {
           //@ts-ignore
           console.log(channel.objects.core); // just to see what is inside it 
@@ -48,7 +48,7 @@ export const useSocket = () => {
           });
           //@ts-ignore
           window.core.GetDrawerPosition.connect(function (message) {
-            console.log("QT Get Drawer Position:",message);
+            console.log("QT Get Drawer Position Response:",message);
           });
           //@ts-ignore
           window.core.SendDrawerStatus.connect(function (message) {
@@ -63,7 +63,7 @@ export const useSocket = () => {
             console.log("QT Get Camera Position Response:",message);
           });
 
-          setGlyphViewer({
+          setGlyphViewer({ // set to true to signify we are ready to go
             ...glyphViewer,
             sendDrawerPositionApp:true
           });

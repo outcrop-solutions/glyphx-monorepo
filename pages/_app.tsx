@@ -63,11 +63,11 @@ export default function App({
         <Suspense fallback={
         <div className="flex flex-col justify-center items-center h-[100vh] bg-secondary-midnight">
           <BarLoader
-            color="#EBB500"
+            color="#FFC500"
             height={10}
             width={300}
           />
-          <p className="text-white text-2xl font-light p-2">Loading...</p>
+          <p className="text-white text-2xl font-roboto font-light p-2">Loading...</p>
         </div>
         }>
           <Component {...pageProps} />
