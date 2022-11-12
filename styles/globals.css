@@ -142,6 +142,11 @@ div[role="columnheader"].c1wupbe700-beta13[aria-colindex = '1']{
   /* background-color: rgb(17, 235, 93); */
 }
 
+/* FOR SUSPENSE LOADER */
+.css-1w7tt7z{
+  @apply rounded-md !important
+}
+
 div[aria-colindex="1"] {
   @apply bg-secondary-dark-blue;
 }

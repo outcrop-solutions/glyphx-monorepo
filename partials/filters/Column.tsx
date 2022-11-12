@@ -90,9 +90,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
           {
             !hide ?
               <div
-              // `${axis === "1" ? "mr-2" : "mr-1"
-                className={`${axis === "1" ? "mr-0" : "mr-0"
-                  } flex justify-center items-center w-6 h-6 font-roboto font-medium text-[12px] leading-[14px] tracking-[0.01em] text-center rounded-full text-light-gray group-filters-hover:text-white `} //pl-2
+                className={`flex justify-center items-center w-6 h-6 font-roboto font-medium text-[12px] leading-[14px] tracking-[0.01em] text-center rounded-full text-light-gray group-filters-hover:text-white `}
               >
                 <p>{`${axis}`}</p>
                 </div>
