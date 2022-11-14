@@ -113,7 +113,7 @@ export function DraggableHeaderRenderer({
     <div
       datatype={`${column.dataType}`}
       ref={useCombinedRefs(drag, drop)}
-      className={`${isDragging ? "opacity-80" : "opacity-100"} ${isOver ? "bg-blue-500" : ""
+      className={`${isDragging ? "opacity-80" : "opacity-100"} px-2 h-full  ${isOver ? "bg-blue-500" : ""
         }`}
     >
       <SortableHeaderCell
@@ -122,7 +122,7 @@ export function DraggableHeaderRenderer({
         priority={priority}
         isCellSelected={isCellSelected}
       >
-        {assignedAxis ? renderColumnTitle() : <p className="text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">{column.name}</p>}
+        {assignedAxis ? renderColumnTitle() : <p className="inline-flex align-middle text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">{column.name}</p>}
       </SortableHeaderCell>
     </div>
   );

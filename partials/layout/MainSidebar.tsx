@@ -33,12 +33,13 @@ export const MainSidebar = () => {
           }
         >
           {/* Logo */}
-          <div className="flex">
+          <div className="flex pb-1 justify-center">
             {
               selectedProject ?
 
                 <Image
                   src={GLogo}
+                  height={60}
                 />
                 :
                 <Image

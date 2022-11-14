@@ -8,7 +8,7 @@ export const GridHeader = () => {
   const filesOpen = useRecoilValue(filesOpenAtom);
 
   return (
-    <div className="w-full h-11 bg-secondary-space-blue border-b border-gray text-white text-xs flex items-center">
+    <div className="w-full h-11 bg-secondary-space-blue border-b border-gray text-white text-xs flex flex-shrink-0 items-center">
       {filesOpen && filesOpen.length > 0 && (
         <>
           {filesOpen.map((item, idx) => (
