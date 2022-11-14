@@ -183,11 +183,11 @@ export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
             </div>
 
             <div>
-              <Link href={link}>
+              {/* <Link href={link}>
                 <a className="text-sm font-medium text-white">
                   {dayjs().to(dayjs(updatedAt))}
                 </a>
-              </Link>
+              </Link> */}
             </div>
           </div>
         </footer>
