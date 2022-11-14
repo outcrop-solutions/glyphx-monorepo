@@ -1,4 +1,4 @@
-import React,{ useCallback, useEffect } from "react";
+import React,{ useCallback, useEffect, useState } from "react";
 import { parse } from "papaparse";
 import { Tree } from "@minoru/react-dnd-treeview";
 import { CustomNode } from "./CustomNode";
@@ -36,6 +36,8 @@ export const Files = ({ toastRef }) => {
   const project = useRecoilValue(selectedProjectSelector);
 
   const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
+
+  const [isCollapsed, setCollapsed] = useState(false);
 
 
   const onDrop = useCallback(
@@ -148,10 +150,10 @@ export const Files = ({ toastRef }) => {
   return (
     <React.Fragment>
       <div  className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight truncate border-b border-gray">
+        <summary onClick={()=>{setCollapsed(!isCollapsed)}} className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight hover:border-b-white truncate border-b border-gray">
           <div className="flex ml-2 items-center">
             <span className="">
-              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+              <svg className={`w-5 h-5 ${isCollapsed ? "-rotate-90": "rotate-180"}`} viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill="#CECECE"
                   fillRule="evenodd"
@@ -175,7 +177,10 @@ export const Files = ({ toastRef }) => {
           
 
         </summary>
-        <div className={`lg:block py-2 border-b border-gray`}>
+        {
+            !isCollapsed ?
+            <div className={`lg:block py-2 border-b border-gray`}>
+          
           <div>
             {
               // @ts-ignore
@@ -209,6 +214,11 @@ export const Files = ({ toastRef }) => {
             
           </div>
         </div>
+            :
+
+            <></>
+          }
+        
       </div>
     </React.Fragment>
   );

@@ -100,7 +100,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
   return (
     <li
       ref={drop}
-      className="py-0 pl-2 group-props last:mb-0 flex items-center hover:bg-secondary-midnight"
+      className="py-0 pl-2 group-props last:mb-0 flex items-center bg-transparent hover:bg-secondary-midnight"
       onMouseOver={showClear}
       onMouseOut={hideClear}
     >
@@ -135,7 +135,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
           </span>
         </div>
       )}
-      <div className="flex ml-3 space-x-1">
+      <div className="flex ml-1 space-x-1">
         <div onClick={change_LOG_LIN} 
         className={`flex items-center justify-center bg-secondary-space-blue border-2 border-transparent  p-0 rounded-full  ${isCreatingModel ? "opacity-30" : "opacity-100 hover:border-white hover:cursor-pointer"}`}>
 

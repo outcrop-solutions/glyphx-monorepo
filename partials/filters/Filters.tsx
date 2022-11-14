@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import { Column } from "./Column";
 import { Axes } from "./Axes";
 import { useFilterChange } from "services/useFilterChange";
@@ -7,16 +7,17 @@ import { useRecoilValue } from "recoil";
 
 export const Filters = ({ handleDrop }) => {
   const properties = useRecoilValue(propertiesAtom);
+  const [isCollapsed, setCollapsed] = useState(false);
   // TODO: UNCOMMENT THIS AND WORK ON FILTERS FOR PRODUCTION
   // useFilterChange();
 
   return (
     <React.Fragment>
       <div className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white truncate border-b border-gray">
+        <summary onClick={()=>{setCollapsed(!isCollapsed)}} className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white hover:border-b-white truncate border-b border-gray">
           <div className="flex ml-2 items-center">
-            <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
-              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+            <span className="">
+              <svg className={`w-5 h-5 ${isCollapsed ? "-rotate-90": "rotate-180"}`} viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill="#CECECE"
                   fillRule="evenodd"
@@ -31,11 +32,13 @@ export const Filters = ({ handleDrop }) => {
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
         </summary>
-        <div
+        {
+          !isCollapsed ?
+          <div
           className={`block border-b border-gray
         `}
         >
-          <ul className={`overflow-auto  space-y-1`}>
+          <ul className={`overflow-auto  space-y-1 w-full`}>
             {/* read only (no drag n drop) property filters */}
             {properties?.length > 0
               ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
@@ -63,6 +66,10 @@ export const Filters = ({ handleDrop }) => {
               : null}
           </ul>
         </div>
+          :
+          <></>
+        }
+        
       </div>
     </React.Fragment>
   );

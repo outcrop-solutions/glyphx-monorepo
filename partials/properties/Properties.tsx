@@ -1,11 +1,12 @@
 /* eslint-disable no-lone-blocks */
-import React from "react";
+import React, {useState} from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { propertiesAtom } from "@/state/properties";
 import { Property } from "./Property";
 
 export const Properties = ({ handleDrop }) => {
   const [properties, setProperties] = useRecoilState(propertiesAtom);
+  const [isCollapsed, setCollapsed] = useState(false);
 
   /**
    * TAKES IN AXIS TO CLEAR IN PROPERTIES ATOM
@@ -41,10 +42,10 @@ export const Properties = ({ handleDrop }) => {
   return (
     <React.Fragment>
       <div className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white truncate border-b border-gray">
+        <summary onClick={()=>{setCollapsed(!isCollapsed)}} className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:border-b-white hover:text-white truncate border-b border-gray">
           <div className="flex ml-2 items-center">
-            <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
-              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+            <span className="">
+              <svg className={`w-5 h-5 ${isCollapsed ? "-rotate-90": "rotate-180"}`} viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill="#CECECE"
                   fillRule="evenodd"
@@ -59,7 +60,9 @@ export const Properties = ({ handleDrop }) => {
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
         </summary>
-        <div className={`block border-b border-gray`}>
+        {
+          !isCollapsed ?
+          <div className={`block border-b border-gray`}>
           <ul>
             {properties?.length > 0
               ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
@@ -79,6 +82,10 @@ export const Properties = ({ handleDrop }) => {
               : null}
           </ul>
         </div>
+          :
+          <></>
+        }
+        
       </div>
     </React.Fragment>
   );

@@ -52,7 +52,7 @@ export const States = () => {
   return (
     <React.Fragment>
       <div className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight truncate border-b border-gray">
+        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray">
           <div className="flex ml-2 items-center">
             <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
               <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
