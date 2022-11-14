@@ -42,8 +42,8 @@ export const Properties = ({ handleDrop }) => {
   return (
     <React.Fragment>
       <div className="group">
-        <summary onClick={()=>{setCollapsed(!isCollapsed)}} className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:border-b-white hover:text-white truncate border-b border-gray">
-          <div className="flex ml-2 items-center">
+        <summary  className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:border-b-white hover:text-white truncate border-b border-gray">
+          <div onClick={()=>{setCollapsed(!isCollapsed)}} className="flex ml-2 items-center">
             <span className="">
               <svg className={`w-5 h-5 ${isCollapsed ? "-rotate-90": "rotate-180"}`} viewBox="0 0 20 20" fill="currentColor">
                 <path

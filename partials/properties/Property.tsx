@@ -104,7 +104,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
       onMouseOver={showClear}
       onMouseOut={hideClear}
     >
-      <div className="bg-secondary-space-blue border-2 border-transparent hover:border-white p-0 rounded-full">
+      <div className={`bg-secondary-space-blue border-2 border-transparent ${isCreatingModel ? "" : "hover:border-white"} p-0 rounded-full`}>
         {
           !clearAxis ?
             <AxesIcons property={axis} />
