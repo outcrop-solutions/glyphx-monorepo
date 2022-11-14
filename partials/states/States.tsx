@@ -11,6 +11,7 @@ import { statesSelector } from "@/state/states";
 export const States = () => {
   const project = useRecoilValue(selectedProjectSelector);
   const [states, setStates] = useRecoilState(statesSelector);
+  const [isCollapsed, setCollapsed] = useState(false);
 
   // useEffect(() => {
   //   // @ts-ignore
@@ -52,10 +53,10 @@ export const States = () => {
   return (
     <React.Fragment>
       <div className="group">
-        <summary className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray">
+        <summary onClick={()=>{setCollapsed(!isCollapsed)}} className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray">
           <div className="flex ml-2 items-center">
-            <span className="transition text-gray  duration-300 shrink-0 group-open:-rotate-180">
-              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+            <span className="">
+              <svg className={`w-5 h-5 ${isCollapsed ? "-rotate-90": "rotate-180"}`} viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill="#CECECE"
                   fillRule="evenodd"
@@ -70,7 +71,7 @@ export const States = () => {
           </div>
           <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white" onClick={addState} />
         </summary>
-        {states && states.length > 0 && <StateList />}
+        {states && states.length > 0 && !isCollapsed && <StateList />}
       </div>
     </React.Fragment>
   );

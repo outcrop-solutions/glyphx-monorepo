@@ -46,9 +46,9 @@ export const ProjectSidebar = ({
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex grow flex-col bg-secondary-space-blue absolute z-30 left-0 top-0 lg:static border-r border-l border-t border-gray lg:left-auto lg:top-auto  h-full scrollbar-none`}
+      className={`flex grow flex-col bg-secondary-space-blue absolute z-30 left-0 top-0 lg:static border-r border-l border-t border-gray lg:left-auto lg:top-auto  h-full w-full scrollbar-none`}
     >
-      <div className="overflow-y-auto w-full scrollbar-none">
+      <div className="overflow-y-auto w-full scrollbar-none ">
         <Files toastRef={toastRef} />
         <Axes handleDrop={handleDrop} />
         <Filters handleDrop={handleDrop} />

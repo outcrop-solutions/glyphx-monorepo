@@ -76,7 +76,7 @@ export default function Project() {
       <div className="flex flex-row h-full w-full">
       <DndProvider backend={HTML5Backend}>
         {/* Project sidebar */}
-      <div className="w-48">
+      <div className="w-[250px] shrink-0">
       <ProjectSidebar
                 error={error}
                 // setFilterSidebarPosition={setFilterSidebarPosition}
