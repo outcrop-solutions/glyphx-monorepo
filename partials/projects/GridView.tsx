@@ -31,7 +31,6 @@ export const GridView = () => {
               project={item}
               updatedAt={item.updatedAt}
               name={item.name}
-              link={"#0"}
             />
           );
         })}

@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense } from "react";
+import React, { useEffect,useState, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { GetServerSideProps } from "next";
 import sortArray from "sort-array";
@@ -27,15 +27,15 @@ import {
   projectDetailsAtom,
   projectsAtom,
   showAddProjectAtom,
- userAtom,
-  //userAtom,
+  userAtom,
 } from "state";
 import { useRouter } from "next/router";
-import { useProjects, useUser } from "../services";
+import { useProjects, useUser,isUserLogged } from "../services";
+import { SuspenseFallback } from "@/partials/fallback";
 
 export default function Home() {
-  
-  useUser(); //gets user
+  const router = useRouter();
+  // useUser(); //gets user
   useProjects(); //gets projects assigned to user
 
 
@@ -44,32 +44,59 @@ export default function Home() {
   const projectDetails = useRecoilValue(projectDetailsAtom);
   const showAddProject = useRecoilValue(showAddProjectAtom);
 
-  return (
-    <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
-      {showAddProject ? <AddProjectModal /> : null}
+  const [isLoading,setLoading] = useState(true);
 
-      <MainSidebar />
+  useEffect(()=>{
 
-      {projectDetails ? <ProjectDetails /> : null}
-      <div className="relative flex flex-col flex-1 overflow-hidden bg-primary-dark-blue scrollbar-none">
-        {/* Site header */}
-        <Header />
-        <div className="h-full overflow-y-scroll">
-          <div className="flex grow relative h-full">
-            <div className="w-full flex text-white">
-              {/* {JSON.stringify(projects)} */}
-              {/* @ts-ignore */}
-              {projects && projects.length > 0 ? (
-                <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
-                  {isGridView ? <GridView /> : <TableView />}
-                </div>
-              ) : (
-                <Templates />
-              )}
+    isUserLogged().then((result)=>{
+      if(!result){
+        router.push("/auth/signIn");
+      }
+      else{
+        setLoading(false);
+      }
+    }).catch((error)=>{
+      console.log({error});
+      router.push("/auth/signIn");
+    })
+  },[])
+
+  if(isLoading){
+    return(
+      <div className="flex flex-col h-screen w-screen">
+        <SuspenseFallback/>
+      </div>
+      
+    );
+  }else{
+    return (
+      <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
+        {showAddProject ? <AddProjectModal /> : null}
+  
+        <MainSidebar />
+  
+        {projectDetails ? <ProjectDetails /> : null}
+        <div className="relative flex flex-col flex-1 overflow-hidden bg-primary-dark-blue scrollbar-none">
+          {/* Site header */}
+          <Header />
+          <div className="h-full overflow-y-scroll">
+            <div className="flex grow relative h-full">
+              <div className="w-full flex text-white">
+                {/* {JSON.stringify(projects)} */}
+                {/* @ts-ignore */}
+                {projects && projects.length > 0 ? (
+                  <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+                    {isGridView ? <GridView /> : <TableView />}
+                  </div>
+                ) : (
+                  <Templates />
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+  
 }

@@ -9,7 +9,7 @@ import { useSetRecoilState } from "recoil";
 import { projectsAtom } from "@/state/globals";
 import { projectDetailsAtom } from "@/state/project";
 
-export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
+export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   const router = useRouter();
   dayjs.extend(relativeTime);
   const setProjects = useSetRecoilState(projectsAtom);
@@ -183,11 +183,9 @@ export const ProjectCard = ({ project, updatedAt, name, link, idx }) => {
             </div>
 
             <div>
-              {/* <Link href={link}>
-                <a className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-white">
                   {dayjs().to(dayjs(updatedAt))}
-                </a>
-              </Link> */}
+              </p>
             </div>
           </div>
         </footer>

@@ -24,30 +24,27 @@ export default function Signin() {
   const signIn = async () => {
     try {
       const user = await Auth.signIn(username, password);
-      console.log({user})
-      // setUser(user);
+      //on succfull log in
       console.log({ user });
       router.push("/");
-      // setUser(user);
     } catch (error) {
       setError(error.message);
       setTimeout(() => {
         setError(false);
-      }, 3000);
+      }, 5000);
       console.log("error on signin page" + error);
       // setIsLoggedIn(false);
     }
   };
   return (
     // TODO: @Johnathan I fixed the width and centering of the form here
-    <div className="flex h-full items-center justify-center w-full scrollbar-none bg-secondary-midnight pt-5">
+    <div className="flex h-full items-center justify-center w-full scrollbar-none bg-secondary-midnight">
       {/* Content */}
-      {/* <div className=""> */}
-      <div className="flex flex-col justify-center px-4 py-8">
-        <div className="rounded-md p-8 bg-secondary-space-blue border-gray border-2">
-          <h1 className="text-xl text-white font-bold mb-6">
-            Sign in to your account
-          </h1>
+      <div className="flex flex-col justify-center px-4 py-8 w-96 min-h-56">
+        <div className="rounded-md p-8 bg-secondary-space-blue border-gray border">
+          <p className="font-roboto text-white font-medium text-[14px] leading-[16px] mb-6">
+            Log in to your account.
+          </p>
           {/* Form */}
           <div
             onKeyPress={(ev) => {
@@ -57,73 +54,65 @@ export default function Signin() {
               }
             }}
           >
-            <div className="space-y-4">
-              <div>
-                <label
-                  className="block text-sm font-medium mb-1 text-white"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-                <input
+
+              <div className="mb-2">
+              <input
                   id="email"
                   data-test="username-input"
                   value={username}
                   onChange={handleUname}
-                  className="w-full bg-primary-dark-blue border-gray text-white focus:border-0"
+                  className="w-full h-8 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white  focus:border-primary-yellow"
                   type="email"
+                  placeholder="Email"
                 />
               </div>
-              <div>
-                <label
-                  className="block text-sm font-medium mb-1 text-white"
-                  htmlFor="password"
-                >
-                  Password
-                </label>
+                
+                <div className="">
                 <input
                   data-test="sign-in-password-input"
                   value={password}
                   onChange={handlePass}
                   id="password"
-                  className="w-full bg-primary-dark-blue border-gray focus:border-opacity-0 focus:ring-transparent text-white"
+                  className="w-full h-8 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white focus:border-primary-yellow "
                   type="password"
                   autoComplete="on"
+                  placeholder="Password"
                 />
-              </div>
-            </div>
-            <div className="flex items-center justify-between mt-6">
-              <div className="mr-1">
+                </div>
+
+            
+              <div className="flex flex-row justify-end mt-2 mb-4">
                 <Link href={"/auth/resetPassword"}>
-                  <div className="text-sm underline hover:no-underline text-gray">
+                  <div className="font-roboto font-normal text-[10px] leading-[12px] underline hover:cursor-pointer  text-primary-yellow">
                     Forgot Password?
                   </div>
                 </Link>
               </div>
-              <div data-test="sign-in-sign-in-button">
-                <a
-                  className="btn bg-yellow select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow text-black ml-3"
-                  onClick={signIn}
-                >
-                  Sign In
-                </a>
-              </div>
+              
             </div>
-          </div>
+          
           {/* Footer */}
-          <div className="pt-5 mt-6 border-t border-gray">
-            <div className="text-sm text-gray">
-              Don’t you have an account?{" "}
+          <div className="flex flex-row items-center justify-between">
+            <div className="font-roboto font-normal text-[10px] leading-[12px] text-gray">
+              Have an account?&nbsp;
               <Link href="/auth/signUp">
-                <span className="font-medium select-none text-yellow cursor-pointer hover:text-yellow">
+                <span className="font-roboto font-normal text-[10px] leading-[12px] underline text-yellow cursor-pointer">
                   Sign Up
                 </span>
               </Link>
             </div>
+            <div data-test="sign-in-sign-in-button">
+                <button
+                  className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow cursor-pointer"
+                  onClick={signIn}
+                >
+                  Sign In
+                </button>
+              </div>
           </div>
         </div>
         {error ? (
-          <div className="btn bg-yellow text-white my-4 w-full">{error}</div>
+          <div className="btn font-roboto font-medium text-[14px] leading-[16px] bg-yellow text-white my-4 w-full">{error}</div>
         ) : null}
       </div>
       {/* </div> */}

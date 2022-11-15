@@ -30,14 +30,28 @@ export const useUser = () => {
     // utility functions
     const getUser = async () => {
       const user = await Auth.currentAuthenticatedUser();
+      console.log({user})
       if (!user) {
         console.log({ user, msg: "no USER" });
         router.push("/auth/signIn");
       } else {
-        setUser(JSON.stringify(user));
         checkParams();
       }
     };
     getUser();
   }, [setUser]);
 };
+
+/**
+ * Returns if user logged in or not
+ * @returns {boolean}
+ */
+export const isUserLogged = async () =>{
+  const user = await Auth.currentAuthenticatedUser();
+      console.log({user})
+      if (!user) {
+        return false;
+      } else {
+        return true;
+      }
+}

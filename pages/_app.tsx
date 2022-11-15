@@ -8,8 +8,9 @@ import { RecoilRoot } from "recoil";
 import { ErrorFallback } from "@/partials/fallback";
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
-import BarLoader from "react-spinners/BarLoader";
-import { useRouter } from "next/router";
+
+import { SuspenseFallback } from "@/partials/fallback";
+
 import {useEffect} from "react";
 Amplify.configure({ ...awsExports, ssr: true });
 
@@ -51,13 +52,6 @@ export default function App({
   //   integrations: [new BrowserTracing()],
   // });
 
-  const { query } = useRouter();
-  const { projectId } = query;
-
-  useEffect(()=>{
-    console.log({projectId})
-  },[])
-
   return (
     <RecoilRoot>
       {/* Root Fallback for when error is throws */}
@@ -69,16 +63,7 @@ export default function App({
         }}
       >
         {/* Root Fallback for when data is loading */}
-        <Suspense fallback={
-        <div className="flex flex-col justify-center items-center h-[100vh] bg-secondary-midnight">
-        <p className="text-white text-2xl font-roboto font-light p-2">Loading {projectId}...</p>
-          <BarLoader
-            color="#FFD959"
-            height={10}
-            width={300}
-          />
-        </div>
-        }>
+        <Suspense fallback={<SuspenseFallback/>}>
           <Component {...pageProps} />
           
         </Suspense>
