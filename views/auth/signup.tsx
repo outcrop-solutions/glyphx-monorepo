@@ -43,80 +43,67 @@ export default function Signup() {
     // TODO: @Johnathan I fixed the width and centering of the form here as well as the sign in form
     <div className="flex h-full w-full items-center justify-center scrollbar-none bg-secondary-midnight pt-5">
       {/* Content */}
-      {/* <div className="w-full"> */}
-        <div className="max-w-sm mx-auto min-h-screen flex flex-col justify-center px-4 py-8">
+        <div className="w-96 min-h-56 flex flex-col justify-center px-4 py-8">
           <div className="w-80 rounded-md p-8 bg-secondary-space-blue border-gray border-2">
-            <h1 className="text-xl text-white font-bold mb-6">
+            <p className="font-roboto text-white font-medium text-[14px] leading-[16px] mb-6">
               Create a new account
-            </h1>
+            </p>
             {/* Form */}
             <div>
-              <div className="space-y-4">
-                <>
-                  <div>
-                    <label
-                      className="block text-sm font-medium mb-1 text-white"
-                      htmlFor="email"
-                    >
-                      Email Address <span className="text-yellow">*</span>
-                    </label>
+              <div className="">
+                
+                  <div className="mb-2">
                     <input
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       id="email"
-                      className="form-input w-full bg-primary-dark-blue text-white border-gray focus:border-0"
+                      className="w-full h-8 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white  focus:border-primary-yellow"
                       type="email"
+                      placeholder="Email Address"
+                      required
                     />
                   </div>
-                  <div>
-                    <label
-                      className="block text-sm font-medium mb-1 text-white"
-                      htmlFor="name"
-                    >
-                      Full Name <span className="text-yellow">*</span>
-                    </label>
+                  <div className="mb-2">
                     <input
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       id="name"
-                      className="form-input w-full bg-primary-dark-blue border-gray focus:border-0 text-white"
+                      className="w-full h-8 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white  focus:border-primary-yellow"
                       type="text"
+                      placeholder="Full Name"
+                      required
                     />
                   </div>
                   <div>
-                    <label
-                      className="block text-sm font-medium mb-1 text-white"
-                      htmlFor="password"
-                    >
-                      Password
-                    </label>
                     <input
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       id="password"
-                      className="form-input w-full bg-primary-dark-blue border-gray text-white focus:border-0"
+                      className="w-full h-8 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white  focus:border-primary-yellow"
                       type="password"
-                      autoComplete="on"
+                      autoComplete="off"
+                      placeholder="Password"
+                      required
                     />
                   </div>
-                </>
+                
               </div>
               <div className="flex items-center justify-between mt-6">
-                <div className="text-sm text-gray">
-                  Have an account?{" "}
+                <div className="font-roboto font-normal text-[10px] leading-[12px] text-gray">
+                  Already have an account?&nbsp;
                   <Link href="/auth/signIn">
-                    <span className="font-medium text-yellow select-none cursor-pointer hover:text-yellow">
+                    <span className="ont-roboto font-normal text-[10px] leading-[12px] underline text-yellow cursor-pointer">
                       Sign In
                     </span>
                   </Link>
                 </div>
-                {/* <Link href="/auth/signup"> */}
-                  <div
+                
+                  <button
                     onClick={handleSignUp}
-                    className="btn bg-yellow select-none cursor-pointer rounded-2xl py-1 hover:bg-yellow text-black ml-3"
+                    className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow hover:bg-primary-yellow-hover cursor-pointer"
                   >
                     Sign Up
-                  </div>
+                  </button>
                 {/* </Link> */}
               </div>
               {error ? (

@@ -103,10 +103,10 @@ export default function Signin() {
             </div>
             <div data-test="sign-in-sign-in-button">
                 <button
-                  className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow cursor-pointer"
+                  className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow hover:bg-primary-yellow-hover cursor-pointer"
                   onClick={signIn}
                 >
-                  Sign In
+                  Log In
                 </button>
               </div>
           </div>
