@@ -30,3 +30,13 @@ export const userIdSelector = selector({
     // }
   }
 });
+
+export const usernameSelector = selector({
+  key: "username",
+  get: ({get}) =>{
+    const user = get(userAtom);
+    return Auth.currentUserInfo().then((data) =>{
+      return data.username;
+    })
+  }
+})

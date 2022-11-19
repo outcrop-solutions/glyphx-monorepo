@@ -13,11 +13,12 @@ import { API, graphqlOperation, Auth } from "aws-amplify";
 import { CreateProjectMutation } from "API";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { projectsAtom, showAddProjectAtom } from "@/state/globals";
-import {userAtom } from "@/state/user";
+import {userAtom,usernameSelector } from "@/state/user";
 
 export const AddProjectModal = () => {
   const router = useRouter();
-  const user = useRecoilValue(userAtom)
+  const user = useRecoilValue(userAtom);
+  const username= useRecoilValue(usernameSelector);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const setProjects = useSetRecoilState(projectsAtom);
 
@@ -42,19 +43,14 @@ export const AddProjectModal = () => {
   };
 
   const handleSave = async () => {
-    // Convert String user atom to object
-    let obj = JSON.stringify(user);
-    obj = JSON.parse(obj);
-    let data = JSON.parse(obj);
-    // console.log({obj})
-    // 
+    
     const createProjectInput = {
       id: uuid(),
       name,
       description,
       expiry: new Date(),
-      author: data.username,
-      shared: [data.username, ...chips],
+      author: username,
+      shared: [username, ...chips],
     };
     console.log({createProjectInput})
     try {
