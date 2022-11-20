@@ -20,7 +20,7 @@ export const MainSidebar = () => {
   return (
     <div
       id="sidebar"
-      className={`hidden lg:flex flex-col absolute z-40 bg-secondary-space-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen scrollbar-none ${pathname === "/" ? "w-64" : "w-20"
+      className={`hidden lg:flex flex-col border border-r-gray absolute  bg-secondary-space-blue left-0 top-0 lg:static lg:left-auto lg:top-auto h-screen scrollbar-none ${pathname === "/" ? "w-64" : "w-20"
         } shrink-0 p-4`}
     >
       <div className="">
@@ -28,8 +28,8 @@ export const MainSidebar = () => {
         <div
           className={
             selectedProject
-              ? "flex justify-center mb-2 pr-3 sm:px-2 border-white border-b-2 py-1"
-              : "flex justify-between mb-2 pr-3 sm:px-2 border-white border-b-2 py-3"
+              ? "flex justify-center mb-2 pr-3 sm:px-2 border-white border-b py-1"
+              : "flex justify-between mb-2 pr-3 sm:px-2 border-white border-b"
           }
         >
           {/* Logo */}

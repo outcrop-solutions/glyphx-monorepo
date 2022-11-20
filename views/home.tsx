@@ -12,6 +12,8 @@ import { ListProjectsQuery } from "API";
 // Layout
 import { Header } from "partials";
 import { MainSidebar } from "partials";
+import { Info } from "@/partials/info";
+import { PinnedProjects } from "partials";
 
 // Project Overiew
 import { Templates } from "partials";
@@ -73,16 +75,18 @@ export default function Home() {
       <div className="flex flex-row h-screen w-screen scrollbar-none bg-secondary-midnight">
         {showAddProject ? <AddProjectModal /> : null}
         <MainSidebar />
-        <div className="relative z-0 flex flex-col w-full">
+        <div className="relative flex flex-col w-full">
           <Header />
           <hr
             className="text-gray h-[1px] ml-4"
           />
+          
           <div className="h-full overflow-y-scroll">
             <div className="flex grow relative h-full">
               <div className="w-full flex text-white">
                 {projects && projects.length > 0 ? (
                   <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+                    <PinnedProjects />
                     {isGridView ? <GridView /> : <TableView />}
                   </div>
                 ) : (
@@ -91,6 +95,9 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+        <div id="right-side-bars" className="">
+              {projectDetails ? <ProjectDetails/> : <></>}
         </div>
       </div>
     );

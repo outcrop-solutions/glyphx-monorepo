@@ -103,7 +103,8 @@ export const Header = () => {
         </div>
 
       </div>
-      <SearchModal />
+      {/* TODO: FIX SEARCH MODAL ISSUE AND UNCOMMENT IT */}
+      {/* <SearchModal /> */}
       <div className="flex flex-row space-x-3 pr-2">
         <button
           className="h-8 px-2 flex items-center justify-center bg-primary-yellow hover:bg-primary-yellow-hover rounded-[2px] ml-3"

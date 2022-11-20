@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { ProjectCard } from "./ProjectCard";
 import { AddProject } from "./AddProject";
-import { PinnedProjects } from "./PinnedProjects";
+// import { PinnedProjects } from "./PinnedProjects";
 import React from "react";
 import { useRecoilValue } from "recoil";
 import { projectsAtom } from "@/state/globals";
@@ -11,7 +11,7 @@ export const GridView = () => {
   return (
     <>
       {/* Page header */}
-      <PinnedProjects />
+      {/* <PinnedProjects /> */}
       <div className="sm:flex sm:justify-between sm:items-center mb-8 bg-primary-blue ">
         {/* Left: Title */}
         <div className="mb-4 sm:mb-0">

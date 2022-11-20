@@ -6,3 +6,4 @@ export * from "./ProjectCard";
 export * from "./ProjectDetails";
 export * from "./TableView";
 export * from "./Templates";
+export * from "./TableListItem"
