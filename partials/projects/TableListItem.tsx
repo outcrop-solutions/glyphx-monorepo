@@ -29,6 +29,7 @@ export function TableListItem({ projectDetails }) {
             {/* @ts-ignore */}
             <p title="Last Updated" className="w-40">{new Date(projectDetails.updatedAt).toLocaleDateString('en-US', dateOptions)}</p>
             <p title="Owner">{projectDetails.author === user ? "Me" : projectDetails.author}</p>
+            <div className="flex shrink-0 -space-x-2 -ml-px mr-2">
             {projectDetails.shared.map((member, idx) => {
                 if (idx < 3) {
                     return (
@@ -43,6 +44,8 @@ export function TableListItem({ projectDetails }) {
                     );
                 }
             })}
+            </div>
+            
             <p title="Data Usage">00.00 MB</p>
           
             

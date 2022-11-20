@@ -1,12 +1,91 @@
+import React, { useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { projectsAtom, showAddProjectAtom } from "@/state/globals";
 import { LinkDropDown, MemberList } from "../../invite";
 import { PermissionsDropDown } from "../../invite";
 
+import { API, graphqlOperation, Auth } from "aws-amplify";
+import { createProject } from "graphql/mutations";
+import { CreateProjectMutation } from "API";
+import { useRouter } from "next/router";
+import { v4 as uuid } from "uuid";
 
-export const NewProject = ({exit}) => {
+import { userAtom, usernameSelector } from "@/state/user";
+
+
+export const NewProject = ({ exit }) => {
+
+    const router = useRouter();
+    const username = useRecoilValue(usernameSelector);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [members, setMembers] = useState("");
 
     const setShowAddProject = useSetRecoilState(showAddProjectAtom);
+
+    function createMembersArray(){
+        var list = members.split(",");
+        for (let index = 0; index < list.length; index++) {
+            if (list[index].includes('@') && list[index].includes('.')) {
+                continue;
+            }
+            else{
+                return null
+            }   
+        }
+        return list;
+    }
+
+    /**
+     * Verifies if input is good
+     * @returns {BOOLEAN}
+     */
+    function verifyData(){
+        if (name === "" || name === undefined || name === null) {
+            return false;
+        }
+        if (createMembersArray() === null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    const handleSave = async () => {
+
+        if(!verifyData()){
+            alert("Invalid Data input")
+        }
+
+        let memebers = createMembersArray()
+
+        const createProjectInput = {
+            id: uuid(),
+            name,
+            description,
+            expiry: new Date(),
+            author: username,
+            shared: [username, ...memebers],
+        };
+        console.log({ createProjectInput })
+        try {
+            const result = (await API.graphql(
+                graphqlOperation(createProject, { input: createProjectInput })
+            )) as { data: CreateProjectMutation };
+
+            console.log({ result })
+
+            setShowAddProject(false);
+            router.push(`/project/${result.data.createProject.id}`);
+        } catch (error) {
+            console.log({ error });
+        }
+    };
+
+    function test(){
+        console.log({name},{description},{members})
+        console.log(createMembersArray());
+    }
 
     return (
         <div className="px-4 py-5 w-full">
@@ -24,11 +103,19 @@ export const NewProject = ({exit}) => {
                 <input
                     className="h-8 pl-2 py-2 rounded border border-gray bg-transparent font-roboto font-normal text-[12px] leading-[14px] placeholder:text-light-gray text-light-gray"
                     placeholder="Project Name"
+                    value={name}
+                    onChange={(e)=>{
+                        setName(e.target.value);
+                    }}
                     type="text"
                 />
                 <input
                     className="h-8 pl-2 py-2 rounded border border-gray bg-transparent font-roboto font-normal text-[12px] leading-[14px] placeholder:text-light-gray text-light-gray"
                     placeholder="Project Description"
+                    value={description}
+                    onChange={(e)=>{
+                        setDescription(e.target.value);
+                    }}
                     type="text"
                 />
             </div>
@@ -38,6 +125,10 @@ export const NewProject = ({exit}) => {
                 <input
                     className="h-8 pl-2 py-2 rounded border border-gray bg-transparent font-roboto font-normal text-[12px] leading-[14px] placeholder:text-light-gray text-light-gray"
                     placeholder="Emails, comma seperated"
+                    value={members}
+                    onChange={(e)=>{
+                        setMembers(e.target.value);
+                    }}
                     type="text"
                 />
                 <div className="my-[10px] flex flex-row items-center space-x-2">
@@ -57,15 +148,9 @@ export const NewProject = ({exit}) => {
 
                     </div>
                 </div>
-
-
-
-
             </div>
-
-
             <div className="mb-4 mt-4 flex flex-row justify-end items-center">
-                <button className="bg-primary-yellow py-2 px-2 font-roboto font-medium text-[14px] leading-[16px] text-secondary-space-blue">
+                <button onClick={handleSave} className="bg-primary-yellow py-2 px-2 font-roboto font-medium text-[14px] leading-[16px] text-secondary-space-blue">
                     Create
                 </button>
             </div>
