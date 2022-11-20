@@ -69,6 +69,31 @@ export default function Home() {
       
     );
   }else{
+    return(
+      <div className="flex flex-row h-screen w-screen scrollbar-none bg-secondary-midnight">
+        {showAddProject ? <AddProjectModal /> : null}
+        <MainSidebar />
+        <div className="relative z-0 flex flex-col w-full">
+          <Header />
+          <hr
+            className="text-gray h-[1px] ml-4"
+          />
+          <div className="h-full overflow-y-scroll">
+            <div className="flex grow relative h-full">
+              <div className="w-full flex text-white">
+                {projects && projects.length > 0 ? (
+                  <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+                    {isGridView ? <GridView /> : <TableView />}
+                  </div>
+                ) : (
+                  <Templates />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
     return (
       <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
         {showAddProject ? <AddProjectModal /> : null}

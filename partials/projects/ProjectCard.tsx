@@ -39,6 +39,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   };
 
   return (
+    // -z-60
     <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue hover:cursor-pointer">
       <div className="absolute top-0 left-0">
         <svg
@@ -144,7 +145,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
       >
         <img className="w-full h-full rounded-t-md" src="/images/project.png" />
         <footer className="mt-2 px-5 pb-5 pt-1">
-          <div className="text-sm font-medium text-white mb-2">{name}</div>
+          <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{name}</p>
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <div className="flex shrink-0 -space-x-3 -ml-px mr-2">
@@ -169,7 +170,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
                   <div
                     className={`rounded-full ${
                       idx % 2 === 0 ? "bg-cyan" : "bg-primary-yellow"
-                    } h-6 w-6 text-sm text-white flex items-center justify-center`}
+                    } h-6 w-6 font-roboto font-medium text-[12px] leading-[14px] tracking-[0.01em] text-white flex items-center justify-center`}
                   >
                     {project.author ? `${project.author[0].toUpperCase()}` : ""}
                   </div>
@@ -183,7 +184,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-white">
+              <p className="font-roboto font-medium text-sm text-gray leading-[16px] text-right">
                   {dayjs().to(dayjs(updatedAt))}
               </p>
             </div>

@@ -65,7 +65,7 @@ export const MainSidebar = () => {
                         fill="#CECECE"
                       />
                     </svg>
-                    <span className="text-white ml-2">Dashboard</span>
+                    <span className="text-white ml-2">Back</span>
                   </div>
                 )}
               </div>
@@ -167,7 +167,7 @@ export const MainSidebar = () => {
                     </div>
 
                     <span className="text-sm font-medium ml-3 lg:opacity-100 duration-200 text-white">
-                      Shared with Me
+                      Shared
                     </span>
                   </div>
                 </div>

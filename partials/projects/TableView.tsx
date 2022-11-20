@@ -12,7 +12,7 @@ export const TableView = () => {
   
   dayjs.extend(relativeTime);
   return (
-    <div className="text-white rounded-sm">
+    <div className="text-white rounded-sm relative -z-60">
       <div className="px-1">
         {/* Table */}
         <div className="overflow-x-auto">

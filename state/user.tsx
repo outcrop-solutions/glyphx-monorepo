@@ -7,7 +7,7 @@ export const userAtom = atom({
   default: {},
 });
 
-// TODO: FIGURE OUT WHY WE CANT PULL USERID RELIABLE FROM ATOM AND HAVE TO RELY ON ASYNC AUTH CALLS
+
 export const userIdSelector = selector({
   key: "userId",
   get: ({ get }) => {
@@ -31,6 +31,9 @@ export const userIdSelector = selector({
   }
 });
 
+ /**
+  * RETURNS USERNAME IF USER LOGGED IN
+  */
 export const usernameSelector = selector({
   key: "username",
   get: ({get}) =>{

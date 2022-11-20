@@ -74,14 +74,15 @@ export function SearchModal() {
      * Used to handle clicking outside of search modal
      * @param e 
      */
-    const clickHandler = (e) =>{
+    const clickHandler = (e) => {
+      console.log(e.target)
       try {
-        if (document.getElementById('search').contains(e.target)){
+        if (document.getElementById('search').contains(e.target)) {
           // Clicked in box
-          // console.log("in search")
-        } else{
+          console.log("in search")
+        } else {
           // Clicked outside the box
-          // console.log("out of search");
+          console.log("out of search");
           setShowSearchModalOpen(false);
         }
       } catch (error) {
@@ -89,7 +90,7 @@ export function SearchModal() {
       }
     }
     document.addEventListener("keydown", keyHandler);
-    window.addEventListener('click',clickHandler);
+    window.addEventListener('click', clickHandler);
     return () => {
       document.removeEventListener("keydown", keyHandler);
       document.removeEventListener("click", clickHandler);
@@ -98,30 +99,26 @@ export function SearchModal() {
 
   return (
     <div
-    id="search"
+      id="search"
       onClick={(e) => {
         console.log("on click hit")
         e.stopPropagation();
         setShowSearchModalOpen(true);
       }}
-      className="input-group flex flex-col justify-center relative rounded-2xl border border-gray z-60"
+      className="input-group flex flex-col justify-center relative rounded border border-gray z-60"
     >
       <div
-      className="flex flex-col ">
+        className="flex flex-col ">
         <div
-        className="fixed top-2">
-          <label htmlFor="action-search" className="sr-only">
-            Search
-          </label>
+          className="">
           <div className="flex justify-end items-center relative">
             <input
               autoComplete={"off"}
               id="action-search"
-              className={`outline-none ${
-                showSearchModalOpen ? "rounded-b-none" : "rounded-2xl"
-              } pl-9 text-white placeholder-white border-white w-96 bg-transparent`}
+              className={`outline-none ${showSearchModalOpen ? "rounded-b-none" : "rounded" //rounded-2xl
+                } pl-9 text-white placeholder-light-gray font-roboto font-normal text-[12px] leading-[14px] border-gray w-[400px] bg-transparent`}
               type="search"
-              placeholder="Search My Projects"
+              placeholder="Search owned projects..."
               onChange={(e) => setQuery(e.target.value)}
               value={query}
             />
@@ -140,93 +137,92 @@ export function SearchModal() {
               </svg>
             </div>
             <button
-              className="absolute inset-0 right-auto group"
+              className="absolute inset-0 right-auto group left-[2px]"
               type="submit"
               aria-label="Search"
             >
-              <svg
-                className="w-4 h-4 shrink-0 fill-current text-white group-hover:text-gray ml-3 mr-2"
-                viewBox="0 0 16 16"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M7 14c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7zM7 2C4.243 2 2 4.243 2 7s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5z" />
-                <path d="M15.707 14.293L13.314 11.9a8.019 8.019 0 01-1.414 1.414l2.393 2.393a.997.997 0 001.414 0 .999.999 0 000-1.414z" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.7252 14.3182H14.9842L14.7216 14.065C15.8471 12.7518 16.4287 10.9603 16.1098 9.05624C15.6689 6.44869 13.4928 4.36639 10.8665 4.04749C6.89891 3.55974 3.55974 6.89891 4.04749 10.8665C4.36639 13.4928 6.44869 15.6689 9.05624 16.1098C10.9603 16.4287 12.7518 15.8471 14.065 14.7216L14.3182 14.9842V15.7252L18.3046 19.7116C18.6892 20.0961 19.3176 20.0961 19.7022 19.7116C20.0868 19.327 20.0868 18.6986 19.7022 18.314L15.7252 14.3182ZM10.0974 14.3182C7.76184 14.3182 5.87653 12.4329 5.87653 10.0974C5.87653 7.76184 7.76184 5.87653 10.0974 5.87653C12.4329 5.87653 14.3182 7.76184 14.3182 10.0974C14.3182 12.4329 12.4329 14.3182 10.0974 14.3182Z" fill="#CECECE" />
               </svg>
+
             </button>
           </div>
 
           <div>
-            {!query && showSearchModalOpen && (
-              <div className="bg-white p-2 rounded-b-2xl">
-                <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">
-                  Recent Projects
-                </p>
-                <ul>
-                  {projects.slice(0, 5).map((value, index) => {
-                    return (
-                      <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/project/${value.id}`}>
-                          <a
-                            className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
-                          >
-                            <svg
-                              className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
-                            </svg>
-                            <span>{value.name}</span>
-                          </a>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
-
-            {query && showSearchModalOpen && (
-              <div className="bg-white p-2 rounded-b-2xl">
-                <p className="text-xs font-semibold text-gray uppercase px-2 mb-2 mt-2">
-                  Search Results
-                </p>
-                <ul>
-                  {queryResult.slice(0, 10).map((value, index) => {
-                    return (
-                      <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/project/${value.item.id}`}>
-                          <a
-                            // onClick={() => {
-                            //   setShowSearchModalOpen(false);
-                            // }}
-                            className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
-                          >
-                            <svg
-                              className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z"
-                                fill="#CECECE"
-                              />
-                            </svg>
-
-                            <span>{value.item.name}</span>
-                          </a>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
+        {!query && showSearchModalOpen && (
+          <div className="absolute top-8 w-full bg-white p-2 rounded-b-2xl z-60">
+            <p className="font-roboto font-normal text-[12px] text-secondary-midnight leading-[14px] uppercase px-2 mb-2 mt-2">
+              Recent Projects
+            </p>
+            <ul>
+              {projects.slice(0, 5).map((value, index) => {
+                return (
+                  <li key={index} className="hover:cursor-pointer">
+                    <Link href={`/project/${value.id}`}>
+                      <a
+                        className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                      >
+                        <svg
+                          className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                          viewBox="0 0 16 16"
+                        >
+                          <path d="M15.707 14.293v.001a1 1 0 01-1.414 1.414L11.185 12.6A6.935 6.935 0 017 14a7.016 7.016 0 01-5.173-2.308l-1.537 1.3L0 8l4.873 1.12-1.521 1.285a4.971 4.971 0 008.59-2.835l1.979.454a6.971 6.971 0 01-1.321 3.157l3.107 3.112zM14 6L9.127 4.88l1.521-1.28a4.971 4.971 0 00-8.59 2.83L.084 5.976a6.977 6.977 0 0112.089-3.668l1.537-1.3L14 6z" />
+                        </svg>
+                        <span>{value.name}</span>
+                      </a>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
+        )}
+
+        {query && showSearchModalOpen && (
+          <div className="absolute top-8 w-full bg-white p-2 rounded-b-2xl z-60">
+            <p className="text-xs font-roboto font-semibold text-gray uppercase px-2 mb-2 mt-2">
+              Search Results
+            </p>
+            <ul>
+              {queryResult.slice(0, 10).map((value, index) => {
+                return (
+                  <li key={index} className="hover:cursor-pointer">
+                    <Link href={`/project/${value.item.id}`}>
+                      <a
+                        // onClick={() => {
+                        //   setShowSearchModalOpen(false);
+                        // }}
+                        className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                      >
+                        <svg
+                          className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z"
+                            fill="#CECECE"
+                          />
+                        </svg>
+
+                        <span>{value.item.name}</span>
+                      </a>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
+
+
         </div>
       </div>
+      
     </div>
   );
 }

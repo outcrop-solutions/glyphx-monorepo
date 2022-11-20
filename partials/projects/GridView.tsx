@@ -12,17 +12,17 @@ export const GridView = () => {
     <>
       {/* Page header */}
       <PinnedProjects />
-      <div className="sm:flex sm:justify-between sm:items-center mb-8 bg-primary-blue">
+      <div className="sm:flex sm:justify-between sm:items-center mb-8 bg-primary-blue ">
         {/* Left: Title */}
         <div className="mb-4 sm:mb-0">
-          <h1 className="text-xl md:text-2xl text-white font-thin">
-            Recent Projects
-          </h1>
+          <p className="font-rubik font-light text-lg leading-[21px] tracking-[0.01em] text-white ">
+            Recently Viewed Projects
+          </p>
         </div>
       </div>
       {/* Cards */}
       <div className="grid grid-cols-12 gap-6 bg-primary-blue">
-        <AddProject />
+        {/* <AddProject /> */}
         {projects.map((item, idx) => {
           return (
             <ProjectCard

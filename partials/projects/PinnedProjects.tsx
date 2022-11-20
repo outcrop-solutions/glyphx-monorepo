@@ -119,10 +119,11 @@ function classNames(...classes) {
 
 export const PinnedProjects = () => {
   return (
-    <div className="pt-8 mb-8">
-      <h2 className="text-white text-lg font-medium uppercase tracking-wide">
-        Pinned templates
-      </h2>
+    // -z-60
+    <div className="pt-8 mb-8 relative">
+      <p className="font-rubik font-light text-[18px] text-white leading-[21px] tracking-[0.01em]">
+        Recently Used Templates
+      </p>
       <ul
         role="list"
         className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4"
@@ -130,7 +131,7 @@ export const PinnedProjects = () => {
         {projects.map((project) => (
           <li
             key={project.name}
-            className="col-span-1 flex shadow-sm rounded-md border  border-transparent bg-secondary-space-blue"
+            className="group col-span-1 flex shadow-sm rounded border  border-transparent bg-secondary-space-blue hover:cursor-pointer hover:border-white p-2"
           >
             <div
               className={classNames(
@@ -144,15 +145,15 @@ export const PinnedProjects = () => {
               <div className="flex-1 px-4 py-2 text-sm truncate">
                 <a
                   href={project.href}
-                  className="text-white font-medium hover:text-gray"
+                  className="font-roboto font-medium text-[14px] leading-[16px] text-light-gray  group-hover:text-white"
                 >
                   {project.name}
                 </a>
-                <p className="text-gray">
+                {/* <p className="text-gray">
                   {project.derivatives} Derivative Projects
-                </p>
+                </p> */}
               </div>
-              <div className="shrink-0 pr-2">
+              {/* <div className="shrink-0 pr-2">
                 <button
                   type="button"
                   className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray rounded-full bg-transparent hover:text-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -160,7 +161,7 @@ export const PinnedProjects = () => {
                   <span className="sr-only">Open options</span>
                   <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />
                 </button>
-              </div>
+              </div> */}
             </div>
           </li>
         ))}
