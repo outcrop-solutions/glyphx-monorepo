@@ -106,7 +106,7 @@ export const ReorderConfirmModal = () => {
     // call ETL
     // create new project with updated properties
     // set project state
-    setReorderConfirm(false);
+    // setReorderConfirm(false);
   };
 
   const handleClickAway = () => {
@@ -114,7 +114,7 @@ export const ReorderConfirmModal = () => {
   };
   const handleCancel = () => {
     // TODO: restore properties array to old props using atom effect keying off trigger
-    setReorderConfirm(false);
+    // setReorderConfirm(false);
   };
   return (
     <div className="absolute w-full h-full flex justify-center items-center bg-gray bg-opacity-50 z-60">
