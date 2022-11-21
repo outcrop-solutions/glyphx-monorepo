@@ -76,7 +76,10 @@ export const Templates = () => {
       id: uuid(),
       name: "Template Project",
       description: "New project from empty template",
+      // TODO : EDIT THIS TO MATCH NEW CRITERIA
+      //@ts-ignore
       author: user?.username,
+      //@ts-ignore
       shared: [user?.username],
       expiry: new Date(),
     };
