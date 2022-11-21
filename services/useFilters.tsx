@@ -13,6 +13,7 @@ export const useFilters = () => {
     const fetchFilters = async () => {
       try {
         const filterData = await API.graphql(graphqlOperation(listFilters));
+        //@ts-ignore
         const filterList = filterData.data.listFilters.items;
 
         setFilters((prev) => {

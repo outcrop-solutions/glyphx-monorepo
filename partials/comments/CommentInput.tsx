@@ -21,6 +21,7 @@ export const CommentInput = ({ setComments }) => {
     if (typeof activeState !== "undefined") {
       let commentInput = {
         id: uuid(),
+        //@ts-ignore
         author: user ? user.attributes.email : "",
         content: commentContent,
         stateID: activeState,
