@@ -2,7 +2,7 @@ import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { FolderIcon, UserCircleIcon, XIcon } from "@heroicons/react/outline";
 import { CheckIcon, PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
@@ -26,10 +26,10 @@ export const ProjectDetails = () => {
   const [open, setOpen] = useState(true);
   const [name, setName] = useState(projectDetails.name);
   const [description, setDescription] = useState(projectDetails.description);
-  const [members, setMembers] = useState([]);
+  const [members, setMembers] = useState("");
   const [chips, setChips] = useState(projectDetails.shared);
-  const [msg, setMsg] = useState(false);
-  const [error, setError] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const [error, setError] = useState(null);
   const [editShare, setEditShare] = useState(false);
   const [editTitle, setEditTitle] = useState(false);
   const [editDesc, setEditDesc] = useState(false);
@@ -43,6 +43,7 @@ export const ProjectDetails = () => {
     });
   };
   const handleDelete = (item) => {
+    //@ts-ignore
     if (item === user.username) {
       setError("Cannot remove project author.");
       setTimeout(() => {
@@ -269,7 +270,7 @@ export const ProjectDetails = () => {
                       <div className="mt-2 flex items-center justify-between">
                         {editDesc ? (
                           <textarea
-                            type="text"
+                            // type="text"
                             name="name"
                             id="name"
                             value={description}

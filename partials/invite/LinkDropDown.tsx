@@ -82,6 +82,7 @@ export function LinkDropDown({ align }) {
       </button>
 
       <Transition
+      appear={null}
         className={`origin-top-right z-10 absolute top-full min-w-44 bg-primary-dark-blue border border-gray py-1.5 rounded shadow-lg overflow-hidden mt-1 ${
           align === "right" ? "right-0" : "left-0"
         }`}
