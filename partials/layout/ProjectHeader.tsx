@@ -141,7 +141,7 @@ export const ProjectHeader = () => {
 
 
                         <button
-                            className={`h-6 px-2 flex items-center justify-center bg-primary-yellow hover:bg-primary-yellow-hover transition duration-150 rounded-full ml-3 ${showSearchModalOpen && "bg-gray"
+                            className={`h-6 px-2 flex items-center justify-center bg-primary-yellow hover:bg-primary-yellow-hover transition duration-150 rounded-[2px] ml-3 ${showSearchModalOpen && "bg-gray"
                                 }`}
                             onClick={(e) => {
                                 // setShowAddProject(selectedProject ? true : false);
@@ -205,7 +205,7 @@ export const ProjectHeader = () => {
 
 
                         <button
-                            className={`h-8 p-2 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-full ml-3`}
+                            className={`h-8 p-2 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-[2px] ml-3`}
                             onClick={(e) => {
                                 // setShowAddProject(selectedProject ? true : false);
                                 setShare(false);
@@ -224,7 +224,7 @@ export const ProjectHeader = () => {
                         {/* {selectedProject && <Help />} */}
 
                         <button
-                            className={`h-8 p-1 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-full ml-0`}
+                            className={`h-8 p-1 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-[2px] ml-0`}
                             onClick={(e) => {
                                 // setShowAddProject(selectedProject ? true : false);
                                 setShare(false);

@@ -7,8 +7,6 @@ import { useRecoilState } from "recoil";
 import { glyphViewerDetails } from "@/state/globals";
 
 export const ProjectSidebar = ({
-  error,
-  // setFilterSidebarPosition,
   handleDrop,
   toastRef,
 }) => {

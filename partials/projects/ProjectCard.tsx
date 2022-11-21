@@ -161,7 +161,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
                               idx % 2 === 0 ? "bg-blue" : "bg-primary-yellow"
                             } h-6 w-6 text-sm text-white flex items-center justify-center`}
                           >
-                            {`${member.split("@")[0][0].toUpperCase()}`}
+                            {`${member.split("@")[0][0]?.toUpperCase()}`}
                           </div>
                         );
                       }

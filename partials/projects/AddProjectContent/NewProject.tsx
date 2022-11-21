@@ -24,9 +24,12 @@ export const NewProject = ({ exit }) => {
     const setShowAddProject = useSetRecoilState(showAddProjectAtom);
 
     function createMembersArray(){
+        if (members === "") { //if it is empty
+            return []
+        }
         var list = members.split(",");
         for (let index = 0; index < list.length; index++) {
-            if (list[index].includes('@') && list[index].includes('.')) {
+            if (list[index].includes('@') && list[index].includes('.') || list[index] === "") {
                 continue;
             }
             else{
@@ -54,7 +57,8 @@ export const NewProject = ({ exit }) => {
     const handleSave = async () => {
 
         if(!verifyData()){
-            alert("Invalid Data input")
+            alert("Invalid Data input");
+            return;
         }
 
         let memebers = createMembersArray()

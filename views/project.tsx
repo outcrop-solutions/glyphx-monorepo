@@ -78,8 +78,6 @@ export default function Project() {
         {/* Project sidebar */}
       <div className="w-[250px] shrink-0">
       <ProjectSidebar
-                error={error}
-                // setFilterSidebarPosition={setFilterSidebarPosition}
                 handleDrop={handleDrop}
                 toastRef={toastRef}
               />

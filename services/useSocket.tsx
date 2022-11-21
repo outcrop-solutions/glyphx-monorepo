@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import {QWebChannel} from "qwebchannel";
-import { glyphViewerDetails } from "../state";
-import { useRecoilState } from "recoil";
+import { glyphViewerDetails,orientationAtom } from "../state";
+import { shareOpenAtom } from "@/state/share";
+import { showInfoAtom } from "@/state/info";
+import { showNotificationAtom } from "@/state/notification";
+import { useRecoilState, useRecoilValue } from "recoil";
 /**
  * To handle Socket Connection and Communications with Qt window
  * @param {boolean} isSelected
@@ -18,6 +21,11 @@ export const useSocket = () => {
   const [filterSidebarPosition, setFilterSidebarPosition] = useState(null);
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
   const [isSet, changeSet] = useState(false); // trying to limit number of times openSocket is ran to 1 
+
+  const isShareOpen = useRecoilValue(shareOpenAtom);
+  const isInfoOpen = useRecoilValue(showNotificationAtom);
+  const isNotifOpen = useRecoilValue(showInfoAtom);
+  const orientation = useRecoilValue(orientationAtom);
 
   //   Create Socket
   const openSocket = (baseUrl) => {
@@ -111,21 +119,40 @@ export const useSocket = () => {
   //   TODO: make our lives much easier by just setting fixed width header and sidebars
   useEffect(() => {
     console.log("in set up in useSocket")
+    console.log({Screenheight: window.innerHeight},{calc: window.innerHeight * 0.157})
     // @ts-ignore
     console.log({glyphViewer})
     if (glyphViewer.sendDrawerPositionApp) { //for testing purposes
-      console.log("in setting width")
+      console.log("in setting width");
+      var yValue = Math.round(window.innerHeight * 0.882)
+      var heightValue = Math.round(window.innerHeight * 0.157);
+      var leftValue = window.innerWidth;
+      if (isShareOpen || isInfoOpen || isNotifOpen || true) {
+        leftValue = window.innerWidth - 250
+      }
+
+      console.log("useSocket initialisation data:",JSON.stringify({
+        filterSidebar: {
+          y: yValue, //843 
+          right: 335,
+          height: heightValue,
+        },
+        commentsSidebar: {
+          left: leftValue,
+        },
+      }))
+      
       try {
          // @ts-ignore
       window.core.SendDrawerPosition(
         JSON.stringify({
           filterSidebar: {
-            y: 843, //843 
+            y: yValue, //843 
             right: 335,
-            height: window.innerHeight,
+            height: heightValue,
           },
           commentsSidebar: {
-            left: window.innerHeight,
+            left: leftValue,
           },
         })
       );

@@ -28,22 +28,23 @@ export const GridContainer = ({ isDropped }) => {
   const [localSize, setSize] = useState(null); //set a local size state
 
   function startDrag() {
-    // try { //hide glyph viewer
-    //   //@ts-ignore
-    //   window?.core.ToggleDrawer(false);
-    // } catch (error) {
-    //   console.log({ error })
-    // }
+    try { //hide glyph viewer
+      //@ts-ignore
+      window?.core.ToggleDrawer(false);
+    } catch (error) {
+      console.log({ error })
+    }
   }
 
   function completedDrag(size) {
-    console.log({ completedDrag: size });
-    console.log(window.innerWidth - 240);
-    console.log({ windowHeight: window.innerHeight });
-    console.log({ isShareOpen });
     setSize(size);
-    // doResize(size);
-
+    doResize(size);
+    try { //show glyph viewer
+      //@ts-ignore
+      window?.core.ToggleDrawer(true);
+    } catch (error) {
+      console.log({ error })
+    }
   }
 
   function onDragChange(size) {
@@ -52,77 +53,82 @@ export const GridContainer = ({ isDropped }) => {
 
   function doResize(size) {
 
-    var leftSide = window.innerWidth;
-
-    if (isShareOpen) {
-      leftSide = leftSide - 350;
-    }
-
-    if (isInfoOpen) {
-      leftSide = leftSide - 300
-    }
-
-
 
     try {
       //@ts-ignore
       // window?.core.ToggleDrawer(true);
       if (orientation === "horizontal") {
+        var yValue = size + Math.abs(Math.round(window.innerHeight * 0.882) - 700);
+        var heightValue = Math.abs(size - Math.abs(Math.round(window.innerHeight * 0.157) + 700));
+        var leftSide = window.innerWidth;
+        if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
+          leftSide = leftSide - 250;
+        }
+
+        console.log(JSON.stringify({
+          filterSidebar: {
+            y: yValue, //843 
+            right: 335,
+            height: heightValue,
+          },
+          commentsSidebar: {
+            left: leftSide
+          }
+        }))
         //@ts-ignore
-        // window?.core.ResizeEvent(
-        //   JSON.stringify({
-        //     filterSidebar: {
-        //       right: 335,
-        //       height: size + 150,
-        //       y: size + 150
-        //     },
-        //     commentsSidebar: {
-        //       left: leftSide
-        //     }
-        //   })
-        // );
-        console.log("Horizontal:", { left: leftSide, right: 335, height: window.innerWidth, y: size + 150 });
+        window?.core.ResizeEvent(
+          JSON.stringify({
+            filterSidebar: {
+              y: yValue, //843 
+              right: 335,
+              height: heightValue,
+            },
+            commentsSidebar: {
+              left: leftSide
+            }
+          })
+        );
       }
       else {
-
-        console.log(size + 90);
         console.log({ size })
-
-        //@ts-ignore
-        // window?.core.ResizeEvent(
-        //   JSON.stringify({
-        //     filterSidebar: {
-        //       right: size + 90 < 500 ? 580 : size + 90,
-        //       height: window.innerWidth,
-        //       y: 150
-        //     },
-        //     commentsSidebar: {
-        //       left: leftSide
-        //     }
-        //   })
-        // );
-        console.log("Vertical:", { left: leftSide, right: size + 90 < 500 ? 580 : size + 90, height: window.innerWidth, y: 150 });
+        var rightValue = size + 335;
+        var leftSide = window.innerWidth;
+        if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
+          leftSide = leftSide - 250;
+        }
+        // @ts-ignore
+        window?.core.ResizeEvent(
+          JSON.stringify({
+            filterSidebar: {
+              right: rightValue,
+              height: window.innerWidth,
+              y: 150
+            },
+            commentsSidebar: {
+              left: leftSide
+            }
+          })
+        );
       }
+
+
 
     } catch (error) {
       console.log({ error })
     }
   }
 
-  // LOOK AT IMMUTABLE UPDATE
+  // TODO: LOOK AT IMMUTABLE UPDATE
 
   //kicks in on orientation change
   useEffect(() => {
+    doResize(localSize);
     // console.log({ColumnLength: cols?.length});
     //@ts-ignore
     r.style.setProperty('--screen', `${window.innerHeight}px`);
     if (cols?.length > 0) {
       //@ts-ignore
       r.style.setProperty('--col', cols.length); //set the column length to column length of csv for globals.css
-    }
-    if ((localSize || isInfoOpen || isShareOpen) && stdName !== null) {
-      console.log("ABOUT TO ALL DO RESIZE")
-      // doResize(localSize); //TODO: uncomment and fix
     }
 
     // Resize grid if right sidebar is open
@@ -151,14 +157,13 @@ export const GridContainer = ({ isDropped }) => {
     <>
       {rows?.length > 0 ? (
         <>
-          {/* FIXME: FIGURE OUT FIX FOR GRID */}
           {
             stdName !== null ?
               <div className="">
                 <SplitPane
                   split={orientation === "horizontal" ? "horizontal" : "vertical"}
                   allowResize={true} defaultSize={700}
-                  maxSize={orientation === "horizontal" ? 700 : window.innerWidth - 40 -192 - 600}
+                  maxSize={orientation === "horizontal" ? 700 : window.innerWidth - 40 - 192 - 600}
                   minSize={orientation === "horizontal" ? null : 200}
                   onDragStarted={startDrag}
                   onDragFinished={completedDrag}
@@ -175,18 +180,13 @@ export const GridContainer = ({ isDropped }) => {
                   </div>
                 </SplitPane>
               </div>
-
               :
               (
                 <div className={`flex flex-col h-full w-full `}>
                   <GridHeader />
                   <Datagrid isDropped={isDropped} />
                 </div>
-
-
               )
-            // TODO : FIGURE OUT HOW TO FIX WIDTH SO THAT IT CAN MATCH CONTENT. NEED HELP FROM EXPERT JAMES
-
           }
         </>
       ) : (

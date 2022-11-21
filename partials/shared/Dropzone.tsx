@@ -14,6 +14,7 @@ import {
 import { selectedProjectSelector } from "@/state/project";
 import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
 import { postUploadCall } from "@/services/ETLCalls";
+import { updateProjectInfo } from "@/services/GraphQLCalls";
 
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
@@ -52,6 +53,7 @@ export const Dropzone = ({ toastRef }) => {
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
   const selectedProject = useRecoilValue(selectedProjectSelector);
+  const project = useRecoilValue(selectedProjectSelector);
   // status = 'uploading' | 'processing' | 'testing' | 'ready'
   const [status, setStatus] = useState(null);
 
@@ -141,7 +143,25 @@ export const Dropzone = ({ toastRef }) => {
                     })
                   }
                   else{
-                    // TODO: SAVE FILE NAME TO PROJECT
+                   // TODO: SAVE FILE NAME TO PROJECT
+                   console.log({ project });
+                   let fileArr = [file.name]
+                   if (project?.files !== null) {
+                     fileArr = [...fileArr, ...project.files]
+                   }
+                   const updatedProject = {
+                     id: project?.id,
+                     filePath: project?.filePath,
+                     expiry: new Date().toISOString(),
+                     properties: project?.properties,
+                     url: project?.url,
+                     shared: project.shared,
+                     description: project.description,
+                     files: fileArr, //adding file to dynamo db
+                   }
+                   console.log({ updatedProject });
+                   let GraphQLresult = await updateProjectInfo(updatedProject);
+                   console.log("GraphQL file update:", { GraphQLresult });
                     
                   }
                   
