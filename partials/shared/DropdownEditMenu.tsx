@@ -50,6 +50,7 @@ export function DropdownEditMenu({
         </svg>
       </button>
       <Transition
+        appear={null}
         show={dropdownOpen}
         tag="div"
         className={`origin-top-right z-10 absolute top-full min-w-36 bg-white border border-gray py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}

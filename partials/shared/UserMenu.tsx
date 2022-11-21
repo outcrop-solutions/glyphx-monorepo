@@ -69,6 +69,7 @@ export const UserMenu = ({ align }) => {
         </svg>
         <div className="flex items-center truncate">
           <span className="truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-gray">
+            {/* @ts-ignore */}
             {user?.attributes?.name || user?.attributes?.email || ""}
           </span>
         </div>

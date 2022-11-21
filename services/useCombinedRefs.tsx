@@ -12,7 +12,7 @@ export function useCombinedRefs(...refs) {
         if (typeof ref === "function") {
           ref(handle);
         } else if (ref !== null && "current" in ref) {
-          // @ts-expect-error: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
+          // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
           ref.current = handle;
         }
       }

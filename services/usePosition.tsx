@@ -13,6 +13,7 @@ export const usePosition = (target) => {
     if (target.current) setEntry(target.current.getBoundingClientRect());
   }, [target]);
   // Where the magic happens
+  // @ts-ignore
   useResizeObserver(target, (entry) => setEntry(entry));
 
   return entry;

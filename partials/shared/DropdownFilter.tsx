@@ -50,6 +50,7 @@ export function DropdownFilter({ align }) {
         </svg>
       </button>
       <Transition
+      appear={null}
         show={dropdownOpen}
         tag="div"
         className={`origin-top-right z-10 absolute top-full min-w-56 bg-white border border-gray pt-1.5 rounded shadow-lg overflow-hidden mt-1 ${

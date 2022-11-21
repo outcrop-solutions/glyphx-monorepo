@@ -35,6 +35,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
     <>
       {/* Modal backdrop */}
       <Transition
+      appear={null}
         className="fixed inset-0 bg-primary-dark-blue bg-opacity-30 z-50 transition-opacity"
         show={modalOpen}
         enter="transition ease-out duration-200"
@@ -47,6 +48,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
       />
       {/* Modal dialog */}
       <Transition
+      appear={null}
         id={id}
         className="fixed inset-0 z-50 overflow-hidden flex items-start top-20 mb-4 justify-center transform px-4 sm:px-6"
         role="dialog"

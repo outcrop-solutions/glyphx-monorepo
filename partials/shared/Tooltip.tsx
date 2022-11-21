@@ -63,6 +63,7 @@ export function Tooltip({ children, className, bg, size, position }) {
       </button>
       <div className={`z-10 absolute ${positionOuterClasses(position)}`}>
         <Transition
+        appear={null}
           show={tooltipOpen}
           tag="div"
           className={`rounded overflow-hidden ${

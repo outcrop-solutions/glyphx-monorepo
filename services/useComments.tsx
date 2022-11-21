@@ -20,7 +20,8 @@ export const useComments = (state) => {
           const commentsData = await API.graphql(
             graphqlOperation(listComments)
           );
-          const commentList = commentsData.data.listComments.items;
+          //@ts-ignore
+          const commentList = commentsData?.data.listComments.items;
 
           setComments((prev) => {
             let newData = [

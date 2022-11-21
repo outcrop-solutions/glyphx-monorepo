@@ -22,7 +22,8 @@ export const useStates = (project) => {
       try {
         const statesData = await API.graphql(graphqlOperation(listStates));
 
-        const stateList = statesData.data.listStates.items;
+        //@ts-ignore
+        const stateList = statesData?.data.listStates.items;
 
         console.log({ stateList });
         setStates((prev) => {

@@ -35,9 +35,10 @@ export const statesSelector = selector({
     if (!selectedProject) return;
     let newSelectedProjectValue = {
       ...selectedProject,
+      //@ts-ignore
       states: [...newStatesValue],
     };
-
+    //@ts-ignore
     set(selectedProjectSelector, newSelectedProjectValue);
   },
 });

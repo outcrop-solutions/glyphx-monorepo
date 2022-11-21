@@ -72,7 +72,9 @@ export const State = ({ item }) => {
         <div className="block text-gray group-states-hover:text-gray transition duration-150 truncate">
           <span
             className={`text-sm ${
+              // @ts-ignore
               item && item.id && activeState && activeState.id
+              // @ts-ignore
                 ? item.id === activeState.id
                   ? "text-white"
                   : ""

@@ -78,6 +78,7 @@ function CSSTransition({
         if (!removeFromDom) nodeRef.current.style.display = "none";
       }}
     >
+      {/* @ts-ignore */}
       <Component
         ref={nodeRef}
         {...rest}
@@ -96,8 +97,11 @@ export const Transition = ({ show, appear, ...rest }) => {
 
   if (isChild) {
     return (
+      // @ts-ignore
       <CSSTransition
+      // @ts-ignore
         appear={parent.appear || !parent.isInitialRender}
+        // @ts-ignore
         show={parent.show}
         {...rest}
       />
@@ -114,6 +118,7 @@ export const Transition = ({ show, appear, ...rest }) => {
         },
       }}
     >
+      {/* @ts-ignore */}
       <CSSTransition appear={appear} show={show} {...rest} />
     </TransitionContext.Provider>
   );

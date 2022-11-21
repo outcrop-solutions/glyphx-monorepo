@@ -13,8 +13,9 @@ export default function Confirm() {
 
   const handleConfirm = async () => {
     try {
+      // @ts-ignore
       await Auth.confirmSignUp(user.username, code);
-
+      // @ts-ignore
       await Auth.signIn(user.username, user.password);
       setUser(null);
 

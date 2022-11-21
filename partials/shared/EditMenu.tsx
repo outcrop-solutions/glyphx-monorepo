@@ -52,6 +52,7 @@ export function EditMenu({ children, ...rest }) {
         </svg>
       </button>
       <Transition
+        appear={null}
         show={dropdownOpen}
         tag="div"
         className="origin-top-right z-10 absolute top-full right-0 min-w-36 bg-white border border-gray py-1.5 rounded shadow-lg overflow-hidden mt-1"
