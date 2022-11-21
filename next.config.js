@@ -18,5 +18,5 @@ module.exports = {
   compiler: {
     removeConsole: false, // TODO: Change to true 
   },
-  distDir: 'build',
+  distDir: 'output',
 };
