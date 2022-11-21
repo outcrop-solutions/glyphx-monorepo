@@ -26,6 +26,7 @@ export const GridContainer = ({ isDropped }) => {
   const isShareOpen = useRecoilValue(shareOpenAtom);
   const isNotificationOpen = useRecoilValue(showNotificationAtom);
   const [localSize, setSize] = useState(null); //set a local size state
+  const [localOrientation, setLocalOrientation] = useState("horizontal");
 
   function startDrag() {
     try { //hide glyph viewer
@@ -122,7 +123,11 @@ export const GridContainer = ({ isDropped }) => {
 
   //kicks in on orientation change
   useEffect(() => {
-    doResize(localSize);
+    if (orientation !== localOrientation) {
+      doResize(localSize);
+      setLocalOrientation(orientation);
+    }
+    
     // console.log({ColumnLength: cols?.length});
     //@ts-ignore
     r.style.setProperty('--screen', `${window.innerHeight}px`);
