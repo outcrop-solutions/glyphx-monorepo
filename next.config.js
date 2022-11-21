@@ -17,5 +17,5 @@ module.exports = {
   swcMinify: true,
   compiler: {
     removeConsole: false, // TODO: Change to true 
-  },
+  }
 };
