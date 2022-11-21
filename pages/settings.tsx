@@ -11,7 +11,7 @@ const DynamicSettings = dynamic(() => import("views/settings"), {
   suspense: true,
 });
 
-export const Settings = () => {
+export default function Settings() {
   return (
     <ErrorBoundary
       FallbackComponent={SettingsErrorFallback}
@@ -26,4 +26,4 @@ export const Settings = () => {
       </Suspense>
     </ErrorBoundary>
   );
-};
+}

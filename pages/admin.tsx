@@ -11,7 +11,7 @@ const DynamicAdmin = dynamic(() => import("views/admin"), {
   suspense: true,
 });
 
-export const Admin = () => {
+export default function Admin() {
   return (
     <ErrorBoundary
       FallbackComponent={AdminErrorFallback}
