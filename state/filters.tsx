@@ -83,6 +83,10 @@ export const filterQuerySelector = selector({
     const { sdt } = get(payloadSelector);
     let selectedProject = get(selectedProjectSelector);
 
+    if (filtersApplied.length === 0) { // stop from running query when nothing in there
+      return undefined
+    }
+
     if (isFilterSafe) {
       let filterStringArr = [];
 
