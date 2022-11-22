@@ -22,6 +22,36 @@ export const filtersSelector = selector({
   },
 });
 
+/**
+ * HOLDS FILTERS TO BE APPLIED TO THE GLYPH
+ * 
+ * FOR INTEGERS:
+ * 
+ * ```
+ * [
+ *  ...,
+ *  {
+ *    name: (Name of Column)
+ *    min: (Min Value)
+ *    max: (Max Value)
+ *  },
+ *  ...
+ * ]
+ * ```
+ * 
+ * FOR STRING:
+ * 
+ * ```
+ * [
+ *  ...,
+ *  {
+ *    name: (Name of Column),
+ *    keywords: [Array of Keywords]
+ *  },
+ *  ...
+ * ]
+ * ```
+ */
 export const filtersAppliedAtom = atom({
   key: "filtersApplied",
   default: [],
@@ -37,7 +67,6 @@ export const isFilterSafeAtom = selector({
 });
 
 
-//TODO: RENAME TO SELECTOR
 /**
  * TAKES FILTERS THAT ARE APPLIED
   TAKES WHETHER OR NOT FILTER IS SAFE
@@ -45,13 +74,14 @@ export const isFilterSafeAtom = selector({
   CREATES SQL QUERY
   TAKE RESULT AND PASS TO QT
  */
-export const filterQueryAtom = selector({
+export const filterQuerySelector = selector({
   key: "filterQuery",
   get: ({ get }) => {
     const filtersApplied = get(filtersAppliedAtom);
     const isFilterSafe = get(isFilterSafeAtom);
     const droppedProps = get(droppedPropertiesSelector);
     const { sdt } = get(payloadSelector);
+    let selectedProject = get(selectedProjectSelector);
 
     if (isFilterSafe) {
       let filterStringArr = [];
@@ -81,7 +111,7 @@ export const filterQueryAtom = selector({
       let query =
         filterStringArr.length > 0
         // TODO: MAKE IT DYNAMIC PROJECT ID
-          ? `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\` WHERE ${filterStringArr.join(
+          ? `SELECT rowid from \`${selectedProject.id}\` WHERE ${filterStringArr.join(
               " AND "
             )}`
           : "";
@@ -92,7 +122,7 @@ export const filterQueryAtom = selector({
       return updateFilterInput;
     } else if (sdt && filtersApplied.length === 0 && droppedProps.length >= 3) {
       // TODO: MAKE IT DYNAMIC PROJECT ID
-      let query = `SELECT rowid from \`0bc27e1c-b48b-474e-844d-4ec1b0f94613\``;
+      let query = `SELECT rowid from \`${selectedProject.id}\``;
       const updateFilterInput = {
         filter: query,
       };

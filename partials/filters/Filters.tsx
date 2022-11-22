@@ -8,8 +8,7 @@ import { useRecoilValue } from "recoil";
 export const Filters = ({ handleDrop }) => {
   const properties = useRecoilValue(propertiesAtom);
   const [isCollapsed, setCollapsed] = useState(false);
-  // TODO: UNCOMMENT THIS AND WORK ON FILTERS FOR PRODUCTION
-  // useFilterChange();
+  useFilterChange();
 
   return (
     <React.Fragment>

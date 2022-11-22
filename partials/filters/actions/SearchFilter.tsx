@@ -1,9 +1,9 @@
 import { filtersAppliedAtom } from "@/state/filters";
 import { useState, useEffect } from "react";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 
 export const SearchFilter = ({ lastDroppedItem }) => {
-  const setFiltersApplied = useSetRecoilState(filtersAppliedAtom);
+  const [filtersApplied,setFiltersApplied] = useRecoilState(filtersAppliedAtom);
   // TODO: consider persisting applied filters in localStorage
   const [keyword, setKeyword] = useState("");
   const [chips, setChips] = useState([]);
@@ -11,9 +11,9 @@ export const SearchFilter = ({ lastDroppedItem }) => {
   const [ishover, setHover] = useState(false);
 
   useEffect(() => {
-    setFiltersApplied((prev) => {
-      return [...prev, { name: lastDroppedItem, keywords: chips }];
-    });
+    // setFiltersApplied((prev) => {
+    //   return [...prev, { name: lastDroppedItem, keywords: chips }];
+    // });
     console.log({ chips })
   }, [chips]);
 
@@ -50,7 +50,7 @@ export const SearchFilter = ({ lastDroppedItem }) => {
     >
       <div className="flex flex-wrap scrollbar-none ml-2 mr-2">
         {chips.map((item, idx) => (
-          <span key={idx} className="px-2 py-1 mt-1 mr-1 rounded-full bg-primary-yellow hover:bg-primary-yellow-hover text-gray font-semibold text-xs flex align-center cursor-pointer">
+          <span key={idx} className="px-2 py-1 mt-1 mr-1 rounded-full bg-primary-yellow hover:bg-primary-yellow-hover text-secondary-midnight font-roboto font-normal text-[14px] flex flex-row items-baseline justify-center align-middle cursor-pointer">
             <p>{item}</p>
             <button className="bg-transparent hover focus:outline-none">
               <svg

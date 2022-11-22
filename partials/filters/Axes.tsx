@@ -13,55 +13,68 @@ import { filtersAppliedAtom } from "@/state/filters";
 
 export const Axes = ({ axis, lastDroppedItem }) => {
   const setProperties = useSetRecoilState(propertiesAtom);
-  const [filtersApplied, setFiltersApplied] = useRecoilState(
-    filtersAppliedAtom
-  );
+  const [filtersApplied, setFiltersApplied] = useRecoilState(filtersAppliedAtom);
 
-  const [isFilter, setIsFilter] = useState(false);
+  const [isFilter, setIsFilter] = useState(false); //shows filter property
   const [applied, setApplied] = useState(
     filtersApplied.includes(lastDroppedItem) ? true : false
   );
+
+  // For number datatype 
   const [min, setMin] = useState("");
   const [max, setMax] = useState("");
 
   const [hide, setHide] = useState(false);
   const [showVisibility, setVisibility] = useState(false); //true means eye with no dash, false means eye with dash
 
-  const handleApply = () => {
-    setFiltersApplied((prev) => {
-      if (applied) {
-        let newArr = prev.filter((el) => el.name !== lastDroppedItem.key);
 
-        return [...newArr];
-      } else {
-        let newArr = [...prev, { name: lastDroppedItem.key, min, max }];
+  
 
-        return [...newArr];
-      }
+  // const handleApply = () => {
+  //   setFiltersApplied((prev) => {
+  //     if (applied) {
+  //       let newArr = prev.filter((el) => el.name !== lastDroppedItem.key);
+
+  //       return [...newArr];
+  //     } else {
+  //       let newArr = [...prev, { name: lastDroppedItem.key, min, max }];
+
+  //       return [...newArr];
+  //     }
+  //   });
+  //   setApplied((prev) => !prev);
+  // };
+  // const handleDeleteFilter = async () => {
+  //   let deleteFilterInput = { id: lastDroppedItem.id };
+  //   setProperties((prev) => {
+  //     let newProps = prev;
+  //     if (prev.length > 0) {
+  //       newProps = prev.map((el) => {
+  //         let newEl = el;
+  //         if (el.axis === axis) {
+  //           newEl = { ...el, lastDroppedItem: null };
+  //         }
+  //         return newEl;
+  //       });
+  //     }
+  //     return newProps;
+  //   });
+
+  //   const result = await API.graphql(
+  //     graphqlOperation(deleteFilter, { input: deleteFilterInput })
+  //   );
+  //   console.log({ result });
+  // };
+
+
+  function deleteFilter(){
+    setFiltersApplied((prev)=>{
+      return prev.filter((internalFilter)=>{ // remove this axis filter
+        return internalFilter.name !== lastDroppedItem.key;
+      })
     });
-    setApplied((prev) => !prev);
-  };
-  const handleDeleteFilter = async () => {
-    let deleteFilterInput = { id: lastDroppedItem.id };
-    setProperties((prev) => {
-      let newProps = prev;
-      if (prev.length > 0) {
-        newProps = prev.map((el) => {
-          let newEl = el;
-          if (el.axis === axis) {
-            newEl = { ...el, lastDroppedItem: null };
-          }
-          return newEl;
-        });
-      }
-      return newProps;
-    });
+  }
 
-    const result = await API.graphql(
-      graphqlOperation(deleteFilter, { input: deleteFilterInput })
-    );
-    console.log({ result });
-  };
 
   function showHide() {
     setHide(true);
@@ -101,25 +114,8 @@ export const Axes = ({ axis, lastDroppedItem }) => {
                     </svg>
                 }
               </div>
-
-
-
           }
-
         </div>
-
-        {/* filter icons */}
-        {lastDroppedItem ? (
-          // <Filter
-          //   isFilter={isFilter}
-          //   setIsFilter={setIsFilter}
-          //   type={lastDroppedItem.dataType}
-          // />
-          <div></div>
-        ) : (
-          <div>
-          </div>
-        )}
         {/* column header chip */}
         <div
           // @ts-ignore
@@ -130,10 +126,20 @@ export const Axes = ({ axis, lastDroppedItem }) => {
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
           </span>
         </div>
+        
         <div onClick={setFilter} className="flex justify-between ml-2 bg-secondary-dark-blue rounded-full border-2 border-transparent hover:border-white hover:cursor-pointer">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {
+            isFilter ?
+            <svg onClick={deleteFilter} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.3 5.71C17.91 5.32 17.28 5.32 16.89 5.71L12 10.59L7.11 5.7C6.72 5.31 6.09 5.31 5.7 5.7C5.31 6.09 5.31 6.72 5.7 7.11L10.59 12L5.7 16.89C5.31 17.28 5.31 17.91 5.7 18.3C6.09 18.69 6.72 18.69 7.11 18.3L12 13.41L16.89 18.3C17.28 18.69 17.91 18.69 18.3 18.3C18.69 17.91 18.69 17.28 18.3 16.89L13.41 12L18.3 7.11C18.68 6.73 18.68 6.09 18.3 5.71Z" fill="white"/>
+            </svg>
+            
+            :
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18.8571 13.1429H13.1429V18.8571C13.1429 19.4857 12.6286 20 12 20C11.3714 20 10.8571 19.4857 10.8571 18.8571V13.1429H5.14286C4.51429 13.1429 4 12.6286 4 12C4 11.3714 4.51429 10.8571 5.14286 10.8571H10.8571V5.14286C10.8571 4.51429 11.3714 4 12 4C12.6286 4 13.1429 4.51429 13.1429 5.14286V10.8571H18.8571C19.4857 10.8571 20 11.3714 20 12C20 12.6286 19.4857 13.1429 18.8571 13.1429Z" fill="white" />
           </svg>
+          }
+          
           
         </div>
       </li>
@@ -141,10 +147,8 @@ export const Axes = ({ axis, lastDroppedItem }) => {
       {isFilter && lastDroppedItem ? (
         lastDroppedItem.dataType === "number" ? (
           <RangeFilter
-            min={min}
-            setMin={setMin}
-            max={max}
-            setMax={setMax}
+            setVisible={setIsFilter}
+            lastDroppedItem={lastDroppedItem}
           />
         ) : (
           <SearchFilter
