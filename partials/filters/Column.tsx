@@ -158,7 +158,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
       </li>
       {isFilter && lastDroppedItem ? (
         lastDroppedItem.dataType === "number" ? (
-          <RangeFilter lastDroppedItem={lastDroppedItem} />
+          <RangeFilter setVisible={setIsFilter} lastDroppedItem={lastDroppedItem} />
         ) : (
           <SearchFilter lastDroppedItem={lastDroppedItem} />
         )
