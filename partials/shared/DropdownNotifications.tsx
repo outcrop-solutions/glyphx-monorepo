@@ -36,11 +36,11 @@ export function DropdownNotifications({ align }) {
   });
 
   return (
-    <div className="relative inline-flex">
+    <div className="relative inline-flex bg-secondary-space-blue border border-transparent px-2 hover:border-white rounded">
       <button
         ref={trigger}
         className={
-          "flex items-center justify-center border border-transparent hover:border-white px-[5px] rounded"
+          "flex items-center justify-center "
         }
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}

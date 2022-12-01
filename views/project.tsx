@@ -7,7 +7,8 @@ import { createProject } from "graphql/mutations";
 import { ProjectHeader } from "partials";
 import { ProjectSidebar } from "partials";
 import { CommentsSidebar } from "partials";
-import { MainSidebar } from "partials";
+import { MainSidebar, } from "partials";
+import MiniSidebar from "@/partials/layout/MiniSidebar";
 import { GridErrorModal } from "partials";
 
 // Project View
@@ -69,8 +70,10 @@ export default function Project() {
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       <div className="w-[40px]">
         {/* TODO: CHANGE THIS TO ITS OWN COMPONENT */}
+        <MiniSidebar/>
       {/* <MainSidebar 
         index={0}
+        setIndex={null}
       /> */}
       </div>
       

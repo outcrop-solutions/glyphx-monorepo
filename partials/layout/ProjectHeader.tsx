@@ -92,6 +92,7 @@ export const ProjectHeader = () => {
             const result = await API.graphql(
                 graphqlOperation(updateProject, { input: updateProjectInput })
             );
+            console.log({updateProjectNameResponse: result});
         } catch (error) {
             console.log({ error });
         }

@@ -38,11 +38,11 @@ export function GridToggle() {
   });
 
   return (
-    <div className="relative inline-flex">
+    <div className="relative inline-flex bg-secondary-space-blue border border-transparent hover:border-white p-1 rounded">
       <button
         ref={trigger}
         className={
-          "flex items-center justify-center border border-transparent hover:border-white p-1 rounded"
+          "flex items-center justify-center "
         }
         aria-haspopup="true"
         aria-expanded={dropdownOpen}
