@@ -42,7 +42,7 @@ export function GridToggle() {
       <button
         ref={trigger}
         className={
-          "flex items-center justify-center border border-transparent hover:border-white px-0 rounded"
+          "flex items-center justify-center border border-transparent hover:border-white p-1 rounded"
         }
         aria-haspopup="true"
         aria-expanded={dropdownOpen}

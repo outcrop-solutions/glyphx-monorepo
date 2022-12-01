@@ -47,6 +47,13 @@ export default function Home() {
   const showAddProject = useRecoilValue(showAddProjectAtom);
 
   const [isLoading,setLoading] = useState(true);
+  /**
+   * 0 - Home
+   * 1 - Drafts
+   * 2 - Shared
+   * 3 - Trash
+   */
+  const [page,setPage] = useState(0); 
 
   useEffect(()=>{
 
@@ -74,7 +81,10 @@ export default function Home() {
     return(
       <div className="flex flex-row h-screen w-screen scrollbar-none bg-secondary-midnight">
         {showAddProject ? <AddProjectModal /> : null}
-        <MainSidebar />
+        <MainSidebar 
+          index={page}
+          setIndex={setPage}
+        />
         <div className="relative flex flex-col w-full">
           <Header />
           <hr

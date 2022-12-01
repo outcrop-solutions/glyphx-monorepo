@@ -16,25 +16,6 @@ export function SearchModal() {
   const [query, setQuery] = useState("");
   const [queryResult, setQueryResult] = useState([]);
 
-  const testData = [
-    {
-      name: "Sample Project 1",
-      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
-    },
-    {
-      name: "Sample Project 2",
-      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
-    },
-    {
-      name: "Robert Weed Project",
-      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
-    },
-    {
-      name: "Complicated Data",
-      modelID: "5cfaef9c-49cd-4cac-a150-d814d07cfb72",
-    },
-  ];
-
   const options = {
     isCaseSensitive: false,
     // includeScore: false,
@@ -118,7 +99,7 @@ export function SearchModal() {
               className={`outline-none ${showSearchModalOpen ? "rounded-b-none" : "rounded" //rounded-2xl
                 } pl-9 text-white placeholder-light-gray font-roboto font-normal text-[12px] leading-[14px] border-gray w-[400px] bg-transparent`}
               type="search"
-              placeholder="Search owned projects..."
+              placeholder="Search templates & models..."
               onChange={(e) => setQuery(e.target.value)}
               value={query}
             />

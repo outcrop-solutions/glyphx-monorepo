@@ -68,7 +68,10 @@ export default function Project() {
   return(
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
       <div className="w-[40px]">
-      <MainSidebar />
+        {/* TODO: CHANGE THIS TO ITS OWN COMPONENT */}
+      {/* <MainSidebar 
+        index={0}
+      /> */}
       </div>
       
       <div className="flex flex-col h-full w-full">

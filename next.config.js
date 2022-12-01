@@ -16,6 +16,6 @@ module.exports = {
   reactStrictMode: true,
   swcMinify: true,
   compiler: {
-    removeConsole: true, // TODO: Change to true 
+    removeConsole: false, // TODO: Change to true 
   },
 };

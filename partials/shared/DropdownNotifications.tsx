@@ -40,7 +40,7 @@ export function DropdownNotifications({ align }) {
       <button
         ref={trigger}
         className={
-          "flex items-center justify-center  border border-transparent hover:border-white px-[5px] rounded"
+          "flex items-center justify-center border border-transparent hover:border-white px-[5px] rounded"
         }
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
