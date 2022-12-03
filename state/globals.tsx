@@ -48,6 +48,20 @@ export const isGridViewAtom = atom({
 });
 
 /**
+ * Atom that holds index of home page
+ * ```
+ * 0 - home
+ * 1 - Drafts
+ * 2 - Shared
+ * 3 - Trash
+ * ```
+ */
+export const homePageAtom = atom({
+  key: "homePageIndex",
+  default: 0
+});
+
+/**
  * to be used to keep track of Qt toggle state
  */
 export const isQtOpenAtom = atom({

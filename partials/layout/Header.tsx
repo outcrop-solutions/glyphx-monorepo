@@ -35,7 +35,7 @@ export const Header = ({ index }) => {
 
   return (
 
-    <div className="sticky flex justify-between items-center bg-secondary-midnight  h-14 w-full pt-2 pb-2 px-4 z-60">
+    <div className="sticky flex justify-between items-center bg-secondary-midnight  h-14 w-full pt-2 pb-2 px-4 z-50">
       <div className="flex items-center group border border-transparent pr-2 ml-6 bg-transparent">
         <div className="w-72 text-left flex flex-row items-center space-x-1">
           <p className="font-rubik font-normal text-[22px] leading-[26px] tracking-[0.01em] text-white">team_name</p>
@@ -46,7 +46,6 @@ export const Header = ({ index }) => {
         </div>
 
       </div>
-      {/* TODO: FIX SEARCH MODAL ISSUE AND UNCOMMENT IT */}
       <SearchModal />
       <div className="flex flex-row space-x-3 pr-2">
         <button

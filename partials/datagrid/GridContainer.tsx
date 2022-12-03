@@ -143,7 +143,7 @@ export const GridContainer = ({ isDropped }) => {
         r.style.setProperty('--width', `${localSize}px`); //set width of grid to the size of pane
       } else {
         //@ts-ignore
-        r.style.setProperty('--width', `${Math.round(window.innerWidth - 40 - 192 - 350)}px`); //set width of grid to size between right sidebar and left content
+        r.style.setProperty('--width', `${Math.round(window.innerWidth - 192 - 350)}px`); //set width of grid to size between right sidebar and left content
       }
     }
     else {
@@ -152,7 +152,7 @@ export const GridContainer = ({ isDropped }) => {
         r.style.setProperty('--width', `${localSize}px`); //set width of grid to the size of pane
       } else {
         //@ts-ignore
-        r.style.setProperty('--width', `${Math.round(window.innerWidth - 40 - 300)}px`); //set width of grid to size between right sidebar and left content
+        r.style.setProperty('--width', `${Math.round(window.innerWidth - 300)}px`); //set width of grid to size between right sidebar and left content
       }
     }
 

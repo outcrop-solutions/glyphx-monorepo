@@ -113,17 +113,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
         </div>
 
 
-        {lastDroppedItem ? (
-          // <Filter
-          //   isFilter={isFilter}
-          //   setIsFilter={setIsFilter}
-          //   type={lastDroppedItem.dataType}
-          // />
-          <div></div>
-        ) : (
-          <div>
-          </div>
-        )}
+        
         {isActive ? (
           <div className="block text-gray hover:text-gray transition duration-150 truncate">
             <span className="text-sm font-medium ml-3 lg:opacity-100 2xl:opacity-100 duration-200">
@@ -134,21 +124,10 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
           <div
             // @ts-ignore
             formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-            className="inline-flex align-middle items-center text-center justify-center h-4 min-w-[10rem] text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium  uppercase px-4 my-auto ml-4 bg-gray hover:text-black transition duration-150 truncate cursor-pointer rounded-2xl lg:opacity-100 2xl:opacity-100"
+            className="inline-flex align-middle items-center text-center justify-center h-4 min-w-[10rem] text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium  uppercase px-4 my-auto ml-4 bg-gray hover:text-black transition duration-150 truncate cursor-pointer rounded-[2px] lg:opacity-100 2xl:opacity-100"
           >
-            {/* <span className="text-xs font-medium lg:opacity-100 2xl:opacity-100 duration-200"> */}
             {lastDroppedItem ? `${lastDroppedItem.key}` : `Column ${idx + 1}`}
-            {/* </span> */}
           </div>
-        //   <div
-        //   // @ts-ignore
-        //   formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-        //   className={`flex min-w-[10rem] justify-center bg-gray h-4 ml-4 truncate cursor-pointer rounded-2xl`}
-        // >
-        //   <span className="text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium mx-6 uppercase lg:opacity-100 2xl:opacity-100 group-filters-hover:text-black transition duration-150 truncate">
-        //     {lastDroppedItem ? `${lastDroppedItem.key}` : `Column ${idx + 1}`}
-        //   </span>
-        // </div>
         )}
         <div className="flex justify-between ml-2 bg-secondary-dark-blue rounded-full border-2 border-transparent hover:border-white hover:cursor-pointer">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

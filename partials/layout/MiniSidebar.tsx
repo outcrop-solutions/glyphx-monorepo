@@ -1,12 +1,57 @@
 import Image from "next/image";
 import GLogo from "Media/Images/MainSidebar_G_Logo.svg";
+import { homePageAtom } from "@/state/globals";
+import { useSetRecoilState } from "recoil";
+import {
+    selectedProjectSelector,
+    shareOpenAtom,
+    showSearchModalAtom,
+    showInfoAtom,
+    showNotificationAtom,
+    propertiesAtom,
+    sdtValue,
+} from "state";
 import { useRouter } from "next/router";
 
 export default function MiniSidebar() {
 
+    const setPageIndex = useSetRecoilState(homePageAtom);
+
+    const setSelectedProject = useSetRecoilState(selectedProjectSelector);
+
+    const setShowSearchModalOpen = useSetRecoilState(showSearchModalAtom);
+    const setShare = useSetRecoilState(shareOpenAtom);
+    const setShowInfo = useSetRecoilState(showInfoAtom);
+    const setNotification = useSetRecoilState(showNotificationAtom);
+    const setProperties = useSetRecoilState(propertiesAtom);
+    const setSDTName = useSetRecoilState(sdtValue);
+
     const router = useRouter();
 
-    function returnToHome() {
+    function backToHome() {
+
+        setSelectedProject(null);
+        setShare(false);
+        setShowInfo(false);
+        setNotification(false);
+        setShowSearchModalOpen(false);
+        setSDTName(null);
+        setProperties([
+            // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
+            { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+            { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+            { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+            { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+            { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+            { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
+        ]);
+        try {
+            //close glyph viewer
+            //@ts-ignore
+            window?.core.CloseModel();
+        } catch (error) {
+            // do nothng
+        }
         router.push("/");
     }
 
@@ -15,13 +60,17 @@ export default function MiniSidebar() {
             <div className="mt-2 mb-2 border border-transparent border-b-gray">
                 <Image
                     src={GLogo}
-                    height={85}
+                    height={35}
+                    width={40}
                 />
             </div>
 
             <div className="mt-2 space-y-2">
                 <div
-                    onClick={returnToHome}
+                    onClick={() => {
+                        setPageIndex(0);
+                        backToHome();
+                    }}
                     className="group border border-transparent rounded hover:border-white flex items-center justify-center p-1 hover:cursor-pointer">
                     <svg className="fill-current text-light-gray group-hover:text-white" width="24" height="24" viewBox="0 0 24 24" >
                         <g clip-path="url(#clip0_3181_13896)">
@@ -36,7 +85,10 @@ export default function MiniSidebar() {
                 </div>
 
                 <div
-                    onClick={returnToHome}
+                    onClick={() => {
+                        setPageIndex(1);
+                        backToHome();
+                    }}
                     className="group border border-transparent rounded hover:border-white flex items-center justify-center p-1 hover:cursor-pointer">
                     <svg className="fill-current text-light-gray group-hover:text-white" width="24" height="24" viewBox="0 0 24 24">
                         <path d="M13.5 4H7.5C6.675 4 6.0075 4.675 6.0075 5.5L6 17.5C6 18.325 6.6675 19 7.4925 19H16.5C17.325 19 18 18.325 18 17.5V8.5L13.5 4ZM7.5 17.5V5.5H12.75V9.25H16.5V17.5H7.5Z" />
@@ -44,7 +96,10 @@ export default function MiniSidebar() {
                 </div>
 
                 <div
-                    onClick={returnToHome}
+                    onClick={() => {
+                        setPageIndex(2);
+                        backToHome();
+                    }}
                     className="group border border-transparent rounded hover:border-white flex items-center justify-center p-1 hover:cursor-pointer">
                     <svg className="fill-current text-light-gray group-hover:text-white" width="24" height="24" viewBox="0 0 24 24">
                         <path d="M9.6 13C7.728 13 4 13.936 4 15.8V17.2H15.2V15.8C15.2 13.936 11.472 13 9.6 13ZM5.872 15.6C6.544 15.136 8.168 14.6 9.6 14.6C11.032 14.6 12.656 15.136 13.328 15.6H5.872ZM9.6 11.6C11.144 11.6 12.4 10.344 12.4 8.8C12.4 7.256 11.144 6 9.6 6C8.056 6 6.8 7.256 6.8 8.8C6.8 10.344 8.056 11.6 9.6 11.6ZM9.6 7.6C10.264 7.6 10.8 8.136 10.8 8.8C10.8 9.464 10.264 10 9.6 10C8.936 10 8.4 9.464 8.4 8.8C8.4 8.136 8.936 7.6 9.6 7.6ZM15.232 13.048C16.16 13.72 16.8 14.616 16.8 15.8V17.2H20V15.8C20 14.184 17.2 13.264 15.232 13.048ZM14.4 11.6C15.944 11.6 17.2 10.344 17.2 8.8C17.2 7.256 15.944 6 14.4 6C13.968 6 13.568 6.104 13.2 6.28C13.704 6.992 14 7.864 14 8.8C14 9.736 13.704 10.608 13.2 11.32C13.568 11.496 13.968 11.6 14.4 11.6Z" />
@@ -52,7 +107,10 @@ export default function MiniSidebar() {
                 </div>
 
                 <div
-                    onClick={returnToHome}
+                    onClick={() => {
+                        setPageIndex(3);
+                        backToHome();
+                    }}
                     className="group border border-transparent rounded hover:border-white flex items-center justify-center p-1 hover:cursor-pointer">
                     <svg
                         className="fill-current text-light-gray group-hover:text-white"

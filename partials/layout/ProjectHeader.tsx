@@ -20,6 +20,7 @@ import {
     sdtValue,
     rowsSelector
 } from "state";
+
 export const ProjectHeader = () => {
     const [selectedProject, setSelectedProject] = useRecoilState(
         selectedProjectSelector
@@ -107,7 +108,7 @@ export const ProjectHeader = () => {
 
             <button
                 onClick={backPresssed}
-                className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
+                className="group flex items-center justify-center rounded border border-transparent bg-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white hover:bg-secondary-midnight"
             >
                 <svg
                     width="8"
@@ -121,7 +122,7 @@ export const ProjectHeader = () => {
                         fill="#CECECE"
                     />
                 </svg>
-                <span className="text-light-gray font-roboto font-medium text-[14px] leading-[16px] text-center ml-2">Back</span>
+                <span className="text-light-gray group-hover:text-white font-roboto font-medium text-[14px] leading-[16px] text-center ml-2">Back</span>
             </button>
 
 

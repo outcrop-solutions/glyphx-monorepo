@@ -36,6 +36,8 @@ module.exports = {
         "secondary-deep-blue": "#192033",
         "secondary-space-blue": "#151C2D",
         "secondary-midnight": "#0D1321",
+        "teal": "#00C5B0",
+        "secondary-teal": "#7DEAD8",
         current: "currentColor",
         yellow: "#EBB500",
         cyan: "#00B4A1",

@@ -30,6 +30,7 @@ import {
   projectsAtom,
   showAddProjectAtom,
   userAtom,
+  homePageAtom
 } from "state";
 import { useRouter } from "next/router";
 import { useProjects, useUser, isUserLogged } from "../services";
@@ -45,6 +46,7 @@ export default function Home() {
   const isGridView = useRecoilValue(isGridViewAtom);
   const projectDetails = useRecoilValue(projectDetailsAtom);
   const showAddProject = useRecoilValue(showAddProjectAtom);
+  const page = useRecoilValue(homePageAtom);
 
   const [isLoading, setLoading] = useState(true);
   /**
@@ -53,7 +55,7 @@ export default function Home() {
    * 2 - Shared
    * 3 - Trash
    */
-  const [page, setPage] = useState(0);
+  // const [page, setPage] = useState(0);
 
   useEffect(() => {
 
@@ -83,7 +85,6 @@ export default function Home() {
         {showAddProject ? <AddProjectModal /> : null}
         <MainSidebar
           index={page}
-          setIndex={setPage}
         />
         <div className="relative flex flex-col w-full">
           <Header 

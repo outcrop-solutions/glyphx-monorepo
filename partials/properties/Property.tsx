@@ -104,6 +104,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
       onMouseOver={showClear}
       onMouseOut={hideClear}
     >
+      {/* AXES ICON */}
       <div className={`bg-secondary-space-blue border-2 border-transparent ${isCreatingModel ? "" : "hover:border-white"} p-0 rounded-full`}>
         {
           !clearAxis ?
@@ -117,6 +118,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
             
         }
       </div>
+      {/* AXIS CHIP AREA */}
       {isActive ? (
         <div className="block text-gray hover:text-gray transition duration-150 truncate">
           <span className="text-sm font-medium ml-3 lg:opacity-100 2xl:opacity-100 duration-200">
@@ -127,7 +129,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
         <div
           // @ts-ignore
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-          className={`flex min-w-[8rem] text-white uppercase justify-center h-4 ml-4 bg-gray group-props-hover:text-black transition duration-150 truncate cursor-pointer rounded-2xl`}
+          className={`flex min-w-[8rem] text-white uppercase justify-center h-4 ml-4 bg-gray transition duration-150 truncate cursor-pointer rounded-[2px]`}
         >
           <span className="inline-flex align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium mx-6 lg:opacity-100 2xl:opacity-100 duration-200">
             {/* trancate or wrap */}
@@ -135,6 +137,7 @@ export const Property = ({ axis, accept, lastDroppedItem, onDrop, ClearProperty 
           </span>
         </div>
       )}
+      {/* LIN/LOG SELECTOR & DIRECTION SELECTOR */}
       <div className="flex ml-1 space-x-1">
         <div onClick={change_LOG_LIN} 
         className={`flex items-center justify-center bg-secondary-space-blue border-2 border-transparent  p-0 rounded-full  ${isCreatingModel ? "opacity-30" : "opacity-100 hover:border-white hover:cursor-pointer"}`}>

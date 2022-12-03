@@ -2,19 +2,20 @@ import { useState, useEffect, useRef } from "react";
 import { UserMenu } from "partials";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { isMainSidebarExpandedAtom } from "@/state/globals";
-import { useRecoilValue } from "recoil";
+import { isMainSidebarExpandedAtom,homePageAtom } from "@/state/globals";
+import { useRecoilValue,useSetRecoilState } from "recoil";
 import { selectedProjectSelector } from "@/state/project";
 import Image from "next/image";
 import GLogo from "Media/Images/MainSidebar_G_Logo.svg";
 import FullLogo from "Media/Images/MainSidebar_Full_Logo.svg"
 
-export const MainSidebar = ({ index, setIndex }) => {
+export const MainSidebar = ({ index }) => {
   // const isMainSidebarExpanded = useRecoilValue(isMainSidebarExpandedAtom);
   const router = useRouter();
   const { pathname } = router;
 
   const selectedProject = useRecoilValue(selectedProjectSelector);
+  const setIndex = useSetRecoilState(homePageAtom)
 
   return (
     <div
@@ -26,22 +27,13 @@ export const MainSidebar = ({ index, setIndex }) => {
         className={"flex justify-between mb-2 pr-3 sm:px-2 border-white border-b"}
       >
         {/* Logo */}
-        <div className="flex pb-1 justify-center">
+        <div className="flex pb-1 -ml-4 justify-start items-start">
           <Image
             src={FullLogo}
+            height={31}
+            width={100}
+            
           />
-          {/* {
-              selectedProject ?
-
-                <Image
-                  src={GLogo}
-                  height={60}
-                />
-                :
-                <Image
-                  src={FullLogo}
-                />
-            } */}
 
         </div>
       </div>
