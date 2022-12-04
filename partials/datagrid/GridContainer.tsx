@@ -25,7 +25,7 @@ export const GridContainer = ({ isDropped }) => {
   const isInfoOpen = useRecoilValue(showInfoAtom);
   const isShareOpen = useRecoilValue(shareOpenAtom);
   const isNotificationOpen = useRecoilValue(showNotificationAtom);
-  const [localSize, setSize] = useState(null); //set a local size state
+  const [localSize, setSize] = useState(700); //set a local size state
   const [localOrientation, setLocalOrientation] = useState("horizontal");
 
   function startDrag() {
@@ -126,6 +126,9 @@ export const GridContainer = ({ isDropped }) => {
     if (orientation !== localOrientation) {
       doResize(localSize);
       setLocalOrientation(orientation);
+    }
+    if(isInfoOpen || isShareOpen|| isNotificationOpen){
+      doResize(localSize);
     }
     
     // console.log({ColumnLength: cols?.length});
