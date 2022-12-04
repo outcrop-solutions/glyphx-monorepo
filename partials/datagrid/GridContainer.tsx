@@ -62,7 +62,7 @@ export const GridContainer = ({ isDropped }) => {
         var yValue = size + Math.abs(Math.round(window.innerHeight * 0.882) - 700);
         var heightValue = Math.abs(size - Math.abs(Math.round(window.innerHeight * 0.157) + 700));
         var leftSide = window.innerWidth;
-        if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
+        if (isShareOpen || isInfoOpen || isNotificationOpen) {
           leftSide = leftSide - 250;
         }
 

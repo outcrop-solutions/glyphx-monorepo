@@ -127,7 +127,7 @@ export const useSocket = () => {
       var yValue = Math.round(window.innerHeight * 0.882)
       var heightValue = Math.round(window.innerHeight * 0.157);
       var leftValue = window.innerWidth;
-      if (isShareOpen || isInfoOpen || isNotifOpen || true) {
+      if (isShareOpen || isInfoOpen || isNotifOpen) {
         leftValue = window.innerWidth - 250
       }
 
