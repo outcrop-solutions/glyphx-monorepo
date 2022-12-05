@@ -63,7 +63,7 @@ export const Properties = ({ handleDrop }) => {
         {
           !isCollapsed ?
           <div className={`block border-b border-gray`}>
-          <ul>
+          <ul className="py-1">
             {properties?.length > 0
               ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
                   if (idx < 3) {

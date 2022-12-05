@@ -5,7 +5,7 @@ export const AxesIcons = ({ property }) => {
     switch (property) {
       case "X":
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-gray group-filters-hover:text-white">
+          <div className="flex items-center justify-center h-4 w-4 text-gray group-filters-hover:text-white">
             <svg
               className="fill-light-gray group-filters-hover:text-white"
               width="16"
@@ -33,7 +33,7 @@ export const AxesIcons = ({ property }) => {
         );
       case "Y":
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-gray group-filters-hover:text-white">
+          <div className="flex items-center justify-center h-4 w-4 text-gray group-filters-hover:text-white">
             <svg
               className="fill-light-gray group-filters-hover:text-white"
               width="16"
@@ -62,7 +62,7 @@ export const AxesIcons = ({ property }) => {
         );
       case "Z":
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-gray group-filters-hover:text-white">
+          <div className="flex items-center justify-center h-4 w-4 text-gray group-filters-hover:text-white">
             <svg
               className="fill-light-gray group-filters-hover:text-white"
               width="16"
