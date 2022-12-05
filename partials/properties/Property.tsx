@@ -139,7 +139,7 @@ export const Property = ({
       </div>
       {/* AXES CHIP */}
       {isActive ? (
-        <div className="block text-gray hover:text-gray transition duration-150 truncate">
+        <div className="block grow text-gray hover:text-gray transition duration-150 truncate">
           <span className="text-sm font-medium ml-3 lg:opacity-100 2xl:opacity-100 duration-200">
             release to drop
           </span>

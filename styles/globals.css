@@ -152,16 +152,16 @@ div[aria-colindex="1"] {
 }
 
 div[formattype="string"] {
-  @apply bg-blue text-white rounded-2xl text-center w-32;
+  @apply bg-blue text-white rounded text-center w-32;
 }
 div[formattype="number"] {
-  @apply bg-cyan text-white rounded-2xl text-center w-32;
+  @apply bg-cyan text-white rounded text-center w-32;
 }
 div[datatype="string"] {
-  @apply bg-blue text-white rounded-2xl text-center;
+  @apply bg-blue text-white rounded text-center;
 }
 div[datatype="number"] {
-  @apply bg-cyan text-white rounded-2xl text-center;
+  @apply bg-cyan text-white rounded text-center;
 }
 
 .Resizer {

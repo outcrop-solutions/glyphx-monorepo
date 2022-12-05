@@ -53,7 +53,7 @@ export const States = () => {
   return (
     <React.Fragment>
       <div className="group">
-        <summary  className="flex h-11 items-center justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray">
+        <summary  className="flex h-8 items-center justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray">
           <div onClick={() => { setCollapsed(!isCollapsed) }} className="flex ml-2 items-center">
             <span className="">
               <svg className={`w-5 h-5 ${isCollapsed ? "-rotate-90" : "rotate-180"}`} viewBox="0 0 20 20" fill="currentColor">
