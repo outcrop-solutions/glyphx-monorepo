@@ -69,7 +69,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
 
   function deleteFilter(){
     setFiltersApplied((prev)=>{
-      return prev.filter((internalFilter)=>{ // remove this axis filter
+      return prev.filter((internalFilter)=> { // remove this axis filter
         return internalFilter.name !== lastDroppedItem.key;
       })
     });
@@ -120,7 +120,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
         <div
           // @ts-ignore
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-          className={`flex min-w-[10rem] justify-center bg-gray h-4 ml-4 truncate cursor-pointer rounded-2xl`}
+          className={`flex min-w-[10rem] justify-center bg-gray h-4 ml-4 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium mx-6 uppercase lg:opacity-100 2xl:opacity-100 group-filters-hover:text-black transition duration-150 truncate">
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
