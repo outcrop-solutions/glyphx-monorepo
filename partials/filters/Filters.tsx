@@ -13,7 +13,7 @@ export const Filters = ({ handleDrop }) => {
   return (
     <React.Fragment>
       <div className="group">
-        <summary  className="flex h-11 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white hover:border-b-white truncate border-b border-gray">
+        <summary  className="flex h-8 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white hover:border-b-white truncate border-b border-gray">
           <div onClick={()=>{setCollapsed(!isCollapsed)}} className="flex ml-2 items-center">
             <span className="">
               <svg className={`w-5 h-5 ${isCollapsed ? "-rotate-90": "rotate-180"}`} viewBox="0 0 20 20" fill="currentColor">
@@ -37,7 +37,7 @@ export const Filters = ({ handleDrop }) => {
           className={`block border-b border-gray
         `}
         >
-          <ul className={`overflow-auto  space-y-1 w-full`}>
+          <ul className={`overflow-auto py-1 w-full`}>
             {/* read only (no drag n drop) property filters */}
             {properties?.length > 0
               ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {

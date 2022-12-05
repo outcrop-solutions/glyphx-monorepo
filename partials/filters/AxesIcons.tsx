@@ -91,7 +91,7 @@ export const AxesIcons = ({ property }) => {
         );
       default:
         return (
-          <div className="flex items-center justify-center h-6 w-6 text-gray group-filters-hover:text-white">
+          <div className="flex items-center justify-center h-4 w-4 text-gray group-filters-hover:text-white">
             <svg
               className="fill-current group-filters-hover:text-white"
               width="16"
@@ -120,9 +120,5 @@ export const AxesIcons = ({ property }) => {
         );
     }
   };
-  return (
-    <div>
-      <Icon />
-    </div>
-  );
+  return <Icon />;
 };
