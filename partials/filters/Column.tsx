@@ -103,7 +103,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
           <div
             // @ts-ignore
             formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-            className="inline-flex grow align-middle items-center text-center justify-center h-4 min-w-[10rem] text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium  uppercase bg-gray transition duration-150 truncate cursor-pointer rounded lg:opacity-100 2xl:opacity-100"
+            className="inline-flex grow align-middle items-center text-center justify-center h-4 text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium  uppercase bg-gray transition duration-150 truncate cursor-pointer rounded lg:opacity-100 2xl:opacity-100"
           >
             {/* <span className="text-xs font-medium lg:opacity-100 2xl:opacity-100 duration-200"> */}
             {lastDroppedItem ? `${lastDroppedItem.key}` : `Column ${idx + 1}`}

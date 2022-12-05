@@ -25,7 +25,7 @@ module.exports = {
       },
       colors: {
         "primary-yellow": "#FFC500",
-        "teal": "#00C5B0",
+        teal: "#00C5B0",
         "secondary-cyan": "#7DEAD8",
         "bright-blue": "#005ADF",
         "secondary-blue": "#3FA9F5",
@@ -49,8 +49,8 @@ module.exports = {
       },
       fontFamily: {
         inter: ["Inter", "sans-serif"],
-        roboto: ["Roboto",...defaultTheme.fontFamily.sans],
-        rubik: ["Rubik",...defaultTheme.fontFamily.sans]
+        roboto: ["Roboto", ...defaultTheme.fontFamily.sans],
+        rubik: ["Rubik", ...defaultTheme.fontFamily.sans],
       },
       fontSize: {
         xs: ["0.75rem", { lineHeight: "1.5" }],
@@ -98,7 +98,11 @@ module.exports = {
   },
   plugins: [
     // eslint-disable-next-line global-require
-    require("@tailwindcss/forms"),
+    require("@tailwindcss/forms")({
+      // only generate global styles
+      strategy: "class", // only generate classes
+    }),
+
     require("tailwindcss-scoped-groups")({
       groups: ["props", "filters", "states"],
     }),

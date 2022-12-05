@@ -88,21 +88,16 @@ export const Axes = ({ axis, lastDroppedItem }) => {
   return (
     <>
       <li
-        className={`py-0 px-2 group-filters hover:bg-secondary-midnight hover:bg-opacity-70 last:mb-0 flex gap-x-2 items-center h-5 ${
-          isFilter ? "" : ""
-        }`}
+        className={`py-0 px-2 group-filters hover:bg-secondary-midnight hover:bg-opacity-70 last:mb-0 flex gap-x-2 items-center h-5`}
         onMouseOver={showHide}
         onMouseOut={hideHide}
       >
-        {/* axis icon */}
-        {/* <div className="bg-secondary-space-blue border border-transparent hover:border-white p-0 rounded"> */}
         <AxesIcons property={axis} />
-        {/* </div> */}
-        {/* column header chip */}
+        {/* PROPERTY CHIP */}
         <div
           // @ts-ignore
           formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
-          className={`flex grow min-w-[10rem] justify-center bg-gray h-4 truncate cursor-pointer rounded`}
+          className={`flex grow justify-center bg-gray h-4 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium uppercase lg:opacity-100 2xl:opacity-100 transition duration-150 truncate">
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
@@ -142,6 +137,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
             </svg>
           )}
         </div>
+        {/* ADD FILTER BTN */}
         <div
           onClick={setFilter}
           className="flex justify-between bg-secondary-dark-blue rounded border border-transparent hover:border-white hover:cursor-pointer"
@@ -149,14 +145,14 @@ export const Axes = ({ axis, lastDroppedItem }) => {
           {isFilter ? (
             <svg
               onClick={deleteFilter}
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M18.3 5.71C17.91 5.32 17.28 5.32 16.89 5.71L12 10.59L7.11 5.7C6.72 5.31 6.09 5.31 5.7 5.7C5.31 6.09 5.31 6.72 5.7 7.11L10.59 12L5.7 16.89C5.31 17.28 5.31 17.91 5.7 18.3C6.09 18.69 6.72 18.69 7.11 18.3L12 13.41L16.89 18.3C17.28 18.69 17.91 18.69 18.3 18.3C18.69 17.91 18.69 17.28 18.3 16.89L13.41 12L18.3 7.11C18.68 6.73 18.68 6.09 18.3 5.71Z"
+                d="M12.7782 3.22943C12.4824 2.93364 12.0045 2.93364 11.7088 3.22943L8 6.9306L4.29124 3.22184C3.99545 2.92605 3.51763 2.92605 3.22184 3.22184C2.92605 3.51763 2.92605 3.99545 3.22184 4.29124L6.9306 8L3.22184 11.7088C2.92605 12.0045 2.92605 12.4824 3.22184 12.7782C3.51763 13.0739 3.99545 13.0739 4.29124 12.7782L8 9.0694L11.7088 12.7782C12.0045 13.0739 12.4824 13.0739 12.7782 12.7782C13.0739 12.4824 13.0739 12.0045 12.7782 11.7088L9.0694 8L12.7782 4.29124C13.0664 4.00303 13.0664 3.51763 12.7782 3.22943Z"
                 fill="white"
               />
             </svg>
