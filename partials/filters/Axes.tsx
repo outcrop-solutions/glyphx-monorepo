@@ -103,7 +103,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
             {lastDroppedItem ? `${lastDroppedItem.key}` : `${axis}-Axis`}
           </span>
         </div>
-        <div
+        {/* <div
           className="border border-transparent hover:border-white rounded"
           onClick={() => {
             setVisibility(!showVisibility);
@@ -136,24 +136,26 @@ export const Axes = ({ axis, lastDroppedItem }) => {
               />
             </svg>
           )}
-        </div>
+        </div> */}
         {/* ADD FILTER BTN */}
         <div
           onClick={setFilter}
-          className="flex justify-between bg-secondary-dark-blue rounded border border-transparent hover:border-white hover:cursor-pointer"
+          className={`flex justify-between bg-secondary-dark-blue rounded border border-transparent hover:border-white hover:cursor-pointer`}
         >
           {isFilter ? (
             <svg
               onClick={deleteFilter}
+              className="rounded border border-transparent hover:border-white bg-secondary-space-blue"
               width="16"
               height="16"
               viewBox="0 0 16 16"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
+              <rect width="16" height="16" rx="2" fill="#151C2D" />
               <path
-                d="M12.7782 3.22943C12.4824 2.93364 12.0045 2.93364 11.7088 3.22943L8 6.9306L4.29124 3.22184C3.99545 2.92605 3.51763 2.92605 3.22184 3.22184C2.92605 3.51763 2.92605 3.99545 3.22184 4.29124L6.9306 8L3.22184 11.7088C2.92605 12.0045 2.92605 12.4824 3.22184 12.7782C3.51763 13.0739 3.99545 13.0739 4.29124 12.7782L8 9.0694L11.7088 12.7782C12.0045 13.0739 12.4824 13.0739 12.7782 12.7782C13.0739 12.4824 13.0739 12.0045 12.7782 11.7088L9.0694 8L12.7782 4.29124C13.0664 4.00303 13.0664 3.51763 12.7782 3.22943Z"
-                fill="white"
+                d="M4.16667 12.6667C4.16667 13.4 4.76667 14 5.5 14H10.8333C11.5667 14 12.1667 13.4 12.1667 12.6667V6C12.1667 5.26667 11.5667 4.66667 10.8333 4.66667H5.5C4.76667 4.66667 4.16667 5.26667 4.16667 6V12.6667ZM6.16667 6H10.1667C10.5333 6 10.8333 6.3 10.8333 6.66667V12C10.8333 12.3667 10.5333 12.6667 10.1667 12.6667H6.16667C5.8 12.6667 5.5 12.3667 5.5 12V6.66667C5.5 6.3 5.8 6 6.16667 6ZM10.5 2.66667L10.0267 2.19333C9.90667 2.07333 9.73333 2 9.56 2H6.77333C6.6 2 6.42667 2.07333 6.30667 2.19333L5.83333 2.66667H4.16667C3.8 2.66667 3.5 2.96667 3.5 3.33333C3.5 3.7 3.8 4 4.16667 4H12.1667C12.5333 4 12.8333 3.7 12.8333 3.33333C12.8333 2.96667 12.5333 2.66667 12.1667 2.66667H10.5Z"
+                fill="#CECECE"
               />
             </svg>
           ) : (

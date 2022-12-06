@@ -110,7 +110,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
             {/* </span> */}
           </div>
         )}
-        <div
+        {/* <div
           className="border border-transparent hover:border-white rounded"
           onClick={() => {
             setVisibility(!showVisibility);
@@ -143,7 +143,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
               />
             </svg>
           )}
-        </div>
+        </div> */}
         <div className="flex justify-between bg-secondary-dark-blue rounded border border-transparent hover:border-white hover:cursor-pointer">
           <svg
             width="16"
@@ -158,6 +158,7 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
             />
           </svg>
         </div>
+        
       </li>
       {isFilter && lastDroppedItem ? (
         lastDroppedItem.dataType === "number" ? (

@@ -48,35 +48,6 @@ export const SearchFilter = ({ lastDroppedItem }) => {
         }
       }}
     >
-      {/* SEARCH KEYWORD CHIPS */}
-      <div className="flex flex-wrap scrollbar-none mx-2 my-1">
-        {chips.map((item, idx) => (
-          <span
-            key={idx}
-            className="px-2 mr-1 rounded-full bg-primary-yellow hover:bg-primary-yellow-hover text-secondary-midnight font-roboto font-normal text-[8px] flex items-center justify-between align-middle cursor-pointer"
-          >
-            <p>{item}</p>
-            <button className="bg-transparent hover focus:outline-none">
-              <svg
-                onClick={() => handleDelete(item)}
-                aria-hidden="true"
-                focusable="false"
-                data-prefix="fas"
-                data-icon="times"
-                className="svg-inline--fa fa-times w-2 ml-1"
-                role="img"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 352 512"
-              >
-                <path
-                  fill="currentColor"
-                  d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                ></path>
-              </svg>
-            </button>
-          </span>
-        ))}
-      </div>
       <div
         onMouseOver={showHidden}
         onMouseOut={hideHidden}
@@ -144,7 +115,7 @@ export const SearchFilter = ({ lastDroppedItem }) => {
           )}
         </div>
 
-        <svg
+        {/* <svg
           className="rounded border border-transparent hover:border-white bg-secondary-space-blue"
           width="16"
           height="16"
@@ -152,11 +123,36 @@ export const SearchFilter = ({ lastDroppedItem }) => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <rect width="16" height="16" rx="2" fill="#151C2D" />
           <path
             d="M4.16667 12.6667C4.16667 13.4 4.76667 14 5.5 14H10.8333C11.5667 14 12.1667 13.4 12.1667 12.6667V6C12.1667 5.26667 11.5667 4.66667 10.8333 4.66667H5.5C4.76667 4.66667 4.16667 5.26667 4.16667 6V12.6667ZM6.16667 6H10.1667C10.5333 6 10.8333 6.3 10.8333 6.66667V12C10.8333 12.3667 10.5333 12.6667 10.1667 12.6667H6.16667C5.8 12.6667 5.5 12.3667 5.5 12V6.66667C5.5 6.3 5.8 6 6.16667 6ZM10.5 2.66667L10.0267 2.19333C9.90667 2.07333 9.73333 2 9.56 2H6.77333C6.6 2 6.42667 2.07333 6.30667 2.19333L5.83333 2.66667H4.16667C3.8 2.66667 3.5 2.96667 3.5 3.33333C3.5 3.7 3.8 4 4.16667 4H12.1667C12.5333 4 12.8333 3.7 12.8333 3.33333C12.8333 2.96667 12.5333 2.66667 12.1667 2.66667H10.5Z"
             fill="#CECECE"
           />
-        </svg>
+        </svg> */}
+      </div>
+      {/* SEARCH KEYWORD CHIPS */}
+      <div className="flex flex-wrap gap-y-1 scrollbar-none mx-2 my-1">
+        {chips.map((item, idx) => (
+          <span
+            key={idx}
+            className="px-1 mr-1 rounded-[2px] bg-primary-yellow h-3 hover:bg-primary-yellow-hover text-secondary-space-blue font-medium font-roboto text-[10px] flex items-center justify-between gap-x-1 align-middle cursor-pointer"
+          >
+            <p>{item}</p>
+            <svg
+              onClick={() => handleDelete(item)}
+              width="8"
+              height="8"
+              viewBox="0 0 8 8"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7.82253 0.183542C7.58589 -0.0530905 7.20364 -0.0530905 6.96701 0.183542L4 3.14448L1.03299 0.177474C0.79636 -0.0591581 0.414107 -0.0591581 0.177474 0.177474C-0.0591581 0.414107 -0.0591581 0.79636 0.177474 1.03299L3.14448 4L0.177474 6.96701C-0.0591581 7.20364 -0.0591581 7.58589 0.177474 7.82253C0.414107 8.05916 0.79636 8.05916 1.03299 7.82253L4 4.85552L6.96701 7.82253C7.20364 8.05916 7.58589 8.05916 7.82253 7.82253C8.05916 7.58589 8.05916 7.20364 7.82253 6.96701L4.85552 4L7.82253 1.03299C8.05309 0.802427 8.05309 0.414107 7.82253 0.183542Z"
+                fill="#151C2D"
+              />
+            </svg>
+          </span>
+        ))}
       </div>
     </div>
   );
