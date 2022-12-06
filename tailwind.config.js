@@ -38,6 +38,7 @@ module.exports = {
         "secondary-light-blue": "#70F0F0",
         "primary-yellow-hover": "#FFD959",
         "scrollbar-thumb-yellow": "#EBB500",
+        "secondary-teal": "#7DEAD8",
         "secondary-cyan": "#7DEAD8",
         "secondary-blue": "#3FA9F5",
         "secondary-dark-blue": "#192033",
