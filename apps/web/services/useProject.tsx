@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { API, graphqlOperation, Auth } from "aws-amplify";
 import update from "immutability-helper";
 import {
   droppedPropertiesSelector,
@@ -10,7 +9,6 @@ import {
   propertiesAtom,
   selectedProjectSelector,
   showReorderConfirmAtom,
-  toastAtom,
   userIdSelector,
   modelCreationLoadingAtom,
   AxisInterpolationAtom,
@@ -20,7 +18,6 @@ import {
   selectedFileAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { updateProject } from "apps/graphql/mutations";
 import { createModelCall } from "./ETLCalls";
 import { formatColumnHeader } from "@/utils/Utils";
 /**
@@ -42,8 +39,6 @@ export const useProject = () => {
 
   const isPropsValid = useRecoilValue(isPropsValidSelector);
   const isZnumber = useRecoilValue(isZnumberSelector);
-
-  const setToast = useSetRecoilState(toastAtom);
 
   const userId = useRecoilValue(userIdSelector);
   const interpolation = useRecoilValue(AxisInterpolationAtom);
@@ -100,11 +95,11 @@ export const useProject = () => {
           url: res.url,
         };
         try {
-          const result = await API.graphql(
-            graphqlOperation(updateProject, { input: updateProjectInput })
-          );
-          console.log({ result });
-          console.log({ payload });
+          // const result = await API.graphql(
+          //   graphqlOperation(updateProject, { input: updateProjectInput })
+          // );
+          // console.log({ result });
+          // console.log({ payload });
         } catch (error) {
           // TODO: put error handling in toast
           console.log({ error });

@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { v4 as uuid } from "uuid";
+import { useState } from 'react';
+import { v4 as uuid } from 'uuid';
 
-import { createComment } from "apps/graphql/mutations";
-import {userAtom } from "@/state/user";
-import { useRecoilValue } from "recoil";
-import { activeStateAtom } from "@/state/states";
+import { createComment } from 'apps/graphql/mutations';
+import { userAtom } from '@/state/user';
+import { useRecoilValue } from 'recoil';
+import { activeStateAtom } from '@/state/states';
 
 export const CommentInput = ({ setComments }) => {
-  const [commentContent, setCommentContent] = useState("");
+  const [commentContent, setCommentContent] = useState('');
   const user = useRecoilValue(userAtom);
   const activeState = useRecoilValue(activeStateAtom);
 
@@ -18,20 +18,20 @@ export const CommentInput = ({ setComments }) => {
 
   // save comment to DynamoDB
   const handleSaveComment = async () => {
-    if (typeof activeState !== "undefined") {
+    if (typeof activeState !== 'undefined') {
       let commentInput = {
         id: uuid(),
         //@ts-ignore
-        author: user ? user.attributes.email : "",
+        author: user ? user.attributes.email : '',
         content: commentContent,
         stateID: activeState,
       };
       try {
         setComments(commentInput);
-        setCommentContent("");
-        await API.graphql(
-          graphqlOperation(createComment, { input: commentInput })
-        );
+        setCommentContent('');
+        // await API.graphql(
+        //   graphqlOperation(createComment, { input: commentInput })
+        // );
       } catch (error) {
         console.log({ error });
       }
@@ -41,7 +41,7 @@ export const CommentInput = ({ setComments }) => {
     <div className="relative flex items-center justify-around">
       <input
         onKeyPress={(ev) => {
-          if (ev.key === "Enter") {
+          if (ev.key === 'Enter') {
             ev.preventDefault();
             handleSaveComment();
           }

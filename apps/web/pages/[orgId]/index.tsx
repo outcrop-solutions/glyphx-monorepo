@@ -8,35 +8,41 @@ import { ToastWrapper } from 'partials/layout/ToastWrapper';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { useRouter } from 'next/router';
 import { fetcher } from 'lib/fetcher';
-// const DynamicHome = dynamic(() => import('views/home'), {
-//   ssr: false,
-//   // suspense: true,
-// });
+const DynamicHome = dynamic(() => import('views/home'), {
+  ssr: false,
+  // suspense: true,
+});
 
 export default function Projects() {
   const router = useRouter();
   const { orgId } = router.query;
 
-  // const session = useRequireAuth();
-  // const { data } = useSWR(session && typeof orgId !== 'undefined' && `/api/project?orgId=${orgId}`, fetcher);
-  const { data } = useSWR(typeof orgId !== 'undefined' && `/api/project`, fetcher);
-  console.log({ data });
+  const session = useRequireAuth();
+  const { data } = useSWR(session && typeof orgId !== 'undefined' && `/api/project?orgId=${orgId}`, fetcher); // Populate state layer data
+  // @ts-ignore
+  useEffect(() => {
+    if (data) {
+      // @ts-ignore
+      setProjects(data);
+    }
+  }, [data, session]);
+
   return (
     <div className="flex h-screen w-screen scrollbar-none bg-primary-dark-blue">
       <ToastWrapper>
-        {/* <ErrorBoundary
+        <ErrorBoundary
           FallbackComponent={HomeErrorFallback}
           resetKeys={[]}
           onError={(error, info) => console.log({ error, info })}
           onReset={() => {
             console.log('reset');
           }}
-        > */}
-        {/* Fallback for when data is loading */}
-        {/* <Suspense fallback={<HomeSuspenseFallback />}> */}
-        {/* <DynamicHome /> */}
-        {/* </Suspense> */}
-        {/* </ErrorBoundary>*/}
+        >
+          {/* Fallback for when data is loading */}
+          <Suspense fallback={<HomeSuspenseFallback />}>
+            <DynamicHome />
+          </Suspense>
+        </ErrorBoundary>
       </ToastWrapper>
     </div>
   );

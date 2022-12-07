@@ -12,7 +12,7 @@ import {
   selectedFileAtom,
 } from "@/state/files";
 import { selectedProjectSelector } from "@/state/project";
-import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
+import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/app";
 import { postUploadCall } from "@/services/ETLCalls";
 import { updateProjectInfo } from "@/services/GraphQLCalls";
 

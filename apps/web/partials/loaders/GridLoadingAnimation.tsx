@@ -1,5 +1,5 @@
 import GridLoader from "react-spinners/GridLoader";
-import { dataGridLoadingAtom, progressDetailSelector } from "@/state/globals";
+import { dataGridLoadingAtom, progressDetailSelector } from "@/state/app";
 import { useRecoilValue } from "recoil";
 
 export const GridLoadingAnimation = () => {

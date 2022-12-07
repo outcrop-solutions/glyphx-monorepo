@@ -55,7 +55,7 @@ function html(params: { url: string; host: string; theme }) {
     </tr>
     <tr>
         <td align="center" style="padding: 10px 0px;">
-            <img src="https://app.glyphx.co/_next/static/media/MainSidebar_Full_Logo.49c878fd.svg/>
+            <img src="https://app.glyphx.co/logo.png/>
         </td>
     </tr>
     <tr>

@@ -5,7 +5,6 @@ import { CustomNode } from "./CustomNode";
 import { CustomDragPreview } from "./CustomDragPreview";
 import styles from "./css/Sidebar.module.css";
 import { Dropzone, formatGridData } from "partials";
-import { Storage } from "aws-amplify";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/router";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -15,7 +14,7 @@ import {
   fileSystemAtom,
   selectedFileAtom,
 } from "@/state/files";
-import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
+import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/app";
 import { postUploadCall } from "@/services/ETLCalls";
 import { selectedProjectSelector } from "@/state/project";
 import { updateProjectInfo } from "@/services/GraphQLCalls";

@@ -68,9 +68,9 @@ export const ProjectDetails = () => {
     setEditTitle(false);
     setEditShare(false);
     try {
-      const result = await API.graphql(
-        graphqlOperation(updateProject, { input: updateProjectInput })
-      );
+      // const result = await API.graphql(
+      //   graphqlOperation(updateProject, { input: updateProjectInput })
+      // );
 
       setMsg("Successfully Saved!");
       setTimeout(() => {

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { isGridViewAtom } from "state/globals";
+import { isGridViewAtom } from "@/state/app";
 import { selectedProjectSelector } from "state/project";
 
 export function GridToggle() {

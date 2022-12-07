@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { projectsAtom, showAddProjectAtom } from "@/state/globals";
+import { projectsAtom, showAddProjectAtom } from "@/state/app";
 import { LinkDropDown, MemberList } from "../../invite";
 import { PermissionsDropDown } from "../../invite";
-
-import { API, graphqlOperation, Auth } from "aws-amplify";
-import { createProject } from "apps/graphql/mutations";
-import { CreateProjectMutation } from "API";
 import { useRouter } from "next/router";
 import { v4 as uuid } from "uuid";
 
@@ -73,14 +69,14 @@ export const NewProject = ({ exit }) => {
         };
         console.log({ createProjectInput })
         try {
-            const result = (await API.graphql(
-                graphqlOperation(createProject, { input: createProjectInput })
-            )) as { data: CreateProjectMutation };
+            // const result = (await API.graphql(
+            //     graphqlOperation(createProject, { input: createProjectInput })
+            // )) as { data: CreateProjectMutation };
 
-            console.log({ result })
+            // console.log({ result })
 
             setShowAddProject(false);
-            router.push(`/project/${result.data.createProject.id}`);
+            // router.push(`/project/${result.data.createProject.id}`);
         } catch (error) {
             console.log({ error });
         }
