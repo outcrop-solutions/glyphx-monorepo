@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String    @id @default(cuid()) @map("_id")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String?
+  description String?
+  owner       User?     @relation(name: "ownerRelation", fields: [ownerId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  ownerId     String?
+  members     User[]
+  projects    Project[]
+}
+
+model User {
+  id            String         @id @default(cuid()) @map("_id")
+  name          String?
+  username      String?
+  gh_username   String?
+  email         String?        @unique
+  emailVerified DateTime?
+  isVerified    Boolean        @default(false)
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  webhooks      Webhook[]
+  organization  Organization?  @relation(fields: [orgId], references: [id])
+  orgId         String?
+  apiKey        String?
+  role          Role           @default(ADMIN)
+  ownedOrgs     Organization[] @relation(name: "ownerRelation")
+  projects      Project[]
+}
+
+model Account {
+  id                       String  @id @default(cuid()) @map("_id")
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  refresh_token_expires_in Int?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  oauth_token_secret       String?
+  oauth_token              String?
+  userId                   String
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid()) @map("_id")
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Project {
+  id           String        @id @default(cuid()) @map("_id")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  name         String?
+  description  String?
+  sdtPath      String?
+  organization Organization? @relation(fields: [orgId], references: [id])
+  orgId        String?
+  slug         String?
+  isTemplate   Boolean       @default(false)
+  type         ProjectType?  @relation(fields: [typeId], references: [id])
+  typeId       String?
+  owner        User?         @relation(fields: [ownerId], references: [id])
+  ownerId      String?
+  state        State?        @relation(fields: [stateId], references: [id])
+  stateId      String
+}
+
+// corresponds to a combination of s3 
+model State {
+  id             String    @id @default(cuid()) @map("_id")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int
+  static         Boolean   @default(false)
+  fileSystemHash String // corresponds to S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
+  projects       Project[]
+  fileSystem     Json?
+}
+
+model ProjectType {
+  id        String    @id @default(cuid()) @map("_id")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  name      String
+  shape     Json
+  projects  Project[]
+  // a map of required props and their types of the form 
+  // { "propName": {
+  //      type: "string"
+  //      required: true
+  // }}
+  // NOTE: used to map ingestion to project template types
+}
+
+model Webhook {
+  id        String   @id @default(cuid()) @map("_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String?
+  url       String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+// ENUMS
+enum FilterType {
+  STRING
+  NUMBER
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}

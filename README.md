@@ -1,10 +1,16 @@
-# Glyphx dashboard  testing
+# Monorepo
 
-## Build Dashboard Image
-    cd dashboard
-    docker build -t <imageName> .
+The monorepo is using [Turborepo](https://turborepo.org/) and [pnpm workspaces](https://pnpm.io/workspaces) to link packages together.
 
-## Run Docker Development Image
-    docker run -it --rm -v ${PWD}:/usr/app -v /usr/app/node_modules -p 3000:3000 -e CHOKIDAR_USEPOLLING=true <imageName>
+### Clone and Deploy
 
-Note: "imagename" string must be consistent across both commands
+```bash
+git clone https://github.com/glyphx/monorepo.git
+```
+
+Next, run `web` in development mode:
+
+```bash
+pnpm install
+pnpm dev
+```

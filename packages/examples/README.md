@@ -1,0 +1,1 @@
+# Destination for Open API server stub codegen
