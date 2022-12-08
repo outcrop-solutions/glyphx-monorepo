@@ -8,7 +8,7 @@ package-lock.json
 
 # testing
 /coverage
-
+config.json
 # production
 /build
 /parse/public
