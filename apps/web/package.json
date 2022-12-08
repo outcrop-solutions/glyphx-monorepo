@@ -23,6 +23,7 @@
     "cypress": "9.5.1",
     "dayjs": "^1.10.7",
     "eslint-plugin-cypress": "2.12.1",
+    "evaporate": "^2.1.4",
     "fuse.js": "^6.6.2",
     "immer": "^9.0.16",
     "immutability-helper": "^3.1.1",

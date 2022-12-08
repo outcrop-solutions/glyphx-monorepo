@@ -46,3 +46,7 @@ node_modules/
 awsconfiguration.json
 .secret-*
 **.sample
+
+# cdk
+.cdk.staging
+cdk.out

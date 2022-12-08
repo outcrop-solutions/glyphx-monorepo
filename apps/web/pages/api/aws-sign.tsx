@@ -4,7 +4,7 @@ import { authOptions } from './auth/[...nextauth]';
 import { HttpMethod } from 'types';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getProject, createProject, deleteProject, updateProject } from 'lib/api';
+import { awsSignv4 } from 'lib/api';
 
 export default async function project(req: NextApiRequest, res: NextApiResponse) {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -12,16 +12,10 @@ export default async function project(req: NextApiRequest, res: NextApiResponse)
 
   switch (req.method) {
     case HttpMethod.GET:
-      return getProject(req, res, session);
-    case HttpMethod.POST:
-      return createProject(req, res);
-    case HttpMethod.DELETE:
-      return deleteProject(req, res);
-    case HttpMethod.PUT:
-      return updateProject(req, res);
+      return awsSignv4(req, res, session);
 
     default:
-      res.setHeader('Allow', [HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT]);
+      res.setHeader('Allow', [HttpMethod.GET]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

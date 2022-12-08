@@ -1,48 +1,52 @@
 import { prisma } from '.';
 
-import type { User } from '@prisma/client';
+import type { Organization, Project, User } from '@prisma/client';
 
-const DEFAULT_USERS = [
-  // Add your own user to pre-populate the database with
+const DEFAULT_ORGS = [
+  { name: 'Robert Weed', description: 'Customer #1' },
   {
-    name: 'Danny Hill',
-    email: 'danny@synglyphx.com',
+    name: 'Glyphx',
+    description: 'Admin of software',
+    members: [
+      {
+        name: 'Danny Hill',
+        email: 'danny@synglyphx.com',
+      },
+      {
+        name: 'Michael Wicks',
+        email: 'mwicks@nd.edu',
+      },
+      {
+        name: 'JP Burford',
+        email: 'jpburford@gmail.com',
+      },
+      {
+        name: 'Johnathan Lamptey',
+        email: 'jlamptey@nd.edu',
+      },
+      {
+        name: 'Bryan Holster',
+        email: 'bryan@synglyphx.com',
+      },
+      {
+        name: 'James Graham',
+        email: 'jamesmurdockgraham@gmail.com',
+      },
+    ],
+    projects: [
+      { name: 'First Project', description: 'Project #1' },
+      { name: 'Second Project', description: 'Project #2' },
+    ],
   },
-  {
-    name: 'Michael Wicks',
-    email: 'mwicks@nd.edu',
-  },
-  {
-    name: 'JP Burford',
-    email: 'jpburford@gmail.com',
-  },
-  {
-    name: 'Johnathan Lamptey',
-    email: 'jlamptey@nd.edu',
-  },
-  {
-    name: 'Bryan Holster',
-    email: 'bryan@synglyphx.com',
-  },
-  {
-    name: 'James Graham',
-    email: 'jamesmurdockgraham@gmail.com',
-  },
-] as Array<Partial<User>>;
+] as Array<Partial<Organization>>;
 
 (async () => {
   try {
     await Promise.all(
-      DEFAULT_USERS.map((user) =>
-        prisma.user.upsert({
-          where: {
-            email: user.email!,
-          },
-          update: {
-            ...user,
-          },
-          create: {
-            ...user,
+      DEFAULT_ORGS.map((org) =>
+        prisma.organization.create({
+          data: {
+            ...org,
           },
         })
       )

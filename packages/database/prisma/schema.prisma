@@ -110,7 +110,7 @@ model State {
   updatedAt      DateTime  @updatedAt
   version        Int
   static         Boolean   @default(false)
-  fileSystemHash String // corresponds to S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
+  fileSystemHash String // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
   projects       Project[]
   fileSystem     Json?
 }
@@ -120,8 +120,8 @@ model ProjectType {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   name      String
-  shape     Json
   projects  Project[]
+  shape     Json
   // a map of required props and their types of the form 
   // { "propName": {
   //      type: "string"

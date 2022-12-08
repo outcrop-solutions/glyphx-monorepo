@@ -28,7 +28,7 @@ export default function SignIn({ referer }) {
         <ToastWrapper>
           {/* Fallback for when data is loading */}
           <Suspense fallback={SignInSuspenseFallback}>
-            <Signin referer={'http://localhost:3000/clbdzrmlg0000re43iau05wuy'} />
+            <Signin referer={'http://localhost:3000/test'} />
           </Suspense>
         </ToastWrapper>
       </ErrorBoundary>
