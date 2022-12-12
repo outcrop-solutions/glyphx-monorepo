@@ -54,9 +54,9 @@ export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
       }
       return newProps;
     });
-    // const result = await API.graphql(
-    //   graphqlOperation(deleteFilter, { input: deleteFilterInput })
-    // );
+    const result = await API.graphql(
+      graphqlOperation(deleteFilter, { input: deleteFilterInput })
+    );
   };
   const [{ isOver, canDrop }, drop] = useDrop({
     accept,

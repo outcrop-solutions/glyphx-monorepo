@@ -161,7 +161,7 @@ export async function updateProject(
   const { orgId } = req.query;
 
   if (Array.isArray(orgId)) return res.status(400).end('Bad request. projectId parameter cannot be an array.');
-
+  
   const { id, name, description, sdtPath, slug, isTemplate } = req.body;
 
   try {

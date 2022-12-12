@@ -1,4 +1,4 @@
-import { GridModalErrorAtom } from "@/state/app";
+import { GridModalErrorAtom } from "@/state/globals";
 import { useRecoilState } from "recoil";
 
 export const GridErrorModal = ({ title, message, devErrorMessage }) => {

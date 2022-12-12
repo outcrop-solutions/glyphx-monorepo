@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { QWebChannel } from "qwebchannel";
-import { glyphViewerDetails, orientationAtom } from "state";
+import { glyphViewerDetails, orientationAtom } from "../state";
 import { shareOpenAtom } from "@/state/share";
 import { showInfoAtom } from "@/state/info";
 import { showNotificationAtom } from "@/state/notification";

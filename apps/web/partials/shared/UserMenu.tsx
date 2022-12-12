@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Transition } from "utils/Transition";
+import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
 import {userAtom } from "@/state/user";
 import { useRecoilValue } from "recoil";

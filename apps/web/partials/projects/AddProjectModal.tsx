@@ -12,7 +12,7 @@ import {
 
 
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { projectsAtom, showAddProjectAtom } from "@/state/app";
+import { projectsAtom, showAddProjectAtom } from "@/state/globals";
 
 
 import { LinkDropDown, MemberList } from "../invite";

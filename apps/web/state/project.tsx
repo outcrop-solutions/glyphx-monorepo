@@ -18,12 +18,12 @@ export const selectedProjectSelector = selector({
     if (user && projectId) {
       console.log("Attempting to get selectedProjectSelector");
       try {
-        // const response = (await API.graphql(
-        //   graphqlOperation(getProject, { id: projectId })
-        // )) as {
-        //   data: GetProjectQuery;
-        // };
-        // return response.data.getProject;
+        const response = (await API.graphql(
+          graphqlOperation(getProject, { id: projectId })
+        )) as {
+          data: GetProjectQuery;
+        };
+        return response.data.getProject;
       } catch (error) {
         console.log({ error, recoil: "selectedProjectSelector" });
       }

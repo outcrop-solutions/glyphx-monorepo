@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
+import { Storage } from "aws-amplify";
 import { parse } from "papaparse";
 import { formatGridData } from "partials";
 import { PlusIcon } from "@heroicons/react/solid";
@@ -12,7 +13,7 @@ import {
 } from "@/state/files";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedProjectSelector } from "@/state/project";
-import { dataGridLoadingAtom, GridModalErrorAtom, progressDetailAtom } from "@/state/app";
+import { dataGridLoadingAtom, GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
 import { postUploadCall } from "@/services/ETLCalls";
 import { updateProjectInfo } from "@/services/GraphQLCalls";
 

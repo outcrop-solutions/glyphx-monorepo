@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 import { showSearchModalAtom } from "state";
-import { projectsAtom } from "@/state/app";
+import { projectsAtom } from "@/state/globals";
 import Fuse from "fuse.js"; // importing fuse
 
 export function SearchModal() {

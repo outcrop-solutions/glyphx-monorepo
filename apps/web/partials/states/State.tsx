@@ -4,6 +4,8 @@ import {
   TrashIcon,
 } from "@heroicons/react/outline";
 import { useState } from "react";
+import * as mutations from "apps/graphql/mutations";
+import { API } from "aws-amplify";
 import { activeStateAtom } from "@/state/states";
 import { useRecoilState } from "recoil";
 
@@ -23,10 +25,10 @@ export const State = ({ item }) => {
     const stateDelete = {
       id: item.id,
     };
-    // await API.graphql({
-    //   query: mutations.deleteState,
-    //   variables: { input: stateDelete },
-    // });
+    await API.graphql({
+      query: mutations.deleteState,
+      variables: { input: stateDelete },
+    });
   };
 
   const handleSave = () => {

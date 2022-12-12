@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { UserMenu } from "partials";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { isMainSidebarExpandedAtom } from "@/state/app";
+import { isMainSidebarExpandedAtom } from "@/state/globals";
 import { useRecoilValue } from "recoil";
 import { selectedProjectSelector } from "@/state/project";
 import Image from "next/image";

@@ -1,11 +1,14 @@
 import ClickAwayListener from "react-click-away-listener";
 import { CheckIcon } from "@heroicons/react/outline";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { showAddProjectAtom } from "@/state/app";
+import { showAddProjectAtom } from "@/state/globals";
 import { selectedProjectSelector } from "@/state/project";
 import { propertiesAtom, showReorderConfirmAtom } from "@/state/properties";
 import { filtersSelector } from "@/state/filters";
+import { API, graphqlOperation, Storage } from "aws-amplify";
+import { CreateProjectInput, CreateProjectMutation } from "API";
 import {userAtom } from "@/state/user";
+import { createProject } from "apps/graphql/mutations";
 
 export const ReorderConfirmModal = () => {
   const user = useRecoilValue(userAtom);
@@ -38,16 +41,16 @@ export const ReorderConfirmModal = () => {
             // @ts-ignore
           shared: [user.username],
         };
-        // const result = (await API.graphql(
-        //   graphqlOperation(createProject, { input: createProjectInput })
-        // )) as {
-        //   data: CreateProjectMutation;
-        // };
+        const result = (await API.graphql(
+          graphqlOperation(createProject, { input: createProjectInput })
+        )) as {
+          data: CreateProjectMutation;
+        };
 
-        // return {
-        //   projId: result.data.createProject.id,
-        //   projectData: result.data.createProject,
-        // };
+        return {
+          projId: result.data.createProject.id,
+          projectData: result.data.createProject,
+        };
       } catch (error) {
         console.log({ error });
       }

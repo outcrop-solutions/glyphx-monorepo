@@ -1,9 +1,9 @@
-// export * from "./AddProject";
-// export * from "./AddProjectModal";
-export * from './GridView';
-export * from './PinnedProjects';
-// export * from "./ProjectCard";
-// export * from "./ProjectDetails";
-export * from './TableView';
-export * from './Templates';
-// export * from "./TableListItem"
+export * from "./AddProject";
+export * from "./AddProjectModal";
+export * from "./GridView";
+export * from "./PinnedProjects";
+export * from "./ProjectCard";
+export * from "./ProjectDetails";
+export * from "./TableView";
+export * from "./Templates";
+export * from "./TableListItem"

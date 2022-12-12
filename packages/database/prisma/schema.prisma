@@ -38,8 +38,7 @@ model User {
   apiKey        String?
   role          Role           @default(ADMIN)
   ownedOrgs     Organization[] @relation(name: "ownerRelation")
-  projectIDs    String[]
-  projects      Project[]      @relation(fields: [projectIDs], references: [id])
+  projects      Project[]
 }
 
 model Account {
@@ -96,11 +95,10 @@ model Project {
   isTemplate   Boolean       @default(false)
   type         ProjectType?  @relation(fields: [typeId], references: [id])
   typeId       String?
-  createdBy    Json?
+  owner        User?         @relation(fields: [ownerId], references: [id])
+  ownerId      String?
   state        State?        @relation(fields: [stateId], references: [id])
   stateId      String
-  memberIDs    String[]
-  members      User[]        @relation(fields: [memberIDs], references: [id])
 }
 
 // corresponds to a combination of s3 

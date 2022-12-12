@@ -84,9 +84,9 @@ export const Header = () => {
       shared: selectedProject.shared,
     };
     try {
-      // const result = await API.graphql(
-      //   graphqlOperation(updateProject, { input: updateProjectInput })
-      // );
+      const result = await API.graphql(
+        graphqlOperation(updateProject, { input: updateProjectInput })
+      );
     } catch (error) {
       console.log({ error });
     }
