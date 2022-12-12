@@ -20,7 +20,7 @@ import {
   selectedFileAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { updateProject } from "apps/graphql/mutations";
+import { updateProject } from "graphql/mutations";
 import { createModelCall } from "./ETLCalls";
 import { formatColumnHeader } from "@/utils/Utils";
 /**

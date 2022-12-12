@@ -5,7 +5,7 @@ import { LinkDropDown, MemberList } from "../../invite";
 import { PermissionsDropDown } from "../../invite";
 
 import { API, graphqlOperation, Auth } from "aws-amplify";
-import { createProject } from "apps/graphql/mutations";
+import { createProject } from "graphql/mutations";
 import { CreateProjectMutation } from "API";
 import { useRouter } from "next/router";
 import { v4 as uuid } from "uuid";

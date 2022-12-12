@@ -8,7 +8,7 @@ import { filtersSelector } from "@/state/filters";
 import { API, graphqlOperation, Storage } from "aws-amplify";
 import { CreateProjectInput, CreateProjectMutation } from "API";
 import {userAtom } from "@/state/user";
-import { createProject } from "apps/graphql/mutations";
+import { createProject } from "graphql/mutations";
 
 export const ReorderConfirmModal = () => {
   const user = useRecoilValue(userAtom);

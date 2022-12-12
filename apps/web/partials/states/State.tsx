@@ -4,7 +4,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/outline";
 import { useState } from "react";
-import * as mutations from "apps/graphql/mutations";
+import * as mutations from "graphql/mutations";
 import { API } from "aws-amplify";
 import { activeStateAtom } from "@/state/states";
 import { useRecoilState } from "recoil";

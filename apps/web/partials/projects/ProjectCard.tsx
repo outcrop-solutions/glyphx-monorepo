@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import { API, Storage } from "aws-amplify";
-import * as mutations from "apps/graphql/mutations";
+import * as mutations from "graphql/mutations";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
 import { projectsAtom } from "@/state/globals";

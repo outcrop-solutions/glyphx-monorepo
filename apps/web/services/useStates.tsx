@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { listStates } from "../apps/graphql/queries";
+import { listStates } from "../graphql/queries";
 
 /**
  * Utility for interfacing with the States class

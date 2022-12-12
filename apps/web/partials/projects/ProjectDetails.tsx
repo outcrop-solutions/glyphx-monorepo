@@ -4,7 +4,7 @@ import { FolderIcon, UserCircleIcon, XIcon } from "@heroicons/react/outline";
 import { CheckIcon, PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { updateProject } from "apps/graphql/mutations";
+import { updateProject } from "graphql/mutations";
 
 import { useRecoilState, useRecoilValue } from "recoil";
 import { projectDetailsAtom } from "@/state/project";

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
 import { PencilIcon } from "@heroicons/react/outline";
 
-import { updateProject } from "apps/graphql/mutations";
+import { updateProject } from "graphql/mutations";
 
 import { Project } from "API";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";

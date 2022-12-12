@@ -1,7 +1,7 @@
 import { atom, selector, selectorFamily } from "recoil";
 import { GetProjectQuery } from "API";
 
-import { getProject } from "apps/graphql/queries";
+import { getProject } from "graphql/queries";
 import {userAtom } from "./user";
 
 export const projectIdAtom = atom({

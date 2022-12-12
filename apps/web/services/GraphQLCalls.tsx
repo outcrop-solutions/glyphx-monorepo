@@ -1,5 +1,5 @@
 
-import { updateProject } from "apps/graphql/mutations";
+import { updateProject } from "graphql/mutations";
 
 /**
  * TAKES IN NEW PROJECT STATE AND SAVES IT TO DYNAMO DB. RETURNS NEW PROJECT STATE

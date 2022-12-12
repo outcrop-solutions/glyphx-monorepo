@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import Router, { useRouter } from "next/router";
-import { listProjects } from "apps/graphql/queries";
+import { listProjects } from "graphql/queries";
 import sortArray from "sort-array";
 import { ListProjectsQuery } from "API";
 import { useSetRecoilState } from "recoil";

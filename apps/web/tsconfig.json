@@ -5,6 +5,7 @@
     "baseUrl": ".",
     "paths": {
       "@/email/*": ["email/*"],
+      "@/graphql/*": ["graphql/*"],
       "@/lib/*": ["lib/*"],
       "@/pages/*": ["pages/*"],
       "@/partials/*": ["partials/*"],
