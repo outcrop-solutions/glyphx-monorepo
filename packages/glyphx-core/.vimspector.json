@@ -1,0 +1,27 @@
+{
+  "configurations": {
+    "test": {
+      "adapter": "vscode-node",
+      "configuration": {
+        "request": "launch",
+        "protocol": "auto",
+        "stopOnEntry": false,
+        "console": "integratedTerminal",
+        "program": "${workspaceRoot}/node_modules/.bin/mocha",
+        "args": [
+          "-r",
+          "ts-node/register",
+	  "-r",
+	  "tsconfig-paths/register",
+          "--timeout",
+          "999999",
+          "--exit",
+          "src/__tests__/**/*.tests.ts"
+        ],
+        "cwd": "${workspaceRoot}",
+        "env": {"TS_NODE_FILES": "true"}
+      }
+    }
+    
+  }
+}

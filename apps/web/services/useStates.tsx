@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { listStates } from "../graphql/queries";
-
+import { API, graphqlOperation } from "aws-amplify";
 /**
  * Utility for interfacing with the States class
  * @param {Object} project

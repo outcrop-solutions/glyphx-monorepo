@@ -1,68 +1,64 @@
-import { AxesIcons } from "./AxesIcons";
-import { useState } from "react";
-import { Filter } from "./Filter";
-import { RangeFilter } from "./actions/RangeFilter";
-import { SearchFilter } from "./actions/SearchFilter";
+import { AxesIcons } from './AxesIcons';
+import { useState } from 'react';
+import { Filter } from './Filter';
+import { RangeFilter } from './actions/RangeFilter';
+import { SearchFilter } from './actions/SearchFilter';
+import { API, graphqlOperation } from 'aws-amplify';
 
-import { deleteFilter } from "graphql/mutations";
-import { ShowHide } from "./actions/ShowHide";
-import { DeleteFilter } from "./actions/DeleteFilter";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { propertiesAtom } from "@/state/properties";
-import { filtersAppliedAtom } from "@/state/filters";
+import { deleteFilter } from 'graphql/mutations';
+import { ShowHide } from './actions/ShowHide';
+import { DeleteFilter } from './actions/DeleteFilter';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { propertiesAtom } from '@/state/properties';
+import { filtersAppliedAtom } from '@/state/filters';
 
 export const Axes = ({ axis, lastDroppedItem }) => {
   const setProperties = useSetRecoilState(propertiesAtom);
-  const [filtersApplied, setFiltersApplied] =
-    useRecoilState(filtersAppliedAtom);
+  const [filtersApplied, setFiltersApplied] = useRecoilState(filtersAppliedAtom);
 
   const [isFilter, setIsFilter] = useState(false); //shows filter property
-  const [applied, setApplied] = useState(
-    filtersApplied.includes(lastDroppedItem) ? true : false
-  );
+  const [applied, setApplied] = useState(filtersApplied.includes(lastDroppedItem) ? true : false);
 
   // For number datatype
-  const [min, setMin] = useState("");
-  const [max, setMax] = useState("");
+  const [min, setMin] = useState('');
+  const [max, setMax] = useState('');
 
   const [hide, setHide] = useState(false);
   const [showVisibility, setVisibility] = useState(false); //true means eye with no dash, false means eye with dash
 
-  // const handleApply = () => {
-  //   setFiltersApplied((prev) => {
-  //     if (applied) {
-  //       let newArr = prev.filter((el) => el.name !== lastDroppedItem.key);
+  const handleApply = () => {
+    setFiltersApplied((prev) => {
+      if (applied) {
+        let newArr = prev.filter((el) => el.name !== lastDroppedItem.key);
 
-  //       return [...newArr];
-  //     } else {
-  //       let newArr = [...prev, { name: lastDroppedItem.key, min, max }];
+        return [...newArr];
+      } else {
+        let newArr = [...prev, { name: lastDroppedItem.key, min, max }];
 
-  //       return [...newArr];
-  //     }
-  //   });
-  //   setApplied((prev) => !prev);
-  // };
-  // const handleDeleteFilter = async () => {
-  //   let deleteFilterInput = { id: lastDroppedItem.id };
-  //   setProperties((prev) => {
-  //     let newProps = prev;
-  //     if (prev.length > 0) {
-  //       newProps = prev.map((el) => {
-  //         let newEl = el;
-  //         if (el.axis === axis) {
-  //           newEl = { ...el, lastDroppedItem: null };
-  //         }
-  //         return newEl;
-  //       });
-  //     }
-  //     return newProps;
-  //   });
+        return [...newArr];
+      }
+    });
+    setApplied((prev) => !prev);
+  };
+  const handleDeleteFilter = async () => {
+    let deleteFilterInput = { id: lastDroppedItem.id };
+    setProperties((prev) => {
+      let newProps = prev;
+      if (prev.length > 0) {
+        newProps = prev.map((el) => {
+          let newEl = el;
+          if (el.axis === axis) {
+            newEl = { ...el, lastDroppedItem: null };
+          }
+          return newEl;
+        });
+      }
+      return newProps;
+    });
 
-  //   const result = await API.graphql(
-  //     graphqlOperation(deleteFilter, { input: deleteFilterInput })
-  //   );
-  //   console.log({ result });
-  // };
+    const result = await API.graphql(graphqlOperation(deleteFilter, { input: deleteFilterInput }));
+    console.log({ result });
+  };
 
   function deleteFilter() {
     setFiltersApplied((prev) => {
@@ -96,7 +92,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
         {/* PROPERTY CHIP */}
         <div
           // @ts-ignore
-          formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
+          formattype={lastDroppedItem ? lastDroppedItem.dataType : ''}
           className={`flex grow justify-center bg-gray h-4 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium uppercase lg:opacity-100 2xl:opacity-100 transition duration-150 truncate">
@@ -159,13 +155,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
               />
             </svg>
           ) : (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M13.1429 8.85714H8.85714V13.1429C8.85714 13.6143 8.47143 14 8 14C7.52857 14 7.14286 13.6143 7.14286 13.1429V8.85714H2.85714C2.38571 8.85714 2 8.47143 2 8C2 7.52857 2.38571 7.14286 2.85714 7.14286H7.14286V2.85714C7.14286 2.38571 7.52857 2 8 2C8.47143 2 8.85714 2.38571 8.85714 2.85714V7.14286H13.1429C13.6143 7.14286 14 7.52857 14 8C14 8.47143 13.6143 8.85714 13.1429 8.85714Z"
                 fill="#CECECE"
@@ -176,11 +166,8 @@ export const Axes = ({ axis, lastDroppedItem }) => {
       </li>
       {/* filtering dropdown */}
       {isFilter && lastDroppedItem ? (
-        lastDroppedItem.dataType === "number" ? (
-          <RangeFilter
-            setVisible={setIsFilter}
-            lastDroppedItem={lastDroppedItem}
-          />
+        lastDroppedItem.dataType === 'number' ? (
+          <RangeFilter setVisible={setIsFilter} lastDroppedItem={lastDroppedItem} />
         ) : (
           <SearchFilter lastDroppedItem={lastDroppedItem} />
         )

@@ -3,6 +3,9 @@ import { type NextRequest } from 'next/server'
 export const config = {
   runtime: 'experimental-edge',
 }
+// File.prototype.size to read file size on stream
+// File.prototype.type to determine MIME type
+// Blob.prototype.stream() Transforms the File into a ReadableStream that can be used to read the File contents.
 
 export default async function handler(_: NextRequest) {
   const encoder = new TextEncoder()

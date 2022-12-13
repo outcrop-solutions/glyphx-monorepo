@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
 import { PencilIcon } from "@heroicons/react/outline";
-
+import { API, graphqlOperation } from "aws-amplify";
 import { updateProject } from "graphql/mutations";
 
 import { Project } from "API";

@@ -4,7 +4,7 @@ import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
 import { PencilIcon } from "@heroicons/react/outline";
 
 import { updateProject } from "graphql/mutations";
-
+import { API, graphqlOperation } from "aws-amplify";
 import { Project } from "API";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {

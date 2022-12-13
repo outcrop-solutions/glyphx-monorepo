@@ -1,14 +1,14 @@
-import ClickAwayListener from "react-click-away-listener";
-import { CheckIcon } from "@heroicons/react/outline";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { showAddProjectAtom } from "@/state/globals";
-import { selectedProjectSelector } from "@/state/project";
-import { propertiesAtom, showReorderConfirmAtom } from "@/state/properties";
-import { filtersSelector } from "@/state/filters";
-import { API, graphqlOperation, Storage } from "aws-amplify";
-import { CreateProjectInput, CreateProjectMutation } from "API";
-import {userAtom } from "@/state/user";
-import { createProject } from "graphql/mutations";
+import ClickAwayListener from 'react-click-away-listener';
+import { CheckIcon } from '@heroicons/react/outline';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { showAddProjectAtom } from '@/state/globals';
+import { selectedProjectSelector } from '@/state/project';
+import { propertiesAtom, showReorderConfirmAtom } from '@/state/properties';
+import { filtersSelector } from '@/state/filters';
+import { API, graphqlOperation, Storage } from 'aws-amplify';
+import { CreateProjectInput, CreateProjectMutation } from 'API';
+import { userAtom } from '@/state/user';
+import { createProject } from 'graphql/mutations';
 
 export const ReorderConfirmModal = () => {
   const user = useRecoilValue(userAtom);
@@ -19,7 +19,7 @@ export const ReorderConfirmModal = () => {
   const filters = useRecoilValue(filtersSelector);
   //  FORK PROJECT
   const handleSave = async () => {
-    let id = "";
+    let id = '';
     let proj = {};
     // utilities
     const createProj = async () => {
@@ -27,7 +27,7 @@ export const ReorderConfirmModal = () => {
         const createProjectInput = {
           // id: newId,
           name: `${project.name} Copy`,
-          description: "",
+          description: '',
           // @ts-ignore
           author: user?.username,
           expiry: new Date().toISOString(),
@@ -35,15 +35,13 @@ export const ReorderConfirmModal = () => {
             el.lastDroppedItem
               ? el.lastDroppedItem.key
                 ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
-                : ""
-              : ""
+                : ''
+              : ''
           ),
-            // @ts-ignore
+          // @ts-ignore
           shared: [user.username],
         };
-        const result = (await API.graphql(
-          graphqlOperation(createProject, { input: createProjectInput })
-        )) as {
+        const result = (await API.graphql(graphqlOperation(createProject, { input: createProjectInput }))) as {
           data: CreateProjectMutation;
         };
 
@@ -58,11 +56,9 @@ export const ReorderConfirmModal = () => {
     const copyFiles = async (id) => {
       try {
         const data = await Storage.list(`${project.id}/input/`);
+        // @ts-ignore
         for (let i = 0; i < data.length; i++) {
-          const copied = await Storage.copy(
-            { key: `${data[i].key}` },
-            { key: `${id}${data[i].key.slice(36)}` }
-          );
+          const copied = await Storage.copy({ key: `${data[i].key}` }, { key: `${id}${data[i].key.slice(36)}` });
           return copied;
         }
       } catch (error) {
@@ -80,9 +76,9 @@ export const ReorderConfirmModal = () => {
         properties.length >= 3
       ) {
         // call ETl endpoint
-        let response = await fetch("https://api.glyphx.co/etl/model", {
-          method: "POST",
-          mode: "cors",
+        let response = await fetch('https://api.glyphx.co/etl/model', {
+          method: 'POST',
+          mode: 'cors',
           body: JSON.stringify({
             model_id: project.id,
             x_axis: properties[0].lastDroppedItem.key,
@@ -125,13 +121,11 @@ export const ReorderConfirmModal = () => {
               <CheckIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
             </div>
             <div className="mt-3 text-center sm:mt-5">
-              <h3 className="text-lg leading-6 font-medium text-white">
-                New Model?
-              </h3>
+              <h3 className="text-lg leading-6 font-medium text-white">New Model?</h3>
               <div className="mt-2">
                 <p className="text-sm text-slate-300">
-                  Reordering you properties will invalidate your saved states{" "}
-                  <br /> Would you like to create a new model instead?
+                  Reordering you properties will invalidate your saved states <br /> Would you like to create a new
+                  model instead?
                 </p>
               </div>
             </div>

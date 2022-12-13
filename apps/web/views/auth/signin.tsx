@@ -1,30 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useRedirectAuth } from 'lib';
-import { signIn } from 'next-auth/react';
-import toast from 'react-hot-toast';
-import { setTimeout } from 'timers';
+import { Auth } from 'aws-amplify';
+import React from 'react';
+import { userAtom } from '@/state/user';
+import { useSetRecoilState } from 'recoil';
 
-export const Signin = ({ referer }) => {
-  const [loading, setLoading] = useState(false);
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [loginEmailSent, setLoginEmailSent] = useState(false);
+export default function Signin() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(false);
 
-  // Get error message added by next/auth in URL.
-  const { query } = useRouter();
-  const { error } = query;
+  const setUser = useSetRecoilState(userAtom);
 
-  const [email, setEmail] = useState('');
+  const router = useRouter();
+  const handleUname = (e) => {
+    setUsername(e.target.value);
+  };
 
-  useEffect(() => {
-    console.log({ error });
-    const errorMessage = Array.isArray(error) ? error.pop() : error;
-    errorMessage && toast.error(errorMessage);
-  }, [error]);
-
-  // useRedirectAuth();
+  const handlePass = (e) => {
+    setPassword(e.target.value);
+  };
+  const signIn = async () => {
+    try {
+      const user = await Auth.signIn(username, password);
+      //on succfull log in
+      console.log({ user });
+      router.push('/');
+    } catch (error) {
+      setError(error.message);
+      setTimeout(() => {
+        setError(false);
+      }, 5000);
+      console.log('error on signin page' + error);
+      // setIsLoggedIn(false);
+    }
+  };
   return (
     // TODO: @Johnathan I fixed the width and centering of the form here
     <div className="flex h-full items-center justify-center w-full scrollbar-none bg-secondary-midnight">
@@ -45,21 +56,34 @@ export const Signin = ({ referer }) => {
               <input
                 id="email"
                 data-test="username-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-4 h-8 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white  focus:border-primary-yellow"
+                value={username}
+                onChange={handleUname}
+                className="w-full h-8 pl-4 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white  focus:border-primary-yellow"
                 type="email"
                 placeholder="Email"
               />
             </div>
 
-            {/* <div className="flex flex-row justify-end mt-2 mb-4">
+            <div className="">
+              <input
+                data-test="sign-in-password-input"
+                value={password}
+                onChange={handlePass}
+                id="password"
+                className="w-full h-8 pl-4 text-[12px] font-roboto font-normal leading-[14px] rounded-md bg-secondary-midnight border-gray text-white hover:cursor-pointer hover:border-white focus:border-primary-yellow "
+                type="password"
+                autoComplete="on"
+                placeholder="Password"
+              />
+            </div>
+
+            <div className="flex flex-row justify-end mt-2 mb-4">
               <Link href={'/auth/resetPassword'}>
                 <div className="font-roboto font-normal text-[10px] leading-[12px] underline hover:cursor-pointer  text-primary-yellow">
                   Forgot Password?
                 </div>
               </Link>
-            </div> */}
+            </div>
           </div>
 
           {/* Footer */}
@@ -72,35 +96,23 @@ export const Signin = ({ referer }) => {
                 </span>
               </Link>
             </div>
-            <div
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setLoading(false);
-                }, 5000);
-                signIn('email', {
-                  email: email,
-                  callbackUrl: referer,
-                  // if invite, pull id out of invite link to reroute to content
-                  // callbackUrl: referer.includes('invite') ? `/invite/${referer.split('/')[2]}` : referer,
-                });
-              }}
-              data-test="sign-in-sign-in-button"
-            >
-              <button className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow hover:bg-primary-yellow-hover cursor-pointer">
+            <div data-test="sign-in-sign-in-button">
+              <button
+                className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow hover:bg-primary-yellow-hover cursor-pointer"
+                onClick={signIn}
+              >
                 Log In
               </button>
             </div>
           </div>
         </div>
-        {loading ? (
+        {error ? (
           <div className="btn font-roboto font-medium text-[14px] leading-[16px] bg-yellow text-white my-4 w-full">
-            Check your inbox for a magic link!
-            <br /> Didn't receive your link? Try Again.
+            {error}
           </div>
         ) : null}
       </div>
       {/* </div> */}
     </div>
   );
-};
+}

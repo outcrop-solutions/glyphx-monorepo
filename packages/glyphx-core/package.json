@@ -1,0 +1,54 @@
+{
+  "name": "@glyphx/core",
+  "version": "0.0.1",
+  "description": "A set of common components for use in Glyphx Backend applications",
+  "main": "build/index.js",
+  "scripts": {
+    "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
+    "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "precommit": "npx lint-staged",
+    "docs": "npx typedoc",
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
+  },
+  "author": "JP Burford",
+  "license": "ISC",
+  "lint-staged": {
+    "*.{js,ts}": [
+      "gts fix"
+    ]
+  },
+  "devDependencies": {
+    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
+    "@aws-sdk/types": "^3.224.0",
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.11.7",
+    "@types/sinon": "^10.0.13",
+    "@typescript-eslint/parser": "^5.42.0",
+    "chai": "^4.3.6",
+    "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-plugin-filename-rules": "^1.2.0",
+    "eslint-plugin-import": "^2.26.0",
+    "gts": "^3.1.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "mocha": "^10.1.0",
+    "nyc": "^15.1.0",
+    "rewire": "^6.0.0",
+    "sinon": "^14.0.1",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.0",
+    "typedoc": "^0.23.20",
+    "typedoc-plugin-not-exported": "^0.1.6",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-athena": "^3.224.0",
+    "winston": "^3.8.2",
+    "winston-daily-rotate-file": "^4.7.1"
+  }
+}

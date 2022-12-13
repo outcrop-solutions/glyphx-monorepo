@@ -3,7 +3,7 @@ import { useDrop } from "react-dnd";
 import { Filter } from "./Filter";
 import { RangeFilter } from "./actions/RangeFilter";
 import { SearchFilter } from "./actions/SearchFilter";
-
+import { API, graphqlOperation } from "aws-amplify";
 import { deleteFilter } from "graphql/mutations";
 
 import { ShowHide } from "./actions/ShowHide";

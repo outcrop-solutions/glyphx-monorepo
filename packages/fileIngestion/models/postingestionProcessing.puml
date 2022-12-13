@@ -1,0 +1,38 @@
+@startuml
+title Post File Ingestion Athena Processing 
+
+participant "Lambda Function" as lambda
+participant "BasicFileTransformer" as fileTransformer 
+participant "BasicTableSorter" as tableSorter 
+participant "BasicJoinProcessor" as joinProcessor 
+participant "BasicTableBuilder" as tableBuilder 
+participant "BasicViewBuilder" as viewBuilder
+participant "BasicHiveQueryPlanner" as queryPlanner
+
+
+lambda -> fileTransformer : new (callback: fileInfo, errorCallback: errorInfo)
+fileTransformer -> fileTransformer : _transform 
+fileTransformer --> lambda : callback(fileInfo)
+lambda -> tableSorter : sortTables
+return : sortedTables
+
+loop sortedTables.forEach 
+    lambda -> joinProcessor : processJoins 
+end
+
+lambda-> joinProcessor: get joinData
+
+loop joinData.forEach 
+	lambda->tableBuilder: buildTable
+end
+
+lambda->viewBuilder : buildView(joinData)
+viewBuilder->queryPlanner : defineQuery
+viewBuilder-->lambda
+group On Error 
+	fileTransformer --> lambda :errorCallback(errorInfo)
+	lambda->lambda : processError
+end
+
+<--lambda : return to user
+@enduml

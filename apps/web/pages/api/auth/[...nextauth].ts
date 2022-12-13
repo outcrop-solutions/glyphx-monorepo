@@ -1,3 +1,4 @@
+// TODO: Move to next-auth from cognito to easily support OAuth clients
 import NextAuth from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';

@@ -6,8 +6,9 @@ import {
   TerminalIcon,
 } from "@heroicons/react/outline";
 import { v4 as uuid } from "uuid";
-import { createProject } from "../../graphql/mutations";
-import { listProjects } from "../../graphql/queries";
+import { createProject } from "graphql/mutations";
+import { listProjects } from "graphql/queries";
+import { API, graphqlOperation } from "aws-amplify";
 
 import sortArray from "sort-array";
 import { useUser } from "services";

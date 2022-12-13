@@ -1,0 +1,1 @@
+export {IHeadObjectData} from './iHeadObjectData';
