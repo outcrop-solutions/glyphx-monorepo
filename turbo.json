@@ -35,7 +35,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**"],
+      "outputs": [".next/**", "dist/**", "build/**"],
       "cache": false
     },
     "test": {

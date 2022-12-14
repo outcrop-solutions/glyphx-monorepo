@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
 import {BasicTableSorter} from '@fileProcessing';
-import {error} from 'glyphx-core';
+import {error} from '@glyphx/core';
 
 describe('#fileProcessing/BasicTableSorter', () => {
   const table1: fileProcessingInterfaces.IFileInformation = {

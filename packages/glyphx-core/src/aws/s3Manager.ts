@@ -1,7 +1,7 @@
 import {S3} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import {error} from 'glyphx-core';
-import {IHeadObjectData} from '@interfaces/aws';
+import * as error from '../error';
+import { aws } from '@glyphx/types';
 import {PassThrough} from 'node:stream';
 
 /**
@@ -122,7 +122,7 @@ export class S3Manager {
    *
    * @throws InvalidArgumentError - if the file does not exist iin the bucket, or you do not have permissions to access it.
    */
-  async getFileInformation(fileName: string): Promise<IHeadObjectData> {
+  async getFileInformation(fileName: string): Promise<aws.IHeadObjectData> {
     try {
       const result = await this.bucket.headObject({
         Bucket: this.bucketName,

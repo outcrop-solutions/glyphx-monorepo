@@ -154,6 +154,7 @@ export const Files = ({ toastRef }) => {
     },
     [setFileSystem, project, fileSystem, setDataGrid]
   );
+  
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     

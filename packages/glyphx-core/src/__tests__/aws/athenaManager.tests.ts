@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {AthenaManager} from '@aws';
+import {AthenaManager} from '../../aws';
 //eslint-disable-next-line
 import {mockClient} from 'aws-sdk-client-mock';
 import {
@@ -10,14 +10,14 @@ import {
   GetQueryResultsCommand,
 } from '@aws-sdk/client-athena';
 import ResultSetMock from './resultSetMocks.json';
-import {error} from 'glyphx-core';
+import * as error  from '../../error';
 
 describe('#aws/AthenaManager', () => {
   context('init', () => {
     let athenaMock: any;
 
     beforeEach(() => {
-      athenaMock = mockClient(AthenaClient);
+      athenaMock = mockClient(AthenaClient as any);
     });
 
     afterEach(() => {
@@ -60,7 +60,7 @@ describe('#aws/AthenaManager', () => {
     let athenaMock: any;
 
     beforeEach(() => {
-      athenaMock = mockClient(AthenaClient);
+      athenaMock = mockClient(AthenaClient as any);
     });
 
     afterEach(() => {

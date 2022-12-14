@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import {SinonSandbox, createSandbox} from 'sinon';
-import {S3Manager, AthenaManager} from '@aws';
+import {S3Manager, AthenaManager} from '@glyphx/core';
 import {BasicAthenaProcessor} from '@fileProcessing';
-import {error} from 'glyphx-core';
+import {error} from '@glyphx/core';
 describe('fileProcessing/BasicAthenaProcessor', () => {
   context('init', () => {
     let sandbox: SinonSandbox;

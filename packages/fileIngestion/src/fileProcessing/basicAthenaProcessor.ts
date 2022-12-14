@@ -10,10 +10,10 @@ import {
 } from '@fileProcessing';
 
 //eslint-disable-next-line
-import {fileIngestion} from 'glyphx-types';
+import {fileIngestion} from '@glyphx/types';
 
-import {S3Manager, AthenaManager} from '@aws';
-import {error, generalPurposeFunctions} from 'glyphx-core';
+import {S3Manager, AthenaManager} from '@glyphx/core';
+import {error, generalPurposeFunctions} from '@glyphx/core';
 
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
 

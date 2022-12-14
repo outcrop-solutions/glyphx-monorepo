@@ -1,5 +1,5 @@
 import {IFileInformation, ITableSorter} from '@interfaces/fileProcessing';
-import {error} from 'glyphx-core';
+import {error} from '@glyphx/core';
 
 /**
  * Our basicTable sorter class.  This class sorts by the

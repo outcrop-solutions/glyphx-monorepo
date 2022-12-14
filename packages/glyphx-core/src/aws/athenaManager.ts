@@ -6,7 +6,9 @@ import {
   GetDatabaseCommand,
   ResultSet,
 } from '@aws-sdk/client-athena';
-import {error, aws} from 'glyphx-core';
+import {ResultSetConverter} from "./util/resultsetConverter"
+
+import * as error from '../error';
 
 /**
  * The data catalog name that is used to find our database.
@@ -159,7 +161,7 @@ export class AthenaManager {
       });
 
       const results = await this.athenaClient.send(queryResultsCommand);
-      const convertedResults = aws.util.ResultsetConverter.fromResultset(
+      const convertedResults = ResultSetConverter.fromResultset(
         results.ResultSet as Required<ResultSet>,
         includeHeaderRow
       );

@@ -8,6 +8,14 @@ export const config = {
 }
 
 export default async function handler(_: NextRequest) {
+
+  // TODO: Get S3 location from Dynamo table using projectId
+  // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
+
+  // compute file statistics
+  // compute 
+
+
   // The decoder will be used to decode the bytes in the stream returned by fetching
   // the external resource to UTF-8 (the default).
   // https://developer.mozilla.org/en-US/docs/Web/API/TextDecode

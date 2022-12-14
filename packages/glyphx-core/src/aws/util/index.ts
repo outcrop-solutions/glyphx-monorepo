@@ -1,1 +1,1 @@
-export {ResultsetConverter} from './resultsetConverter';
+export {ResultSetConverter} from './resultsetConverter';

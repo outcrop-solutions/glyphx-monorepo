@@ -4,7 +4,7 @@ import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
 import {FIELD_TYPE, FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 import {NumberFieldChecker} from '@fieldProcessing';
 //eslint-disable-next-line
-import {fileIngestion} from 'glyphx-types';
+import {fileIngestion} from '@glyphx/types';
 /**
  * After further reading and research. I was able to find
  * the Parquet transformer so I can create a similar approach.

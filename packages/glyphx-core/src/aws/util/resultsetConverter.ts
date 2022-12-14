@@ -20,7 +20,7 @@ interface IColumnDef {
  * This class will take an AWS Athena ResultSet and convert it into an array of
  * JSON objects.
  */
-export class ResultsetConverter {
+export class ResultSetConverter {
   /**
    * The main piece of processing.  Will convert a ResultSet
    * to an array of JSON objects.  In Athena, columns can be empty(undefined)(not null)

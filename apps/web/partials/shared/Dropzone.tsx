@@ -81,6 +81,7 @@ export const Dropzone = ({ toastRef }) => {
     // setStatus('checking Crawler')
     // Take response and either setAvailable(true/false)
   }, []);
+  
   const onDrop = useCallback(
     (acceptedFiles) => {
       setDataGridState(true);

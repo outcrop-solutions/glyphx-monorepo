@@ -1,8 +1,8 @@
 import {assert} from 'chai';
-import * as aws from '@aws';
-import {error, generalPurposeFunctions} from 'glyphx-core';
+import { aws } from '@glyphx/core';
+import {error, generalPurposeFunctions} from '@glyphx/core';
 import {FIELD_TYPE} from '@util/constants';
-import {fileIngestion} from 'glyphx-types';
+import {fileIngestion} from '@glyphx/types';
 import {createReadStream} from 'fs';
 import {IJoinTableDefinition} from '@interfaces/fileProcessing';
 

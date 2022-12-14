@@ -1,6 +1,6 @@
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
 import {FIELD_TYPE} from '@util/constants';
-import {error} from 'glyphx-core';
+import {error} from '@glyphx/core';
 import {NumberFieldChecker} from './numberFieldChecker';
 /**
  * The minumum number of samples to analyze before using the sample rate.

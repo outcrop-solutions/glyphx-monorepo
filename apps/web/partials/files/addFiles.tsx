@@ -32,7 +32,7 @@ export const AddFiles = () => {
     async (acceptedFiles) => {
       const input = { files: acceptedFiles, ingestionType: 'BROWSER' };
       //
-      processFile(input as ProcessInput);
+      processFile(input);
 
       setDataGridState(true);
       //update file system state with processed data

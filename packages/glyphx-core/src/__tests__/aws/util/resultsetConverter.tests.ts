@@ -1,11 +1,11 @@
 import {assert} from 'chai';
-import {ResultsetConverter} from '../../../aws/util';
+import {ResultSetConverter} from '../../../aws/util';
 import ResultSetMock from './resultSetMocks.json';
 
-describe('#aws/util/ResultsetConverter', () => {
+describe('#aws/util/ResultSetConverter', () => {
   context('fromResultSet', () => {
     it('Should convert the resultSet to a POJSO', () => {
-      const convertedData = ResultsetConverter.fromResultset(
+      const convertedData = ResultSetConverter.fromResultset(
         ResultSetMock.ResultSet
       );
       assert.strictEqual(
@@ -47,7 +47,7 @@ describe('#aws/util/ResultsetConverter', () => {
         if (index % 2) r.Data[3].VarCharValue = undefined;
       });
 
-      const convertedData = ResultsetConverter.fromResultset(
+      const convertedData = ResultSetConverter.fromResultset(
         mockDataCopy.ResultSet
       );
       assert.strictEqual(

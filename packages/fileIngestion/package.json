@@ -8,8 +8,8 @@
     "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
     "lint": "gts lint",
-    "clean": "gts clean",
-    "compile": "tsc",
+    "clean": "rimraf .turbo node_modules build",
+    "build": "tsc",
     "fix": "gts fix",
     "start:dev": "ts-node src/index.ts",
     "docs": "npx typedoc",
@@ -23,12 +23,11 @@
     ]
   },
   "devDependencies": {
-    "@aws-sdk/types": "^3.222.0",
+    "@aws-sdk/types": "3.222.0",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
     "@types/parquetjs": "^0.10.3",
-    "@types/s3-upload-stream": "^1.0.3",
     "@types/sinon": "^10.0.13",
     "@typescript-eslint/parser": "^5.42.0",
     "aws-sdk-client-mock": "^2.0.1",
@@ -43,6 +42,7 @@
     "lint-staged": "^13.0.3",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
     "rewire": "^6.0.0",
     "sinon": "^14.0.1",
     "ts-node": "^10.9.1",
@@ -60,8 +60,7 @@
     "dotenv": "^16.0.3",
     "@glyphx/core": "workspace:*",
     "module-alias": "^2.2.2",
-    "parquetjs": "^0.11.2",
-    "s3-readstream": "^1.1.2"
+    "parquetjs": "^0.11.2"
   },
   "_moduleAliases": {
     "@interfaces": "build/interfaces/index.js",

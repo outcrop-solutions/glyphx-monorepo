@@ -7,7 +7,7 @@ import {
   FIELD_TYPE,
   COMPRESSION_TYPES,
 } from '@util/constants';
-import {generalPurposeFunctions} from 'glyphx-core';
+import {generalPurposeFunctions} from '@glyphx/core';
 
 /**
  * This is our basic table query planner for hive tables (AWS Athena).  It renders the proper SQL like syntaxt to represent a suppoert file type ( parquet, csv, json etc)

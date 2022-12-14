@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {BasicFieldTypeCalculator} from '@fieldProcessing';
 import Stream from 'stream';
 import {FIELD_TYPE} from '@util/constants';
-import {error} from 'glyphx-core';
+import {error} from '@glyphx/core';
 
 describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
   context('ProcessItemsSync', () => {

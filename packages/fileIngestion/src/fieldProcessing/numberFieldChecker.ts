@@ -1,5 +1,5 @@
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
-import {error} from 'glyphx-core';
+import {error} from '@glyphx/core';
 import currencyToSymbolMap from 'currency-symbol-map/map';
 
 /**

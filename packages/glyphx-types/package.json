@@ -19,8 +19,8 @@
   },
   "scripts": {
     "lint": "gts lint",
-    "clean": "gts clean",
-    "compile": "tsc",
+    "clean": "rimraf .turbo node_modules build",
+    "build": "tsc",
     "fix": "gts fix",
     "precommit": "npx lint-staged",
     "docs": "npx typedoc",
@@ -37,6 +37,7 @@
     "eslint-plugin-filename-rules": "^1.2.0",
     "eslint-plugin-import": "^2.26.0",
     "gts": "^3.1.0",
+    "rimraf": "^3.0.2",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "typedoc": "^0.23.20",

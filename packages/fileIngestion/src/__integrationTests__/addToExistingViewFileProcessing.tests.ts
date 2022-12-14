@@ -1,10 +1,10 @@
 import {assert} from 'chai';
-import * as aws from '@aws';
+import { aws } from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 import addFilesJson2 from './assets/addTables2.json';
 //eslint-disable-next-line
-import {fileIngestion} from 'glyphx-types';
+import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
 async function setupExistingAssets() {

@@ -1,5 +1,5 @@
 import {IFieldDefinition} from './iFieldDefinition';
-import {fileIngestion} from 'glyphx-types';
+import {fileIngestion} from '@glyphx/types';
 /**
  * An interface which decribes useful information about
  * a file.  This is used by our transformers to communicate

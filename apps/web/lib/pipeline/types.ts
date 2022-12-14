@@ -4,18 +4,20 @@ export enum IngestionType {
   S3,
 }
 
-export interface ProcessInput {
-  files: Blob[];
+export type FileInput = Blob; // local binary data from dropzone
+export type S3Input = string; // location of project data in s3
+
+export interface ProcessInput { // Input into start of pipeline
+  files: FileInput[] | S3Input;
   ingestionType: IngestionType;
 }
-export interface S3FileInput {}
 
-export interface S3TableInput {}
+export interface RenderableState { // Holds Data 
+  eTag: string | undefined;
+  md5Checksum: string | undefined
 
-export interface FileInput {}
-export interface BrowserMultipfleFileUploadInput {
-  files: any[];
 }
+
 
 export enum Operation {
   ADD,

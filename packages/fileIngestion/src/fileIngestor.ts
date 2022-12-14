@@ -1,5 +1,5 @@
-import {fileIngestion} from 'glyphx-types';
-import {error, streams, generalPurposeFunctions} from 'glyphx-core';
+import {fileIngestion} from '@glyphx/types';
+import {error, streams, generalPurposeFunctions} from '@glyphx/core';
 import {
   BasicAthenaProcessor,
   BasicFileTransformer,
@@ -7,7 +7,7 @@ import {
   BasicColumnNameCleaner,
 } from '@fileProcessing';
 import {BasicFieldTypeCalculator} from '@fieldProcessing';
-import {S3Manager, AthenaManager} from '@aws';
+import {S3Manager, AthenaManager} from '@glyphx/core';
 import {Readable, PassThrough} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import * as csv from 'csv';

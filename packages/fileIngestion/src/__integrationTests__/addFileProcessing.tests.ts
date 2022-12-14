@@ -1,9 +1,9 @@
 import {assert} from 'chai';
-import * as aws from '@aws';
+import { aws } from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
-import {fileIngestion} from 'glyphx-types';
+import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
 describe('#fileProcessing', () => {
