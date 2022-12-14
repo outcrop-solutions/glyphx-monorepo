@@ -8,7 +8,7 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import {S3Manager} from '@aws';
-import {error} from '@glyphx/core';
+import {error} from 'glyphx-core';
 //eslint-disable-next-line  node/no-unpublished-import
 import {mockClient} from 'aws-sdk-client-mock';
 import {S3Mock} from './s3Mocks';

@@ -21,6 +21,7 @@ export class BasicColumnNameCleaner
    */
   cleanColumnName(value: string): string {
     const outArray: string[] = [];
+    const tempValue = value.toLowerCase();
     for (let i = 0; i < value.length; i++) {
       const charValue = value.charCodeAt(i);
       if (this.REPLACEABLE_CHARS.find(c => c === charValue)) {
@@ -29,7 +30,6 @@ export class BasicColumnNameCleaner
       if (
         charValue === 95 || //_
         (charValue >= 48 && charValue <= 57) || //0-9
-        (charValue >= 65 && charValue <= 90) || //A-Z
         (charValue >= 97 && charValue <= 122) //a-z
       ) {
         outArray.push(String.fromCharCode(charValue));

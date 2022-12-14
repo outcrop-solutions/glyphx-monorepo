@@ -33,7 +33,6 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
         assert.isTrue(
           charValue === 95 || //_
             (charValue >= 48 && charValue <= 57) || //0-9
-            (charValue >= 65 && charValue <= 90) || //A-Z
             (charValue >= 97 && charValue <= 122), //a-z
           `${i} - ${cleanName[i]} - ${charValue}`
         );

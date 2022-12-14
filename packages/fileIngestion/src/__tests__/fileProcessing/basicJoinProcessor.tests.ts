@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {BasicJoinProcessor as JoinProcessor} from '@fileProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'glyphx-core';
 import {
   IFieldDefinition,
   IJoinTableColumnDefinition,

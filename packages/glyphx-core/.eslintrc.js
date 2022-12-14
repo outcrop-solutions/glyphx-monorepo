@@ -4,7 +4,7 @@ module.exports = {
     project: './tsconfig.eslint.json',
     tsconfigRootDir: __dirname,
   },
-  extends: 'glyphx-backend',
+  extends: 'eslint-config-glyphx-backend',
   rules: {
     'node/no-unpublished-import': [
       'error',
@@ -14,4 +14,3 @@ module.exports = {
     ],
   },
 };
-

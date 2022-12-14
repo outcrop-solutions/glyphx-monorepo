@@ -10,7 +10,6 @@
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
-    "precommit": "npx lint-staged",
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
   },
@@ -22,7 +21,6 @@
     ]
   },
   "devDependencies": {
-    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "@aws-sdk/types": "^3.224.0",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
@@ -30,6 +28,7 @@
     "@types/sinon": "^10.0.13",
     "@typescript-eslint/parser": "^5.42.0",
     "chai": "^4.3.6",
+    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-filename-rules": "^1.2.0",
     "eslint-plugin-import": "^2.26.0",

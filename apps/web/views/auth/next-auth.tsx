@@ -6,7 +6,7 @@ import { signIn } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { setTimeout } from 'timers';
 
-export const Signin = ({ referer }) => {
+export const NextSignIn = ({ referer }) => {
   const [loading, setLoading] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);

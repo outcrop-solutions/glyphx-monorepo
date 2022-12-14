@@ -1,6 +1,6 @@
 import {S3} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import {error} from '@glyphx/core';
+import {error} from 'glyphx-core';
 import {IHeadObjectData} from '@interfaces/aws';
 import {PassThrough} from 'node:stream';
 

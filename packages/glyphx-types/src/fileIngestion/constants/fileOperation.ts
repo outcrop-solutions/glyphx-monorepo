@@ -1,0 +1,6 @@
+export enum FILE_OPERATION {
+  ADD,
+  REPLACE,
+  APPEND,
+  DELETE,
+}

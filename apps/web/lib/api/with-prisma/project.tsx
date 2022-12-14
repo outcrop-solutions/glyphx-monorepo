@@ -1,3 +1,6 @@
+/**
+ * STARTING PRISMA API TO TRANSITION TO MONGO ATLAS
+ */
 import { prisma } from '@glyphx/database';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -70,7 +73,6 @@ export async function getProject(
     return res.status(500).end(error);
   }
 }
-
 /**
  * Create Project
  *
@@ -108,7 +110,6 @@ export async function createProject(req: NextApiRequest, res: NextApiResponse): 
     return res.status(500).end(error);
   }
 }
-
 /**
  * Delete Project
  *
@@ -135,7 +136,6 @@ export async function deleteProject(req: NextApiRequest, res: NextApiResponse): 
     return res.status(500).end(error);
   }
 }
-
 /**
  * Update Project
  *
@@ -184,7 +184,6 @@ export async function updateProject(
     return res.status(500).end(error);
   }
 }
-
 export async function updateOwnership(req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> {
   const { orgId } = req.query;
   const { ownerId } = req.body;

@@ -3,6 +3,8 @@ import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
 import {FIELD_TYPE, FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 import {NumberFieldChecker} from '@fieldProcessing';
+//eslint-disable-next-line
+import {fileIngestion} from 'glyphx-types';
 /**
  * After further reading and research. I was able to find
  * the Parquet transformer so I can create a similar approach.
@@ -81,12 +83,19 @@ export class BasicFileTransformer extends Transform {
    * The output directory.  This is stored here so it can be reported through the callback.
    */
   private readonly outputDirectory: string;
+
   /**
    * The size of the input file on disk.  Only stored here so that it can be
    * reported back out through a callback.
    */
   private readonly fileSize: number;
 
+  /**
+   * The file operation for this transformer.  Only stored here so that it can be
+   * reported back through a callback.
+   */
+
+  private readonly fileOperation: fileIngestion.constants.FILE_OPERATION;
   /**
    * Once all data has been read, this will be called to report out the results.
    * See {@link interfaces/fileProcessing/iFileInformation!FileInformationCallback} for additional
@@ -146,6 +155,7 @@ export class BasicFileTransformer extends Transform {
     outputFileName: string,
     outputDirectory: string,
     tableName: string,
+    fileOperation: fileIngestion.constants.FILE_OPERATION,
     callback: fileProcessingInterfaces.FileInformationCallback,
     errorCallback: fileProcessingInterfaces.FileProcessingErrorHandler,
     fieldTypeCalculator: fieldProcessingInterfaces.IConstructableFieldTypeCalculator,
@@ -158,6 +168,7 @@ export class BasicFileTransformer extends Transform {
     this.outputDirectory = outputDirectory;
     this.outputFileName = outputFileName;
     this.tableName = tableName;
+    this.fileOperation = fileOperation;
     this.fileSize = fileSize;
     this.callback = callback;
     this.errorCallback = errorCallback;
@@ -193,6 +204,7 @@ export class BasicFileTransformer extends Transform {
           };
         }),
         fileSize: this.fileSize,
+        fileOperationType: this.fileOperation,
       });
     });
   }
@@ -203,7 +215,10 @@ export class BasicFileTransformer extends Transform {
    * @param callback -- we must call callback to let the stream processess know that we are done flusing the data.
    */
   public override _flush(callback: TransformCallback) {
-    if (this.savedRows.length) this.sendSavedRows();
+    if (this.savedRows.length) {
+      this.columTypeTrackers.forEach(c => c.fieldTypeCalculator.finish());
+      this.sendSavedRows();
+    }
     callback();
   }
 

@@ -1,38 +1,57 @@
-type Project
-  @model
-  @searchable
-  @auth(rules: [{ allow: private }])
-  @key(name: "projectByAuthor", fields: ["author"]) {
+type Organization @model @searchable @auth(rules: [{ allow: private }]) {
+  id: ID!
+  name: String
+  description: String
+  owner: String!
+  members: [String]
+  projects: [Project] @connection(keyName: "byOrganization", fields: ["id"])
+}
+
+type Project @model @searchable @auth(rules: [{ allow: private }]) @key(name: "projectByAuthor", fields: ["author"]) {
   id: ID!
   name: String!
-  description: String!
+  description: String
   filePath: String
-  expiry: AWSDateTime
-  properties: [String]
   url: String
   author: String!
   shared: [String]
   files: [String]
-  states: [State] @connection(keyName: "byProject", fields: ["id"])
+  orgID: ID!
+  organization: Organization @connection(fields: ["orgID"])
+  views: [View] @connection(keyName: "byProject", fields: ["id"])
   filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
   columns: [Column] @connection(keyName: "byProject", fields: ["id"])
 }
 
-type State
-  @model
-  @searchable
-  @auth(rules: [{ allow: private }])
-  @key(name: "byProject", fields: ["projectID"]) {
+# Contains the structure and address of the data that is attached to a project
+type View @model @searchable @auth(rules: [{ allow: private }]) @key(name: "byProject", fields: ["projectID"]) {
   id: ID!
   title: String!
   description: String!
-  camera: String
-  query: String
-  projectID: ID!
-  project: Project @connection(fields: ["projectID"])
+  version: String
   comments: [Comment] @connection(keyName: "byState", fields: ["id"])
   filters: [StateFilter] @connection(keyName: "byState", fields: ["id"])
+  # NEW
+  projectID: ID!
+  project: Project @connection(fields: ["projectID"])
+  fileSystemHash: String
+  static: Boolean
+  tables: [Table] # equivalent to TableSet in ERD
+  camera: String
+  query: String
 }
+
+type Table @model @searchable @auth(rules: [{ allow: private }]) @key(name: "tableByView", fields: ["viewID"]) {
+  viewID: ID!
+  view: View @connection(fields: ["viewID"])
+  files: [File] # equivalent to fileSet in ERD
+}
+
+type File @model @searchable @auth(rules: [{ allow: private }]) @key(name: "fileByTable", fields: ["viewID"]) { 
+
+}
+
+
 
 type StateFilter
   @model(queries: null)
@@ -58,25 +77,23 @@ type ColumnFilter
   filter: Filter! @connection(fields: ["filterID"])
 }
 
-type Column
-  @model
-  @searchable
-  @auth(rules: [{ allow: private }])
-  @key(name: "byProject", fields: ["projectID"]) {
+enum FieldType {
+  NUMBER
+  STRING
+}
+
+type Column @model @searchable @auth(rules: [{ allow: private }]) @key(name: "byProject", fields: ["projectID"]) {
   id: ID!
   name: String!
   min: String!
   max: String!
+  fieldType: FieldType
   projectID: ID!
   project: Project @connection(fields: ["projectID"])
   filters: [ColumnFilter] @connection(keyName: "byColumn", fields: ["id"])
 }
 
-type Filter
-  @model
-  @searchable
-  @auth(rules: [{ allow: private }])
-  @key(name: "byProject", fields: ["projectID"]) {
+type Filter @model @searchable @auth(rules: [{ allow: private }]) @key(name: "byProject", fields: ["projectID"]) {
   id: ID!
   name: String!
   projectID: ID!

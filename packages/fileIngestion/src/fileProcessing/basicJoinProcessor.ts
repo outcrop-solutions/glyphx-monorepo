@@ -1,5 +1,5 @@
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'glyphx-core';
 
 /**
  * IJoinData is an internal interface for holding temorary join information.

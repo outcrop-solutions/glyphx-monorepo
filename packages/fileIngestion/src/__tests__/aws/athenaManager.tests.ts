@@ -10,7 +10,7 @@ import {
   GetQueryResultsCommand,
 } from '@aws-sdk/client-athena';
 import ResultSetMock from './resultSetMocks.json';
-import {error} from '@glyphx/core';
+import {error} from 'glyphx-core';
 
 describe('#aws/AthenaManager', () => {
   context('init', () => {

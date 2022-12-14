@@ -13,7 +13,7 @@ import { ToastWrapper } from '../partials';
 //   ssr: false,
 // });
 
-import { Signin } from 'views/auth/signin-csrf';
+import { NextSignIn } from 'views/auth/next-auth';
 
 export default function SignIn({ referer }) {
   return (
@@ -28,7 +28,7 @@ export default function SignIn({ referer }) {
         <ToastWrapper>
           {/* Fallback for when data is loading */}
           <Suspense fallback={SignInSuspenseFallback}>
-            <Signin referer={'http://localhost:3000/test'} />
+            <NextSignIn referer={'http://localhost:3000/test'} />
           </Suspense>
         </ToastWrapper>
       </ErrorBoundary>

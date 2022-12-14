@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {NumberFieldChecker} from '@fieldProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'glyphx-core';
 
 describe('#fieldProcessing/NumberFieldChecker', () => {
   context('isCurrencySymbol', () => {

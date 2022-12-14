@@ -20,7 +20,7 @@ export interface IFieldChecker<T> {
   /**
    * attempts to convert the string passed as input as a type T.
    *
-   * @throws @glyphx/core.error.InvalidArgumentError if input cannot be expressed as T
+   * @throws glyphx-core.error.InvalidArgumentError if input cannot be expressed as T
    */
   convertField(input: string): T;
 }

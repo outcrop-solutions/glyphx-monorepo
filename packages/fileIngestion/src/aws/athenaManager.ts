@@ -6,7 +6,7 @@ import {
   GetDatabaseCommand,
   ResultSet,
 } from '@aws-sdk/client-athena';
-import {error, aws} from '@glyphx/core';
+import {error, aws} from 'glyphx-core';
 
 /**
  * The data catalog name that is used to find our database.

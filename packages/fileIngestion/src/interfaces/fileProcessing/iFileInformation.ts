@@ -1,4 +1,5 @@
 import {IFieldDefinition} from './iFieldDefinition';
+import {fileIngestion} from 'glyphx-types';
 /**
  * An interface which decribes useful information about
  * a file.  This is used by our transformers to communicate
@@ -44,6 +45,11 @@ export interface IFileInformation {
    * The size of our file in bytes.
    */
   fileSize: number;
+
+  /**
+   * File operation
+   */
+  fileOperationType: fileIngestion.constants.FILE_OPERATION;
 }
 
 /**

@@ -7,7 +7,7 @@ export interface IColumnNameCleaner {
   /**
    *  takes a column name string and returns a cleaned string
    *
-   *  @throws @glyphx/core.error.InvalidArgumentError if the value
+   *  @throws glyphx-core.error.InvalidArgumentError if the value
    *  cannot be cleaned.
    */
   cleanColumnName(value: string): string;

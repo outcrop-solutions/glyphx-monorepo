@@ -9,8 +9,11 @@ import {
   BasicJoinProcessor,
 } from '@fileProcessing';
 
+//eslint-disable-next-line
+import {fileIngestion} from 'glyphx-types';
+
 import {S3Manager, AthenaManager} from '@aws';
-import {error, generalPurposeFunctions} from '@glyphx/core';
+import {error, generalPurposeFunctions} from 'glyphx-core';
 
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
 
@@ -63,7 +66,7 @@ export class BasicAthenaProcessor {
     viewName: string,
     files: IFileInformation[]
   ): Promise<IJoinTableDefinition[]> {
-    //TODO: What to do about files that file.  I guess we can write out the others and create a view on what does pass.  Or just write the tabels but not the view, butthen what would we report back to the front end.
+    //TODO: What to do about files that error.  I guess we can write out the others and create a view on what does pass.  Or just write the tabels but not the view, butthen what would we report back to the front end.
     const tableSorter = new BasicTableSorter();
     const sortedTables = tableSorter.sortTables(files);
     const tablePlanner = new BasicHiveTableQueryPlanner(
@@ -84,7 +87,9 @@ export class BasicAthenaProcessor {
             file.parquetFileName
           );
         //make sure our parquet file is there.
-        await this.s3Manager.getFileInformation(file.parquetFileName);
+        await this.s3Manager.getFileInformation(
+          file.outputFileDirecotry + file.parquetFileName
+        );
         const tableName = file.tableName;
         joiner.processColumns(
           tableName,
@@ -96,14 +101,24 @@ export class BasicAthenaProcessor {
       const joinInformation = joiner.joinData;
 
       for (let i = 0; i < joinInformation.length; i++) {
-        const joinData = joinInformation[i];
-        const tableQuery = tablePlanner.defineQuery(
-          joinData.backingFileName,
-          joinData.tableName,
-          joinData
-        );
+        //thse two arrays should be in the same order.
 
-        await this.athenaManager.runQuery(tableQuery, 60);
+        const tableInfo = sortedTables[i];
+        //if we are appending the table already exists and does not need
+        //to be recreated.
+        if (
+          tableInfo.fileOperationType !==
+          fileIngestion.constants.FILE_OPERATION.APPEND
+        ) {
+          const joinData = joinInformation[i];
+          const tableQuery = tablePlanner.defineQuery(
+            joinData.backingFileName,
+            joinData.tableName,
+            joinData
+          );
+
+          await this.athenaManager.runQuery(tableQuery, 60);
+        }
       }
 
       const query = viewPlanner.defineView(viewName, joinInformation);

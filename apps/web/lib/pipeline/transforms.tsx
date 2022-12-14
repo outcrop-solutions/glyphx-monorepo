@@ -1,44 +1,4 @@
-// import { basicFileNameCleaner } from '@glyphx/fileingestion';
-enum Operation {
-  ADD,
-  REPLACE,
-  APPEND,
-  DELETE,
-}
-
-enum FieldType {
-  NUMBER,
-  STRING,
-}
-
-interface Column {
-  name: string;
-  fieldType: FieldType;
-  longestString: number | undefined;
-}
-
-interface FileStats {
-  fileName: string;
-  tableName: string;
-  numberOfRows: number;
-  numberOfColumns: number;
-  columns: Column[];
-  fileSize: number;
-}
-
-interface FileData {
-  tableName: string;
-  fileName: string;
-  operation: Operation;
-  fileStream: ReadableStream;
-}
-
-export interface Payload {
-  modelId: string;
-  bucketName: string;
-  fileStats: FileStats[];
-  fileData: FileData[];
-}
+import { Operation, FieldType, Column, FileStats, FileData, Payload } from './types';
 
 /**
  * Determines column types from array ArrayBuffer
@@ -98,7 +58,7 @@ export const calculateStats = (): FileStats => {
 };
 
 /**
- * Compares file statistics across filesystem to determine a match
+ * Compares file statistics across Filesystem snapshots to determine a match
  * @param fileStats1
  * @param fileStats2
  * @returns {boolean}
@@ -167,4 +127,51 @@ export const processFile = async (modelId, bucketName, stats, fileData): void =>
     headers: { 'Content-Type': 'text/plain' },
     body: stream,
   });
+};
+
+export const hexToRGB = (h) => {
+  let r = '';
+  let g = '';
+  let b = '';
+  if (h.length === 4) {
+    r = `0x${h[1]}${h[1]}`;
+    g = `0x${h[2]}${h[2]}`;
+    b = `0x${h[3]}${h[3]}`;
+  } else if (h.length === 7) {
+    r = `0x${h[1]}${h[2]}`;
+    g = `0x${h[3]}${h[4]}`;
+    b = `0x${h[5]}${h[6]}`;
+  }
+  return `${+r},${+g},${+b}`;
+};
+
+export const formatValue = (value) =>
+  Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumSignificantDigits: 3,
+    notation: 'compact',
+  }).format(value);
+
+export const formatThousands = (value) =>
+  Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: 3,
+    notation: 'compact',
+  }).format(value);
+
+/**
+ * FORMAT COLUMN HEADER TO MATCH ATHENA TABLE
+ * @param header
+ * @returns
+ */
+export const formatColumnHeader = (header) => {
+  let value = header;
+
+  value = value.replace(/\./g, '');
+  value = value.replace(/ /g, '_');
+  value = value.replace(/\(/g, '_');
+  value = value.replace(/\)/g, '_');
+  value = value.replace(/\-/g, '_');
+
+  return value.toLowerCase();
 };

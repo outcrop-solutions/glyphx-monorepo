@@ -1,12 +1,12 @@
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
 import {FIELD_TYPE} from '@util/constants';
-import {error} from '@glyphx/core';
+import {error} from 'glyphx-core';
 import {NumberFieldChecker} from './numberFieldChecker';
 /**
  * The minumum number of samples to analyze before using the sample rate.
  * This value is also used to determing the frequency at which to publish intermediate results.
  */
-export const MINIMUM_NUMBER_OF_SAMPLES = 10;
+export const MINIMUM_NUMBER_OF_SAMPLES = 100;
 
 /**
  * This class is our first and basic cut at processing fields and determining
