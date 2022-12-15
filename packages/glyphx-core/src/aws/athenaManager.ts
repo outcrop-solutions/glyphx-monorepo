@@ -113,7 +113,7 @@ export class AthenaManager {
     queryString: string,
     waitTime = 10,
     includeHeaderRow = false
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Record<string, unknown>[]> {
     const dataContext = {
       Database: this.databaseName,
       Catalog: DATA_CATALOG_NAME,
@@ -165,7 +165,7 @@ export class AthenaManager {
         results.ResultSet as Required<ResultSet>,
         includeHeaderRow
       );
-      return convertedResults as unknown as Record<string, unknown>;
+      return convertedResults as Record<string, unknown>[];
     } catch (err) {
       if (
         err instanceof error.QueryTimeoutError ||
@@ -180,5 +180,27 @@ export class AthenaManager {
         );
       }
     }
+  }
+
+  public async tableExists(tableName: string): Promise<boolean> {
+    const tableExistsQuery = `SHOW TABLES '${tableName}'`;
+    const results = await this.runQuery(tableExistsQuery);
+    if (results.length > 0) return true;
+    else return false;
+  }
+  public async viewExists(viewName: string): Promise<boolean> {
+    const viewExistsQuery = `SHOW VIEWS LIKE '${viewName}'`;
+    const results = await this.runQuery(viewExistsQuery);
+    if (results.length > 0) return true;
+    else return false;
+  }
+
+  public async dropTable(tableName: string): Promise<void> {
+    const dropQuery = `DROP TABLE IF EXISTS ${tableName};`;
+    await this.runQuery(dropQuery);
+  }
+  public async dropView(viewName: string): Promise<void> {
+    const dropQuery = `DROP VIEW IF EXISTS ${viewName};`;
+    await this.runQuery(dropQuery);
   }
 }

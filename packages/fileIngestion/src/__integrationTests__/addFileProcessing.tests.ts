@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import { aws } from '@glyphx/core';
+import {aws} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line

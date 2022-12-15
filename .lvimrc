@@ -2,7 +2,9 @@
 nnoremap <silent> <C-b><C-o> :%bd<Bar>e#<cr>
 
 " Build our @glyphx/core package
-:command BuildCore :FloatermNew --autoclose=1 lerna run compile --scope @glyphx/core 
+:command BuildCore :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/core 
+" Build our @glyphx/types package
+:command BuildTypes :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/types 
 " Build our eslint-config-glyphx-backend package
-:command BuildLint :FloatermNew --autoclose=1 pnpm compile --filter eslint-config-glyphx-backend
+:command BuildLint :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/eslint-config-glyphx-backend
 

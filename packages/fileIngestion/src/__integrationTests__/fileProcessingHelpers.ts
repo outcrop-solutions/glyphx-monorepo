@@ -3,6 +3,7 @@ import {aws, error, generalPurposeFunctions} from '@glyphx/core';
 import {createReadStream} from 'fs';
 import {IJoinTableDefinition} from '@interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
+import {generalPurposeFunctions as gpFunctions} from '@util';
 
 export async function removeS3File(filePath: string, s3Bucket: aws.S3Manager) {
   await s3Bucket.removeObject(filePath);
@@ -47,36 +48,24 @@ export async function cleanupAthenaTable(
   tableName: string,
   athenaManager: aws.AthenaManager
 ) {
-  const fullTableName = `${clientId}_${modelId}_${tableName}`;
-  await athenaManager.runQuery(`DROP TABLE IF EXISTS ${fullTableName}`);
-
-  const tables = (await athenaManager.runQuery(
-    'SHOW TABLES',
-    10,
-    true
-  )) as unknown as any[];
-
-  assert.isNotOk(
-    tables.find((tt: any) => tt.tab_name === fullTableName.toLowerCase())
+  const fullTableName = gpFunctions.getFullTableName(
+    clientId,
+    modelId,
+    tableName
   );
+  await athenaManager.dropTable(fullTableName);
+
+  assert.isFalse(await athenaManager.tableExists(fullTableName));
 }
 export async function cleanupAthenaView(
   clientId: string,
   modelId: string,
   athenaManager: aws.AthenaManager
 ) {
-  const viewName = `${clientId}_${modelId}_view`;
-  await athenaManager.runQuery(`DROP VIEW IF EXISTS ${viewName}`);
+  const viewName = gpFunctions.getViewName(clientId, modelId);
+  await athenaManager.dropView(viewName);
 
-  const tables = (await athenaManager.runQuery(
-    'SHOW TABLES',
-    10,
-    true
-  )) as unknown as any[];
-
-  assert.isNotOk(
-    tables.find((tt: any) => tt.tab_name === viewName.toLowerCase())
-  );
+  assert.isFalse(await athenaManager.viewExists(viewName));
 }
 
 export async function cleanupAws(

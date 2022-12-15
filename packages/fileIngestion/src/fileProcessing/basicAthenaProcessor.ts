@@ -12,8 +12,7 @@ import {
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 
-import {aws} from '@glyphx/core';
-import {error, generalPurposeFunctions} from '@glyphx/core';
+import {aws, error, generalPurposeFunctions} from '@glyphx/core';
 
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
 
@@ -80,9 +79,15 @@ export class BasicAthenaProcessor {
     try {
       for (let i = 0; i < sortedTables.length; i++) {
         const file = sortedTables[i];
-	const fileInfos = await this.s3Manager.listObjects(file.outputFileDirecotry);
-	if( !fileInfos.length )
-		throw new error.InvalidArgumentError(`There do not appear to be any files in the output direcotry: ${file.outputFileDirecotry} to build a table against`, 'file.outputFileDirecotry', file.outputFileDirecotry);
+        const fileInfos = await this.s3Manager.listObjects(
+          file.outputFileDirecotry
+        );
+        if (!fileInfos.length)
+          throw new error.InvalidArgumentError(
+            `There do not appear to be any files in the output direcotry: ${file.outputFileDirecotry} to build a table against`,
+            'file.outputFileDirecotry',
+            file.outputFileDirecotry
+          );
         const tableName = file.tableName;
         joiner.processColumns(
           tableName,
