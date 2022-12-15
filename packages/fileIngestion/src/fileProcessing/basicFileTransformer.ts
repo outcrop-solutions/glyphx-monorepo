@@ -323,6 +323,8 @@ export class BasicFileTransformer extends Transform {
    * Once we know what our data types are, this function will call buildParquertSchema to beuild the schema,  and then send the schema and along with clean versions of our saved rows.
    */
   private sendSavedRows(): void {
+    this.columTypeTrackers.forEach(c => c.fieldTypeCalculator.finish());
+
     this.savedRows.forEach((r, index) => {
       if (index === 0) {
         const schema = this.buildParquertSchema();
