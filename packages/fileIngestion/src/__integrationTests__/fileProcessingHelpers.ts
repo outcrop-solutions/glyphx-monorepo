@@ -141,7 +141,9 @@ export async function validateViewResults(
         let foundAtLeastOneNumber = false;
         results.forEach(r => {
           if (c.columnType === FIELD_TYPE.STRING) {
-            assert.isDefined(r[c.columnName.toLowerCase()]);
+	     const objectNames = Object.getOwnPropertyNames(r);
+	     const name = objectNames.find(o=>o === c.columnName.toLowerCase());
+	     assert.isOk(name);
           } else {
             if (r[c.columnName.toLowerCase()]) {
               assert.isNumber(r[c.columnName.toLowerCase()]);

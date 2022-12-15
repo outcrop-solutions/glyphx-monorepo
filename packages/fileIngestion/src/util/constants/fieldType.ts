@@ -3,8 +3,8 @@
  * processed in our backend systems.
  */
 export enum FIELD_TYPE {
-  STRING,
   FLOAT,
+  STRING,
   UNKNOWN = 999,
 }
 

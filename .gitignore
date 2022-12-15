@@ -38,3 +38,6 @@ yarn-error.log*
 
 # Turborepo
 .turbo
+
+# test data for integration tests
+testData

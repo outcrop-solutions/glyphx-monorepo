@@ -7,7 +7,7 @@ import {
   BasicColumnNameCleaner,
 } from '@fileProcessing';
 import {BasicFieldTypeCalculator} from '@fieldProcessing';
-import {S3Manager, AthenaManager} from '@glyphx/core';
+import {aws} from '@glyphx/core';
 import {Readable, PassThrough} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import * as csv from 'csv';
@@ -24,8 +24,8 @@ export class FileIngestor {
   private readonly fileStatisticsField: fileIngestion.IFileStats[];
   private readonly fileInfoField: fileIngestion.IFileInfo[];
   private readonly databaseNameField: string;
-  private s3Manager?: S3Manager;
-  private athenaManager?: AthenaManager;
+  private s3Manager?: aws.S3Manager;
+  private athenaManager?: aws.AthenaManager;
   private basicAthenaProcessor?: BasicAthenaProcessor;
   private viewRemoved: boolean;
   private readonly processedFileInformation: IFileInformation[];
@@ -85,10 +85,10 @@ export class FileIngestor {
   public async init() {
     if (!this.inited) {
       try {
-        this.s3Manager = new S3Manager(this.bucketName);
+        this.s3Manager = new aws.S3Manager(this.bucketName);
         await this.s3Manager.init();
 
-        this.athenaManager = new AthenaManager(this.databaseName);
+        this.athenaManager = new aws.AthenaManager(this.databaseName);
         await this.athenaManager.init();
 
         this.basicAthenaProcessor = new BasicAthenaProcessor(
@@ -108,7 +108,7 @@ export class FileIngestor {
   }
 
   private fileInformationCallback(input: IFileInformation) {
-    input.tableName = this.getFullTableName(input.tableName);
+    //input.tableName = this.getFullTableName(input.tableName);
     this.processedFileInformation.push(input);
   }
 
@@ -307,19 +307,88 @@ export class FileIngestor {
   public async process() {
     const needsViewUpdates = await this.processFiles();
     let joinInformation: IJoinTableDefinition[] = [];
+    let fileInfoForReturn: IFileInformation[] = [];
     if (needsViewUpdates) {
+       const  reconFileInformation = this.reconcileFileInformation();
+       fileInfoForReturn = reconFileInformation.allFiles;
       joinInformation = (await this.basicAthenaProcessor?.processTables(
         this.getViewName(),
-        this.processedFileInformation
+       reconFileInformation.accumFiles
       )) as IJoinTableDefinition[];
     }
     return {
-      fileInformation: this.processedFileInformation,
+      fileInformation: fileInfoForReturn,
       fileProcessingErrors: this.processedFileErrorInformation,
       joinInformation: joinInformation,
     };
   }
-  private reconcileFileInformation(): IFileInformation[] {}
+  private reconcileFileInformation(): {allFiles: IFileInformation[], accumFiles: IFileInformation[]} {
+         const fileInfos: IFileInformation[] = [];
+
+
+	 this.fileInfo.forEach( f => {
+	   if( f.operation === fileIngestion.constants.FILE_OPERATION.DELETE ) return;
+	   const fileStats = this.processedFileInformation.find( fi => fi.tableName === f.tableName && fi.fileName === f.fileName ) || 
+		   
+		   this.fileStatistics.find( fi => fi.tableName === f.tableName && fi.fileName === f.fileName ) as unknown as IFileInformation
+	   fileInfos.push(fileStats);
+	 });
+
+	 this.fileStatistics.forEach(f => {
+
+		 const fInfo = f as unknown as IFileInformation;
+		if( !fileInfos.find( fi => fi.tableName === f.tableName && fi.fileName === f.fileName ) ) {
+			//these are essentially no-ops for the Athena Proceser.  This will make sure that they are included in the view, but the table wwill not be regenerated.
+			fInfo.fileOperationType = fileIngestion.constants.FILE_OPERATION.APPEND;
+			fileInfos.push(fInfo);
+		}
+	 });
+
+	const groupedByTable =  fileInfos.reduce((group, fileInfo) => {
+  const { tableName } = fileInfo;
+  const   fullTableName = this.getFullTableName(tableName)
+  group[fullTableName] = group[fullTableName] ?? [];
+  group[fullTableName].push(fileInfo);
+  return group;
+}, {} as Record<string, IFileInformation[]>); 
+
+	const retval: IFileInformation[] = [];
+
+	for( const key in groupedByTable ) {
+	    const mappedData = groupedByTable[key].reduce( (accum, g) => {
+
+		accum.numberOfRows+= g.numberOfRows;
+		accum.fileSize += g.fileSize;
+		if( accum.numberOfColumns === 0 || g.fileOperationType > accum.fileOperationType) {
+			accum.numberOfColumns = g.numberOfColumns;
+			accum.columns = g.columns;
+			accum.fileOperationType = g.fileOperationType
+		}
+
+		if( ! accum.outputFileDirecotry )
+			accum.outputFileDirecotry = g.outputFileDirecotry;
+
+		return accum;
+	    }, {
+		    tableName: key,
+  		    fileName: "",   //Doesn't matter in this context 
+                    parquetFileName: "", //Doesn't matter in this context
+                    outputFileDirecotry: "", //Will get set above
+                    numberOfRows: 0,
+                    numberOfColumns: 0,
+                    columns: [],
+                    fileSize: 0,
+                    fileOperationType: fileIngestion.constants.FILE_OPERATION.DELETE
+
+	    } as IFileInformation );	
+
+	    retval.push(mappedData);
+	}
+
+
+	return {allFiles:fileInfos, accumFiles:  retval};
+
+  }
 
   private async processFiles(): Promise<boolean> {
     const operationTimeStamp = generalPurposeFunctions.date.getTimeStamp();
