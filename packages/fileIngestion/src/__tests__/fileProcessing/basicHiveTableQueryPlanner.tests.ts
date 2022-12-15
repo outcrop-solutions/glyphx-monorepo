@@ -1,11 +1,8 @@
 import {assert} from 'chai';
 import {BasicHiveTableQueryPlanner} from '@fileProcessing';
-import {
-  FIELD_TYPE,
-  FILE_STORAGE_TYPES,
-  COMPRESSION_TYPES,
-} from '@util/constants';
+import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import {fileIngestion} from '@glyphx/types';
 
 function removeDoubleSpaces(input: string): string {
   const retval = input.replace(/ {2}/g, ' ');
@@ -40,7 +37,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: FIELD_TYPE.STRING,
+        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
         columnLength: 100,
@@ -50,7 +47,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: FIELD_TYPE.FLOAT,
+        columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -94,7 +91,9 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
           assert.strictEqual(splitColumn.length, 2);
           assert.strictEqual(
             splitColumn[1],
-            c.columnType === FIELD_TYPE.STRING ? 'varchar(100)' : 'double'
+            c.columnType === fileIngestion.constants.FIELD_TYPE.STRING
+              ? 'varchar(100)'
+              : 'double'
           );
         });
       }
@@ -119,7 +118,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: FIELD_TYPE.STRING,
+        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
         columnLength: 66535,
@@ -129,7 +128,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: FIELD_TYPE.FLOAT,
+        columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -166,7 +165,9 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         assert.strictEqual(splitColumn.length, 2);
         assert.strictEqual(
           splitColumn[1],
-          c.columnType === FIELD_TYPE.STRING ? 'varchar(65535)' : 'double'
+          c.columnType === fileIngestion.constants.FIELD_TYPE.STRING
+            ? 'varchar(65535)'
+            : 'double'
         );
       });
     });
@@ -190,7 +191,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: FIELD_TYPE.STRING,
+        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -199,7 +200,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: FIELD_TYPE.FLOAT,
+        columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -236,7 +237,9 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         assert.strictEqual(splitColumn.length, 2);
         assert.strictEqual(
           splitColumn[1],
-          c.columnType === FIELD_TYPE.STRING ? 'varchar(100)' : 'double'
+          c.columnType === fileIngestion.constants.FIELD_TYPE.STRING
+            ? 'varchar(100)'
+            : 'double'
         );
       });
     });
@@ -263,7 +266,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: FIELD_TYPE.STRING,
+        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -272,7 +275,7 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: FIELD_TYPE.FLOAT,
+        columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
         isJoinColumn: false,
         isSelectedColumn: true,
       });

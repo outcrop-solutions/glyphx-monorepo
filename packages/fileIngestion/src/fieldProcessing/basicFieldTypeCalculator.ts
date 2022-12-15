@@ -1,7 +1,7 @@
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
-import {FIELD_TYPE} from '@util/constants';
 import {error} from '@glyphx/core';
 import {NumberFieldChecker} from './numberFieldChecker';
+import {fileIngestion} from '@glyphx/types';
 /**
  * The minumum number of samples to analyze before using the sample rate.
  * This value is also used to determing the frequency at which to publish intermediate results.
@@ -22,7 +22,7 @@ export class BasicFieldTypeCalculator
   private readonly sampleRateField: number;
   private numberPassedField: number;
   private samplesAnalyzedField: number;
-  private fieldTypeField: FIELD_TYPE;
+  private fieldTypeField: fileIngestion.constants.FIELD_TYPE;
   private hasProcessedItemsField: boolean;
   private allItemsProcessedField: boolean;
 
@@ -91,7 +91,7 @@ export class BasicFieldTypeCalculator
    * See the interface IFieldTypeCalculator for more information --
    * {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator.fieldType | IFieldTypeCalculator.fieldType}
    */
-  get fieldType(): FIELD_TYPE {
+  get fieldType(): fileIngestion.constants.FIELD_TYPE {
     if (!this.hasProcessedItemsField) {
       throw new error.InvalidOperationError(
         'This information is not available until processItems has been called',
@@ -130,7 +130,7 @@ export class BasicFieldTypeCalculator
     this.sampleRateField = sampleRate;
     this.numberPassedField = 0;
     this.samplesAnalyzedField = 0;
-    this.fieldTypeField = FIELD_TYPE.UNKNOWN;
+    this.fieldTypeField = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
     this.hasProcessedItemsField = false;
     this.allItemsProcessedField = false;
     this.numberOfStrings = 0;
@@ -141,13 +141,13 @@ export class BasicFieldTypeCalculator
   /**
    * will evaluate the values of {@link numberOfStrings} and {@link numberOfNumbers} to
    * determne our {@link fieldType}.  In the case of an equal number of each, the field
-   * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | FIELD_TYPE.STRING}
+   * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | fileIngestion.constants.FIELD_TYPE.STRING}
    */
   private calculateFieldType(): void {
     this.fieldTypeField =
       this.numberOfStrings >= this.numberOfNumbers
-        ? FIELD_TYPE.STRING
-        : FIELD_TYPE.FLOAT;
+        ? fileIngestion.constants.FIELD_TYPE.STRING
+        : fileIngestion.constants.FIELD_TYPE.NUMBER;
     this.hasProcessedItemsField = true;
   }
 

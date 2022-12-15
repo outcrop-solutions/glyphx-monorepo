@@ -1,8 +1,7 @@
 import {assert} from 'chai';
 import {SinonSandbox, createSandbox} from 'sinon';
-import {S3Manager, AthenaManager} from '@glyphx/core';
+import {aws, error} from '@glyphx/core';
 import {BasicAthenaProcessor} from '@fileProcessing';
-import {error} from '@glyphx/core';
 describe('fileProcessing/BasicAthenaProcessor', () => {
   context('init', () => {
     let sandbox: SinonSandbox;
@@ -20,12 +19,12 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       const databaseName = 'someDatabaseName';
 
       sandbox.replace(
-        S3Manager.prototype,
+        aws.S3Manager.prototype,
         'init',
         sandbox.fake.resolves(undefined as void)
       );
       sandbox.replace(
-        AthenaManager.prototype,
+        aws.AthenaManager.prototype,
         'init',
         sandbox.fake.resolves(undefined as void)
       );
@@ -52,12 +51,12 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
 
       const errorString = 'An erorr has occurred';
       sandbox.replace(
-        S3Manager.prototype,
+        aws.S3Manager.prototype,
         'init',
         sandbox.fake.throws(errorString)
       );
       sandbox.replace(
-        AthenaManager.prototype,
+        aws.AthenaManager.prototype,
         'init',
         sandbox.fake.throws(errorString)
       );

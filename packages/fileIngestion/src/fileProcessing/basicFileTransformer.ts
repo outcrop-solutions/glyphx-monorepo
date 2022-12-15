@@ -1,7 +1,7 @@
 import {Transform, TransformCallback} from 'node:stream';
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
-import {FIELD_TYPE, FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
+import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 import {NumberFieldChecker} from '@fieldProcessing';
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
@@ -198,7 +198,8 @@ export class BasicFileTransformer extends Transform {
             origionalName: c.origionalColumnName,
             fieldType: c.fieldTypeCalculator.fieldType,
             longestString:
-              c.fieldTypeCalculator.fieldType === FIELD_TYPE.STRING
+              c.fieldTypeCalculator.fieldType ===
+              fileIngestion.constants.FIELD_TYPE.STRING
                 ? c.maxFieldLength
                 : undefined,
           };
@@ -255,11 +256,14 @@ export class BasicFileTransformer extends Transform {
     this.columTypeTrackers.forEach(c => {
       retval[c.columnName] = {
         type:
-          c.fieldTypeCalculator.fieldType === FIELD_TYPE.FLOAT
+          c.fieldTypeCalculator.fieldType ===
+          fileIngestion.constants.FIELD_TYPE.NUMBER
             ? 'DOUBLE'
             : 'UTF8',
         encoding: 'PLAIN',
-        optional: c.fieldTypeCalculator.fieldType === FIELD_TYPE.FLOAT,
+        optional:
+          c.fieldTypeCalculator.fieldType ===
+          fileIngestion.constants.FIELD_TYPE.NUMBER,
       };
     });
 
@@ -289,7 +293,7 @@ export class BasicFileTransformer extends Transform {
         //istanbul ignore next
         value =
           fieldTypeCalculator?.fieldTypeCalculator.fieldType ===
-          FIELD_TYPE.FLOAT
+          fileIngestion.constants.FIELD_TYPE.NUMBER
             ? this.numberFieldChecker.convertField(dirtyValue)
             : dirtyValue;
       } catch (err) {
