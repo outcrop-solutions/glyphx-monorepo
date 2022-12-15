@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import {BasicFieldTypeCalculator} from '@fieldProcessing';
 import Stream from 'stream';
-import {FIELD_TYPE} from '@util/constants';
 import {error} from '@glyphx/core';
+import {fileIngestion} from '@glyphx/types';
 
 describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
   context('ProcessItemsSync', () => {
@@ -15,7 +15,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
 
       fieldCalculator.finish();
 
-      assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+      assert.strictEqual(
+        fieldCalculator.fieldType,
+        fileIngestion.constants.FIELD_TYPE.STRING
+      );
       assert.isTrue(fieldCalculator.allItemsProcessed);
       assert.strictEqual(fieldCalculator.numberPassed, 10000);
       assert.strictEqual(fieldCalculator.samplesAnalyzed, 10000);
@@ -34,7 +37,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
 
       fieldCalculator.processItemsSync(strs);
       fieldCalculator.finish();
-      assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+      assert.strictEqual(
+        fieldCalculator.fieldType,
+        fileIngestion.constants.FIELD_TYPE.STRING
+      );
       assert.isTrue(fieldCalculator.allItemsProcessed);
       assert.strictEqual(fieldCalculator.numberPassed, 10000);
       assert.strictEqual(fieldCalculator.samplesAnalyzed, 10000);
@@ -62,7 +68,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
         assert.isTrue(fieldCalculator.allItemsProcessed);
         assert.strictEqual(fieldCalculator.numberPassed, 10000);
         assert.strictEqual(fieldCalculator.samplesAnalyzed, 10000);
@@ -91,7 +100,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.FLOAT);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.NUMBER
+        );
         assert.isTrue(fieldCalculator.allItemsProcessed);
         assert.strictEqual(fieldCalculator.numberPassed, 10000);
         assert.strictEqual(fieldCalculator.samplesAnalyzed, 10000);
@@ -121,7 +133,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
         done();
       });
     });
@@ -144,7 +159,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.FLOAT);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.NUMBER
+        );
         done();
       });
     });
@@ -166,7 +184,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
         done();
       });
     });
@@ -187,7 +208,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
         assert.strictEqual(fieldCalculator.sampleRate, 0.5);
         assert.strictEqual(fieldCalculator.numberPassed, 10000);
         assert.strictEqual(fieldCalculator.samplesAnalyzed, 5000);
@@ -203,12 +227,15 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       let counter = 0;
       rStream.on('data', () => {
         if (counter === 99) {
-          let fieldType: FIELD_TYPE = FIELD_TYPE.UNKNOWN;
+          let fieldType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
           assert.isTrue(fieldCalculator.hasProcessedItems);
           assert.doesNotThrow(() => {
             fieldType = fieldCalculator.fieldType;
           }, error.InvalidOperationError);
-          assert.strictEqual(fieldType, FIELD_TYPE.STRING);
+          assert.strictEqual(
+            fieldType,
+            fileIngestion.constants.FIELD_TYPE.STRING
+          );
         }
 
         counter++;
@@ -225,7 +252,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
         done();
       });
     });
@@ -266,7 +296,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
         done();
       });
     });
@@ -287,7 +320,10 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       //is called.  So now we can wait for our stream to complete and we can
       //evaluate the results of our BasicFieldTypeCalculator.
       rStream.once('end', () => {
-        assert.strictEqual(fieldCalculator.fieldType, FIELD_TYPE.STRING);
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
         assert.isTrue(fieldCalculator.allItemsProcessed);
         assert.strictEqual(fieldCalculator.numberPassed, 10);
         assert.strictEqual(fieldCalculator.samplesAnalyzed, 10);

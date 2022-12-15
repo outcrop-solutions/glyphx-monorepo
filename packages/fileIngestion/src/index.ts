@@ -1,7 +1,4 @@
 import 'module-alias/register';
-import {FIELD_TYPE} from '@util/constants';
-
-const FTYPE = FIELD_TYPE.STRING;
 
 console.log('Try npm run lint/fix!');
 

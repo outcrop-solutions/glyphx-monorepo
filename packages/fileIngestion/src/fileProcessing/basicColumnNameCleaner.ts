@@ -22,8 +22,8 @@ export class BasicColumnNameCleaner
   cleanColumnName(value: string): string {
     const outArray: string[] = [];
     const tempValue = value.toLowerCase();
-    for (let i = 0; i < value.length; i++) {
-      const charValue = value.charCodeAt(i);
+    for (let i = 0; i < tempValue.length; i++) {
+      const charValue = tempValue.charCodeAt(i);
       if (this.REPLACEABLE_CHARS.find(c => c === charValue)) {
         outArray.push('_');
       }

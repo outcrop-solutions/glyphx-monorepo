@@ -12,7 +12,7 @@ import {
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 
-import {S3Manager, AthenaManager} from '@glyphx/core';
+import {aws} from '@glyphx/core';
 import {error, generalPurposeFunctions} from '@glyphx/core';
 
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
@@ -21,8 +21,8 @@ export class BasicAthenaProcessor {
   private bucketNameField: string;
   private databaseNameField: string;
 
-  private s3Manager: S3Manager;
-  private athenaManager: AthenaManager;
+  private s3Manager: aws.S3Manager;
+  private athenaManager: aws.AthenaManager;
   private joinProcessor: BasicJoinProcessor;
 
   private inited: boolean;
@@ -39,8 +39,8 @@ export class BasicAthenaProcessor {
     this.bucketNameField = bucketName;
     this.databaseNameField = databaseName;
 
-    this.s3Manager = new S3Manager(bucketName);
-    this.athenaManager = new AthenaManager(databaseName);
+    this.s3Manager = new aws.S3Manager(bucketName);
+    this.athenaManager = new aws.AthenaManager(databaseName);
     this.joinProcessor = new BasicJoinProcessor();
   }
 
@@ -80,16 +80,9 @@ export class BasicAthenaProcessor {
     try {
       for (let i = 0; i < sortedTables.length; i++) {
         const file = sortedTables[i];
-        if (!file.parquetFileName)
-          throw new error.InvalidArgumentError(
-            'A parquetFileName is required',
-            'parquetFileName',
-            file.parquetFileName
-          );
-        //make sure our parquet file is there.
-        await this.s3Manager.getFileInformation(
-          file.outputFileDirecotry + file.parquetFileName
-        );
+	const fileInfos = await this.s3Manager.listObjects(file.outputFileDirecotry);
+	if( !fileInfos.length )
+		throw new error.InvalidArgumentError(`There do not appear to be any files in the output direcotry: ${file.outputFileDirecotry} to build a table against`, 'file.outputFileDirecotry', file.outputFileDirecotry);
         const tableName = file.tableName;
         joiner.processColumns(
           tableName,

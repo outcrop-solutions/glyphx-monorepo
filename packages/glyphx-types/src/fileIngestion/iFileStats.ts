@@ -8,3 +8,4 @@ export interface IFileStats {
   columns: IColumn[];
   fileSize: number;
 }
+

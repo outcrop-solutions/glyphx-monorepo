@@ -5,7 +5,7 @@ import {
   IFieldDefinition,
   IJoinTableColumnDefinition,
 } from '@interfaces/fileProcessing';
-import {FIELD_TYPE} from '@util/constants';
+import {fileIngestion} from '@glyphx/types';
 
 describe('#fileProcessing/basicJoinProcessor', () => {
   context('cleanTableName', () => {
@@ -23,8 +23,16 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const testTableName = 'IAmATestTable';
       const backingFileName = `${testTableName}.parquet`;
       const fields: IFieldDefinition[] = [
-        {name: 'field1', origionalName: 'field1', fieldType: FIELD_TYPE.STRING},
-        {name: 'field2', origionalName: 'field2', fieldType: FIELD_TYPE.FLOAT},
+        {
+          name: 'field1',
+          origionalName: 'field1',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+        {
+          name: 'field2',
+          origionalName: 'field2',
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
       ];
       const joinProcessor = new JoinProcessor();
       const newTable = joinProcessor['addTable'](
@@ -114,8 +122,16 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const joinProcessor = new JoinProcessor();
 
       const fields: IFieldDefinition[] = [
-        {name: 'field1', origionalName: 'field1', fieldType: FIELD_TYPE.STRING},
-        {name: 'field2', origionalName: 'field2', fieldType: FIELD_TYPE.FLOAT},
+        {
+          name: 'field1',
+          origionalName: 'field1',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+        {
+          name: 'field2',
+          origionalName: 'field2',
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
       ];
       joinProcessor['addTable'](
         joinProcessor['cleanTableName'](tableName),
@@ -140,12 +156,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -180,12 +196,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -197,12 +213,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -255,12 +271,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -272,12 +288,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -289,12 +305,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -366,12 +382,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -383,12 +399,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -400,12 +416,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -478,23 +494,23 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
 
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: FIELD_TYPE.FLOAT,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: FIELD_TYPE.FLOAT,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -506,22 +522,22 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -533,27 +549,27 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: FIELD_TYPE.FLOAT,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: FIELD_TYPE.FLOAT,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -641,23 +657,23 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
 
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: FIELD_TYPE.FLOAT,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: FIELD_TYPE.FLOAT,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -669,22 +685,22 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -696,27 +712,27 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.FLOAT,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -803,12 +819,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -820,12 +836,12 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
         ],
       };

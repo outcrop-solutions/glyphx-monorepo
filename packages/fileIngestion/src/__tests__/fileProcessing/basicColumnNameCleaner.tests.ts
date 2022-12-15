@@ -9,7 +9,7 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
 
       const cleanName = columnNameCleaner.cleanColumnName(columnName);
 
-      assert.strictEqual(columnName, cleanName);
+      assert.strictEqual(columnName.toLowerCase(), cleanName);
     });
     it('will convert reserved characters to _ ', () => {
       const columnName = 'I-Am A(Good)ColumnName';
@@ -17,7 +17,7 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
 
       const cleanName = columnNameCleaner.cleanColumnName(columnName);
 
-      assert.strictEqual(cleanName, 'I_Am_A_Good_ColumnName');
+      assert.strictEqual(cleanName, 'I_Am_A_Good_ColumnName'.toLowerCase());
     });
     it('will remove unwanted characters ', () => {
       let columnName = '';

@@ -2,9 +2,10 @@ import {assert} from 'chai';
 import {BasicFileTransformer, BasicColumnNameCleaner} from '@fileProcessing';
 import {BasicFieldTypeCalculator} from 'fieldProcessing';
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
-import {FIELD_TYPE, FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
+import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 import {Writable, Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
+import {fileIngestion} from '@glyphx/types';
 
 describe('#fileProcessing/basicFileTransformer', () => {
   context('basic processing', () => {
@@ -24,6 +25,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
+        fileIngestion.constants.FILE_OPERATION.ADD,
         (info: fileProcessingInterfaces.IFileInformation) => {
           assert.strictEqual(info.fileName, fileName);
           assert.strictEqual(info.fileSize, fileSize);
@@ -32,15 +34,25 @@ describe('#fileProcessing/basicFileTransformer', () => {
           assert.strictEqual(info.outputFileDirecotry, outputDirectory);
           assert.strictEqual(info.numberOfRows, numberOfRows);
           assert.strictEqual(info.numberOfColumns, 2);
+          assert.strictEqual(
+            info.fileOperationType,
+            fileIngestion.constants.FILE_OPERATION.ADD
+          );
 
           assert.strictEqual(info.columns[0].name, 'name');
           assert.strictEqual(info.columns[0].origionalName, 'name');
-          assert.strictEqual(info.columns[0].fieldType, FIELD_TYPE.STRING);
+          assert.strictEqual(
+            info.columns[0].fieldType,
+            fileIngestion.constants.FIELD_TYPE.STRING
+          );
           assert.strictEqual(info.columns[0].longestString, 8);
 
           assert.strictEqual(info.columns[1].name, 'value');
           assert.strictEqual(info.columns[1].origionalName, 'value');
-          assert.strictEqual(info.columns[1].fieldType, FIELD_TYPE.FLOAT);
+          assert.strictEqual(
+            info.columns[1].fieldType,
+            fileIngestion.constants.FIELD_TYPE.NUMBER
+          );
           done = true;
         },
 
@@ -105,6 +117,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
+        fileIngestion.constants.FILE_OPERATION.ADD,
         () => {
           done = true;
         },
@@ -157,6 +170,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
+        fileIngestion.constants.FILE_OPERATION.ADD,
         () => {
           done = true;
         },
@@ -209,6 +223,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
+        fileIngestion.constants.FILE_OPERATION.ADD,
         () => {
           done = true;
         },
@@ -250,73 +265,81 @@ describe('#fileProcessing/basicFileTransformer', () => {
 
   context('Transform Data with Errors', () => {
     it('should process 100 rows with 50 errors', async () => {
-      const fileName = 'testFileName';
-      const outputFileName = `${fileName}.parquet`;
-      const outputDirectory = 'dir1/';
-      const tableName = fileName;
-      const fileSize = 99999;
-      const numberOfRows = 100;
-      let hasErrors = false;
-      let numberOfErrors = 0;
-      let done = false;
-      const fileTransformer = new BasicFileTransformer(
-        fileName,
-        fileSize,
-        outputFileName,
-        outputDirectory,
-        tableName,
-        () => {
-          done = true;
-        },
-
-        (err: fileProcessingInterfaces.IFileProcessingError) => {
-          hasErrors = true;
-          numberOfErrors++;
-          assert.strictEqual(err.columnIndex, 1);
-          assert.strictEqual(err.columnName, 'value');
-          assert.strictEqual(
-            err.errorType,
-            FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
-          );
-          assert.isAtLeast(err.rowIndex ?? -1, 11);
-          assert.isAtMost(err.rowIndex ?? -1, 60);
-        },
-        BasicFieldTypeCalculator,
-        BasicColumnNameCleaner,
-        10
-      );
-      const readStream = new Readable({
-        objectMode: true,
-        read: () => {
-          for (let i = 0; i < numberOfRows; i++) {
-            if (i < 10 || i >= 60)
-              readStream.push({name: `field${i}`, value: i.toString()});
-            else
-              readStream.push({name: `field${i}`, value: 'I am not a number'});
-          }
-
-          readStream.push(null);
-        },
-      });
-      let seenRows = -1; //this first row is a header which we do not count
-      await pipeline(
-        readStream,
-        fileTransformer,
-        new Writable({
-          objectMode: true,
-          write: (chunk, encoding, callback) => {
-            seenRows++;
-            if (seenRows > 10 && seenRows <= 60) {
-              assert.isNull(chunk.value);
-            }
-            callback();
+      try {
+        const fileName = 'testFileName';
+        const outputFileName = `${fileName}.parquet`;
+        const outputDirectory = 'dir1/';
+        const tableName = fileName;
+        const fileSize = 99999;
+        const numberOfRows = 100;
+        let hasErrors = false;
+        let numberOfErrors = 0;
+        let done = false;
+        const fileTransformer = new BasicFileTransformer(
+          fileName,
+          fileSize,
+          outputFileName,
+          outputDirectory,
+          tableName,
+          fileIngestion.constants.FILE_OPERATION.ADD,
+          () => {
+            done = true;
           },
-        })
-      );
-      assert.isTrue(hasErrors);
-      assert.strictEqual(numberOfErrors, 50);
-      assert.strictEqual(seenRows, numberOfRows);
-      assert.isTrue(done);
+
+          (err: fileProcessingInterfaces.IFileProcessingError) => {
+            hasErrors = true;
+            numberOfErrors++;
+            assert.strictEqual(err.columnIndex, 1);
+            assert.strictEqual(err.columnName, 'value');
+            assert.strictEqual(
+              err.errorType,
+              FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
+            );
+            assert.isAtLeast(err.rowIndex ?? -1, 11);
+            assert.isAtMost(err.rowIndex ?? -1, 60);
+          },
+          BasicFieldTypeCalculator,
+          BasicColumnNameCleaner,
+          10
+        );
+        const readStream = new Readable({
+          objectMode: true,
+          read: () => {
+            for (let i = 0; i < numberOfRows; i++) {
+              if (i < 10 || i >= 60)
+                readStream.push({name: `field${i}`, value: i.toString()});
+              else
+                readStream.push({
+                  name: `field${i}`,
+                  value: 'I am not a number',
+                });
+            }
+
+            readStream.push(null);
+          },
+        });
+        let seenRows = -1; //this first row is a header which we do not count
+        await pipeline(
+          readStream,
+          fileTransformer,
+          new Writable({
+            objectMode: true,
+            write: (chunk, encoding, callback) => {
+              seenRows++;
+              if (seenRows > 10 && seenRows <= 60) {
+                assert.isNull(chunk.value);
+              }
+              callback();
+            },
+          })
+        );
+        assert.isTrue(hasErrors);
+        assert.strictEqual(numberOfErrors, 50);
+        assert.strictEqual(seenRows, numberOfRows);
+        assert.isTrue(done);
+      } catch (err) {
+        console.log(err);
+      }
     });
   });
 });

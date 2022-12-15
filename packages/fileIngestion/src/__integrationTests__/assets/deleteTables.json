@@ -56,13 +56,7 @@
 		"fileInfo": [{
 				"tableName": "Table1",
 				"fileName": "Table1.csv",
-				"operation": 2
-			},
-			{
-				"tableName": "Table2",
-				"fileName": "Table2.csv",
-				"operation": 2
-			}
-		]
+				"operation": 0
+			}		]
 	}
 }

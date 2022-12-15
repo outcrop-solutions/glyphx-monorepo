@@ -6,7 +6,7 @@ import {
   GetDatabaseCommand,
   ResultSet,
 } from '@aws-sdk/client-athena';
-import {ResultSetConverter} from "./util/resultsetConverter"
+import {ResultSetConverter} from './util/resultsetConverter';
 
 import * as error from '../error';
 
