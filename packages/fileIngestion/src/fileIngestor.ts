@@ -310,10 +310,13 @@ export class FileIngestor {
     if (needsViewUpdates) {
       const reconFileInformation = this.reconcileFileInformation();
       fileInfoForReturn = reconFileInformation.allFiles;
-      joinInformation = (await this.basicAthenaProcessor?.processTables(
-        this.getViewName(),
-        reconFileInformation.accumFiles
-      )) as IJoinTableDefinition[];
+      //If we delete all of the tables we will have nothing to create.
+      if (fileInfoForReturn.length) {
+        joinInformation = (await this.basicAthenaProcessor?.processTables(
+          this.getViewName(),
+          reconFileInformation.accumFiles
+        )) as IJoinTableDefinition[];
+      }
     }
     return {
       fileInformation: fileInfoForReturn,
@@ -326,6 +329,12 @@ export class FileIngestor {
     accumFiles: IFileInformation[];
   } {
     const fileInfos: IFileInformation[] = [];
+
+    const deletedTableNames = this.fileInfo
+      .filter(
+        d => d.operation === fileIngestion.constants.FILE_OPERATION.DELETE
+      )
+      .map(d => d.tableName);
 
     this.fileInfo.forEach(f => {
       if (f.operation === fileIngestion.constants.FILE_OPERATION.DELETE) return;
@@ -341,6 +350,8 @@ export class FileIngestor {
 
     this.fileStatistics.forEach(f => {
       const fInfo = f as unknown as IFileInformation;
+      //we do not want any deleted tables
+      if (deletedTableNames.find(d => d === f.tableName)) return;
       if (
         !fileInfos.find(
           fi => fi.tableName === f.tableName && fi.fileName === f.fileName

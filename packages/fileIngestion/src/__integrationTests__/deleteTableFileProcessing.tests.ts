@@ -1,8 +1,8 @@
 import {assert} from 'chai';
-import { aws } from '@glyphx/core';
+import {aws} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
-import replaceFilesJson from './assets/replaceTables.json';
+import deleteFilesJson from './assets/deleteTables.json';
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
@@ -18,8 +18,8 @@ async function setupExistingAssets() {
   await fileIngestor.process();
 }
 
-describe('#fileProcessing', () => {
-  context('Replace file to existing view', () => {
+describe.only('#fileProcessing', () => {
+  context('Delete file on an existing view', () => {
     let s3Bucket: aws.S3Manager;
     let athenaManager: aws.AthenaManager;
 
@@ -32,11 +32,11 @@ describe('#fileProcessing', () => {
     let fileNames: string[];
 
     before(async () => {
-      bucketName = replaceFilesJson.bucketName;
-      databaseName = replaceFilesJson.databaseName;
-      clientId = replaceFilesJson.payload.clientId;
-      modelId = replaceFilesJson.payload.modelId;
-      testDataDirectory = replaceFilesJson.testDataDirectory;
+      bucketName = deleteFilesJson.bucketName;
+      databaseName = deleteFilesJson.databaseName;
+      clientId = deleteFilesJson.payload.clientId;
+      modelId = deleteFilesJson.payload.modelId;
+      testDataDirectory = deleteFilesJson.testDataDirectory;
 
       assert.isNotEmpty(bucketName);
       assert.isNotEmpty(databaseName);
@@ -44,7 +44,7 @@ describe('#fileProcessing', () => {
       assert.isNotEmpty(modelId);
       assert.isNotEmpty(testDataDirectory);
 
-      payload = replaceFilesJson.payload as fileIngestion.IPayload;
+      payload = deleteFilesJson.payload as fileIngestion.IPayload;
       assert.isOk(payload);
 
       fileNames = payload.fileStats.map(f => f.fileName);
@@ -89,15 +89,16 @@ describe('#fileProcessing', () => {
         `${clientId}_${modelId}_view`,
         joinInformation
       );
-      const query = `SELECT * FROM ${clientId}_${modelId}_view WHERE col1 = 163`;
+      const query = `SELECT * FROM ${clientId}_${modelId}_view WHERE col1 = 63`;
       const results = (await athenaManager.runQuery(query)) as unknown as any[];
       assert.isAtLeast(results.length, 1);
 
-      const query2 = `SELECT * FROM ${clientId}_${modelId}_view WHERE col1 = 63`;
-      const results2 = (await athenaManager.runQuery(
-        query2
-      )) as unknown as any[];
-      assert.strictEqual(results2.length, 0);
+      assert.isDefined(results[0].col1);
+      assert.isDefined(results[0].col2);
+      assert.isDefined(results[0].col5);
+      assert.isUndefined(results[0].col3);
+      assert.isUndefined(results[0].col4);
+
       console.log('I am done');
     });
   });
