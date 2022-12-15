@@ -1,0 +1,157 @@
+import {IFileInformation} from '@interfaces/fileProcessing';
+import {fileIngestion} from '@glyphx/types';
+import {generalPurposeFunctions as sharedFunctions} from '@util';
+
+export class FileReconciliator {
+  private static getDeletedTables(fileInfo: fileIngestion.IFileInfo[]) {
+    return fileInfo
+      .filter(
+        d => d.operation === fileIngestion.constants.FILE_OPERATION.DELETE
+      )
+      .map(d => d.tableName);
+  }
+
+  private static processProcessedFiles(
+    fileInfo: fileIngestion.IFileInfo[],
+    processedFileInformation: IFileInformation[],
+    fileStatistics: fileIngestion.IFileStats[],
+    fileInfos: IFileInformation[]
+  ) {
+    fileInfo.forEach(f => {
+      if (f.operation === fileIngestion.constants.FILE_OPERATION.DELETE) return;
+      const fileStats =
+        processedFileInformation.find(
+          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+        ) ||
+        (fileStatistics.find(
+          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+        ) as unknown as IFileInformation);
+      fileInfos.push(fileStats);
+    });
+  }
+
+  private static processSuppliedFiles(
+    fileStatistics: fileIngestion.IFileStats[],
+    deletedTableNames: string[],
+    fileInfos: IFileInformation[]
+  ) {
+    fileStatistics.forEach(f => {
+      const fInfo = f as unknown as IFileInformation;
+      //we do not want any deleted tables
+      if (deletedTableNames.find(d => d === f.tableName)) return;
+      if (
+        !fileInfos.find(
+          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+        )
+      ) {
+        //these are essentially no-ops for the Athena Proceser.  This will make sure that they are included in the view, but the table wwill not be regenerated.
+        fInfo.fileOperationType = fileIngestion.constants.FILE_OPERATION.APPEND;
+        fileInfos.push(fInfo);
+      }
+    });
+  }
+
+  private static groupTables(
+    fileInfos: IFileInformation[],
+    clientId: string,
+    modelId: string
+  ) {
+    return fileInfos.reduce((group, fileInfo) => {
+      const {tableName} = fileInfo;
+      const fullTableName = sharedFunctions.getFullTableName(
+        clientId,
+        modelId,
+        tableName
+      );
+      group[fullTableName] = group[fullTableName] ?? [];
+      group[fullTableName].push(fileInfo);
+      return group;
+    }, {} as Record<string, IFileInformation[]>);
+  }
+
+  private static squashFilesToTables(
+    clientId: string,
+    modelId: string,
+    fileInfos: IFileInformation[]
+  ) {
+    const retval: IFileInformation[] = [];
+
+    const groupedByTable = FileReconciliator.groupTables(
+      fileInfos,
+      clientId,
+      modelId
+    );
+
+    for (const key in groupedByTable) {
+      const mappedData = groupedByTable[key].reduce(
+        (accum: IFileInformation, g: IFileInformation) => {
+          accum.numberOfRows += g.numberOfRows;
+          accum.fileSize += g.fileSize;
+          if (
+            accum.numberOfColumns === 0 ||
+            g.fileOperationType > accum.fileOperationType
+          ) {
+            accum.numberOfColumns = g.numberOfColumns;
+            accum.columns = g.columns;
+            accum.fileOperationType = g.fileOperationType;
+          }
+
+          if (!accum.outputFileDirecotry)
+            accum.outputFileDirecotry = g.outputFileDirecotry;
+
+          return accum;
+        },
+        {
+          tableName: key,
+          fileName: '',
+          parquetFileName: '',
+          outputFileDirecotry: '',
+          numberOfRows: 0,
+          numberOfColumns: 0,
+          columns: [],
+          fileSize: 0,
+          fileOperationType: fileIngestion.constants.FILE_OPERATION.DELETE,
+        } as IFileInformation
+      );
+
+      retval.push(mappedData);
+    }
+    return retval;
+  }
+
+  public static reconcileFileInformation(
+    clientId: string,
+    modelId: string,
+    fileInfo: fileIngestion.IFileInfo[],
+    processedFileInformation: IFileInformation[],
+    fileStatistics: fileIngestion.IFileStats[]
+  ): {
+    allFiles: IFileInformation[];
+    accumFiles: IFileInformation[];
+  } {
+    const fileInfos: IFileInformation[] = [];
+
+    const deletedTableNames = FileReconciliator.getDeletedTables(fileInfo);
+
+    FileReconciliator.processProcessedFiles(
+      fileInfo,
+      processedFileInformation,
+      fileStatistics,
+      fileInfos
+    );
+
+    FileReconciliator.processSuppliedFiles(
+      fileStatistics,
+      deletedTableNames,
+      fileInfos
+    );
+
+    const retval: IFileInformation[] = FileReconciliator.squashFilesToTables(
+      clientId,
+      modelId,
+      fileInfos
+    );
+
+    return {allFiles: fileInfos, accumFiles: retval};
+  }
+}

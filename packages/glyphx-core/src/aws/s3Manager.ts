@@ -1,7 +1,7 @@
 import {S3} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import * as error from '../error';
-import { aws } from '@glyphx/types';
+import {aws} from '@glyphx/types';
 import {PassThrough} from 'node:stream';
 
 /**
@@ -19,7 +19,7 @@ export class S3Manager {
   /**
    * determines whether or not the init method has been called on this instance.
    */
-  private inited = false;
+  private initedField = false;
 
   /**
    * The property accessor for the bucket's name.
@@ -29,12 +29,19 @@ export class S3Manager {
   }
 
   /**
+   * return the inited field indicating that the init method has been called.
+   */
+  public get inited(): boolean {
+    return this.initedField;
+  }
+
+  /**
    * The property accessor for the S3 client.  Note, you must call {@link init} before using this accessor.
    *
    * @throws InvalidOperationError - if we have not previously called {@link init}
    */
   private get bucket(): S3 {
-    if (!this.inited)
+    if (!this.initedField)
       throw new error.InvalidOperationError(
         'you must call init before using this object',
         {}
@@ -62,7 +69,7 @@ export class S3Manager {
   async init() {
     try {
       await this.bucketField.headBucket({Bucket: this.bucketName});
-      this.inited = true;
+      this.initedField = true;
     } catch (err) {
       throw new error.InvalidArgumentError(
         `An error occurred while checking for the existance of the bucket : ${this.bucketName}.  See the inner error for additional details`,
