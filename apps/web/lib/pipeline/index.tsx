@@ -10,18 +10,19 @@ import { FIELD_TYPE, FILE_OPERATION } from '@glyphx/types/src/fileIngestion/cons
 
 export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
   const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
+  console.log({ s3Client });
   await s3Client.init();
-  const objects = await s3Client.listObjects('table1/table1.csv');
+  const objects = await s3Client.listObjects('table1/Table1.csv');
   console.log({ objects });
   // TODO: Get S3 location from Dynamo table using projectId
   // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
   const file = await s3Client.getFileInformation(objects[0]);
   console.log({ file });
   const stream = await s3Client.getObjectStream(file.fileName);
-  // console.log({ stream });
+  console.log({ stream });
   const fileStats = {
-    fileName: 'table1.csv',
-    tableName: 'table1',
+    fileName: 'testing.csv',
+    tableName: 'testing',
     numberOfRows: 100,
     numberOfColumns: 4,
     columns: [
@@ -34,25 +35,26 @@ export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse)
   };
 
   const fileInfo = {
-    fileName: 'table1.csv',
-    tableName: 'table1',
+    fileName: 'testing.csv',
+    tableName: 'testing',
     operation: FILE_OPERATION.ADD,
     fileStream: stream,
   };
   const payload = {
-    clientId: 'clientId',
-    modelId: 'modelId',
+    clientId: 'clientIdTest',
+    modelId: 'modelIdTest',
     bucketName: `${S3_BUCKET_NAME}`,
     fileStats: [fileStats],
     fileInfo: [fileInfo],
   };
 
   const ingestor = new FileIngestor(payload as IPayload, 'jpstestdatabase');
-  const init = await ingestor.init();
-  console.log({ init });
-  const result = ingestor.process();
+  await ingestor.init();
+
+  const result = await ingestor.process();
   console.log({ result });
-  return res.status(200).json(result);
+  return res.status(200).json({ result });
+  // return res.status(200).json({ ok: true });
 };
 
 const RESOURCE_URL =
