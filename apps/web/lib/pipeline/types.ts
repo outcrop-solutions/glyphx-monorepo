@@ -18,7 +18,6 @@ export interface RenderableState { // Holds Data
 
 }
 
-
 export enum Operation {
   ADD,
   REPLACE,
@@ -48,6 +47,7 @@ export interface FileStats {
   fileSize: number;
 }
 
+
 export interface FileData {
   tableName: string;
   fileName: string;
@@ -58,6 +58,15 @@ export interface FileData {
 export interface Payload {
   modelId: string;
   bucketName: string;
-  fileStats: FileStats[];
-  fileData: FileData[];
+  fileStats: FileStats[]; //all of the files within the project input
+  fileData: FileData[]; // the data you want to operate on
 }
+
+// operations are executed in the order of the array
+
+// ADD + REPLACE == ADD
+// ADD + DELETE == REPLACE
+
+// ADD + APPEND
+// PEPLACE + APPEND
+// DELETE + 

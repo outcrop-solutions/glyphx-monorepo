@@ -2,7 +2,7 @@ import {S3} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import * as error from '../error';
 import { aws } from '@glyphx/types';
-import {PassThrough} from 'node:stream';
+// import {PassThrough} from 'node:stream';
 
 /**
  * This class provides basic operations for working with S3 buckets.
@@ -179,7 +179,8 @@ export class S3Manager {
    *  @param fileName - the name of the file to create in S3.
    *  @param stream - a pass through stream that will stream the data to be uploaded.
    */
-  getUploadStream(fileName: string, stream: PassThrough) {
+  // @ts-ignore
+  getUploadStream(fileName: string, stream) {
     const upload = new Upload({
       client: this.bucket,
       params: {

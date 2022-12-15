@@ -39,9 +39,11 @@ importers:
   apps/web:
     specifiers:
       '@aws-amplify/ui-react': ^4.2.0
+      '@glyphx/core': workspace:*
       '@glyphx/database': workspace:*
       '@glyphx/eslint-config-custom': workspace:*
       '@glyphx/fileingestion': workspace:*
+      '@glyphx/types': workspace:*
       '@headlessui/react': ^1.4.2
       '@heroicons/react': ^1.0.5
       '@minoru/react-dnd-treeview': ^1.5.10
@@ -110,11 +112,12 @@ importers:
       uuid: ^8.3.2
       web-vitals: ^1.1.1
     dependencies:
-      '@aws-amplify/ui-react': 4.2.0_2cvsxwryqr3qftczqazbj4sry4
+      '@aws-amplify/ui-react': 4.2.1_hu7r2fpespezgtfjx2op6pp72y
+      '@glyphx/core': link:../../packages/glyphx-core
       '@glyphx/database': link:../../packages/database
       '@glyphx/eslint-config-custom': link:../../packages/eslint-custom-config
       '@glyphx/fileingestion': link:../../packages/fileIngestion
-      '@headlessui/react': 1.7.5_biqbaboplfbrettd7655fr4n2y
+      '@headlessui/react': 1.7.6_biqbaboplfbrettd7655fr4n2y
       '@heroicons/react': 1.0.6_react@18.2.0
       '@minoru/react-dnd-treeview': 1.6.1_t6ajn5kn4nxm2xwkf5hw2jc624
       '@next-auth/dynamodb-adapter': 0.3.1-canary.207_jdmlstgceosyaa6budmc5cnd7e
@@ -128,7 +131,7 @@ importers:
       '@testing-library/jest-dom': 5.16.5
       '@testing-library/react': 11.2.7_biqbaboplfbrettd7655fr4n2y
       '@testing-library/user-event': 12.8.3_aaq3sbffpfe3jnxzm2zngsddei
-      aws-amplify: 5.0.5_react-native@0.70.6
+      aws-amplify: 5.0.6_react-native@0.70.6
       aws-sdk: 2.1275.0
       classnames: 2.3.2
       cypress: 9.5.1
@@ -170,6 +173,7 @@ importers:
       uuid: 8.3.2
       web-vitals: 1.1.2
     devDependencies:
+      '@glyphx/types': link:../../packages/glyphx-types
       '@tailwindcss/forms': 0.4.1_tailwindcss@3.2.4
       '@tailwindcss/line-clamp': 0.3.1_tailwindcss@3.2.4
       '@tailwindcss/typography': 0.5.8_tailwindcss@3.2.4
@@ -239,7 +243,7 @@ importers:
       eslint-plugin-react: latest
     dependencies:
       eslint: 8.29.0
-      eslint-config-next: 13.0.6_eslint@8.29.0
+      eslint-config-next: 13.0.7_eslint@8.29.0
       eslint-config-prettier: 8.5.0_eslint@8.29.0
       eslint-config-turbo: 0.0.7_eslint@8.29.0
       eslint-plugin-react: 7.31.11_eslint@8.29.0
@@ -368,12 +372,12 @@ importers:
       '@types/mocha': 10.0.1
       '@types/node': 18.11.15
       '@types/sinon': 10.0.13
-      '@typescript-eslint/parser': 5.46.1_yfqovispp7u7jaktymfaqwl2py
+      '@typescript-eslint/parser': 5.46.1_ha6vam6werchizxrnqvarmz2zu
       aws-sdk-client-mock: 2.0.1
       chai: 4.3.7
-      eslint-import-resolver-typescript: 3.5.2_hpmu7kn6tcn2vnxpfzvv33bxmy
+      eslint-import-resolver-typescript: 3.5.2_lt3hqehuojhfcbzgzqfngbtmrq
       eslint-plugin-filename-rules: 1.3.1
-      eslint-plugin-import: 2.26.0_as3yk32vhvdipu4vrdrmqugaze
+      eslint-plugin-import: 2.26.0_533pwayltjtlmylu2h73yxcye4
       gts: 3.1.1_typescript@4.9.4
       husky: 8.0.2
       lint-staged: 13.1.0
@@ -434,11 +438,11 @@ packages:
       '@jridgewell/gen-mapping': 0.1.1
       '@jridgewell/trace-mapping': 0.3.17
 
-  /@aws-amplify/analytics/6.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-1ykGXAQE42/ka7fckp9gzUjDuhQbO0vZr2OHhtnvyZ9gAPlP1L366gPOfF2ujtBYG7CikR9Op+5v8NRyE9QwuA==}
+  /@aws-amplify/analytics/6.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-PvFM5/tTTmHIXqmKZEC6o02OvVTK6ibk+JGeZIseWVWoFgM+B7hUosCQbcokwUK5ecFUWKEw7sh8CECa2hptuQ==}
     dependencies:
-      '@aws-amplify/cache': 5.0.5_react-native@0.70.6
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/cache': 5.0.6_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       '@aws-sdk/client-firehose': 3.6.1_react-native@0.70.6
       '@aws-sdk/client-kinesis': 3.6.1_react-native@0.70.6
       '@aws-sdk/client-personalize-events': 3.6.1_react-native@0.70.6
@@ -451,14 +455,14 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/api-graphql/3.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-DLEPfutw7Mdc5RZz9TnWF281tRkZPou3c/EZDvkRO+wQxbLTyBhh/AOEiqbVth/NBAhaPyyzy5WSPOjva6eKFQ==}
+  /@aws-amplify/api-graphql/3.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-WqxcKiDBam+1IHOneTzDHlDGQaqW9IwDe5OTR7vOgw/8WYxhXjFiZ5523UnuQ3LlwFpyB68P47om2rtXPGB0qw==}
     dependencies:
-      '@aws-amplify/api-rest': 3.0.5_react-native@0.70.6
-      '@aws-amplify/auth': 5.0.5_react-native@0.70.6
-      '@aws-amplify/cache': 5.0.5_react-native@0.70.6
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
-      '@aws-amplify/pubsub': 5.0.5_react-native@0.70.6
+      '@aws-amplify/api-rest': 3.0.6_react-native@0.70.6
+      '@aws-amplify/auth': 5.1.0_react-native@0.70.6
+      '@aws-amplify/cache': 5.0.6_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
+      '@aws-amplify/pubsub': 5.0.6_react-native@0.70.6
       graphql: 15.8.0
       tslib: 1.14.1
       uuid: 3.4.0
@@ -469,10 +473,10 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/api-rest/3.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-9A5L9n9lCg/qt2D4Q6Sqkp21RYNncoleeNDo3hcCY6tAhztARlT5MRPxctkTzs6sN/t4J97iRL0obOwRNa1beQ==}
+  /@aws-amplify/api-rest/3.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-6o/9rBhJZ35FjTfpi1kIIB6MlXJQl/p5jXd/kW1aJhYHk/4GimG2k/kTfhhzswBXicNTnApMoqhERdBUhJoRXg==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       axios: 0.26.0
       tslib: 1.14.1
     transitivePeerDependencies:
@@ -480,11 +484,11 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/api/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-gLhWg5U/gZ0bcbGiZ8WlUaxHXlwfgqHUBHn6NudYkxJPWAn7CRUWf7KhWiO4LfsGKavMv92bBH7nSzPf/h1L5w==}
+  /@aws-amplify/api/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-nI7Jm76H2FEo2pAlUSDdRy+XMDvqW4bsQF2W70sSUvQblipkGintMjQpSidBKUSO7WhU64VOoQERILG2nRzDgQ==}
     dependencies:
-      '@aws-amplify/api-graphql': 3.0.5_react-native@0.70.6
-      '@aws-amplify/api-rest': 3.0.5_react-native@0.70.6
+      '@aws-amplify/api-graphql': 3.0.6_react-native@0.70.6
+      '@aws-amplify/api-rest': 3.0.6_react-native@0.70.6
       tslib: 1.14.1
     transitivePeerDependencies:
       - debug
@@ -492,28 +496,28 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/auth/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-Y74LffxvFKGscV6tFm/S9FC6KCDGV9ZKJeyQ97LKmyO1MK6j3FBLZn7ZNUOTtyQHJknLNcUOD1V65PP1o+UtEw==}
+  /@aws-amplify/auth/5.1.0_react-native@0.70.6:
+    resolution: {integrity: sha512-pkSKRY1MAy0go6TkpreP8+jb1vnIVeZX9Mu8tZKZm+MZ5/SHIdVtA6yCfCeskvUne60W6V+Oj2I1rnpjHJhlFw==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
-      amazon-cognito-identity-js: 6.0.1
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
+      amazon-cognito-identity-js: 6.1.0
       tslib: 1.14.1
     transitivePeerDependencies:
       - encoding
       - react-native
     dev: false
 
-  /@aws-amplify/cache/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-X/zoGwhJc0XJu8uNue6BS4fneJzncBH65Lxcj+cihw7uitxE5GV6ni/pEig9Qgt1EITVyvU6x62GOU0NEjx4cw==}
+  /@aws-amplify/cache/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-WAU95a3K9WVkcGuCIgxz4DPOkjCy5uZvjxS8RlmxbD9YKTK2KBufxJIriT4eFiPOfxAW3d/uz2lNp8g7RfFueQ==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       tslib: 1.14.1
     transitivePeerDependencies:
       - react-native
     dev: false
 
-  /@aws-amplify/core/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-x4dMMqzKetfvpJasxOiM7FpCmJqhdO51VDHoEepoBFmGa/wrepH1lXazzeUWzbT0LFgj5gnsHem67ig+GfFs4g==}
+  /@aws-amplify/core/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-kT4m/G0pfz2YQqpzKeNJuL4mOABx2Naz5+3oClm9PPeR6Su/FbCDnMXbQhdtseg9NLVBeO6mx+buSHDwr9zfBg==}
     dependencies:
       '@aws-crypto/sha256-js': 1.2.2
       '@aws-sdk/client-cloudwatch-logs': 3.6.1_react-native@0.70.6
@@ -528,14 +532,14 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/datastore/4.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-JHbZDGXKLLIGJKWe1qP7ZODfTsSeY4vSrUy6tOfbs6/IGM4aUm8qCCGAvfjvY3v4P5AHX4vJdbPCU5btKwSX1A==}
+  /@aws-amplify/datastore/4.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-ItxCO5r2EwFn7w9wC/1pj/8+mFYBngeHb9a6UJ0FS3/XHply50STyqaMTr+Htflo8izhnwlrjppG7ne69lVGVw==}
     dependencies:
-      '@aws-amplify/api': 5.0.5_react-native@0.70.6
-      '@aws-amplify/auth': 5.0.5_react-native@0.70.6
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
-      '@aws-amplify/pubsub': 5.0.5_react-native@0.70.6
-      amazon-cognito-identity-js: 6.0.1
+      '@aws-amplify/api': 5.0.6_react-native@0.70.6
+      '@aws-amplify/auth': 5.1.0_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
+      '@aws-amplify/pubsub': 5.0.6_react-native@0.70.6
+      amazon-cognito-identity-js: 6.1.0
       idb: 5.0.6
       immer: 9.0.6
       ulid: 2.3.0
@@ -548,10 +552,10 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/geo/2.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-bPXR9xIbUF7UAzpCbZQtjw8Dtwzk4kxdMtdswH4K3NJUJwGuev5hk8RsX7G/4AD11tY4AS1W4r3w8+Lh1duN9A==}
+  /@aws-amplify/geo/2.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-EFdc1YDxiK7isKAieqdU2bYutk1bS1jslAiq4s8MV2WDg4yIIuCo9cbi05v0uFimGNvZ+PGmMt7wA/WZhJvHNg==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       '@aws-sdk/client-location': 3.186.0
       '@turf/boolean-clockwise': 6.5.0
       camelcase-keys: 6.2.2
@@ -561,10 +565,10 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/interactions/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-klr0Vkaran5y1RPCCUPiE5wx68tp/9WRNneTZ355JZaCkORhdrxs1p5wL1wEtJOBitwFb8OASjHaPadF4S1TZg==}
+  /@aws-amplify/interactions/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-SKguaCwjj0SDzLvMfPK58bdik6i0vmiyTwxAO8rtPtAop6FtqqT3/k3wUKy+zsSkbg6p/Gu9lZbEdW7950MgRw==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       '@aws-sdk/client-lex-runtime-service': 3.186.0
       '@aws-sdk/client-lex-runtime-v2': 3.186.0
       base-64: 1.0.0
@@ -576,11 +580,11 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/notifications/1.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-OLm4o6HbIBrPT8dI10cXPWD7pKj3n/avn1kdW8CSoHy3yx2QLEZs7gAJ/qXkZhnWNT4krEezQ1EaP0wTS2aIIA==}
+  /@aws-amplify/notifications/1.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-I/bKzYnL1l/Z6zDBMHItwjppZWrzj0wqAmstBfewo0RVk2alHZZJppns/61hbc7YrTElNTKFKW11ylED9uLRUg==}
     dependencies:
-      '@aws-amplify/cache': 5.0.5_react-native@0.70.6
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/cache': 5.0.6_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       '@aws-sdk/client-pinpoint': 3.186.0
       lodash: 4.17.21
       uuid: 3.4.0
@@ -589,11 +593,11 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/predictions/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-Z23dky9R/xRFmn3pCDB9SKPIliwbLnPZOaMMo4Ss8DHV8ccii2kvd+6w8TP2J6Fd6SBjaF3JHndbAoNI/gMciA==}
+  /@aws-amplify/predictions/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-q606uaExVEQ3xWvpEeCNDWQirSP9r8tSvWL7EVnqf5hz6jhNifgHzkCXaVexbsN7UguSSEfwnBhkrW9HrRdXsw==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
-      '@aws-amplify/storage': 5.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
+      '@aws-amplify/storage': 5.0.6_react-native@0.70.6
       '@aws-sdk/client-comprehend': 3.6.1_react-native@0.70.6
       '@aws-sdk/client-polly': 3.6.1_react-native@0.70.6
       '@aws-sdk/client-rekognition': 3.6.1_react-native@0.70.6
@@ -608,12 +612,12 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/pubsub/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-ApfvDxkyAZzbVATAPL+/aS7NB7Y2hV0luiEDAjzeIsLe6oUkqKIvojsvaf36Ui8/Dxf/Xrq+geZugAvphl7RkA==}
+  /@aws-amplify/pubsub/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-Cbh8xLtnQf/7iR8hmJfV/pxU7l3/a6OUef3zboKq0psJerutyVcHJSckVm23ZNRuYLDGGIS0AWf/sxINNa96YQ==}
     dependencies:
-      '@aws-amplify/auth': 5.0.5_react-native@0.70.6
-      '@aws-amplify/cache': 5.0.5_react-native@0.70.6
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/auth': 5.1.0_react-native@0.70.6
+      '@aws-amplify/cache': 5.0.6_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       graphql: 15.8.0
       paho-mqtt: 1.1.0
       tslib: 1.14.1
@@ -624,10 +628,10 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/storage/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-H0+v+GiZRLDkVTMpH4cqEkF8kBs+PTv+tNbR9a2CMt+qF/PP8c9HMOC6cmjS9vjghuMh+46ouiEDWBBJj5+1YQ==}
+  /@aws-amplify/storage/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-/kXp2RegnKy5Ok0DrqmlvzhoekRKhefS0ovdLFFEmxZV6AFIOAsTt0nhZ2S7cEBg6Hu6ioFEOohpZqOuvA6EKQ==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       '@aws-sdk/client-s3': 3.6.1_react-native@0.70.6
       '@aws-sdk/s3-request-presigner': 3.6.1
       '@aws-sdk/util-create-request': 3.6.1
@@ -640,15 +644,15 @@ packages:
       - react-native
     dev: false
 
-  /@aws-amplify/ui-react-core/2.1.3_rkvzfnfuzpn4azn44722wdqyt4:
-    resolution: {integrity: sha512-is2kmg4/ObHCbKUY69kCAif0mZx89tflD5A2XED5jgia6KyGTKhpqPBDxK0tO4UKdeaD1J1I4/JkwAi2v3ihUQ==}
+  /@aws-amplify/ui-react-core/2.1.4_gxhhoiuy5ddqlzrwgrk3xad65a:
+    resolution: {integrity: sha512-Jd/pwPLjgKfjxjLq4Qb1V0gKscyC/neN7z4dkHmK9jSYW7z73YFTppIdbeTtqySZq7yl4+4DKTkjRIFFbyiajQ==}
     peerDependencies:
       aws-amplify: '>= 5.0.1'
       react: '>= 16.14.0'
     dependencies:
-      '@aws-amplify/ui': 5.3.0_xzmnkpjxc3guxvgys6viyynt6y
+      '@aws-amplify/ui': 5.3.1_grcyajcdhuv4wfddouc7j43r24
       '@xstate/react': 3.0.1_dnueseonp6wdsskjsgrlxvpdca
-      aws-amplify: 5.0.5_react-native@0.70.6
+      aws-amplify: 5.0.6_react-native@0.70.6
       lodash: 4.17.21
       react: 18.2.0
       xstate: 4.35.0
@@ -657,8 +661,8 @@ packages:
       - '@xstate/fsm'
     dev: false
 
-  /@aws-amplify/ui-react/4.2.0_2cvsxwryqr3qftczqazbj4sry4:
-    resolution: {integrity: sha512-+YyXCdNqrit9Kz7soYj5Bgqjzm7w2kIcC9/27jEo7y6eeFceuqzLhvKCWfE6+5g3GO3XIRR3fPIupF9gzXKDLA==}
+  /@aws-amplify/ui-react/4.2.1_hu7r2fpespezgtfjx2op6pp72y:
+    resolution: {integrity: sha512-CoE149ZLyK/lrm8W9vTluc9AUBCb5Yx7mUZlm1+DCijwav3lyXE1kwX5pi/MyCRiFRV82L6vDq8jJwgquAvFTw==}
     peerDependencies:
       aws-amplify: 5.x.x
       react: '>= 16.14.0'
@@ -667,28 +671,28 @@ packages:
       aws-amplify:
         optional: true
     dependencies:
-      '@aws-amplify/ui': 5.3.0_aws-amplify@5.0.5
-      '@aws-amplify/ui-react-core': 2.1.3_rkvzfnfuzpn4azn44722wdqyt4
+      '@aws-amplify/ui': 5.3.1_aws-amplify@5.0.6
+      '@aws-amplify/ui-react-core': 2.1.4_gxhhoiuy5ddqlzrwgrk3xad65a
       '@radix-ui/react-accordion': 1.0.0_biqbaboplfbrettd7655fr4n2y
       '@radix-ui/react-direction': 1.0.0_react@18.2.0
       '@radix-ui/react-dropdown-menu': 1.0.0_5zfva2lldyu7jrbrwroiixp6xm
       '@radix-ui/react-slider': 1.0.0_biqbaboplfbrettd7655fr4n2y
       '@radix-ui/react-tabs': 1.0.0_biqbaboplfbrettd7655fr4n2y
       '@xstate/react': 3.0.0_akgelr6b34ghs4njbbtjaykm7q
-      aws-amplify: 5.0.5_react-native@0.70.6
+      aws-amplify: 5.0.6_react-native@0.70.6
       classnames: 2.3.1
       deepmerge: 4.2.2
       lodash: 4.17.21
       mapbox-gl: 1.13.1
       maplibre-gl: 2.1.9
-      maplibre-gl-js-amplify: 3.0.0_hhahteacwmgg5psygwdcxmww7y
+      maplibre-gl-js-amplify: 3.0.0_w5qruzlsmbh2k7w24sau6cafgi
       qrcode: 1.5.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-generate-context: 1.0.1_react@18.2.0
       react-map-gl: 7.0.15_kspcdbwlxrmop34skwxyxe67ce
       tinycolor2: 1.4.2
-      tslib: 2.4.0
+      tslib: 2.4.1
     transitivePeerDependencies:
       - '@aws-amplify/core'
       - '@aws-amplify/geo'
@@ -697,8 +701,8 @@ packages:
       - xstate
     dev: false
 
-  /@aws-amplify/ui/5.3.0_aws-amplify@5.0.5:
-    resolution: {integrity: sha512-BYzJRSuloZOugmHhkfdYfB97ZeeGpWTy8OG4Js4YK4aYWSeqhHyFQiqLrSgWG92UP9NGVM5J0uVmecOoWRgpsg==}
+  /@aws-amplify/ui/5.3.1_aws-amplify@5.0.6:
+    resolution: {integrity: sha512-8z8Zg+cTR+GFaOzmukajYI4nc2TOswcJO2OMXnCFhDFIIfKqlE13Iye8B4A8CiwzXHfxx+Q6v+aydZHPa2f/dw==}
     peerDependencies:
       aws-amplify: '>= 5.0.1'
       xstate: ^4.33.6
@@ -706,15 +710,15 @@ packages:
       xstate:
         optional: true
     dependencies:
-      aws-amplify: 5.0.5_react-native@0.70.6
+      aws-amplify: 5.0.6_react-native@0.70.6
       csstype: 3.1.1
       lodash: 4.17.21
-      style-dictionary: 3.7.0
-      tslib: 2.4.0
+      style-dictionary: 3.7.1
+      tslib: 2.4.1
     dev: false
 
-  /@aws-amplify/ui/5.3.0_xzmnkpjxc3guxvgys6viyynt6y:
-    resolution: {integrity: sha512-BYzJRSuloZOugmHhkfdYfB97ZeeGpWTy8OG4Js4YK4aYWSeqhHyFQiqLrSgWG92UP9NGVM5J0uVmecOoWRgpsg==}
+  /@aws-amplify/ui/5.3.1_grcyajcdhuv4wfddouc7j43r24:
+    resolution: {integrity: sha512-8z8Zg+cTR+GFaOzmukajYI4nc2TOswcJO2OMXnCFhDFIIfKqlE13Iye8B4A8CiwzXHfxx+Q6v+aydZHPa2f/dw==}
     peerDependencies:
       aws-amplify: '>= 5.0.1'
       xstate: ^4.33.6
@@ -722,18 +726,18 @@ packages:
       xstate:
         optional: true
     dependencies:
-      aws-amplify: 5.0.5_react-native@0.70.6
+      aws-amplify: 5.0.6_react-native@0.70.6
       csstype: 3.1.1
       lodash: 4.17.21
-      style-dictionary: 3.7.0
-      tslib: 2.4.0
+      style-dictionary: 3.7.1
+      tslib: 2.4.1
       xstate: 4.35.0
     dev: false
 
-  /@aws-amplify/xr/4.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-F5c8XJpfHwPO7OArOJmht1vSzpQYqJUDenB8Bfn5G6x8K/n3lbmn84RvtZBny1abMR0HMb4JkYfyLD4FfGeoeQ==}
+  /@aws-amplify/xr/4.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-T6e+pXjjM0lIZxt2eAX24VCzMcZfFc5Sx+1/rcrlSxDpj4Py2CsCTa7qM2H/CWYXnaFJcpi/PvCJiKBNtWESbA==}
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
       tslib: 1.14.1
     transitivePeerDependencies:
       - react-native
@@ -6264,8 +6268,8 @@ packages:
       '@hapi/hoek': 9.3.0
     dev: false
 
-  /@headlessui/react/1.7.5_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-UZSxOfA0CYKO7QDT5OGlFvesvlR1SKkawwSjwQJwt7XQItpzRKdE3ZUQxHcg4LEz3C0Wler2s9psdb872ynwrQ==}
+  /@headlessui/react/1.7.6_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-yM/IOGCRaS/DaQRchElrTiH0jOfYWbBX5wkZTAbPDu4OMYdQ1ateM/UgApOcv+7DNpeRaMjUz4bZ4xxNgTGNLA==}
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16 || ^17 || ^18
@@ -6665,8 +6669,8 @@ packages:
     resolution: {integrity: sha512-H/69Lc5Q02dq3o+dxxy5O/oNxFsZpdL6WREtOOtOM1B/weonIwDXkekr1KV5DPVPr12IHFPrMrcJQ6bgPMfn7A==}
     dev: false
 
-  /@next/eslint-plugin-next/13.0.6:
-    resolution: {integrity: sha512-JUANdYNCddhmQBjQQPxEJYL7GMCqYtbfrdmtX7c013srig7waNCG69Aoql7CgAgjdy8jn1ovHVdcF/NB46XN3Q==}
+  /@next/eslint-plugin-next/13.0.7:
+    resolution: {integrity: sha512-Q/Z0V3D3UpKhhzFU6/s17wD4rqJ+ZDGded8UpqNyzX1nUdD+/PnsZexPhSIZ2Yf/c8QESeirmJVRb3eAfCQkRQ==}
     dependencies:
       glob: 7.1.7
     dev: false
@@ -8416,26 +8420,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@typescript-eslint/parser/5.46.1_yfqovispp7u7jaktymfaqwl2py:
-    resolution: {integrity: sha512-RelQ5cGypPh4ySAtfIMBzBGyrNerQcmfA1oJvPj5f+H4jI59rl9xxpn4bonC0tQvUKOEN7eGBFWxFLK3Xepneg==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@typescript-eslint/scope-manager': 5.46.1
-      '@typescript-eslint/types': 5.46.1
-      '@typescript-eslint/typescript-estree': 5.46.1_typescript@4.9.4
-      debug: 4.3.4
-      eslint: 7.32.0
-      typescript: 4.9.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@typescript-eslint/scope-manager/4.33.0:
     resolution: {integrity: sha512-5IfJHpgTsTZuONKbODctL4kKuQje/bzBRkwHE8UOZ4f89Zeddg+EGZs8PD8NcN4LdM3ygHWYB3ukPAYjvl/qbQ==}
     engines: {node: ^8.10.0 || ^10.13.0 || >=11.10.1}
@@ -8792,8 +8776,8 @@ packages:
       require-from-string: 2.0.2
       uri-js: 4.4.1
 
-  /amazon-cognito-identity-js/6.0.1:
-    resolution: {integrity: sha512-j96DHquV9Jiabs+3/fuQwrSK+1WcxzmEfRuZlhajGxxUplzjt046pedCYiSkcFY+Wilun+I57iri5dXiaNDOsg==}
+  /amazon-cognito-identity-js/6.1.0:
+    resolution: {integrity: sha512-Yx0ua84OPJ7ifZklXqiAu7T3LCD0okb+LBM0FyYMqPrM4Ag2d8dpmRVQkFT1TN6vomTNAXmH6fKiaAUzLiWvNg==}
     dependencies:
       '@aws-crypto/sha256-js': 1.2.2
       buffer: 4.9.2
@@ -8950,7 +8934,7 @@ packages:
     dependencies:
       '@types/react': 17.0.2
       react: 18.2.0
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /aria-query/4.2.2:
@@ -9143,22 +9127,22 @@ packages:
     engines: {node: '>= 0.4'}
     dev: false
 
-  /aws-amplify/5.0.5_react-native@0.70.6:
-    resolution: {integrity: sha512-f57N/ZGNJEpZkK1tP9Bj5qjx0WfAGEoHSbjOXVMqkcqWyXM8iQz/adP5cx1Ve2pYy5odkCA10g+dQNuerzMT2w==}
+  /aws-amplify/5.0.6_react-native@0.70.6:
+    resolution: {integrity: sha512-2xtnjNzPlgC3Q4d/n/Pm9Vq5oRfYG9ZoQQKrvaXaK99vl9NYpLwcOlrUwAgGPIrteaEqUIS7p0KpV/3oP9TuBg==}
     dependencies:
-      '@aws-amplify/analytics': 6.0.5_react-native@0.70.6
-      '@aws-amplify/api': 5.0.5_react-native@0.70.6
-      '@aws-amplify/auth': 5.0.5_react-native@0.70.6
-      '@aws-amplify/cache': 5.0.5_react-native@0.70.6
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
-      '@aws-amplify/datastore': 4.0.5_react-native@0.70.6
-      '@aws-amplify/geo': 2.0.5_react-native@0.70.6
-      '@aws-amplify/interactions': 5.0.5_react-native@0.70.6
-      '@aws-amplify/notifications': 1.0.5_react-native@0.70.6
-      '@aws-amplify/predictions': 5.0.5_react-native@0.70.6
-      '@aws-amplify/pubsub': 5.0.5_react-native@0.70.6
-      '@aws-amplify/storage': 5.0.5_react-native@0.70.6
-      '@aws-amplify/xr': 4.0.5_react-native@0.70.6
+      '@aws-amplify/analytics': 6.0.6_react-native@0.70.6
+      '@aws-amplify/api': 5.0.6_react-native@0.70.6
+      '@aws-amplify/auth': 5.1.0_react-native@0.70.6
+      '@aws-amplify/cache': 5.0.6_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
+      '@aws-amplify/datastore': 4.0.6_react-native@0.70.6
+      '@aws-amplify/geo': 2.0.6_react-native@0.70.6
+      '@aws-amplify/interactions': 5.0.6_react-native@0.70.6
+      '@aws-amplify/notifications': 1.0.6_react-native@0.70.6
+      '@aws-amplify/predictions': 5.0.6_react-native@0.70.6
+      '@aws-amplify/pubsub': 5.0.6_react-native@0.70.6
+      '@aws-amplify/storage': 5.0.6_react-native@0.70.6
+      '@aws-amplify/xr': 4.0.6_react-native@0.70.6
       tslib: 2.4.1
     transitivePeerDependencies:
       - aws-crt
@@ -9630,7 +9614,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /camelcase-css/2.0.1:
@@ -9660,7 +9644,7 @@ packages:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
       upper-case-first: 2.0.2
     dev: false
 
@@ -9735,7 +9719,7 @@ packages:
       path-case: 3.0.4
       sentence-case: 3.0.4
       snake-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /character-entities-html4/2.1.0:
@@ -10083,7 +10067,7 @@ packages:
     resolution: {integrity: sha512-I2hSBi7Vvs7BEuJDr5dDHfzb/Ruj3FyvFyh7KLilAjNQw3Be+xgqUBA2W6scVEcL0hL1dwPRtIqEPVUCKkSsyQ==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
       upper-case: 2.0.2
     dev: false
 
@@ -10681,7 +10665,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /dotenv-cli/6.0.0:
@@ -11351,8 +11335,8 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  /eslint-config-next/13.0.6_eslint@8.29.0:
-    resolution: {integrity: sha512-Tfn/0lirhkEuoGxKMtDQNtQuC7P3eHcyUyhIJY/OHtjU9ExHFtcge/Fe8Ou/Jd7DIC71vN3CT72oszVwia71cg==}
+  /eslint-config-next/13.0.7_eslint@8.29.0:
+    resolution: {integrity: sha512-X7DB7iDJ9iHi5DAZbnFdWm4M0dwarj5h5y6Vpm9INCYzFgAwSWslq3v0qjYEjtUO5IQ8n1WK6IU5FkOQ2HBhOA==}
     peerDependencies:
       eslint: ^7.23.0 || ^8.0.0
       typescript: '>=3.3.1'
@@ -11360,7 +11344,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@next/eslint-plugin-next': 13.0.6
+      '@next/eslint-plugin-next': 13.0.7
       '@rushstack/eslint-patch': 1.2.0
       '@typescript-eslint/parser': 5.46.1_eslint@8.29.0
       eslint: 8.29.0
@@ -11408,26 +11392,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /eslint-import-resolver-typescript/3.5.2_hpmu7kn6tcn2vnxpfzvv33bxmy:
-    resolution: {integrity: sha512-zX4ebnnyXiykjhcBvKIf5TNvt8K7yX6bllTRZ14MiurKPjDpCAZujlszTdB8pcNXhZcOf+god4s9SjQa5GnytQ==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    peerDependencies:
-      eslint: '*'
-      eslint-plugin-import: '*'
-    dependencies:
-      debug: 4.3.4
-      enhanced-resolve: 5.12.0
-      eslint: 7.32.0
-      eslint-plugin-import: 2.26.0_as3yk32vhvdipu4vrdrmqugaze
-      get-tsconfig: 4.2.0
-      globby: 13.1.3
-      is-core-module: 2.11.0
-      is-glob: 4.0.3
-      synckit: 0.8.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /eslint-import-resolver-typescript/3.5.2_lt3hqehuojhfcbzgzqfngbtmrq:
     resolution: {integrity: sha512-zX4ebnnyXiykjhcBvKIf5TNvt8K7yX6bllTRZ14MiurKPjDpCAZujlszTdB8pcNXhZcOf+god4s9SjQa5GnytQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -11446,36 +11410,6 @@ packages:
       synckit: 0.8.4
     transitivePeerDependencies:
       - supports-color
-
-  /eslint-module-utils/2.7.4_dxrgog7ep6oi55gr44s6bzj6d4:
-    resolution: {integrity: sha512-j4GT+rqzCoRKHwURX7pddtIPGySnX9Si/cgMI5ztrcqOPtk5dDEeZ34CQVPphnqkJytlc97Vuk05Um2mJ3gEQA==}
-    engines: {node: '>=4'}
-    peerDependencies:
-      '@typescript-eslint/parser': '*'
-      eslint: '*'
-      eslint-import-resolver-node: '*'
-      eslint-import-resolver-typescript: '*'
-      eslint-import-resolver-webpack: '*'
-    peerDependenciesMeta:
-      '@typescript-eslint/parser':
-        optional: true
-      eslint:
-        optional: true
-      eslint-import-resolver-node:
-        optional: true
-      eslint-import-resolver-typescript:
-        optional: true
-      eslint-import-resolver-webpack:
-        optional: true
-    dependencies:
-      '@typescript-eslint/parser': 5.46.1_yfqovispp7u7jaktymfaqwl2py
-      debug: 3.2.7
-      eslint: 7.32.0
-      eslint-import-resolver-node: 0.3.6
-      eslint-import-resolver-typescript: 3.5.2_hpmu7kn6tcn2vnxpfzvv33bxmy
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
 
   /eslint-module-utils/2.7.4_o2m23qb6cidzxlgoxlhvqp5c5y:
     resolution: {integrity: sha512-j4GT+rqzCoRKHwURX7pddtIPGySnX9Si/cgMI5ztrcqOPtk5dDEeZ34CQVPphnqkJytlc97Vuk05Um2mJ3gEQA==}
@@ -11570,37 +11504,6 @@ packages:
       - eslint-import-resolver-webpack
       - supports-color
 
-  /eslint-plugin-import/2.26.0_as3yk32vhvdipu4vrdrmqugaze:
-    resolution: {integrity: sha512-hYfi3FXaM8WPLf4S1cikh/r4IxnO6zrhZbEGz2b660EJRbuxgpDS5gkCuYgGWg2xxh2rBuIr4Pvhve/7c31koA==}
-    engines: {node: '>=4'}
-    peerDependencies:
-      '@typescript-eslint/parser': '*'
-      eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
-    peerDependenciesMeta:
-      '@typescript-eslint/parser':
-        optional: true
-    dependencies:
-      '@typescript-eslint/parser': 5.46.1_yfqovispp7u7jaktymfaqwl2py
-      array-includes: 3.1.6
-      array.prototype.flat: 1.3.1
-      debug: 2.6.9
-      doctrine: 2.1.0
-      eslint: 7.32.0
-      eslint-import-resolver-node: 0.3.6
-      eslint-module-utils: 2.7.4_dxrgog7ep6oi55gr44s6bzj6d4
-      has: 1.0.3
-      is-core-module: 2.11.0
-      is-glob: 4.0.3
-      minimatch: 3.1.2
-      object.values: 1.1.6
-      resolve: 1.22.1
-      tsconfig-paths: 3.14.1
-    transitivePeerDependencies:
-      - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
-      - supports-color
-    dev: true
-
   /eslint-plugin-jsx-a11y/6.6.1_eslint@8.29.0:
     resolution: {integrity: sha512-sXgFVNHiWffBq23uiS/JaP6eVR622DqwB4yTzKvGZGcPq6/yZ3WmOZfuBks/vHWo9GaFOqC2ZK4i6+C35knx7Q==}
     engines: {node: '>=4.0'}
@@ -11618,7 +11521,7 @@ packages:
       eslint: 8.29.0
       has: 1.0.3
       jsx-ast-utils: 3.3.3
-      language-tags: 1.0.6
+      language-tags: 1.0.7
       minimatch: 3.1.2
       semver: 6.3.0
     dev: false
@@ -13029,7 +12932,7 @@ packages:
     resolution: {integrity: sha512-H/vuk5TEEVZwrR0lp2zed9OCo1uAILMlx0JEMgC26rzyJJ3N1v6XkwHHXJQdR2doSjcGPM6OKPYoJgf0plJ11Q==}
     dependencies:
       capital-case: 1.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /hermes-estree/0.8.0:
@@ -14125,8 +14028,8 @@ packages:
     resolution: {integrity: sha512-tN0MCzyWnoz/4nHS6uxdlFWoUZT7ABptwKPQ52Ea7URk6vll88bWBVhodtnlfEuCcKWNGoc+uGbw1cwa9IKh/w==}
     dev: false
 
-  /language-tags/1.0.6:
-    resolution: {integrity: sha512-HNkaCgM8wZgE/BZACeotAAgpL9FUjEnhgF0FVQMIgH//zqTPreLYMb3rWYkYAqPoF75Jwuycp1da7uz66cfFQg==}
+  /language-tags/1.0.7:
+    resolution: {integrity: sha512-bSytju1/657hFjgUzPAPqszxH62ouE8nQFoFaVlIQfne4wO/wXC9A4+m8jYve7YBBvi59eq0SUpcshvG8h5Usw==}
     dependencies:
       language-subtag-registry: 0.3.22
     dev: false
@@ -14422,7 +14325,7 @@ packages:
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /lowercase-keys/1.0.0:
@@ -14560,15 +14463,15 @@ packages:
       '@turf/length': 6.5.0
     dev: false
 
-  /maplibre-gl-js-amplify/3.0.0_hhahteacwmgg5psygwdcxmww7y:
+  /maplibre-gl-js-amplify/3.0.0_w5qruzlsmbh2k7w24sau6cafgi:
     resolution: {integrity: sha512-mqDD0cJyc/JJ6mhMrbl6VU+/YHUKxHbI+22ZkXB34taYZR2+TBIwvHrcnb/p+Z4HilVC2NgY44ldpanZiHZX/g==}
     peerDependencies:
       '@aws-amplify/core': 5.x.x
       '@aws-amplify/geo': 2.x.x
       maplibre-gl: 1.x.x || 2.x.x
     dependencies:
-      '@aws-amplify/core': 5.0.5_react-native@0.70.6
-      '@aws-amplify/geo': 2.0.5_react-native@0.70.6
+      '@aws-amplify/core': 5.0.6_react-native@0.70.6
+      '@aws-amplify/geo': 2.0.6_react-native@0.70.6
       '@mapbox/mapbox-gl-draw': 1.3.0
       '@maplibre/maplibre-gl-geocoder': 1.5.0_maplibre-gl@2.1.9
       '@turf/along': 6.5.0
@@ -15940,7 +15843,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /nocache/3.0.4:
@@ -16437,7 +16340,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /parent-module/1.0.1:
@@ -16518,7 +16421,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /pascalcase/0.1.1:
@@ -16530,7 +16433,7 @@ packages:
     resolution: {integrity: sha512-qO4qCFjXqVTrcbPt/hQfhTQ+VhFsqNKOPtytgNKkKxSoEp3XPUQ8ObFuePylOIok5gjn69ry8XiULxCwot3Wfg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /path-exists/3.0.0:
@@ -17320,7 +17223,7 @@ packages:
       '@types/react': 17.0.2
       react: 18.2.0
       react-style-singleton: 2.2.1_akgelr6b34ghs4njbbtjaykm7q
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /react-remove-scroll/2.5.4_akgelr6b34ghs4njbbtjaykm7q:
@@ -17337,7 +17240,7 @@ packages:
       react: 18.2.0
       react-remove-scroll-bar: 2.3.4_akgelr6b34ghs4njbbtjaykm7q
       react-style-singleton: 2.2.1_akgelr6b34ghs4njbbtjaykm7q
-      tslib: 2.4.0
+      tslib: 2.4.1
       use-callback-ref: 1.3.0_akgelr6b34ghs4njbbtjaykm7q
       use-sidecar: 1.1.2_akgelr6b34ghs4njbbtjaykm7q
     dev: false
@@ -17431,7 +17334,7 @@ packages:
       get-nonce: 1.0.1
       invariant: 2.2.4
       react: 18.2.0
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /react-toastify/8.2.0_biqbaboplfbrettd7655fr4n2y:
@@ -18028,7 +17931,7 @@ packages:
     resolution: {integrity: sha512-8LS0JInaQMCRoQ7YUytAo/xUu5W2XnQxV2HI/6uM6U7CITS1RqPElr30V6uIqyMKM9lJGRVFy5/4CuzcixNYSg==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
       upper-case-first: 2.0.2
     dev: false
 
@@ -18204,7 +18107,7 @@ packages:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /snapdragon-node/2.1.1:
@@ -18637,8 +18540,8 @@ packages:
   /strnum/1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
 
-  /style-dictionary/3.7.0:
-    resolution: {integrity: sha512-BL4AQS5kNDBXbFHWJhlCve6+ojnHgHkiwhf2nNByU698elXWdyK5b27OprphT4q0/tJ52zB+lodhqxIxbNOajQ==}
+  /style-dictionary/3.7.1:
+    resolution: {integrity: sha512-yYU9Z/J8Znj9T9oJVjo8VOYamrOxv0UbBKPjhSt+PharxrhyQCM4RWb71fgEfv2pK9KO8G83/0ChDNQZ1mn0wQ==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
@@ -19173,10 +19076,6 @@ packages:
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
 
-  /tslib/2.4.0:
-    resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
-    dev: false
-
   /tslib/2.4.1:
     resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
 
@@ -19615,13 +19514,13 @@ packages:
   /upper-case-first/2.0.2:
     resolution: {integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==}
     dependencies:
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /upper-case/2.0.2:
     resolution: {integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==}
     dependencies:
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /uri-js/4.4.1:
@@ -19672,7 +19571,7 @@ packages:
     dependencies:
       '@types/react': 17.0.2
       react: 18.2.0
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /use-isomorphic-layout-effect/1.1.2_akgelr6b34ghs4njbbtjaykm7q:
@@ -19701,7 +19600,7 @@ packages:
       '@types/react': 17.0.2
       detect-node-es: 1.1.0
       react: 18.2.0
-      tslib: 2.4.0
+      tslib: 2.4.1
     dev: false
 
   /use-sync-external-store/1.2.0_react@17.0.2:
