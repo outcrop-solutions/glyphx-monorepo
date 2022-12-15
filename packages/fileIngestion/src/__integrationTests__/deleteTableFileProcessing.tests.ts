@@ -18,7 +18,7 @@ async function setupExistingAssets() {
   await fileIngestor.process();
 }
 
-describe.only('#fileProcessing', () => {
+describe('#fileProcessing', () => {
   context('Delete file on an existing view', () => {
     let s3Bucket: aws.S3Manager;
     let athenaManager: aws.AthenaManager;
