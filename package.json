@@ -18,6 +18,7 @@
     "dev": "dotenv -- turbo dev",
     "start": "turbo start",
     "lint": "turbo lint",
+    "clean:root": "rimraf pnpm-lock.yaml node_modules",
     "clean": "turbo clean",
     "db:generate": "turbo db:generate",
     "db:push": "turbo db:push",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.25.2",
+    "rimraf": "^3.0.2",
     "eslint": "^8.29.0",
     "eslint-config-turbo": "latest",
     "turbo": "latest"

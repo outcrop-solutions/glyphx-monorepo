@@ -1,6 +1,7 @@
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
 import {error} from '@glyphx/core';
 import {NumberFieldChecker} from './numberFieldChecker';
+// eslint-disable-next-line node/no-unpublished-import
 import {fileIngestion} from '@glyphx/types';
 /**
  * The minumum number of samples to analyze before using the sample rate.

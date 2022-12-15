@@ -1,1 +1,1 @@
-export {IHeadObjectData} from './iHeadObjectData';
+export type {IHeadObjectData} from './iHeadObjectData';

@@ -52,15 +52,15 @@ export class FileIngestor {
     return this.bucketNameField;
   }
 
-  public get fileStatistics() {
+  public get fileStatistics(): fileIngestion.IFileStats[] {
     return this.fileStatisticsField;
   }
 
-  public get fileInfo() {
+  public get fileInfo(): fileIngestion.IFileInfo[] {
     return this.fileInfoField;
   }
 
-  public get databaseName() {
+  public get databaseName(): string {
     return this.databaseNameField;
   }
 

@@ -1,5 +1,116 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { FileIngestor } from '@glyphx/fileingestion';
+import { aws } from '@glyphx/core';
+
+import { IPayload } from '@glyphx/types/src/fileIngestion';
 import { FieldType, IngestionType, ProcessInput } from './types';
 import { fileIngestion } from '@glyphx/types';
+import { S3_BUCKET_NAME } from 'constants/config';
+import { FIELD_TYPE, FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
+
+export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
+  const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
+  await s3Client.init();
+  const objects = await s3Client.listObjects('table1/table1.csv');
+  console.log({ objects });
+  // TODO: Get S3 location from Dynamo table using projectId
+  // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
+  const file = await s3Client.getFileInformation(objects[0]);
+  console.log({ file });
+  const stream = await s3Client.getObjectStream(file.fileName);
+  // console.log({ stream });
+  const fileStats = {
+    fileName: 'table1.csv',
+    tableName: 'table1',
+    numberOfRows: 100,
+    numberOfColumns: 4,
+    columns: [
+      { name: 'col1', fieldType: FIELD_TYPE.NUMBER, longestString: undefined },
+      { name: 'col2', fieldType: FIELD_TYPE.STRING, longestString: 2 },
+      { name: 'col3', fieldType: FIELD_TYPE.STRING, longestString: 13 },
+      { name: 'col4', fieldType: FIELD_TYPE.NUMBER, longestString: undefined },
+    ],
+    fileSize: file.fileSize,
+  };
+
+  const fileInfo = {
+    fileName: 'table1.csv',
+    tableName: 'table1',
+    operation: FILE_OPERATION.ADD,
+    fileStream: stream,
+  };
+  const payload = {
+    clientId: 'clientId',
+    modelId: 'modelId',
+    bucketName: `${S3_BUCKET_NAME}`,
+    fileStats: [fileStats],
+    fileInfo: [fileInfo],
+  };
+
+  const ingestor = new FileIngestor(payload as IPayload, 'jpstestdatabase');
+  const init = await ingestor.init();
+  console.log({ init });
+  const result = ingestor.process();
+  console.log({ result });
+  return res.status(200).json(result);
+};
+
+const RESOURCE_URL =
+  'https://gist.githubusercontent.com/okbel/8ba642143f6912548df2d79f2c0ebabe/raw/4bcf9dc5750b42fa225cf6571d6aaa68c23a73aa/README.md';
+
+// export const config = {
+//   runtime: 'experimental-edge',
+// };
+
+export const streamS3 = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
+  const { orgId, projectId } = req.query;
+  const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
+  await s3Client.init();
+  const objects = await s3Client.listObjects('bigtable');
+  console.log({ objects });
+  // TODO: Get S3 location from Dynamo table using projectId
+  // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
+  const fileInfo = await s3Client.getFileInformation(objects[1]);
+  console.log({ fileInfo });
+  // const stream = await s3Client.getObjectStream(fileInfo.fileName);
+  // console.log({ stream });
+
+  // compute file statistics
+  // compute data grid
+
+  // The decoder will be used to decode the bytes in the stream returned by fetching
+  // the external resource to UTF-8 (the default).
+  // https://developer.mozilla.org/en-US/docs/Web/API/TextDecode
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  return res.status(200).json({ ok: true });
+  // Pipe the stream to a transform stream that will take its chunks and transform
+  // them into uppercase text.
+  // https://developer.mozilla.org/en-US/docs/Web/API/TransformStream/TransformStream
+  // const transformedResponse = res.body?.pipeThrough(
+  //   new TransformStream({
+  //     start(controller) {
+  //       controller.enqueue(
+  //         encoder.encode(`<html><head><title>Vercel Edge Functions + Streams + Transforms</title></head><body>`)
+  //       );
+  //       controller.enqueue(encoder.encode(`Resource: ${RESOURCE_URL}<br/>`));
+  //       controller.enqueue(encoder.encode(`<hr/><br/><br/><br/>`));
+  //     },
+  //     transform(chunk, controller) {
+  //       controller.enqueue(encoder.encode(decoder.decode(chunk, { stream: true }).toUpperCase().concat(' <---')));
+  //     },
+  //     flush(controller) {
+  //       controller.enqueue(encoder.encode('</body></html>'));
+  //     },
+  //   })
+  // );
+
+  // return new Response(transformedResponse, {
+  //   headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  // });
+};
+
 /**
  * Takes acceptedFiles from Client input and turns a renderable grid
  *
@@ -27,40 +138,3 @@ const browser2state = (files: Blob[]) => {};
 
 // TAKES S3 LOCATION, STREAMS RENDERABLE APP STATE IN JSON FORMAT
 const s32state = (files: string) => {};
-
-import { HttpMethod } from 'types';
-
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { FileIngestor } from '@glyphx/fileingestion';
-import { IPayload } from '@glyphx/types/src/fileIngestion';
-
-export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
-  const fileStats = {
-    fileName: 'table1.csv',
-    tableName: 'table1',
-    numberOfRows: 100,
-    numberOfColumns: 10,
-    columns: [{ name: 'Column1', fieldType: '', longestString: 13 }],
-    fileSize: 2348,
-  };
-
-  const fileInfo = {
-    tableName: 'table1',
-    fielName: 'table1.csv',
-    operation: 'ADD',
-    fielStream: {},
-  };
-  const payload = {
-    clientId: '',
-    modelId: '',
-    bucketName: 'jpstestdatabase',
-    fileStats: [fileStats],
-    fileInfo: [fileInfo],
-  };
-
-  // @ts-ignore
-  const ingestor = new FileIngestor(payload, 'jpstestdatabase');
-  await ingestor.init();
-  const result = ingestor.process();
-  return res.status(200).json(result);
-};

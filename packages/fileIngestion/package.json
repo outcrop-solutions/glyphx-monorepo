@@ -2,14 +2,16 @@
   "name": "@glyphx/fileingestion",
   "version": "1.0.0",
   "description": "A Lambda Function for ingesting CSV files uploaded to an S3 Bucket.",
-  "main": "src/fileingestor.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
     "lint": "gts lint",
-    "clean": "rimraf .turbo node_modules build",
-    "build": "tsc",
+    "clean": "rimraf .turbo node_modules dist",
+    "build": "tsup",
     "fix": "gts fix",
     "start:dev": "ts-node src/index.ts",
     "docs": "npx typedoc",
@@ -23,6 +25,8 @@
     ]
   },
   "devDependencies": {
+    "tsup": "^5.11.13",
+    "@glyphx/tsconfig": "workspace:*",
     "@aws-sdk/types": "3.222.0",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "@glyphx/types": "workspace:*",
@@ -59,21 +63,10 @@
     "@aws-sdk/client-athena": "^3.223.0",
     "@aws-sdk/client-s3": "^3.223.0",
     "@aws-sdk/lib-storage": "^3.223.0",
-    "@glyphx/core": "workspace:*",
     "csv": "^6.2.2",
     "currency-symbol-map": "^5.1.0",
     "dotenv": "^16.0.3",
     "module-alias": "^2.2.2",
     "parquetjs": "^0.11.2"
-  },
-  "_moduleAliases": {
-    "@interfaces": "build/interfaces/index.js",
-    "@interfaces/fileProcessing": "interfaces/fileProcessing/index.js",
-    "@interfaces/fieldProcessing": "interfaces/fieldProcessing/index.js",
-    "@util": "build/util/index.js",
-    "@util/constants": "build/util/constants/index.js",
-    "@fileProcessing": "build/fileProcessing/index.js",
-    "@fieldProcessing": "build/fieldProcessing/index.js",
-    "@aws": "build/aws/index.js"
   }
 }

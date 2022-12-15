@@ -1,27 +1,33 @@
-export {default as IJoinTableDefinition} from './iJoinTableDefinition';
-export {default as IJoinTableColumnDefinition} from './iJoinTableColumnDefinition';
-export {default as IFieldDefinition} from './iFieldDefinition';
-export {IJoinProcessor, IConstructableJoinProcessor} from './iJoinProcessor';
-export {IQueryPlanner, IConstructableQueryPlanner} from './iQueryPlanner';
-export {
+export type {default as IJoinTableDefinition} from './iJoinTableDefinition';
+export type {default as IJoinTableColumnDefinition} from './iJoinTableColumnDefinition';
+export type {default as IFieldDefinition} from './iFieldDefinition';
+export type {
+  IJoinProcessor,
+  IConstructableJoinProcessor,
+} from './iJoinProcessor';
+export type {IQueryPlanner, IConstructableQueryPlanner} from './iQueryPlanner';
+export type {
   IColumnNameCleaner,
   IConstructableColumnNameCleaner,
 } from './iColumnNameCleaner';
 
-export {IFileInformation, FileInformationCallback} from './iFileInformation';
-export {
+export type {
+  IFileInformation,
+  FileInformationCallback,
+} from './iFileInformation';
+export type {
   IFileProcessingError,
   FileProcessingErrorHandler,
 } from './iFileProcessingError';
 
-export {
+export type {
   IViewQueryPlanner,
   IConstructableViewQueryPlanner,
 } from './iViewQueryPlanner';
 
-export {
+export type {
   ITableQueryPlanner,
   IConstructableTableQueryPlanner,
 } from './iTableQueryPlanner';
 
-export {ITableSorter, IConstructableTableSorter} from './iTableSorter';
+export type {ITableSorter, IConstructableTableSorter} from './iTableSorter';

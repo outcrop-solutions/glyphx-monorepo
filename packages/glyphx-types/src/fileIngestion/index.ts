@@ -1,5 +1,5 @@
 export * as constants from './constants';
-export {IColumn} from './iColumn';
-export {IFileStats} from './iFileStats';
-export {IFileInfo} from './iFileInfo';
-export {IPayload} from './iPayload';
+export type {IColumn} from './iColumn';
+export type {IFileStats} from './iFileStats';
+export type {IFileInfo} from './iFileInfo';
+export type {IPayload} from './iPayload';
