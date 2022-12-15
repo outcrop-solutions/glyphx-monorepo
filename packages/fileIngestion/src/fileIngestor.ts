@@ -1,5 +1,5 @@
 import {fileIngestion} from '@glyphx/types';
-import {error, streams, generalPurposeFunctions} from '@glyphx/core';
+import {error, streams, generalPurposeFunctions, aws} from '@glyphx/core';
 import {
   BasicAthenaProcessor,
   BasicFileTransformer,
@@ -7,7 +7,6 @@ import {
   BasicColumnNameCleaner,
 } from '@fileProcessing';
 import {BasicFieldTypeCalculator} from '@fieldProcessing';
-import {aws} from '@glyphx/core';
 import {Readable, PassThrough} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import * as csv from 'csv';
@@ -309,11 +308,11 @@ export class FileIngestor {
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: IFileInformation[] = [];
     if (needsViewUpdates) {
-       const  reconFileInformation = this.reconcileFileInformation();
-       fileInfoForReturn = reconFileInformation.allFiles;
+      const reconFileInformation = this.reconcileFileInformation();
+      fileInfoForReturn = reconFileInformation.allFiles;
       joinInformation = (await this.basicAthenaProcessor?.processTables(
         this.getViewName(),
-       reconFileInformation.accumFiles
+        reconFileInformation.accumFiles
       )) as IJoinTableDefinition[];
     }
     return {
@@ -322,72 +321,83 @@ export class FileIngestor {
       joinInformation: joinInformation,
     };
   }
-  private reconcileFileInformation(): {allFiles: IFileInformation[], accumFiles: IFileInformation[]} {
-         const fileInfos: IFileInformation[] = [];
+  private reconcileFileInformation(): {
+    allFiles: IFileInformation[];
+    accumFiles: IFileInformation[];
+  } {
+    const fileInfos: IFileInformation[] = [];
 
+    this.fileInfo.forEach(f => {
+      if (f.operation === fileIngestion.constants.FILE_OPERATION.DELETE) return;
+      const fileStats =
+        this.processedFileInformation.find(
+          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+        ) ||
+        (this.fileStatistics.find(
+          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+        ) as unknown as IFileInformation);
+      fileInfos.push(fileStats);
+    });
 
-	 this.fileInfo.forEach( f => {
-	   if( f.operation === fileIngestion.constants.FILE_OPERATION.DELETE ) return;
-	   const fileStats = this.processedFileInformation.find( fi => fi.tableName === f.tableName && fi.fileName === f.fileName ) || 
-		   
-		   this.fileStatistics.find( fi => fi.tableName === f.tableName && fi.fileName === f.fileName ) as unknown as IFileInformation
-	   fileInfos.push(fileStats);
-	 });
+    this.fileStatistics.forEach(f => {
+      const fInfo = f as unknown as IFileInformation;
+      if (
+        !fileInfos.find(
+          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+        )
+      ) {
+        //these are essentially no-ops for the Athena Proceser.  This will make sure that they are included in the view, but the table wwill not be regenerated.
+        fInfo.fileOperationType = fileIngestion.constants.FILE_OPERATION.APPEND;
+        fileInfos.push(fInfo);
+      }
+    });
 
-	 this.fileStatistics.forEach(f => {
+    const groupedByTable = fileInfos.reduce((group, fileInfo) => {
+      const {tableName} = fileInfo;
+      const fullTableName = this.getFullTableName(tableName);
+      group[fullTableName] = group[fullTableName] ?? [];
+      group[fullTableName].push(fileInfo);
+      return group;
+    }, {} as Record<string, IFileInformation[]>);
 
-		 const fInfo = f as unknown as IFileInformation;
-		if( !fileInfos.find( fi => fi.tableName === f.tableName && fi.fileName === f.fileName ) ) {
-			//these are essentially no-ops for the Athena Proceser.  This will make sure that they are included in the view, but the table wwill not be regenerated.
-			fInfo.fileOperationType = fileIngestion.constants.FILE_OPERATION.APPEND;
-			fileInfos.push(fInfo);
-		}
-	 });
+    const retval: IFileInformation[] = [];
 
-	const groupedByTable =  fileInfos.reduce((group, fileInfo) => {
-  const { tableName } = fileInfo;
-  const   fullTableName = this.getFullTableName(tableName)
-  group[fullTableName] = group[fullTableName] ?? [];
-  group[fullTableName].push(fileInfo);
-  return group;
-}, {} as Record<string, IFileInformation[]>); 
+    for (const key in groupedByTable) {
+      const mappedData = groupedByTable[key].reduce(
+        (accum, g) => {
+          accum.numberOfRows += g.numberOfRows;
+          accum.fileSize += g.fileSize;
+          if (
+            accum.numberOfColumns === 0 ||
+            g.fileOperationType > accum.fileOperationType
+          ) {
+            accum.numberOfColumns = g.numberOfColumns;
+            accum.columns = g.columns;
+            accum.fileOperationType = g.fileOperationType;
+          }
 
-	const retval: IFileInformation[] = [];
+          if (!accum.outputFileDirecotry)
+            accum.outputFileDirecotry = g.outputFileDirecotry;
 
-	for( const key in groupedByTable ) {
-	    const mappedData = groupedByTable[key].reduce( (accum, g) => {
+          return accum;
+        },
+        {
+          tableName: key,
+          fileName: '', //Doesn't matter in this context
+          parquetFileName: '', //Doesn't matter in this context
+          outputFileDirecotry: '', //Will get set above
+          numberOfRows: 0,
+          numberOfColumns: 0,
+          columns: [],
+          fileSize: 0,
+          fileOperationType: fileIngestion.constants.FILE_OPERATION.DELETE,
+        } as IFileInformation
+      );
 
-		accum.numberOfRows+= g.numberOfRows;
-		accum.fileSize += g.fileSize;
-		if( accum.numberOfColumns === 0 || g.fileOperationType > accum.fileOperationType) {
-			accum.numberOfColumns = g.numberOfColumns;
-			accum.columns = g.columns;
-			accum.fileOperationType = g.fileOperationType
-		}
+      retval.push(mappedData);
+    }
 
-		if( ! accum.outputFileDirecotry )
-			accum.outputFileDirecotry = g.outputFileDirecotry;
-
-		return accum;
-	    }, {
-		    tableName: key,
-  		    fileName: "",   //Doesn't matter in this context 
-                    parquetFileName: "", //Doesn't matter in this context
-                    outputFileDirecotry: "", //Will get set above
-                    numberOfRows: 0,
-                    numberOfColumns: 0,
-                    columns: [],
-                    fileSize: 0,
-                    fileOperationType: fileIngestion.constants.FILE_OPERATION.DELETE
-
-	    } as IFileInformation );	
-
-	    retval.push(mappedData);
-	}
-
-
-	return {allFiles:fileInfos, accumFiles:  retval};
-
+    return {allFiles: fileInfos, accumFiles: retval};
   }
 
   private async processFiles(): Promise<boolean> {
