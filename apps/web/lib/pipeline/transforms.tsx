@@ -1,11 +1,90 @@
+import { IColumn, IFileStats } from '@glyphx/types/src/fileIngestion';
 import { Operation, FieldType, Column, FileStats, FileData, Payload } from './types';
+import { _Object } from '@aws-sdk/client-s3';
+
+interface IFileSystemItem {
+  id: number;
+  parent: number;
+  droppable: boolean;
+  text: string;
+  data: {
+    fileType: string;
+    fileSize: string;
+  };
+}
+
+type ListObjectsCommandOutputContent = _Object;
+interface S3ProviderListOutputItem {
+  key: ListObjectsCommandOutputContent['Key'];
+  eTag: ListObjectsCommandOutputContent['ETag'];
+  lastModified: ListObjectsCommandOutputContent['LastModified'];
+  size: ListObjectsCommandOutputContent['Size'];
+}
+
+interface S3ProviderListOutput {
+  results: S3ProviderListOutputItem[];
+  nextToken?: string;
+  hasNextToken: boolean;
+}
+
+/**
+ * Creates new filesystem state for frontend
+ * @param acceptedFiles
+ * @param {IFileSystemItem}
+ * @returns {IFileSystemItem[] | any[]}
+ */
+
+export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | null): IFileSystemItem[] | any[] => {
+  let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
+    // @ts-ignore
+    id: idx + fileSystem.length + 1,
+    parent: 0,
+    droppable: false,
+    text: name,
+    data: {
+      fileType: type,
+      fileSize: size,
+    },
+  }));
+
+  return [...(Array.isArray(fileSystem) ? fileSystem : []), ...(Array.isArray(newData) ? newData : [])];
+};
+
+/**
+ * Pipes S3 bucket contents into filesystem state
+ * @param {S3ProviderListOutput}
+ * @returns {[]}
+ */
+export const createFileSystemOnDownload = (s3Directory: S3ProviderListOutput, projectId: string): IFileSystemItem[] | any[] => {
+  const files = {};
+
+  const add = (source, target, item) => {
+    const elements = source.split('/');
+    const element = elements.shift();
+    if (!element) return; // blank
+    target[element] = target[element] || { __data: item }; // element;
+    if (elements.length) {
+      target[element] = typeof target[element] === 'object' ? target[element] : {};
+      add(elements.join('/'), target[element], item);
+    }
+  };
+  
+  if (Array.isArray(s3Directory)) {
+    s3Directory.forEach((item) => add(item.key, files, item));
+  }
+  if(Object.keys(files).length !== 0){ // if empty then return empty array
+  const fileList = Object.keys(files[`${projectId}`].input);
+  
+  return createFileSystem(fileList, null)
+};
 
 /**
  * Determines column types from array ArrayBuffer
  * @param fileArrayBuffer
  * @returns {Column[]}
  */
-export const determineColumnTypes = (fileArrayBuffer: ArrayBuffer): Column[] => {
+
+export const determineColumnTypes = (fileArrayBuffer: ArrayBuffer): IColumn[] => {
   const cols = [
     {
       name: 'col1',
@@ -43,18 +122,14 @@ export const determineColumnTypes = (fileArrayBuffer: ArrayBuffer): Column[] => 
 
 export const determineTableName = (fileName: string) => {};
 
+
 /**
- * Creates file statistics from ArrayBuffer
+ * Calculates file statistics from ArrayBuffer
  * @param ReadableStream
- * @returns {FileStats}
+ * @returns {IFileStats}
  */
-export const calculateStats = (): FileStats => {
-  return {
-    fileName: 'table1.csv',
-    numberOfRows: 4,
-    numberOfColumns: 100,
-    columns: [],
-  };
+export const calculateStats = (): IFileStats => {
+  return;
 };
 
 /**
@@ -83,7 +158,7 @@ export const addFileToTableSet = () => {};
 export const storeProgress = () => {};
 
 /**
- * Stores file streaming progress if incomplete
+ *
  * @param percent
  * @returns {void}
  */
@@ -91,43 +166,7 @@ export const createPayload = (): Payload => {
   return;
 };
 
-/**
- * Sends file statistics, model information, and readable stream to backend for processing.
- * @param percent
- * @returns {void}
- */
-export const processFile = async (modelId, bucketName, stats, fileData): void => {
-  const stream = new ReadableStream({
-    start(controller) {
-      interval = setInterval(() => {
-        let string = 'fileData';
-        // Add the string to the stream
-        controller.enqueue(string);
-        // show it on the screen
-      }, 1000);
 
-      button.addEventListener('click', function () {
-        clearInterval(interval);
-        readStream();
-        controller.close();
-      });
-    },
-    pull(controller) {
-      // We don't really need a pull in this example
-    },
-    cancel() {
-      // This is called if the reader cancels,
-      // so we should stop generating strings
-      clearInterval(interval);
-    },
-  });
-
-  fetch(`/newFile`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: stream,
-  });
-};
 
 export const hexToRGB = (h) => {
   let r = '';

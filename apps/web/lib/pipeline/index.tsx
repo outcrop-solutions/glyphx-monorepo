@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { FileIngestor } from '@glyphx/fileingestion';
+import { BasicFieldTypeCalculator, FileIngestor } from '@glyphx/fileingestion';
 import { aws } from '@glyphx/core';
 
 import { IPayload } from '@glyphx/types/src/fileIngestion';
@@ -19,7 +19,14 @@ export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse)
   const file = await s3Client.getFileInformation(objects[0]);
   console.log({ file });
   const stream = await s3Client.getObjectStream(file.fileName);
-  console.log({ stream });
+  // console.log({ stream });
+
+  // const fieldCalculator = new BasicFieldTypeCalculator('col2', 1, 1);
+
+  // fieldCalculator.processItems(stream);
+  // stream.once('end', () => {
+  //   console.log({ fieldCalculator });
+  // });
   const fileStats = {
     fileName: 'testing.csv',
     tableName: 'testing',
@@ -52,9 +59,9 @@ export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse)
   await ingestor.init();
 
   const result = await ingestor.process();
-  console.log({ result });
-  return res.status(200).json({ result });
-  // return res.status(200).json({ ok: true });
+  // console.log({ type: fieldCalculator.fieldType });
+  // return res.status(200).json({ fieldCalculator });
+  return res.status(200).json({ ok: true });
 };
 
 const RESOURCE_URL =
