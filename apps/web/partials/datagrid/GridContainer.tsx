@@ -1,7 +1,7 @@
 import { rowsSelector, columnsSelector } from '@/state/files';
 import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { AddFiles } from '../files';
+import { MainDropzone } from '../files';
 import { Datagrid } from './DataGrid';
 import { ModelFooter } from './ModelFooter';
 import { GridHeader } from 'partials';
@@ -190,7 +190,7 @@ export const GridContainer = ({ isDropped }) => {
           )}
         </>
       ) : (
-        <AddFiles />
+        <MainDropzone />
       )}
     </>
   );

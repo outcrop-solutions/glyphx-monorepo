@@ -1,6 +1,6 @@
-import { Storage } from "aws-amplify";
-import { formatGridData } from "partials";
-import { parse } from "papaparse";
+import { Storage } from 'aws-amplify';
+import { formatGridData } from 'partials';
+import { parse } from 'papaparse';
 import {
   fileSystemAtom,
   selectedFileAtom,
@@ -8,8 +8,17 @@ import {
   dataGridLoadingAtom,
   filesOpenAtom,
   projectIdAtom,
-} from "../state";
-import { useSetRecoilState, useRecoilState, useRecoilValue } from "recoil";
+  selectedProjectSelector,
+} from '../state';
+import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
+import { useCallback, useState } from 'react';
+import { createFileSystem } from '@/partials/files/transforms';
+import { postUploadCall } from './ETLCalls';
+import { updateProjectInfo } from './GraphQLCalls';
+
+const cleanTableName = (fileName) => {
+  return fileName.split('.')[0].trim().toLowerCase();
+};
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -22,14 +31,60 @@ import { useSetRecoilState, useRecoilState, useRecoilValue } from "recoil";
  */
 
 export const useFileSystem = () => {
-  const setFileSystem = useSetRecoilState(fileSystemAtom);
+  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
   const projectId = useRecoilValue(projectIdAtom);
   const [filesOpen, setFilesOpen] = useRecoilState(filesOpenAtom);
   const [selectedFile, setSelectedFile] = useRecoilState(selectedFileAtom);
   const setDataGrid = useSetRecoilState(dataGridAtom);
   const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
+  const project = useRecoilValue(selectedProjectSelector);
+  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
+
+  const onDrop = useCallback(
+    async (acceptedFiles) => {
+      setDataGridState(true);
+      //update file system state with processed data
+      let newData = createFileSystem(acceptedFiles, fileSystem);
+      setFileSystem([...(Array.isArray(newData) ? newData : [])]);
+
+      acceptedFiles.forEach(async (file: File) => {
+        console.log({ file });
+        // format data grid to render
+        const text = await file.text();
+        const { data } = parse(text, { header: true });
+        const grid = formatGridData(data);
+        setDataGrid(grid);
+        setFilesOpen((prev) => [...prev, file.name]);
+        setSelectedFile(file.name);
+
+        // send stream to file ingestion
+        const stream = await file.stream();
+
+        // const options: RequestInit = {
+        //   method: 'POST',
+        //   body: stream,
+        //   duplex: 'half',
+        // };
+
+        // const input = `/api/file-ingest?fileName=${encodeURIComponent(file.name)}`;
+
+        // const req = new Request(input, options);
+        // const formData = new FormData();
+        // formData.append('projectId', projectId);
+        // formData.append('file', file);
+        // const result = await fetch(req);
+        //
+      });
+
+      // add to filesystem state
+      // upload files to S3
+    },
+    // [setFileSystem, project, fileSystem, setDataGrid]
+    []
+  );
 
   return {
+    onDrop,
     setFiles: (arg) => {
       console.log({ arg });
       setFileSystem((prev) => {
@@ -99,12 +154,9 @@ export const useFileSystem = () => {
       if (newFilesOpen.length > 0) {
         setSelectedFile(newFilesOpen[newFilesOpen.length - 1]);
         setDataGridLoading(true);
-        const fileData = await Storage.get(
-          `${projectId}/input/${newFilesOpen[newFilesOpen.length - 1]}`,
-          {
-            download: true,
-          }
-        );
+        const fileData = await Storage.get(`${projectId}/input/${newFilesOpen[newFilesOpen.length - 1]}`, {
+          download: true,
+        });
         // @ts-ignore
         const blobData = await fileData.Body.text();
         const { data } = parse(blobData, { header: true });
@@ -113,13 +165,13 @@ export const useFileSystem = () => {
         setDataGrid(grid);
       } else {
         setDataGridLoading(false);
-        setSelectedFile("");
+        setSelectedFile('');
         setDataGrid({ rows: [], columns: [] });
       }
     },
     clearFiles: async () => {
       setDataGrid({ columns: [], rows: [] });
-      setSelectedFile("");
+      setSelectedFile('');
       setFilesOpen([]);
       setFileSystem([]);
     },

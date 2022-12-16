@@ -1,6 +1,6 @@
 import { IColumn, IFileStats } from '@glyphx/types/src/fileIngestion';
-import { Operation, FieldType, Column, FileStats, FileData, Payload } from './types';
 import { _Object } from '@aws-sdk/client-s3';
+import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 
 interface IFileSystemItem {
   id: number;
@@ -27,8 +27,22 @@ interface S3ProviderListOutput {
   hasNextToken: boolean;
 }
 
+type GridColumn = {
+  key: string;
+  dataType: FIELD_TYPE;
+  name: string;
+  width: number;
+  resizable: boolean;
+  sortable: boolean;
+};
+
+interface RenderableDataGrid {
+  columns: GridColumn[];
+  rows: any[];
+}
+
 /**
- * Creates new filesystem state for frontend
+ * Takes array of file names and reshapes them into renderable filesystem state
  * @param acceptedFiles
  * @param {IFileSystemItem}
  * @returns {IFileSystemItem[] | any[]}
@@ -51,11 +65,14 @@ export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | 
 };
 
 /**
- * Pipes S3 bucket contents into filesystem state
+ * Takes S3 bucket contents and reshapes them into renderable filesystem state
  * @param {S3ProviderListOutput}
  * @returns {[]}
  */
-export const createFileSystemOnDownload = (s3Directory: S3ProviderListOutput, projectId: string): IFileSystemItem[] | any[] => {
+export const createFileSystemFromS3 = (
+  s3Directory: S3ProviderListOutput,
+  projectId: string
+): IFileSystemItem[] | any[] => {
   const files = {};
 
   const add = (source, target, item) => {
@@ -68,14 +85,42 @@ export const createFileSystemOnDownload = (s3Directory: S3ProviderListOutput, pr
       add(elements.join('/'), target[element], item);
     }
   };
-  
+
   if (Array.isArray(s3Directory)) {
     s3Directory.forEach((item) => add(item.key, files, item));
   }
-  if(Object.keys(files).length !== 0){ // if empty then return empty array
-  const fileList = Object.keys(files[`${projectId}`].input);
-  
-  return createFileSystem(fileList, null)
+  if (Object.keys(files).length !== 0) {
+    // if empty then return empty array
+    const fileList = Object.keys(files[`${projectId}`].input);
+
+    return createFileSystem(fileList, null);
+  }
+};
+
+/**
+ * Takes in a papaparsed file data and returns the rendarable grid state
+ * @param {File}
+ * @returns {RenderableDataGrid}
+ */
+export const formatGridData = (data): RenderableDataGrid => {
+  const colNames = Object.keys(data[0]);
+
+  let columns = colNames.map((item, idx) => {
+    const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
+    return {
+      key: item,
+      dataType: !isNaN(parseInt(data[0][item])) ? FIELD_TYPE.NUMBER : FIELD_TYPE.STRING,
+      name: capitalized,
+      width: 120,
+      resizable: true,
+      sortable: true,
+    };
+  });
+  // Generates first column
+  // @ts-ignore
+  columns.unshift({ key: 'id', name: '', width: 40, resizable: true });
+  let rows = data.map((row, idx) => ({ ...row, id: idx }));
+  return { columns, rows };
 };
 
 /**
@@ -122,7 +167,6 @@ export const determineColumnTypes = (fileArrayBuffer: ArrayBuffer): IColumn[] =>
 
 export const determineTableName = (fileName: string) => {};
 
-
 /**
  * Calculates file statistics from ArrayBuffer
  * @param ReadableStream
@@ -162,11 +206,9 @@ export const storeProgress = () => {};
  * @param percent
  * @returns {void}
  */
-export const createPayload = (): Payload => {
+export const createPayload = () => {
   return;
 };
-
-
 
 export const hexToRGB = (h) => {
   let r = '';
@@ -201,7 +243,7 @@ export const formatThousands = (value) =>
 /**
  * FORMAT COLUMN HEADER TO MATCH ATHENA TABLE
  * @param header
- * @returns
+ * @returns {string}
  */
 export const formatColumnHeader = (header) => {
   let value = header;

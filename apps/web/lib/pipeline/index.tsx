@@ -9,16 +9,20 @@ import { S3_BUCKET_NAME } from 'constants/config';
 import { FIELD_TYPE, FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 
 export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
-  const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
-  console.log({ s3Client });
-  await s3Client.init();
-  const objects = await s3Client.listObjects('table1/Table1.csv');
-  console.log({ objects });
-  // TODO: Get S3 location from Dynamo table using projectId
-  // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
-  const file = await s3Client.getFileInformation(objects[0]);
-  console.log({ file });
-  const stream = await s3Client.getObjectStream(file.fileName);
+  const stream = req.body;
+  // const file = req.body;
+  // console.log({ name, size, projectId, file });
+  console.log({ stream });
+  // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
+  // console.log({ s3Client });
+  // await s3Client.init();
+  // const objects = await s3Client.listObjects('table1/Table1.csv');
+  // console.log({ objects });
+  // // TODO: Get S3 location from Dynamo table using projectId
+  // // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
+  // const file = await s3Client.getFileInformation(objects[0]);
+  // console.log({ file });
+  // const stream = await s3Client.getObjectStream(file.fileName);
   // console.log({ stream });
 
   // const fieldCalculator = new BasicFieldTypeCalculator('col2', 1, 1);
@@ -27,38 +31,38 @@ export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse)
   // stream.once('end', () => {
   //   console.log({ fieldCalculator });
   // });
-  const fileStats = {
-    fileName: 'testing.csv',
-    tableName: 'testing',
-    numberOfRows: 100,
-    numberOfColumns: 4,
-    columns: [
-      { name: 'col1', fieldType: FIELD_TYPE.NUMBER, longestString: undefined },
-      { name: 'col2', fieldType: FIELD_TYPE.STRING, longestString: 2 },
-      { name: 'col3', fieldType: FIELD_TYPE.STRING, longestString: 13 },
-      { name: 'col4', fieldType: FIELD_TYPE.NUMBER, longestString: undefined },
-    ],
-    fileSize: file.fileSize,
-  };
+  // const fileStats = {
+  //   fileName: name,
+  //   tableName: name.split('.')[0],
+  //   numberOfRows: 100,
+  //   numberOfColumns: 4,
+  //   columns: [
+  //     { name: 'col1', fieldType: FIELD_TYPE.NUMBER, longestString: undefined },
+  //     { name: 'col2', fieldType: FIELD_TYPE.STRING, longestString: 2 },
+  //     { name: 'col3', fieldType: FIELD_TYPE.STRING, longestString: 13 },
+  //     { name: 'col4', fieldType: FIELD_TYPE.NUMBER, longestString: undefined },
+  //   ],
+  //   fileSize: size,
+  // };
 
-  const fileInfo = {
-    fileName: 'testing.csv',
-    tableName: 'testing',
-    operation: FILE_OPERATION.ADD,
-    fileStream: stream,
-  };
-  const payload = {
-    clientId: 'clientIdTest',
-    modelId: 'modelIdTest',
-    bucketName: `${S3_BUCKET_NAME}`,
-    fileStats: [fileStats],
-    fileInfo: [fileInfo],
-  };
+  // const fileInfo = {
+  //   fileName: name,
+  //   tableName: name.split('.')[0],
+  //   operation: FILE_OPERATION.ADD,
+  //   fileStream: stream,
+  // };
+  // const payload = {
+  //   clientId: 'orgId_123456',
+  //   modelId: `modelId_${projectId}`,
+  //   bucketName: `${S3_BUCKET_NAME}`,
+  //   fileStats: [fileStats],
+  //   fileInfo: [fileInfo],
+  // };
 
-  const ingestor = new FileIngestor(payload as IPayload, 'jpstestdatabase');
-  await ingestor.init();
+  // const ingestor = new FileIngestor(payload as IPayload, 'jpstestdatabase');
+  // await ingestor.init();
 
-  const result = await ingestor.process();
+  // const result = await ingestor.process();
   // console.log({ type: fieldCalculator.fieldType });
   // return res.status(200).json({ fieldCalculator });
   return res.status(200).json({ ok: true });

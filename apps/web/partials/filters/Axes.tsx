@@ -11,6 +11,7 @@ import { DeleteFilter } from './actions/DeleteFilter';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { propertiesAtom } from '@/state/properties';
 import { filtersAppliedAtom } from '@/state/filters';
+import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 
 export const Axes = ({ axis, lastDroppedItem }) => {
   const setProperties = useSetRecoilState(propertiesAtom);
@@ -166,7 +167,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
       </li>
       {/* filtering dropdown */}
       {isFilter && lastDroppedItem ? (
-        lastDroppedItem.dataType === 'number' ? (
+        lastDroppedItem.dataType === FIELD_TYPE.NUMBER ? (
           <RangeFilter setVisible={setIsFilter} lastDroppedItem={lastDroppedItem} />
         ) : (
           <SearchFilter lastDroppedItem={lastDroppedItem} />
