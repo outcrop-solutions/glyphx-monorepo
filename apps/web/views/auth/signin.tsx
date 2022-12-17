@@ -3,15 +3,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Auth } from 'aws-amplify';
 import React from 'react';
-import { userAtom } from '@/state/user';
-import { useSetRecoilState } from 'recoil';
 
 export default function Signin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
-
-  const setUser = useSetRecoilState(userAtom);
 
   const router = useRouter();
   const handleUname = (e) => {
@@ -23,21 +19,17 @@ export default function Signin() {
   };
   const signIn = async () => {
     try {
-      const user = await Auth.signIn(username, password);
+      await Auth.signIn(username, password);
       //on succfull log in
-      console.log({ user });
       router.push('/');
     } catch (error) {
       setError(error.message);
       setTimeout(() => {
         setError(false);
       }, 5000);
-      console.log('error on signin page' + error);
-      // setIsLoggedIn(false);
     }
   };
   return (
-    // TODO: @Johnathan I fixed the width and centering of the form here
     <div className="flex h-full items-center justify-center w-full scrollbar-none bg-secondary-midnight">
       {/* Content */}
       <div className="flex flex-col justify-center px-4 py-8 w-96 min-h-56">
@@ -85,7 +77,6 @@ export default function Signin() {
               </Link>
             </div>
           </div>
-
           {/* Footer */}
           <div className="flex flex-row items-center justify-between">
             <div className="font-roboto font-normal text-[10px] leading-[12px] text-gray">
@@ -112,7 +103,6 @@ export default function Signin() {
           </div>
         ) : null}
       </div>
-      {/* </div> */}
     </div>
   );
 }

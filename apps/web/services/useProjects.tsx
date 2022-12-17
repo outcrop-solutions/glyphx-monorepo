@@ -1,11 +1,11 @@
-import { useCallback, useEffect } from "react";
-import { API, graphqlOperation, Auth } from "aws-amplify";
-import Router, { useRouter } from "next/router";
-import { listProjects } from "graphql/queries";
-import sortArray from "sort-array";
-import { ListProjectsQuery } from "API";
-import { useSetRecoilState } from "recoil";
-import { projectsAtom } from "../state";
+import { useCallback, useEffect } from 'react';
+import { API, graphqlOperation, Auth } from 'aws-amplify';
+import Router, { useRouter } from 'next/router';
+import { listProjects } from 'graphql/queries';
+import sortArray from 'sort-array';
+import { ListProjectsQuery } from 'API';
+import { useSetRecoilState } from 'recoil';
+import { projectsAtom } from '../state';
 
 /**
  * Utility for interfacing with the Projects class
@@ -26,8 +26,8 @@ export const useProjects = () => {
         (el) => el?.shared?.includes(user.username) || el.author === user.id
       );
       let sorted = sortArray(filtered, {
-        by: "updatedAt",
-        order: "desc",
+        by: 'updatedAt',
+        order: 'desc',
       });
 
       setProjects((prev) => {
@@ -35,12 +35,10 @@ export const useProjects = () => {
         return newData;
       });
     } catch (error) {
-      console.log("error on fetching projects", error);
-      router.push("/auth/signIn");
+      router.push('/auth/signIn');
     }
   }, []);
-  useEffect(()=>{
+  useEffect(() => {
     fetchProjects();
-  },[])
-  
+  }, []);
 };

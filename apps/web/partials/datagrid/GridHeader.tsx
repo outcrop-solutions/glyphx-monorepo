@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { filesOpenAtom } from "@/state/files";
+import { filesOpenAtom } from "state/files";
 import { useRecoilValue } from "recoil";
 import { FileTab } from "./FileTab";
 // import { PlusIcon } from "@heroicons/react/solid";

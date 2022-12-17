@@ -1,6 +1,7 @@
+import { useCallback } from 'react';
 import { Storage } from 'aws-amplify';
-import { formatGridData } from 'partials';
 import { parse } from 'papaparse';
+import { formatGridData } from 'partials';
 import {
   fileSystemAtom,
   selectedFileAtom,
@@ -11,10 +12,7 @@ import {
   selectedProjectSelector,
 } from '../state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { useCallback, useState } from 'react';
-import { createFileSystem } from '@/partials/files/transforms';
-import { postUploadCall } from './ETLCalls';
-import { updateProjectInfo } from './GraphQLCalls';
+import { createFileSystem } from 'partials/files/transforms';
 
 const cleanTableName = (fileName) => {
   return fileName.split('.')[0].trim().toLowerCase();
@@ -48,7 +46,6 @@ export const useFileSystem = () => {
       setFileSystem([...(Array.isArray(newData) ? newData : [])]);
 
       acceptedFiles.forEach(async (file: File) => {
-        console.log({ file });
         // format data grid to render
         const text = await file.text();
         const { data } = parse(text, { header: true });
@@ -58,21 +55,20 @@ export const useFileSystem = () => {
         setSelectedFile(file.name);
 
         // send stream to file ingestion
-        const stream = await file.stream();
+        const stream = new ReadableStream({
+          start(controller) {
+            controller.enqueue('Hello');
+          },
+        });
+        // const stream = await file.stream();
+        try {
+          fetch(`api/file-ingest`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: stream.pipeThrough(new TextEncoderStream()),
+          });
+        } catch (error) {}
 
-        // const options: RequestInit = {
-        //   method: 'POST',
-        //   body: stream,
-        //   duplex: 'half',
-        // };
-
-        // const input = `/api/file-ingest?fileName=${encodeURIComponent(file.name)}`;
-
-        // const req = new Request(input, options);
-        // const formData = new FormData();
-        // formData.append('projectId', projectId);
-        // formData.append('file', file);
-        // const result = await fetch(req);
         //
       });
 
@@ -80,20 +76,17 @@ export const useFileSystem = () => {
       // upload files to S3
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
-    []
+    [setFileSystem, project, fileSystem, setDataGrid]
   );
 
   return {
     onDrop,
     setFiles: (arg) => {
-      console.log({ arg });
       setFileSystem((prev) => {
-        console.log({ hookset: [...prev, ...arg] });
         return [...prev, ...arg];
       });
     },
     openFile: async (arg) => {
-      console.log({ arg });
       // if already in filesOpn && selected, do nothing
       // if in filesOpen && not selected, select and add to datagrid
       // if not in filesOpn && not selected, add to filesOpn && select && add to dataGrid
@@ -147,8 +140,6 @@ export const useFileSystem = () => {
       setDataGrid(grid);
     },
     closeFile: async (arg) => {
-      console.log({ arg });
-
       let newFilesOpen = [...filesOpen.filter((el) => el !== arg)];
       setFilesOpen(newFilesOpen);
       if (newFilesOpen.length > 0) {

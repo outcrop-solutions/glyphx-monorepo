@@ -23,31 +23,23 @@ export default function ResetPassword() {
   };
   const handleResetPassword = async () => {
     try {
-      const data = await Auth.forgotPassword(email);
+      await Auth.forgotPassword(email);
       setIsCodeSent(true);
-    } catch (error) {
-      console.log({ error });
-    }
+    } catch (error) {}
   };
   const handleSubmitCode = async () => {
     try {
       const result = await Auth.forgotPasswordSubmit(email, code, newPass);
-      console.log({ result });
       if (result === 'SUCCESS') {
         // if successfull navigate to sign in
         router.push('/auth/signIn');
       }
     } catch (error) {
-      console.log({ error });
       setErrorMessage(error.message);
       setTimeout(() => {
         setErrorMessage(false);
       }, 5000);
     }
-  };
-
-  const handleBack = () => {
-    router.push('/auth/signIn');
   };
 
   return (

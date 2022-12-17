@@ -1,52 +1,50 @@
-import React, { Fragment, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { FolderIcon, UserCircleIcon, XIcon } from "@heroicons/react/outline";
-import { CheckIcon, PencilIcon, PlusSmIcon } from "@heroicons/react/solid";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { updateProject } from "graphql/mutations";
-import { API, graphqlOperation } from "aws-amplify";
+import React, { Fragment, useState } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { FolderIcon, UserCircleIcon, XIcon } from '@heroicons/react/outline';
+import { CheckIcon, PencilIcon, PlusSmIcon } from '@heroicons/react/solid';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { updateProject } from 'graphql/mutations';
+import { API, graphqlOperation } from 'aws-amplify';
 
-import { useRecoilState, useRecoilValue } from "recoil";
-import { projectDetailsAtom } from "@/state/project";
-import {userAtom } from "@/state/user";
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { projectDetailsAtom } from 'state/project';
+import { userAtom } from 'state/user';
 
 const tabs = [
-  { name: "Info", href: "#", current: true },
-  { name: "Activity", href: "#", current: false },
+  { name: 'Info', href: '#', current: true },
+  { name: 'Activity', href: '#', current: false },
 ];
 function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(' ');
 }
 export const ProjectDetails = () => {
-  const [projectDetails, setProjectDetails] = useRecoilState(
-    projectDetailsAtom
-  );
+  const [projectDetails, setProjectDetails] = useRecoilState(projectDetailsAtom);
   const user = useRecoilValue(userAtom);
 
   const [open, setOpen] = useState(true);
   const [name, setName] = useState(projectDetails.name);
   const [description, setDescription] = useState(projectDetails.description);
-  const [members, setMembers] = useState("");
+  const [members, setMembers] = useState('');
   const [chips, setChips] = useState(projectDetails.shared);
   const [msg, setMsg] = useState(null);
   const [error, setError] = useState(null);
   const [editShare, setEditShare] = useState(false);
   const [editTitle, setEditTitle] = useState(false);
   const [editDesc, setEditDesc] = useState(false);
-  
+
   dayjs.extend(relativeTime);
 
   const handleChip = () => {
     setChips((prev) => {
-      setMembers("");
+      setMembers('');
       return [...prev, members];
     });
   };
   const handleDelete = (item) => {
     //@ts-ignore
     if (item === user.username) {
-      setError("Cannot remove project author.");
+      setError('Cannot remove project author.');
       setTimeout(() => {
         setError(false);
       }, 3000);
@@ -69,11 +67,9 @@ export const ProjectDetails = () => {
     setEditTitle(false);
     setEditShare(false);
     try {
-      const result = await API.graphql(
-        graphqlOperation(updateProject, { input: updateProjectInput })
-      );
+      const result = await API.graphql(graphqlOperation(updateProject, { input: updateProjectInput }));
 
-      setMsg("Successfully Saved!");
+      setMsg('Successfully Saved!');
       setTimeout(() => {
         setMsg(false);
       }, 3000);
@@ -82,17 +78,12 @@ export const ProjectDetails = () => {
       setTimeout(() => {
         setError(false);
       }, 3000);
-      console.log({ error });
     }
   };
 
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog
-        as="div"
-        className="fixed z-60 scrollbar-none inset-0 overflow-hidden"
-        onClose={setOpen}
-      >
+      <Dialog as="div" className="fixed z-60 scrollbar-none inset-0 overflow-hidden" onClose={setOpen}>
         <div className="absolute inset-0 overflow-hidden">
           <Transition.Child
             as={Fragment}
@@ -170,10 +161,7 @@ export const ProjectDetails = () => {
                           {editTitle ? (
                             <CheckIcon className="h-6 w-6" />
                           ) : (
-                            <PencilIcon
-                              className="h-6 w-6"
-                              aria-hidden="true"
-                            />
+                            <PencilIcon className="h-6 w-6" aria-hidden="true" />
                           )}
                           <span className="sr-only">Favorite</span>
                         </button>
@@ -191,34 +179,25 @@ export const ProjectDetails = () => {
 
                       <div>
                         <div className="block mb-2">
-                          <nav
-                            className="relative z-0 rounded-lg shadow flex divide-x divide-gray"
-                            aria-label="Tabs"
-                          >
+                          <nav className="relative z-0 rounded-lg shadow flex divide-x divide-gray" aria-label="Tabs">
                             {tabs.map((tab, tabIdx) => (
                               <a
                                 key={tab.name}
                                 href={tab.href}
                                 className={classNames(
-                                  tab.current
-                                    ? "text-white"
-                                    : "text-gray hover:text-gray",
-                                  tabIdx === 0 ? "rounded-l-lg" : "",
-                                  tabIdx === tabs.length - 1
-                                    ? "rounded-r-lg"
-                                    : "",
-                                  "group relative min-w-0 flex-1 overflow-hidden bg-gray py-2 px-3 text-sm font-medium text-center hover:bg-gray focus:z-10"
+                                  tab.current ? 'text-white' : 'text-gray hover:text-gray',
+                                  tabIdx === 0 ? 'rounded-l-lg' : '',
+                                  tabIdx === tabs.length - 1 ? 'rounded-r-lg' : '',
+                                  'group relative min-w-0 flex-1 overflow-hidden bg-gray py-2 px-3 text-sm font-medium text-center hover:bg-gray focus:z-10'
                                 )}
-                                aria-current={tab.current ? "page" : undefined}
+                                aria-current={tab.current ? 'page' : undefined}
                               >
                                 <span>{tab.name}</span>
                                 <span
                                   aria-hidden="true"
                                   className={classNames(
-                                    tab.current
-                                      ? "bg-indigo-500"
-                                      : "bg-transparent",
-                                    "absolute inset-x-0 bottom-0 h-0.5"
+                                    tab.current ? 'bg-indigo-500' : 'bg-transparent',
+                                    'absolute inset-x-0 bottom-0 h-0.5'
                                   )}
                                 />
                               </a>
@@ -228,11 +207,7 @@ export const ProjectDetails = () => {
                       </div>
 
                       <div className="block w-full aspect-w-10 aspect-h-7 rounded-lg overflow-hidden">
-                        <img
-                          src="/images/project.png"
-                          alt=""
-                          className="object-cover"
-                        />
+                        <img src="/images/project.png" alt="" className="object-cover" />
                       </div>
                     </div>
                     <div>
@@ -248,21 +223,15 @@ export const ProjectDetails = () => {
                       <dl className="mt-2 border-t border-b border-gray divide-y divide-gray">
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white mr-2">Owner</dt>
-                          <dd className="text-slate-300 truncate">
-                            {projectDetails.author}
-                          </dd>
+                          <dd className="text-slate-300 truncate">{projectDetails.author}</dd>
                         </div>
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white">Created</dt>
-                          <dd className="text-slate-300">
-                            {dayjs().to(dayjs(projectDetails.createdAt))}
-                          </dd>
+                          <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.createdAt))}</dd>
                         </div>
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white">Last modified</dt>
-                          <dd className="text-slate-300">
-                            {dayjs().to(dayjs(projectDetails.updatedAt))}
-                          </dd>
+                          <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.updatedAt))}</dd>
                         </div>
                       </dl>
                     </div>
@@ -279,9 +248,7 @@ export const ProjectDetails = () => {
                             className="mt-1 rounded-sm w-40 block border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         ) : (
-                          <p className="text-sm text-white italic">
-                            {projectDetails.description}
-                          </p>
+                          <p className="text-sm text-white italic">{projectDetails.description}</p>
                         )}
                         <button
                           type="button"
@@ -291,10 +258,7 @@ export const ProjectDetails = () => {
                           {editDesc ? (
                             <CheckIcon className="h-5 w-5" aria-hidden="true" />
                           ) : (
-                            <PencilIcon
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                            />
+                            <PencilIcon className="h-5 w-5" aria-hidden="true" />
                           )}
                         </button>
                       </div>
@@ -311,34 +275,20 @@ export const ProjectDetails = () => {
                             className="group -ml-1 bg-gray p-1 rounded-md flex items-center focus:outline-none focus:ring-2 focus:ring-yellow"
                           >
                             {editShare ? (
-                              <CheckIcon
-                                className="h-5 w-5"
-                                aria-hidden="true"
-                              />
+                              <CheckIcon className="h-5 w-5" aria-hidden="true" />
                             ) : (
-                              <PlusSmIcon
-                                className="h-5 w-5"
-                                aria-hidden="true"
-                              />
+                              <PlusSmIcon className="h-5 w-5" aria-hidden="true" />
                             )}
                           </button>
                         </li>
                       </div>
                       {chips && chips.length > 0 && (
-                        <ul
-                          role="list"
-                          className="mt-2 divide-y divide-gray"
-                        >
+                        <ul role="list" className="mt-2 divide-y divide-gray">
                           {chips.map((member, idx) => (
-                            <li
-                              className="flex py-1 justify-between items-center w-full"
-                              key={`${member}-${idx}`}
-                            >
+                            <li className="flex py-1 justify-between items-center w-full" key={`${member}-${idx}`}>
                               <div className="flex items-center">
                                 <UserCircleIcon className="w-8 h-8 rounded-full" />
-                                <p className="ml-4 text-sm font-medium text-white truncate w-24">
-                                  {member}
-                                </p>
+                                <p className="ml-4 text-sm font-medium text-white truncate w-24">{member}</p>
                               </div>
                               <button
                                 onClick={() => handleDelete(member)}
@@ -355,7 +305,7 @@ export const ProjectDetails = () => {
                       {editShare ? (
                         <div
                           onKeyPress={(ev) => {
-                            if (ev.key === "Enter") {
+                            if (ev.key === 'Enter') {
                               ev.preventDefault();
                               handleChip();
                             }

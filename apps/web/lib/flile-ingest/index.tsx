@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { BasicFieldTypeCalculator, FileIngestor } from '@glyphx/fileingestion';
+import { BasicFieldTypeCalculator, FileIngestor } from '../../../../packages/file-ingestion/dist';
 import { aws } from '@glyphx/core';
 
 import { IPayload } from '@glyphx/types/src/fileIngestion';
@@ -8,6 +8,7 @@ import { fileIngestion } from '@glyphx/types';
 import { S3_BUCKET_NAME } from 'constants/config';
 import { FIELD_TYPE, FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 
+// call constructor, .init() && .process() on class instantiation, pipe return value to resonse object
 export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
   const stream = req.body;
   // const file = req.body;

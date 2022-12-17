@@ -1,5 +1,9 @@
 import { createTransport } from 'nodemailer';
 
+/**
+ * Sends an email via nodemailer smtp connection
+ * @param params configuration option on the HTML Email body {@link html}
+ */
 export async function sendVerificationRequest(params) {
   const { identifier, url, provider, theme } = params;
   const { host } = new URL(url);
@@ -12,7 +16,6 @@ export async function sendVerificationRequest(params) {
     text: text({ url, host }),
     html: html({ url, host, theme }),
   });
-  console.log({ result });
 
   const failed = result.rejected.concat(result.pending).filter(Boolean);
   if (failed.length) {

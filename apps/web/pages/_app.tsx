@@ -1,18 +1,18 @@
-import { useEffect } from 'react';
-import 'styles/globals.css';
 import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
+import 'styles/globals.css';
 // import * as Sentry from "@sentry/react";
 // import { BrowserTracing } from "@sentry/tracing"
 import { Amplify } from 'aws-amplify';
 import awsExports from 'aws-exports';
 import { RecoilRoot } from 'recoil';
-import { ErrorFallback } from '@/partials/fallback';
+import { ErrorFallback } from 'partials/fallback';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 
-import { SuspenseFallback } from '@/partials/fallback';
+import { SuspenseFallback } from 'partials/fallback';
 Amplify.configure({ ...awsExports, ssr: true });
+
 // To safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
 // const memoize = (fn) => {
@@ -35,20 +35,21 @@ Amplify.configure({ ...awsExports, ssr: true });
 // }));
 // global.console = mutedConsole(global.console);
 
-// NEXT-AUTH version
+// NEXT-AUTH ENABLED VERSION
 // export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+
 export default function App({ Component, pageProps: { ...pageProps } }: AppProps) {
   /* 
     TO ENABLE SENTRY (ERROR LOGGING) WHEN THIS BRANCH GOES LIVE, 
     MAKE SURE TO DISABLE PREVIOUS BRANCH IF IT IS STILL HOSTED
   */
-
   // Sentry.init({
   //   dsn: "https://27cc141e72614ddab6af6b29192e2c1f@o1211173.ingest.sentry.io/6349661",
   //   integrations: [new BrowserTracing()],
   // });
 
   return (
+    // UNCOMMENT TO ENABLE NEXT-AUTH
     // <SessionProvider session={session}>
     <RecoilRoot>
       {/* Root Fallback for when error is throws */}

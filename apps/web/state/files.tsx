@@ -1,21 +1,20 @@
-import { atom, selector } from "recoil";
-import { projectIdAtom } from "./project";
-import { Storage } from "aws-amplify";
-import { formatGridData } from "partials";
-import { parse } from "papaparse";
+import { atom, selector } from 'recoil';
+import { projectIdAtom } from './project';
+import { Storage } from 'aws-amplify';
+import { formatGridData } from 'partials';
+import { parse } from 'papaparse';
 // utility to process storage list if unzipped
 function processStorageList(results) {
   const files = {};
 
   const add = (source, target, item) => {
-    const elements = source.split("/");
+    const elements = source.split('/');
     const element = elements.shift();
     if (!element) return; // blank
     target[element] = target[element] || { __data: item }; // element;
     if (elements.length) {
-      target[element] =
-        typeof target[element] === "object" ? target[element] : {};
-      add(elements.join("/"), target[element], item);
+      target[element] = typeof target[element] === 'object' ? target[element] : {};
+      add(elements.join('/'), target[element], item);
     }
   };
   results.forEach((item) => add(item.key, files, item));
@@ -23,9 +22,9 @@ function processStorageList(results) {
 }
 
 export const filesAtom = atom({
-  key: "filesAtom",
+  key: 'filesAtom',
   default: selector({
-    key: "files/default",
+    key: 'files/default',
     get: async ({ get }) => {
       let projectId = get(projectIdAtom);
       if (projectId) {
@@ -33,22 +32,16 @@ export const filesAtom = atom({
           const data = await Storage.list(`${projectId}/input/`);
 
           const processed = processStorageList(data);
-          console.log({processed})
-          console.log(Object.keys(processed).length)
-          if(Object.keys(processed).length !== 0){ // if empty then return empty array
+
+          if (Object.keys(processed).length !== 0) {
+            // if empty then return empty array
             const files = Object.keys(processed[`${projectId}`].input);
-          const filteredFiles = files.filter(
-            (fileName) => fileName.split(".")[1] === "csv"
-          );
-          return filteredFiles || [];
-          }
-          else{
+            const filteredFiles = files.filter((fileName) => fileName.split('.')[1] === 'csv');
+            return filteredFiles || [];
+          } else {
             return [];
           }
-          
-        } catch (error) {
-          console.log({ error });
-        }
+        } catch (error) {}
       } else {
         return [];
       }
@@ -58,9 +51,9 @@ export const filesAtom = atom({
 
 // holds the virtual filesystem displayed in files Tab
 export const fileSystemAtom = atom({
-  key: "filesystem",
+  key: 'filesystem',
   default: selector({
-    key: "filesystem/default",
+    key: 'filesystem/default',
     get: async ({ get }) => {
       const files = get(filesAtom);
       if (files && files.length > 0) {
@@ -71,8 +64,8 @@ export const fileSystemAtom = atom({
             droppable: false,
             text: item,
             data: {
-              fileType: item.split(".")[1],
-              fileSize: "0.5MB",
+              fileType: item.split('.')[1],
+              fileSize: '0.5MB',
             },
           };
         });
@@ -87,9 +80,9 @@ export const fileSystemAtom = atom({
 
 // currently selected file
 export const selectedFileAtom = atom({
-  key: "selectedFileAtom",
+  key: 'selectedFileAtom',
   default: selector({
-    key: "selectedFile/default",
+    key: 'selectedFile/default',
     get: ({ get }) => {
       const files = get(filesAtom);
       if (files && files.length > 0) {
@@ -103,9 +96,9 @@ export const selectedFileAtom = atom({
 
 // files currently open
 export const filesOpenAtom = atom({
-  key: "filesOpenAtom",
+  key: 'filesOpenAtom',
   default: selector({
-    key: "filesOpen/default",
+    key: 'filesOpen/default',
     get: ({ get }) => {
       const files = get(filesAtom);
       if (files && files.length > 0) {
@@ -119,9 +112,9 @@ export const filesOpenAtom = atom({
 
 // holds the excel data grid state
 export const dataGridAtom = atom({
-  key: "dataGrid",
+  key: 'dataGrid',
   default: selector({
-    key: "datagrid/default",
+    key: 'datagrid/default',
     get: async ({ get }) => {
       const files = get(filesAtom);
       const projectId = get(projectIdAtom);
@@ -143,7 +136,7 @@ export const dataGridAtom = atom({
 
 // holds columns only
 export const columnsSelector = selector({
-  key: "columns",
+  key: 'columns',
   get: ({ get }) => {
     let dataGrid = get(dataGridAtom);
     // @ts-ignore
@@ -156,12 +149,12 @@ export const columnsSelector = selector({
 
 // holds rows only
 export const rowsSelector = selector({
-  key: "rows",
+  key: 'rows',
   get: ({ get }) => {
     let dataGrid = get(dataGridAtom);
     return dataGrid.rows;
   },
   set: ({ get, set }) => {
-   // TODO: if we want to use as setable selector, set datagrid based on changes to the new rows value
+    // TODO: if we want to use as setable selector, set datagrid based on changes to the new rows value
   },
 });

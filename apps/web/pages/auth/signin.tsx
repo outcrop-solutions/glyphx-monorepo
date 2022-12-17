@@ -1,11 +1,11 @@
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
-import { SignInErrorFallback } from '@/partials/fallback/signin.error';
-import { SignInSuspenseFallback } from '@/partials/fallback/signin.suspense';
+import { SignInErrorFallback } from 'partials/fallback/signin.error';
+import { SignInSuspenseFallback } from 'partials/fallback/signin.suspense';
 
 import dynamic from 'next/dynamic';
-import { AuthLayout } from '@/partials/layout/AuthLayout';
+import { AuthLayout } from 'partials/layout/AuthLayout';
 
 const DynamicSignIn = dynamic(() => import('views/auth/signin'), {
   ssr: false,

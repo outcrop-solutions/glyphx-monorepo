@@ -15,6 +15,14 @@ const client = new DynamoDBClient({
   region: process.env.REGION
 });
 
+
+/**
+ * @note An example raw Dynamo controller if amplify dependency is removed
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+
 export default async function handler(req, res) {
   if (req.method === 'PUT') {
     const { Item } = await client.send(

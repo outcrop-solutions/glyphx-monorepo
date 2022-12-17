@@ -19,7 +19,6 @@ export const NextSignIn = ({ referer }) => {
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-    console.log({ error });
     const errorMessage = Array.isArray(error) ? error.pop() : error;
     errorMessage && toast.error(errorMessage);
   }, [error]);

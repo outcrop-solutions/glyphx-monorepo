@@ -6,8 +6,8 @@ import { API, Storage } from "aws-amplify";
 import * as mutations from "graphql/mutations";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
-import { projectsAtom } from "@/state/globals";
-import { projectDetailsAtom } from "@/state/project";
+import { projectsAtom } from "state/globals";
+import { projectDetailsAtom } from "state/project";
 
 export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   const router = useRouter();

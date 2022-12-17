@@ -1,11 +1,13 @@
-/**
- * STARTING PRISMA API TO TRANSITION TO MONGO ATLAS
- */
 import { prisma } from '@glyphx/database';
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Project } from '@prisma/client';
 import type { Session } from 'next-auth';
+
+/**
+ * PRISMA ENDPOINT EXAMPLE FOR TRANSITION TO MONGO ATLAS
+ * @alpha
+ * @note Prisma client generation via pnpm db:generate and next-auth is required before using this in the database package
+ */
 
 /**
  * Get Project
@@ -17,6 +19,7 @@ import type { Session } from 'next-auth';
  * @param req - Next.js API Request
  * @param res - Next.js API Response
  */
+
 export async function getProject(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -73,10 +76,11 @@ export async function getProject(
     return res.status(500).end(error);
   }
 }
+
 /**
  * Create Project
  *
- * Creates a new project from a provided `pageId` query parameter.
+ * Creates a new project from a provided `orgId` query parameter.
  *
  * Once created, the pages new `projectId` will be returned.
  *
@@ -102,14 +106,12 @@ export async function createProject(req: NextApiRequest, res: NextApiResponse): 
     return res.status(201).json({
       projectId: response.id,
     });
-    // } else {
-    //   return res.status(500).end({ msg: "TPL is not connected to BCO" });
-    // }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);
   }
 }
+
 /**
  * Delete Project
  *
@@ -136,20 +138,12 @@ export async function deleteProject(req: NextApiRequest, res: NextApiResponse): 
     return res.status(500).end(error);
   }
 }
+
 /**
  * Update Project
  *
  * Updates a project & all of its data using a collection of provided
- * query parameters. These include the following:
- *  - id
- *  - name
- *  - incoterm
- *  - freight_type
- *  - estimated_departure_date
- *  - estimated_arrival_date
- *  - alert_profile
- *  - legs
- *  - bcoId
+ * query parameters.
  *
  * @param req - Next.js API Request
  * @param res - Next.js API Response
@@ -158,10 +152,10 @@ export async function updateProject(
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void | NextApiResponse<Project>> {
-  const { orgId } = req.query;
+  const { projectId } = req.query;
 
-  if (Array.isArray(orgId)) return res.status(400).end('Bad request. projectId parameter cannot be an array.');
-  
+  if (Array.isArray(projectId)) return res.status(400).end('Bad request. projectId parameter cannot be an array.');
+
   const { id, name, description, sdtPath, slug, isTemplate } = req.body;
 
   try {
@@ -185,10 +179,10 @@ export async function updateProject(
   }
 }
 export async function updateOwnership(req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> {
-  const { orgId } = req.query;
+  const { projectId } = req.query;
   const { ownerId } = req.body;
 
-  if (Array.isArray(orgId)) return res.status(400).end('Bad request. orgId parameter cannot be an array.');
+  if (Array.isArray(projectId)) return res.status(400).end('Bad request. projetId parameter cannot be an array.');
 
   try {
     const response = await prisma.project.create({
@@ -208,11 +202,12 @@ export async function updateOwnership(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).end(error);
   }
 }
+
 export async function updateState(req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> {
-  const { orgId } = req.query;
+  const { projectId } = req.query;
   const { stateId } = req.body;
 
-  if (Array.isArray(orgId)) return res.status(400).end('Bad request. orgId parameter cannot be an array.');
+  if (Array.isArray(projectId)) return res.status(400).end('Bad request. orgId parameter cannot be an array.');
 
   try {
     const response = await prisma.project.create({
@@ -232,11 +227,12 @@ export async function updateState(req: NextApiRequest, res: NextApiResponse): Pr
     return res.status(500).end(error);
   }
 }
+
 export async function updateType(req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> {
-  const { orgId } = req.query;
+  const { projectId } = req.query;
   const { typeId } = req.body;
 
-  if (Array.isArray(orgId)) return res.status(400).end('Bad request. orgId parameter cannot be an array.');
+  if (Array.isArray(projectId)) return res.status(400).end('Bad request. orgId parameter cannot be an array.');
 
   try {
     const response = await prisma.project.create({

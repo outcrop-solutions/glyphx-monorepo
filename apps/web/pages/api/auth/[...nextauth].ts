@@ -1,26 +1,25 @@
-// TODO: Move to next-auth from cognito to easily support OAuth clients
+/**
+ * @note MONGO ATLAS TRANSITION
+ * @alpha
+ */
 import AWS from 'aws-sdk';
 import NextAuth from 'next-auth';
-
+import type { NextAuthOptions } from 'next-auth';
+import EmailProvider from 'next-auth/providers/email';
+import { sendVerificationRequest } from 'email/sendVerificationRequest';
+// COMMENT TO DISABLE DYNAMO ORM
+import { DynamoDBAdapter } from '@next-auth/dynamodb-adapter';
 // OAUTH CLIENTS
 // import GitHubProvider from 'next-auth/providers/github';
 // import GoogleProvider from 'next-auth/providers/google';
-
-// SEND VERIFICATION EMAIL
-import EmailProvider from 'next-auth/providers/email';
-import { sendVerificationRequest } from 'email/sendVerificationRequest';
-
 // UNCOMMENT TO ENABLE PRISMA/MONGO ORM
 // import { PrismaAdapter } from '@next-auth/prisma-adapter';
 // import { prisma } from '@glyphx/database';
 
-// COMMENT TO DISABLE DYNAMO ORM
-import { DynamoDBAdapter } from '@next-auth/dynamodb-adapter';
-
-import type { NextAuthOptions } from 'next-auth';
-
-// The default table name is next-auth, but you can customise that by passing { tableName: 'your-table-name' } as the second parameter in the adapter.
-
+/**
+ * The default table name is next-auth
+ * You can customise that by passing { tableName: 'your-table-name' } as the second parameter in the adapter.
+ */
 AWS.config.update({
   accessKeyId: process.env.NEXT_AUTH_AWS_ACCESS_KEY,
   secretAccessKey: process.env.NEXT_AUTH_AWS_SECRET_KEY,
@@ -29,6 +28,8 @@ AWS.config.update({
 
 // if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET)
 //   throw new Error("Failed to initialize Github authentication");
+
+if (!process.env.EMAIL_SERVER || !process.env.EMAIL_FROM) throw new Error('Failed to initialize Email authentication');
 
 export const authOptions = {
   providers: [

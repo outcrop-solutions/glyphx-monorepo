@@ -1,5 +1,5 @@
 import { useRecoilState, useRecoilValue } from "recoil";
-import { selectedFileAtom } from "@/state/files";
+import { selectedFileAtom } from "state/files";
 import { XIcon } from "@heroicons/react/solid";
 import { useFileSystem } from "@/services/useFileSystem";
 

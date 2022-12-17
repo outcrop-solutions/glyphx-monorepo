@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Column } from "./Column";
-import { Axes } from "./Axes";
-import { useFilterChange } from "services/useFilterChange";
-import { propertiesAtom } from "@/state/properties";
-import { useRecoilValue } from "recoil";
-import { filterQuerySelector } from "@/state/filters";
+import React, { useEffect, useState } from 'react';
+import { Column } from './Column';
+import { Axes } from './Axes';
+import { useFilterChange } from 'services/useFilterChange';
+import { propertiesAtom } from 'state/properties';
+import { useRecoilValue } from 'recoil';
+import { filterQuerySelector } from 'state/filters';
 
 export const Filters = ({ handleDrop }) => {
   const properties = useRecoilValue(propertiesAtom);
@@ -12,15 +12,12 @@ export const Filters = ({ handleDrop }) => {
   const filterQuery = useRecoilValue(filterQuerySelector);
 
   useEffect(() => {
-    console.log({ filterQuery });
     if (filterQuery) {
       try {
         //attempt to use Update Filter
         // @ts-ignore
         window.core.UpdateFilter(JSON.stringify(filterQuery));
-      } catch (error) {
-        console.log({ error });
-      }
+      } catch (error) {}
     }
   }, [filterQuery]);
 
@@ -36,9 +33,7 @@ export const Filters = ({ handleDrop }) => {
           >
             <span className="">
               <svg
-                className={`w-5 h-5 ${
-                  isCollapsed ? "-rotate-90" : "rotate-180"
-                }`}
+                className={`w-5 h-5 ${isCollapsed ? '-rotate-90' : 'rotate-180'}`}
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -52,8 +47,8 @@ export const Filters = ({ handleDrop }) => {
             </span>
             <a>
               <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
-                {" "}
-                Filters{" "}
+                {' '}
+                Filters{' '}
               </span>
             </a>
           </div>
@@ -69,13 +64,7 @@ export const Filters = ({ handleDrop }) => {
               {properties?.length > 0
                 ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
                     if (idx < 3) {
-                      return (
-                        <Axes
-                          axis={axis}
-                          lastDroppedItem={lastDroppedItem}
-                          key={idx}
-                        />
-                      );
+                      return <Axes axis={axis} lastDroppedItem={lastDroppedItem} key={idx} />;
                     } else {
                       return (
                         <Column

@@ -9,8 +9,8 @@ import { deleteFilter } from "graphql/mutations";
 import { ShowHide } from "./actions/ShowHide";
 import { DeleteFilter } from "./actions/DeleteFilter";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { filtersAppliedAtom } from "@/state/filters";
-import { propertiesAtom } from "@/state/properties";
+import { filtersAppliedAtom } from "state/filters";
+import { propertiesAtom } from "state/properties";
 
 export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
   const [filtersApplied, setFiltersApplied] =

@@ -1,7 +1,7 @@
 /* eslint-disable no-lone-blocks */
 import React, {useState} from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { propertiesAtom } from "@/state/properties";
+import { propertiesAtom } from "state/properties";
 import { Property } from "./Property";
 
 export const Properties = ({ handleDrop }) => {

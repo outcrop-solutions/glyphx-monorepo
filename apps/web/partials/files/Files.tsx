@@ -6,8 +6,8 @@ import { SidebarDropzone } from 'partials';
 import styles from './css/Sidebar.module.css';
 import { useDropzone } from 'react-dropzone';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { fileSystemAtom } from '@/state/files';
-import { useFileSystem } from '@/services/useFileSystem';
+import { fileSystemAtom } from 'state/files';
+import { useFileSystem } from 'services/useFileSystem';
 
 export const Files = () => {
   const { onDrop } = useFileSystem();

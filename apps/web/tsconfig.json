@@ -9,7 +9,7 @@
       "@/lib/*": ["lib/*"],
       "@/pages/*": ["pages/*"],
       "@/partials/*": ["partials/*"],
-      "@/state/*": ["state/*"],
+      "@state/*": ["state/*"],
       "@/services/*": ["services/*"],
       "@/styles/*": ["styles/*"],
       "@/types": ["types/index"],

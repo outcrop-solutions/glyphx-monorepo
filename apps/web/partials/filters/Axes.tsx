@@ -9,8 +9,8 @@ import { deleteFilter } from 'graphql/mutations';
 import { ShowHide } from './actions/ShowHide';
 import { DeleteFilter } from './actions/DeleteFilter';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { propertiesAtom } from '@/state/properties';
-import { filtersAppliedAtom } from '@/state/filters';
+import { propertiesAtom } from 'state/properties';
+import { filtersAppliedAtom } from 'state/filters';
 import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 
 export const Axes = ({ axis, lastDroppedItem }) => {
@@ -58,7 +58,6 @@ export const Axes = ({ axis, lastDroppedItem }) => {
     });
 
     const result = await API.graphql(graphqlOperation(deleteFilter, { input: deleteFilterInput }));
-    console.log({ result });
   };
 
   function deleteFilter() {

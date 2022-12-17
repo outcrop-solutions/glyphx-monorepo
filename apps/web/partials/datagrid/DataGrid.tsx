@@ -2,10 +2,10 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 // import DataGrid from "lib/react-data-grid/lib/bundle";
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { columnsSelector, rowsSelector } from '@/state/files';
-import { shareOpenAtom } from '@/state/share';
-import { showInfoAtom } from '@/state/info';
-import { showNotificationAtom } from '@/state/notification';
+import { columnsSelector, rowsSelector } from 'state/files';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
 
 import dynamic from 'next/dynamic';
 
@@ -74,10 +74,7 @@ export const Datagrid = ({ isDropped }) => {
     return direction === 'DESC' ? sortedRows.reverse() : sortedRows;
   }, [rows, sortColumns]);
 
-  useEffect(() => {
-    // console.log({windowWidth:window.innerWidth});
-    // console.log({calcWidth: Math.round(window.innerWidth-40-192-100)});
-  }, [isShareModelOpen, isShowInfoOpen, isShowNotificationOpen]);
+  useEffect(() => {}, [isShareModelOpen, isShowInfoOpen, isShowNotificationOpen]);
 
   return (
     // @ts-ignore - missing attributes

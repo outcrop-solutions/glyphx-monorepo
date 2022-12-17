@@ -4,14 +4,12 @@ import { hmac, hmacStepwise, createHmac, hexhmac } from '../cryptoHelpers';
 
 /**
  * Create signed URL for S3 transfer
- *
- * Fetches & returns either a single or all files available depending on
- * whether a `fileId` query parameter is provided. If not all files are
- * returned in descending order.
- *
+ * @note - This can be used with an Entity (transfer) stream to use the frontend as a proxy to stream foreign S3 objects into the file ingestion pipeline - currently not in use
+ * @alpha
  * @param req - Next.js API Request
  * @param res - Next.js API Response
  */
+
 export async function awsSignv4(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -43,5 +41,3 @@ export async function awsSignv4(
     return res.status(500).end(error);
   }
 }
-
-

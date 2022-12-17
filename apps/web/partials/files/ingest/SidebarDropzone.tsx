@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useFileSystem } from '@/services/useFileSystem';
+import { useFileSystem } from 'services/useFileSystem';
 
 export const SidebarDropzone = () => {
   const { onDrop } = useFileSystem();

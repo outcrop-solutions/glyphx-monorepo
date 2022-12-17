@@ -1,19 +1,14 @@
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
-import { SignInErrorFallback } from '@/partials/fallback/signin.error';
-import { SignInSuspenseFallback } from '@/partials/fallback/signin.suspense';
-
-import dynamic from 'next/dynamic';
-import { AuthLayout } from '@/partials/layout/AuthLayout';
-import { getUrl } from 'constants/config';
+import { SignInErrorFallback } from 'partials/fallback/signin.error';
+import { SignInSuspenseFallback } from 'partials/fallback/signin.suspense';
+import { AuthLayout } from 'partials/layout/AuthLayout';
 import { ToastWrapper } from '../partials';
 
-// const DynamicSignIn = dynamic(() => import('views/auth/signin'), {
-//   ssr: false,
-// });
-
 import { NextSignIn } from 'views/auth/next-auth';
+
+// AUTHENTICATION PAGE FOR NEXT-AUTH
 
 export default function SignIn({ referer }) {
   return (
@@ -37,7 +32,6 @@ export default function SignIn({ referer }) {
 }
 
 // export async function getServerSideProps(context) {
-//   // console.log({ referer: context.req.headers.referer });
 //   if (typeof context.req.headers.referer !== undefined && context.req.headers.referer?.includes('dashboard')) {
 //     return { props: { referer: context.req.headers.referer } };
 //   } else {

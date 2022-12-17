@@ -1,4 +1,4 @@
-import { rowsSelector, columnsSelector } from '@/state/files';
+import { rowsSelector, columnsSelector } from 'state/files';
 import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { MainDropzone } from '../files';
@@ -33,9 +33,7 @@ export const GridContainer = ({ isDropped }) => {
       //hide glyph viewer
       //@ts-ignore
       window?.core.ToggleDrawer(false);
-    } catch (error) {
-      console.log({ error });
-    }
+    } catch (error) {}
   }
 
   function completedDrag(size) {
@@ -45,9 +43,7 @@ export const GridContainer = ({ isDropped }) => {
       //show glyph viewer
       //@ts-ignore
       window?.core.ToggleDrawer(true);
-    } catch (error) {
-      console.log({ error });
-    }
+    } catch (error) {}
   }
 
   function onDragChange(size) {
@@ -66,18 +62,6 @@ export const GridContainer = ({ isDropped }) => {
           leftSide = leftSide - 250;
         }
 
-        console.log(
-          JSON.stringify({
-            filterSidebar: {
-              y: yValue, //843
-              right: 335,
-              height: heightValue,
-            },
-            commentsSidebar: {
-              left: leftSide,
-            },
-          })
-        );
         //@ts-ignore
         window?.core.ResizeEvent(
           JSON.stringify({
@@ -92,7 +76,6 @@ export const GridContainer = ({ isDropped }) => {
           })
         );
       } else {
-        console.log({ size });
         var rightValue = size + 335;
         var leftSide = window.innerWidth;
         if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
@@ -112,9 +95,7 @@ export const GridContainer = ({ isDropped }) => {
           })
         );
       }
-    } catch (error) {
-      console.log({ error });
-    }
+    } catch (error) {}
   }
 
   // TODO: LOOK AT IMMUTABLE UPDATE
@@ -125,8 +106,6 @@ export const GridContainer = ({ isDropped }) => {
       doResize(localSize);
       setLocalOrientation(orientation);
     }
-
-    // console.log({ColumnLength: cols?.length});
     //@ts-ignore
     r.style.setProperty('--screen', `${window.innerHeight}px`);
     if (cols?.length > 0) {

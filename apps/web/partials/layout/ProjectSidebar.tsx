@@ -1,15 +1,12 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from 'react';
 // import { ExpandCollapse } from "./ExpandCollapse";
-import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from "partials";
-import { usePosition } from "services/usePosition";
-import { useRouter } from "next/router";
-import { useRecoilState } from "recoil";
-import { glyphViewerDetails } from "@/state/globals";
+import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from 'partials';
+import { usePosition } from 'services/usePosition';
+import { useRouter } from 'next/router';
+import { useRecoilState } from 'recoil';
+import { glyphViewerDetails } from 'state/globals';
 
-export const ProjectSidebar = ({
-  handleDrop,
-  toastRef,
-}) => {
+export const ProjectSidebar = ({ handleDrop }) => {
   const router = useRouter();
   const { id: projectId } = router.query;
 
@@ -17,7 +14,7 @@ export const ProjectSidebar = ({
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);
 
-  const [glyphxDetails,setGlyphxViewer] = useRecoilState(glyphViewerDetails);
+  const [glyphxDetails, setGlyphxViewer] = useRecoilState(glyphViewerDetails);
 
   /**
    * 0: Project
@@ -28,16 +25,14 @@ export const ProjectSidebar = ({
 
   // set projectsSidebar position on transition
   useEffect(() => {
-      if (sidebar.current !== null) {
-        setGlyphxViewer({
-          ...glyphxDetails,
-          filterSidebarPosition: {
-            values: sidebar.current.getBoundingClientRect(),
-          }
-        })
-        
-      }
-
+    if (sidebar.current !== null) {
+      setGlyphxViewer({
+        ...glyphxDetails,
+        filterSidebarPosition: {
+          values: sidebar.current.getBoundingClientRect(),
+        },
+      });
+    }
   }, [projPosition]);
 
   return (
@@ -47,7 +42,7 @@ export const ProjectSidebar = ({
       className={`flex grow flex-col bg-secondary-space-blue absolute z-30 left-0 top-0 lg:static border-r border-l border-t border-gray lg:left-auto lg:top-auto  h-full w-full scrollbar-none`}
     >
       <div className="overflow-y-auto w-full scrollbar-none ">
-        <Files toastRef={toastRef} />
+        <Files />
         <Axes handleDrop={handleDrop} />
         <Filters handleDrop={handleDrop} />
         <States />
@@ -127,5 +122,4 @@ export const ProjectSidebar = ({
   //     </div>
   //   </div>
   // );
-
 };

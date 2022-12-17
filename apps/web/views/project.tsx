@@ -13,19 +13,19 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { ShareModule } from 'partials';
 import { Info } from 'partials/info';
-import { Notification } from '@/partials/Notification';
-import { GridLoadingAnimation, LoadingModelAnimation } from '@/partials/loaders';
+import { Notification } from '@/partials/notification';
+import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
 // Hooks
 import { useRouter } from 'next/router';
 import { useProject } from 'services';
 import { useSocket } from 'services';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { GridContainer } from '@/partials/datagrid/GridContainer';
-import { projectIdAtom } from '@/state/project';
-import { shareOpenAtom } from '@/state/share';
-import { showInfoAtom } from '@/state/info';
-import { showNotificationAtom } from '@/state/notification';
+import { GridContainer } from 'partials/datagrid/GridContainer';
+import { projectIdAtom } from 'state/project';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
 import { dataGridLoadingAtom, GridModalErrorAtom, modelCreationLoadingAtom } from '../state';
 
 export default function Project() {
@@ -46,14 +46,10 @@ export default function Project() {
   // Qt hook
   try {
     useSocket();
-  } catch (error) {
-    console.log('Error calling useSocket():', { error });
-  }
+  } catch (error) {}
 
   // Project Hook
   const { isDropped, handleDrop } = useProject();
-
-  const toastRef = React.useRef(null);
   // const [share, setShare] = useState(false);
 
   // Check if share model has been turned on
@@ -73,7 +69,7 @@ export default function Project() {
           <DndProvider backend={HTML5Backend}>
             {/* Project sidebar */}
             <div className="w-[250px] shrink-0">
-              <ProjectSidebar handleDrop={handleDrop} toastRef={toastRef} />
+              <ProjectSidebar handleDrop={handleDrop} />
             </div>
             {/* Grid View */}
             <div className="w-full border-r border-gray">
