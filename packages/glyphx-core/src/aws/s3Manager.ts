@@ -4,7 +4,7 @@ import * as error from '../error';
 import {aws} from '@glyphx/types';
 import {PassThrough} from 'node:stream';
 
-/**
+/**`
  * This class provides basic operations for working with S3 buckets.
  */
 export class S3Manager {
@@ -66,7 +66,7 @@ export class S3Manager {
    *
    * @throws InvalidArgumentError if the bucket does not exist, or you do not have access to it.
    */
-  async init() {
+  public async init() {
     try {
       await this.bucketField.headBucket({Bucket: this.bucketName});
       this.initedField = true;
@@ -90,7 +90,10 @@ export class S3Manager {
    *
    * @throws InvalidOperationError if you do not have list permissions for the filter on the bucket.
    */
-  async listObjects(filter: string, startAfter?: string): Promise<string[]> {
+  public async listObjects(
+    filter: string,
+    startAfter?: string
+  ): Promise<string[]> {
     const options: {Bucket: string} & Record<string, string> = {
       Bucket: this.bucketName,
       Prefix: filter,
@@ -129,7 +132,9 @@ export class S3Manager {
    *
    * @throws InvalidArgumentError - if the file does not exist iin the bucket, or you do not have permissions to access it.
    */
-  async getFileInformation(fileName: string): Promise<aws.IHeadObjectData> {
+  public async getFileInformation(
+    fileName: string
+  ): Promise<aws.IHeadObjectData> {
     try {
       const result = await this.bucket.headObject({
         Bucket: this.bucketName,
@@ -159,7 +164,7 @@ export class S3Manager {
    *
    * @throws InvalidOperationError - If an error is thrown by the S3 client.
    */
-  async getObjectStream(key: string): Promise<any> {
+  public async getObjectStream(key: string): Promise<any> {
     const bucketParameters = {
       Bucket: this.bucketName,
       Key: key,
@@ -187,7 +192,7 @@ export class S3Manager {
    *  @param stream - a pass through stream that will stream the data to be uploaded.
    */
   // @ts-ignore
-  getUploadStream(fileName: string, stream) {
+  public getUploadStream(fileName: string, stream) {
     const upload = new Upload({
       client: this.bucket,
       params: {
@@ -206,7 +211,7 @@ export class S3Manager {
    * @param fileName - the name/key of the object to remove.
    * @throws InvalidOperationError -- if S3 throws an error
    */
-  async removeObject(fileName: string) {
+  public async removeObject(fileName: string) {
     try {
       await this.bucket.deleteObject({
         Bucket: this.bucketName,
@@ -219,5 +224,21 @@ export class S3Manager {
         err
       );
     }
+  }
+
+  /**
+   * Checks our underlying S3 bucket to determine whether or not the file exists.
+   *
+   * @param fileName -- the name (key) of the file to check
+   */
+  public async fileExists(fileName: string): Promise<boolean> {
+    let retval = true;
+    try {
+      await this.bucket.headObject({Bucket: this.bucketName, Key: fileName});
+    } catch (err) {
+      retval = false;
+    }
+
+    return retval;
   }
 }

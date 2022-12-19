@@ -22,6 +22,14 @@
   "src/__tests__/aws/*.tests.ts" : {
     "type" : "test",
     "alternate":  "src/aws/{}.ts"
+  },
+  "src/*.ts": {
+    "type": "source",
+    "alternate": "src/__tests__/{}.tests.ts"
+  },
+  "src/__tests__/*.tests.ts" : {
+    "type" : "test",
+    "alternate":  "src/{}.ts"
   }
 
 

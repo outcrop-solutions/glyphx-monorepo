@@ -10,6 +10,10 @@ export interface IFileProcessingError {
    */
   fileName: string;
   /**
+   * The name of the table to which this error is attributed.
+   */
+  tableName?: string;
+  /**
    * The row number (0 based) on which the error occurred.
    */
   rowIndex?: number;

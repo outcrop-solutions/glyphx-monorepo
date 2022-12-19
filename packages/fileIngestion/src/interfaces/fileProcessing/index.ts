@@ -31,3 +31,4 @@ export type {
 } from './iTableQueryPlanner';
 
 export type {ITableSorter, IConstructableTableSorter} from './iTableSorter';
+export type {IFileProcessingResult} from './iFileProcessingResult';
