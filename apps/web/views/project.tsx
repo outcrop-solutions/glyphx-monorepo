@@ -27,6 +27,11 @@ import { shareOpenAtom } from 'state/share';
 import { showInfoAtom } from 'state/info';
 import { showNotificationAtom } from 'state/notification';
 import { dataGridLoadingAtom, GridModalErrorAtom, modelCreationLoadingAtom } from '../state';
+import dynamic from 'next/dynamic';
+
+const DynamicDecisionModal = dynamic(() => import('partials/files/DecisionModal'), {
+  ssr: false,
+});
 
 export default function Project() {
   const { query } = useRouter();
@@ -57,6 +62,7 @@ export default function Project() {
 
   return (
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
+      <DynamicDecisionModal />
       <div className="w-[40px]">
         <MainSidebar />
       </div>

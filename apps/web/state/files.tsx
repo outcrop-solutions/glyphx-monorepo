@@ -1,14 +1,20 @@
 import { atom, selector } from 'recoil';
-import { GridColumn, IFileSystem, OpenFile, RenderableDataGrid, SelectedIndex } from '@/lib/file-ingest/types';
+import {
+  GridColumn,
+  IFileSystem,
+  IMatchingFileStats,
+  OpenFile,
+  RenderableDataGrid,
+  SelectedIndex,
+} from '@/lib/file-ingest/types';
+import { IFileStats } from '@glyphx/types/src/fileIngestion';
 
 /**
  * APPLICATION FILESYSTEM
  * @note We use ```fileSystemAtom``` to update filesystem state - the downstream selectors are nodes in the state dependency graph which inherit their value from this atom. State flows through the acyclic directional graph down to state values renderable by react components.  In the future, this can be bi-directional (where selector nodes can update parents) for performance reasons, however for now we are optimizing for readability and maintianability so that we can add functionality in a performant way.
- **/
-
-export const fileSystemAtom = atom<IFileSystem>({
-  key: 'fileSystemAtom',
-  default: [
+ * 
+ * The shape looks like this
+ * [
     {
       fileName: 'table1.csv',
       tableName: 'table1',
@@ -30,8 +36,32 @@ export const fileSystemAtom = atom<IFileSystem>({
       open: true,
     },
   ],
+ **/
+
+// WRITEABLE STATE HERE
+export const fileSystemAtom = atom<IFileSystem>({
+  key: 'fileSystemAtom',
+  default: null,
 });
 
+/**
+ * Holds the index of the currently selected file relative to filesystem. This is important for index based array update patterns to work performantly, -1 denotes non selected
+ * */
+export const selectedFileAtom = atom<SelectedIndex>({
+  key: 'selectedFileSelector',
+  default: { index: -1 },
+});
+
+/**
+ * Holds the matches found upon file ingestion between existing and new file statistics.
+ * If !== null, modal will display asking user to make a ADD | APPEND choice
+ * */
+export const matchingFilesAtom = atom<IMatchingFileStats[]>({
+  key: 'matchingFilesSelector',
+  default: null,
+});
+
+// READ ONLY STATE BELOW THIS
 /**
  * Holds the list of tableNames in displayed in the filetab
  * */
@@ -46,11 +76,25 @@ export const filesSelector = selector<string[]>({
 });
 
 /**
- * Holds the index of the currently selected file relative to filesystem. This is important for index based array update patterns to work performantly, -1 denotes non selected
+ * Holds the formatted FileState for efficient checking
  * */
-export const selectedFileAtom = atom<SelectedIndex>({
-  key: 'selectedFileSelector',
-  default: { index: -1 },
+export const fileStatsSelector = selector<IFileStats[]>({
+  key: 'fileStatsSelector',
+  get: ({ get }) => {
+    const fileSystem = get(fileSystemAtom);
+    if (Array.isArray(fileSystem) && fileSystem?.length > 0) {
+      return fileSystem.map(({ fileName, tableName, numberOfRows, numberOfColumns, columns, fileSize }) => ({
+        fileName,
+        tableName,
+        numberOfRows,
+        numberOfColumns,
+        columns,
+        fileSize,
+      }));
+    } else {
+      return [];
+    }
+  },
 });
 
 /**
@@ -72,13 +116,13 @@ export const filesOpenSelector = selector<OpenFile[]>({
 /**
  * Peels the pre-calculated datagrid off the filesystem to render in react-data-grid
  */
-export const dataGridAtom = selector<RenderableDataGrid>({
+export const dataGridSelector = selector<RenderableDataGrid>({
   key: 'dataGridSelector',
   get: async ({ get }) => {
-    const { index } = get(selectedFileAtom);
+    const selectedFile = get(selectedFileAtom);
     const fileSystem = get(fileSystemAtom);
-    if (fileSystem && fileSystem?.length > 0 && index !== -1) {
-      return fileSystem[index]?.dataGrid;
+    if (fileSystem && fileSystem?.length > 0 && selectedFile?.index !== -1) {
+      return fileSystem[selectedFile?.index]?.dataGrid;
     } else {
       return { columns: [], rows: [] };
     }
@@ -89,9 +133,9 @@ export const dataGridAtom = selector<RenderableDataGrid>({
  * Holds the renderable columns of the grid, providing dataType for CSS selectors to override colours
  */
 export const columnsSelector = selector<GridColumn[]>({
-  key: 'columns',
+  key: 'columnsSelector',
   get: ({ get }) => {
-    let dataGrid = get(dataGridAtom);
+    let dataGrid = get(dataGridSelector);
     // @ts-ignore
     return dataGrid?.columns;
   },
@@ -101,9 +145,9 @@ export const columnsSelector = selector<GridColumn[]>({
  * Holds rows of the renderable grid
  */
 export const rowsSelector = selector({
-  key: 'rows',
+  key: 'rowsSelector',
   get: ({ get }) => {
-    let dataGrid = get(dataGridAtom);
+    let dataGrid = get(dataGridSelector);
     return dataGrid.rows;
   },
 });

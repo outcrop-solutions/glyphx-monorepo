@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import {
   selectedFileAtom,
@@ -7,11 +7,15 @@ import {
   selectedProjectSelector,
   progressDetailAtom,
   GridModalErrorAtom,
+  fileStatsSelector,
+  matchingFilesAtom,
 } from '../state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'partials/files/transforms';
 import { useRouter } from 'next/router';
 import produce, { original, current } from 'immer';
+import { Storage } from 'aws-amplify';
+import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 
 const cleanTableName = (fileName) => {
   return fileName.split('.')[0].trim().toLowerCase();
@@ -32,8 +36,10 @@ export const useFileSystem = () => {
   const { orgId, projectId } = router.query;
 
   const project = useRecoilValue(selectedProjectSelector);
+  const existingFileStats = useRecoilValue(fileStatsSelector);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
+  const setMatchingStats = useSetRecoilState(matchingFilesAtom);
   const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
 
   // update this to be on a per-file basis using an atomFamily
@@ -45,8 +51,16 @@ export const useFileSystem = () => {
   //     if (!Array.isArray(projectId))
   //       try {
   //         // client/clientid/modelid/input/tablename/file.csv
-  //         const data = await Storage.list(`client/${orgId}/${projectId}/input/`);
-  //         setFileSystem(createFileSystemFromS3(data, projectId));
+  //         const data = await Storage.list(`${orgId}/${projectId}/input/`);
+  //         console.log({ data });
+  //         const fileSystemData = await createFileSystemFromS3(data, projectId);
+  //         // setFileSystem(produce((draft) => fileSystemData));
+  //         // // select file
+  //         // setSelectedFile(
+  //         //   produce((draft) => {
+  //         //     draft.index = 0;
+  //         //   })
+  //         // );
   //       } catch (error) {}
   //   };
 
@@ -69,27 +83,36 @@ export const useFileSystem = () => {
 
       // calculate & compare file stats
       const newFileStats = await parseFileStats(acceptedFiles);
-      // const matchingStats = await compareStats(newFileStats, existingFileStats);
+      const matchingStats = await compareStats(newFileStats, existingFileStats);
 
-      // ask user to make decision based on list
+      // immutable update to modal state if decision required
+      if (matchingStats && matchingStats.length > 0) {
+        setMatchingStats(
+          produce((_) => {
+            return matchingStats;
+          })
+        );
+      }
+
+      // if no decision required, default to 'ADD'
 
       // update file system state with processed data based on user decision
-      let newData = createFileSystem(acceptedFiles, fileSystem);
-      setFileSystem([...(Array.isArray(newData) ? newData : [])]);
+      // let newData = createFileSystem(acceptedFiles, fileSystem);
+      // setFileSystem([...(Array.isArray(newData) ? newData : [])]);
 
       // send operations to file ingestion
-      const result = await fetch(`/api/files/browser`, {
-        method: 'POST',
-        body: JSON.stringify({
-          orgId: 'glyphx',
-          projectId,
-          fileStats: [
-            ...(Array.isArray(newFileStats) ? newFileStats : []),
-            // ...(Array.isArray(existingFileStats) ? existingFileStats : []),
-          ],
-          fileInfo: [],
-        }),
-      });
+      // const result = await fetch(`/api/files/browser`, {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     orgId: 'glyphx',
+      //     projectId,
+      //     fileStats: [
+      //       ...(Array.isArray(newFileStats) ? newFileStats : []),
+      //       // ...(Array.isArray(existingFileStats) ? existingFileStats : []),
+      //     ],
+      //     fileInfo: [],
+      //   }),
+      // });
 
       //call file ingestion here
       // try {
@@ -123,24 +146,23 @@ export const useFileSystem = () => {
   /**
    * MANAGE FILESYSTEM USER VIEW
    */
-  const openFile = useCallback((idx) => {
+  const openFile = useCallback((idx: number) => {
     // open file
     setFileSystem(
       produce((draft) => {
         draft[idx].open = true;
-        console.log({ draft: current(draft) });
       })
     );
     // select file
     setSelectedFile(
       produce((draft) => {
-        draft = idx;
+        draft.index = idx;
       })
     );
   }, []);
 
   const selectFile = useCallback(
-    (idx) => {
+    (idx: number) => {
       // select file
       setSelectedFile(
         produce((draft) => {
@@ -152,7 +174,7 @@ export const useFileSystem = () => {
   );
 
   const closeFile = useCallback(
-    (idx) => {
+    (idx: number) => {
       // close file
       setFileSystem(
         produce((draft) => {
@@ -174,7 +196,7 @@ export const useFileSystem = () => {
    * Manage File data
    */
   const removeFile = useCallback(
-    (idx) => {
+    async (idx, operation: FILE_OPERATION) => {
       // close file
       setFileSystem(
         produce((draft) => {

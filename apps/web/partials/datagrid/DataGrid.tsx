@@ -20,7 +20,6 @@ export const Datagrid = ({ isDropped }) => {
   const isShowInfoOpen = useRecoilValue(showInfoAtom);
   const isShowNotificationOpen = useRecoilValue(showNotificationAtom);
 
-  console.log({ rows, columns });
   const [sortColumns, setSortColumns] = useState([]);
   const onSortColumnsChange = useCallback((sortColumns) => {
     setSortColumns(sortColumns.slice(-1));
