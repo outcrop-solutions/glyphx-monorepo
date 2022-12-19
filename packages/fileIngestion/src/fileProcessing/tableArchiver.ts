@@ -60,7 +60,6 @@ export class TableArchiver {
       );
 
       pipeline(srcStream, passThrough);
-
       await uploader?.done();
 
       await this.s3Manager?.removeObject(key);
@@ -75,7 +74,6 @@ export class TableArchiver {
         err
       );
     }
-
     return {fileName: key, archiveFileName: archivePath};
   }
 
@@ -99,15 +97,14 @@ export class TableArchiver {
         this.modelId,
         tableName
       );
-      const fileList = await this.s3Manager?.listObjects(csvPath);
+      const fileList = await this.s3Manager.listObjects(csvPath);
       fileList.push(...(await this.s3Manager.listObjects(parquetPath)));
 
       if (fileList.length) {
         for (let i = 0; i < fileList.length; i++) {
           const key = fileList[i];
-          retval.affectedFiles.push(
-            await this.archiveFile(key, this.timeStamp)
-          );
+          const archiveResult = await this.archiveFile(key, this.timeStamp);
+          retval.affectedFiles.push(archiveResult);
         }
       }
     } catch (err) {
