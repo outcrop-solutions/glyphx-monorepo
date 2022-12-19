@@ -29,11 +29,9 @@ import { showNotificationAtom } from 'state/notification';
 import { dataGridLoadingAtom, GridModalErrorAtom, modelCreationLoadingAtom } from '../state';
 
 export default function Project() {
-  const [error, setError] = useState(false);
   const { query } = useRouter();
   const { projectId } = query;
   const setProjectId = useSetRecoilState(projectIdAtom);
-  // setProjectId(projectId);
   useEffect(() => {
     if (projectId) setProjectId(projectId);
   }, [projectId]);
@@ -62,7 +60,6 @@ export default function Project() {
       <div className="w-[40px]">
         <MainSidebar />
       </div>
-
       <div className="flex flex-col h-full w-full">
         <ProjectHeader />
         <div className="flex flex-row h-full w-full">

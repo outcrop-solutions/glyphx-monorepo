@@ -1,7 +1,6 @@
 import { usernameSelector } from 'state/user';
 import { useRecoilValue } from 'recoil';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 
 export function TableListItem({ projectDetails }) {
   const user = useRecoilValue(usernameSelector);
@@ -27,6 +26,7 @@ export function TableListItem({ projectDetails }) {
       </p>
       {/* @ts-ignore */}
       <p title="Last Updated" className="w-40">
+        {/* @ts-ignore */}
         {new Date(projectDetails.updatedAt).toLocaleDateString('en-US', dateOptions)}
       </p>
       <p title="Owner">{projectDetails.author === user ? 'Me' : projectDetails.author}</p>

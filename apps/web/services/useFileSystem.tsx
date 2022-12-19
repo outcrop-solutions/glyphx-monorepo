@@ -1,18 +1,17 @@
 import { useCallback } from 'react';
-import { Storage } from 'aws-amplify';
-import { parse } from 'papaparse';
-import { formatGridData } from 'partials';
+
 import {
-  fileSystemAtom,
   selectedFileAtom,
-  dataGridAtom,
+  fileSystemAtom,
   dataGridLoadingAtom,
-  filesOpenAtom,
-  projectIdAtom,
   selectedProjectSelector,
+  progressDetailAtom,
+  GridModalErrorAtom,
 } from '../state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { createFileSystem } from 'partials/files/transforms';
+import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'partials/files/transforms';
+import { useRouter } from 'next/router';
+import produce, { original, current } from 'immer';
 
 const cleanTableName = (fileName) => {
   return fileName.split('.')[0].trim().toLowerCase();
@@ -29,142 +28,168 @@ const cleanTableName = (fileName) => {
  */
 
 export const useFileSystem = () => {
-  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
-  const projectId = useRecoilValue(projectIdAtom);
-  const [filesOpen, setFilesOpen] = useRecoilState(filesOpenAtom);
-  const [selectedFile, setSelectedFile] = useRecoilState(selectedFileAtom);
-  const setDataGrid = useSetRecoilState(dataGridAtom);
-  const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
-  const project = useRecoilValue(selectedProjectSelector);
-  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
+  const router = useRouter();
+  const { orgId, projectId } = router.query;
 
+  const project = useRecoilValue(selectedProjectSelector);
+  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
+  const setSelectedFile = useSetRecoilState(selectedFileAtom);
+  const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
+
+  // update this to be on a per-file basis using an atomFamily
+  const setProgress = useSetRecoilState(progressDetailAtom);
+  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
+
+  // useEffect(() => {
+  //   const refreshFiles = async () => {
+  //     if (!Array.isArray(projectId))
+  //       try {
+  //         // client/clientid/modelid/input/tablename/file.csv
+  //         const data = await Storage.list(`client/${orgId}/${projectId}/input/`);
+  //         setFileSystem(createFileSystemFromS3(data, projectId));
+  //       } catch (error) {}
+  //   };
+
+  //   // refresh file system on project or org change
+  //   if (orgId && projectId) {
+  //     refreshFiles();
+  //   }
+  //   return () => {};
+  // }, [orgId, projectId]);
+
+  /**
+   * Handle all file ingestion across the application
+   * @param {File[]}
+   * @returns {void}
+   */
   const onDrop = useCallback(
-    async (acceptedFiles) => {
-      setDataGridState(true);
-      //update file system state with processed data
+    async (acceptedFiles: File[]) => {
+      // create loading state
+      setDataGridLoading(true);
+
+      // calculate & compare file stats
+      const newFileStats = await parseFileStats(acceptedFiles);
+      // const matchingStats = await compareStats(newFileStats, existingFileStats);
+
+      // ask user to make decision based on list
+
+      // update file system state with processed data based on user decision
       let newData = createFileSystem(acceptedFiles, fileSystem);
       setFileSystem([...(Array.isArray(newData) ? newData : [])]);
 
-      acceptedFiles.forEach(async (file: File) => {
-        // format data grid to render
-        const text = await file.text();
-        const { data } = parse(text, { header: true });
-        const grid = formatGridData(data);
-        setDataGrid(grid);
-        setFilesOpen((prev) => [...prev, file.name]);
-        setSelectedFile(file.name);
-
-        // send stream to file ingestion
-        const stream = new ReadableStream({
-          start(controller) {
-            controller.enqueue('Hello');
-          },
-        });
-        // const stream = await file.stream();
-        try {
-          fetch(`api/file-ingest`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: stream.pipeThrough(new TextEncoderStream()),
-          });
-        } catch (error) {}
-
-        //
+      // send operations to file ingestion
+      const result = await fetch(`/api/files/browser`, {
+        method: 'POST',
+        body: JSON.stringify({
+          orgId: 'glyphx',
+          projectId,
+          fileStats: [
+            ...(Array.isArray(newFileStats) ? newFileStats : []),
+            // ...(Array.isArray(existingFileStats) ? existingFileStats : []),
+          ],
+          fileInfo: [],
+        }),
       });
 
-      // add to filesystem state
-      // upload files to S3
+      //call file ingestion here
+      // try {
+      //   await fetch(`/api/files/browser?projectId=${projectId}`, {
+      //     method: 'POST',
+      //     body: createPayload(acceptedFiles)
+      //   });
+
+      //     let fileArr = [file.name];
+      //     if (project?.files !== null) {
+      //       fileArr = [...fileArr, ...project.files];
+      //     }
+      //     const updatedProject = {
+      //       id: project?.id,
+      //       filePath: project?.filePath,
+      //       properties: project?.properties,
+      //       url: project?.url,
+      //       shared: project.shared,
+      //       description: project.description,
+      //       files: fileArr, //adding file to dynamo db
+      //     };
+      //     console.log({ updatedProject });
+      //     let GraphQLresult = await updateProjectInfo(updatedProject);
+      //     console.log('GraphQL file update:', { GraphQLresult });
+      //   }
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
-    [setFileSystem, project, fileSystem, setDataGrid]
+    [setFileSystem, project, fileSystem]
+  );
+
+  /**
+   * MANAGE FILESYSTEM USER VIEW
+   */
+  const openFile = useCallback((idx) => {
+    // open file
+    setFileSystem(
+      produce((draft) => {
+        draft[idx].open = true;
+        console.log({ draft: current(draft) });
+      })
+    );
+    // select file
+    setSelectedFile(
+      produce((draft) => {
+        draft = idx;
+      })
+    );
+  }, []);
+
+  const selectFile = useCallback(
+    (idx) => {
+      // select file
+      setSelectedFile(
+        produce((draft) => {
+          draft.index = idx;
+        })
+      );
+    },
+    [setFileSystem]
+  );
+
+  const closeFile = useCallback(
+    (idx) => {
+      // close file
+      setFileSystem(
+        produce((draft) => {
+          draft[idx].open = false;
+        })
+      );
+      // update selection
+      setSelectedFile(
+        produce((draft) => {
+          // if closed file is selected, go to next closest file, else select none (via -1)
+          draft.index = original(draft) == idx ? idx - 1 : -1;
+        })
+      );
+    },
+    [setFileSystem]
+  );
+
+  /**
+   * Manage File data
+   */
+  const removeFile = useCallback(
+    (idx) => {
+      // close file
+      setFileSystem(
+        produce((draft) => {
+          draft[idx].open = false;
+        })
+      );
+    },
+    [setFileSystem]
   );
 
   return {
     onDrop,
-    setFiles: (arg) => {
-      setFileSystem((prev) => {
-        return [...prev, ...arg];
-      });
-    },
-    openFile: async (arg) => {
-      // if already in filesOpn && selected, do nothing
-      // if in filesOpen && not selected, select and add to datagrid
-      // if not in filesOpn && not selected, add to filesOpn && select && add to dataGrid
-      // if
-      // add to dataGrid
-      // set as selected File
-      const selectAndLoad = async () => {
-        setSelectedFile(arg);
-        setDataGridLoading(true);
-        const fileData = await Storage.get(`${projectId}/input/${arg}`, {
-          download: true,
-        });
-        // @ts-ignore
-        const blobData = await fileData.Body.text();
-        const { data } = parse(blobData, { header: true });
-        const grid = formatGridData(data);
-        setDataGridLoading(false);
-        setDataGrid(grid);
-      };
-
-      if (filesOpen.includes(arg) && selectedFile === arg) {
-        return;
-      } else if (filesOpen.includes(arg) && selectedFile !== arg) {
-        await selectAndLoad();
-      } else if (!filesOpen.includes(arg) && selectedFile !== arg) {
-        setFilesOpen((prev) => {
-          if (prev.length > 0) {
-            return [...prev, arg];
-          } else return [arg];
-        });
-        await selectAndLoad();
-      }
-    },
-    selectFile: async (arg) => {
-      // if already selected, do nothing
-      // if not selected, add to dataGrid && set as selected File
-
-      if (arg === selectedFile) {
-        return;
-      }
-      setSelectedFile(arg);
-      setDataGridLoading(true);
-      const fileData = await Storage.get(`${projectId}/input/${arg}`, {
-        download: true,
-      });
-      // @ts-ignore
-      const blobData = await fileData.Body.text();
-      const { data } = parse(blobData, { header: true });
-      const grid = formatGridData(data);
-      setDataGridLoading(false);
-      setDataGrid(grid);
-    },
-    closeFile: async (arg) => {
-      let newFilesOpen = [...filesOpen.filter((el) => el !== arg)];
-      setFilesOpen(newFilesOpen);
-      if (newFilesOpen.length > 0) {
-        setSelectedFile(newFilesOpen[newFilesOpen.length - 1]);
-        setDataGridLoading(true);
-        const fileData = await Storage.get(`${projectId}/input/${newFilesOpen[newFilesOpen.length - 1]}`, {
-          download: true,
-        });
-        // @ts-ignore
-        const blobData = await fileData.Body.text();
-        const { data } = parse(blobData, { header: true });
-        const grid = formatGridData(data);
-        setDataGridLoading(false);
-        setDataGrid(grid);
-      } else {
-        setDataGridLoading(false);
-        setSelectedFile('');
-        setDataGrid({ rows: [], columns: [] });
-      }
-    },
-    clearFiles: async () => {
-      setDataGrid({ columns: [], rows: [] });
-      setSelectedFile('');
-      setFilesOpen([]);
-      setFileSystem([]);
-    },
+    openFile,
+    selectFile,
+    closeFile,
+    removeFile,
   };
 };

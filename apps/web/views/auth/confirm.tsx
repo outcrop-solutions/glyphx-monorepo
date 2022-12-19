@@ -18,7 +18,6 @@ export default function Confirm() {
       // @ts-ignore
       await Auth.signIn(user.username, user.password);
       setUser(null);
-
       router.push('/home');
     } catch (error) {
       setError(error.message);

@@ -1,29 +1,43 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { BasicFieldTypeCalculator, FileIngestor } from '../../../../packages/file-ingestion/dist';
+import { BasicFieldTypeCalculator, FileIngestor } from '@glyphx/fileingestion';
 import { aws } from '@glyphx/core';
 
 import { IPayload } from '@glyphx/types/src/fileIngestion';
 import { FieldType, IngestionType, ProcessInput } from './types';
 import { fileIngestion } from '@glyphx/types';
-import { S3_BUCKET_NAME } from 'constants/config';
+// import { S3_BUCKET_NAME } from 'constants/config';
 import { FIELD_TYPE, FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 
 // call constructor, .init() && .process() on class instantiation, pipe return value to resonse object
 export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
-  const stream = req.body;
+  const { orgId, projectId } = req.query;
+  const { fileStats, fileInfo } = req.body;
+
+  if (Array.isArray(projectId) || Array.isArray(orgId))
+    return res.status(400).end('Bad request. projectId or orgId parameters cannot be arrays.');
+
+  // if (!Array.isArray(fileStats) || !Array.isArray(fileInfo))
+  //   return res.status(400).end('Bad request. fileStats && fileInfo parameters must be arrays.');
+
+  // const data = await Storage.list(`client/${orgId}/${projectId}/input/`);
+
+  // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
+  const s3Client = new aws.S3Manager(`sampleproject191427-prod
+    `);
+  await s3Client.init();
+  const objects = await s3Client.listObjects('');
   // const file = req.body;
   // console.log({ name, size, projectId, file });
-  console.log({ stream });
-  // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
   // console.log({ s3Client });
-  // await s3Client.init();
-  // const objects = await s3Client.listObjects('table1/Table1.csv');
-  // console.log({ objects });
+  console.log({ objects });
   // // TODO: Get S3 location from Dynamo table using projectId
   // // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
   // const file = await s3Client.getFileInformation(objects[0]);
   // console.log({ file });
-  // const stream = await s3Client.getObjectStream(file.fileName);
+  // fileInfo.forEach((op) => {
+  //   const stream = await s3Client.getObjectStream(op.table);
+  // })
+
   // console.log({ stream });
 
   // const fieldCalculator = new BasicFieldTypeCalculator('col2', 1, 1);
@@ -76,9 +90,18 @@ const RESOURCE_URL =
 //   runtime: 'experimental-edge',
 // };
 
+/
 export const streamS3 = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
   const { orgId, projectId } = req.query;
-  const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
+
+  if (Array.isArray(projectId) || Array.isArray(orgId))
+    return res.status(400).end('Bad request. projectId or orgId parameters cannot be arrays.');
+
+  // if (!Array.isArray(fileStats) || !Array.isArray(fileInfo))
+  //   return res.status(400).end('Bad request. fileStats && fileInfo parameters must be arrays.');
+
+  // const data = await Storage.list(`client/${orgId}/${projectId}/input/`);
+  // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
   await s3Client.init();
   const objects = await s3Client.listObjects('bigtable');
   console.log({ objects });
@@ -125,30 +148,3 @@ export const streamS3 = async (req: NextApiRequest, res: NextApiResponse): Promi
   // });
 };
 
-/**
- * Takes acceptedFiles from Client input and turns a renderable grid
- *
- * Fetches & returns either a single or all files available depending on
- * whether a `fileId` query parameter is provided. If not all files are
- * returned in descending order.
- *
- * @param type
- * @returns Grid
- */
-export async function processFiles(input: ProcessInput) {
-  convert2state(input);
-}
-
-const convert2state = async (input) => {
-  if (input.ingestionType == 'BROWSER') {
-    browser2state(input.files);
-  } else if (input.ingestionType == 'S3') {
-    s32state(input.files);
-  }
-};
-
-// TAKES ARRAY OF FILE BLOBS, RETURNS READABLE STREAM OF APP STATE
-const browser2state = (files: Blob[]) => {};
-
-// TAKES S3 LOCATION, STREAMS RENDERABLE APP STATE IN JSON FORMAT
-const s32state = (files: string) => {};

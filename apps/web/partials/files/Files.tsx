@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { Tree } from '@minoru/react-dnd-treeview';
-import { CustomNode } from './CustomNode';
-import { CustomDragPreview } from './CustomDragPreview';
+import { File } from './File';
 import { SidebarDropzone } from 'partials';
-import styles from './css/Sidebar.module.css';
 import { useDropzone } from 'react-dropzone';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { fileSystemAtom } from 'state/files';
+import { useRecoilValue } from 'recoil';
+import { fileSystemAtom, filesSelector } from 'state/files';
 import { useFileSystem } from 'services/useFileSystem';
 
 export const Files = () => {
   const { onDrop } = useFileSystem();
   const [isCollapsed, setCollapsed] = useState(false);
-  const fileSystem = useRecoilValue(fileSystemAtom);
-  const setFiles = useSetRecoilState(fileSystemAtom);
 
-  const handleDrop = (newTree) => setFiles(newTree);
+  const files = useRecoilValue(filesSelector);
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: ['.csv', 'application/vnd.ms-excel', 'text/csv'],
@@ -76,29 +72,11 @@ export const Files = () => {
         {!isCollapsed ? (
           <div className={`lg:block py-1 border-b border-gray`}>
             <div>
-              {
-                // @ts-ignore
-                fileSystem && fileSystem.length > 0 ? (
-                  <Tree
-                    initialOpen={true}
-                    // @ts-ignore
-                    tree={fileSystem}
-                    rootId={0}
-                    render={(node, { depth, isOpen, onToggle }) => (
-                      <CustomNode node={node} depth={depth} isOpen={isOpen} onToggle={onToggle} />
-                    )}
-                    dragPreviewRender={(monitorProps) => <CustomDragPreview monitorProps={monitorProps} />}
-                    onDrop={handleDrop}
-                    classes={{
-                      root: styles.treeRoot,
-                      draggingSource: styles.draggingSource,
-                      dropTarget: styles.dropTarget,
-                    }}
-                  />
-                ) : (
-                  <SidebarDropzone />
-                )
-              }
+              {files && files.length > 0 ? (
+                files?.map((file, idx) => <File key={`${file}-${idx}`} fileName={file} idx={idx} />)
+              ) : (
+                <SidebarDropzone />
+              )}
             </div>
           </div>
         ) : (

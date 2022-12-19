@@ -1,7 +1,8 @@
+
 import { HttpMethod } from 'types';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { handleIngestion } from 'lib/flile-ingest';
+import { handleIngestion } from 'lib/file-ingest';
 
 /**
  * UNCOMMENT TO DISABLE BUFFERING OF RESPONSE i.e to read raw data or stream

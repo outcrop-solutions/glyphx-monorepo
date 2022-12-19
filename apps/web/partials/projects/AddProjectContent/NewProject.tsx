@@ -14,6 +14,7 @@ import { userAtom, usernameSelector } from 'state/user';
 
 export const NewProject = ({ exit }) => {
   const router = useRouter();
+  const { orgId } = router.query;
   const username = useRecoilValue(usernameSelector);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -58,7 +59,7 @@ export const NewProject = ({ exit }) => {
       return;
     }
 
-    let memebers = createMembersArray();
+    let members = createMembersArray();
 
     const createProjectInput = {
       id: uuid(),
@@ -66,7 +67,7 @@ export const NewProject = ({ exit }) => {
       description,
       expiry: new Date(),
       author: username,
-      shared: [username, ...memebers],
+      shared: [username, ...members],
     };
 
     try {
@@ -75,7 +76,7 @@ export const NewProject = ({ exit }) => {
       };
 
       setShowAddProject(false);
-      router.push(`/project/${result.data.createProject.id}`);
+      router.push(`/${orgId}/${result.data.createProject.id}`);
     } catch (error) {}
   };
 

@@ -1,30 +1,23 @@
-import React, { Suspense } from "react";
-import { useRouter } from "next/router";
+import React, { Suspense } from 'react';
+import { useRouter } from 'next/router';
 
-import {
-  ProjectErrorFallback,
-  ProjectSuspenseFallback,
-} from "@/partials/fallback";
-import { ErrorBoundary } from "react-error-boundary";
+import { ProjectErrorFallback, ProjectSuspenseFallback } from '@/partials/fallback';
+import { ErrorBoundary } from 'react-error-boundary';
 
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
-const DynamicProject = dynamic(() => import("views/project"), {
+const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
   // suspense: true,
 });
 
 export default function Project({ user, data }) {
   const router = useRouter();
-  const { projectId } = router.query;
+  const { orgId, projectId } = router.query;
   return (
-    <ErrorBoundary
-      FallbackComponent={ProjectErrorFallback}
-      resetKeys={[projectId]}
-      onReset={() => {}}
-    >
+    <ErrorBoundary FallbackComponent={ProjectErrorFallback} resetKeys={[projectId, orgId]} onReset={() => {}}>
       {/* <Suspense fallback={<ProjectSuspenseFallback user={user} data={data} />}> */}
-        <DynamicProject />
+      <DynamicProject />
       {/* </Suspense> */}
     </ErrorBoundary>
   );
@@ -33,8 +26,8 @@ export default function Project({ user, data }) {
 /**
  * Jonathan:
  * When we check if user is authenticated server side, it will fail. I believe this is because the user details
- * are not stored server side. Rather let's take this out. 
- * 
+ * are not stored server side. Rather let's take this out.
+ *
  */
 
 // GET LATEST DATA TO POPULATE INITAL RENDER
@@ -46,7 +39,7 @@ export default function Project({ user, data }) {
 //   const SSR = withSSRContext({ req: context.req });
 
 //   try {
-//     //testing 
+//     //testing
 //     // const test = await Auth.signIn("jlamptey@nd.edu", "Test1234567");
 //     // console.log({test})
 //     // await Auth.signOut()

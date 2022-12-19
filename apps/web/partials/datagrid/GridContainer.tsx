@@ -18,6 +18,7 @@ import {
 export const GridContainer = ({ isDropped }) => {
   const rows = useRecoilValue(rowsSelector);
   const cols = useRecoilValue(columnsSelector);
+  console.log({ rows, cols });
   var r = document.querySelector(':root');
   const orientation = useRecoilValue(orientationAtom);
   const stdName = useRecoilValue(sdtValue);
@@ -139,6 +140,7 @@ export const GridContainer = ({ isDropped }) => {
         <>
           {stdName !== null ? (
             <div className="">
+              {/* @ts-ignore */}
               <SplitPane
                 split={orientation === 'horizontal' ? 'horizontal' : 'vertical'}
                 allowResize={true}

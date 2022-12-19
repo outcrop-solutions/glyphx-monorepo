@@ -38,6 +38,7 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
+  const { orgId } = router.query;
   const user = useRecoilValue(userAtom);
   // const reloadProjects = async () => {
   //   try {
@@ -84,7 +85,7 @@ export const Templates = () => {
       const result = (await API.graphql(graphqlOperation(createProject, { input: createProjectInput }))) as {
         data: CreateProjectMutation;
       };
-      router.push(`/project/${result.data.createProject.id}`);
+      router.push(`/${orgId}/${result.data.createProject.id}`);
     } catch (error) {}
   };
   return (

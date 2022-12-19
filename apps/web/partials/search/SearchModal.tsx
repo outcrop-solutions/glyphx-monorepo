@@ -10,29 +10,12 @@ import Fuse from 'fuse.js'; // importing fuse
 
 export function SearchModal() {
   const router = useRouter();
+  const { orgId } = router.query;
+
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const projects = useRecoilValue(projectsAtom);
   const [query, setQuery] = useState('');
   const [queryResult, setQueryResult] = useState([]);
-
-  const testData = [
-    {
-      name: 'Sample Project 1',
-      modelID: '5cfaef9c-49cd-4cac-a150-d814d07cfb72',
-    },
-    {
-      name: 'Sample Project 2',
-      modelID: '5cfaef9c-49cd-4cac-a150-d814d07cfb72',
-    },
-    {
-      name: 'Robert Weed Project',
-      modelID: '5cfaef9c-49cd-4cac-a150-d814d07cfb72',
-    },
-    {
-      name: 'Complicated Data',
-      modelID: '5cfaef9c-49cd-4cac-a150-d814d07cfb72',
-    },
-  ];
 
   const options = {
     isCaseSensitive: false,
@@ -144,7 +127,7 @@ export function SearchModal() {
                   {projects.slice(0, 5).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/project/${value.id}`}>
+                        <Link href={`/${orgId}/${value.id}`}>
                           <a className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
                             <svg
                               className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
@@ -169,7 +152,7 @@ export function SearchModal() {
                   {queryResult.slice(0, 10).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/project/${value.item.id}`}>
+                        <Link href={`/${orgId}/${value.item.id}`}>
                           <a
                             // onClick={() => {
                             //   setShowSearchModalOpen(false);

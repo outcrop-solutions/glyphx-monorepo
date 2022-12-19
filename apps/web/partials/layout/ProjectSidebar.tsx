@@ -7,9 +7,6 @@ import { useRecoilState } from 'recoil';
 import { glyphViewerDetails } from 'state/globals';
 
 export const ProjectSidebar = ({ handleDrop }) => {
-  const router = useRouter();
-  const { id: projectId } = router.query;
-
   //utilities
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);

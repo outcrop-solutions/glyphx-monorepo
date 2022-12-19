@@ -4,6 +4,7 @@ import { GetProjectQuery } from 'API';
 import { getProject } from 'graphql/queries';
 import { userAtom } from './user';
 import { API, graphqlOperation } from 'aws-amplify';
+
 export const projectIdAtom = atom({
   key: 'projectId',
   default: null,
