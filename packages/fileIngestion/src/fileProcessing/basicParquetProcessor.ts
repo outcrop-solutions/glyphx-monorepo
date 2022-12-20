@@ -57,6 +57,7 @@ export class BasicParquetProcessor extends Transform {
     encoding: BufferEncoding,
     callback: TransformCallback
   ) {
+    //TODO: need to make sure that exceptions cannot leak out of this transformer.
     if (this.firstRow) {
       //If this is the first row, then the row is our
       //parquet schema.

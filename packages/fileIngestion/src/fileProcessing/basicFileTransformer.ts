@@ -376,6 +376,9 @@ export class BasicFileTransformer extends Transform {
     encoding: BufferEncoding,
     callback: TransformCallback
   ): void {
+    //TODO: we need some exception handling here.  We cannot allow an uncaught exception to bubble up and crash the pipeline.
+    //we should catch the error and then emit on 'error' event.   Not sure yet what we should do if the first row fails.
+    //if any other row fails we should log it and move on.
     if (this.firstRow) {
       this.processFirstRow(chunk);
     }

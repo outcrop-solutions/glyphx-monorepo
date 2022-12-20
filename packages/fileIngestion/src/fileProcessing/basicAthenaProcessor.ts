@@ -65,7 +65,7 @@ export class BasicAthenaProcessor {
     viewName: string,
     files: IFileInformation[]
   ): Promise<IJoinTableDefinition[]> {
-    //TODO: What to do about files that error.  I guess we can write out the others and create a view on what does pass.  Or just write the tabels but not the view, butthen what would we report back to the front end.
+    //TODO: What to do about files that error.  I guess we can write out the others and create a view on what does pass.  Or just write the tabels but not the view, but then what would we report back to the front end.
     const tableSorter = new BasicTableSorter();
     const sortedTables = tableSorter.sortTables(files);
     const tablePlanner = new BasicHiveTableQueryPlanner(
