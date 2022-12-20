@@ -185,29 +185,36 @@ export class BasicFileTransformer extends Transform {
 
     //when this finishes we need to sendout our file information.
     this.on('finish', () => {
-      callback({
-        fileName: this.fileName,
-        parquetFileName: this.outputFileName,
-        outputFileDirecotry: this.outputDirectory,
-        tableName: this.tableName,
-        numberOfRows: this.rowNumber,
-        numberOfColumns: this.columTypeTrackers.length,
-        columns: this.columTypeTrackers.map(c => {
-          return {
-            name: c.columnName,
-            origionalName: c.origionalColumnName,
-            fieldType: c.fieldTypeCalculator.fieldType,
-            longestString:
-              c.fieldTypeCalculator.fieldType ===
-              fileIngestion.constants.FIELD_TYPE.STRING
-                ? c.maxFieldLength
-                : undefined,
-          };
-        }),
-        fileSize: this.fileSize,
-        fileOperationType: this.fileOperation,
-      });
+      callback(this.getDataForCallback());
     });
+  }
+
+  /**
+   * Puts the data together for the callback
+   */
+  private getDataForCallback(): fileProcessingInterfaces.IFileInformation {
+    return {
+      fileName: this.fileName,
+      parquetFileName: this.outputFileName,
+      outputFileDirecotry: this.outputDirectory,
+      tableName: this.tableName,
+      numberOfRows: this.rowNumber,
+      numberOfColumns: this.columTypeTrackers.length,
+      columns: this.columTypeTrackers.map(c => {
+        return {
+          name: c.columnName,
+          origionalName: c.origionalColumnName,
+          fieldType: c.fieldTypeCalculator.fieldType,
+          longestString:
+            c.fieldTypeCalculator.fieldType ===
+            fileIngestion.constants.FIELD_TYPE.STRING
+              ? c.maxFieldLength
+              : undefined,
+        };
+      }),
+      fileSize: this.fileSize,
+      fileOperationType: this.fileOperation,
+    };
   }
 
   /**

@@ -146,7 +146,15 @@ export class FileUploadManager {
     );
 
     splitStream.startPipeline();
-    await Promise.all([csvUpload.done(), parquetUpload.done()]);
+    try {
+      await Promise.all([csvUpload.done(), parquetUpload.done()]);
+    } catch (err) {
+      throw new error.InvalidOperationError(
+        'An unexpected error occurred while uploading the file.  See the inner error for additional information',
+        {},
+        err
+      );
+    }
 
     return {
       fileInformation: processedFileInformation,

@@ -103,6 +103,9 @@ export class ForkingStream extends SafeStream {
   public addStreams(...transforms: Writable[]) {
     if (this.isSafe) {
       transforms.forEach(transform => {
+        transform.on('error', e => {
+          console.log('here I am');
+        });
         this.basePipe = this.basePipe.pipe(transform);
       });
     }
@@ -179,10 +182,14 @@ class ForkedStream extends SafeStream {
   public addStreams(...streams: Writable[]) {
     if (this.isSafe) {
       streams.forEach(transform => {
+        transform.on('error', e => {
+          console.log('here I am');
+        });
         this.forkField = this.forkField.pipe(transform);
       });
     }
   }
+
   public done(): Promise<void> {
     this.unsafe = true;
     return new Promise((resolve, reject) => {

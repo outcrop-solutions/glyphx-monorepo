@@ -5,10 +5,10 @@ export function getFullTableName(
   modelId: string,
   tableName: string
 ): string {
-  return `${clientId}_${modelId}_${tableName}`;
+  return `${clientId}_${modelId}_${tableName}`.toLowerCase();
 }
 export function getViewName(clientId: string, modelId: string): string {
-  return `${clientId}_${modelId}_view`;
+  return `${clientId}_${modelId}_view`.toLowerCase();
 }
 
 export function getTableCsvPath(
@@ -16,7 +16,7 @@ export function getTableCsvPath(
   modelId: string,
   tableName: string
 ): string {
-  return `client/${clientId}/${modelId}/input/${tableName}/`;
+  return `client/${clientId}/${modelId}/input/${tableName}/`.toLowerCase();
 }
 
 export function getTableParquetPath(
@@ -24,7 +24,7 @@ export function getTableParquetPath(
   modelId: string,
   tableName: string
 ): string {
-  return `client/${clientId}/${modelId}/data/${tableName}/`;
+  return `client/${clientId}/${modelId}/data/${tableName}/`.toLowerCase();
 }
 export function getArchiveFilePath(
   clientId: string,
@@ -38,7 +38,8 @@ export function getArchiveFilePath(
   const fileName = deconstructedFilePath.fileName;
 
   //client/clientId/archive/moedlId/20221213091632/input/table1/table1.csv
-  const retval = `client/${clientId}/archive/${modelId}/${timestamp}/${src}/${tableName}/${fileName}`;
+  const retval =
+    `client/${clientId}/archive/${modelId}/${timestamp}/${src}/${tableName}/${fileName}`.toLowerCase();
 
   return retval;
 }

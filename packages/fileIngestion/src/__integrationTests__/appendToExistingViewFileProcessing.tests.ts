@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import { aws } from '@glyphx/core';
+import {aws} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 import appendFilesJson from './assets/appendTables.json';
@@ -79,7 +79,8 @@ describe('#fileProcessing', () => {
     it('Basic pipeline test', async () => {
       const fileIngestor = new FileIngestor(payload, databaseName);
       await fileIngestor.init();
-      const {joinInformation} = await fileIngestor.process();
+      const res = await fileIngestor.process();
+      const {joinInformation} = res;
       await fileProcessingHelpers.validateTableResults(
         joinInformation,
         athenaManager

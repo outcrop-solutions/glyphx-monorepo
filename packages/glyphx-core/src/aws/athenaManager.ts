@@ -184,13 +184,13 @@ export class AthenaManager {
 
   public async tableExists(tableName: string): Promise<boolean> {
     const tableExistsQuery = `SHOW TABLES '${tableName}'`;
-    const results = await this.runQuery(tableExistsQuery);
+    const results = await this.runQuery(tableExistsQuery, 10, true);
     if (results.length > 0) return true;
     else return false;
   }
   public async viewExists(viewName: string): Promise<boolean> {
     const viewExistsQuery = `SHOW VIEWS LIKE '${viewName}'`;
-    const results = await this.runQuery(viewExistsQuery);
+    const results = await this.runQuery(viewExistsQuery, 10, true);
     if (results.length > 0) return true;
     else return false;
   }
