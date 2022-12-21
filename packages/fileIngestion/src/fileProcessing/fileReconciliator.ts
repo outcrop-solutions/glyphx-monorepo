@@ -19,14 +19,11 @@ export class FileReconciliator {
   ) {
     fileInfo.forEach(f => {
       if (f.operation === fileIngestion.constants.FILE_OPERATION.DELETE) return;
-      const fileStats =
-        processedFileInformation.find(
-          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
-        ) ||
-        (fileStatistics.find(
-          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
-        ) as unknown as IFileInformation);
-      fileInfos.push(fileStats);
+      const fileStats = processedFileInformation.find(
+        fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+      ) as unknown as IFileInformation;
+      //istanbul ignore else
+      if (fileStats) fileInfos.push(fileStats);
     });
   }
 
@@ -41,7 +38,11 @@ export class FileReconciliator {
       if (deletedTableNames.find(d => d === f.tableName)) return;
       if (
         !fileInfos.find(
-          fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+          fi =>
+            fi.tableName === f.tableName &&
+            (fi.fileName === f.fileName ||
+              fi.fileOperationType ===
+                fileIngestion.constants.FILE_OPERATION.REPLACE)
         )
       ) {
         //these are essentially no-ops for the Athena Proceser.  This will make sure that they are included in the view, but the table wwill not be regenerated.
