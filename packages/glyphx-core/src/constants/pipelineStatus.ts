@@ -3,4 +3,5 @@ export enum PIPELINE_STATUS {
   RUNNING = 'running',
   COMPLETE = 'complete',
   ERROR = 'error',
+  CANCELLED = 'cancelled',
 }

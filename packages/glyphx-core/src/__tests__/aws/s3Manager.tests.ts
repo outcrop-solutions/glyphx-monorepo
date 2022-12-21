@@ -186,8 +186,6 @@ describe('#aws/s3Manager', () => {
       await s3Manager.init();
 
       const result = await s3Manager.getFileInformation(fileName);
-      assert.isOk(error);
-      assert.notInstanceOf(result, error.InvalidOperationError);
 
       assert.strictEqual(result.fileName, fileName);
       assert.strictEqual(result.fileSize, fileSize);
@@ -326,6 +324,45 @@ describe('#aws/s3Manager', () => {
         errored = true;
       }
       assert.isTrue(errored);
+    });
+  });
+  context('fileExists', () => {
+    let s3Mock: any;
+    beforeEach(() => {
+      s3Mock = mockClient(S3);
+    });
+
+    afterEach(() => {
+      s3Mock.restore();
+    });
+    it('will return true if the file exists', async () => {
+      const fileSize = 63630;
+      const fileName = 'testFileName';
+      const mock = new S3Mock({headObjectFileSize: fileSize});
+      s3Mock.on(HeadBucketCommand).callsFake(mock.headBucket.bind(mock));
+      s3Mock.on(HeadObjectCommand).callsFake(mock.headObject.bind(mock));
+
+      const s3Manager = new S3Manager('Some unknown bucket');
+      await s3Manager.init();
+
+      const result = await s3Manager.fileExists(fileName);
+
+      assert.isTrue(result);
+    });
+
+    it('will return false if the file does not exist', async () => {
+      const errorText = 'An error has occurred';
+      const fileName = 'testFileName';
+      const mock = new S3Mock({failsOnHeadObject: errorText});
+      s3Mock.on(HeadBucketCommand).callsFake(mock.headBucket.bind(mock));
+      s3Mock.on(HeadObjectCommand).callsFake(mock.headObject.bind(mock));
+
+      const s3Manager = new S3Manager('Some unknown bucket');
+      await s3Manager.init();
+
+      const result = await s3Manager.fileExists(fileName);
+
+      assert.isFalse(result);
     });
   });
 });

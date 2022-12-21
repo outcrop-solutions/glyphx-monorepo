@@ -181,13 +181,35 @@ export class AthenaManager {
       }
     }
   }
-
+  /**
+   * Will return a boolean indicating whether or not the table exists
+   * in our database.  This function wraps the function {@link runQuery}
+   * and will not catch any exeptions that it throws.
+   *
+   * @param tableName -- the name of the table to search the database for.
+   *
+   *
+   * @throws QueryTimeoutError -- if the query times out before a result is available.
+   * @throws InvalidOperationError -- in response to any other exceptions thrown by the @aws-sdk/client-athena package.
+   */
   public async tableExists(tableName: string): Promise<boolean> {
     const tableExistsQuery = `SHOW TABLES '${tableName}'`;
     const results = await this.runQuery(tableExistsQuery, 10, true);
     if (results.length > 0) return true;
     else return false;
   }
+
+  /**
+   * Will return a boolean indicating whether or not the view exists
+   * in our database.  This function wraps the function {@link runQuery}
+   * and will not catch any exeptions that it throws.
+   *
+   * @param viewName-- the name of the table to search the database for.
+   *
+   *
+   * @throws QueryTimeoutError -- if the query times out before a result is available.
+   * @throws InvalidOperationError -- in response to any other exceptions thrown by the @aws-sdk/client-athena package.
+   */
   public async viewExists(viewName: string): Promise<boolean> {
     const viewExistsQuery = `SHOW VIEWS LIKE '${viewName}'`;
     const results = await this.runQuery(viewExistsQuery, 10, true);
@@ -195,10 +217,33 @@ export class AthenaManager {
     else return false;
   }
 
+  /**
+   * Will silently drop a table in the database.  There is no indication
+   * whether or not the table actually existed. This function wraps the
+   * function {@link runQuery} and will not catch any exeptions that it throws.
+   *
+   * @param tableName -- the name of the table to drop.
+   *
+   *
+   * @throws QueryTimeoutError -- if the query times out before a result is available.
+   * @throws InvalidOperationError -- in response to any other exceptions thrown by the @aws-sdk/client-athena package.
+   */
   public async dropTable(tableName: string): Promise<void> {
     const dropQuery = `DROP TABLE IF EXISTS ${tableName};`;
     await this.runQuery(dropQuery);
   }
+
+  /**
+   * Will silently drop a view in the database.  There is no indication
+   * whether or not the view actually existed. This function wraps the
+   * function {@link runQuery} and will not catch any exeptions that it throws.
+   *
+   * @param viewName -- the name of the view to drop.
+   *
+   *
+   * @throws QueryTimeoutError -- if the query times out before a result is available.
+   * @throws InvalidOperationError -- in response to any other exceptions thrown by the @aws-sdk/client-athena package.
+   */
   public async dropView(viewName: string): Promise<void> {
     const dropQuery = `DROP VIEW IF EXISTS ${viewName};`;
     await this.runQuery(dropQuery);

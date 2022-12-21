@@ -10,7 +10,8 @@ import {
   GetQueryResultsCommand,
 } from '@aws-sdk/client-athena';
 import ResultSetMock from './resultSetMocks.json';
-import * as error  from '../../error';
+import * as error from '../../error';
+import {createSandbox} from 'sinon';
 
 describe('#aws/AthenaManager', () => {
   context('init', () => {
@@ -186,6 +187,210 @@ describe('#aws/AthenaManager', () => {
       }
 
       assert.isTrue(hasErrored);
+    });
+  });
+
+  context('tableExists', () => {
+    const sandbox = createSandbox();
+    beforeEach(() => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(undefined as void)
+      );
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('will return true when a table exists', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+
+      sandbox.replace(
+        athenaManager,
+        'runQuery',
+        sandbox.fake.resolves([{tab_name: 'table1'}])
+      );
+
+      assert.isTrue(await athenaManager.tableExists('sometable'));
+    });
+    it('will return false when a table does not exist', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.resolves([]));
+
+      assert.isFalse(await athenaManager.tableExists('sometable'));
+    });
+
+    it('will not catch or process an error from runQuery', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const errorString = 'Oops I did it again';
+      sandbox.replace(
+        athenaManager,
+        'runQuery',
+        sandbox.fake.rejects(errorString)
+      );
+      let errored = false;
+      try {
+        await athenaManager.tableExists('sometable');
+      } catch (err) {
+        assert.strictEqual((err as any).message, errorString);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+  context('viewExists', () => {
+    const sandbox = createSandbox();
+    beforeEach(() => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(undefined as void)
+      );
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('will return true when a viewexists', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+
+      sandbox.replace(
+        athenaManager,
+        'runQuery',
+        sandbox.fake.resolves([{tab_name: 'table1'}])
+      );
+
+      assert.isTrue(await athenaManager.viewExists('sometable'));
+    });
+    it('will return false when a viewdoes not exist', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.resolves([]));
+
+      assert.isFalse(await athenaManager.viewExists('sometable'));
+    });
+
+    it('will not catch or process an error from runQuery', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const errorString = 'Oops I did it again';
+      sandbox.replace(
+        athenaManager,
+        'runQuery',
+        sandbox.fake.rejects(errorString)
+      );
+      let errored = false;
+      try {
+        await athenaManager.viewExists('sometable');
+      } catch (err) {
+        assert.strictEqual((err as any).message, errorString);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('dropTable', () => {
+    const sandbox = createSandbox();
+    beforeEach(() => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(undefined as void)
+      );
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will drop the table', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.resolves([]));
+      let errored = false;
+      try {
+        await athenaManager.dropTable('sometable');
+      } catch (err) {
+        errored = true;
+      }
+
+      assert.isFalse(errored);
+    });
+    it('will not catch or process an error from runQuery', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const errorString = 'Oops I did it again';
+      sandbox.replace(
+        athenaManager,
+        'runQuery',
+        sandbox.fake.rejects(errorString)
+      );
+      let errored = false;
+      try {
+        await athenaManager.dropTable('sometable');
+      } catch (err) {
+        assert.strictEqual((err as any).message, errorString);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+  context('dropView', () => {
+    const sandbox = createSandbox();
+    beforeEach(() => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(undefined as void)
+      );
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will drop the view', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.resolves([]));
+      let errored = false;
+      try {
+        await athenaManager.dropView('sometable');
+      } catch (err) {
+        errored = true;
+      }
+
+      assert.isFalse(errored);
+    });
+    it('will not catch or process an error from runQuery', async () => {
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const errorString = 'Oops I did it again';
+      sandbox.replace(
+        athenaManager,
+        'runQuery',
+        sandbox.fake.rejects(errorString)
+      );
+      let errored = false;
+      try {
+        await athenaManager.dropView('sometable');
+      } catch (err) {
+        assert.strictEqual((err as any).message, errorString);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
     });
   });
 });
