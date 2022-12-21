@@ -82,7 +82,7 @@ export default function Project() {
                   message={gridModalError.message}
                   devErrorMessage={gridModalError.devError}
                 />
-              ) : dataGridLoading ? ( //if something is loading
+              ) : dataGridLoading ? (
                 <GridLoadingAnimation />
               ) : modelCreationLoading ? ( //if creating model
                 <LoadingModelAnimation />
