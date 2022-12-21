@@ -51,7 +51,7 @@ export const createFileSystemFromS3 = (
   if (Array.isArray(s3Directory)) {
     s3Directory.forEach((item) => add(item.key, files, item));
   }
-  console.log({ files });
+  
   // TODO: this needs to change to orgLevel
   if (Object.keys(files).length !== 0) {
     // if empty then return empty array

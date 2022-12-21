@@ -9,7 +9,6 @@
     "@aws-sdk/lib-storage": "^3.223.0",
     "@aws-sdk/signature-v4-crt": "3.222.0",
     "@glyphx/core": "workspace:*",
-    "@glyphx/database": "workspace:*",
     "@glyphx/eslint-config-custom": "workspace:*",
     "@glyphx/fileingestion": "workspace:*",
     "@glyphx/react-data-grid": "workspace:*",

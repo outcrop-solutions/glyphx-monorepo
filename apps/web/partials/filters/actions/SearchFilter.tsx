@@ -20,7 +20,7 @@ export const SearchFilter = ({ lastDroppedItem }) => {
     );
   }, [chips]);
 
-  const handleAddKeyword = useCallback((value, idx, prop) => {
+  const handleAddKeyword = useCallback((value) => {
     if (value.key === "Enter") {
       value.preventDefault();
       setFiltersApplied(

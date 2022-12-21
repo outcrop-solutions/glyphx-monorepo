@@ -185,7 +185,7 @@ export const useFileSystem = () => {
       setSelectedFile(
         produce((draft) => {
           // if closed file is selected, go to next closest file, else select none (via -1)
-          draft.index = original(draft) == idx ? idx - 1 : -1;
+          draft.index = draft.index == idx ? idx - 1 : -1;
         })
       );
     },

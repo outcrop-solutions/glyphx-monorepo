@@ -4,7 +4,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { useRecoilValue } from 'recoil';
 
 export default function DecisionModal() {
-    const matchingFiles = useRecoilValue(matchingFilesAtom);
+  const matchingFiles = useRecoilValue(matchingFilesAtom);
   //   const [open, setOpen] = useState(matchingFiles && matchingFiles.length > 0 ? true : false);
 
   const [open, setOpen] = useState(true);
@@ -68,22 +68,21 @@ export default function DecisionModal() {
                       <div className="mt-2">
                         <p className="text-sm text-light-gray">
                           Some of your files are similar to each other. Please select the operations you would like to
-                          perform:<br />
+                          perform:
+                          <br />
                           <br />
                           <b className="text-yellow">ADD</b> will create a new table,{' '}
                           <b className="text-yellow">APPEND</b> will add to the existing table, and{' '}
-                          <b className="text-yellow">REPLACE</b> will replace the contents of the target table. <br/><br/> This
-                          action cannot be undone.
+                          <b className="text-yellow">REPLACE</b> will replace the contents of the target table. <br />
+                          <br /> This action cannot be undone.
                         </p>
                       </div>
                     </div>
                   </div>
-                  <li>{matchingFiles?.map(({new, existing}) => (
+                  {/* <li>{matchingFiles?.map(({new, existing}) => (
                     <>hello</>
-                  ))}
-
-                  {renderButtons()}
-                  </li>
+                  ))} */}
+                  <li>{renderButtons()}</li>
                 </Dialog.Panel>
               </Transition.Child>
             </div>

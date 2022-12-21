@@ -1,51 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { BasicFieldTypeCalculator, FileIngestor } from '@glyphx/fileingestion';
-import { aws } from '@glyphx/core';
+// import { aws } from '@glyphx/core';
 
-import { IPayload } from '@glyphx/types/src/fileIngestion';
-import { FieldType, IngestionType, ProcessInput } from './types';
-import { fileIngestion } from '@glyphx/types';
 // import { S3_BUCKET_NAME } from 'constants/config';
 import { FIELD_TYPE, FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 
 // call constructor, .init() && .process() on class instantiation, pipe return value to resonse object
 export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
   const { orgId, projectId } = req.query;
-  const { fileStats, fileInfo } = req.body;
+  // const { fileStats, fileInfo } = req.body;
 
-  if (Array.isArray(projectId) || Array.isArray(orgId))
-    return res.status(400).end('Bad request. projectId or orgId parameters cannot be arrays.');
+  // if (Array.isArray(projectId) || Array.isArray(orgId))
+  //   return res.status(400).end('Bad request. projectId or orgId parameters cannot be arrays.');
 
-  // if (!Array.isArray(fileStats) || !Array.isArray(fileInfo))
-  //   return res.status(400).end('Bad request. fileStats && fileInfo parameters must be arrays.');
-
-  // const data = await Storage.list(`client/${orgId}/${projectId}/input/`);
-
-  // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
-  const s3Client = new aws.S3Manager(`sampleproject191427-prod
-    `);
-  await s3Client.init();
-  const objects = await s3Client.listObjects('');
-  // const file = req.body;
-  // console.log({ name, size, projectId, file });
-  // console.log({ s3Client });
-  console.log({ objects });
-  // // TODO: Get S3 location from Dynamo table using projectId
-  // // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
-  // const file = await s3Client.getFileInformation(objects[0]);
-  // console.log({ file });
-  // fileInfo.forEach((op) => {
-  //   const stream = await s3Client.getObjectStream(op.table);
-  // })
-
-  // console.log({ stream });
-
-  // const fieldCalculator = new BasicFieldTypeCalculator('col2', 1, 1);
-
-  // fieldCalculator.processItems(stream);
-  // stream.once('end', () => {
-  //   console.log({ fieldCalculator });
-  // });
+  // // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
+  // const s3Client = new aws.S3Manager(`sampleproject191427-prod
+  //   `);
+  // await s3Client.init();
+  // const objects = await s3Client.listObjects('');
+  // // const file = await s3Client.getFileInformation(objects[0]);
+  // // fileInfo.forEach((op) => {
+  // //   const stream = await s3Client.getObjectStream(op.table);
+  // // })
   // const fileStats = {
   //   fileName: name,
   //   tableName: name.split('.')[0],
@@ -90,7 +65,6 @@ const RESOURCE_URL =
 //   runtime: 'experimental-edge',
 // };
 
-/
 export const streamS3 = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
   const { orgId, projectId } = req.query;
 
@@ -102,13 +76,13 @@ export const streamS3 = async (req: NextApiRequest, res: NextApiResponse): Promi
 
   // const data = await Storage.list(`client/${orgId}/${projectId}/input/`);
   // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
-  await s3Client.init();
-  const objects = await s3Client.listObjects('bigtable');
-  console.log({ objects });
-  // TODO: Get S3 location from Dynamo table using projectId
-  // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
-  const fileInfo = await s3Client.getFileInformation(objects[1]);
-  console.log({ fileInfo });
+  // await s3Client.init();
+  // const objects = await s3Client.listObjects('bigtable');
+  // console.log({ objects });
+  // // TODO: Get S3 location from Dynamo table using projectId
+  // // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
+  // const fileInfo = await s3Client.getFileInformation(objects[1]);
+  // console.log({ fileInfo });
   // const stream = await s3Client.getObjectStream(fileInfo.fileName);
   // console.log({ stream });
 
@@ -118,8 +92,8 @@ export const streamS3 = async (req: NextApiRequest, res: NextApiResponse): Promi
   // The decoder will be used to decode the bytes in the stream returned by fetching
   // the external resource to UTF-8 (the default).
   // https://developer.mozilla.org/en-US/docs/Web/API/TextDecode
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
+  // const encoder = new TextEncoder();
+  // const decoder = new TextDecoder();
 
   return res.status(200).json({ ok: true });
   // Pipe the stream to a transform stream that will take its chunks and transform

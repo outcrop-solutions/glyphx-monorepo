@@ -62,7 +62,7 @@ export default function Project() {
 
   return (
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
-      <DynamicDecisionModal />
+      {/* <DynamicDecisionModal /> */}
       <div className="w-[40px]">
         <MainSidebar />
       </div>

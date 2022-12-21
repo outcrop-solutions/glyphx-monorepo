@@ -1,1 +1,1 @@
-export * from 'file-ingest';
+export * from './file-ingest';
