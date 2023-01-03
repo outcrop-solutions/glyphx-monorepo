@@ -99,6 +99,7 @@ model Project {
   ownerId      String?
   state        State?        @relation(fields: [stateId], references: [id])
   stateId      String
+  files        Json[]
 }
 
 // corresponds to a combination of s3 

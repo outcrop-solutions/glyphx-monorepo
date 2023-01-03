@@ -23,7 +23,8 @@
     "predev": "npm run generate"
   },
   "dependencies": {
-    "@prisma/client": "^4.5.0"
+    "@prisma/client": "^4.5.0",
+    "mongoose": "^6.8.1"
   },
   "devDependencies": {
     "@glyphx/tsconfig": "workspace:*",
