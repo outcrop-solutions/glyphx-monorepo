@@ -10,6 +10,7 @@ import {IUserMethods} from './iUserMethods';
 
 export interface IUserStaticMethods
   extends Model<databaseTypes.IUser, {}, IUserMethods> {
+  userIdExists(userId: mongooseTypes.ObjectId): Promise<boolean>;
   createUser(input: databaseTypes.IUser): Promise<databaseTypes.IUser>;
   getUserById(userId: mongooseTypes.ObjectId): Promise<databaseTypes.IUser>;
   updateUserById(

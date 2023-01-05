@@ -8,7 +8,7 @@ import {
 } from './constants';
 
 export interface IAccount {
-  _id: mongooseTypes.ObjectId;
+  _id?: mongooseTypes.ObjectId;
   type: ACCOUNT_TYPE;
   provider: ACCOUNT_PROVIDER;
   providerAccountId: string;
@@ -22,6 +22,5 @@ export interface IAccount {
   session_state: SESSION_STATE;
   oauth_token_secret: string;
   oauth_token: string;
-  userId: mongooseTypes.ObjectId;
-  user?: IUser;
+  user: IUser;
 }

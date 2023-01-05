@@ -19,12 +19,12 @@ const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   image: {type: String, required: false},
   createdAt: {type: Date, required: true, default: Date.now()},
   updatedAt: {type: Date, required: true, default: Date.now()},
-  accounts: {type: [Schema.Types.ObjectId], ref: 'accounts', default: []},
-  sessions: {type: [Schema.Types.ObjectId], ref: 'Session', default: []},
-  webhooks: {type: [Schema.Types.ObjectId], ref: 'Webhook', default: []},
+  accounts: {type: [Schema.Types.ObjectId], ref: 'account', default: []},
+  sessions: {type: [Schema.Types.ObjectId], ref: 'session', default: []},
+  webhooks: {type: [Schema.Types.ObjectId], ref: 'webhook', default: []},
   organization: {
     type: Schema.Types.ObjectId,
-    ref: 'Organization',
+    ref: 'organization',
     required: false,
   },
   apiKey: {type: String, required: false},
@@ -37,7 +37,25 @@ const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   ownedOrgs: {type: [Schema.Types.ObjectId], default: []},
   projects: {type: [Schema.Types.ObjectId], default: []},
 });
-
+schema.static(
+  'userIdExists',
+  async (userId: mongooseTypes.ObjectId): Promise<boolean> => {
+    let retval = false;
+    try {
+      const result = await UserModel.findById(userId, ['_id']);
+      if (result) retval = true;
+    } catch (err) {
+      throw new error.DatabaseOperationError(
+        'an unexpected error occurred while trying to find the user.  See the inner error for additional information',
+        'mongoDb',
+        'userIdExists',
+        {_id: userId},
+        err
+      );
+    }
+    return retval;
+  }
+);
 schema.static(
   'validateUpdateObject',
   (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
@@ -91,8 +109,6 @@ schema.static(
     filter: Record<string, unknown>,
     user: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): Promise<boolean> => {
-    const reconciledUser: Partial<IUserDocument> = {};
-    const account: databaseTypes.IAccount[] = [];
     UserModel.validateUpdateObject(user);
     try {
       const updateResult = await UserModel.updateOne(filter, user);
@@ -292,6 +308,6 @@ schema.static(
     }
   }
 );
-const UserModel = model<IUserDocument, IUserStaticMethods>('User', schema);
+const UserModel = model<IUserDocument, IUserStaticMethods>('user', schema);
 
 export {UserModel};

@@ -4,8 +4,6 @@ import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
-import rw from 'rewire';
-import rewire from 'rewire';
 
 const mockUser: databaseTypes.IUser = {
   name: 'testUser',
@@ -463,7 +461,7 @@ describe('#mongoose/models/user', () => {
       }, error.InvalidOperationError);
     });
   });
-  context.only('Delete a user document', () => {
+  context('Delete a user document', () => {
     const sandbox = createSandbox();
     afterEach(() => {
       sandbox.restore();
@@ -513,6 +511,48 @@ describe('#mongoose/models/user', () => {
         errorred = true;
       }
 
+      assert.isTrue(errorred);
+    });
+  });
+  context('userIdExists', () => {
+    const sandbox = createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('should return true if the userId exists', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves({_id: userId});
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const result = await UserModel.userIdExists(userId);
+
+      assert.isTrue(result);
+    });
+
+    it('should return false if the userId does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const result = await UserModel.userIdExists(userId);
+
+      assert.isFalse(result);
+    });
+    it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const findByIdStub = sandbox.stub();
+      findByIdStub.rejects('something unexpected has happend');
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      let errorred = false;
+      try {
+        await UserModel.userIdExists(userId);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
       assert.isTrue(errorred);
     });
   });
