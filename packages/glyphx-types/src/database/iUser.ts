@@ -7,7 +7,7 @@ import {ROLE} from './constants';
 import {IWebhook} from './iWebhook';
 
 export interface IUser {
-  _id: mongooseTypes.ObjectId;
+  _id?: mongooseTypes.ObjectId;
   name: string;
   username: string;
   gh_username?: string;
@@ -20,8 +20,7 @@ export interface IUser {
   accounts: IAccount[];
   sessions: ISession[];
   webhooks: IWebhook[];
-  organization: IOrganization;
-  orgId: mongooseTypes.ObjectId;
+  organization: IOrganization | mongooseTypes.ObjectId;
   apiKey?: string;
   role: ROLE;
   ownedOrgs: IOrganization[];

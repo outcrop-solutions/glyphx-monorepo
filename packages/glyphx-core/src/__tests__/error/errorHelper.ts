@@ -22,12 +22,16 @@ export interface IErrorTestingParameters extends Record<string, unknown> {
   errorCode: number;
 }
 
-export function testError(errorToTest: any, params: IErrorTestingParameters) {
+export function testError(
+  errorToTest: any,
+  params: IErrorTestingParameters,
+  allow999 = false
+) {
   assert.isNotEmpty(params.message);
   assert.exists(params.innerError);
   assert.exists(params.errorCode);
   assert.isAbove(params.errorCode, 0);
-  assert.isBelow(params.errorCode, 999);
+  if (!allow999) assert.isBelow(params.errorCode, 999);
   const constructorParameters = getClassContructorParams(errorToTest);
   constructorParameters.forEach(p => {
     if (!KNOWN_REQUIRED_PARAMETERS.find(n => n === p)) {
