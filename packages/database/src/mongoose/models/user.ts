@@ -103,14 +103,15 @@ schema.static(
   }
 );
 
+//TODO: we need to set and validate the updateDate and make the createdDate immutable.
 schema.static(
   'updateUserWithFilter',
   async (
     filter: Record<string, unknown>,
     user: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): Promise<boolean> => {
-    UserModel.validateUpdateObject(user);
     try {
+      UserModel.validateUpdateObject(user);
       const updateResult = await UserModel.updateOne(filter, user);
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(

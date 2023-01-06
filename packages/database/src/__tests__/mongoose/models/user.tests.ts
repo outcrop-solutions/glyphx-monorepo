@@ -256,6 +256,7 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(hasError);
     });
   });
+
   context('updateUserById', () => {
     const sandbox = createSandbox();
 
@@ -461,6 +462,7 @@ describe('#mongoose/models/user', () => {
       }, error.InvalidOperationError);
     });
   });
+
   context('Delete a user document', () => {
     const sandbox = createSandbox();
     afterEach(() => {

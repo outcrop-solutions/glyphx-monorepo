@@ -106,6 +106,7 @@ schema.static(
     filter: Record<string, unknown>,
     account: Omit<Partial<databaseTypes.IAccount>, '_id'>
   ): Promise<boolean> => {
+    //TODO: we need to set and validate the updateDate and make the createdDate immutable.
     await AccountModel.validateUpdateObject(account);
     try {
       const transformedAccount: Partial<IAccountDocument> &

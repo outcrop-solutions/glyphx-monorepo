@@ -4,3 +4,6 @@ export type {IUserDocument} from './iUserDocument';
 export type {IAccountDocument} from './iAccountDocument';
 export type {IAccountMethods} from './iAccountMethods';
 export type {IAccountStaticMethods} from './iAccountStaticMethods';
+export type {IOrganizationDocument} from './iOrganizationDocument';
+export type {IOrganizationMethods} from './iOrganizationMethods';
+export type {IOrganizationStaticMethods} from './IOrganizationStaticMethods';
