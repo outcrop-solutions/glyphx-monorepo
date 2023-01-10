@@ -269,7 +269,7 @@ schema.static(
       if (err instanceof error.DataValidationError) throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while add the user.  See the inner error for additional details',
+          'An Unexpected Error occurred while adding the user.  See the inner error for additional details',
           'mongoDb',
           'add User',
           {},

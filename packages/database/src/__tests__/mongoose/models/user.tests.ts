@@ -516,6 +516,7 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(errorred);
     });
   });
+
   context('userIdExists', () => {
     const sandbox = createSandbox();
     afterEach(() => {

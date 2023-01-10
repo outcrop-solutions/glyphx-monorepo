@@ -6,3 +6,4 @@ export type {IAccount} from './iAccount';
 export type {ISession} from './iSession';
 export type {IState} from './iState';
 export type {IWebhook} from './iWebhook';
+export type {IProjectType} from './iProjectType';

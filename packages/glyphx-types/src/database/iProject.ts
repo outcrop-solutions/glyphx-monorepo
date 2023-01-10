@@ -6,21 +6,17 @@ import {IUser} from './iUser';
 import {IState} from './iState';
 
 export interface IProject {
-  _id: mongooseTypes.ObjectId;
+  _id?: mongooseTypes.ObjectId;
   createdAt: Date;
   updatedAt: Date;
-  name?: string;
+  name: string;
   description?: string;
   sdtPath?: string;
-  organization?: IOrganization;
-  orgId: mongooseTypes.ObjectId;
+  organization: IOrganization;
   slug?: string;
   isTemplate: Boolean;
-  type?: IProjectType;
-  typeId: mongooseTypes.ObjectId;
-  owner?: IUser;
-  ownerId: mongooseTypes.ObjectId;
+  type: IProjectType;
+  owner: IUser;
   state?: IState;
-  stateId: mongooseTypes.ObjectId;
-  files?: IFileStats;
+  files: IFileStats[];
 }

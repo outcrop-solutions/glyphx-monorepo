@@ -1,10 +1,4 @@
-import mongoose, {
-  Types as mongooseTypes,
-  Model,
-  Schema,
-  HydratedDocument,
-  model,
-} from 'mongoose';
+import mongoose, {Types as mongooseTypes, Model} from 'mongoose';
 import {database as databaseTypes} from '@glyphx/types';
 import {IAccountMethods} from './iAccountMethods';
 export interface IAccountStaticMethods

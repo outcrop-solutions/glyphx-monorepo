@@ -7,3 +7,6 @@ export type {IAccountStaticMethods} from './iAccountStaticMethods';
 export type {IOrganizationDocument} from './iOrganizationDocument';
 export type {IOrganizationMethods} from './iOrganizationMethods';
 export type {IOrganizationStaticMethods} from './IOrganizationStaticMethods';
+export type {IProjectDocument} from './iProjectDocument';
+export type {IProjectMethods} from './iProjectMethods';
+export type {IProjectStaticMethods} from './iProjectStaticMethods';

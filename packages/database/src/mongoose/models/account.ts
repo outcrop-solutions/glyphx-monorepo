@@ -1,11 +1,5 @@
 import {database as databaseTypes} from '@glyphx/types';
-import {
-  Types as mongooseTypes,
-  Model,
-  Schema,
-  HydratedDocument,
-  model,
-} from 'mongoose';
+import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IAccountMethods,
   IAccountStaticMethods,

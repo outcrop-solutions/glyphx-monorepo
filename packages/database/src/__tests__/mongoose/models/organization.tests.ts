@@ -65,7 +65,7 @@ describe('#mongoose/models/organization', () => {
     });
   });
 
-  context.only('createOrganization', () => {
+  context('createOrganization', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -470,7 +470,7 @@ describe('#mongoose/models/organization', () => {
     });
   });
 
-  context.only('validateUpdateObject', () => {
+  context('validateUpdateObject', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -613,7 +613,7 @@ describe('#mongoose/models/organization', () => {
     });
   });
 
-  context.only('Delete an organization document', () => {
+  context('Delete an organization document', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
