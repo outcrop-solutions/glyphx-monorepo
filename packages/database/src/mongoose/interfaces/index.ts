@@ -10,3 +10,6 @@ export type {IOrganizationStaticMethods} from './IOrganizationStaticMethods';
 export type {IProjectDocument} from './iProjectDocument';
 export type {IProjectMethods} from './iProjectMethods';
 export type {IProjectStaticMethods} from './iProjectStaticMethods';
+export type {IProjectTypeDocument} from './iProjectTypeDocument';
+export type {IProjectTypeMethods} from './iProjectTypeMethods';
+export type {IProjectTypeStaticMethods} from './iProjectTypeStaticMethods';
