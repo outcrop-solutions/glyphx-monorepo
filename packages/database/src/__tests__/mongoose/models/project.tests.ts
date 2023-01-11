@@ -315,7 +315,7 @@ describe('#mongoose/models/project', () => {
       sandbox.restore();
     });
 
-    it('Should update an Project user', async () => {
+    it('Should update a project', async () => {
       const updateProject = {
         name: 'Test Project',
         description: 'This is a test project',

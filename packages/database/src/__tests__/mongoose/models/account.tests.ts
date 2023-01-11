@@ -127,6 +127,7 @@ describe('#mongoose/models/account', () => {
       assert.isTrue(errorred);
     });
   });
+
   context('updateAccountById', () => {
     const sandbox = createSandbox();
 

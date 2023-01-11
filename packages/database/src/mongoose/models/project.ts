@@ -145,7 +145,7 @@ schema.static(
           transformedObject.state = value._id as mongooseTypes.ObjectId;
         else transformedObject[key] = value;
       }
-
+      transformedObject.updatedAt = updateDate;
       const updateResult = await ProjectModel.updateOne(
         filter,
         transformedObject

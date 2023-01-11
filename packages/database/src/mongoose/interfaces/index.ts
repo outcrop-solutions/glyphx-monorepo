@@ -13,3 +13,6 @@ export type {IProjectStaticMethods} from './iProjectStaticMethods';
 export type {IProjectTypeDocument} from './iProjectTypeDocument';
 export type {IProjectTypeMethods} from './iProjectTypeMethods';
 export type {IProjectTypeStaticMethods} from './iProjectTypeStaticMethods';
+export type {IStateDocument} from './iStateDocument';
+export type {IStateMethods} from './iStateMethods';
+export type {IStateStaticMethods} from './iStateStaticMethods';
