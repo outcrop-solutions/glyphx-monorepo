@@ -140,7 +140,7 @@ describe('#mongoose/models/state', () => {
     });
   });
 
-  context.only('updateStateById', () => {
+  context('updateStateById', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -255,6 +255,153 @@ describe('#mongoose/models/state', () => {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
       }
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('validateUpdateObject', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will not throw an error when no unsafe fields are present', async () => {
+      const inputState = {
+        version: 2,
+      };
+
+      let errored = false;
+
+      try {
+        await StateModel.validateUpdateObject(inputState);
+      } catch (err) {
+        errored = true;
+      }
+      assert.isFalse(errored);
+    });
+
+    it('will fail when trying to update the _id', async () => {
+      const inputState = {
+        _id: new mongoose.Types.ObjectId(),
+        version: 2,
+      };
+      let errored = false;
+
+      try {
+        await StateModel.validateUpdateObject(inputState);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update createdAt', async () => {
+      const inputState = {
+        createdAt: new Date(),
+        version: 2,
+      };
+      let errored = false;
+
+      try {
+        await StateModel.validateUpdateObject(inputState);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update updatedAt', async () => {
+      const inputState = {
+        updatedAt: new Date(),
+        version: 2,
+      };
+      let errored = false;
+
+      try {
+        await StateModel.validateUpdateObject(inputState);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update projects', async () => {
+      const inputState = {
+        version: 2,
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+          } as unknown as databaseTypes.IProject,
+        ],
+      };
+      let errored = false;
+
+      try {
+        await StateModel.validateUpdateObject(inputState);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context.only('Delete a state document', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should remove a state', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 1});
+      sandbox.replace(StateModel, 'deleteOne', deleteStub);
+
+      const stateId = new mongoose.Types.ObjectId();
+
+      await StateModel.deleteStateById(stateId);
+
+      assert.isTrue(deleteStub.calledOnce);
+    });
+
+    it('should fail with an InvalidArgumentError when the state does not exist', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 0});
+      sandbox.replace(StateModel, 'deleteOne', deleteStub);
+
+      const stateId = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await StateModel.deleteStateById(StateId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+
+      assert.isTrue(errorred);
+    });
+
+    it('should fail with an DatabaseOperationError when the underlying database connection throws an error', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.rejects('something bad has happened');
+      sandbox.replace(StateModel, 'deleteOne', deleteStub);
+
+      const stateId = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await StateModel.deleteStateById(stateId);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+
       assert.isTrue(errorred);
     });
   });

@@ -188,6 +188,31 @@ schema.static(
   }
 );
 
+schema.static(
+  'deleteStateById',
+  async (stateId: mongooseTypes.ObjectId): Promise<void> => {
+    try {
+      const results = await StateModel.deleteOne({_id: stateId});
+      if (results.deletedCount !== 1)
+        throw new error.InvalidArgumentError(
+          `A state with a _id: ${stateId} was not found in the database`,
+          '_id',
+          stateId
+        );
+    } catch (err) {
+      if (err instanceof error.InvalidArgumentError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          `An unexpected error occurred while deleteing the state from the database. The state may still exist.  See the inner error for additional information`,
+          'mongoDb',
+          'delete state',
+          {_id: stateId},
+          err
+        );
+    }
+  }
+);
+
 schema.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {});
 
 const StateModel = model<IStateDocument, IStateStaticMethods>('state', schema);
