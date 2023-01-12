@@ -24,11 +24,13 @@ const mockAccount: databaseTypes.IAccount = {
 };
 
 describe('#mongoose/models/account', () => {
-  context('creatAccount', () => {
+  context('createAccount', () => {
     const sandbox = createSandbox();
+
     afterEach(() => {
       sandbox.restore();
     });
+
     it('will create an account document', async () => {
       const accountId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
@@ -78,7 +80,7 @@ describe('#mongoose/models/account', () => {
       assert.isTrue(errorred);
     });
 
-    it('will throw an DataValidationError if the account cannont be validated.', async () => {
+    it('will throw an DataValidationError if the account cannot be validated.', async () => {
       const accountId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(
@@ -148,8 +150,12 @@ describe('#mongoose/models/account', () => {
       sandbox.replace(AccountModel, 'updateOne', updateStub);
 
       const getUserStub = sandbox.stub();
-      getUserStub.resolves({_id: accountId});
-      sandbox.replace(AccountModel, 'getAccountById', getUserStub);
+      getUserStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', getUserStub);
+
+      const getAccountStub = sandbox.stub();
+      getAccountStub.resolves({_id: accountId});
+      sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
 
       const result = await AccountModel.updateAccountById(
         accountId,
@@ -158,6 +164,41 @@ describe('#mongoose/models/account', () => {
 
       assert.strictEqual(result._id, accountId);
       assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getAccountStub.calledOnce);
+      assert.isFalse(getUserStub.called);
+    });
+
+    it('should update an existing account changing the user', async () => {
+      const updateAccount = {
+        refreshToken: 'refreshToken',
+        refresh_token_expires_in: 6000,
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
+      };
+
+      const accountId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(AccountModel, 'updateOne', updateStub);
+
+      const getUserStub = sandbox.stub();
+      getUserStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', getUserStub);
+
+      const getAccountStub = sandbox.stub();
+      getAccountStub.resolves({_id: accountId});
+      sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
+
+      const result = await AccountModel.updateAccountById(
+        accountId,
+        updateAccount
+      );
+
+      assert.strictEqual(result._id, accountId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getAccountStub.calledOnce);
       assert.isTrue(getUserStub.calledOnce);
     });
 
@@ -173,9 +214,9 @@ describe('#mongoose/models/account', () => {
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(AccountModel, 'updateOne', updateStub);
 
-      const getUserStub = sandbox.stub();
-      getUserStub.resolves({_id: accountId});
-      sandbox.replace(AccountModel, 'getAccountById', getUserStub);
+      const getAccouuntStub = sandbox.stub();
+      getAccouuntStub.resolves({_id: accountId});
+      sandbox.replace(AccountModel, 'getAccountById', getAccouuntStub);
       let errorred = false;
       try {
         await AccountModel.updateAccountById(accountId, updateAccount);
@@ -206,9 +247,9 @@ describe('#mongoose/models/account', () => {
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(AccountModel, 'updateOne', updateStub);
 
-      const getUserStub = sandbox.stub();
-      getUserStub.resolves({_id: accountId});
-      sandbox.replace(AccountModel, 'getAccountById', getUserStub);
+      const getAccountStub = sandbox.stub();
+      getAccountStub.resolves({_id: accountId});
+      sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
       let errorred = false;
       try {
         await AccountModel.updateAccountById(accountId, updateAccount);
@@ -231,9 +272,9 @@ describe('#mongoose/models/account', () => {
       updateStub.rejects('something really bad has happened');
       sandbox.replace(AccountModel, 'updateOne', updateStub);
 
-      const getUserStub = sandbox.stub();
-      getUserStub.resolves({_id: accountId});
-      sandbox.replace(AccountModel, 'getAccountById', getUserStub);
+      const getAccountStub = sandbox.stub();
+      getAccountStub.resolves({_id: accountId});
+      sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
       let errorred = false;
       try {
         await AccountModel.updateAccountById(accountId, updateAccount);

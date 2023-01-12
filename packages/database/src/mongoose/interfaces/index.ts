@@ -16,3 +16,6 @@ export type {IProjectTypeStaticMethods} from './iProjectTypeStaticMethods';
 export type {IStateDocument} from './iStateDocument';
 export type {IStateMethods} from './iStateMethods';
 export type {IStateStaticMethods} from './iStateStaticMethods';
+export type {ISessionDocument} from './iSessionDocument';
+export type {ISessionMethods} from './iSessionMethods';
+export type {ISessionStaticMethods} from './iSessionStaticMethods';

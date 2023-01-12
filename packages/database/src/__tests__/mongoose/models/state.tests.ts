@@ -350,7 +350,7 @@ describe('#mongoose/models/state', () => {
     });
   });
 
-  context.only('Delete a state document', () => {
+  context('Delete a state document', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -378,7 +378,7 @@ describe('#mongoose/models/state', () => {
 
       let errorred = false;
       try {
-        await StateModel.deleteStateById(StateId);
+        await StateModel.deleteStateById(stateId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
