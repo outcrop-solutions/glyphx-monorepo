@@ -15,7 +15,7 @@ const schema = new Schema<
 >({
   sessionToken: {type: String, required: true},
   expires: {type: Date, required: true},
-  user: {type: Schema.Types.ObjectId, required: true},
+  user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });
 
 schema.static(
@@ -27,7 +27,7 @@ schema.static(
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
-        'an unexpected error occurred while trying to find thesession.  See the inner error for additional information',
+        'an unexpected error occurred while trying to find the session.  See the inner error for additional information',
         'mongoDb',
         'sessionIdExists',
         {_id: sessionId},

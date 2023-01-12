@@ -19,3 +19,6 @@ export type {IStateStaticMethods} from './iStateStaticMethods';
 export type {ISessionDocument} from './iSessionDocument';
 export type {ISessionMethods} from './iSessionMethods';
 export type {ISessionStaticMethods} from './iSessionStaticMethods';
+export type {IWebhookDocument} from './iWebhookDocument';
+export type {IWebhookMethods} from './iWebhookMethods';
+export type {IWebhookStaticMethods} from './iWebhookStaticMethods';
