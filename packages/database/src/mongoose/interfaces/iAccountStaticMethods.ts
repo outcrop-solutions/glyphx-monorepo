@@ -4,6 +4,7 @@ import {IAccountMethods} from './iAccountMethods';
 export interface IAccountStaticMethods
   extends Model<databaseTypes.IAccount, {}, IAccountMethods> {
   accountIdExists(accountId: mongooseTypes.ObjectId): Promise<boolean>;
+  allAccountIdsExist(accountIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createAccount(
     input: Omit<databaseTypes.IAccount, '_id'>
   ): Promise<databaseTypes.IAccount>;

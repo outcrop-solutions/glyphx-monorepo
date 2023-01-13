@@ -6,3 +6,4 @@ export {QueryExecutionError} from './queryExecutionError';
 export {UnexpectedError} from './unexpectedError';
 export {DataValidationError} from './dataValidationError';
 export {DatabaseOperationError} from './databaseOperationError';
+export {DataNotFoundError} from './dataNotFoundError';

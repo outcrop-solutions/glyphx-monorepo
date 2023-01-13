@@ -435,4 +435,82 @@ describe('#mongoose/models/session', () => {
       assert.isTrue(errorred);
     });
   });
+
+  context('allSessionIdsExist', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true when all the session ids exist', async () => {
+      const sessionIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedSessionIds = sessionIds.map(sessionId => {
+        return {
+          _id: sessionId,
+        };
+      });
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedSessionIds);
+      sandbox.replace(SessionModel, 'find', findStub);
+
+      assert.isTrue(await SessionModel.allSessionIdsExist(sessionIds));
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
+      const sessionIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedSessionIds = [
+        {
+          _id: sessionIds[0],
+        },
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedSessionIds);
+      sandbox.replace(SessionModel, 'find', findStub);
+      let errored = false;
+      try {
+        await SessionModel.allSessionIdsExist(sessionIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          sessionIds[1].toString()
+        );
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
+      const sessionIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.rejects('something bad has happened');
+      sandbox.replace(SessionModel, 'find', findStub);
+      let errored = false;
+      try {
+        await SessionModel.allSessionIdsExist(sessionIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+  });
 });

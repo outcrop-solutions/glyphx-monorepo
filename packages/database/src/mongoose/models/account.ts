@@ -68,6 +68,45 @@ schema.static(
     return retval;
   }
 );
+
+schema.static(
+  'allAccountIdsExist',
+  async (accountIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    const retval = true;
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await AccountModel.find({_id: {$in: accountIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      accountIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more accountIds cannot be found in the database.',
+          'account._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the accountIds.  See the inner error for additional information',
+          'mongoDb',
+          'allAccountIdsExists',
+          {accountIds: accountIds},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
 schema.static(
   'getAccountById',
   async (accountId: mongooseTypes.ObjectId) => {}

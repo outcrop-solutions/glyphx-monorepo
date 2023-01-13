@@ -444,4 +444,82 @@ describe('#mongoose/models/account', () => {
       assert.isTrue(errorred);
     });
   });
+
+  context('allAccountIdsExist', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true when all the account ids exist', async () => {
+      const accountIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedAccountIds = accountIds.map(accountId => {
+        return {
+          _id: accountId,
+        };
+      });
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedAccountIds);
+      sandbox.replace(AccountModel, 'find', findStub);
+
+      assert.isTrue(await AccountModel.allAccountIdsExist(accountIds));
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
+      const accountIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedAccountIds = [
+        {
+          _id: accountIds[0],
+        },
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedAccountIds);
+      sandbox.replace(AccountModel, 'find', findStub);
+      let errored = false;
+      try {
+        await AccountModel.allAccountIdsExist(accountIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          accountIds[1].toString()
+        );
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
+      const accountIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.rejects('something bad has happened');
+      sandbox.replace(AccountModel, 'find', findStub);
+      let errored = false;
+      try {
+        await AccountModel.allAccountIdsExist(accountIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+  });
 });

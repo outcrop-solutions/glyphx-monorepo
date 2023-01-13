@@ -56,6 +56,44 @@ schema.static(
 );
 
 schema.static(
+  'allProjectIdsExist',
+  async (projectIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    const retval = true;
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await ProjectModel.find({_id: {$in: projectIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      projectIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more projectIds cannot be found in the database.',
+          'project._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the projectIds.  See the inner error for additional information',
+          'mongoDb',
+          'allProjectIdsExists',
+          {projectIds: projectIds},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
+schema.static(
   'validateUpdateObject',
   async (
     project: Omit<Partial<databaseTypes.IProject>, '_id'>

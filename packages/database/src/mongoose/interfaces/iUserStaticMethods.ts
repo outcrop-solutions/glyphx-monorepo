@@ -23,19 +23,19 @@ export interface IUserStaticMethods
     user: Partial<databaseTypes.IUser>
   ): Promise<databaseTypes.IUser>;
   validateAccounts(
-    accounts: databaseTypes.IAccount[]
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateSessions(
-    sessions: databaseTypes.ISession[]
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateWebhooks(
-    webhooks: databaseTypes.IWebhook[]
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateOrganizations(
     organization: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateProjects(
-    projects: databaseTypes.IProject[]
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateUpdateObject(
     input: Omit<Partial<databaseTypes.IUser>, '_id'>

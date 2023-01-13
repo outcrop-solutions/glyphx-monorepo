@@ -8,6 +8,10 @@ import {
 } from 'mongoose';
 import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
 import {error} from '@glyphx/core';
+import {ProjectModel} from './project';
+import {AccountModel} from './account';
+import {SessionModel} from './session';
+import {WebhookModel} from './webhook';
 
 const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   name: {type: String, required: true},
@@ -37,6 +41,7 @@ const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   ownedOrgs: {type: [Schema.Types.ObjectId], default: []},
   projects: {type: [Schema.Types.ObjectId], default: []},
 });
+
 schema.static(
   'userIdExists',
   async (userId: mongooseTypes.ObjectId): Promise<boolean> => {
@@ -56,6 +61,7 @@ schema.static(
     return retval;
   }
 );
+
 schema.static(
   'validateUpdateObject',
   (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
@@ -154,34 +160,84 @@ schema.static(
 schema.static(
   'validateAccounts',
   async (
-    accounts: databaseTypes.IAccount[]
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    const retval: mongooseTypes.ObjectId[] = [];
-    //TODO: blow this out once we have an accountModel
-    throw 'Not implemented';
-    return retval;
+    let retval: mongooseTypes.ObjectId[] = [];
+    const accountIds: mongooseTypes.ObjectId[] = [];
+    accounts.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) accountIds.push(p);
+      else accountIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await AccountModel.allAccountIdsExist(accountIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more account ids do not exisit in the database.  See the inner error for additional information',
+          'accounts',
+          accounts,
+          err
+        );
+      else throw err;
+    }
+
+    return accountIds;
   }
 );
 
 schema.static(
   'validateSessions',
   async (
-    sessions: databaseTypes.ISession[]
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    const retval: mongooseTypes.ObjectId[] = [];
-    //TODO: Blow this out once we build a session model.
-    return retval;
+    let retval: mongooseTypes.ObjectId[] = [];
+    const sessionIds: mongooseTypes.ObjectId[] = [];
+    sessions.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) sessionIds.push(p);
+      else sessionIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await SessionModel.allSessionIdsExist(sessionIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more session ids do not exisit in the database.  See the inner error for additional information',
+          'session',
+          sessions,
+          err
+        );
+      else throw err;
+    }
+
+    return sessionIds;
   }
 );
 
 schema.static(
   'validateWebhooks',
   async (
-    webhooks: databaseTypes.IWebhook[]
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    const retval: mongooseTypes.ObjectId[] = [];
-    //TODO: Blow this our once we create a webhooks model
-    return retval;
+    let retval: mongooseTypes.ObjectId[] = [];
+    const webhookIds: mongooseTypes.ObjectId[] = [];
+    webhooks.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) webhookIds.push(p);
+      else webhookIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await WebhookModel.allWebhookIdsExist(webhookIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more webhook ids do not exisit in the database.  See the inner error for additional information',
+          'webhook',
+          webhooks,
+          err
+        );
+      else throw err;
+    }
+
+    return webhookIds;
   }
 );
 
@@ -196,14 +252,33 @@ schema.static(
   }
 );
 
+//give our user some flexibily to pass object ids instead of a full project.
+//TODO: look into our interfaces to allow passing either a full projecty or objectIds.
 schema.static(
   'validateProjects',
   async (
-    projects: databaseTypes.IProject[]
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
     let retval: mongooseTypes.ObjectId[] = [];
-    //TODO: blow this out once we have a projects model.
-    return retval;
+    const projectIds: mongooseTypes.ObjectId[] = [];
+    projects.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
+      else projectIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await ProjectModel.allProjectIdsExist(projectIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more project ids do not exisit in the database.  See the inner error for additional information',
+          'projects',
+          projects,
+          err
+        );
+      else throw err;
+    }
+
+    return projectIds;
   }
 );
 

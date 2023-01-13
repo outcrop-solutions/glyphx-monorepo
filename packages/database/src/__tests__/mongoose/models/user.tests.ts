@@ -1,5 +1,9 @@
 import {assert} from 'chai';
-import {UserModel} from '../../..//mongoose/models/user';
+import {UserModel} from '../../../mongoose/models/user';
+import {ProjectModel} from '../../../mongoose/models/project';
+import {AccountModel} from '../../../mongoose/models/account';
+import {SessionModel} from '../../../mongoose/models/session';
+import {WebhookModel} from '../../../mongoose/models/webhook';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
@@ -29,6 +33,7 @@ describe('#mongoose/models/user', () => {
     afterEach(() => {
       sandbox.restore();
     });
+
     it('will create a user document', async () => {
       sandbox.replace(
         UserModel,
@@ -71,6 +76,7 @@ describe('#mongoose/models/user', () => {
       assert.strictEqual(userDocument._id, objectId);
       assert.isTrue(stub.calledOnce);
     });
+
     it('will rethrow a DataValidationError when a validator throws one', async () => {
       sandbox.replace(
         UserModel,
@@ -125,6 +131,7 @@ describe('#mongoose/models/user', () => {
       }
       assert.isTrue(hasError);
     });
+
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       sandbox.replace(UserModel, 'validateProjects', sandbox.stub().resolves());
       sandbox.replace(
@@ -167,6 +174,7 @@ describe('#mongoose/models/user', () => {
       }
       assert.isTrue(hasError);
     });
+
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
       sandbox.replace(UserModel, 'validateProjects', sandbox.stub().resolves());
       sandbox.replace(
@@ -205,6 +213,7 @@ describe('#mongoose/models/user', () => {
       }
       assert.isTrue(hasError);
     });
+
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
       sandbox.replace(
         UserModel,
@@ -310,6 +319,7 @@ describe('#mongoose/models/user', () => {
       }
       assert.isTrue(errorred);
     });
+
     it('Will fail when validateUpdateObject fails', async () => {
       const updateUser = {
         name: 'Jason Vorhees',
@@ -342,6 +352,7 @@ describe('#mongoose/models/user', () => {
       }
       assert.isTrue(errorred);
     });
+
     it('Will fail when a database error occurs', async () => {
       const updateUser = {
         name: 'Jason Vorhees',
@@ -395,6 +406,7 @@ describe('#mongoose/models/user', () => {
         UserModel.validateUpdateObject(inputUser);
       }, error.InvalidOperationError);
     });
+
     it('will fail when trying to update sessions', () => {
       const inputUser = {
         accounts: [],
@@ -408,6 +420,7 @@ describe('#mongoose/models/user', () => {
         UserModel.validateUpdateObject(inputUser);
       }, error.InvalidOperationError);
     });
+
     it('will fail when trying to update ownedOrgs', () => {
       const inputUser = {
         accounts: [],
@@ -421,6 +434,7 @@ describe('#mongoose/models/user', () => {
         UserModel.validateUpdateObject(inputUser);
       }, error.InvalidOperationError);
     });
+
     it('will fail when trying to update projects', () => {
       const inputUser = {
         accounts: [],
@@ -434,6 +448,7 @@ describe('#mongoose/models/user', () => {
         UserModel.validateUpdateObject(inputUser);
       }, error.InvalidOperationError);
     });
+
     it('will fail when trying to update webhooks', () => {
       const inputUser = {
         accounts: [],
@@ -447,6 +462,7 @@ describe('#mongoose/models/user', () => {
         UserModel.validateUpdateObject(inputUser);
       }, error.InvalidOperationError);
     });
+
     it('will fail when trying to update _id', () => {
       const inputUser = {
         accounts: [],
@@ -465,9 +481,11 @@ describe('#mongoose/models/user', () => {
 
   context('Delete a user document', () => {
     const sandbox = createSandbox();
+
     afterEach(() => {
       sandbox.restore();
     });
+
     it('should remove a user', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves({deletedCount: 1});
@@ -519,9 +537,11 @@ describe('#mongoose/models/user', () => {
 
   context('userIdExists', () => {
     const sandbox = createSandbox();
+
     afterEach(() => {
       sandbox.restore();
     });
+
     it('should return true if the userId exists', async () => {
       const userId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
@@ -543,6 +563,7 @@ describe('#mongoose/models/user', () => {
 
       assert.isFalse(result);
     });
+
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
       const userId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
@@ -557,6 +578,482 @@ describe('#mongoose/models/user', () => {
         errorred = true;
       }
       assert.isTrue(errorred);
+    });
+  });
+
+  context('validate projects', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the projects can be validated', async () => {
+      const inputProjects = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.resolves(true);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      const results = await UserModel.validateProjects(inputProjects);
+
+      assert.strictEqual(results.length, inputProjects.length);
+      results.forEach(r => {
+        const foundId = inputProjects.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the projectIds can be validated ', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.resolves(true);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      const results = await UserModel.validateProjects(inputProjects);
+
+      assert.strictEqual(results.length, inputProjects.length);
+      results.forEach(r => {
+        const foundId = inputProjects.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the project ids cannot be found',
+          'projectIds',
+          inputProjects
+        )
+      );
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateProjects(inputProjects);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateProjects(inputProjects);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validate accounts', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the accounts can be validated', async () => {
+      const inputAccounts = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IAccount,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IAccount,
+      ];
+
+      const allAccountIdsExistStub = sandbox.stub();
+      allAccountIdsExistStub.resolves(true);
+      sandbox.replace(
+        AccountModel,
+        'allAccountIdsExist',
+        allAccountIdsExistStub
+      );
+
+      const results = await UserModel.validateAccounts(inputAccounts);
+
+      assert.strictEqual(results.length, inputAccounts.length);
+      results.forEach(r => {
+        const foundId = inputAccounts.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the acountIds can be validated ', async () => {
+      const inputAccounts = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allAccountIdsExistStub = sandbox.stub();
+      allAccountIdsExistStub.resolves(true);
+      sandbox.replace(
+        AccountModel,
+        'allAccountIdsExist',
+        allAccountIdsExistStub
+      );
+
+      const results = await UserModel.validateAccounts(inputAccounts);
+
+      assert.strictEqual(results.length, inputAccounts.length);
+      results.forEach(r => {
+        const foundId = inputAccounts.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputAccounts = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allAccountIdsExistStub = sandbox.stub();
+      allAccountIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the account ids cannot be found',
+          'projectIds',
+          inputAccounts
+        )
+      );
+      sandbox.replace(
+        AccountModel,
+        'allAccountIdsExist',
+        allAccountIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateAccounts(inputAccounts);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputAccounts = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allAccountsIdsExistStub = sandbox.stub();
+      allAccountsIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        AccountModel,
+        'allAccountIdsExist',
+        allAccountsIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateAccounts(inputAccounts);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validate sessions', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the sessions can be validated', async () => {
+      const inputSessions = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ISession,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ISession,
+      ];
+
+      const allSessionIdsExistStub = sandbox.stub();
+      allSessionIdsExistStub.resolves(true);
+      sandbox.replace(
+        SessionModel,
+        'allSessionIdsExist',
+        allSessionIdsExistStub
+      );
+
+      const results = await UserModel.validateSessions(inputSessions);
+
+      assert.strictEqual(results.length, inputSessions.length);
+      results.forEach(r => {
+        const foundId = inputSessions.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the sessionIds can be validated ', async () => {
+      const inputSessions = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allSessionsIdsExistStub = sandbox.stub();
+      allSessionsIdsExistStub.resolves(true);
+      sandbox.replace(
+        SessionModel,
+        'allSessionIdsExist',
+        allSessionsIdsExistStub
+      );
+
+      const results = await UserModel.validateSessions(inputSessions);
+
+      assert.strictEqual(results.length, inputSessions.length);
+      results.forEach(r => {
+        const foundId = inputSessions.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputSessions = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allSessionIdsExistStub = sandbox.stub();
+      allSessionIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the session ids cannot be found',
+          'sessionIds',
+          inputSessions
+        )
+      );
+      sandbox.replace(
+        SessionModel,
+        'allSessionIdsExist',
+        allSessionIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateSessions(inputSessions);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputSessions = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allSessionIdsExistStub = sandbox.stub();
+      allSessionIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        SessionModel,
+        'allSessionIdsExist',
+        allSessionIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateSessions(inputSessions);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context.only('validate webhooks', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the webhooks can be validated', async () => {
+      const inputWebhooks = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IWebhook,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IWebhook,
+      ];
+
+      const allWebhookIdsExistStub = sandbox.stub();
+      allWebhookIdsExistStub.resolves(true);
+      sandbox.replace(
+        WebhookModel,
+        'allWebhookIdsExist',
+        allWebhookIdsExistStub
+      );
+
+      const results = await UserModel.validateWebhooks(inputWebhooks);
+
+      assert.strictEqual(results.length, inputWebhooks.length);
+      results.forEach(r => {
+        const foundId = inputWebhooks.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the webhookIds can be validated ', async () => {
+      const inputWebhooks = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allWebhookIdsExistStub = sandbox.stub();
+      allWebhookIdsExistStub.resolves(true);
+      sandbox.replace(
+        WebhookModel,
+        'allWebhookIdsExist',
+        allWebhookIdsExistStub
+      );
+
+      const results = await UserModel.validateWebhooks(inputWebhooks);
+
+      assert.strictEqual(results.length, inputWebhooks.length);
+      results.forEach(r => {
+        const foundId = inputWebhooks.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputWebhooks = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allWebhookIdsExistStub = sandbox.stub();
+      allWebhookIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the webhook ids cannot be found',
+          'webhookIds',
+          inputWebhooks
+        )
+      );
+      sandbox.replace(
+        WebhookModel,
+        'allWebhookIdsExist',
+        allWebhookIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateWebhooks(inputWebhooks);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputWebhooks = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allWebhookIdsExistStub = sandbox.stub();
+      allWebhookIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        WebhookModel,
+        'allWebhookIdsExist',
+        allWebhookIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateWebhooks(inputWebhooks);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
   });
 });

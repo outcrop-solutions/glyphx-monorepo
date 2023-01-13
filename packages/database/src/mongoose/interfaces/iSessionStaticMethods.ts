@@ -4,6 +4,7 @@ import {ISessionMethods} from './iSessionMethods';
 export interface ISessionStaticMethods
   extends Model<databaseTypes.ISession, {}, ISessionMethods> {
   sessionIdExists(sessionId: mongooseTypes.ObjectId): Promise<boolean>;
+  allSessionIdsExist(sessionIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createSession(
     input: Omit<databaseTypes.ISession, '_id'>
   ): Promise<databaseTypes.ISession>;

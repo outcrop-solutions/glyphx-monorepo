@@ -41,6 +41,44 @@ schema.static(
 );
 
 schema.static(
+  'allWebhookIdsExist',
+  async (webhookIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    const retval = true;
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await WebhookModel.find({_id: {$in: webhookIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      webhookIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more webhookIds cannot be found in the database.',
+          'webhook._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the webhookIds.  See the inner error for additional information',
+          'mongoDb',
+          'allwebhookIdsExists',
+          {webhookIds: webhookIds},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
+schema.static(
   'getWebhookById',
   async (webhookId: mongooseTypes.ObjectId) => {}
 );

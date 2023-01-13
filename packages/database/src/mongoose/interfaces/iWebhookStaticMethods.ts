@@ -4,6 +4,7 @@ import {IWebhookMethods} from './iWebhookMethods';
 export interface IWebhookStaticMethods
   extends Model<databaseTypes.IWebhook, {}, IWebhookMethods> {
   webhookIdExists(webhookId: mongooseTypes.ObjectId): Promise<boolean>;
+  allWebhookIdsExist(webhookIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createWebhook(
     input: Omit<databaseTypes.IWebhook, '_id'>
   ): Promise<databaseTypes.IWebhook>;

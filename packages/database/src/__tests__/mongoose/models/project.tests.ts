@@ -733,4 +733,82 @@ describe('#mongoose/models/project', () => {
       assert.isTrue(errorred);
     });
   });
+
+  context('allProjectIdsExist', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true when all the project ids exist', async () => {
+      const projectIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedProjectIds = projectIds.map(projectId => {
+        return {
+          _id: projectId,
+        };
+      });
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedProjectIds);
+      sandbox.replace(ProjectModel, 'find', findStub);
+
+      assert.isTrue(await ProjectModel.allProjectIdsExist(projectIds));
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
+      const projectIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedProjectIds = [
+        {
+          _id: projectIds[0],
+        },
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedProjectIds);
+      sandbox.replace(ProjectModel, 'find', findStub);
+      let errored = false;
+      try {
+        await ProjectModel.allProjectIdsExist(projectIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          projectIds[1].toString()
+        );
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
+      const projectIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.rejects('something bad has happened');
+      sandbox.replace(ProjectModel, 'find', findStub);
+      let errored = false;
+      try {
+        await ProjectModel.allProjectIdsExist(projectIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+  });
 });

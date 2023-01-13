@@ -39,6 +39,44 @@ schema.static(
 );
 
 schema.static(
+  'allSessionIdsExist',
+  async (sessionIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    const retval = true;
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await SessionModel.find({_id: {$in: sessionIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      sessionIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more sessionIds cannot be found in the database.',
+          'session._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the sessionIds.  See the inner error for additional information',
+          'mongoDb',
+          'allSessionIdsExists',
+          {sessionIds: sessionIds},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
+schema.static(
   'getSessionById',
   async (sessionId: mongooseTypes.ObjectId) => {}
 );

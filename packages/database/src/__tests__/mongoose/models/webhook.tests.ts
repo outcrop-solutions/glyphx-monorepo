@@ -480,4 +480,82 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(errorred);
     });
   });
+
+  context.only('allWebhookIdsExist', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true when all the webhook ids exist', async () => {
+      const webhookIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedWebhookIds = webhookIds.map(projectId => {
+        return {
+          _id: projectId,
+        };
+      });
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedWebhookIds);
+      sandbox.replace(WebhookModel, 'find', findStub);
+
+      assert.isTrue(await WebhookModel.allWebhookIdsExist(webhookIds));
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
+      const webhookIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedWebhookIds = [
+        {
+          _id: webhookIds[0],
+        },
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedWebhookIds);
+      sandbox.replace(WebhookModel, 'find', findStub);
+      let errored = false;
+      try {
+        await WebhookModel.allWebhookIdsExist(webhookIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          webhookIds[1].toString()
+        );
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
+      const webhookIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.rejects('something bad has happened');
+      sandbox.replace(WebhookModel, 'find', findStub);
+      let errored = false;
+      try {
+        await WebhookModel.allWebhookIdsExist(webhookIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+  });
 });
