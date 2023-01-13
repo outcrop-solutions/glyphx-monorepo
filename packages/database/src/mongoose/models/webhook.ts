@@ -98,6 +98,120 @@ schema.static(
     }
   }
 );
+
+schema.static(
+  'validateUpdateObject',
+  async (
+    webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
+  ): Promise<void> => {
+    if (webhook.user?._id)
+      if (!(await UserModel.userIdExists(webhook.user?._id)))
+        throw new error.InvalidOperationError(
+          `A user with an id: ${webhook.user._id} cannot be found.  You cannot update a webhook with an invalid user id`,
+          {id: webhook.user._id}
+        );
+
+    if (webhook.createdAt)
+      throw new error.InvalidOperationError(
+        'The createdAt date is set internally and cannot be altered externally',
+        {createdAt: webhook.createdAt}
+      );
+    if (webhook.updatedAt)
+      throw new error.InvalidOperationError(
+        'The updatedAt date is set internally and cannot be altered externally',
+        {updatedAt: webhook.updatedAt}
+      );
+    if ((webhook as Record<string, unknown>)['_id'])
+      throw new error.InvalidOperationError(
+        'The webhook._id is immutable and cannot be changed',
+        {_id: (webhook as Record<string, unknown>)['_id']}
+      );
+  }
+);
+
+schema.static(
+  'updateWebhookWithFilter',
+  async (
+    filter: Record<string, unknown>,
+    webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
+  ): Promise<void> => {
+    await WebhookModel.validateUpdateObject(webhook);
+    try {
+      const updateDate = new Date();
+      const transformedWebhook: Partial<IWebhookDocument> &
+        Record<string, unknown> = {updatedAt: updateDate};
+      for (const key in webhook) {
+        const value = (webhook as Record<string, any>)[key];
+        if (key === 'user')
+          transformedWebhook.owner = value._id as mongooseTypes.ObjectId;
+        else transformedWebhook[key] = value;
+      }
+      const updateResult = await WebhookModel.updateOne(
+        filter,
+        transformedWebhook
+      );
+      if (updateResult.modifiedCount !== 1) {
+        throw new error.InvalidArgumentError(
+          `No webhook document with filter: ${filter} was found`,
+          'filter',
+          filter
+        );
+      }
+    } catch (err) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          `An unexpected error occurred while updating the webhook with filter :${filter}.  See the inner error for additional information`,
+          'mongoDb',
+          'update webhook',
+          {filter: filter, webhook: webhook},
+          err
+        );
+    }
+  }
+);
+
+schema.static(
+  'updateWebhookById',
+  async (
+    webhookId: mongooseTypes.ObjectId,
+    webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
+  ): Promise<databaseTypes.IWebhook> => {
+    await WebhookModel.updateWebhookWithFilter({_id: webhookId}, webhook);
+    const retval = await WebhookModel.getWebhookById(webhookId);
+    return retval;
+  }
+);
+
+schema.static(
+  'deleteWebhookById',
+  async (webhookId: mongooseTypes.ObjectId): Promise<void> => {
+    try {
+      const results = await WebhookModel.deleteOne({_id: webhookId});
+      if (results.deletedCount !== 1)
+        throw new error.InvalidArgumentError(
+          `An webhook with a _id: ${webhookId} was not found in the database`,
+          '_id',
+          webhookId
+        );
+    } catch (err) {
+      if (err instanceof error.InvalidArgumentError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          `An unexpected error occurred while deleteing the webhook from the database. The webhook may still exist.  See the inner error for additional information`,
+          'mongoDb',
+          'delete webhook',
+          {_id: webhookId},
+          err
+        );
+    }
+  }
+);
+
 const WebhookModel = model<IWebhookDocument, IWebhookStaticMethods>(
   'webhook',
   schema

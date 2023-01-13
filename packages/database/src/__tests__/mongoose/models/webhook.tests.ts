@@ -61,7 +61,7 @@ describe('#mongoose/models/webhook', () => {
     });
   });
 
-  context.only('createWebhook', () => {
+  context('createWebhook', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -164,6 +164,319 @@ describe('#mongoose/models/webhook', () => {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
       }
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('updateWebhookById', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should update an existing webhook', async () => {
+      const updateWebhook = {
+        name: 'test webhook',
+      };
+
+      const webhookId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(WebhookModel, 'updateOne', updateStub);
+
+      const getUserStub = sandbox.stub();
+      getUserStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', getUserStub);
+
+      const getWebhookStub = sandbox.stub();
+      getWebhookStub.resolves({_id: webhookId});
+      sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
+
+      const result = await WebhookModel.updateWebhookById(
+        webhookId,
+        updateWebhook
+      );
+
+      assert.strictEqual(result._id, webhookId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isFalse(getUserStub.called);
+      assert.isTrue(getWebhookStub.calledOnce);
+    });
+
+    it('should update an existing webhook changing the user', async () => {
+      const updateWebhook = {
+        name: 'test webhook',
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
+      };
+
+      const webhookId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(WebhookModel, 'updateOne', updateStub);
+
+      const getUserStub = sandbox.stub();
+      getUserStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', getUserStub);
+
+      const getWebhookStub = sandbox.stub();
+      getWebhookStub.resolves({_id: webhookId});
+      sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
+
+      const result = await WebhookModel.updateWebhookById(
+        webhookId,
+        updateWebhook
+      );
+
+      assert.strictEqual(result._id, webhookId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getUserStub.calledOnce);
+      assert.isTrue(getWebhookStub.calledOnce);
+    });
+
+    it('will fail when the webhook does not exist', async () => {
+      const updateWebhook = {
+        name: 'test webhook',
+      };
+
+      const webhookId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 0});
+      sandbox.replace(WebhookModel, 'updateOne', updateStub);
+
+      const getWebhookStub = sandbox.stub();
+      getWebhookStub.resolves({_id: webhookId});
+      sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
+      let errorred = false;
+      try {
+        await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will fail with an InvalidOperationError when the validateUpdateObject method fails', async () => {
+      const updateWebhook = {
+        name: 'test webhook',
+      };
+
+      const wehookId = new mongoose.Types.ObjectId();
+
+      sandbox.replace(
+        WebhookModel,
+        'validateUpdateObject',
+        sandbox
+          .stub()
+          .rejects(new error.InvalidOperationError('you cant do that', {}))
+      );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(WebhookModel, 'updateOne', updateStub);
+
+      const getWebhookStub = sandbox.stub();
+      getWebhookStub.resolves({_id: wehookId});
+      sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
+      let errorred = false;
+      try {
+        await WebhookModel.updateWebhookById(wehookId, updateWebhook);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will fail with a DatabaseOperationError when the underlying database connection errors', async () => {
+      const updateWebhook = {
+        name: 'test webhook',
+      };
+
+      const webhookId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.rejects('something really bad has happened');
+      sandbox.replace(WebhookModel, 'updateOne', updateStub);
+
+      const getWebhookStub = sandbox.stub();
+      getWebhookStub.resolves({_id: webhookId});
+      sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
+      let errorred = false;
+      try {
+        await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('validateUpdateObject', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return true when the object is valid', async () => {
+      const inputWebhook = {
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
+      };
+
+      const userExistsStub = sandbox.stub();
+      userExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userExistsStub);
+
+      await WebhookModel.validateUpdateObject(inputWebhook);
+      assert.isTrue(userExistsStub.calledOnce);
+    });
+
+    it('will throw an InvalidOperationError when the user does not exist', async () => {
+      const inputWebhook = {
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
+      };
+      const userExistsStub = sandbox.stub();
+      userExistsStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', userExistsStub);
+      let errorred = false;
+      try {
+        await WebhookModel.validateUpdateObject(inputWebhook);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+      assert.isTrue(userExistsStub.calledOnce);
+    });
+
+    it('will throw an InvalidOperationError when we attempt to supply an _id', async () => {
+      const inputWebook = {
+        _id: new mongoose.Types.ObjectId(),
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IAccount;
+      const userExistsStub = sandbox.stub();
+      userExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userExistsStub);
+      let errorred = false;
+      try {
+        await WebhookModel.validateUpdateObject(inputWebook);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+      assert.isTrue(userExistsStub.calledOnce);
+    });
+
+    it('will throw an InvalidOperationError when we attempt to supply a createdAt date', async () => {
+      const inputWebook = {
+        createdAt: new Date(),
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IAccount;
+      const userExistsStub = sandbox.stub();
+      userExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userExistsStub);
+      let errorred = false;
+      try {
+        await WebhookModel.validateUpdateObject(inputWebook);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+      assert.isTrue(userExistsStub.calledOnce);
+    });
+
+    it('will throw an InvalidOperationError when we attempt to supply a updatedAt date', async () => {
+      const inputWebook = {
+        updatedAt: new Date(),
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IAccount;
+      const userExistsStub = sandbox.stub();
+      userExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userExistsStub);
+      let errorred = false;
+      try {
+        await WebhookModel.validateUpdateObject(inputWebook);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+      assert.isTrue(userExistsStub.calledOnce);
+    });
+  });
+
+  context('delete a webhook document', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should remove a webhook', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 1});
+      sandbox.replace(WebhookModel, 'deleteOne', deleteStub);
+
+      const webhookId = new mongoose.Types.ObjectId();
+
+      await WebhookModel.deleteWebhookById(webhookId);
+
+      assert.isTrue(deleteStub.calledOnce);
+    });
+
+    it('should fail with an InvalidArgumentError when the webhook does not exist', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 0});
+      sandbox.replace(WebhookModel, 'deleteOne', deleteStub);
+
+      const webhookId = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await WebhookModel.deleteWebhookById(webhookId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+
+      assert.isTrue(errorred);
+    });
+
+    it('should fail with an DatabaseOperationError when the underlying database connection throws an error', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.rejects('something bad has happened');
+      sandbox.replace(WebhookModel, 'deleteOne', deleteStub);
+
+      const webhookId = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await WebhookModel.deleteWebhookById(webhookId);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+
       assert.isTrue(errorred);
     });
   });
