@@ -11,6 +11,7 @@ import {IUserMethods} from './iUserMethods';
 export interface IUserStaticMethods
   extends Model<databaseTypes.IUser, {}, IUserMethods> {
   userIdExists(userId: mongooseTypes.ObjectId): Promise<boolean>;
+  allUserIdsExist(userIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createUser(input: databaseTypes.IUser): Promise<databaseTypes.IUser>;
   getUserById(userId: mongooseTypes.ObjectId): Promise<databaseTypes.IUser>;
   updateUserById(
@@ -32,7 +33,7 @@ export interface IUserStaticMethods
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateOrganizations(
-    organization: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateProjects(
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]

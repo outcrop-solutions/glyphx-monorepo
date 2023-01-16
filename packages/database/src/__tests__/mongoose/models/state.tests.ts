@@ -4,6 +4,7 @@ import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
+import {ProjectModel} from '../../../mongoose/models/project';
 
 const mockState: databaseTypes.IState = {
   createdAt: new Date(),
@@ -71,6 +72,11 @@ describe('#mongoose/models/state', () => {
       const stateId = new mongoose.Types.ObjectId();
       sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
         StateModel,
         'create',
         sandbox.stub().resolves([{_id: stateId}])
@@ -88,6 +94,11 @@ describe('#mongoose/models/state', () => {
 
     it('will throw an DataValidationError if the state cannont be validated.', async () => {
       const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        sandbox.stub().resolves(true)
+      );
       sandbox.replace(
         StateModel,
         'stateIdExists',
@@ -121,6 +132,11 @@ describe('#mongoose/models/state', () => {
 
     it('will throw an DatabaseOperationError if the underlying database connection throws an error.', async () => {
       const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        sandbox.stub().resolves(true)
+      );
       sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(StateModel, 'create', sandbox.stub().rejects('oops'));
 
@@ -403,6 +419,125 @@ describe('#mongoose/models/state', () => {
       }
 
       assert.isTrue(errorred);
+    });
+  });
+
+  context('validate projects', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the projects can be validated', async () => {
+      const inputProjects = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.resolves(true);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      const results = await StateModel.validateProjects(inputProjects);
+
+      assert.strictEqual(results.length, inputProjects.length);
+      results.forEach(r => {
+        const foundId = inputProjects.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the projectIds can be validated ', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.resolves(true);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      const results = await StateModel.validateProjects(inputProjects);
+
+      assert.strictEqual(results.length, inputProjects.length);
+      results.forEach(r => {
+        const foundId = inputProjects.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the project ids cannot be found',
+          'projectIds',
+          inputProjects
+        )
+      );
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await StateModel.validateProjects(inputProjects);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await StateModel.validateProjects(inputProjects);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
   });
 });

@@ -12,6 +12,7 @@ import {ProjectModel} from './project';
 import {AccountModel} from './account';
 import {SessionModel} from './session';
 import {WebhookModel} from './webhook';
+import {OrganizationModel} from './organization';
 
 const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   name: {type: String, required: true},
@@ -59,6 +60,44 @@ schema.static(
       );
     }
     return retval;
+  }
+);
+
+schema.static(
+  'allUserIdsExist',
+  async (userIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    const retval = true;
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await UserModel.find({_id: {$in: userIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      userIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more userIds cannot be found in the database.',
+          'user._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the userIds.  See the inner error for additional information',
+          'mongoDb',
+          'allUserIdsExists',
+          {userIds: userIds},
+          err
+        );
+      }
+    }
+    return true;
   }
 );
 
@@ -244,11 +283,28 @@ schema.static(
 schema.static(
   'validateOrganizations',
   async (
-    organization: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
     let retval: mongooseTypes.ObjectId[] = [];
-    //TODO: blow this out once we have an organization model.
-    return retval;
+    const organizationIds: mongooseTypes.ObjectId[] = [];
+    organizations.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) organizationIds.push(p);
+      else organizationIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await OrganizationModel.allOrganizationIdsExist(organizationIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more organization ids do not exisit in the database.  See the inner error for additional information',
+          'organization',
+          organizations,
+          err
+        );
+      else throw err;
+    }
+
+    return organizationIds;
   }
 );
 

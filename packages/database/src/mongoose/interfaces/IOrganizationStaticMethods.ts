@@ -6,6 +6,9 @@ export interface IOrganizationStaticMethods
   organizationIdExists(
     organizationId: mongooseTypes.ObjectId
   ): Promise<boolean>;
+  allOrganizationIdsExist(
+    organizationIds: mongooseTypes.ObjectId[]
+  ): Promise<boolean>;
   createOrganization(
     input: Omit<databaseTypes.IOrganization, '_id' | 'createdAt' | 'updatedAt'>
   ): Promise<databaseTypes.IOrganization>;

@@ -13,6 +13,7 @@ import {
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
+import {ProjectModel} from './project';
 
 const schema = new Schema<
   IOrganizationDocument,
@@ -49,25 +50,100 @@ schema.static(
 );
 
 schema.static(
-  'validateProjects',
-  async (
-    projects: databaseTypes.IProject[]
-  ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
-    //TODO: blow this out once we have a projects model.
-    return retval;
+  'allOrganizationIdsExist',
+  async (organizationIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    const retval = true;
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await OrganizationModel.find(
+        {_id: {$in: organizationIds}},
+        ['_id']
+      )) as {_id: mongooseTypes.ObjectId}[];
+
+      organizationIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more organizationIds cannot be found in the database.',
+          'organization._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the organizationIds.  See the inner error for additional information',
+          'mongoDb',
+          'allOrganizationIdsExists',
+          {organizationIds: organizationIds},
+          err
+        );
+      }
+    }
+    return true;
   }
 );
+
+schema.static(
+  'validateProjects',
+  async (
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    let retval: mongooseTypes.ObjectId[] = [];
+    const projectIds: mongooseTypes.ObjectId[] = [];
+    projects.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
+      else projectIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await ProjectModel.allProjectIdsExist(projectIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more project ids do not exisit in the database.  See the inner error for additional information',
+          'projects',
+          projects,
+          err
+        );
+      else throw err;
+    }
+
+    return projectIds;
+  }
+);
+
 schema.static(
   'validateMembers',
   async (
     members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
     let retval: mongooseTypes.ObjectId[] = [];
-    //TODO: blow this out once we have a projects model.
-    return retval;
+    const userIds: mongooseTypes.ObjectId[] = [];
+    members.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) userIds.push(p);
+      else userIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await UserModel.allUserIdsExist(userIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more member ids do not exisit in the database.  See the inner error for additional information',
+          'members',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return userIds;
   }
 );
+
 schema.static(
   'createOrganization',
   async (

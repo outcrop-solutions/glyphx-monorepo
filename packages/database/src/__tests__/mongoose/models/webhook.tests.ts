@@ -481,7 +481,7 @@ describe('#mongoose/models/webhook', () => {
     });
   });
 
-  context.only('allWebhookIdsExist', () => {
+  context('allWebhookIdsExist', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {

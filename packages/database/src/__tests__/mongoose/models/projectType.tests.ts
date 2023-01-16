@@ -6,6 +6,16 @@ import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {assert} from 'chai';
 
+const mockProjectType: databaseTypes.IProjectType = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  name: 'testProjectType',
+  projects: [
+    {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IProject,
+  ],
+  shape: {foo: {type: 'string', required: true}},
+};
+
 describe('#mongoose/models/projectType', () => {
   context('projetTypeIdExists', () => {
     const sandbox = createSandbox();
@@ -49,6 +59,174 @@ describe('#mongoose/models/projectType', () => {
         errorred = true;
       }
       assert.isTrue(errorred);
+    });
+  });
+
+  context('createProjectType', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will create a projectType document', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+      );
+
+      const projectTypeId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectTypeModel,
+        'create',
+        sandbox.stub().resolves([{_id: projectTypeId}])
+      );
+      sandbox.replace(
+        ProjectTypeModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+      const stub = sandbox.stub();
+      stub.resolves({_id: projectTypeId});
+      sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
+      const projectTypeDocument = await ProjectTypeModel.createProjectType(
+        mockProjectType
+      );
+
+      assert.strictEqual(projectTypeDocument._id, projectTypeId);
+      assert.isTrue(stub.calledOnce);
+    });
+
+    it('will rethrow a DataValidationError when a validator throws one', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'This data is not valid',
+              'projects',
+              {}
+            )
+          )
+      );
+      const projectTypeId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectTypeModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        ProjectTypeModel,
+        'create',
+        sandbox.stub().resolves([{_id: projectTypeId}])
+      );
+      const stub = sandbox.stub();
+      stub.resolves({_id: projectTypeId});
+      sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
+      let hasError = false;
+      try {
+        await ProjectTypeModel.createProjectType(mockProjectType);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        hasError = true;
+      }
+      assert.isTrue(hasError);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+      );
+
+      const projectTypeId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectTypeModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        ProjectTypeModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
+      const stub = sandbox.stub();
+      stub.resolves({_id: projectTypeId});
+      sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
+      let hasError = false;
+      try {
+        await ProjectTypeModel.createProjectType(mockProjectType);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        hasError = true;
+      }
+      assert.isTrue(hasError);
+    });
+
+    it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+      );
+
+      const projectTypeId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectTypeModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        ProjectTypeModel,
+        'create',
+        sandbox.stub().resolves([{}])
+      );
+      const stub = sandbox.stub();
+      stub.resolves({_id: projectTypeId});
+      sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
+      let hasError = false;
+      try {
+        await ProjectTypeModel.createProjectType(mockProjectType);
+      } catch (err) {
+        assert.instanceOf(err, error.UnexpectedError);
+        hasError = true;
+      }
+      assert.isTrue(hasError);
+    });
+
+    it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+      );
+
+      const projectTypeId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectTypeModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        ProjectTypeModel,
+        'create',
+        sandbox.stub().resolves([{_id: projectTypeId}])
+      );
+      const stub = sandbox.stub();
+      stub.resolves({_id: projectTypeId});
+      sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
+      let hasError = false;
+      try {
+        await ProjectTypeModel.createProjectType(mockProjectType);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        hasError = true;
+      }
+      assert.isTrue(hasError);
     });
   });
 
@@ -323,6 +501,125 @@ describe('#mongoose/models/projectType', () => {
       }
 
       assert.isTrue(errorred);
+    });
+  });
+
+  context('validate projects', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the projects can be validated', async () => {
+      const inputProjects = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.resolves(true);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      const results = await ProjectTypeModel.validateProjects(inputProjects);
+
+      assert.strictEqual(results.length, inputProjects.length);
+      results.forEach(r => {
+        const foundId = inputProjects.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the projectIds can be validated ', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.resolves(true);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      const results = await ProjectTypeModel.validateProjects(inputProjects);
+
+      assert.strictEqual(results.length, inputProjects.length);
+      results.forEach(r => {
+        const foundId = inputProjects.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the project ids cannot be found',
+          'projectIds',
+          inputProjects
+        )
+      );
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.validateProjects(inputProjects);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputProjects = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allProjectIdsExistStub = sandbox.stub();
+      allProjectIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        ProjectModel,
+        'allProjectIdsExist',
+        allProjectIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.validateProjects(inputProjects);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
   });
 });

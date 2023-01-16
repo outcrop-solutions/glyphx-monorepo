@@ -4,6 +4,7 @@ import {ProjectModel} from '../../../mongoose/models/project';
 import {AccountModel} from '../../../mongoose/models/account';
 import {SessionModel} from '../../../mongoose/models/session';
 import {WebhookModel} from '../../../mongoose/models/webhook';
+import {OrganizationModel} from '../../../mongoose/models/organization';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
@@ -938,7 +939,7 @@ describe('#mongoose/models/user', () => {
     });
   });
 
-  context.only('validate webhooks', () => {
+  context('validate webhooks', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -1054,6 +1055,200 @@ describe('#mongoose/models/user', () => {
         errored = true;
       }
       assert.isTrue(errored);
+    });
+  });
+
+  context('validate organizations', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the organizations can be validated', async () => {
+      const inputOrganizations = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IOrganization,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IOrganization,
+      ];
+
+      const allOrganizationIdsExistStub = sandbox.stub();
+      allOrganizationIdsExistStub.resolves(true);
+      sandbox.replace(
+        OrganizationModel,
+        'allOrganizationIdsExist',
+        allOrganizationIdsExistStub
+      );
+
+      const results = await UserModel.validateOrganizations(inputOrganizations);
+
+      assert.strictEqual(results.length, inputOrganizations.length);
+      results.forEach(r => {
+        const foundId = inputOrganizations.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the organizationIds can be validated ', async () => {
+      const inputOrganizations = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allOrganizationIdsExistStub = sandbox.stub();
+      allOrganizationIdsExistStub.resolves(true);
+      sandbox.replace(
+        OrganizationModel,
+        'allOrganizationIdsExist',
+        allOrganizationIdsExistStub
+      );
+
+      const results = await UserModel.validateOrganizations(inputOrganizations);
+
+      assert.strictEqual(results.length, inputOrganizations.length);
+      results.forEach(r => {
+        const foundId = inputOrganizations.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputOrganizations = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allOrganizationIdsExistStub = sandbox.stub();
+      allOrganizationIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the organization ids cannot be found',
+          'organizationIds',
+          inputOrganizations
+        )
+      );
+      sandbox.replace(
+        OrganizationModel,
+        'allOrganizationIdsExist',
+        allOrganizationIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateOrganizations(inputOrganizations);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputOrganizations = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allOrganizationIdsExistStub = sandbox.stub();
+      allOrganizationIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        OrganizationModel,
+        'allOrganizationIdsExist',
+        allOrganizationIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateOrganizations(inputOrganizations);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('allUserIdsExist', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true when all the user ids exist', async () => {
+      const userIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedUserIds = userIds.map(userId => {
+        return {
+          _id: userId,
+        };
+      });
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedUserIds);
+      sandbox.replace(UserModel, 'find', findStub);
+
+      assert.isTrue(await UserModel.allUserIdsExist(userIds));
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
+      const userIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returnedUserIds = [
+        {
+          _id: userIds[0],
+        },
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returnedUserIds);
+      sandbox.replace(UserModel, 'find', findStub);
+      let errored = false;
+      try {
+        await UserModel.allUserIdsExist(userIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        assert.strictEqual(err.data.value[0].toString(), userIds[1].toString());
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
+      const userIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.rejects('something bad has happened');
+      sandbox.replace(UserModel, 'find', findStub);
+      let errored = false;
+      try {
+        await UserModel.allUserIdsExist(userIds);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
     });
   });
 });

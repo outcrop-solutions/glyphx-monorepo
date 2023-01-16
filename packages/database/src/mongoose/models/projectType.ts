@@ -56,8 +56,25 @@ schema.static(
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
     let retval: mongooseTypes.ObjectId[] = [];
-    //TODO: blow this out once we have a projects model.
-    return retval;
+    const projectIds: mongooseTypes.ObjectId[] = [];
+    projects.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
+      else projectIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await ProjectModel.allProjectIdsExist(projectIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more project ids do not exisit in the database.  See the inner error for additional information',
+          'projects',
+          projects,
+          err
+        );
+      else throw err;
+    }
+
+    return projectIds;
   }
 );
 
