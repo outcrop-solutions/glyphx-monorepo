@@ -82,6 +82,42 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model CustomerPayment {
+  id               String           @id @default(cuid())
+  paymentId        String           @unique
+  customerId       String           @unique
+  email            String?          @unique
+  subscriptionType SubscriptionType @default(FREE)
+  createdAt        DateTime?        @default(now())
+  deletedAt        DateTime?
+  updatedAt        DateTime?        @updatedAt
+
+  customer User @relation(fields: [customerId], references: [id])
+
+  @@map("customerPayments")
+}
+
+model Member {
+  id        String    @id @default(cuid())
+  email     String
+  inviter   String
+  invitedAt DateTime? @default(now())
+  joinedAt  DateTime?
+  deletedAt DateTime?
+  updatedAt DateTime? @updatedAt
+
+  status       InvitationStatus @default(PENDING)
+  teamRole     Role             @default(MEMBER)
+  member       User?            @relation(fields: [email], references: [email], name: "membership")
+  invitedBy    User?            @relation(fields: [inviter], references: [email], name: "inviter")
+  orgId        String
+  organization Organization     @relation(fields: [orgId], references: [id])
+
+  @@unique(orgId, email])
+
+  @@map("members")
+}
+
 model Project {
   id           String        @id @default(cuid()) @map("_id")
   createdAt    DateTime      @default(now())
@@ -145,8 +181,19 @@ enum FilterType {
   NUMBER
 }
 
+enum InvitationStatus {
+  ACCEPTED
+  PENDING
+  DECLINED
+}
+
+enum SubscriptionType {
+  FREE
+  STANDARD
+  PREMIUM
+}
+
 enum Role {
-  ADMIN
-  USER
-  GUEST
+  OWNER
+  MEMBER
 }
