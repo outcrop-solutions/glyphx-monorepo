@@ -22,6 +22,7 @@ export class ErrorCodes {
     DataValidationError: 462,
 
     UnknownDatabaseError: 559,
+    AwsSecretError: 560,
 
     QueryTimeoutError: 565,
     QueryExecutionError: 566,

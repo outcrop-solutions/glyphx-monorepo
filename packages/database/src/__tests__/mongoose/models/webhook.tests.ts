@@ -558,4 +558,14 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(findStub.calledOnce);
     });
   });
+
+  context( 'getWebhookById', () => {
+	const sandbox = createSandbox();
+
+	afterEach(() => {
+		sandbox.restore();
+	});
+
+	it( 'will retreive a webook document with the user populated'
+  });
 });
