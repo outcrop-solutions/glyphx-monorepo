@@ -6,6 +6,17 @@ export interface ISecretBoundObject extends Record<string, any> {
   secretName: string;
   secretManager: SecretManager;
 }
+
+//snagged this form here: https://stackoverflow.com/questions/51267554/accessing-a-objects-non-enumerable-properties
+function getPropertyNames(Obj: any, prev: string[] = []): string[] {
+  if (Obj) {
+    return getPropertyNames(
+      Obj.prototype || Obj.__proto__,
+      prev.concat(Object.getOwnPropertyNames(Obj))
+    );
+  }
+  return prev.sort();
+}
 interface IPropertyDefinition {
   secretName: string;
   propertyName: string;
@@ -16,8 +27,10 @@ interface IPropertyDefinition {
 function mapProperties(
   secretBoundObject: Record<string, any>
 ): Map<string, IPropertyDefinition> {
+  const propNames = getPropertyNames(secretBoundObject);
   const retval = new Map<string, IPropertyDefinition>();
-  for (const key in secretBoundObject.__proto__) {
+  for (let i = 0; i < propNames.length; i++) {
+    const key = propNames[i];
     const propertyDescriptor = Object.getOwnPropertyDescriptor(
       secretBoundObject.__proto__,
       key
@@ -60,11 +73,6 @@ function mapProperties(
       );
 
       const existingMap = retval.get(secretName);
-      if (existingMap?.setByDecorator)
-        throw new InvalidOperationError(
-          `A property with secret name : ${secretName} has already been defined`,
-          {secretName: secretName}
-        );
 
       if (existingMap) retval.delete(secretName);
 
@@ -92,10 +100,6 @@ export async function secretBinder(secretBoundObject: ISecretBoundObject) {
     if (!mappedPropertyDef) continue;
     const value = mappedPropertyDef.extractor(secrets);
 
-    mappedPropertyDef.setter(value);
-
-    //1.  Look for a decorated member with the name
-    //2.  Look for a decorated member with a true and same name
-    //3.  Look for a decorated member without a false and the name
+    mappedPropertyDef.setter.bind(secretBoundObject)(value);
   }
 }

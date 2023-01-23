@@ -6,7 +6,7 @@ import {InvalidOperationError} from '../error';
 import * as secrets from '../secrets/secretClassDecorator';
 import {SecretManager} from '../aws';
 
-describe.only('Decorator Tests', () => {
+describe('Decorator Tests', () => {
   context('decorator tests', () => {
     it('stubbing out our secret code', async () => {
       @secrets.bindSecrets('dev/mongodb')
@@ -26,7 +26,7 @@ describe.only('Decorator Tests', () => {
         @secrets.boundProperty(false)
         user: string = 'bad user name';
 
-        @secrets.initializer()
+        @secrets.initializer
         async init() {
           return this.someData;
         }
@@ -35,10 +35,6 @@ describe.only('Decorator Tests', () => {
           return 'foo';
         }
       }
-
-      const secretManager = new SecretManager('dev/mongodb');
-
-      const secretValue = await secretManager.getSecrets();
       const con = new mongoDbConnection();
       const result = await con.init();
       assert.strictEqual(result, con.someData);

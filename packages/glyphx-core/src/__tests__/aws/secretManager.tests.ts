@@ -24,13 +24,12 @@ describe('#aws/SecretManager', () => {
   context('getSecrets', () => {
     let secretsManagerMock: any;
 
-    before(() => {
+    beforeEach(() => {
       secretsManagerMock = mockClient(SecretsManager);
     });
 
     afterEach(() => {
       secretsManagerMock.restore();
-      secretsManagerMock = mockClient(SecretsManager);
     });
 
     it('will get the secrets', async () => {

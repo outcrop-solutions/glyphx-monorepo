@@ -3,11 +3,80 @@ import {InvalidOperationError} from '../error';
 import {SecretManager} from '../aws';
 import {ISecretBoundObject, secretBinder} from './secretBinder';
 
-export function initializer() {
-  return Reflect.metadata('boundSecrets:initializerFunction', true);
+const INITIALIZER_NAMES = ['init', 'initialize'];
+
+interface IInitializerDescription {
+  name: string;
+  descriptor: PropertyDescriptor;
 }
 
 type ValueExtractor = (input: any) => any;
+
+export function initializer(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const initializerValue = Reflect.getMetadata(
+    'boundSecrets:initializerFunction',
+    target
+  );
+
+  if (typeof descriptor.value !== 'function') {
+    throw new InvalidOperationError(
+      `You should only use the initializer decorator on a function.  ${propertyKey} does not appear to be a function`,
+      {propertyName: propertyKey, typeof: typeof descriptor.value}
+    );
+  }
+
+  if (initializerValue) {
+    throw new InvalidOperationError(
+      `The initilizer metadata has already been set on the class using the method ${initializerValue.methdodName}.  You can only use this decorator to decirate one method`,
+      {methodName: initializerValue.methodName}
+    );
+  }
+  if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
+    throw new InvalidOperationError(
+      'Your initializer function must return a Promise so that it can be awaited',
+      {functionName: propertyKey}
+    );
+  }
+
+  Reflect.defineMetadata(
+    'boundSecrets:initializerFunction',
+    {name: propertyKey, descriptor: descriptor},
+    target
+  );
+}
+
+function storeSecretName(
+  target: any,
+  propertyName: string,
+  secretName: string
+): void {
+  const savedSecretMeta = (Reflect.getMetadata(
+    'boundSecrets:saveSecrets',
+    target
+  ) ?? new Map<string, {secretName: string; propertyName: string}>()) as Map<
+    string,
+    {secretName: string; propertyName: string}
+  >;
+  const usedSecret = savedSecretMeta.get(secretName);
+  if (usedSecret) {
+    throw new InvalidOperationError(
+      `The secret ${usedSecret.secretName} has already been attached to the property : ${propertyName}`,
+      {secretName: usedSecret.secretName, propertyName: usedSecret.propertyName}
+    );
+  }
+
+  savedSecretMeta.set(secretName, {
+    secretName: secretName,
+    propertyName: propertyName,
+  });
+
+  Reflect.defineMetadata('boundSecrets:saveSecrets', savedSecretMeta, target);
+}
+
 export function boundProperty(
   secretName: string,
   extractor?: ValueExtractor | string
@@ -39,7 +108,7 @@ export function boundProperty(
         ((input: any) => {
           return input[secretName];
         });
-    } else if (typeof val1 === 'string') {
+    } else {
       bound = true;
       secretName = val1;
       extractor =
@@ -48,6 +117,9 @@ export function boundProperty(
           return input[secretName];
         });
     }
+
+    if (bound) storeSecretName(target, propertyName, secretName);
+
     Reflect.defineMetadata('boundSecrets:isBound', bound, target, propertyName);
     Reflect.defineMetadata(
       'boundSecrets:extractor',
@@ -71,13 +143,6 @@ export function boundProperty(
       if (!propertyDescriptor) {
         let value: any;
         const getter = function () {
-          //throw up a guard to prevent us from doing bad things
-          if (!value) {
-            throw new InvalidOperationError(
-              `The value of ${propertyName} has not been set.  This value is bound to a secret.  You must call your initializer function before you can access this property`,
-              {propertyName: propertyName}
-            );
-          }
           return value;
         };
 
@@ -103,16 +168,15 @@ export function boundProperty(
   };
 }
 
-const INITIALIZER_NAMES = ['init', 'initialize'];
-
-interface IInitializerDescription {
-  name: string;
-  descriptor: PropertyDescriptor;
-}
-
 function findInitializerFunction(target: any) {
+  const initDescriptor = Reflect.getMetadata(
+    'boundSecrets:initializerFunction',
+    target.prototype
+  );
+
+  if (initDescriptor) return initDescriptor;
+
   const keys = Object.getOwnPropertyNames(target.prototype);
-  let initializer: IInitializerDescription | undefined = undefined;
   let potentialInitializer: IInitializerDescription | undefined = undefined;
 
   for (let i = 0; i < keys.length; i++) {
@@ -124,81 +188,140 @@ function findInitializerFunction(target: any) {
     );
     if (typeof propertyDescriptor?.value !== 'function') continue;
 
-    const initializerValue = Reflect.getMetadata(
-      'boundSecrets:initializerFunction',
-      target.prototype,
-      key
-    );
-
-    if (initializerValue) {
-      initializer = {name: key, descriptor: propertyDescriptor};
-      break;
-    }
-
     if (INITIALIZER_NAMES.find(name => name === key.toLowerCase()))
       potentialInitializer = {name: key, descriptor: propertyDescriptor};
     continue;
   }
 
-  return initializer || potentialInitializer;
+  return potentialInitializer;
 }
 
 export function bindSecrets(secretName: string) {
   return function <T extends {new (...args: any[]): {}}>(target: T) {
-    const initializer = findInitializerFunction(target);
-
-    if (!initializer)
-      throw new InvalidOperationError(
-        'An initializer function cannot be found.  Please decorate an async method with the @initializer decorator',
-        {}
-      );
-
-    const initializerReturnType = Reflect.getMetadata(
-      'design:returntype',
-      target.prototype,
-      initializer.name
-    );
-    if (initializerReturnType.name !== 'Promise') {
-      throw new InvalidOperationError(
-        'Your initializer function must return a Promise so that it can be awaited',
-        {functionName: initializer.name}
-      );
-    }
-
-    const initialInitislizerFunction = initializer.descriptor.value;
-    if (!initialInitislizerFunction)
-      throw new InvalidOperationError(
-        "This shoudln't happen but somehow you have decorated something other than a function with the @initializer attribute",
-        {initializerName: initializer.name}
-      );
+    const {initializer, initialInitislizerFunction} =
+      findAndValidateInitializer<T>(target);
     //now modify our object so that we can inject the secret values/
-    //1. we are going to swap out the intializer with our own initializer.
-    Object.defineProperty(target.prototype, initializer.name, {
-      value: async function () {
-        //eslint-disable-next-line
-        //@ts-ignore
-        const boundFunction = secretInitializer.bind(this);
-        const result = await boundFunction(initialInitislizerFunction);
 
-        return result;
-      },
-    });
+    //1. we are going to swap out the intializer with our own initializer.
+    updateInitializer<T>(target, initializer, initialInitislizerFunction);
 
     //2. we will go ahead and add the secret name
-    Object.defineProperty(target.prototype, 'secretName', {
-      get: function (): string {
-        return secretName;
-      },
-    });
+    addSecretNameProperty<T>(target, secretName);
 
     //3. We will add the secret manager
-    const secretManager = new SecretManager(secretName);
-    Object.defineProperty(target.prototype, 'secretManager', {
-      get: function (): SecretManager {
-        return secretManager;
-      },
-    });
+    addSecretManagerProperty<T>(secretName, target);
+
+    //4. Wrap our secret bound propertied in a guard to ensure that inited has been set to true by the init function
+    setupPropertyGuards<T>(target);
   };
+}
+
+function addSecretManagerProperty<T extends {new (...args: any[]): {}}>(
+  secretName: string,
+  target: T
+) {
+  const secretManager = new SecretManager(secretName);
+  Object.defineProperty(target.prototype, 'secretManager', {
+    get: function (): SecretManager {
+      return secretManager;
+    },
+  });
+}
+
+function addSecretNameProperty<T extends {new (...args: any[]): {}}>(
+  target: T,
+  secretName: string
+) {
+  Object.defineProperty(target.prototype, 'secretName', {
+    get: function (): string {
+      return secretName;
+    },
+  });
+}
+
+function updateInitializer<T extends {new (...args: any[]): {}}>(
+  target: T,
+  initializer: any,
+  initialInitislizerFunction: any
+) {
+  let initedField = false;
+  Object.defineProperty(target.prototype, initializer.name, {
+    value: async function () {
+      //eslint-disable-next-line
+      //@ts-ignore
+      const boundFunction = secretInitializer.bind(this);
+      initedField = true;
+      const result = await boundFunction(initialInitislizerFunction);
+
+      return result;
+    },
+  });
+
+  //Define an inited property so we can access the value of initied field later
+  Object.defineProperty(target.prototype, 'inited', {
+    get: function (): boolean {
+      return initedField;
+    },
+  });
+}
+
+function findAndValidateInitializer<T extends {new (...args: any[]): {}}>(
+  target: T
+) {
+  const initializer = findInitializerFunction(target);
+
+  if (!initializer)
+    throw new InvalidOperationError(
+      'An initializer function cannot be found.  Please decorate an async method with the @initializer decorator',
+      {}
+    );
+
+  if (
+    initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction'
+  ) {
+    throw new InvalidOperationError(
+      'Your initializer function must return a Promise so that it can be awaited',
+      {functionName: initializer.name}
+    );
+  }
+
+  const initialInitislizerFunction = initializer.descriptor.value;
+  return {initializer, initialInitislizerFunction};
+}
+
+function setupPropertyGuards<T extends {new (...args: any[]): {}}>(target: T) {
+  const keys = Object.getOwnPropertyNames(target.prototype);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const isBound = Reflect.getMetadata(
+      'boundSecrets:isBound',
+      target.prototype,
+      key
+    );
+
+    if (isBound) {
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(
+        target.prototype,
+        key
+      );
+      const origGetter = propertyDescriptor?.get;
+      //istanbul ignore next else
+      if (origGetter) {
+        Object.defineProperty(target.prototype, key, {
+          get: function () {
+            if (!this.inited) {
+              throw new InvalidOperationError(
+                'You must call init before accessing a secrets bound property',
+                {propertyName: key}
+              );
+            }
+            const func = origGetter.bind(this);
+            return func();
+          },
+        });
+      }
+    }
+  }
 }
 
 async function secretInitializer(innerInit: any) {
