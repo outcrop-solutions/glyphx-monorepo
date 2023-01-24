@@ -559,13 +559,13 @@ describe('#mongoose/models/webhook', () => {
     });
   });
 
-  context( 'getWebhookById', () => {
-	const sandbox = createSandbox();
+  // context( 'getWebhookById', () => {
+  // const sandbox = createSandbox();
 
-	afterEach(() => {
-		sandbox.restore();
-	});
+  // afterEach(() => {
+  // sandbox.restore();
+  // });
 
-	it( 'will retreive a webook document with the user populated'
-  });
+  // it( 'will retreive a webook document with the user populated'
+  // });
 });
