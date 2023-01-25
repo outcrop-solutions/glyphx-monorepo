@@ -345,20 +345,20 @@ schema.static(
   async (
     input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
   ) => {
-    const orgs = Array.from(input.ownedOrgs) as (
+    const orgs = Array.from(input.ownedOrgs ?? []) as (
       | databaseTypes.IOrganization
       | mongooseTypes.ObjectId
     )[];
-    orgs.unshift(input.organization);
+    if (input.organization) orgs.unshift(input.organization);
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const [accounts, sessions, webhooks, organizations, projects] =
         await Promise.all([
-          UserModel.validateAccounts(input.accounts),
-          UserModel.validateSessions(input.sessions),
-          UserModel.validateWebhooks(input.webhooks),
-          UserModel.validateOrganizations(orgs),
-          UserModel.validateProjects(input.projects),
+          UserModel.validateAccounts(input.accounts ?? []),
+          UserModel.validateSessions(input.sessions ?? []),
+          UserModel.validateWebhooks(input.webhooks ?? []),
+          UserModel.validateOrganizations(orgs ?? []),
+          UserModel.validateProjects(input.projects ?? []),
         ]);
       const createDate = new Date();
       const org = organizations.shift() as mongooseTypes.ObjectId;

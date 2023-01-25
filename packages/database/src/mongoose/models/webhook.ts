@@ -144,10 +144,9 @@ schema.static(
 
     try {
       const createdDocument = (
-        await WebhookModel.create([
-          transformedDocument,
-          {validateBeforeSave: false},
-        ])
+        await WebhookModel.create([transformedDocument], {
+          validateBeforeSave: false,
+        })
       )[0];
       return await WebhookModel.getWebhookById(createdDocument._id);
     } catch (err) {
