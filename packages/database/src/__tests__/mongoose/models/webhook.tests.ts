@@ -559,13 +559,112 @@ describe('#mongoose/models/webhook', () => {
     });
   });
 
-  // context( 'getWebhookById', () => {
-  // const sandbox = createSandbox();
+  context.only('getWebhookById', () => {
+    class mockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError: boolean = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate(input: string) {
+        return this;
+      }
 
-  // afterEach(() => {
-  // sandbox.restore();
-  // });
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
 
-  // it( 'will retreive a webook document with the user populated'
-  // });
+        return this.mockData;
+      }
+    }
+
+    const mockWebHook: databaseTypes.IWebhook = {
+      _id: new mongoose.Types.ObjectId(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      name: 'testWebHook',
+      url: 'http://test.web.hook',
+      __v: 1,
+      user: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+    } as databaseTypes.IWebhook;
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive a webook document with the user populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(mockWebHook));
+      sandbox.replace(WebhookModel, 'findById', findByIdStub);
+
+      const doc = await WebhookModel.getWebhookById(
+        mockWebHook._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.user as any).__v);
+
+      assert.strictEqual(doc._id, mockWebHook._id);
+    });
+
+    it('will retreive a webook document with the user populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(mockWebHook));
+      sandbox.replace(WebhookModel, 'findById', findByIdStub);
+
+      const doc = await WebhookModel.getWebhookById(
+        mockWebHook._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.user as any).__v);
+
+      assert.strictEqual(doc._id, mockWebHook._id);
+    });
+
+    it('will throw a DataNotFoundError when the webhook does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(null));
+      sandbox.replace(WebhookModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await WebhookModel.getWebhookById(
+          mockWebHook._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the webhook does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new mockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace(WebhookModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await WebhookModel.getWebhookById(
+          mockWebHook._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

@@ -78,35 +78,40 @@ schema.static(
   }
 );
 
-schema.static('getWebhookById', async (webhookId: mongooseTypes.ObjectId) => {
-  try {
-    const webhookDocument = (await WebhookModel.findById(webhookId)
-      .populate('user')
-      .lean()) as databaseTypes.IWebhook;
-    if (!webhookDocument) {
-      throw new error.DataNotFoundError(
-        `Could not find a webhook with the _id: ${webhookId}`,
-        'webhook._id',
-        webhookId
-      );
-    }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (webhookDocument as any)['__v'];
-    delete (webhookDocument as any).user['__v'];
+schema.static(
+  'getWebhookById',
+  async (
+    webhookId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IWebhook> => {
+    try {
+      const webhookDocument = (await WebhookModel.findById(webhookId)
+        .populate('user')
+        .lean()) as databaseTypes.IWebhook;
+      if (!webhookDocument) {
+        throw new error.DataNotFoundError(
+          `Could not find a webhook with the _id: ${webhookId}`,
+          'webhook._id',
+          webhookId
+        );
+      }
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      delete (webhookDocument as any)['__v'];
+      delete (webhookDocument as any).user['__v'];
 
-    return webhookDocument;
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the webhook.  See the inner error for additional information',
-        'mongoDb',
-        'getWebhookById',
-        err
-      );
+      return webhookDocument;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the webhook.  See the inner error for additional information',
+          'mongoDb',
+          'getWebhookById',
+          err
+        );
+    }
   }
-});
+);
 
 schema.static(
   'createWebhook',

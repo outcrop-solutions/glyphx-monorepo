@@ -21,6 +21,7 @@ importers:
 
   apps/web:
     specifiers:
+      '@aws-amplify/auth': ^5.1.5
       '@aws-amplify/ui-react': ^4.2.0
       '@aws-sdk/client-athena': ^3.223.0
       '@aws-sdk/client-s3': ^3.223.0
@@ -104,7 +105,8 @@ importers:
       web-vitals: ^1.1.1
       ws: 8.11.0
     dependencies:
-      '@aws-amplify/ui-react': 4.2.1_kpo5jd7rbwoet6ra47mzyty4tq
+      '@aws-amplify/auth': 5.1.5_react-native@0.70.6
+      '@aws-amplify/ui-react': 4.2.1_tzneb7cvgviya7tbqitidzdmfy
       '@aws-sdk/client-athena': 3.234.0
       '@aws-sdk/client-s3': 3.234.0_ocflixildv6nodmf32mklldbr4
       '@aws-sdk/lib-storage': 3.234.0_wjjo7mavuth6a2dnjlcxyklxnu
@@ -600,11 +602,38 @@ packages:
       - react-native
     dev: false
 
+  /@aws-amplify/auth/5.1.5_react-native@0.70.6:
+    resolution: {integrity: sha512-vtEpB4cG58xzt2/du75QztWLBG2cxa7ku3HBM5Yqr4sZSMhH1xKV8QjvlZtEHdADOimgrmL0ikTdUy+Xb7t4zw==}
+    dependencies:
+      '@aws-amplify/core': 5.0.11_react-native@0.70.6
+      amazon-cognito-identity-js: 6.1.2
+      tslib: 1.14.1
+    transitivePeerDependencies:
+      - encoding
+      - react-native
+    dev: false
+
   /@aws-amplify/cache/5.0.7_react-native@0.70.6:
     resolution: {integrity: sha512-JwX5hLPEasvdF4RLkl1ZuNcDqR3AEX0roGBsk6SujmV8+1atNCCbdgCgIU8j/dl2RNRKHKp6WVIgEErav3wNrw==}
     dependencies:
       '@aws-amplify/core': 5.0.7_react-native@0.70.6
       tslib: 1.14.1
+    transitivePeerDependencies:
+      - react-native
+    dev: false
+
+  /@aws-amplify/core/5.0.11_react-native@0.70.6:
+    resolution: {integrity: sha512-Gcr1yzzI/iBNa7psstyYhyc6QlOc9zknx1J7VaVQ2b7qTGfh6sykDRNvk2vq0qEDNnhDhPHtLx/bQsGeyuA0Lg==}
+    dependencies:
+      '@aws-crypto/sha256-js': 1.2.2
+      '@aws-sdk/client-cloudwatch-logs': 3.6.1_react-native@0.70.6
+      '@aws-sdk/client-cognito-identity': 3.6.1_react-native@0.70.6
+      '@aws-sdk/credential-provider-cognito-identity': 3.6.1_react-native@0.70.6
+      '@aws-sdk/types': 3.6.1
+      '@aws-sdk/util-hex-encoding': 3.6.1
+      tslib: 1.14.1
+      universal-cookie: 4.0.4
+      zen-observable-ts: 0.8.19
     transitivePeerDependencies:
       - react-native
     dev: false
@@ -754,7 +783,7 @@ packages:
       - '@xstate/fsm'
     dev: false
 
-  /@aws-amplify/ui-react/4.2.1_kpo5jd7rbwoet6ra47mzyty4tq:
+  /@aws-amplify/ui-react/4.2.1_tzneb7cvgviya7tbqitidzdmfy:
     resolution: {integrity: sha512-CoE149ZLyK/lrm8W9vTluc9AUBCb5Yx7mUZlm1+DCijwav3lyXE1kwX5pi/MyCRiFRV82L6vDq8jJwgquAvFTw==}
     peerDependencies:
       aws-amplify: 5.x.x
@@ -778,7 +807,7 @@ packages:
       lodash: 4.17.21
       mapbox-gl: 1.13.1
       maplibre-gl: 2.1.9
-      maplibre-gl-js-amplify: 3.0.0_6gjuia7vuktrygtefehd667ktm
+      maplibre-gl-js-amplify: 3.0.0_huaf2x4pzzd46uh4atylli6imq
       qrcode: 1.5.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -8813,6 +8842,18 @@ packages:
       - encoding
     dev: false
 
+  /amazon-cognito-identity-js/6.1.2:
+    resolution: {integrity: sha512-Ptutf9SLvKEM1Kr2kTPUvu/9THjQ0Si1l80iZYcS8NqScAAiDg8WjOOhQeJPcQDXt3Vym91luZ6zNW/3ErjEdQ==}
+    dependencies:
+      '@aws-crypto/sha256-js': 1.2.2
+      buffer: 4.9.2
+      fast-base64-decode: 1.0.0
+      isomorphic-unfetch: 3.1.0
+      js-cookie: 2.2.1
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /anser/1.4.10:
     resolution: {integrity: sha512-hCv9AqTQ8ycjpSd3upOJd7vFwW1JaoYQ7tpham03GJ1ca8/65rqn0RpaWpItOAd6ylW9wAw6luXYPJIyPFVOww==}
     dev: false
@@ -14372,14 +14413,14 @@ packages:
       '@turf/length': 6.5.0
     dev: false
 
-  /maplibre-gl-js-amplify/3.0.0_6gjuia7vuktrygtefehd667ktm:
+  /maplibre-gl-js-amplify/3.0.0_huaf2x4pzzd46uh4atylli6imq:
     resolution: {integrity: sha512-mqDD0cJyc/JJ6mhMrbl6VU+/YHUKxHbI+22ZkXB34taYZR2+TBIwvHrcnb/p+Z4HilVC2NgY44ldpanZiHZX/g==}
     peerDependencies:
       '@aws-amplify/core': 5.x.x
       '@aws-amplify/geo': 2.x.x
       maplibre-gl: 1.x.x || 2.x.x
     dependencies:
-      '@aws-amplify/core': 5.0.7_react-native@0.70.6
+      '@aws-amplify/core': 5.0.11_react-native@0.70.6
       '@aws-amplify/geo': 2.0.7_react-native@0.70.6
       '@mapbox/mapbox-gl-draw': 1.3.0
       '@maplibre/maplibre-gl-geocoder': 1.5.0_maplibre-gl@2.1.9
