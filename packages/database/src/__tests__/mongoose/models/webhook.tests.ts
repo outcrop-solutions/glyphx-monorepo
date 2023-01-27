@@ -559,7 +559,7 @@ describe('#mongoose/models/webhook', () => {
     });
   });
 
-  context.only('getWebhookById', () => {
+  context('getWebhookById', () => {
     class mockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
@@ -613,22 +613,6 @@ describe('#mongoose/models/webhook', () => {
       assert.strictEqual(doc._id, mockWebHook._id);
     });
 
-    it('will retreive a webook document with the user populated', async () => {
-      const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockWebHook));
-      sandbox.replace(WebhookModel, 'findById', findByIdStub);
-
-      const doc = await WebhookModel.getWebhookById(
-        mockWebHook._id as mongoose.Types.ObjectId
-      );
-
-      assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.user as any).__v);
-
-      assert.strictEqual(doc._id, mockWebHook._id);
-    });
-
     it('will throw a DataNotFoundError when the webhook does not exist', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new mockMongooseQuery(null));
@@ -647,7 +631,7 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(errored);
     });
 
-    it('will throw a DatabaseOperationError when the webhook does not exist', async () => {
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
         new mockMongooseQuery('something bad happened', true)

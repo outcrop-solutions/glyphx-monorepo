@@ -107,10 +107,35 @@ schema.static(
   }
 );
 
-schema.static(
-  'getAccountById',
-  async (accountId: mongooseTypes.ObjectId) => {}
-);
+schema.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
+  try {
+    const accountDocument = (await AccountModel.findById(accountId)
+      .populate('user')
+      .lean()) as databaseTypes.IWebhook;
+    if (!accountDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a account with the _id: ${accountId}`,
+        'account_id',
+        accountId
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (accountDocument as any)['__v'];
+    delete (accountDocument as any).user['__v'];
+
+    return accountDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the account.  See the inner error for additional information',
+        'mongoDb',
+        'getAccountById',
+        err
+      );
+  }
+});
 
 schema.static(
   'validateUpdateObject',
@@ -239,10 +264,9 @@ schema.static(
 
     try {
       const createdDocument = (
-        await AccountModel.create([
-          transformedDocument,
-          {validateBeforeSave: false},
-        ])
+        await AccountModel.create([transformedDocument], {
+          validateBeforeSave: false,
+        })
       )[0];
       return await AccountModel.getAccountById(createdDocument._id);
     } catch (err) {

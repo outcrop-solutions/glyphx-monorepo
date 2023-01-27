@@ -971,4 +971,125 @@ describe('#mongoose/models/organization', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('getOrganizationById', () => {
+    const mockOrganization = {
+      _id: new mongoose.Types.ObjectId(),
+      name: 'testOrganization',
+      description: 'This is a test organization',
+      members: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test member1',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test member2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      ],
+      projects: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test project1',
+          __v: 1,
+        } as unknown as databaseTypes.IProject,
+        {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test project2',
+          __v: 1,
+        } as unknown as databaseTypes.IProject,
+      ],
+      __v: 1,
+      owner: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+    };
+    const sandbox = createSandbox();
+    class mockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError: boolean = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate(input: string) {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will get an organization', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(mockOrganization));
+      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+
+      const doc = await OrganizationModel.getOrganizationById(
+        mockOrganization._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.owner as any).__v);
+      doc.members.forEach(m => {
+        assert.isUndefined((m as any).__v);
+      });
+
+      doc.projects.forEach(p => {
+        assert.isUndefined((p as any).__v);
+      });
+
+      assert.strictEqual(doc._id, mockOrganization._id);
+    });
+
+    it('will throw a DataNotFoundError when the organization does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(null));
+      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await OrganizationModel.getOrganizationById(
+          mockOrganization._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new mockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await OrganizationModel.getOrganizationById(
+          mockOrganization._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

@@ -24,9 +24,19 @@ const schema = new Schema<
   updatedAt: {type: Date, required: true, default: new Date()},
   name: {type: String, required: true},
   description: {type: String, required: false},
-  owner: {type: Schema.Types.ObjectId, required: true},
-  members: {type: [Schema.Types.ObjectId], required: true, default: []},
-  projects: {type: [Schema.Types.ObjectId], required: true, default: []},
+  owner: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
+  members: {
+    type: [Schema.Types.ObjectId],
+    required: true,
+    default: [],
+    ref: 'user',
+  },
+  projects: {
+    type: [Schema.Types.ObjectId],
+    required: true,
+    default: [],
+    ref: 'project',
+  },
 });
 
 schema.static(
@@ -314,7 +324,40 @@ schema.static(
 
 schema.static(
   'getOrganizationById',
-  async (organizationId: mongooseTypes.ObjectId) => {}
+  async (
+    organizationId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IOrganization> => {
+    try {
+      const organizationDocument = (await OrganizationModel.findById(
+        organizationId
+      )
+        .populate('owner')
+        .populate('members')
+        .populate('projects')
+        .lean()) as databaseTypes.IOrganization;
+      if (!organizationDocument)
+        throw new error.DataNotFoundError(
+          `Could not find an Organization with the _id: ${organizationId}`,
+          'organization._id',
+          organizationId
+        );
+      delete (organizationDocument as any)['__v'];
+      delete (organizationDocument as any).owner['__v'];
+      organizationDocument.members.forEach(m => delete (m as any)['__v']);
+      organizationDocument.projects.forEach(p => delete (p as any)['__v']);
+
+      return organizationDocument;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while retreiving the organization from the database.  See the inner error for additional information',
+          'mongoDb',
+          'getOrganizationById',
+          err
+        );
+    }
+  }
 );
 
 schema.static(

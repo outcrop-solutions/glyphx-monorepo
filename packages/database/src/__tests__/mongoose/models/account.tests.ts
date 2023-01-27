@@ -522,4 +522,106 @@ describe('#mongoose/models/account', () => {
       assert.isTrue(findStub.calledOnce);
     });
   });
+
+  context('getAccountById', () => {
+    class mockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError: boolean = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate(input: string) {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockAccount: databaseTypes.IAccount = {
+      _id: new mongoose.Types.ObjectId(),
+      type: databaseTypes.constants.ACCOUNT_TYPE.CUSTOMER,
+      provider: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
+      providerAccountId: 'accountId',
+      refresh_token: 'refreshToken',
+      refresh_token_expires_in: new Date().getTime(),
+      access_token: 'accessToken',
+      expires_at: new Date().getTime(),
+      token_type: databaseTypes.constants.TOKEN_TYPE.ACCESS,
+      scope: 'scope',
+      id_token: 'idtoken',
+      session_state: databaseTypes.constants.SESSION_STATE.NEW,
+      oauth_token_secret: 'tokensecret',
+      oauth_token: 'oauthToken',
+      __v: 1,
+      user: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+    } as databaseTypes.IAccount;
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive an account document with the user populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(mockAccount));
+      sandbox.replace(AccountModel, 'findById', findByIdStub);
+
+      const doc = await AccountModel.getAccountById(
+        mockAccount._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.user as any).__v);
+
+      assert.strictEqual(doc._id, mockAccount._id);
+    });
+
+    it('will throw a DataNotFoundError when the account does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(null));
+      sandbox.replace(AccountModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await AccountModel.getAccountById(
+          mockAccount._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new mockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace(AccountModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await AccountModel.getAccountById(
+          mockAccount._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });
