@@ -17,7 +17,12 @@ const schema = new Schema<
   createdAt: {type: Date, required: true, default: () => new Date()},
   updatedAt: {type: Date, required: true, default: () => new Date()},
   name: {type: String, required: true},
-  projects: {type: [mongooseTypes.ObjectId], required: true, default: []},
+  projects: {
+    type: [mongooseTypes.ObjectId],
+    required: true,
+    default: [],
+    ref: 'project',
+  },
   shape: {
     type: Schema.Types.Mixed,
     required: true,
@@ -47,7 +52,37 @@ schema.static(
 
 schema.static(
   'getProjectTypeById',
-  async (projectTypeId: mongooseTypes.ObjectId) => {}
+  async (projectTypeId: mongooseTypes.ObjectId) => {
+    try {
+      const projectTypeDocument = (await ProjectTypeModel.findById(
+        projectTypeId
+      )
+        .populate('projects')
+        .lean()) as databaseTypes.IProjectType;
+      if (!projectTypeDocument) {
+        throw new error.DataNotFoundError(
+          `Could not find a projectType with the _id: ${projectTypeId}`,
+          'projectType._id',
+          projectTypeId
+        );
+      }
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      delete (projectTypeDocument as any)['__v'];
+      projectTypeDocument.projects.forEach(p => delete (p as any)['__v']);
+
+      return projectTypeDocument;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the projectType.  See the inner error for additional information',
+          'mongoDb',
+          'getProjectTypeById',
+          err
+        );
+    }
+  }
 );
 
 schema.static(
@@ -223,7 +258,7 @@ schema.static(
     projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>
   ): Promise<databaseTypes.IProjectType> => {
     await ProjectTypeModel.updateProjectTypeWithFilter(
-      {_id: projectType},
+      {_id: projectTypeId},
       projectType
     );
     return await ProjectTypeModel.getProjectTypeById(projectTypeId);
