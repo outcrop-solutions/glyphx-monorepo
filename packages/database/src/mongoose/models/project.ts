@@ -8,6 +8,8 @@ import {
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
 import {OrganizationModel} from './organization';
+import {ProjectTypeModel} from './projectType';
+import {StateModel} from './state';
 import {fileStatsSchema} from '../schemas';
 
 const schema = new Schema<
@@ -132,13 +134,23 @@ schema.static(
         )
       );
 
-    //TODO: renable this once project types are built;
-    // if( project.type )
-    // tasks.push( idValidator( project.type._id as mongooseTypes.ObjectId, 'ProjectType', ProjectTypeModel.projectTypeIdExists));
+    if (project.type)
+      tasks.push(
+        idValidator(
+          project.type._id as mongooseTypes.ObjectId,
+          'ProjectType',
+          ProjectTypeModel.projectTypeIdExists
+        )
+      );
 
-    //TODO: renable once we have built the state model.
-    // if( project.state )
-    // tasks.push(idvalidator(project.state._id, 'State', StateModel.stateIdExists));
+    if (project.state)
+      tasks.push(
+        idValidator(
+          project.state._id as mongooseTypes.ObjectId,
+          'State',
+          StateModel.stateIdExists
+        )
+      );
 
     if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
 
@@ -228,8 +240,18 @@ schema.static(
   async (
     input: databaseTypes.IProjectType | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId> => {
-    //TODO: Need to blow this out once we have all of the models built.
-    throw 'Not Implimented';
+    const projectTypeId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await ProjectTypeModel.projectTypeIdExists(projectTypeId))) {
+      throw new error.InvalidArgumentError(
+        `The project type : ${projectTypeId} does not exist`,
+        'projectTypeId',
+        projectTypeId
+      );
+    }
+    return projectTypeId;
   }
 );
 
@@ -238,8 +260,18 @@ schema.static(
   async (
     input: databaseTypes.IOrganization | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId> => {
-    //TODO: Need to blow this out once we have all of the models built.
-    throw 'Not Implimented';
+    const organizationId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await OrganizationModel.organizationIdExists(organizationId))) {
+      throw new error.InvalidArgumentError(
+        `The organization : ${organizationId} does not exist`,
+        'organizationId',
+        organizationId
+      );
+    }
+    return organizationId;
   }
 );
 
@@ -248,8 +280,18 @@ schema.static(
   async (
     input: databaseTypes.IUser | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId> => {
-    //TODO: Need to blow this out once we have all of the models built.
-    throw 'Not Implimented';
+    const userId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(userId))) {
+      throw new error.InvalidArgumentError(
+        `The user : ${userId} does not exist`,
+        'userId',
+        userId
+      );
+    }
+    return userId;
   }
 );
 
@@ -257,9 +299,19 @@ schema.static(
   'validateState',
   async (
     input: databaseTypes.IState | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId | null> => {
-    //TODO: Need to blow this out once we have all of the models built.
-    throw 'Not Implimented';
+  ): Promise<mongooseTypes.ObjectId> => {
+    const stateId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await StateModel.stateIdExists(stateId))) {
+      throw new error.InvalidArgumentError(
+        `The state : ${stateId} does not exist`,
+        'stateId',
+        stateId
+      );
+    }
+    return stateId;
   }
 );
 
@@ -326,10 +378,41 @@ schema.static(
   }
 );
 
-schema.static(
-  'getProjectById',
-  async (projectId: mongooseTypes.ObjectId) => {}
-);
+schema.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
+  try {
+    const projectDocument = (await ProjectModel.findById(projectId)
+      .populate('owner')
+      .populate('organization')
+      .populate('type')
+      .populate('state')
+      .lean()) as databaseTypes.IProject;
+    if (!projectDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a project with the _id: ${projectId}`,
+        'project_id',
+        projectId
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (projectDocument as any)['__v'];
+    delete (projectDocument as any).owner['__v'];
+    delete (projectDocument as any).type['__v'];
+    delete (projectDocument as any).state['__v'];
+    delete (projectDocument as any).organization['__v'];
+
+    return projectDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the project.  See the inner error for additional information',
+        'mongoDb',
+        'getProjectById',
+        err
+      );
+  }
+});
 
 schema.static(
   'deleteProjectById',

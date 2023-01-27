@@ -35,5 +35,5 @@ export interface IProjectStaticMethods
   ): Promise<mongooseTypes.ObjectId>;
   validateState(
     input: databaseTypes.IState | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId | null>;
+  ): Promise<mongooseTypes.ObjectId>;
 }

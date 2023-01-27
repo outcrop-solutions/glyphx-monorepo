@@ -23,7 +23,7 @@ const inputData = {
   shape: {field1: {type: 'string', required: true}},
 };
 
-describe.only('#ProjectTypeModel', () => {
+describe('#ProjectTypeModel', () => {
   context('test the crud functions of the projectType model', () => {
     const mongoConnection = new mongoDbConnection();
     const projectTypeModel = mongoConnection.models.ProjectTypeModel;

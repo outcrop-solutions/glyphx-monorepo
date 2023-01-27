@@ -623,7 +623,7 @@ describe('#mongoose/models/projectType', () => {
     });
   });
 
-  context.only('getProjectTypeById', () => {
+  context('getProjectTypeById', () => {
     class mockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
