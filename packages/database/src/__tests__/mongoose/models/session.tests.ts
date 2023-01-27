@@ -513,4 +513,95 @@ describe('#mongoose/models/session', () => {
       assert.isTrue(findStub.calledOnce);
     });
   });
+
+  context('getSessionById', () => {
+    class mockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError: boolean = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate(input: string) {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockSession: databaseTypes.ISession = {
+      _id: new mongoose.Types.ObjectId(),
+      sessionToken: 'test session token',
+      expires: new Date(),
+      __v: 1,
+      user: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+    } as databaseTypes.ISession;
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive a session document with the user populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(mockSession));
+      sandbox.replace(SessionModel, 'findById', findByIdStub);
+
+      const doc = await SessionModel.getSessionById(
+        mockSession._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.user as any).__v);
+
+      assert.strictEqual(doc._id, mockSession._id);
+    });
+
+    it('will throw a DataNotFoundError when the session does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(null));
+      sandbox.replace(SessionModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await SessionModel.getSessionById(
+          mockSession._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new mockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace(SessionModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await SessionModel.getSessionById(
+          mockSession._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

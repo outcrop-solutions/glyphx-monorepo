@@ -76,10 +76,35 @@ schema.static(
   }
 );
 
-schema.static(
-  'getSessionById',
-  async (sessionId: mongooseTypes.ObjectId) => {}
-);
+schema.static('getSessionById', async (sessionId: mongooseTypes.ObjectId) => {
+  try {
+    const sessionDocument = (await SessionModel.findById(sessionId)
+      .populate('user')
+      .lean()) as databaseTypes.ISession;
+    if (!sessionDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a session with the _id: ${sessionId}`,
+        'session_id',
+        sessionId
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (sessionDocument as any)['__v'];
+    delete (sessionDocument as any).user['__v'];
+
+    return sessionDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the session.  See the inner error for additional information',
+        'mongoDb',
+        'getSessionById',
+        err
+      );
+  }
+});
 
 schema.static(
   'createSession',
@@ -115,10 +140,9 @@ schema.static(
 
     try {
       const createdDocument = (
-        await SessionModel.create([
-          transformedDocument,
-          {validateBeforeSave: false},
-        ])
+        await SessionModel.create([transformedDocument], {
+          validateBeforeSave: false,
+        })
       )[0];
       return await SessionModel.getSessionById(createdDocument._id);
     } catch (err) {
