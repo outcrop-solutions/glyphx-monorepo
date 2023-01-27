@@ -15,7 +15,12 @@ const schema = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   version: {type: Number, required: true, default: 0, min: 0},
   static: {type: Boolean, required: true, default: false},
   fileSystemHash: {type: String, required: true},
-  projects: {type: [mongooseTypes.ObjectId], required: true, default: []},
+  projects: {
+    type: [mongooseTypes.ObjectId],
+    required: true,
+    default: [],
+    ref: 'project',
+  },
   fileSystem: {type: [fileStatsSchema], required: true, default: []},
 });
 
@@ -231,7 +236,35 @@ schema.static(
   }
 );
 
-schema.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {});
+schema.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
+  try {
+    const stateDocument = (await StateModel.findById(stateId)
+      .populate('projects')
+      .lean()) as databaseTypes.IState;
+    if (!stateDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a state with the _id: ${stateId}`,
+        'state_id',
+        stateId
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (stateDocument as any)['__v'];
+    stateDocument.projects.forEach(p => delete (p as any)['__v']);
+
+    return stateDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the state.  See the inner error for additional information',
+        'mongoDb',
+        'getStateById',
+        err
+      );
+  }
+});
 
 const StateModel = model<IStateDocument, IStateStaticMethods>('state', schema);
 
