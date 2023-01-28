@@ -69,6 +69,18 @@ const inputProject = {
   files: [],
 };
 
+const inputProject2 = {
+  name: 'testProject2' + uniqueKey,
+  sdtPath: 'testsdtPath2' + uniqueKey,
+  organization: {},
+  slug: 'testSlug2' + uniqueKey,
+  isTemplate: false,
+  type: {},
+  owner: {},
+  state: {},
+  files: [],
+};
+
 const inputData = {
   name: 'testUser' + uniqueKey,
   username: 'testUserName' + uniqueKey,
@@ -87,7 +99,7 @@ const inputData = {
   projects: [],
 };
 
-describe.only('#UserModel', () => {
+describe('#UserModel', () => {
   context('test the crud functions of the user model', () => {
     const mongoConnection = new mongoDbConnection();
     const userModel = mongoConnection.models.UserModel;
@@ -110,6 +122,8 @@ describe.only('#UserModel', () => {
 
     let projectId: ObjectId;
     let projectDocument: any;
+    let projectId2: ObjectId;
+    let projectDocument2: any;
 
     before(async () => {
       await mongoConnection.init();
@@ -191,6 +205,18 @@ describe.only('#UserModel', () => {
       projectDocument = savedProjectDocument;
 
       assert.isOk(projectId);
+
+      await projectModel.create([inputProject2], {
+        validateBeforeSave: false,
+      });
+      const savedProjectDocument2 = await projectModel
+        .findOne({name: inputProject2.name})
+        .lean();
+      projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
+
+      projectDocument2 = savedProjectDocument2;
+
+      assert.isOk(projectId2);
     });
 
     after(async () => {
@@ -210,6 +236,7 @@ describe.only('#UserModel', () => {
 
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.findByIdAndDelete(projectId);
+      await projectModel.findByIdAndDelete(projectId2);
 
       if (userId) {
         await userModel.findByIdAndDelete(userId);
@@ -278,6 +305,29 @@ describe.only('#UserModel', () => {
       assert.strictEqual(updatedDocument.name, input.name);
     });
 
+    it('add a project to the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.addProjects(userId, [
+        projectId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.projects.length, 2);
+      assert.strictEqual(
+        updatedUserDocument.projects[1]?._id?.toString(),
+        projectId2.toString()
+      );
+    });
+
+    it('remove a project from the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.removeProjects(userId, [
+        projectId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.projects.length, 1);
+      assert.strictEqual(
+        updatedUserDocument.projects[0]?._id?.toString(),
+        projectId.toString()
+      );
+    });
     it('remove a user', async () => {
       assert.isOk(userId);
       await userModel.deleteUserById(userId);

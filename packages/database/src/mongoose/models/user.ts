@@ -358,7 +358,7 @@ schema.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (userDocument as any)['__v'];
-    delete (userDocument as any).organization['__v'];
+    delete (userDocument as any).organization?.['__v'];
     userDocument.accounts.forEach(a => delete (a as any)['__v']);
     userDocument.sessions.forEach(s => delete (s as any)['__v']);
     userDocument.webhooks.forEach(w => delete (w as any)['__v']);
@@ -475,6 +475,131 @@ schema.static(
           {_id: id},
           err
         );
+    }
+  }
+);
+
+schema.static(
+  'addProjects',
+  async (
+    userId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await UserModel.validateProjects(projects);
+      let dirty = false;
+      reconciledIds.forEach(p => {
+        if (
+          !userDocument.projects.find(
+            progId => progId.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          userDocument.projects.push(p as unknown as databaseTypes.IProject);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while add the projects. See the innner error for additional information',
+          'mongoDb',
+          'user.addProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeProjects',
+  async (
+    userId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = projects.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedProjects = userDocument.projects.filter(p => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        userDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await userDocument.save();
+      }
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while add the projects. See the innner error for additional information',
+          'mongoDb',
+          'user.addProjects',
+          err
+        );
+      }
     }
   }
 );
