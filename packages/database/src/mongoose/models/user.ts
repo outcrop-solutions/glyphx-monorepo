@@ -39,8 +39,8 @@ const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
     enum: databaseTypes.constants.ROLE,
     default: databaseTypes.constants.ROLE.USER,
   },
-  ownedOrgs: {type: [Schema.Types.ObjectId], default: []},
-  projects: {type: [Schema.Types.ObjectId], default: []},
+  ownedOrgs: {type: [Schema.Types.ObjectId], default: [], ref: 'organization'},
+  projects: {type: [Schema.Types.ObjectId], default: [], ref: 'project'},
 });
 
 schema.static(
@@ -338,7 +338,45 @@ schema.static(
   }
 );
 
-schema.static('getUserById', async (userId: mongooseTypes.ObjectId) => {});
+schema.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
+  try {
+    const userDocument = (await UserModel.findById(userId)
+      .populate('accounts')
+      .populate('organization')
+      .populate('sessions')
+      .populate('webhooks')
+      .populate('ownedOrgs')
+      .populate('projects')
+      .lean()) as databaseTypes.IUser;
+    if (!userDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a user with the _id: ${userId}`,
+        'user_id',
+        userId
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (userDocument as any)['__v'];
+    delete (userDocument as any).organization['__v'];
+    userDocument.accounts.forEach(a => delete (a as any)['__v']);
+    userDocument.sessions.forEach(s => delete (s as any)['__v']);
+    userDocument.webhooks.forEach(w => delete (w as any)['__v']);
+    userDocument.ownedOrgs.forEach(o => delete (o as any)['__v']);
+    userDocument.projects.forEach(p => delete (p as any)['__v']);
+
+    return userDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the user.  See the inner error for additional information',
+        'mongoDb',
+        'getUserById',
+        err
+      );
+  }
+});
 
 schema.static(
   'createUser',

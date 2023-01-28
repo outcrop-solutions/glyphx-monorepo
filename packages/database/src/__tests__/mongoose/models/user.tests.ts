@@ -1251,4 +1251,140 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(findStub.calledOnce);
     });
   });
+
+  context.only('getUserById', () => {
+    class mockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError: boolean = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate(input: string) {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockUser: databaseTypes.IUser = {
+      _id: new mongoose.Types.ObjectId(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      name: 'testUser',
+      username: 'testUserName',
+      gh_username: 'testGhUserName',
+      email: 'testUser@email.com',
+      emailVerified: new Date(),
+      isVerified: true,
+      image: 'imageString',
+      accounts: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+          refresh_token: 'testRefreshToken',
+        } as unknown as databaseTypes.IAccount,
+      ],
+      sessions: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+          sessionToken: 'testsessionToken',
+        } as unknown as databaseTypes.ISession,
+      ],
+      webhooks: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'testWebhookName',
+          __v: 1,
+        } as unknown as databaseTypes.IWebhook,
+      ],
+      organization: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'testOrganization',
+        __v: 1,
+      } as unknown as databaseTypes.IOrganization,
+      apiKey: 'testApiKey',
+      role: databaseTypes.constants.ROLE.USER,
+      ownedOrgs: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'ownedOrganization',
+          __v: 1,
+        } as unknown as databaseTypes.IOrganization,
+      ],
+      projects: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'ownedOrganization',
+          __v: 1,
+        } as unknown as databaseTypes.IProject,
+      ],
+    } as databaseTypes.IUser;
+
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive a user document with the related fields populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(mockUser));
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const doc = await UserModel.getUserById(
+        mockUser._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.organization as any).__v);
+      doc.accounts.forEach(a => assert.isUndefined((a as any)['__v']));
+      doc.sessions.forEach(s => assert.isUndefined((s as any)['__v']));
+      doc.webhooks.forEach(w => assert.isUndefined((w as any)['__v']));
+      doc.ownedOrgs.forEach(o => assert.isUndefined((o as any)['__v']));
+      doc.projects.forEach(p => assert.isUndefined((p as any)['__v']));
+
+      assert.strictEqual(doc._id, mockUser._id);
+    });
+
+    it('will throw a DataNotFoundError when the user does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new mockMongooseQuery(null));
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.getUserById(mockUser._id as mongoose.Types.ObjectId);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new mockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.getUserById(mockUser._id as mongoose.Types.ObjectId);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });
