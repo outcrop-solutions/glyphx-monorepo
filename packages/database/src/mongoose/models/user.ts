@@ -525,7 +525,7 @@ schema.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while add the projects. See the innner error for additional information',
+          'An unexpected error occurrred while adding the projects. See the innner error for additional information',
           'mongoDb',
           'user.addProjects',
           err
@@ -594,9 +594,259 @@ schema.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while add the projects. See the innner error for additional information',
+          'An unexpected error occurrred while removing the projects. See the innner error for additional information',
           'mongoDb',
-          'user.addProjects',
+          'user.removeProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'addAccounts',
+  async (
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!accounts.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one accountId',
+          'accounts',
+          accounts
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await UserModel.validateAccounts(accounts);
+      let dirty = false;
+      reconciledIds.forEach(a => {
+        if (
+          !userDocument.accounts.find(
+            acctId => acctId.toString() === a.toString()
+          )
+        ) {
+          dirty = true;
+          userDocument.accounts.push(a as unknown as databaseTypes.IAccount);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the accounts. See the innner error for additional information',
+          'mongoDb',
+          'user.addAccounts',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeAccounts',
+  async (
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!accounts.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one accountId',
+          'accounts',
+          accounts
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = accounts.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedAccounts = userDocument.accounts.filter(a => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (a as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        userDocument.accounts =
+          updatedAccounts as unknown as databaseTypes.IAccount[];
+        await userDocument.save();
+      }
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the accounts. See the innner error for additional information',
+          'mongoDb',
+          'user.removeAccounts',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'addSessions',
+  async (
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!sessions.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one sessionId',
+          'sessions',
+          sessions
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await UserModel.validateSessions(sessions);
+      let dirty = false;
+      reconciledIds.forEach(s => {
+        if (
+          !userDocument.sessions.find(
+            sessId => sessId.toString() === s.toString()
+          )
+        ) {
+          dirty = true;
+          userDocument.sessions.push(s as unknown as databaseTypes.ISession);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the sessions. See the innner error for additional information',
+          'mongoDb',
+          'user.addSessions',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeSessions',
+  async (
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!sessions.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one sessionId',
+          'sessions',
+          sessions
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = sessions.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedSessions = userDocument.sessions.filter(s => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (s as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        userDocument.sessions =
+          updatedSessions as unknown as databaseTypes.ISession[];
+        await userDocument.save();
+      }
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the sessions. See the innner error for additional information',
+          'mongoDb',
+          'user.removeSession',
           err
         );
       }

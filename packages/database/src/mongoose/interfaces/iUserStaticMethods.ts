@@ -47,6 +47,22 @@ export interface IUserStaticMethods
   ): Promise<databaseTypes.IUser>;
   removeProjects(
     userId: mongooseTypes.ObjectId,
-    input: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+    accounts: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  addAccounts(
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeAccounts(
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  addSessions(
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeSessions(
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
 }

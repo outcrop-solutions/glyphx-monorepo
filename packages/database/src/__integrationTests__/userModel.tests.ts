@@ -34,10 +34,33 @@ const inputAccount = {
   oauth_token: 'oauthToken' + uniqueKey,
   user: {},
 };
+
+const inputAccount2 = {
+  type: databaseTypes.constants.ACCOUNT_TYPE.CUSTOMER,
+  provider: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
+  providerAccountId: 'accountId2' + uniqueKey,
+  refresh_token: 'refreshToken2' + uniqueKey,
+  refresh_token_expires_in: new Date().getTime(),
+  access_token: 'accessToken2' + uniqueKey,
+  expires_at: new Date().getTime(),
+  token_type: databaseTypes.constants.TOKEN_TYPE.ACCESS,
+  scope: 'scope2' + uniqueKey,
+  id_token: 'idToken2' + uniqueKey,
+  session_state: databaseTypes.constants.SESSION_STATE.NEW,
+  oauth_token_secret: 'oauthTokenSecret2' + uniqueKey,
+  oauth_token: 'oauthToken2' + uniqueKey,
+  user: {},
+};
 //3. Session
 
 const inputSession = {
   sessionToken: 'testSessionToken' + uniqueKey,
+  expires: new Date(),
+  user: {},
+};
+
+const inputSession2 = {
+  sessionToken: 'testSessionToken2' + uniqueKey,
   expires: new Date(),
   user: {},
 };
@@ -111,8 +134,14 @@ describe('#UserModel', () => {
     let accountId: ObjectId;
     let accountDocument: any;
 
+    let accountId2: ObjectId;
+    let accountDocument2: any;
+
     let sessionId: ObjectId;
     let sessionDocument: any;
+
+    let sessionId2: ObjectId;
+    let sessionDocument2: any;
 
     let webhookId: ObjectId;
     let webhookDocument: any;
@@ -154,6 +183,18 @@ describe('#UserModel', () => {
 
       assert.isOk(accountId);
 
+      await accountModel.create([inputAccount2], {
+        validateBeforeSave: false,
+      });
+      const savedAccountDocument2 = await accountModel
+        .findOne({providerAccountId: inputAccount2.providerAccountId})
+        .lean();
+      accountId2 = savedAccountDocument2?._id as mongooseTypes.ObjectId;
+
+      accountDocument2 = savedAccountDocument2;
+
+      assert.isOk(accountId2);
+
       const sessionModel = mongoConnection.models.SessionModel;
       await sessionModel.create([inputSession], {
         validateBeforeSave: false,
@@ -166,6 +207,18 @@ describe('#UserModel', () => {
       sessionDocument = savedSessionDocument;
 
       assert.isOk(sessionId);
+
+      await sessionModel.create([inputSession2], {
+        validateBeforeSave: false,
+      });
+      const savedSessionDocument2 = await sessionModel
+        .findOne({sessionToken: inputSession2.sessionToken})
+        .lean();
+      sessionId2 = savedSessionDocument2?._id as mongooseTypes.ObjectId;
+
+      sessionDocument2 = savedSessionDocument2;
+
+      assert.isOk(sessionId2);
 
       const webhookModel = mongoConnection.models.WebhookModel;
       await webhookModel.create([inputWebhook], {
@@ -225,9 +278,11 @@ describe('#UserModel', () => {
 
       const accountModel = mongoConnection.models.AccountModel;
       await accountModel.findByIdAndDelete(accountId);
+      await accountModel.findByIdAndDelete(accountId2);
 
       const sessionModel = mongoConnection.models.SessionModel;
       await sessionModel.findByIdAndDelete(sessionId);
+      await sessionModel.findByIdAndDelete(sessionId2);
 
       const webhookModel = mongoConnection.models.WebhookModel;
       await webhookModel.findByIdAndDelete(webhookId);
@@ -328,6 +383,55 @@ describe('#UserModel', () => {
         projectId.toString()
       );
     });
+
+    it('add an account to the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.addAccounts(userId, [
+        accountId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.accounts.length, 2);
+      assert.strictEqual(
+        updatedUserDocument.accounts[1]?._id?.toString(),
+        accountId2.toString()
+      );
+    });
+
+    it('remove an account from the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.removeAccounts(userId, [
+        accountId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.accounts.length, 1);
+      assert.strictEqual(
+        updatedUserDocument.accounts[0]?._id?.toString(),
+        accountId.toString()
+      );
+    });
+
+    it('add a session to the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.addSessions(userId, [
+        sessionId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.sessions.length, 2);
+      assert.strictEqual(
+        updatedUserDocument.sessions[1]?._id?.toString(),
+        sessionId2.toString()
+      );
+    });
+
+    it('remove a sassion from the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.removeSessions(userId, [
+        sessionId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.sessions.length, 1);
+      assert.strictEqual(
+        updatedUserDocument.sessions[0]?._id?.toString(),
+        sessionId.toString()
+      );
+    });
+
     it('remove a user', async () => {
       assert.isOk(userId);
       await userModel.deleteUserById(userId);
