@@ -71,6 +71,13 @@ const inputWebhook = {
   url: 'testurl' + uniqueKey,
   user: {},
 };
+
+const inputWebhook2 = {
+  name: 'testWebhook2' + uniqueKey,
+  url: 'testurl2' + uniqueKey,
+  user: {},
+};
+
 //5. Owned Orgs
 const inputOwnedOrganization = {
   name: 'testOwnedOrganization' + uniqueKey,
@@ -145,6 +152,9 @@ describe('#UserModel', () => {
 
     let webhookId: ObjectId;
     let webhookDocument: any;
+
+    let webhookId2: ObjectId;
+    let webhookDocument2: any;
 
     let ownedOrganizationId: ObjectId;
     let ownedOrganizationDocument: any;
@@ -233,6 +243,18 @@ describe('#UserModel', () => {
 
       assert.isOk(webhookId);
 
+      await webhookModel.create([inputWebhook2], {
+        validateBeforeSave: false,
+      });
+      const savedWebhookDocument2 = await webhookModel
+        .findOne({name: inputWebhook2.name})
+        .lean();
+      webhookId2 = savedWebhookDocument2?._id as mongooseTypes.ObjectId;
+
+      webhookDocument2 = savedWebhookDocument2;
+
+      assert.isOk(webhookId2);
+
       await organizationModel.create([inputOwnedOrganization], {
         validateBeforeSave: false,
       });
@@ -286,6 +308,7 @@ describe('#UserModel', () => {
 
       const webhookModel = mongoConnection.models.WebhookModel;
       await webhookModel.findByIdAndDelete(webhookId);
+      await webhookModel.findByIdAndDelete(webhookId2);
 
       await organizationModel.findByIdAndDelete(ownedOrganizationId);
 
@@ -432,6 +455,29 @@ describe('#UserModel', () => {
       );
     });
 
+    it('add a webhook to the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.addWebhooks(userId, [
+        webhookId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.webhooks.length, 2);
+      assert.strictEqual(
+        updatedUserDocument.webhooks[1]?._id?.toString(),
+        webhookId2.toString()
+      );
+    });
+
+    it('remove a webhook from the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.removeWebhooks(userId, [
+        webhookId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.webhooks.length, 1);
+      assert.strictEqual(
+        updatedUserDocument.webhooks[0]?._id?.toString(),
+        webhookId.toString()
+      );
+    });
     it('remove a user', async () => {
       assert.isOk(userId);
       await userModel.deleteUserById(userId);

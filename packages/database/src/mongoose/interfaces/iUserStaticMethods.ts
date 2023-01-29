@@ -65,4 +65,12 @@ export interface IUserStaticMethods
     userId: mongooseTypes.ObjectId,
     sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
+  addWebhooks(
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeWebhooks(
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
 }

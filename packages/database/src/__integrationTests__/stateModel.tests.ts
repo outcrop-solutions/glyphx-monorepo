@@ -25,8 +25,8 @@ const inputData = {
   fileSystem: [],
 };
 
-describe('#OrganizationModel', () => {
-  context('test the crud functions of the organization model', () => {
+describe('#StateModel', () => {
+  context('test the crud functions of the state model', () => {
     const mongoConnection = new mongoDbConnection();
     const stateModel = mongoConnection.models.StateModel;
     let stateId: ObjectId;

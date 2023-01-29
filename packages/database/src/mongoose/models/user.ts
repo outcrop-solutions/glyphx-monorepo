@@ -853,6 +853,129 @@ schema.static(
     }
   }
 );
+
+schema.static(
+  'addWebhooks',
+  async (
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!webhooks.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one webhookId',
+          'webhooks',
+          webhooks
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await UserModel.validateWebhooks(webhooks);
+      let dirty = false;
+      reconciledIds.forEach(w => {
+        if (
+          !userDocument.webhooks.find(whId => whId.toString() === w.toString())
+        ) {
+          dirty = true;
+          userDocument.webhooks.push(w as unknown as databaseTypes.IWebhook);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the webhooks. See the innner error for additional information',
+          'mongoDb',
+          'user.addWebhooks',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeWebhooks',
+  async (
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!webhooks.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one webhookId',
+          'sessions',
+          webhooks
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = webhooks.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedWebhooks = userDocument.webhooks.filter(s => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (s as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        userDocument.webhooks =
+          updatedWebhooks as unknown as databaseTypes.IWebhook[];
+        await userDocument.save();
+      }
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing thewebhook. See the innner error for additional information',
+          'mongoDb',
+          'user.removeWebhook',
+          err
+        );
+      }
+    }
+  }
+);
 const UserModel = model<IUserDocument, IUserStaticMethods>('user', schema);
 
 export {UserModel};
