@@ -33,4 +33,20 @@ export interface IOrganizationStaticMethods
   validateProjects(
     members: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
+  addProjects(
+    organizationId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization>;
+  removeProjects(
+    organizationId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization>;
+  addMembers(
+    organizationId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization>;
+  removeMembers(
+    organizationId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization>;
 }

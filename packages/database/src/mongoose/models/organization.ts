@@ -384,6 +384,268 @@ schema.static(
     }
   }
 );
+
+schema.static(
+  'addProjects',
+  async (
+    organizationId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const organizationDocument = await OrganizationModel.findById(
+        organizationId
+      );
+      if (!organizationDocument)
+        throw new error.DataNotFoundError(
+          `A Organization Document with _id : ${organizationId} cannot be found`,
+          'organization._id',
+          organizationId
+        );
+
+      const reconciledIds = await OrganizationModel.validateProjects(projects);
+      let dirty = false;
+      reconciledIds.forEach(p => {
+        if (
+          !organizationDocument.projects.find(
+            progId => progId.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          organizationDocument.projects.push(
+            p as unknown as databaseTypes.IProject
+          );
+        }
+      });
+
+      if (dirty) await organizationDocument.save();
+
+      return await OrganizationModel.getOrganizationById(organizationId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the projects. See the innner error for additional information',
+          'mongoDb',
+          'organization.addProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeProjects',
+  async (
+    organizationId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const organizationDocument = await OrganizationModel.findById(
+        organizationId
+      );
+      if (!organizationDocument)
+        throw new error.DataNotFoundError(
+          `An Organization Document with _id : ${organizationId} cannot be found`,
+          'organization._id',
+          organizationId
+        );
+
+      const reconciledIds = projects.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedProjects = organizationDocument.projects.filter(p => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        organizationDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await organizationDocument.save();
+      }
+
+      return await OrganizationModel.getOrganizationById(organizationId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the projects. See the innner error for additional information',
+          'mongoDb',
+          'organization.removeProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'addMembers',
+  async (
+    organizationId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one userId',
+          'members',
+          members
+        );
+      const organizationDocument = await OrganizationModel.findById(
+        organizationId
+      );
+      if (!organizationDocument)
+        throw new error.DataNotFoundError(
+          `A Organization Document with _id : ${organizationId} cannot be found`,
+          'organization._id',
+          organizationId
+        );
+
+      const reconciledIds = await OrganizationModel.validateMembers(members);
+      let dirty = false;
+      reconciledIds.forEach(m => {
+        if (
+          !organizationDocument.members.find(
+            userId => userId.toString() === m.toString()
+          )
+        ) {
+          dirty = true;
+          organizationDocument.members.push(
+            m as unknown as databaseTypes.IUser
+          );
+        }
+      });
+
+      if (dirty) await organizationDocument.save();
+
+      return await OrganizationModel.getOrganizationById(organizationId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the members. See the innner error for additional information',
+          'mongoDb',
+          'organization.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeMembers',
+  async (
+    organizationId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IOrganization> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one userId',
+          'members',
+          members
+        );
+      const organizationDocument = await OrganizationModel.findById(
+        organizationId
+      );
+      if (!organizationDocument)
+        throw new error.DataNotFoundError(
+          `An Organization Document with _id : ${organizationId} cannot be found`,
+          'organization._id',
+          organizationId
+        );
+
+      const reconciledIds = members.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedMembers = organizationDocument.members.filter(m => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (m as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        organizationDocument.members =
+          updatedMembers as unknown as databaseTypes.IUser[];
+        await organizationDocument.save();
+      }
+
+      return await OrganizationModel.getOrganizationById(organizationId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the members. See the innner error for additional information',
+          'mongoDb',
+          'organization.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
 const OrganizationModel = model<
   IOrganizationDocument,
   IOrganizationStaticMethods

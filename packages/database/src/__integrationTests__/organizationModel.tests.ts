@@ -17,6 +17,14 @@ const inputProject = {
   files: [],
 };
 
+const inputProject2 = {
+  name: 'testProject2' + uniqueKey,
+  isTemplate: false,
+  type: new mongooseTypes.ObjectId(),
+  owner: new mongooseTypes.ObjectId(),
+  files: [],
+};
+
 const inputMember = {
   name: 'testMember' + uniqueKey,
   username: 'testMemberName' + uniqueKey,
@@ -25,6 +33,17 @@ const inputMember = {
   emailVerified: new Date(),
   isVerified: true,
   apiKey: 'testApiKey' + uniqueKey,
+  role: databaseTypes.constants.ROLE.USER,
+};
+
+const inputMember2 = {
+  name: 'testMember2' + uniqueKey,
+  username: 'testMemberName2' + uniqueKey,
+  gh_username: 'testGhMemberName2' + uniqueKey,
+  email: 'testMember2' + uniqueKey + '@email.com',
+  emailVerified: new Date(),
+  isVerified: true,
+  apiKey: 'testApiKey2' + uniqueKey,
   role: databaseTypes.constants.ROLE.USER,
 };
 
@@ -54,10 +73,14 @@ describe('#OrganizationModel', () => {
     let organizationId: ObjectId;
     let userId: ObjectId;
     let memberId: ObjectId;
+    let memberId2: ObjectId;
     let projectId: ObjectId;
+    let projectId2: ObjectId;
     let userDocument: any;
     let memberDocument: any;
+    let memberDocument2: any;
     let projectDocument: any;
+    let projectDocument2: any;
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
@@ -85,6 +108,17 @@ describe('#OrganizationModel', () => {
 
       assert.isOk(memberId);
 
+      await userModel.createUser(inputMember2 as databaseTypes.IUser);
+
+      const savedMemberDocument2 = await userModel
+        .findOne({name: inputMember2.name})
+        .lean();
+
+      memberId2 = savedMemberDocument2?._id as mongooseTypes.ObjectId;
+
+      memberDocument2 = savedMemberDocument2;
+
+      assert.isOk(memberId2);
       await projectModel.create([inputProject], {validateBeforeSave: false});
       const savedProjectDocument = await projectModel
         .findOne({name: inputProject.name})
@@ -94,15 +128,27 @@ describe('#OrganizationModel', () => {
       projectDocument = savedProjectDocument;
 
       assert.isOk(projectId);
+
+      await projectModel.create([inputProject2], {validateBeforeSave: false});
+      const savedProjectDocument2 = await projectModel
+        .findOne({name: inputProject2.name})
+        .lean();
+      projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
+
+      projectDocument2 = savedProjectDocument2;
+
+      assert.isOk(projectId2);
     });
 
     after(async () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
       await userModel.findByIdAndDelete(memberId);
+      await userModel.findByIdAndDelete(memberId2);
 
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.findByIdAndDelete(projectId);
+      await projectModel.findByIdAndDelete(projectId2);
 
       if (organizationId) {
         await organizationModel.findByIdAndDelete(organizationId);
@@ -158,6 +204,56 @@ describe('#OrganizationModel', () => {
         input
       );
       assert.strictEqual(updatedDocument.description, input.description);
+    });
+
+    it('add a project to the organization', async () => {
+      assert.isOk(organizationId);
+      const updatedOrganizationDocument = await organizationModel.addProjects(
+        organizationId,
+        [projectId2]
+      );
+      assert.strictEqual(updatedOrganizationDocument.projects.length, 2);
+      assert.strictEqual(
+        updatedOrganizationDocument.projects[1]?._id?.toString(),
+        projectId2.toString()
+      );
+    });
+
+    it('remove a project from the organization', async () => {
+      assert.isOk(organizationId);
+      const updatedOrganizationDocument =
+        await organizationModel.removeProjects(organizationId, [projectId2]);
+      assert.strictEqual(updatedOrganizationDocument.projects.length, 1);
+      assert.strictEqual(
+        updatedOrganizationDocument.projects[0]?._id?.toString(),
+        projectId.toString()
+      );
+    });
+
+    it('add a member to the organization', async () => {
+      assert.isOk(organizationId);
+      const updatedOrganizationDocument = await organizationModel.addMembers(
+        organizationId,
+        [memberId2]
+      );
+      assert.strictEqual(updatedOrganizationDocument.members.length, 2);
+      assert.strictEqual(
+        updatedOrganizationDocument.members[1]?._id?.toString(),
+        memberId2.toString()
+      );
+    });
+
+    it('remove a member from the organization', async () => {
+      assert.isOk(organizationId);
+      const updatedOrganizationDocument = await organizationModel.removeMembers(
+        organizationId,
+        [memberId2]
+      );
+      assert.strictEqual(updatedOrganizationDocument.members.length, 1);
+      assert.strictEqual(
+        updatedOrganizationDocument.members[0]?._id?.toString(),
+        memberId.toString()
+      );
     });
 
     it('remove an organization', async () => {
