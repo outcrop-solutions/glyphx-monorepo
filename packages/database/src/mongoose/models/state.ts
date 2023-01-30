@@ -266,6 +266,130 @@ schema.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
   }
 });
 
+schema.static(
+  'addProjects',
+  async (
+    stateId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IState> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const stateDocument = await StateModel.findById(stateId);
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          `A State Document with _id : ${stateId} cannot be found`,
+          'state._id',
+          stateId
+        );
+
+      const reconciledIds = await StateModel.validateProjects(projects);
+      let dirty = false;
+      reconciledIds.forEach(s => {
+        if (
+          !stateDocument.projects.find(
+            progId => progId.toString() === s.toString()
+          )
+        ) {
+          dirty = true;
+          stateDocument.projects.push(s as unknown as databaseTypes.IProject);
+        }
+      });
+
+      if (dirty) await stateDocument.save();
+
+      return await StateModel.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the projects. See the innner error for additional information',
+          'mongoDb',
+          'state.addProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeProjects',
+  async (
+    stateId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IState> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const stateDocument = await StateModel.findById(stateId);
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          `An State Document with _id : ${stateId} cannot be found`,
+          'state._id',
+          stateId
+        );
+
+      const reconciledIds = projects.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedProjects = stateDocument.projects.filter(p => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        stateDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await stateDocument.save();
+      }
+
+      return await StateModel.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the projects. See the innner error for additional information',
+          'mongoDb',
+          'state.removeProjects',
+          err
+        );
+      }
+    }
+  }
+);
 const StateModel = model<IStateDocument, IStateStaticMethods>('state', schema);
 
 export {StateModel};

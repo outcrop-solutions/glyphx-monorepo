@@ -23,4 +23,12 @@ export interface IStateStaticMethods
   validateUpdateObject(
     state: Omit<Partial<databaseTypes.IState>, '_id'>
   ): Promise<void>;
+  addProjects(
+    stateId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IState>;
+  removeProjects(
+    stateId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IState>;
 }
