@@ -717,4 +717,468 @@ describe('#mongoose/models/projectType', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('addProjects', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add a project to a projectType', async () => {
+      const projTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType.projects = [];
+      localMockProjType._id = projTypeId;
+      const projectId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProjType);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const validateProjectsStub = sandbox.stub();
+      validateProjectsStub.resolves([projectId]);
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        validateProjectsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      const updatedProjectType = await ProjectTypeModel.addProjects(
+        projTypeId,
+        [projectId]
+      );
+
+      assert.strictEqual(updatedProjectType._id, projTypeId);
+      assert.strictEqual(
+        updatedProjectType.projects[0].toString(),
+        projectId.toString()
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateProjectsStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProjectTypeByIdStub.calledOnce);
+    });
+
+    it('will not save when a project is already attached to an project type', async () => {
+      const projectTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType.projects = [];
+      localMockProjType._id = projectTypeId;
+      const projectId = new mongoose.Types.ObjectId();
+      localMockProjType.projects.push(projectId);
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProjType);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const validateProjectsStub = sandbox.stub();
+      validateProjectsStub.resolves([projectId]);
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        validateProjectsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      const updatedProjectType = await ProjectTypeModel.addProjects(
+        projectTypeId,
+        [projectId]
+      );
+
+      assert.strictEqual(updatedProjectType._id, projectTypeId);
+      assert.strictEqual(
+        updatedProjectType.projects[0].toString(),
+        projectId.toString()
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateProjectsStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getProjectTypeByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the project type does not exist', async () => {
+      const projectTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projectTypeId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const validateProjectsStub = sandbox.stub();
+      validateProjectsStub.resolves([projectId]);
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        validateProjectsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.addProjects(projectTypeId, [projectId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data validation error when project id does not exist', async () => {
+      const projTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projTypeId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProjType);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const validateProjectsStub = sandbox.stub();
+      validateProjectsStub.rejects(
+        new error.DataValidationError(
+          'The projects id does not exist',
+          'projectId',
+          projectId
+        )
+      );
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        validateProjectsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.addProjects(projTypeId, [projectId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const projectTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projectTypeId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProjType);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const validateProjectsStub = sandbox.stub();
+      validateProjectsStub.resolves([projectId]);
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        validateProjectsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.addProjects(projectTypeId, [projectId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the projects array is empty', async () => {
+      const projectTypwId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projectTypwId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const validateProjectsStub = sandbox.stub();
+      validateProjectsStub.resolves([projectId]);
+      sandbox.replace(
+        ProjectTypeModel,
+        'validateProjects',
+        validateProjectsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.addProjects(projectTypwId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('removeProjects', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will remove a project from the projectType', async () => {
+      const projTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projTypeId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+      localMockProjType.projects.push(projectId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProjType);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      const updatedProjectType = await ProjectTypeModel.removeProjects(
+        projTypeId,
+        [projectId]
+      );
+
+      assert.strictEqual(updatedProjectType._id, projTypeId);
+      assert.strictEqual(updatedProjectType.projects.length, 0);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProjectTypeByIdStub.calledOnce);
+    });
+
+    it('will not modify the projects if the projectid are not on the project type projects', async () => {
+      const projTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projTypeId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+      localMockProjType.projects.push(projectId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProjType);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      const updatedProjectType = await ProjectTypeModel.removeProjects(
+        projTypeId,
+        [new mongoose.Types.ObjectId()]
+      );
+
+      assert.strictEqual(updatedProjectType._id, projTypeId);
+      assert.strictEqual(updatedProjectType.projects.length, 1);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getProjectTypeByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the project type does not exist', async () => {
+      const projTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projTypeId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+      localMockProjType.projects.push(projectId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.removeProjects(projTypeId, [projectId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const projectTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projectTypeId;
+      localMockProjType.projects = [];
+      const projectId = new mongoose.Types.ObjectId();
+      localMockProjType.projects.push(projectId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProjType);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.removeProjects(projectTypeId, [projectId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the projects array is empty', async () => {
+      const projectTypeId = new mongoose.Types.ObjectId();
+      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      localMockProjType._id = projectTypeId;
+      const projectId = new mongoose.Types.ObjectId();
+      localMockProjType.projects.push(projectId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProjType);
+      localMockProjType.save = saveStub;
+
+      const getProjectTypeByIdStub = sandbox.stub();
+      getProjectTypeByIdStub.resolves(localMockProjType);
+      sandbox.replace(
+        ProjectTypeModel,
+        'getProjectTypeById',
+        getProjectTypeByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.removeProjects(projectTypeId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

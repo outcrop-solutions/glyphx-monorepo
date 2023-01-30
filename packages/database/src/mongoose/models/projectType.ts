@@ -289,6 +289,136 @@ schema.static(
     }
   }
 );
+schema.static(
+  'addProjects',
+  async (
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const projectTypeDocument = await ProjectTypeModel.findById(
+        projectTypeId
+      );
+      if (!projectTypeDocument)
+        throw new error.DataNotFoundError(
+          `A ProjectType Document with _id : ${projectTypeId} cannot be found`,
+          'projectType._id',
+          projectTypeId
+        );
+
+      const reconciledIds = await ProjectTypeModel.validateProjects(projects);
+      let dirty = false;
+      reconciledIds.forEach(p => {
+        if (
+          !projectTypeDocument.projects.find(
+            progId => progId.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          projectTypeDocument.projects.push(
+            p as unknown as databaseTypes.IProject
+          );
+        }
+      });
+
+      if (dirty) await projectTypeDocument.save();
+
+      return await ProjectTypeModel.getProjectTypeById(projectTypeId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the projects. See the innner error for additional information',
+          'mongoDb',
+          'projectType.addProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeProjects',
+  async (
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const projectTypeDocument = await ProjectTypeModel.findById(
+        projectTypeId
+      );
+      if (!projectTypeDocument)
+        throw new error.DataNotFoundError(
+          `An ProjectType Document with _id : ${projectTypeId} cannot be found`,
+          'projectType ._id',
+          projectTypeId
+        );
+
+      const reconciledIds = projects.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedProjects = projectTypeDocument.projects.filter(p => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        projectTypeDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await projectTypeDocument.save();
+      }
+
+      return await ProjectTypeModel.getProjectTypeById(projectTypeId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the projects. See the innner error for additional information',
+          'mongoDb',
+          'projectTyperemoveProjects',
+          err
+        );
+      }
+    }
+  }
+);
 
 const ProjectTypeModel = model<IProjectTypeDocument, IProjectTypeStaticMethods>(
   'projecttype',

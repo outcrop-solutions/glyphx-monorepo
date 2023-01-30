@@ -25,4 +25,12 @@ export interface IProjectTypeStaticMethods
   validateUpdateObject(
     projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>
   ): void;
+  addProjects(
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType>;
+  removeProjects(
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType>;
 }
