@@ -86,6 +86,15 @@ const inputOwnedOrganization = {
   members: [],
   projects: [],
 };
+
+const inputOwnedOrganization2 = {
+  name: 'testOwnedOrganization2' + uniqueKey,
+  description: 'testOwnedOrganization2' + uniqueKey,
+  owner: {},
+  members: [],
+  projects: [],
+};
+
 //6. Projects
 const inputProject = {
   name: 'testProject' + uniqueKey,
@@ -158,6 +167,9 @@ describe('#UserModel', () => {
 
     let ownedOrganizationId: ObjectId;
     let ownedOrganizationDocument: any;
+
+    let ownedOrganizationId2: ObjectId;
+    let ownedOrganizationDocument2: any;
 
     let projectId: ObjectId;
     let projectDocument: any;
@@ -268,6 +280,19 @@ describe('#UserModel', () => {
 
       assert.isOk(ownedOrganizationId);
 
+      await organizationModel.create([inputOwnedOrganization2], {
+        validateBeforeSave: false,
+      });
+      const savedOwnedOrganizationDocument2 = await organizationModel
+        .findOne({name: inputOwnedOrganization2.name})
+        .lean();
+      ownedOrganizationId2 =
+        savedOwnedOrganizationDocument2?._id as mongooseTypes.ObjectId;
+
+      ownedOrganizationDocument2 = savedOwnedOrganizationDocument2;
+
+      assert.isOk(ownedOrganizationId2);
+
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.create([inputProject], {
         validateBeforeSave: false,
@@ -311,6 +336,7 @@ describe('#UserModel', () => {
       await webhookModel.findByIdAndDelete(webhookId2);
 
       await organizationModel.findByIdAndDelete(ownedOrganizationId);
+      await organizationModel.findByIdAndDelete(ownedOrganizationId2);
 
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.findByIdAndDelete(projectId);
@@ -478,6 +504,31 @@ describe('#UserModel', () => {
         webhookId.toString()
       );
     });
+
+    it('add an organization to the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.addOrganizations(userId, [
+        ownedOrganizationId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.ownedOrgs.length, 2);
+      assert.strictEqual(
+        updatedUserDocument.ownedOrgs[1]?._id?.toString(),
+        ownedOrganizationId2.toString()
+      );
+    });
+
+    it('remove an organization from the user', async () => {
+      assert.isOk(userId);
+      const updatedUserDocument = await userModel.removeOrganizations(userId, [
+        ownedOrganizationId2,
+      ]);
+      assert.strictEqual(updatedUserDocument.ownedOrgs.length, 1);
+      assert.strictEqual(
+        updatedUserDocument.ownedOrgs[0]?._id?.toString(),
+        ownedOrganizationId.toString()
+      );
+    });
+
     it('remove a user', async () => {
       assert.isOk(userId);
       await userModel.deleteUserById(userId);

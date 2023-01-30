@@ -2891,4 +2891,401 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('addOwnedOrgs', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add an organization to a user', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const orgId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateOrganizationStub = sandbox.stub();
+      validateOrganizationStub.resolves([orgId]);
+      sandbox.replace(
+        UserModel,
+        'validateOrganizations',
+        validateOrganizationStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.addOrganizations(userId, [orgId]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(updatedUser.ownedOrgs[0].toString(), orgId.toString());
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateOrganizationStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will not save when an organization is already attached to a user', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const orgId = new mongoose.Types.ObjectId();
+      localMockUser.ownedOrgs.push(orgId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateOrganizationsStub = sandbox.stub();
+      validateOrganizationsStub.resolves([orgId]);
+      sandbox.replace(
+        UserModel,
+        'validateOrganizations',
+        validateOrganizationsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.addOrganizations(userId, [orgId]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(updatedUser.ownedOrgs[0].toString(), orgId.toString());
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateOrganizationsStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the user does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const organizationId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateOrganizationStub = sandbox.stub();
+      validateOrganizationStub.resolves([organizationId]);
+      sandbox.replace(
+        UserModel,
+        'validateOrganizations',
+        validateOrganizationStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addOrganizations(userId, [organizationId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data validation error when organization id does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const organizationId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateOrganizationsStub = sandbox.stub();
+      validateOrganizationsStub.rejects(
+        new error.DataValidationError(
+          'The organization id does not exist',
+          'organizationId',
+          organizationId
+        )
+      );
+      sandbox.replace(
+        UserModel,
+        'validateOrganizations',
+        validateOrganizationsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addOrganizations(userId, [organizationId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const organizationId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validatOrganizationsStub = sandbox.stub();
+      validatOrganizationsStub.resolves([organizationId]);
+      sandbox.replace(
+        UserModel,
+        'validateOrganizations',
+        validatOrganizationsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addOrganizations(userId, [organizationId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the Organizations array is empty', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const organizationId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateOrganizationsStub = sandbox.stub();
+      validateOrganizationsStub.resolves([organizationId]);
+      sandbox.replace(
+        UserModel,
+        'validateOrganizations',
+        validateOrganizationsStub
+      );
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addOrganizations(userId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('removeOwnedOrgs', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will remove an organization from the user', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const organizationId = new mongoose.Types.ObjectId();
+      localMockUser.ownedOrgs.push(organizationId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.removeOrganizations(userId, [
+        organizationId,
+      ]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(updatedUser.ownedOrgs.length, 0);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will not modify the ownedOrgs if the organizationId is not on the user ownedOrgs', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const orgId = new mongoose.Types.ObjectId();
+      localMockUser.ownedOrgs.push(orgId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.removeOrganizations(userId, [
+        new mongoose.Types.ObjectId(),
+      ]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(updatedUser.ownedOrgs.length, 1);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the user does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const orgId = new mongoose.Types.ObjectId();
+      localMockUser.ownedOrgs.push(orgId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.removeOrganizations(userId, [orgId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const orgId = new mongoose.Types.ObjectId();
+      localMockUser.ownedOrgs.push(orgId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.removeOrganizations(userId, [orgId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the organizations array is empty', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      localMockUser._id = userId;
+      const orgId = new mongoose.Types.ObjectId();
+      localMockUser.ownedOrgs.push(orgId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.removeOrganizations(userId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

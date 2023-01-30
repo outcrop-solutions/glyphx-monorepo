@@ -935,13 +935,13 @@ schema.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedWebhooks = userDocument.webhooks.filter(s => {
+      const updatedWebhooks = userDocument.webhooks.filter(w => {
         let retval = true;
         if (
           reconciledIds.find(
             r =>
               r.toString() ===
-              (s as unknown as mongooseTypes.ObjectId).toString()
+              (w as unknown as mongooseTypes.ObjectId).toString()
           )
         ) {
           dirty = true;
@@ -967,7 +967,7 @@ schema.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing thewebhook. See the innner error for additional information',
+          'An unexpected error occurrred while removing the webhooks. See the innner error for additional information',
           'mongoDb',
           'user.removeWebhook',
           err
@@ -976,6 +976,136 @@ schema.static(
     }
   }
 );
+
+schema.static(
+  'addOrganizations',
+  async (
+    userId: mongooseTypes.ObjectId,
+    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!organizations.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one organizationId',
+          'organizations',
+          organizations
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await UserModel.validateOrganizations(
+        organizations
+      );
+      let dirty = false;
+      reconciledIds.forEach(o => {
+        if (
+          !userDocument.ownedOrgs.find(
+            orgId => orgId.toString() === o.toString()
+          )
+        ) {
+          dirty = true;
+          userDocument.ownedOrgs.push(
+            o as unknown as databaseTypes.IOrganization
+          );
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the organizations. See the innner error for additional information',
+          'mongoDb',
+          'user.addOrganizations',
+          err
+        );
+      }
+    }
+  }
+);
+
+schema.static(
+  'removeOrganizations',
+  async (
+    userId: mongooseTypes.ObjectId,
+    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!organizations.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one organizationId',
+          'organizations',
+          organizations
+        );
+      const userDocument = await UserModel.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = organizations.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedOrganizations = userDocument.ownedOrgs.filter(o => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (o as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        userDocument.ownedOrgs =
+          updatedOrganizations as unknown as databaseTypes.IOrganization[];
+        await userDocument.save();
+      }
+
+      return await UserModel.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the organizations. See the innner error for additional information',
+          'mongoDb',
+          'user.removeOrganizations',
+          err
+        );
+      }
+    }
+  }
+);
+
 const UserModel = model<IUserDocument, IUserStaticMethods>('user', schema);
 
 export {UserModel};
