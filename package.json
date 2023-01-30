@@ -18,6 +18,7 @@
     "dev": "dotenv -- turbo dev",
     "start": "turbo start",
     "lint": "turbo lint",
+    "count": "turbo count",
     "clean:root": "rimraf pnpm-lock.yaml node_modules",
     "clean": "turbo clean",
     "db:generate": "turbo db:generate",

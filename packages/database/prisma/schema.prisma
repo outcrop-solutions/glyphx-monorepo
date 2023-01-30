@@ -26,6 +26,7 @@ model Workspace {
 
 model User {
   id            String    @id @default(cuid()) @map("_id")
+  userCode      String    @unique @default(cuid())
   name          String?
   username      String?
   gh_username   String?
@@ -47,6 +48,8 @@ model User {
 
   apiKey   String?
   projects Project[]
+
+  @@map("users")
 }
 
 model Account {
@@ -69,6 +72,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@index([userId])
+  @@map("accounts")
 }
 
 model Session {
@@ -79,6 +83,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -142,6 +147,8 @@ model Project {
   state       State?       @relation(fields: [stateId], references: [id])
   stateId     String
   files       Json[]
+
+  @@map("projects")
 }
 
 // corresponds to a combination of s3 
@@ -154,6 +161,8 @@ model State {
   fileSystemHash String // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
   projects       Project[]
   fileSystem     Json?
+
+  @@map("states")
 }
 
 model ProjectType {
@@ -163,12 +172,14 @@ model ProjectType {
   name      String
   projects  Project[]
   shape     Json
+
   // a map of required props and their types of the form 
   // { "propName": {
   //      type: "string"
   //      required: true
   // }}
   // NOTE: used to map ingestion to project template types
+  @@map("projectTypes")
 }
 
 model Webhook {
@@ -179,6 +190,8 @@ model Webhook {
   url       String
   user      User?    @relation(fields: [userId], references: [id])
   userId    String?
+
+  @@map("webhooks")
 }
 
 // ENUMS

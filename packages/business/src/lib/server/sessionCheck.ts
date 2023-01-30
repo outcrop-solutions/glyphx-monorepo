@@ -6,12 +6,14 @@ const validateMiddleware = () => {
     const errors = [];
 
     if (!session) {
+      // @ts-ignore
       errors.push({ param: 'session', msg: 'Unauthorized access' });
     } else {
       return next(session);
     }
 
     const errorObject = {};
+    // @ts-ignore
     errors.forEach((error) => (errorObject[error.param] = error));
     res.status(401).json({ errors: errorObject });
   };

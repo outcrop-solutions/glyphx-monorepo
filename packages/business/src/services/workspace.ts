@@ -1,16 +1,10 @@
-import { InvitationStatus, TeamRole } from '@prisma/client';
+import { InvitationStatus, Role } from '@prisma/client';
 import slugify from 'slugify';
 
-import {
-  html as createHtml,
-  text as createText,
-} from '@/config/email-templates/workspace-create';
-import {
-  html as inviteHtml,
-  text as inviteText,
-} from '@/config/email-templates/invitation';
-import { sendMail } from '@/lib/server/mail';
-import prisma from '@/prisma/index';
+import { html as createHtml, text as createText } from 'email/workspaceCreate';
+import { html as inviteHtml, text as inviteText } from 'email/invitation';
+import { sendMail } from 'lib/server/mail';
+import { prisma } from '@glyphx/database';
 
 export const countWorkspaces = async (slug) =>
   await prisma.workspace.count({
@@ -32,7 +26,7 @@ export const createWorkspace = async (creatorId, email, name, slug) => {
           email,
           inviter: email,
           status: InvitationStatus.ACCEPTED,
-          teamRole: TeamRole.OWNER,
+          teamRole: Role.OWNER,
         },
       },
       name,
@@ -41,7 +35,7 @@ export const createWorkspace = async (creatorId, email, name, slug) => {
   });
   await sendMail({
     html: createHtml({ code: workspace.inviteCode, name }),
-    subject: `[Nextacular] Workspace created: ${name}`,
+    subject: `[Glyphx] Workspace created: ${name}`,
     text: createText({ code: workspace.inviteCode, name }),
     to: email,
   });
@@ -89,7 +83,7 @@ export const getOwnWorkspace = async (id, email, slug) =>
           members: {
             some: {
               deletedAt: null,
-              teamRole: TeamRole.OWNER,
+              teamRole: Role.OWNER,
               email,
             },
           },
@@ -108,21 +102,11 @@ export const getSiteWorkspace = async (slug, customDomain) =>
       id: true,
       name: true,
       slug: true,
-      domains: { select: { name: true } },
+      // domains: { select: { name: true } },
     },
     where: {
       OR: [
         { slug },
-        customDomain
-          ? {
-              domains: {
-                some: {
-                  name: slug,
-                  deletedAt: null,
-                },
-              },
-            }
-          : undefined,
       ],
       AND: { deletedAt: null },
     },
@@ -262,7 +246,7 @@ export const inviteUsers = async (id, email, members, slug) => {
       }),
       sendMail({
         html: inviteHtml({ code: workspace.inviteCode, name: workspace.name }),
-        subject: `[Nextacular] You have been invited to join ${workspace.name} workspace`,
+        subject: `[Glyphx] You have been invited to join ${workspace.name} workspace`,
         text: inviteText({ code: workspace.inviteCode, name: workspace.name }),
         to: members.map((member) => member.email),
       }),
@@ -277,9 +261,7 @@ export const isWorkspaceCreator = (id, creatorId) => id === creatorId;
 
 export const isWorkspaceOwner = (email, workspace) => {
   let isTeamOwner = false;
-  const member = workspace.members.find(
-    (member) => member.email === email && member.teamRole === TeamRole.OWNER
-  );
+  const member = workspace.members.find((member) => member.email === email && member.teamRole === Role.OWNER);
 
   if (member) {
     isTeamOwner = true;

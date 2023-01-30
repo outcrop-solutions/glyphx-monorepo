@@ -1,5 +1,5 @@
 import { InvitationStatus } from '@prisma/client';
-import prisma from '@/prisma/index';
+import { prisma } from '@glyphx/database';
 
 export const getMember = async (id) =>
   await prisma.member.findFirst({
@@ -24,7 +24,6 @@ export const getMembers = async (slug) =>
       },
     },
   });
-
 export const getPendingInvitations = async (email) =>
   await prisma.member.findMany({
     select: {

@@ -24,6 +24,9 @@
     "start": {
       "cache": false
     },
+    "count": {
+      "cache": false
+    },
     "clean": {
       "cache": false
     },
