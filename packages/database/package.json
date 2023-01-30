@@ -24,7 +24,8 @@
     "lint": "gts lint",
     "fix": "gts fix",
     "prebuild": "npm run generate",
-    "predev": "npm run generate"
+    "predev": "npm run generate",
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma"
   },
   "dependencies": {
     "@glyphx/types": "workspace:^0.0.0",
