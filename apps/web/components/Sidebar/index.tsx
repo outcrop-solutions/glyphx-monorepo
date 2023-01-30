@@ -3,9 +3,9 @@ import Link from 'next/link';
 
 import Actions from './actions';
 import Menu from './menu';
-import sidebarMenu from '@/config/menu/sidebar-static';
-import { useWorkspaces } from '@/hooks/data';
-import { useWorkspace } from '@/providers/workspace';
+import sidebarMenu from 'config/menu/sidebar-static';
+import { useWorkspaces } from '@glyphx/business/src/hooks/data';
+import { useWorkspace } from 'providers/workspace';
 import { MenuIcon } from '@heroicons/react/outline';
 
 const staticMenu = sidebarMenu();
@@ -19,20 +19,13 @@ const Sidebar = ({ menu }) => {
     return (
       workspace &&
       menu.map((item, index) => (
-        <Menu
-          key={index}
-          data={item}
-          isLoading={isLoading}
-          showMenu={data?.workspaces.length > 0 || isLoading}
-        />
+        <Menu key={index} data={item} isLoading={isLoading} showMenu={data?.workspaces.length > 0 || isLoading} />
       ))
     );
   };
 
   const renderStaticMenu = () => {
-    return staticMenu.map((item, index) => (
-      <Menu key={index} data={item} showMenu={true} />
-    ));
+    return staticMenu.map((item, index) => <Menu key={index} data={item} showMenu={true} />);
   };
 
   const toggleMenu = () => setMenuVisibility(!showMenu);
@@ -50,9 +43,7 @@ const Sidebar = ({ menu }) => {
       <div
         className={[
           'flex-col space-y-5 md:flex md:relative md:top-0',
-          showMenu
-            ? 'absolute top-12 bg-gray-800 right-0 left-0 h-screen'
-            : 'hidden',
+          showMenu ? 'absolute top-12 bg-gray-800 right-0 left-0 h-screen' : 'hidden',
         ].join(' ')}
       >
         <Actions />

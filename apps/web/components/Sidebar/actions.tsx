@@ -4,10 +4,10 @@ import { CheckIcon, PlusIcon, SelectorIcon } from '@heroicons/react/solid';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
-import Button from '@/components/Button/index';
-import Modal from '@/components/Modal/index';
-import { useWorkspaces } from '@/hooks/data/index';
-import api from '@/lib/common/api';
+import Button from 'components/Button/index';
+import Modal from 'components/Modal/index';
+import { useWorkspaces } from '@glyphx/business/src/hooks/data';
+import api from '@glyphx/business/src/lib/common/api';
 import { useWorkspace } from '@/providers/workspace';
 
 const Actions = () => {
