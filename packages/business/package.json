@@ -1,0 +1,41 @@
+{
+  "name": "@glyphx/business",
+  "version": "1.0.0",
+  "description": "The core business logic controllers called from the Next.js lambda api interface",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {},
+  "author": "James M. Graham",
+  "license": "ISC",
+  "devDependencies": {
+    "@glyphx/types": "workspace:*",
+    "@glyphx/tsconfig": "workspace:*",
+    "@aws-sdk/types": "3.222.0",
+    "@types/node": "^18.11.7",
+    "@types/sinon": "^10.0.13",
+    "aws-sdk-client-mock": "^2.0.1",
+    "chai": "^4.3.6",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.0",
+    "tsup": "^5.11.13",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "@glyphx/core": "workspace:*",
+    "@glyphx/database": "workspace:*",
+    "@stripe/stripe-js": "^1.23.0",
+    "@aws-sdk/client-s3": "3.223.0",
+    "@aws-sdk/client-athena": "3.223.0",
+    "@aws-sdk/lib-storage": "3.223.0",
+    "date-fns": "^2.28.0",
+    "nodemailer": "^6.7.2",
+    "slugify": "^1.6.5",
+    "stripe": "^8.203.0",
+    "express-validator": "^6.14.0",
+    "validator": "^13.7.0",
+    "csv": "^6.2.2",
+    "currency-symbol-map": "^5.1.0",
+    "dotenv": "^16.0.3"
+  }
+}
