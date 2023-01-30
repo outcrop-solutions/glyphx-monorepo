@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {mongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {database as databaseTypes} from '@glyphx/types';
@@ -8,59 +8,59 @@ import {error} from '@glyphx/core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
-const uniqueKey = v4().replaceAll('-', '');
-const inputProject = {
-  name: 'testProject' + uniqueKey,
+const UNIQUE_KEY = v4().replaceAll('-', '');
+const INPUT_PROJECT = {
+  name: 'testProject' + UNIQUE_KEY,
   isTemplate: false,
   type: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };
 
-const inputProject2 = {
-  name: 'testProject2' + uniqueKey,
+const INPUT_PROJECT2 = {
+  name: 'testProject2' + UNIQUE_KEY,
   isTemplate: false,
   type: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };
 
-const inputMember = {
-  name: 'testMember' + uniqueKey,
-  username: 'testMemberName' + uniqueKey,
-  gh_username: 'testGhMemberName' + uniqueKey,
-  email: 'testMember' + uniqueKey + '@email.com',
+const INPUT_MEMBER = {
+  name: 'testMember' + UNIQUE_KEY,
+  username: 'testMemberName' + UNIQUE_KEY,
+  gh_username: 'testGhMemberName' + UNIQUE_KEY,
+  email: 'testMember' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + uniqueKey,
+  apiKey: 'testApiKey' + UNIQUE_KEY,
   role: databaseTypes.constants.ROLE.USER,
 };
 
-const inputMember2 = {
-  name: 'testMember2' + uniqueKey,
-  username: 'testMemberName2' + uniqueKey,
-  gh_username: 'testGhMemberName2' + uniqueKey,
-  email: 'testMember2' + uniqueKey + '@email.com',
+const INPUT_MEMBER2 = {
+  name: 'testMember2' + UNIQUE_KEY,
+  username: 'testMemberName2' + UNIQUE_KEY,
+  gh_username: 'testGhMemberName2' + UNIQUE_KEY,
+  email: 'testMember2' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey2' + uniqueKey,
+  apiKey: 'testApiKey2' + UNIQUE_KEY,
   role: databaseTypes.constants.ROLE.USER,
 };
 
-const inputUser = {
-  name: 'testUser' + uniqueKey,
-  username: 'testUserName' + uniqueKey,
-  gh_username: 'testGhUserName' + uniqueKey,
-  email: 'testEmail' + uniqueKey + '@email.com',
+const INPUT_USER = {
+  name: 'testUser' + UNIQUE_KEY,
+  username: 'testUserName' + UNIQUE_KEY,
+  gh_username: 'testGhUserName' + UNIQUE_KEY,
+  email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + uniqueKey,
+  apiKey: 'testApiKey' + UNIQUE_KEY,
   role: databaseTypes.constants.ROLE.USER,
 };
 
-const inputData = {
-  name: 'testOrganization' + uniqueKey,
-  description: 'testorganization' + uniqueKey,
+const INPUT_DATA = {
+  name: 'testOrganization' + UNIQUE_KEY,
+  description: 'testorganization' + UNIQUE_KEY,
   owner: {},
   members: [],
   projects: [],
@@ -68,7 +68,7 @@ const inputData = {
 
 describe('#OrganizationModel', () => {
   context('test the crud functions of the organization model', () => {
-    const mongoConnection = new mongoDbConnection();
+    const mongoConnection = new MongoDbConnection();
     const organizationModel = mongoConnection.models.OrganizationModel;
     let organizationId: ObjectId;
     let userId: ObjectId;
@@ -78,18 +78,16 @@ describe('#OrganizationModel', () => {
     let projectId2: ObjectId;
     let userDocument: any;
     let memberDocument: any;
-    let memberDocument2: any;
     let projectDocument: any;
-    let projectDocument2: any;
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
       const projectModel = mongoConnection.models.ProjectModel;
 
-      await userModel.createUser(inputUser as databaseTypes.IUser);
+      await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
       const savedUserDocument = await userModel
-        .findOne({name: inputUser.name})
+        .findOne({name: INPUT_USER.name})
         .lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
@@ -97,10 +95,10 @@ describe('#OrganizationModel', () => {
 
       assert.isOk(userId);
 
-      await userModel.createUser(inputMember as databaseTypes.IUser);
+      await userModel.createUser(INPUT_MEMBER as databaseTypes.IUser);
 
       const savedMemberDocument = await userModel
-        .findOne({name: inputMember.name})
+        .findOne({name: INPUT_MEMBER.name})
         .lean();
       memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
 
@@ -108,20 +106,18 @@ describe('#OrganizationModel', () => {
 
       assert.isOk(memberId);
 
-      await userModel.createUser(inputMember2 as databaseTypes.IUser);
+      await userModel.createUser(INPUT_MEMBER2 as databaseTypes.IUser);
 
       const savedMemberDocument2 = await userModel
-        .findOne({name: inputMember2.name})
+        .findOne({name: INPUT_MEMBER2.name})
         .lean();
 
       memberId2 = savedMemberDocument2?._id as mongooseTypes.ObjectId;
 
-      memberDocument2 = savedMemberDocument2;
-
       assert.isOk(memberId2);
-      await projectModel.create([inputProject], {validateBeforeSave: false});
+      await projectModel.create([INPUT_PROJECT], {validateBeforeSave: false});
       const savedProjectDocument = await projectModel
-        .findOne({name: inputProject.name})
+        .findOne({name: INPUT_PROJECT.name})
         .lean();
       projectId = savedProjectDocument?._id as mongooseTypes.ObjectId;
 
@@ -129,13 +125,11 @@ describe('#OrganizationModel', () => {
 
       assert.isOk(projectId);
 
-      await projectModel.create([inputProject2], {validateBeforeSave: false});
+      await projectModel.create([INPUT_PROJECT2], {validateBeforeSave: false});
       const savedProjectDocument2 = await projectModel
-        .findOne({name: inputProject2.name})
+        .findOne({name: INPUT_PROJECT2.name})
         .lean();
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
-
-      projectDocument2 = savedProjectDocument2;
 
       assert.isOk(projectId2);
     });
@@ -156,7 +150,7 @@ describe('#OrganizationModel', () => {
     });
 
     it('add a new organization ', async () => {
-      const organizationInput = JSON.parse(JSON.stringify(inputData));
+      const organizationInput = JSON.parse(JSON.stringify(INPUT_DATA));
       organizationInput.owner = userDocument;
       organizationInput.members.push(memberDocument);
       organizationInput.projects.push(projectDocument);
@@ -261,9 +255,7 @@ describe('#OrganizationModel', () => {
       await organizationModel.deleteOrganizationById(organizationId);
       let errored = false;
       try {
-        const document = await organizationModel.getOrganizationById(
-          organizationId
-        );
+        await organizationModel.getOrganizationById(organizationId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;

@@ -6,7 +6,7 @@ import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
-const mockAccount: databaseTypes.IAccount = {
+const MOCK_ACCOUNT: databaseTypes.IAccount = {
   type: databaseTypes.constants.ACCOUNT_TYPE.CUSTOMER,
   provider: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
   providerAccountId: 'accountId',
@@ -46,7 +46,7 @@ describe('#mongoose/models/account', () => {
 
       sandbox.replace(AccountModel, 'getAccountById', getAccountByIdStub);
 
-      const result = await AccountModel.createAccount(mockAccount);
+      const result = await AccountModel.createAccount(MOCK_ACCOUNT);
       assert.strictEqual(result._id, accountId);
       assert.isTrue(getAccountByIdStub.calledOnce);
     });
@@ -72,7 +72,7 @@ describe('#mongoose/models/account', () => {
       let errorred = false;
 
       try {
-        await AccountModel.createAccount(mockAccount);
+        await AccountModel.createAccount(MOCK_ACCOUNT);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -101,7 +101,7 @@ describe('#mongoose/models/account', () => {
       let errorred = false;
 
       try {
-        await AccountModel.createAccount(mockAccount);
+        await AccountModel.createAccount(MOCK_ACCOUNT);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -121,7 +121,7 @@ describe('#mongoose/models/account', () => {
       let errorred = false;
 
       try {
-        await AccountModel.createAccount(mockAccount);
+        await AccountModel.createAccount(MOCK_ACCOUNT);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -524,14 +524,15 @@ describe('#mongoose/models/account', () => {
   });
 
   context('getAccountById', () => {
-    class mockMongooseQuery {
+    class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
-      constructor(input: any, throwError: boolean = false) {
+      constructor(input: any, throwError = false) {
         this.mockData = input;
         this.throwError = throwError;
       }
-      populate(input: string) {
+
+      populate() {
         return this;
       }
 
@@ -572,7 +573,7 @@ describe('#mongoose/models/account', () => {
 
     it('will retreive an account document with the user populated', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockAccount));
+      findByIdStub.returns(new MockMongooseQuery(mockAccount));
       sandbox.replace(AccountModel, 'findById', findByIdStub);
 
       const doc = await AccountModel.getAccountById(
@@ -588,7 +589,7 @@ describe('#mongoose/models/account', () => {
 
     it('will throw a DataNotFoundError when the account does not exist', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(null));
+      findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(AccountModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -607,7 +608,7 @@ describe('#mongoose/models/account', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
-        new mockMongooseQuery('something bad happened', true)
+        new MockMongooseQuery('something bad happened', true)
       );
       sandbox.replace(AccountModel, 'findById', findByIdStub);
 

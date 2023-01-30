@@ -12,7 +12,7 @@ import {ProjectTypeModel} from './projectType';
 import {StateModel} from './state';
 import {fileStatsSchema} from '../schemas';
 
-const schema = new Schema<
+const SCHEMA = new Schema<
   IProjectDocument,
   IProjectStaticMethods,
   IProjectMethods
@@ -49,12 +49,12 @@ const schema = new Schema<
   files: {type: [fileStatsSchema], required: true, default: []},
 });
 
-schema.static(
+SCHEMA.static(
   'projectIdExists',
   async (projectId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await ProjectModel.findById(projectId, ['_id']);
+      const result = await PROJECT_MODEL.findById(projectId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -69,13 +69,12 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'allProjectIdsExist',
   async (projectIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    const retval = true;
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await ProjectModel.find({_id: {$in: projectIds}}, [
+      const foundIds = (await PROJECT_MODEL.find({_id: {$in: projectIds}}, [
         '_id',
       ])) as {_id: mongooseTypes.ObjectId}[];
 
@@ -107,7 +106,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateUpdateObject',
   async (
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
@@ -184,14 +183,14 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateProjectWithFilter',
   async (
     filter: Record<string, unknown>,
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<void> => {
     try {
-      await ProjectModel.validateUpdateObject(project);
+      await PROJECT_MODEL.validateUpdateObject(project);
       const updateDate = new Date();
       const transformedObject: Partial<IProjectDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
@@ -219,7 +218,7 @@ schema.static(
               : (value._id as mongooseTypes.ObjectId);
         else transformedObject[key] = value;
       }
-      const updateResult = await ProjectModel.updateOne(
+      const updateResult = await PROJECT_MODEL.updateOne(
         filter,
         transformedObject
       );
@@ -248,18 +247,18 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateProjectById',
   async (
     projectId: mongooseTypes.ObjectId,
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<databaseTypes.IProject> => {
-    await ProjectModel.updateProjectWithFilter({_id: projectId}, project);
-    return await ProjectModel.getProjectById(projectId);
+    await PROJECT_MODEL.updateProjectWithFilter({_id: projectId}, project);
+    return await PROJECT_MODEL.getProjectById(projectId);
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateType',
   async (
     input: databaseTypes.IProjectType | mongooseTypes.ObjectId
@@ -279,7 +278,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateOrganization',
   async (
     input: databaseTypes.IOrganization | mongooseTypes.ObjectId
@@ -299,7 +298,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateOwner',
   async (
     input: databaseTypes.IUser | mongooseTypes.ObjectId
@@ -319,7 +318,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateState',
   async (
     input: databaseTypes.IState | mongooseTypes.ObjectId
@@ -339,7 +338,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'createProject',
   async (
     input: Omit<databaseTypes.IProject, '_id'>
@@ -347,14 +346,14 @@ schema.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const [organization, type, owner, state] = await Promise.all([
-        ProjectModel.validateOrganization(input.organization),
-        ProjectModel.validateType(input.type),
-        ProjectModel.validateOwner(input.owner),
-        ProjectModel.validateState(input.state as databaseTypes.IState),
+        PROJECT_MODEL.validateOrganization(input.organization),
+        PROJECT_MODEL.validateType(input.type),
+        PROJECT_MODEL.validateOwner(input.owner),
+        PROJECT_MODEL.validateState(input.state as databaseTypes.IState),
       ]);
       const createDate = new Date();
 
-      let resolvedInput: IProjectDocument = {
+      const resolvedInput: IProjectDocument = {
         createdAt: createDate,
         updatedAt: createDate,
         name: input.name,
@@ -369,7 +368,7 @@ schema.static(
         files: input.files && [],
       };
       try {
-        await ProjectModel.validate(resolvedInput);
+        await PROJECT_MODEL.validate(resolvedInput);
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
@@ -379,7 +378,7 @@ schema.static(
         );
       }
       const projectDocument = (
-        await ProjectModel.create([resolvedInput], {validateBeforeSave: false})
+        await PROJECT_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
       id = projectDocument._id;
     } catch (err) {
@@ -394,7 +393,7 @@ schema.static(
         );
       }
     }
-    if (id) return await ProjectModel.getProjectById(id);
+    if (id) return await PROJECT_MODEL.getProjectById(id);
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the project may not have been created.  I have no other information to provide.'
@@ -402,9 +401,9 @@ schema.static(
   }
 );
 
-schema.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
   try {
-    const projectDocument = (await ProjectModel.findById(projectId)
+    const projectDocument = (await PROJECT_MODEL.findById(projectId)
       .populate('owner')
       .populate('organization')
       .populate('type')
@@ -438,11 +437,11 @@ schema.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
   }
 });
 
-schema.static(
+SCHEMA.static(
   'deleteProjectById',
   async (projectId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await ProjectModel.deleteOne({_id: projectId});
+      const results = await PROJECT_MODEL.deleteOne({_id: projectId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `A project with a _id: ${projectId} was not found in the database`,
@@ -453,7 +452,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the project from the database. The project may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the project from the database. The project may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete project',
           {_id: projectId},
@@ -463,9 +462,9 @@ schema.static(
   }
 );
 
-const ProjectModel = model<IProjectDocument, IProjectStaticMethods>(
+const PROJECT_MODEL = model<IProjectDocument, IProjectStaticMethods>(
   'project',
-  schema
+  SCHEMA
 );
 
-export {ProjectModel};
+export {PROJECT_MODEL as ProjectModel};

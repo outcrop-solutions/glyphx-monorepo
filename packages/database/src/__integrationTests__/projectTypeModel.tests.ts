@@ -1,53 +1,51 @@
 import 'mocha';
 import {assert} from 'chai';
-import {mongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
-const uniqueKey = v4().replaceAll('-', '');
-const inputProject = {
-  name: 'testProject' + uniqueKey,
+const UNIQUE_KEY = v4().replaceAll('-', '');
+const INPUT_PROJECT = {
+  name: 'testProject' + UNIQUE_KEY,
   isTemplate: false,
   type: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };
 
-const inputProject2 = {
-  name: 'testProject2' + uniqueKey,
+const INPUT_PROJECT2 = {
+  name: 'testProject2' + UNIQUE_KEY,
   isTemplate: false,
   type: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };
 
-const inputData = {
-  name: 'testProjectType' + uniqueKey,
+const INPUT_DATA = {
+  name: 'testProjectType' + UNIQUE_KEY,
   projects: [],
   shape: {field1: {type: 'string', required: true}},
 };
 
 describe('#ProjectTypeModel', () => {
   context('test the crud functions of the projectType model', () => {
-    const mongoConnection = new mongoDbConnection();
+    const mongoConnection = new MongoDbConnection();
     const projectTypeModel = mongoConnection.models.ProjectTypeModel;
     let projectTypeId: ObjectId;
     let projectId: ObjectId;
     let projectId2: ObjectId;
     let projectDocument: any;
-    let projectDocument2: any;
 
     before(async () => {
       await mongoConnection.init();
       const projectModel = mongoConnection.models.ProjectModel;
 
-      await projectModel.create([inputProject], {validateBeforeSave: false});
+      await projectModel.create([INPUT_PROJECT], {validateBeforeSave: false});
       const savedProjectDocument = await projectModel
-        .findOne({name: inputProject.name})
+        .findOne({name: INPUT_PROJECT.name})
         .lean();
       projectId = savedProjectDocument?._id as mongooseTypes.ObjectId;
 
@@ -55,13 +53,11 @@ describe('#ProjectTypeModel', () => {
 
       assert.isOk(projectId);
 
-      await projectModel.create([inputProject2], {validateBeforeSave: false});
+      await projectModel.create([INPUT_PROJECT2], {validateBeforeSave: false});
       const savedProjectDocument2 = await projectModel
-        .findOne({name: inputProject2.name})
+        .findOne({name: INPUT_PROJECT2.name})
         .lean();
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
-
-      projectDocument2 = savedProjectDocument2;
 
       assert.isOk(projectId2);
     });
@@ -77,7 +73,7 @@ describe('#ProjectTypeModel', () => {
     });
 
     it('add a new projectType ', async () => {
-      const projectTypeInput = JSON.parse(JSON.stringify(inputData));
+      const projectTypeInput = JSON.parse(JSON.stringify(INPUT_DATA));
       projectTypeInput.projects.push(projectDocument);
       const projectTypeDocument = await projectTypeModel.createProjectType(
         projectTypeInput
@@ -105,7 +101,7 @@ describe('#ProjectTypeModel', () => {
 
     it('modify a project type', async () => {
       assert.isOk(projectTypeId);
-      const input = {name: 'testProjectName_modified' + uniqueKey};
+      const input = {name: 'testProjectName_modified' + UNIQUE_KEY};
       const updatedDocument = await projectTypeModel.updateProjectTypeById(
         projectTypeId,
         input
@@ -144,9 +140,7 @@ describe('#ProjectTypeModel', () => {
       await projectTypeModel.deleteProjectTypeById(projectTypeId);
       let errored = false;
       try {
-        const document = await projectTypeModel.getProjectTypeById(
-          projectTypeId
-        );
+        await projectTypeModel.getProjectTypeById(projectTypeId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;

@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {mongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {database as databaseTypes} from '@glyphx/types';
@@ -8,39 +8,39 @@ import {error} from '@glyphx/core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
-const uniqueKey = v4().replaceAll('-', '');
+const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const inputUser = {
-  name: 'testUser' + uniqueKey,
-  username: 'testUserName' + uniqueKey,
-  gh_username: 'testGhUserName' + uniqueKey,
-  email: 'testEmail' + uniqueKey + '@email.com',
+const INPUT_USER = {
+  name: 'testUser' + UNIQUE_KEY,
+  username: 'testUserName' + UNIQUE_KEY,
+  gh_username: 'testGhUserName' + UNIQUE_KEY,
+  email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + uniqueKey,
+  apiKey: 'testApiKey' + UNIQUE_KEY,
   role: databaseTypes.constants.ROLE.USER,
 };
 
-const inputData = {
+const INPUT_DATA = {
   type: databaseTypes.constants.ACCOUNT_TYPE.CUSTOMER,
   provider: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
-  providerAccountId: 'accountId' + uniqueKey,
-  refresh_token: 'refreshToken' + uniqueKey,
+  providerAccountId: 'accountId' + UNIQUE_KEY,
+  refresh_token: 'refreshToken' + UNIQUE_KEY,
   refresh_token_expires_in: new Date().getTime(),
-  access_token: 'accessToken' + uniqueKey,
+  access_token: 'accessToken' + UNIQUE_KEY,
   expires_at: new Date().getTime(),
   token_type: databaseTypes.constants.TOKEN_TYPE.ACCESS,
-  scope: 'scope' + uniqueKey,
-  id_token: 'idToken' + uniqueKey,
+  scope: 'scope' + UNIQUE_KEY,
+  id_token: 'idToken' + UNIQUE_KEY,
   session_state: databaseTypes.constants.SESSION_STATE.NEW,
-  oauth_token_secret: 'oauthTokenSecret' + uniqueKey,
-  oauth_token: 'oauthToken' + uniqueKey,
+  oauth_token_secret: 'oauthTokenSecret' + UNIQUE_KEY,
+  oauth_token: 'oauthToken' + UNIQUE_KEY,
   user: {},
 };
 
 describe('#accountModel', () => {
   context('test the crud functions of the account model', () => {
-    const mongoConnection = new mongoDbConnection();
+    const mongoConnection = new MongoDbConnection();
     const accountModel = mongoConnection.models.AccountModel;
     let accountId: ObjectId;
     let userId: ObjectId;
@@ -48,10 +48,10 @@ describe('#accountModel', () => {
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
-      await userModel.createUser(inputUser as databaseTypes.IUser);
+      await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
       const savedUserDocument = await userModel
-        .findOne({name: inputUser.name})
+        .findOne({name: INPUT_USER.name})
         .lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
@@ -70,7 +70,7 @@ describe('#accountModel', () => {
     });
 
     it('add a new account', async () => {
-      const accountInput = JSON.parse(JSON.stringify(inputData));
+      const accountInput = JSON.parse(JSON.stringify(INPUT_DATA));
       accountInput.user = userDocument;
       const accountDocument = await accountModel.createAccount(accountInput);
 
@@ -110,7 +110,7 @@ describe('#accountModel', () => {
       await accountModel.deleteAccountById(accountId);
       let errored = false;
       try {
-        const document = await accountModel.getAccountById(accountId);
+        await accountModel.getAccountById(accountId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;

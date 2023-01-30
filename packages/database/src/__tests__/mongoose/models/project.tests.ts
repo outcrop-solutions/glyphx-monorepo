@@ -10,7 +10,7 @@ import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
-const mockProject: databaseTypes.IProject = {
+const MOCK_PROJECT: databaseTypes.IProject = {
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'test project',
@@ -89,24 +89,24 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(mockProject.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOrganization',
-        sandbox.stub().resolves(mockProject.organization._id)
+        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOwner',
-        sandbox.stub().resolves(mockProject.owner._id)
+        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateState',
         sandbox
           .stub()
-          .resolves(mockProject.state?._id as mongoose.Types.ObjectId)
+          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -119,7 +119,7 @@ describe('#mongoose/models/project', () => {
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(ProjectModel, 'getProjectById', stub);
-      const projectDocument = await ProjectModel.createProject(mockProject);
+      const projectDocument = await ProjectModel.createProject(MOCK_PROJECT);
 
       assert.strictEqual(projectDocument._id, objectId);
       assert.isTrue(stub.calledOnce);
@@ -142,19 +142,19 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateOrganization',
-        sandbox.stub().resolves(mockProject.organization._id)
+        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOwner',
-        sandbox.stub().resolves(mockProject.owner._id)
+        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateState',
         sandbox
           .stub()
-          .resolves(mockProject.state?._id as mongoose.Types.ObjectId)
+          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -169,7 +169,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'getProjectById', stub);
       let hasError = false;
       try {
-        await ProjectModel.createProject(mockProject);
+        await ProjectModel.createProject(MOCK_PROJECT);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -181,24 +181,24 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(mockProject.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOrganization',
-        sandbox.stub().resolves(mockProject.organization._id)
+        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOwner',
-        sandbox.stub().resolves(mockProject.owner._id)
+        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateState',
         sandbox
           .stub()
-          .resolves(mockProject.state?._id as mongoose.Types.ObjectId)
+          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -213,7 +213,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'getProjectById', stub);
       let hasError = false;
       try {
-        await ProjectModel.createProject(mockProject);
+        await ProjectModel.createProject(MOCK_PROJECT);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         hasError = true;
@@ -225,24 +225,24 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(mockProject.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOrganization',
-        sandbox.stub().resolves(mockProject.organization._id)
+        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOwner',
-        sandbox.stub().resolves(mockProject.owner._id)
+        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateState',
         sandbox
           .stub()
-          .resolves(mockProject.state?._id as mongoose.Types.ObjectId)
+          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -253,7 +253,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'getProjectById', stub);
       let hasError = false;
       try {
-        await ProjectModel.createProject(mockProject);
+        await ProjectModel.createProject(MOCK_PROJECT);
       } catch (err) {
         assert.instanceOf(err, error.UnexpectedError);
         hasError = true;
@@ -265,24 +265,24 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(mockProject.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOrganization',
-        sandbox.stub().resolves(mockProject.organization._id)
+        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateOwner',
-        sandbox.stub().resolves(mockProject.owner._id)
+        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
       sandbox.replace(
         ProjectModel,
         'validateState',
         sandbox
           .stub()
-          .resolves(mockProject.state?._id as mongoose.Types.ObjectId)
+          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -301,7 +301,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'getProjectById', stub);
       let hasError = false;
       try {
-        await ProjectModel.createProject(mockProject);
+        await ProjectModel.createProject(MOCK_PROJECT);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -907,14 +907,14 @@ describe('#mongoose/models/project', () => {
   });
 
   context('getProjectById', () => {
-    class mockMongooseQuery {
+    class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
-      constructor(input: any, throwError: boolean = false) {
+      constructor(input: any, throwError = false) {
         this.mockData = input;
         this.throwError = throwError;
       }
-      populate(input: string) {
+      populate() {
         return this;
       }
 
@@ -967,7 +967,7 @@ describe('#mongoose/models/project', () => {
 
     it('will retreive a project document with the related fields populated', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockProject));
+      findByIdStub.returns(new MockMongooseQuery(mockProject));
       sandbox.replace(ProjectModel, 'findById', findByIdStub);
 
       const doc = await ProjectModel.getProjectById(
@@ -986,7 +986,7 @@ describe('#mongoose/models/project', () => {
 
     it('will throw a DataNotFoundError when the project does not exist', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(null));
+      findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(ProjectModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -1005,7 +1005,7 @@ describe('#mongoose/models/project', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
-        new mockMongooseQuery('something bad happened', true)
+        new MockMongooseQuery('something bad happened', true)
       );
       sandbox.replace(ProjectModel, 'findById', findByIdStub);
 

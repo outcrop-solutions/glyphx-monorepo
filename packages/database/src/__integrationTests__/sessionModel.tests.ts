@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {mongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {database as databaseTypes} from '@glyphx/types';
@@ -8,27 +8,27 @@ import {error} from '@glyphx/core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
-const uniqueKey = v4().replaceAll('-', '');
+const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const inputUser = {
-  name: 'testUser' + uniqueKey,
-  username: 'testUserName' + uniqueKey,
-  gh_username: 'testGhUserName' + uniqueKey,
-  email: 'testEmail' + uniqueKey + '@email.com',
+const INPUT_USER = {
+  name: 'testUser' + UNIQUE_KEY,
+  username: 'testUserName' + UNIQUE_KEY,
+  gh_username: 'testGhUserName' + UNIQUE_KEY,
+  email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + uniqueKey,
+  apiKey: 'testApiKey' + UNIQUE_KEY,
   role: databaseTypes.constants.ROLE.USER,
 };
-const inputData = {
-  sessionToken: 'testSessionToken' + uniqueKey,
+const INPUT_DATA = {
+  sessionToken: 'testSessionToken' + UNIQUE_KEY,
   expires: new Date(),
   user: {},
 };
 
 describe('#sessionModel', () => {
   context('test the crud functions of the session model', () => {
-    const mongoConnection = new mongoDbConnection();
+    const mongoConnection = new MongoDbConnection();
     const sessionModel = mongoConnection.models.SessionModel;
     let sessionId: ObjectId;
     let userId: ObjectId;
@@ -36,10 +36,10 @@ describe('#sessionModel', () => {
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
-      const foo = await userModel.createUser(inputUser as databaseTypes.IUser);
+      await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
       const savedUserDocument = await userModel
-        .findOne({name: inputUser.name})
+        .findOne({name: INPUT_USER.name})
         .lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
@@ -58,7 +58,7 @@ describe('#sessionModel', () => {
     });
 
     it('add a new session', async () => {
-      const sessionInput = JSON.parse(JSON.stringify(inputData));
+      const sessionInput = JSON.parse(JSON.stringify(INPUT_DATA));
       sessionInput.user = userDocument;
       const sessionDocument = await sessionModel.createSession(sessionInput);
 
@@ -98,7 +98,7 @@ describe('#sessionModel', () => {
       await sessionModel.deleteSessionById(sessionId);
       let errored = false;
       try {
-        const document = await sessionModel.getSessionById(sessionId);
+        await sessionModel.getSessionById(sessionId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;

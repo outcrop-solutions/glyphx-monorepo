@@ -7,7 +7,7 @@ import {assert} from 'chai';
 import {UserModel} from '../../../mongoose/models/user';
 import {ProjectModel} from '../../../mongoose/models/project';
 
-const mockOrganization: databaseTypes.IOrganization = {
+const MOCK_ORGANIZATION: databaseTypes.IOrganization = {
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'Test Organization',
@@ -100,7 +100,7 @@ describe('#mongoose/models/organization', () => {
       stub.resolves({_id: objectId});
       sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
       const organizationDocument = await OrganizationModel.createOrganization(
-        mockOrganization
+        MOCK_ORGANIZATION
       );
 
       assert.strictEqual(organizationDocument._id, objectId);
@@ -142,7 +142,7 @@ describe('#mongoose/models/organization', () => {
       sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(mockOrganization);
+        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -177,7 +177,7 @@ describe('#mongoose/models/organization', () => {
       sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(mockOrganization);
+        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         hasError = true;
@@ -211,7 +211,7 @@ describe('#mongoose/models/organization', () => {
       sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(mockOrganization);
+        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
       } catch (err) {
         assert.instanceOf(err, error.UnexpectedError);
         hasError = true;
@@ -246,7 +246,7 @@ describe('#mongoose/models/organization', () => {
       sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(mockOrganization);
+        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -1009,14 +1009,14 @@ describe('#mongoose/models/organization', () => {
       } as unknown as databaseTypes.IUser,
     };
     const sandbox = createSandbox();
-    class mockMongooseQuery {
+    class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
-      constructor(input: any, throwError: boolean = false) {
+      constructor(input: any, throwError = false) {
         this.mockData = input;
         this.throwError = throwError;
       }
-      populate(input: string) {
+      populate() {
         return this;
       }
 
@@ -1033,7 +1033,7 @@ describe('#mongoose/models/organization', () => {
 
     it('will get an organization', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockOrganization));
+      findByIdStub.returns(new MockMongooseQuery(mockOrganization));
       sandbox.replace(OrganizationModel, 'findById', findByIdStub);
 
       const doc = await OrganizationModel.getOrganizationById(
@@ -1056,7 +1056,7 @@ describe('#mongoose/models/organization', () => {
 
     it('will throw a DataNotFoundError when the organization does not exist', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(null));
+      findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(OrganizationModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -1075,7 +1075,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
-        new mockMongooseQuery('something bad happened', true)
+        new MockMongooseQuery('something bad happened', true)
       );
       sandbox.replace(OrganizationModel, 'findById', findByIdStub);
 
@@ -1102,7 +1102,7 @@ describe('#mongoose/models/organization', () => {
 
     it('will add a project to an organization', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(mockOrganization));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
       localMockOrg._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -1148,7 +1148,7 @@ describe('#mongoose/models/organization', () => {
 
     it('will not save when a project is already attached to an organization', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(mockOrganization));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
       localMockOrg._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
       localMockOrg.projects.push(projectId);
@@ -1195,7 +1195,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data not found error when the organization does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1234,7 +1234,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data validation error when project id does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1283,7 +1283,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data operation error when the underlying connection fails', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1326,7 +1326,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1377,7 +1377,7 @@ describe('#mongoose/models/organization', () => {
     it('will remove a project from the organization', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1415,7 +1415,7 @@ describe('#mongoose/models/organization', () => {
     it('will remove a project from the organization passing in an IProject', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1452,7 +1452,7 @@ describe('#mongoose/models/organization', () => {
     it('will not modify the projects if the projectid are not on the organizations projects', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1490,7 +1490,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data not found error when the organization does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1526,7 +1526,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data operation error when the underlying connection fails', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1562,7 +1562,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
@@ -1605,7 +1605,7 @@ describe('#mongoose/models/organization', () => {
 
     it('will add a member to an organization', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(mockOrganization));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
       localMockOrg._id = orgId;
       const userId = new mongoose.Types.ObjectId();
 
@@ -1651,7 +1651,7 @@ describe('#mongoose/models/organization', () => {
 
     it('will not save when a member is already attached to an organization', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(mockOrganization));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
       localMockOrg._id = orgId;
       const userId = new mongoose.Types.ObjectId();
       localMockOrg.members.push(userId);
@@ -1698,7 +1698,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data not found error when the organization does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const userId = new mongoose.Types.ObjectId();
@@ -1737,7 +1737,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data validation error when user id does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const userId = new mongoose.Types.ObjectId();
@@ -1786,7 +1786,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data operation error when the underlying connection fails', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const userId = new mongoose.Types.ObjectId();
@@ -1829,7 +1829,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw an invalid argument error when the members array is empty', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const userId = new mongoose.Types.ObjectId();
@@ -1880,7 +1880,7 @@ describe('#mongoose/models/organization', () => {
     it('will remove a member from the organization', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const userId = new mongoose.Types.ObjectId();
@@ -1918,7 +1918,7 @@ describe('#mongoose/models/organization', () => {
     it('will remove a member from the organization passing in an IUser', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const userId = new mongoose.Types.ObjectId();
@@ -1955,7 +1955,7 @@ describe('#mongoose/models/organization', () => {
     it('will not modify the membersif the userIds are not on the organizations members', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const userId = new mongoose.Types.ObjectId();
@@ -1992,7 +1992,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data not found error when the organization does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const userId = new mongoose.Types.ObjectId();
@@ -2028,7 +2028,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw a data operation error when the underlying connection fails', async () => {
       const organizationId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = organizationId;
       const userId = new mongoose.Types.ObjectId();
@@ -2064,7 +2064,7 @@ describe('#mongoose/models/organization', () => {
     it('will throw an invalid argument error when the members array is empty', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
-        JSON.stringify(mockOrganization)
+        JSON.stringify(MOCK_ORGANIZATION)
       );
       localMockOrganization._id = orgId;
       const userId = new mongoose.Types.ObjectId();

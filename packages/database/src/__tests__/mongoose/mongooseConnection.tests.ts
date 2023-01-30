@@ -1,11 +1,11 @@
 import 'mocha';
-import {mongoDbConnection} from '../../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../../mongoose/mongooseConnection';
 import {createSandbox} from 'sinon';
 import mongoose from 'mongoose';
 import {aws, error} from '@glyphx/core';
 import {assert} from 'chai';
 
-const mockDbSecrets = {
+const MOCK_DB_SECRETS = {
   endpoint: 'testEndpoint',
   database: 'testDatabase',
   user: 'testUser',
@@ -24,23 +24,23 @@ describe('#mongoose/mongooseConnection', () => {
       sandbox.replace(mongoose, 'connect', connectStub);
 
       const secretManagerStub = sandbox.stub();
-      secretManagerStub.resolves(mockDbSecrets);
+      secretManagerStub.resolves(MOCK_DB_SECRETS);
       sandbox.replace(
         aws.SecretManager.prototype,
         'getSecrets',
         secretManagerStub
       );
 
-      const connection = new mongoDbConnection();
+      const connection = new MongoDbConnection();
       await connection.init();
 
       assert.isTrue(connectStub.calledOnce);
       assert.isTrue(connectStub.calledOnce);
 
-      assert.strictEqual(connection.password, mockDbSecrets.password);
-      assert.strictEqual(connection.user, mockDbSecrets.user);
-      assert.strictEqual(connection.endpoint, mockDbSecrets.endpoint);
-      assert.strictEqual(connection.database, mockDbSecrets.database);
+      assert.strictEqual(connection.password, MOCK_DB_SECRETS.password);
+      assert.strictEqual(connection.user, MOCK_DB_SECRETS.user);
+      assert.strictEqual(connection.endpoint, MOCK_DB_SECRETS.endpoint);
+      assert.strictEqual(connection.database, MOCK_DB_SECRETS.database);
 
       assert.isNotEmpty(connection.connectionString);
 
@@ -53,14 +53,14 @@ describe('#mongoose/mongooseConnection', () => {
       sandbox.replace(mongoose, 'connect', connectStub);
 
       const secretManagerStub = sandbox.stub();
-      secretManagerStub.resolves(mockDbSecrets);
+      secretManagerStub.resolves(MOCK_DB_SECRETS);
       sandbox.replace(
         aws.SecretManager.prototype,
         'getSecrets',
         secretManagerStub
       );
 
-      const connection = new mongoDbConnection();
+      const connection = new MongoDbConnection();
       let errored = false;
       try {
         await connection.init();

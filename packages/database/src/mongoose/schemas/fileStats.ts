@@ -1,6 +1,6 @@
 import {Schema} from 'mongoose';
 import {columnStatsSchema} from './columnStats';
-const fileStatsSchema = new Schema({
+const FILE_STATS_SCHEMA = new Schema({
   fileName: {type: String, required: true},
   tableName: {type: String, required: true},
   numberOfRows: {type: Number, required: true},
@@ -9,4 +9,4 @@ const fileStatsSchema = new Schema({
   fileSize: {type: Number, required: true},
 });
 
-export {fileStatsSchema};
+export {FILE_STATS_SCHEMA as fileStatsSchema};

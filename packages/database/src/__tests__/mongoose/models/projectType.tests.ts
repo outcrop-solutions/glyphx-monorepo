@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {assert} from 'chai';
 
-const mockProjectType: databaseTypes.IProjectType = {
+const MOCK_PROJECT_TYPE: databaseTypes.IProjectType = {
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'testProjectType',
@@ -73,7 +73,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(
         ProjectTypeModel,
         'validateProjects',
-        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+        sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
       const projectTypeId = new mongoose.Types.ObjectId();
@@ -91,7 +91,7 @@ describe('#mongoose/models/projectType', () => {
       stub.resolves({_id: projectTypeId});
       sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
       const projectTypeDocument = await ProjectTypeModel.createProjectType(
-        mockProjectType
+        MOCK_PROJECT_TYPE
       );
 
       assert.strictEqual(projectTypeDocument._id, projectTypeId);
@@ -128,7 +128,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
       let hasError = false;
       try {
-        await ProjectTypeModel.createProjectType(mockProjectType);
+        await ProjectTypeModel.createProjectType(MOCK_PROJECT_TYPE);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -140,7 +140,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(
         ProjectTypeModel,
         'validateProjects',
-        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+        sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
       const projectTypeId = new mongoose.Types.ObjectId();
@@ -159,7 +159,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
       let hasError = false;
       try {
-        await ProjectTypeModel.createProjectType(mockProjectType);
+        await ProjectTypeModel.createProjectType(MOCK_PROJECT_TYPE);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         hasError = true;
@@ -171,7 +171,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(
         ProjectTypeModel,
         'validateProjects',
-        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+        sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
       const projectTypeId = new mongoose.Types.ObjectId();
@@ -190,7 +190,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
       let hasError = false;
       try {
-        await ProjectTypeModel.createProjectType(mockProjectType);
+        await ProjectTypeModel.createProjectType(MOCK_PROJECT_TYPE);
       } catch (err) {
         assert.instanceOf(err, error.UnexpectedError);
         hasError = true;
@@ -202,7 +202,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(
         ProjectTypeModel,
         'validateProjects',
-        sandbox.stub().resolves(mockProjectType.projects.map(p => p._id))
+        sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
       const projectTypeId = new mongoose.Types.ObjectId();
@@ -221,7 +221,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(ProjectTypeModel, 'getProjectTypeById', stub);
       let hasError = false;
       try {
-        await ProjectTypeModel.createProjectType(mockProjectType);
+        await ProjectTypeModel.createProjectType(MOCK_PROJECT_TYPE);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -624,14 +624,14 @@ describe('#mongoose/models/projectType', () => {
   });
 
   context('getProjectTypeById', () => {
-    class mockMongooseQuery {
+    class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
-      constructor(input: any, throwError: boolean = false) {
+      constructor(input: any, throwError = false) {
         this.mockData = input;
         this.throwError = throwError;
       }
-      populate(input: string) {
+      populate() {
         return this;
       }
 
@@ -665,7 +665,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will retreive a project document with the projects populated', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockProjectType));
+      findByIdStub.returns(new MockMongooseQuery(mockProjectType));
       sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
 
       const doc = await ProjectTypeModel.getProjectTypeById(
@@ -681,7 +681,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw a DataNotFoundError when the projectType does not exist', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(null));
+      findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -700,7 +700,7 @@ describe('#mongoose/models/projectType', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
-        new mockMongooseQuery('something bad happened', true)
+        new MockMongooseQuery('something bad happened', true)
       );
       sandbox.replace(ProjectTypeModel, 'findById', findByIdStub);
 
@@ -727,7 +727,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will add a project to a projectType', async () => {
       const projTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType.projects = [];
       localMockProjType._id = projTypeId;
       const projectId = new mongoose.Types.ObjectId();
@@ -775,7 +775,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will not save when a project is already attached to an project type', async () => {
       const projectTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType.projects = [];
       localMockProjType._id = projectTypeId;
       const projectId = new mongoose.Types.ObjectId();
@@ -823,7 +823,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw a data not found error when the project type does not exist', async () => {
       const projectTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projectTypeId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -865,7 +865,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw a data validation error when project id does not exist', async () => {
       const projTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projTypeId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -913,7 +913,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const projectTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projectTypeId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -955,7 +955,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const projectTypwId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projectTypwId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -1005,7 +1005,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will remove a project from the projectType', async () => {
       const projTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projTypeId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -1042,7 +1042,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will not modify the projects if the projectid are not on the project type projects', async () => {
       const projTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projTypeId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -1079,7 +1079,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw a data not found error when the project type does not exist', async () => {
       const projTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projTypeId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -1114,7 +1114,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const projectTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projectTypeId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
@@ -1149,7 +1149,7 @@ describe('#mongoose/models/projectType', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const projectTypeId = new mongoose.Types.ObjectId();
-      const localMockProjType = JSON.parse(JSON.stringify(mockProjectType));
+      const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projectTypeId;
       const projectId = new mongoose.Types.ObjectId();
       localMockProjType.projects.push(projectId);

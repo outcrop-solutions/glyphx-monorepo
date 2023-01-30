@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {mongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {database as databaseTypes} from '@glyphx/types';
@@ -8,40 +8,40 @@ import {error} from '@glyphx/core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
-const uniqueKey = v4().replaceAll('-', '');
+const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const inputOrganization = {
-  name: 'testOrganization' + uniqueKey,
-  description: 'testorganization' + uniqueKey,
+const INPUT_ORGANIZATION = {
+  name: 'testOrganization' + UNIQUE_KEY,
+  description: 'testorganization' + UNIQUE_KEY,
   owner: {},
   members: [],
   projects: [],
 };
 
-const inputUser = {
-  name: 'testUser' + uniqueKey,
-  username: 'testUserName' + uniqueKey,
-  gh_username: 'testGhUserName' + uniqueKey,
-  email: 'testEmail' + uniqueKey + '@email.com',
+const INPUT_USER = {
+  name: 'testUser' + UNIQUE_KEY,
+  username: 'testUserName' + UNIQUE_KEY,
+  gh_username: 'testGhUserName' + UNIQUE_KEY,
+  email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + uniqueKey,
+  apiKey: 'testApiKey' + UNIQUE_KEY,
   role: databaseTypes.constants.ROLE.USER,
 };
 
-const inputState = {
+const INPUT_STATE = {
   version: 1,
   static: true,
-  fileSystemHash: 'testFileSystemHash' + uniqueKey,
+  fileSystemHash: 'testFileSystemHash' + UNIQUE_KEY,
   projects: [],
   fileSystem: [],
 };
 
-const inputData = {
-  name: 'testProject' + uniqueKey,
-  sdtPath: 'testsdtPath' + uniqueKey,
+const INPUT_DATA = {
+  name: 'testProject' + UNIQUE_KEY,
+  sdtPath: 'testsdtPath' + UNIQUE_KEY,
   organization: {},
-  slug: 'testSlug' + uniqueKey,
+  slug: 'testSlug' + UNIQUE_KEY,
   isTemplate: false,
   type: {},
   owner: {},
@@ -49,15 +49,15 @@ const inputData = {
   files: [],
 };
 
-const inputProjectType = {
-  name: 'testProjectType' + uniqueKey,
+const INPUT_PROJECT_TYPE = {
+  name: 'testProjectType' + UNIQUE_KEY,
   projects: [],
   shape: {field1: {type: 'string', required: true}},
 };
 
 describe('#ProjectModel', () => {
   context('test the crud functions of the project model', () => {
-    const mongoConnection = new mongoDbConnection();
+    const mongoConnection = new MongoDbConnection();
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
     let userId: ObjectId;
@@ -76,10 +76,10 @@ describe('#ProjectModel', () => {
       const stateModel = mongoConnection.models.StateModel;
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
 
-      await userModel.createUser(inputUser as databaseTypes.IUser);
+      await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
       const savedUserDocument = await userModel
-        .findOne({name: inputUser.name})
+        .findOne({name: INPUT_USER.name})
         .lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
@@ -87,11 +87,11 @@ describe('#ProjectModel', () => {
 
       assert.isOk(userId);
 
-      await organizationModel.create([inputOrganization], {
+      await organizationModel.create([INPUT_ORGANIZATION], {
         validateBeforeSave: false,
       });
       const savedOrganizationDocument = await organizationModel
-        .findOne({name: inputOrganization.name})
+        .findOne({name: INPUT_ORGANIZATION.name})
         .lean();
       organizationId = savedOrganizationDocument?._id as mongooseTypes.ObjectId;
 
@@ -99,11 +99,11 @@ describe('#ProjectModel', () => {
 
       assert.isOk(organizationId);
 
-      await projectTypeModel.create([inputProjectType], {
+      await projectTypeModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
       const savedProjectTypeDocument = await projectTypeModel
-        .findOne({name: inputProjectType.name})
+        .findOne({name: INPUT_PROJECT_TYPE.name})
         .lean();
       projectTypeId = savedProjectTypeDocument?._id as mongooseTypes.ObjectId;
 
@@ -111,9 +111,9 @@ describe('#ProjectModel', () => {
 
       assert.isOk(projectTypeId);
 
-      await stateModel.create([inputState], {validateBeforeSave: false});
+      await stateModel.create([INPUT_STATE], {validateBeforeSave: false});
       const savedStateDocument = await stateModel
-        .findOne({fileSystemHash: inputState.fileSystemHash})
+        .findOne({fileSystemHash: INPUT_STATE.fileSystemHash})
         .lean();
       stateId = savedStateDocument?._id as mongooseTypes.ObjectId;
 
@@ -141,7 +141,7 @@ describe('#ProjectModel', () => {
     });
 
     it('add a new project ', async () => {
-      const projectInput = JSON.parse(JSON.stringify(inputData));
+      const projectInput = JSON.parse(JSON.stringify(INPUT_DATA));
       projectInput.owner = userDocument;
       projectInput.organization = organizationDocument;
       projectInput.type = projectTypeDocument;
@@ -194,7 +194,7 @@ describe('#ProjectModel', () => {
       await projectModel.deleteProjectById(projectId);
       let errored = false;
       try {
-        const document = await projectModel.getProjectById(projectId);
+        await projectModel.getProjectById(projectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;

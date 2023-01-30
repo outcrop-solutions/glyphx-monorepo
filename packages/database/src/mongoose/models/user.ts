@@ -1,11 +1,5 @@
 import {database as databaseTypes} from '@glyphx/types';
-import {
-  Types as mongooseTypes,
-  Model,
-  Schema,
-  HydratedDocument,
-  model,
-} from 'mongoose';
+import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
@@ -14,7 +8,7 @@ import {SessionModel} from './session';
 import {WebhookModel} from './webhook';
 import {OrganizationModel} from './organization';
 
-const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
+const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   name: {type: String, required: true},
   username: {type: String, required: true, unique: true},
   gh_username: {type: String, required: false},
@@ -43,12 +37,12 @@ const schema = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   projects: {type: [Schema.Types.ObjectId], default: [], ref: 'project'},
 });
 
-schema.static(
+SCHEMA.static(
   'userIdExists',
   async (userId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await UserModel.findById(userId, ['_id']);
+      const result = await USER_MODEL.findById(userId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -63,13 +57,12 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'allUserIdsExist',
   async (userIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    const retval = true;
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await UserModel.find({_id: {$in: userIds}}, [
+      const foundIds = (await USER_MODEL.find({_id: {$in: userIds}}, [
         '_id',
       ])) as {_id: mongooseTypes.ObjectId}[];
 
@@ -101,7 +94,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateUpdateObject',
   (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
     if (user.accounts?.length)
@@ -149,15 +142,15 @@ schema.static(
 );
 
 //TODO: we need to set and validate the updateDate and make the createdDate immutable.
-schema.static(
+SCHEMA.static(
   'updateUserWithFilter',
   async (
     filter: Record<string, unknown>,
     user: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): Promise<boolean> => {
     try {
-      UserModel.validateUpdateObject(user);
-      const updateResult = await UserModel.updateOne(filter, user);
+      USER_MODEL.validateUpdateObject(user);
+      const updateResult = await USER_MODEL.updateOne(filter, user);
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
           `No user document with filter: ${filter} was found`,
@@ -185,23 +178,22 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateUserById',
   async (
     id: mongooseTypes.ObjectId,
     user: Partial<databaseTypes.IUser>
   ): Promise<databaseTypes.IUser> => {
-    await UserModel.updateUserWithFilter({_id: id}, user);
-    return await UserModel.getUserById(id);
+    await USER_MODEL.updateUserWithFilter({_id: id}, user);
+    return await USER_MODEL.getUserById(id);
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateAccounts',
   async (
     accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const accountIds: mongooseTypes.ObjectId[] = [];
     accounts.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) accountIds.push(p);
@@ -224,12 +216,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateSessions',
   async (
     sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const sessionIds: mongooseTypes.ObjectId[] = [];
     sessions.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) sessionIds.push(p);
@@ -252,12 +243,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateWebhooks',
   async (
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const webhookIds: mongooseTypes.ObjectId[] = [];
     webhooks.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) webhookIds.push(p);
@@ -280,12 +270,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateOrganizations',
   async (
     organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const organizationIds: mongooseTypes.ObjectId[] = [];
     organizations.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) organizationIds.push(p);
@@ -310,12 +299,11 @@ schema.static(
 
 //give our user some flexibily to pass object ids instead of a full project.
 //TODO: look into our interfaces to allow passing either a full projecty or objectIds.
-schema.static(
+SCHEMA.static(
   'validateProjects',
   async (
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const projectIds: mongooseTypes.ObjectId[] = [];
     projects.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
@@ -338,9 +326,9 @@ schema.static(
   }
 );
 
-schema.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
-    const userDocument = (await UserModel.findById(userId)
+    const userDocument = (await USER_MODEL.findById(userId)
       .populate('accounts')
       .populate('organization')
       .populate('sessions')
@@ -378,7 +366,7 @@ schema.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   }
 });
 
-schema.static(
+SCHEMA.static(
   'createUser',
   async (
     input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
@@ -393,23 +381,23 @@ schema.static(
     try {
       const [accounts, sessions, webhooks, organizations, projects] =
         await Promise.all([
-          UserModel.validateAccounts(
+          USER_MODEL.validateAccounts(
             //istanbul ignore next
             input.accounts ?? []
           ),
-          UserModel.validateSessions(
+          USER_MODEL.validateSessions(
             //istanbul ignore next
             input.sessions ?? []
           ),
-          UserModel.validateWebhooks(
+          USER_MODEL.validateWebhooks(
             //istanbul ignore next
             input.webhooks ?? []
           ),
-          UserModel.validateOrganizations(
+          USER_MODEL.validateOrganizations(
             //istanbul ignore next
             orgs ?? []
           ),
-          UserModel.validateProjects(
+          USER_MODEL.validateProjects(
             //istanbul ignore next
             input.projects ?? []
           ),
@@ -417,7 +405,7 @@ schema.static(
       const createDate = new Date();
       const org = organizations.shift() as mongooseTypes.ObjectId;
 
-      let resolvedInput: IUserDocument = {
+      const resolvedInput: IUserDocument = {
         name: input.name,
         username: input.username,
         gh_username: input.gh_username,
@@ -437,7 +425,7 @@ schema.static(
         projects: projects,
       };
       try {
-        await UserModel.validate(resolvedInput);
+        await USER_MODEL.validate(resolvedInput);
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
@@ -447,7 +435,7 @@ schema.static(
         );
       }
       const userDocument = (
-        await UserModel.create([resolvedInput], {validateBeforeSave: false})
+        await USER_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
       id = userDocument._id;
     } catch (err) {
@@ -462,7 +450,7 @@ schema.static(
         );
       }
     }
-    if (id) return await UserModel.getUserById(id);
+    if (id) return await USER_MODEL.getUserById(id);
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the user may not have been created.  I have no other information to provide.'
@@ -470,11 +458,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'deleteUserById',
   async (id: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await UserModel.deleteOne({_id: id});
+      const results = await USER_MODEL.deleteOne({_id: id});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `A user with a _id: ${id} was not found in the database`,
@@ -485,7 +473,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the user from the database. The user may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the user from the database. The user may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete user',
           {_id: id},
@@ -495,7 +483,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'addProjects',
   async (
     userId: mongooseTypes.ObjectId,
@@ -508,7 +496,7 @@ schema.static(
           'projects',
           projects
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -516,7 +504,7 @@ schema.static(
           userId
         );
 
-      const reconciledIds = await UserModel.validateProjects(projects);
+      const reconciledIds = await USER_MODEL.validateProjects(projects);
       let dirty = false;
       reconciledIds.forEach(p => {
         if (
@@ -531,7 +519,7 @@ schema.static(
 
       if (dirty) await userDocument.save();
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -551,7 +539,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeProjects',
   async (
     userId: mongooseTypes.ObjectId,
@@ -564,7 +552,7 @@ schema.static(
           'projects',
           projects
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -601,7 +589,7 @@ schema.static(
         await userDocument.save();
       }
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -621,7 +609,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'addAccounts',
   async (
     userId: mongooseTypes.ObjectId,
@@ -634,7 +622,7 @@ schema.static(
           'accounts',
           accounts
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -642,7 +630,7 @@ schema.static(
           userId
         );
 
-      const reconciledIds = await UserModel.validateAccounts(accounts);
+      const reconciledIds = await USER_MODEL.validateAccounts(accounts);
       let dirty = false;
       reconciledIds.forEach(a => {
         if (
@@ -657,7 +645,7 @@ schema.static(
 
       if (dirty) await userDocument.save();
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -677,7 +665,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeAccounts',
   async (
     userId: mongooseTypes.ObjectId,
@@ -690,7 +678,7 @@ schema.static(
           'accounts',
           accounts
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -727,7 +715,7 @@ schema.static(
         await userDocument.save();
       }
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -747,7 +735,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'addSessions',
   async (
     userId: mongooseTypes.ObjectId,
@@ -760,7 +748,7 @@ schema.static(
           'sessions',
           sessions
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -768,7 +756,7 @@ schema.static(
           userId
         );
 
-      const reconciledIds = await UserModel.validateSessions(sessions);
+      const reconciledIds = await USER_MODEL.validateSessions(sessions);
       let dirty = false;
       reconciledIds.forEach(s => {
         if (
@@ -783,7 +771,7 @@ schema.static(
 
       if (dirty) await userDocument.save();
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -803,7 +791,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeSessions',
   async (
     userId: mongooseTypes.ObjectId,
@@ -816,7 +804,7 @@ schema.static(
           'sessions',
           sessions
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -853,7 +841,7 @@ schema.static(
         await userDocument.save();
       }
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -873,7 +861,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'addWebhooks',
   async (
     userId: mongooseTypes.ObjectId,
@@ -886,7 +874,7 @@ schema.static(
           'webhooks',
           webhooks
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -894,7 +882,7 @@ schema.static(
           userId
         );
 
-      const reconciledIds = await UserModel.validateWebhooks(webhooks);
+      const reconciledIds = await USER_MODEL.validateWebhooks(webhooks);
       let dirty = false;
       reconciledIds.forEach(w => {
         if (
@@ -907,7 +895,7 @@ schema.static(
 
       if (dirty) await userDocument.save();
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -927,7 +915,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeWebhooks',
   async (
     userId: mongooseTypes.ObjectId,
@@ -940,7 +928,7 @@ schema.static(
           'sessions',
           webhooks
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -977,7 +965,7 @@ schema.static(
         await userDocument.save();
       }
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -997,7 +985,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'addOrganizations',
   async (
     userId: mongooseTypes.ObjectId,
@@ -1010,7 +998,7 @@ schema.static(
           'organizations',
           organizations
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -1018,7 +1006,7 @@ schema.static(
           userId
         );
 
-      const reconciledIds = await UserModel.validateOrganizations(
+      const reconciledIds = await USER_MODEL.validateOrganizations(
         organizations
       );
       let dirty = false;
@@ -1037,7 +1025,7 @@ schema.static(
 
       if (dirty) await userDocument.save();
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -1057,7 +1045,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeOrganizations',
   async (
     userId: mongooseTypes.ObjectId,
@@ -1070,7 +1058,7 @@ schema.static(
           'organizations',
           organizations
         );
-      const userDocument = await UserModel.findById(userId);
+      const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
         throw new error.DataNotFoundError(
           `A User Document with _id : ${userId} cannot be found`,
@@ -1107,7 +1095,7 @@ schema.static(
         await userDocument.save();
       }
 
-      return await UserModel.getUserById(userId);
+      return await USER_MODEL.getUserById(userId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -1127,6 +1115,6 @@ schema.static(
   }
 );
 
-const UserModel = model<IUserDocument, IUserStaticMethods>('user', schema);
+const USER_MODEL = model<IUserDocument, IUserStaticMethods>('user', SCHEMA);
 
-export {UserModel};
+export {USER_MODEL as UserModel};

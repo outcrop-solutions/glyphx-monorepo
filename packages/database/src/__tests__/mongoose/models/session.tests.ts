@@ -6,7 +6,7 @@ import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
-const mockSession: databaseTypes.ISession = {
+const MOCK_SESSION: databaseTypes.ISession = {
   sessionToken: 'session token',
   expires: new Date(),
   user: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
@@ -81,7 +81,7 @@ describe('#mongoose/models/session', () => {
 
       sandbox.replace(SessionModel, 'getSessionById', getSessionByIdStub);
 
-      const result = await SessionModel.createSession(mockSession);
+      const result = await SessionModel.createSession(MOCK_SESSION);
       assert.strictEqual(result._id, sessionId);
       assert.isTrue(getSessionByIdStub.calledOnce);
     });
@@ -107,7 +107,7 @@ describe('#mongoose/models/session', () => {
       let errorred = false;
 
       try {
-        await SessionModel.createSession(mockSession);
+        await SessionModel.createSession(MOCK_SESSION);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -136,7 +136,7 @@ describe('#mongoose/models/session', () => {
       let errorred = false;
 
       try {
-        await SessionModel.createSession(mockSession);
+        await SessionModel.createSession(MOCK_SESSION);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -157,7 +157,7 @@ describe('#mongoose/models/session', () => {
       let errorred = false;
 
       try {
-        await SessionModel.createSession(mockSession);
+        await SessionModel.createSession(MOCK_SESSION);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -515,14 +515,14 @@ describe('#mongoose/models/session', () => {
   });
 
   context('getSessionById', () => {
-    class mockMongooseQuery {
+    class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
-      constructor(input: any, throwError: boolean = false) {
+      constructor(input: any, throwError = false) {
         this.mockData = input;
         this.throwError = throwError;
       }
-      populate(input: string) {
+      populate() {
         return this;
       }
 
@@ -552,7 +552,7 @@ describe('#mongoose/models/session', () => {
 
     it('will retreive a session document with the user populated', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockSession));
+      findByIdStub.returns(new MockMongooseQuery(mockSession));
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 
       const doc = await SessionModel.getSessionById(
@@ -568,7 +568,7 @@ describe('#mongoose/models/session', () => {
 
     it('will throw a DataNotFoundError when the session does not exist', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(null));
+      findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -587,7 +587,7 @@ describe('#mongoose/models/session', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
-        new mockMongooseQuery('something bad happened', true)
+        new MockMongooseQuery('something bad happened', true)
       );
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 

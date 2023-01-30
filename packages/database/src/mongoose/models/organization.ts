@@ -1,11 +1,5 @@
 import {database as databaseTypes} from '@glyphx/types';
-import {
-  Types as mongooseTypes,
-  Model,
-  Schema,
-  HydratedDocument,
-  model,
-} from 'mongoose';
+import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IOrganizationMethods,
   IOrganizationStaticMethods,
@@ -15,7 +9,7 @@ import {error} from '@glyphx/core';
 import {UserModel} from './user';
 import {ProjectModel} from './project';
 
-const schema = new Schema<
+const SCHEMA = new Schema<
   IOrganizationDocument,
   IOrganizationStaticMethods,
   IOrganizationMethods
@@ -39,12 +33,12 @@ const schema = new Schema<
   },
 });
 
-schema.static(
+SCHEMA.static(
   'organizationIdExists',
   async (organizationId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await OrganizationModel.findById(organizationId, ['_id']);
+      const result = await ORGANIZATION_MODEL.findById(organizationId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -59,13 +53,12 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'allOrganizationIdsExist',
   async (organizationIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    const retval = true;
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await OrganizationModel.find(
+      const foundIds = (await ORGANIZATION_MODEL.find(
         {_id: {$in: organizationIds}},
         ['_id']
       )) as {_id: mongooseTypes.ObjectId}[];
@@ -98,12 +91,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateProjects',
   async (
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const projectIds: mongooseTypes.ObjectId[] = [];
     projects.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
@@ -126,12 +118,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateMembers',
   async (
     members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const userIds: mongooseTypes.ObjectId[] = [];
     members.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) userIds.push(p);
@@ -154,7 +145,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'createOrganization',
   async (
     input: Omit<databaseTypes.IOrganization, '_id' | 'createdAt' | 'updatedAt'>
@@ -167,13 +158,13 @@ schema.static(
       )[];
       users.unshift(input.owner);
       const [members, projects] = await Promise.all([
-        OrganizationModel.validateMembers(users),
-        OrganizationModel.validateProjects(input.projects),
+        ORGANIZATION_MODEL.validateMembers(users),
+        ORGANIZATION_MODEL.validateProjects(input.projects),
       ]);
       const createDate = new Date();
 
       const owner = members.shift() as mongooseTypes.ObjectId;
-      let resolvedInput: IOrganizationDocument = {
+      const resolvedInput: IOrganizationDocument = {
         createdAt: createDate,
         updatedAt: createDate,
         name: input.name,
@@ -183,7 +174,7 @@ schema.static(
         projects: projects,
       };
       try {
-        await OrganizationModel.validate(resolvedInput);
+        await ORGANIZATION_MODEL.validate(resolvedInput);
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
@@ -194,7 +185,7 @@ schema.static(
       }
 
       const organizationDocument = (
-        await OrganizationModel.create([resolvedInput], {
+        await ORGANIZATION_MODEL.create([resolvedInput], {
           validateBeforeSave: false,
         })
       )[0];
@@ -212,7 +203,7 @@ schema.static(
       }
     }
 
-    if (id) return await OrganizationModel.getOrganizationById(id);
+    if (id) return await ORGANIZATION_MODEL.getOrganizationById(id);
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the organization may not have been created.  I have no other information to provide.'
@@ -220,7 +211,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateUpdateObject',
   async (input: Partial<databaseTypes.IOrganization>): Promise<boolean> => {
     if (input.projects?.length)
@@ -262,14 +253,14 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateOrganizationByFilter',
   async (
     filter: Record<string, unknown>,
     input: Partial<databaseTypes.IOrganization>
   ): Promise<void> => {
     try {
-      await OrganizationModel.validateUpdateObject(input);
+      await ORGANIZATION_MODEL.validateUpdateObject(input);
       const transformedDocument: Partial<databaseTypes.IOrganization> &
         Record<string, any> = {};
       const updateDate = new Date();
@@ -282,7 +273,7 @@ schema.static(
         }
       }
       transformedDocument.updatedAt = updateDate;
-      const updateResult = await OrganizationModel.updateOne(
+      const updateResult = await ORGANIZATION_MODEL.updateOne(
         filter,
         transformedDocument
       );
@@ -311,24 +302,24 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateOrganizationById',
   async (
     id: mongooseTypes.ObjectId,
     input: Partial<databaseTypes.IOrganization>
   ): Promise<databaseTypes.IOrganization> => {
-    await OrganizationModel.updateOrganizationByFilter({_id: id}, input);
-    return await OrganizationModel.getOrganizationById(id);
+    await ORGANIZATION_MODEL.updateOrganizationByFilter({_id: id}, input);
+    return await ORGANIZATION_MODEL.getOrganizationById(id);
   }
 );
 
-schema.static(
+SCHEMA.static(
   'getOrganizationById',
   async (
     organizationId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IOrganization> => {
     try {
-      const organizationDocument = (await OrganizationModel.findById(
+      const organizationDocument = (await ORGANIZATION_MODEL.findById(
         organizationId
       )
         .populate('owner')
@@ -360,11 +351,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'deleteOrganizationById',
   async (organizationId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await OrganizationModel.deleteOne({_id: organizationId});
+      const results = await ORGANIZATION_MODEL.deleteOne({_id: organizationId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `An organization with a _id: ${organizationId} was not found in the database`,
@@ -375,7 +366,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the organization from the database. The organization may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the organization from the database. The organization may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete organization',
           {_id: organizationId},
@@ -385,7 +376,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'addProjects',
   async (
     organizationId: mongooseTypes.ObjectId,
@@ -398,7 +389,7 @@ schema.static(
           'projects',
           projects
         );
-      const organizationDocument = await OrganizationModel.findById(
+      const organizationDocument = await ORGANIZATION_MODEL.findById(
         organizationId
       );
       if (!organizationDocument)
@@ -408,7 +399,7 @@ schema.static(
           organizationId
         );
 
-      const reconciledIds = await OrganizationModel.validateProjects(projects);
+      const reconciledIds = await ORGANIZATION_MODEL.validateProjects(projects);
       let dirty = false;
       reconciledIds.forEach(p => {
         if (
@@ -425,7 +416,7 @@ schema.static(
 
       if (dirty) await organizationDocument.save();
 
-      return await OrganizationModel.getOrganizationById(organizationId);
+      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -445,7 +436,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeProjects',
   async (
     organizationId: mongooseTypes.ObjectId,
@@ -458,7 +449,7 @@ schema.static(
           'projects',
           projects
         );
-      const organizationDocument = await OrganizationModel.findById(
+      const organizationDocument = await ORGANIZATION_MODEL.findById(
         organizationId
       );
       if (!organizationDocument)
@@ -496,7 +487,7 @@ schema.static(
         await organizationDocument.save();
       }
 
-      return await OrganizationModel.getOrganizationById(organizationId);
+      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -516,7 +507,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'addMembers',
   async (
     organizationId: mongooseTypes.ObjectId,
@@ -529,7 +520,7 @@ schema.static(
           'members',
           members
         );
-      const organizationDocument = await OrganizationModel.findById(
+      const organizationDocument = await ORGANIZATION_MODEL.findById(
         organizationId
       );
       if (!organizationDocument)
@@ -539,7 +530,7 @@ schema.static(
           organizationId
         );
 
-      const reconciledIds = await OrganizationModel.validateMembers(members);
+      const reconciledIds = await ORGANIZATION_MODEL.validateMembers(members);
       let dirty = false;
       reconciledIds.forEach(m => {
         if (
@@ -556,7 +547,7 @@ schema.static(
 
       if (dirty) await organizationDocument.save();
 
-      return await OrganizationModel.getOrganizationById(organizationId);
+      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -576,7 +567,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeMembers',
   async (
     organizationId: mongooseTypes.ObjectId,
@@ -589,7 +580,7 @@ schema.static(
           'members',
           members
         );
-      const organizationDocument = await OrganizationModel.findById(
+      const organizationDocument = await ORGANIZATION_MODEL.findById(
         organizationId
       );
       if (!organizationDocument)
@@ -627,7 +618,7 @@ schema.static(
         await organizationDocument.save();
       }
 
-      return await OrganizationModel.getOrganizationById(organizationId);
+      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -646,9 +637,9 @@ schema.static(
     }
   }
 );
-const OrganizationModel = model<
+const ORGANIZATION_MODEL = model<
   IOrganizationDocument,
   IOrganizationStaticMethods
->('organization', schema);
+>('organization', SCHEMA);
 
-export {OrganizationModel};
+export {ORGANIZATION_MODEL as OrganizationModel};

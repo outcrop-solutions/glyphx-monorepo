@@ -10,7 +10,7 @@ import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
-const mockUser: databaseTypes.IUser = {
+const MOCK_USER: databaseTypes.IUser = {
   name: 'testUser',
   username: 'test@user.com',
   email: 'test@user.com',
@@ -72,7 +72,7 @@ describe('#mongoose/models/user', () => {
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(UserModel, 'getUserById', stub);
-      const userDocument = await UserModel.createUser(mockUser);
+      const userDocument = await UserModel.createUser(MOCK_USER);
 
       assert.strictEqual(userDocument._id, objectId);
       assert.isTrue(stub.calledOnce);
@@ -125,7 +125,7 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(UserModel, 'getUserById', stub);
       let hasError = false;
       try {
-        await UserModel.createUser(mockUser);
+        await UserModel.createUser(MOCK_USER);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -168,7 +168,7 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(UserModel, 'getUserById', stub);
       let hasError = false;
       try {
-        await UserModel.createUser(mockUser);
+        await UserModel.createUser(MOCK_USER);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         hasError = true;
@@ -207,7 +207,7 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(UserModel, 'getUserById', stub);
       let hasError = false;
       try {
-        await UserModel.createUser(mockUser);
+        await UserModel.createUser(MOCK_USER);
       } catch (err) {
         assert.instanceOf(err, error.UnexpectedError);
         hasError = true;
@@ -258,7 +258,7 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(UserModel, 'getUserById', stub);
       let hasError = false;
       try {
-        await UserModel.createUser(mockUser);
+        await UserModel.createUser(MOCK_USER);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -1253,14 +1253,14 @@ describe('#mongoose/models/user', () => {
   });
 
   context('getUserById', () => {
-    class mockMongooseQuery {
+    class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
-      constructor(input: any, throwError: boolean = false) {
+      constructor(input: any, throwError = false) {
         this.mockData = input;
         this.throwError = throwError;
       }
-      populate(input: string) {
+      populate() {
         return this;
       }
 
@@ -1334,7 +1334,7 @@ describe('#mongoose/models/user', () => {
 
     it('will retreive a user document with the related fields populated', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockUser));
+      findByIdStub.returns(new MockMongooseQuery(mockUser));
       sandbox.replace(UserModel, 'findById', findByIdStub);
 
       const doc = await UserModel.getUserById(
@@ -1355,7 +1355,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a DataNotFoundError when the user does not exist', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(null));
+      findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(UserModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -1372,7 +1372,7 @@ describe('#mongoose/models/user', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
-        new mockMongooseQuery('something bad happened', true)
+        new MockMongooseQuery('something bad happened', true)
       );
       sandbox.replace(UserModel, 'findById', findByIdStub);
 
@@ -1397,7 +1397,7 @@ describe('#mongoose/models/user', () => {
 
     it('will add a project to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -1433,7 +1433,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not save when a project is already attached to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
       localMockUser.projects.push(projectId);
@@ -1469,7 +1469,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -1502,7 +1502,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data validation error when project id does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -1541,7 +1541,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -1574,7 +1574,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -1615,7 +1615,7 @@ describe('#mongoose/models/user', () => {
 
     it('will remove a project from the user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
       localMockUser.projects.push(projectId);
@@ -1644,7 +1644,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not modify the projects if the projectid are not on the user projects', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
       localMockUser.projects.push(projectId);
@@ -1675,7 +1675,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
       localMockUser.projects.push(projectId);
@@ -1705,7 +1705,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
       localMockUser.projects.push(projectId);
@@ -1735,7 +1735,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const projectId = new mongoose.Types.ObjectId();
       localMockUser.projects.push(projectId);
@@ -1773,7 +1773,7 @@ describe('#mongoose/models/user', () => {
 
     it('will add an account to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
 
@@ -1809,7 +1809,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not save when an account is already attached to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
       localMockUser.accounts.push(accountId);
@@ -1845,7 +1845,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
 
@@ -1878,7 +1878,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data validation error when account id does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
 
@@ -1917,7 +1917,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
 
@@ -1950,7 +1950,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the Accounts array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
 
@@ -1991,7 +1991,7 @@ describe('#mongoose/models/user', () => {
 
     it('will remove an account from the user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
       localMockUser.accounts.push(accountId);
@@ -2020,7 +2020,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not modify the accounts if the accountid is not on the user accounts', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
       localMockUser.accounts.push(accountId);
@@ -2051,7 +2051,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
       localMockUser.accounts.push(accountId);
@@ -2081,7 +2081,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
       localMockUser.accounts.push(accountId);
@@ -2111,7 +2111,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const accountId = new mongoose.Types.ObjectId();
       localMockUser.projects.push(accountId);
@@ -2149,7 +2149,7 @@ describe('#mongoose/models/user', () => {
 
     it('will add an session to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
 
@@ -2185,7 +2185,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not save when a session is already attached to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
       localMockUser.sessions.push(sessionId);
@@ -2221,7 +2221,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
 
@@ -2254,7 +2254,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data validation error when session id does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
 
@@ -2293,7 +2293,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
 
@@ -2326,7 +2326,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the Session array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
 
@@ -2367,7 +2367,7 @@ describe('#mongoose/models/user', () => {
 
     it('will remove a session from the user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
       localMockUser.sessions.push(sessionId);
@@ -2396,7 +2396,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not modify the sessions if the sessionId is not on the user sessions', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
       localMockUser.sessions.push(sessionId);
@@ -2427,7 +2427,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
       localMockUser.sessions.push(sessionId);
@@ -2457,7 +2457,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
       localMockUser.sessions.push(sessionId);
@@ -2487,7 +2487,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the sessions array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const sessionId = new mongoose.Types.ObjectId();
       localMockUser.sessions.push(sessionId);
@@ -2525,7 +2525,7 @@ describe('#mongoose/models/user', () => {
 
     it('will add a webhook to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
 
@@ -2561,7 +2561,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not save when a webhook is already attached to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
       localMockUser.webhooks.push(webhookId);
@@ -2597,7 +2597,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
 
@@ -2630,7 +2630,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data validation error when webhook id does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
 
@@ -2669,7 +2669,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
 
@@ -2702,7 +2702,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the Webhooks array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
 
@@ -2743,7 +2743,7 @@ describe('#mongoose/models/user', () => {
 
     it('will remove a webhook from the user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
       localMockUser.webhooks.push(webhookId);
@@ -2772,7 +2772,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not modify the webhooks if the webhookId is not on the user webhooks', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
       localMockUser.webhooks.push(webhookId);
@@ -2803,7 +2803,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
       localMockUser.webhooks.push(webhookId);
@@ -2833,7 +2833,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
       localMockUser.webhooks.push(webhookId);
@@ -2863,7 +2863,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the webhooks array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const webhookId = new mongoose.Types.ObjectId();
       localMockUser.webhooks.push(webhookId);
@@ -2901,7 +2901,7 @@ describe('#mongoose/models/user', () => {
 
     it('will add an organization to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
 
@@ -2938,7 +2938,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not save when an organization is already attached to a user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
       localMockUser.ownedOrgs.push(orgId);
@@ -2976,7 +2976,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const organizationId = new mongoose.Types.ObjectId();
 
@@ -3013,7 +3013,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data validation error when organization id does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const organizationId = new mongoose.Types.ObjectId();
 
@@ -3056,7 +3056,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const organizationId = new mongoose.Types.ObjectId();
 
@@ -3093,7 +3093,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the Organizations array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const organizationId = new mongoose.Types.ObjectId();
 
@@ -3138,7 +3138,7 @@ describe('#mongoose/models/user', () => {
 
     it('will remove an organization from the user', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const organizationId = new mongoose.Types.ObjectId();
       localMockUser.ownedOrgs.push(organizationId);
@@ -3169,7 +3169,7 @@ describe('#mongoose/models/user', () => {
 
     it('will not modify the ownedOrgs if the organizationId is not on the user ownedOrgs', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
       localMockUser.ownedOrgs.push(orgId);
@@ -3200,7 +3200,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data not found error when the user does not exist', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
       localMockUser.ownedOrgs.push(orgId);
@@ -3230,7 +3230,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
       localMockUser.ownedOrgs.push(orgId);
@@ -3260,7 +3260,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an invalid argument error when the organizations array is empty', async () => {
       const userId = new mongoose.Types.ObjectId();
-      const localMockUser = JSON.parse(JSON.stringify(mockUser));
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
       localMockUser.ownedOrgs.push(orgId);

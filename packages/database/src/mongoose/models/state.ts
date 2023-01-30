@@ -9,7 +9,7 @@ import {error} from '@glyphx/core';
 import {fileStatsSchema} from '../schemas';
 import {ProjectModel} from './project';
 
-const schema = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
+const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   createdAt: {
     type: Date,
     required: true,
@@ -36,12 +36,12 @@ const schema = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   fileSystem: {type: [fileStatsSchema], required: true, default: []},
 });
 
-schema.static(
+SCHEMA.static(
   'stateIdExists',
   async (stateId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await StateModel.findById(stateId, ['_id']);
+      const result = await STATE_MODEL.findById(stateId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -56,12 +56,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateProjects',
   async (
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const projectIds: mongooseTypes.ObjectId[] = [];
     projects.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
@@ -84,17 +83,17 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'createState',
   async (
     input: Omit<databaseTypes.IState, '_id'>
   ): Promise<databaseTypes.IState> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const projects = await StateModel.validateProjects(input.projects);
+      const projects = await STATE_MODEL.validateProjects(input.projects);
       const createDate = new Date();
 
-      let resolvedInput: IStateDocument = {
+      const resolvedInput: IStateDocument = {
         createdAt: createDate,
         updatedAt: createDate,
         version: input.version,
@@ -104,7 +103,7 @@ schema.static(
         fileSystem: input.fileSystem,
       };
       try {
-        await StateModel.validate(resolvedInput);
+        await STATE_MODEL.validate(resolvedInput);
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
@@ -114,7 +113,7 @@ schema.static(
         );
       }
       const stateDocument = (
-        await StateModel.create([resolvedInput], {validateBeforeSave: false})
+        await STATE_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
       id = stateDocument._id;
     } catch (err) {
@@ -130,7 +129,7 @@ schema.static(
       }
     }
     //istanbul ignore else
-    if (id) return await StateModel.getStateById(id);
+    if (id) return await STATE_MODEL.getStateById(id);
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the state may not have been created.  I have no other information to provide.'
@@ -138,7 +137,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateUpdateObject',
   async (state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<void> => {
     if (state.projects?.length) {
@@ -165,14 +164,14 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateStateWithFilter',
   async (
     filter: Record<string, unknown>,
     state: Omit<Partial<databaseTypes.IState>, '_id'>
   ): Promise<void> => {
     try {
-      await StateModel.validateUpdateObject(state);
+      await STATE_MODEL.validateUpdateObject(state);
       const updateDate = new Date();
       const transformedObject: Partial<IStateDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
@@ -185,7 +184,7 @@ schema.static(
       }
       transformedObject.updatedAt = updateDate;
 
-      const updateResult = await StateModel.updateOne(
+      const updateResult = await STATE_MODEL.updateOne(
         filter,
         transformedObject
       );
@@ -214,22 +213,22 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateStateById',
   async (
     stateId: mongooseTypes.ObjectId,
     state: Omit<Partial<databaseTypes.IState>, '_id'>
   ): Promise<databaseTypes.IState> => {
-    await StateModel.updateStateWithFilter({_id: stateId}, state);
-    return await StateModel.getStateById(stateId);
+    await STATE_MODEL.updateStateWithFilter({_id: stateId}, state);
+    return await STATE_MODEL.getStateById(stateId);
   }
 );
 
-schema.static(
+SCHEMA.static(
   'deleteStateById',
   async (stateId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await StateModel.deleteOne({_id: stateId});
+      const results = await STATE_MODEL.deleteOne({_id: stateId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `A state with a _id: ${stateId} was not found in the database`,
@@ -240,7 +239,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the state from the database. The state may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the state from the database. The state may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete state',
           {_id: stateId},
@@ -250,9 +249,9 @@ schema.static(
   }
 );
 
-schema.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
   try {
-    const stateDocument = (await StateModel.findById(stateId)
+    const stateDocument = (await STATE_MODEL.findById(stateId)
       .populate('projects')
       .lean()) as databaseTypes.IState;
     if (!stateDocument) {
@@ -280,7 +279,7 @@ schema.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
   }
 });
 
-schema.static(
+SCHEMA.static(
   'addProjects',
   async (
     stateId: mongooseTypes.ObjectId,
@@ -293,7 +292,7 @@ schema.static(
           'projects',
           projects
         );
-      const stateDocument = await StateModel.findById(stateId);
+      const stateDocument = await STATE_MODEL.findById(stateId);
       if (!stateDocument)
         throw new error.DataNotFoundError(
           `A State Document with _id : ${stateId} cannot be found`,
@@ -301,7 +300,7 @@ schema.static(
           stateId
         );
 
-      const reconciledIds = await StateModel.validateProjects(projects);
+      const reconciledIds = await STATE_MODEL.validateProjects(projects);
       let dirty = false;
       reconciledIds.forEach(s => {
         if (
@@ -316,7 +315,7 @@ schema.static(
 
       if (dirty) await stateDocument.save();
 
-      return await StateModel.getStateById(stateId);
+      return await STATE_MODEL.getStateById(stateId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -336,7 +335,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'removeProjects',
   async (
     stateId: mongooseTypes.ObjectId,
@@ -349,7 +348,7 @@ schema.static(
           'projects',
           projects
         );
-      const stateDocument = await StateModel.findById(stateId);
+      const stateDocument = await STATE_MODEL.findById(stateId);
       if (!stateDocument)
         throw new error.DataNotFoundError(
           `An State Document with _id : ${stateId} cannot be found`,
@@ -357,7 +356,7 @@ schema.static(
           stateId
         );
       const reconciledIds = projects.map(i =>
-        //istanbul ignore next 
+        //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
@@ -385,7 +384,7 @@ schema.static(
         await stateDocument.save();
       }
 
-      return await StateModel.getStateById(stateId);
+      return await STATE_MODEL.getStateById(stateId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -404,6 +403,6 @@ schema.static(
     }
   }
 );
-const StateModel = model<IStateDocument, IStateStaticMethods>('state', schema);
+const STATE_MODEL = model<IStateDocument, IStateStaticMethods>('state', SCHEMA);
 
-export {StateModel};
+export {STATE_MODEL as StateModel};

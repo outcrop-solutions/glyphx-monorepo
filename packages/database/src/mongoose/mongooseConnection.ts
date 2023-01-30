@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import {error, secretBinders} from '@glyphx/core';
 
 @secretBinders.bindSecrets('dev/mongodb')
-export class mongoDbConnection {
+export class MongoDbConnection {
   @secretBinders.boundProperty()
   endpoint: string;
   @secretBinders.boundProperty()

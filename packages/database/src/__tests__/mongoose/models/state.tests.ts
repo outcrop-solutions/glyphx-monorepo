@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {ProjectModel} from '../../../mongoose/models/project';
 
-const mockState: databaseTypes.IState = {
+const MOCK_STATE: databaseTypes.IState = {
   createdAt: new Date(),
   updatedAt: new Date(),
   version: 0,
@@ -90,7 +90,7 @@ describe('#mongoose/models/state', () => {
 
       sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
 
-      const result = await StateModel.createState(mockState);
+      const result = await StateModel.createState(MOCK_STATE);
       assert.strictEqual(result._id, stateId);
       assert.isTrue(getStateByIdStub.calledOnce);
     });
@@ -125,7 +125,7 @@ describe('#mongoose/models/state', () => {
       let errorred = false;
 
       try {
-        await StateModel.createState(mockState);
+        await StateModel.createState(MOCK_STATE);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -150,7 +150,7 @@ describe('#mongoose/models/state', () => {
       let errorred = false;
 
       try {
-        await StateModel.createState(mockState);
+        await StateModel.createState(MOCK_STATE);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -548,14 +548,14 @@ describe('#mongoose/models/state', () => {
   });
 
   context('getStateById', () => {
-    class mockMongooseQuery {
+    class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;
-      constructor(input: any, throwError: boolean = false) {
+      constructor(input: any, throwError = false) {
         this.mockData = input;
         this.throwError = throwError;
       }
-      populate(input: string) {
+      populate() {
         return this;
       }
 
@@ -591,7 +591,7 @@ describe('#mongoose/models/state', () => {
 
     it('will retreive a state document with the projects populated', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(mockState));
+      findByIdStub.returns(new MockMongooseQuery(mockState));
       sandbox.replace(StateModel, 'findById', findByIdStub);
 
       const doc = await StateModel.getStateById(
@@ -607,7 +607,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw a DataNotFoundError when the state does not exist', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new mockMongooseQuery(null));
+      findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(StateModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -624,7 +624,7 @@ describe('#mongoose/models/state', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(
-        new mockMongooseQuery('something bad happened', true)
+        new MockMongooseQuery('something bad happened', true)
       );
       sandbox.replace(StateModel, 'findById', findByIdStub);
 
@@ -649,7 +649,7 @@ describe('#mongoose/models/state', () => {
 
     it('will add a project to an state', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -685,7 +685,7 @@ describe('#mongoose/models/state', () => {
 
     it('will not save when a project is already attached to a state', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockState.projects.push(projectId);
@@ -721,7 +721,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw a data not found error when the state does not exist', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -754,7 +754,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw a data validation error when project id does not exist', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -793,7 +793,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -826,7 +826,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
 
@@ -867,7 +867,7 @@ describe('#mongoose/models/state', () => {
 
     it('will remove a project from the state', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockState.projects.push(projectId);
@@ -898,7 +898,7 @@ describe('#mongoose/models/state', () => {
 
     it('will not modify the projects if the projectid are not on the state projects', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockState.projects.push(projectId);
@@ -929,7 +929,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw a data not found error when the state does not exist', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockState.projects.push(projectId);
@@ -959,7 +959,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockState.projects.push(projectId);
@@ -989,7 +989,7 @@ describe('#mongoose/models/state', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(mockState));
+      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
       localMockState._id = stateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockState.projects.push(projectId);
