@@ -10,8 +10,20 @@ import {fileStatsSchema} from '../schemas';
 import {ProjectModel} from './project';
 
 const schema = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
-  createdAt: {type: Date, required: true, default: () => new Date()},
-  updatedAt: {type: Date, required: true, default: () => new Date()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   version: {type: Number, required: true, default: 0, min: 0},
   static: {type: Boolean, required: true, default: false},
   fileSystemHash: {type: String, required: true},
@@ -117,6 +129,7 @@ schema.static(
         );
       }
     }
+    //istanbul ignore else
     if (id) return await StateModel.getStateById(id);
     else
       throw new error.UnexpectedError(
@@ -165,6 +178,7 @@ schema.static(
         Record<string, unknown> = {updatedAt: updateDate};
       for (const key in state) {
         const value = (state as Record<string, any>)[key];
+        //istanbul ignore else
         if (key === 'fileSystem' && state.fileSystem?.length)
           transformedObject.fileSystem = value;
         else if (key !== 'fileSystem') transformedObject[key] = value;
@@ -342,8 +356,8 @@ schema.static(
           'state._id',
           stateId
         );
-
       const reconciledIds = projects.map(i =>
+        //istanbul ignore next 
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)

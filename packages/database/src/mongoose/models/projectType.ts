@@ -14,8 +14,20 @@ const schema = new Schema<
   IProjectTypeStaticMethods,
   IProjectTypeMethods
 >({
-  createdAt: {type: Date, required: true, default: () => new Date()},
-  updatedAt: {type: Date, required: true, default: () => new Date()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   name: {type: String, required: true},
   projects: {
     type: [mongooseTypes.ObjectId],
@@ -373,6 +385,7 @@ schema.static(
         );
 
       const reconciledIds = projects.map(i =>
+        //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)

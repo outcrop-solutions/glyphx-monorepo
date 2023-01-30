@@ -1,6 +1,9 @@
 import {assert} from 'chai';
 import {StateModel} from '../../..//mongoose/models/state';
-import {database as databaseTypes} from '@glyphx/types';
+import {
+  database as databaseTypes,
+  fileIngestion as fileIngestionTypes,
+} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -166,6 +169,9 @@ describe('#mongoose/models/state', () => {
     it('Should update a State', async () => {
       const updateState = {
         version: 2,
+        fileSystem: [
+          {file: 'system'} as unknown as fileIngestionTypes.IFileStats,
+        ],
       };
 
       const stateId = new mongoose.Types.ObjectId();

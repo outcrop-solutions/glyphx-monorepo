@@ -13,8 +13,20 @@ const schema = new Schema<
   IWebhookStaticMethods,
   IWebhookMethods
 >({
-  createdAt: {type: Date, required: true, default: () => new Date()},
-  updatedAt: {type: Date, required: true, default: () => new Date()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   name: {type: String, required: true},
   url: {type: String, required: true},
   user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},

@@ -1412,6 +1412,43 @@ describe('#mongoose/models/organization', () => {
       assert.isTrue(getOrganizationByIdStub.calledOnce);
     });
 
+    it('will remove a project from the organization passing in an IProject', async () => {
+      const organizationId = new mongoose.Types.ObjectId();
+      const localMockOrganization = JSON.parse(
+        JSON.stringify(mockOrganization)
+      );
+      localMockOrganization._id = organizationId;
+      const projectId = new mongoose.Types.ObjectId();
+      localMockOrganization.projects.push(projectId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockOrganization);
+      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockOrganization);
+      localMockOrganization.save = saveStub;
+
+      const getOrganizationByIdStub = sandbox.stub();
+      getOrganizationByIdStub.resolves(localMockOrganization);
+      sandbox.replace(
+        OrganizationModel,
+        'getOrganizationById',
+        getOrganizationByIdStub
+      );
+
+      const updatedOrganization = await OrganizationModel.removeProjects(
+        organizationId,
+        [{_id: projectId} as unknown as databaseTypes.IProject]
+      );
+
+      assert.strictEqual(updatedOrganization._id, organizationId);
+      assert.strictEqual(updatedOrganization.projects.length, 0);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getOrganizationByIdStub.calledOnce);
+    });
     it('will not modify the projects if the projectid are not on the organizations projects', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(
@@ -1878,6 +1915,43 @@ describe('#mongoose/models/organization', () => {
       assert.isTrue(getOrganizationByIdStub.calledOnce);
     });
 
+    it('will remove a member from the organization passing in an IUser', async () => {
+      const organizationId = new mongoose.Types.ObjectId();
+      const localMockOrganization = JSON.parse(
+        JSON.stringify(mockOrganization)
+      );
+      localMockOrganization._id = organizationId;
+      const userId = new mongoose.Types.ObjectId();
+      localMockOrganization.members.push(userId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockOrganization);
+      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockOrganization);
+      localMockOrganization.save = saveStub;
+
+      const getOrganizationByIdStub = sandbox.stub();
+      getOrganizationByIdStub.resolves(localMockOrganization);
+      sandbox.replace(
+        OrganizationModel,
+        'getOrganizationById',
+        getOrganizationByIdStub
+      );
+
+      const updatedOrganization = await OrganizationModel.removeMembers(
+        organizationId,
+        [{_id: userId} as unknown as databaseTypes.IUser]
+      );
+
+      assert.strictEqual(updatedOrganization._id, organizationId);
+      assert.strictEqual(updatedOrganization.members.length, 0);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getOrganizationByIdStub.calledOnce);
+    });
     it('will not modify the membersif the userIds are not on the organizations members', async () => {
       const orgId = new mongoose.Types.ObjectId();
       const localMockOrganization = JSON.parse(

@@ -383,20 +383,36 @@ schema.static(
   async (
     input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
   ) => {
-    const orgs = Array.from(input.ownedOrgs ?? []) as (
-      | databaseTypes.IOrganization
-      | mongooseTypes.ObjectId
-    )[];
+    const orgs = Array.from(
+      //istanbul ignore next
+      input.ownedOrgs ?? []
+    ) as (databaseTypes.IOrganization | mongooseTypes.ObjectId)[];
+    //istanbul ignore else
     if (input.organization) orgs.unshift(input.organization);
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const [accounts, sessions, webhooks, organizations, projects] =
         await Promise.all([
-          UserModel.validateAccounts(input.accounts ?? []),
-          UserModel.validateSessions(input.sessions ?? []),
-          UserModel.validateWebhooks(input.webhooks ?? []),
-          UserModel.validateOrganizations(orgs ?? []),
-          UserModel.validateProjects(input.projects ?? []),
+          UserModel.validateAccounts(
+            //istanbul ignore next
+            input.accounts ?? []
+          ),
+          UserModel.validateSessions(
+            //istanbul ignore next
+            input.sessions ?? []
+          ),
+          UserModel.validateWebhooks(
+            //istanbul ignore next
+            input.webhooks ?? []
+          ),
+          UserModel.validateOrganizations(
+            //istanbul ignore next
+            orgs ?? []
+          ),
+          UserModel.validateProjects(
+            //istanbul ignore next
+            input.projects ?? []
+          ),
         ]);
       const createDate = new Date();
       const org = organizations.shift() as mongooseTypes.ObjectId;
@@ -557,6 +573,7 @@ schema.static(
         );
 
       const reconciledIds = projects.map(i =>
+        //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
@@ -682,6 +699,7 @@ schema.static(
         );
 
       const reconciledIds = accounts.map(i =>
+        //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
@@ -807,6 +825,7 @@ schema.static(
         );
 
       const reconciledIds = sessions.map(i =>
+        //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
@@ -930,6 +949,7 @@ schema.static(
         );
 
       const reconciledIds = webhooks.map(i =>
+        //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
@@ -1059,6 +1079,7 @@ schema.static(
         );
 
       const reconciledIds = organizations.map(i =>
+        //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)

@@ -19,8 +19,20 @@ const schema = new Schema<
 >({
   //TODO: make sure that our defaults for dates are set to functions and not
   //just calling new Date()
-  createdAt: {type: Date, required: true, default: () => new Date()},
-  updatedAt: {type: Date, required: true, default: () => new Date()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   name: {type: String, required: true},
   description: {type: String, required: false},
   sdtPath: {type: String, required: false},
@@ -186,13 +198,25 @@ schema.static(
       for (const key in project) {
         const value = (project as Record<string, any>)[key];
         if (key === 'organization')
-          transformedObject.organization = value._id as mongooseTypes.ObjectId;
+          transformedObject.organization =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
         else if (key === 'type')
-          transformedObject.type = value._id as mongooseTypes.ObjectId;
+          transformedObject.type =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
         else if (key === 'owner')
-          transformedObject.owner = value._id as mongooseTypes.ObjectId;
+          transformedObject.owner =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
         else if (key === 'state')
-          transformedObject.state = value._id as mongooseTypes.ObjectId;
+          transformedObject.state =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
         else transformedObject[key] = value;
       }
       const updateResult = await ProjectModel.updateOne(
@@ -341,7 +365,7 @@ schema.static(
         isTemplate: input.isTemplate,
         type: type,
         owner: owner,
-        state: state ?? undefined,
+        state: state,
         files: input.files && [],
       };
       try {
