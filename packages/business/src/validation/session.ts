@@ -1,5 +1,5 @@
-import initMiddleware from '@/lib/server/init-middleware';
-import validate from '@/lib/server/session-check';
+import initMiddleware from 'lib/server/initMiddleware';
+import validate from 'lib/server/sessionCheck';
 
 const validateSession = initMiddleware(validate());
 

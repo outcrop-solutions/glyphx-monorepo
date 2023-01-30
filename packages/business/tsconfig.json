@@ -1,18 +1,16 @@
 {
   "extends": "@glyphx/tsconfig/node18.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "baseUrl": "./src",
-    "paths": {
-      "@interfaces": ["interfaces/index.ts"],
-      "@interfaces/fileProcessing": ["interfaces/fileProcessing/index.ts"],
-      "@interfaces/fieldProcessing": ["interfaces/fieldProcessing/index.ts"],
-      "@interfaces/aws": ["interfaces/aws/index.ts"],
-      "@util": ["util/index.ts"],
-      "@util/constants": ["util/constants/index.ts"],
-      "@fileProcessing": ["fileProcessing/index.ts"],
-      "@fieldProcessing": ["fieldProcessing/index.ts"]
-    }
+    "baseUrl": "./src"
   },
-  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
-  "exclude": ["src/__tests__/**"]
+  "paths": {
+    "@/constants/*": ["constants/*"],
+    "@/email/*": ["email/*"],
+    "@/hooks/*": ["hooks/*"],
+    "@/lib/*": ["lib/*"],
+    "@/services/*": ["services/*"],
+    "@/validation/*": ["validation/*"]
+  }
 }

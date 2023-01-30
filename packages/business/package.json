@@ -5,7 +5,14 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "scripts": {},
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "clean": "rimraf .turbo node_modules dist"
+  },
   "author": "James M. Graham",
   "license": "ISC",
   "devDependencies": {
