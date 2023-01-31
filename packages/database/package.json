@@ -23,8 +23,6 @@
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
     "lint": "gts lint",
     "fix": "gts fix",
-    "prebuild": "npm run generate",
-    "predev": "npm run generate",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma"
   },
   "dependencies": {

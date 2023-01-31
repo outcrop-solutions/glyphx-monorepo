@@ -55,7 +55,10 @@ export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | 
  * @param {S3ProviderListOutput}
  * @returns {[]}
  */
-export const createFileSystemOnDownload = (s3Directory: S3ProviderListOutput, projectId: string): IFileSystemItem[] | any[] => {
+export const createFileSystemOnDownload = (
+  s3Directory: S3ProviderListOutput,
+  projectId: string
+): IFileSystemItem[] | any[] => {
   const files = {};
 
   const add = (source, target, item) => {
@@ -68,14 +71,14 @@ export const createFileSystemOnDownload = (s3Directory: S3ProviderListOutput, pr
       add(elements.join('/'), target[element], item);
     }
   };
-  
+
   if (Array.isArray(s3Directory)) {
     s3Directory.forEach((item) => add(item.key, files, item));
   }
-  if(Object.keys(files).length !== 0){ // if empty then return empty array
+  // if(Object.keys(files).length !== 0){ // if empty then return empty array
   const fileList = Object.keys(files[`${projectId}`].input);
-  
-  return createFileSystem(fileList, null)
+  // }
+  return createFileSystem(fileList, null);
 };
 
 /**
@@ -122,7 +125,6 @@ export const determineColumnTypes = (fileArrayBuffer: ArrayBuffer): IColumn[] =>
 
 export const determineTableName = (fileName: string) => {};
 
-
 /**
  * Calculates file statistics from ArrayBuffer
  * @param ReadableStream
@@ -165,8 +167,6 @@ export const storeProgress = () => {};
 export const createPayload = (): Payload => {
   return;
 };
-
-
 
 export const hexToRGB = (h) => {
   let r = '';

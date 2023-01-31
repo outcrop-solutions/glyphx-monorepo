@@ -1,20 +1,15 @@
-import React, { useCallback, useState,useEffect } from "react";
-import { useDropzone } from "react-dropzone";
-import { Storage } from "aws-amplify";
-import { parse } from "papaparse";
-import { toast } from "react-toastify";
-import { useRouter } from "next/router";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import {
-  dataGridAtom,
-  filesOpenAtom,
-  fileSystemAtom,
-  selectedFileAtom,
-} from "@/state/files";
-import { selectedProjectSelector } from "@/state/project";
-import { dataGridLoadingAtom,GridModalErrorAtom, progressDetailAtom } from "@/state/globals";
-import { postUploadCall } from "@/services/ETLCalls";
-import { updateProjectInfo } from "@/services/GraphQLCalls";
+import React, { useCallback, useState, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { Storage } from 'aws-amplify';
+import { parse } from 'papaparse';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/router';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { dataGridAtom, filesOpenAtom, fileSystemAtom, selectedFileAtom } from '@/state/files';
+import { selectedProjectSelector } from '@/state/project';
+import { dataGridLoadingAtom, GridModalErrorAtom, progressDetailAtom } from '@/state/globals';
+import { postUploadCall } from '@/services/ETLCalls';
+import { updateProjectInfo } from '@/services/GraphQLCalls';
 
 export const formatGridData = (data) => {
   const colNames = Object.keys(data[0]);
@@ -23,9 +18,9 @@ export const formatGridData = (data) => {
     const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {
       key: item,
-      dataType: !isNaN(parseInt(data[0][item])) ? "number" : "string",
+      dataType: isNaN(Number(data[0][item])) ? 'string' : 'number',
       name: capitalized,
-      width:120,
+      width: 120,
       resizable: true,
       sortable: true,
     };
@@ -33,7 +28,7 @@ export const formatGridData = (data) => {
 
   // Generates first column
   // @ts-ignore
-  cols.unshift({ key: "id", name: "", width: 40, resizable:true }); 
+  cols.unshift({ key: 'id', name: '', width: 40, resizable: true });
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
   const newGrid = { columns: cols, rows };
 
@@ -46,7 +41,6 @@ export const formatGridData = (data) => {
 export const Dropzone = ({ toastRef }) => {
   const { query } = useRouter();
   const { projectId } = query;
-
 
   const setDataGrid = useSetRecoilState(dataGridAtom);
   const setFilesOpen = useSetRecoilState(filesOpenAtom);
@@ -62,14 +56,14 @@ export const Dropzone = ({ toastRef }) => {
   const setProgress = useSetRecoilState(progressDetailAtom);
 
   const handleUpload = useCallback(async (progress) => {
-    setStatus("uploading");
+    setStatus('uploading');
     if (progress.loaded / progress.total === 1) {
-      let response = await fetch("https://api.glyphx.co/etl-process-new-file", {
-        method: "POST",
-        mode: "no-cors",
+      let response = await fetch('https://api.glyphx.co/etl-process-new-file', {
+        method: 'POST',
+        mode: 'no-cors',
         body: JSON.stringify({
           model_id: projectId,
-          bucket_name: "sampleproject04827-staging",
+          bucket_name: 'sampleproject04827-staging',
         }),
       });
       console.log({ response });
@@ -81,13 +75,13 @@ export const Dropzone = ({ toastRef }) => {
     // setStatus('checking Crawler')
     // Take response and either setAvailable(true/false)
   }, []);
-  
+
   const onDrop = useCallback(
     (acceptedFiles) => {
       setDataGridState(true);
       //update file system state with processed data
       let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
-         // @ts-ignore
+        // @ts-ignore
         id: idx + fileSystem.length + 1,
         parent: 0,
         droppable: false,
@@ -97,8 +91,8 @@ export const Dropzone = ({ toastRef }) => {
           fileSize: size,
         },
       }));
-      console.log({fileSystem},{newData});
-      setFileSystem([...fileSystem,newData[0]]);
+      console.log({ fileSystem }, { newData });
+      setFileSystem([...fileSystem, newData[0]]);
 
       acceptedFiles.forEach(async (file) => {
         const text = await file.text();
@@ -113,72 +107,68 @@ export const Dropzone = ({ toastRef }) => {
       acceptedFiles.forEach((file, idx) => {
         const reader = new FileReader();
 
-        reader.onabort = () => console.log("file reading was aborted");
-        reader.onerror = () => console.log("file reading has failed");
+        reader.onabort = () => console.log('file reading was aborted');
+        reader.onerror = () => console.log('file reading has failed');
         reader.onload = () => {
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
-          console.log("inside reader.onLOAD")
+          console.log('inside reader.onLOAD');
           Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
             async progressCallback(progress) {
-              setProgress(
-                {
-                  progress:progress.loaded,
-                  total:progress.total
-                }
-                );
-                console.log("Inside storage.put")
+              setProgress({
+                progress: progress.loaded,
+                total: progress.total,
+              });
+              console.log('Inside storage.put');
               if (progress.loaded / progress.total === 1) {
-                console.log("upload complete");
-                console.log("about to do api call");
+                console.log('upload complete');
+                console.log('about to do api call');
                 //api call here
                 try {
                   const result = await postUploadCall(selectedProject.id);
-                  console.log({result});
-                  if(result.Error){ // if there is an error
+                  console.log({ result });
+                  if (result.Error) {
+                    // if there is an error
                     setGridErrorModal({
-                      show:true,
-                      title:"Fatal Error",
-                      message:"Error Occured When Processing Your Spreadsheet",
-                      devError: result.message
-                    })
+                      show: true,
+                      title: 'Fatal Error',
+                      message: 'Error Occured When Processing Your Spreadsheet',
+                      devError: result.message,
+                    });
+                  } else {
+                    // TODO: SAVE FILE NAME TO PROJECT
+                    console.log({ project });
+                    let fileArr = [file.name];
+                    if (project?.files !== null) {
+                      fileArr = [...fileArr, ...project.files];
+                    }
+                    const updatedProject = {
+                      id: project?.id,
+                      filePath: project?.filePath,
+                      expiry: new Date().toISOString(),
+                      properties: project?.properties,
+                      url: project?.url,
+                      shared: project.shared,
+                      description: project.description,
+                      files: fileArr, //adding file to dynamo db
+                    };
+                    console.log({ updatedProject });
+                    let GraphQLresult = await updateProjectInfo(updatedProject);
+                    console.log('GraphQL file update:', { GraphQLresult });
                   }
-                  else{
-                   // TODO: SAVE FILE NAME TO PROJECT
-                   console.log({ project });
-                   let fileArr = [file.name]
-                   if (project?.files !== null) {
-                     fileArr = [...fileArr, ...project.files]
-                   }
-                   const updatedProject = {
-                     id: project?.id,
-                     filePath: project?.filePath,
-                     expiry: new Date().toISOString(),
-                     properties: project?.properties,
-                     url: project?.url,
-                     shared: project.shared,
-                     description: project.description,
-                     files: fileArr, //adding file to dynamo db
-                   }
-                   console.log({ updatedProject });
-                   let GraphQLresult = await updateProjectInfo(updatedProject);
-                   console.log("GraphQL file update:", { GraphQLresult });
-                    
-                  }
-                  
                 } catch (error) {
                   setGridErrorModal({
-                    show:true,
-                    title:"Fatal Error",
-                    message:"Failed to Call ETL Post File Upload",
-                    devError: error.message
-                  })
+                    show: true,
+                    title: 'Fatal Error',
+                    message: 'Failed to Call ETL Post File Upload',
+                    devError: error.message,
+                  });
                   console.log({ error });
                   setDataGridState(false);
                 }
                 setDataGridState(false);
               } else {
-                console.log("upload incomplete");
+                console.log('upload incomplete');
               }
               console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
             },
@@ -196,33 +186,27 @@ export const Dropzone = ({ toastRef }) => {
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: [".csv"],
+    accept: ['.csv'],
     multiple: false,
   });
 
   useEffect(() => {
     // console.log({fileSystem});
-  }, [fileSystem])
+  }, [fileSystem]);
 
   // FIXME: DROPZONE NOT WORKING. FAILS WHEN FETCHING
 
   return (
     <div
-      className={`px-4 py-2 mr-3 ${
-        isDragActive ? "border border-white py-0 px-0 h-48" : ""
-      } rounded-lg`}
+      className={`px-4 py-2 mr-3 ${isDragActive ? 'border border-white py-0 px-0 h-48' : ''} rounded-lg`}
       {...getRootProps()}
     >
       <input {...getInputProps()} />
       {isDragActive ? (
-        <div className="text-white cursor-pointer">
-          Drop the files here ...
-        </div>
+        <div className="text-white cursor-pointer">Drop the files here ...</div>
       ) : (
         <div className="text-xs cursor-pointer">
-          <span className="text-white ">
-            Add files here...
-          </span>
+          <span className="text-white ">Add files here...</span>
         </div>
       )}
     </div>
