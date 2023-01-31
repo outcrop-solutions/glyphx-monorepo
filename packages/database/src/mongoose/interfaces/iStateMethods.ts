@@ -1,3 +1,2 @@
-import {database as databaseTypes} from '@glyphx/types';
-
+/*eslint-disable  @typescript-eslint/no-empty-interface*/
 export interface IStateMethods {}

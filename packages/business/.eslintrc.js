@@ -1,4 +1,16 @@
+//eslint-disable-next-line
 module.exports = {
-  root: true,
-  extends: ['custom'],
+  parserOptions: {
+    project: './tsconfig.eslint.json',
+    tsconfigRootDir: __dirname,
+  },
+  extends: ['@glyphx/eslint-config-glyphx-backend'],
+  rules: {
+    'node/no-unpublished-import': [
+      'error',
+      {
+        allowModules: ['chai', 'sinon'],
+      },
+    ],
+  },
 };

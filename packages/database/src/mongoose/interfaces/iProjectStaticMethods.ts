@@ -1,4 +1,4 @@
-import mongoose, {Types as mongooseTypes, Model} from 'mongoose';
+import {Types as mongooseTypes, Model} from 'mongoose';
 import {database as databaseTypes} from '@glyphx/types';
 import {IProjectMethods} from './iProjectMethods';
 export interface IProjectStaticMethods
@@ -35,5 +35,5 @@ export interface IProjectStaticMethods
   ): Promise<mongooseTypes.ObjectId>;
   validateState(
     input: databaseTypes.IState | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId | null>;
+  ): Promise<mongooseTypes.ObjectId>;
 }

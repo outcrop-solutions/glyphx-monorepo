@@ -8,7 +8,7 @@ import {
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
 
-const schema = new Schema<
+const SCHEMA = new Schema<
   ISessionDocument,
   ISessionStaticMethods,
   ISessionMethods
@@ -18,12 +18,12 @@ const schema = new Schema<
   user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });
 
-schema.static(
+SCHEMA.static(
   'sessionIdExists',
   async (sessionId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await SessionModel.findById(sessionId, ['_id']);
+      const result = await SESSION_MODEL.findById(sessionId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -38,13 +38,12 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'allSessionIdsExist',
   async (sessionIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    const retval = true;
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await SessionModel.find({_id: {$in: sessionIds}}, [
+      const foundIds = (await SESSION_MODEL.find({_id: {$in: sessionIds}}, [
         '_id',
       ])) as {_id: mongooseTypes.ObjectId}[];
 
@@ -76,12 +75,37 @@ schema.static(
   }
 );
 
-schema.static(
-  'getSessionById',
-  async (sessionId: mongooseTypes.ObjectId) => {}
-);
+SCHEMA.static('getSessionById', async (sessionId: mongooseTypes.ObjectId) => {
+  try {
+    const sessionDocument = (await SESSION_MODEL.findById(sessionId)
+      .populate('user')
+      .lean()) as databaseTypes.ISession;
+    if (!sessionDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a session with the _id: ${sessionId}`,
+        'session_id',
+        sessionId
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (sessionDocument as any)['__v'];
+    delete (sessionDocument as any).user['__v'];
 
-schema.static(
+    return sessionDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the session.  See the inner error for additional information',
+        'mongoDb',
+        'getSessionById',
+        err
+      );
+  }
+});
+
+SCHEMA.static(
   'createSession',
   async (
     input: Omit<databaseTypes.ISession, '_id'>
@@ -103,7 +127,7 @@ schema.static(
     };
 
     try {
-      await SessionModel.validate(transformedDocument);
+      await SESSION_MODEL.validate(transformedDocument);
     } catch (err) {
       throw new error.DataValidationError(
         'An error occurred while validating the session document.  See the inner error for additional details.',
@@ -115,12 +139,11 @@ schema.static(
 
     try {
       const createdDocument = (
-        await SessionModel.create([
-          transformedDocument,
-          {validateBeforeSave: false},
-        ])
+        await SESSION_MODEL.create([transformedDocument], {
+          validateBeforeSave: false,
+        })
       )[0];
-      return await SessionModel.getSessionById(createdDocument._id);
+      return await SESSION_MODEL.getSessionById(createdDocument._id);
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the session. See the inner error for additional information',
@@ -133,7 +156,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateUpdateObject',
   async (
     session: Omit<Partial<databaseTypes.ISession>, '_id'>
@@ -154,13 +177,13 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateSessionWithFilter',
   async (
     filter: Record<string, unknown>,
     session: Omit<Partial<databaseTypes.ISession>, '_id'>
   ): Promise<boolean> => {
-    await SessionModel.validateUpdateObject(session);
+    await SESSION_MODEL.validateUpdateObject(session);
     try {
       const transformedSession: Partial<ISessionDocument> &
         Record<string, any> = {};
@@ -172,7 +195,7 @@ schema.static(
           transformedSession[key] = value._id;
         }
       }
-      const updateResult = await SessionModel.updateOne(
+      const updateResult = await SESSION_MODEL.updateOne(
         filter,
         transformedSession
       );
@@ -202,23 +225,23 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateSessionById',
   async (
     sessionId: mongooseTypes.ObjectId,
     session: Omit<Partial<databaseTypes.ISession>, '_id'>
   ): Promise<databaseTypes.ISession> => {
-    await SessionModel.updateSessionWithFilter({_id: sessionId}, session);
-    const retval = await SessionModel.getSessionById(sessionId);
+    await SESSION_MODEL.updateSessionWithFilter({_id: sessionId}, session);
+    const retval = await SESSION_MODEL.getSessionById(sessionId);
     return retval;
   }
 );
 
-schema.static(
+SCHEMA.static(
   'deleteSessionById',
   async (sessionId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await SessionModel.deleteOne({_id: sessionId});
+      const results = await SESSION_MODEL.deleteOne({_id: sessionId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `An session with a _id: ${sessionId} was not found in the database`,
@@ -229,7 +252,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the session from the database. The session may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the session from the database. The session may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete session',
           {_id: sessionId},
@@ -239,9 +262,9 @@ schema.static(
   }
 );
 
-const SessionModel = model<ISessionDocument, ISessionStaticMethods>(
+const SESSION_MODEL = model<ISessionDocument, ISessionStaticMethods>(
   'session',
-  schema
+  SCHEMA
 );
 
-export {SessionModel};
+export {SESSION_MODEL as SessionModel};

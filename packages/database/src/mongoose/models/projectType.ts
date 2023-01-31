@@ -9,15 +9,32 @@ import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
 import {projectTypeShapeValidator} from '../validators';
 
-const schema = new Schema<
+const SCHEMA = new Schema<
   IProjectTypeDocument,
   IProjectTypeStaticMethods,
   IProjectTypeMethods
 >({
-  createdAt: {type: Date, required: true, default: () => new Date()},
-  updatedAt: {type: Date, required: true, default: () => new Date()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   name: {type: String, required: true},
-  projects: {type: [mongooseTypes.ObjectId], required: true, default: []},
+  projects: {
+    type: [mongooseTypes.ObjectId],
+    required: true,
+    default: [],
+    ref: 'project',
+  },
   shape: {
     type: Schema.Types.Mixed,
     required: true,
@@ -25,12 +42,12 @@ const schema = new Schema<
   },
 });
 
-schema.static(
+SCHEMA.static(
   'projectTypeIdExists',
   async (projectTypeId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await ProjectTypeModel.findById(projectTypeId, ['_id']);
+      const result = await PROJECT_TYPE_MODEL.findById(projectTypeId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -45,17 +62,46 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'getProjectTypeById',
-  async (projectTypeId: mongooseTypes.ObjectId) => {}
+  async (projectTypeId: mongooseTypes.ObjectId) => {
+    try {
+      const projectTypeDocument = (await PROJECT_TYPE_MODEL.findById(
+        projectTypeId
+      )
+        .populate('projects')
+        .lean()) as databaseTypes.IProjectType;
+      if (!projectTypeDocument) {
+        throw new error.DataNotFoundError(
+          `Could not find a projectType with the _id: ${projectTypeId}`,
+          'projectType._id',
+          projectTypeId
+        );
+      }
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      delete (projectTypeDocument as any)['__v'];
+      projectTypeDocument.projects.forEach(p => delete (p as any)['__v']);
+
+      return projectTypeDocument;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the projectType.  See the inner error for additional information',
+          'mongoDb',
+          'getProjectTypeById',
+          err
+        );
+    }
+  }
 );
 
-schema.static(
+SCHEMA.static(
   'validateProjects',
   async (
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    let retval: mongooseTypes.ObjectId[] = [];
     const projectIds: mongooseTypes.ObjectId[] = [];
     projects.forEach(p => {
       if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
@@ -78,17 +124,19 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'createProjectType',
   async (
     input: Omit<databaseTypes.IProjectType, '_id'>
   ): Promise<databaseTypes.IProjectType> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const projects = await ProjectTypeModel.validateProjects(input.projects);
+      const projects = await PROJECT_TYPE_MODEL.validateProjects(
+        input.projects
+      );
       const createDate = new Date();
 
-      let resolvedInput: IProjectTypeDocument = {
+      const resolvedInput: IProjectTypeDocument = {
         createdAt: createDate,
         updatedAt: createDate,
         name: input.name,
@@ -96,7 +144,7 @@ schema.static(
         projects: projects,
       };
       try {
-        await ProjectTypeModel.validate(resolvedInput);
+        await PROJECT_TYPE_MODEL.validate(resolvedInput);
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
@@ -106,7 +154,7 @@ schema.static(
         );
       }
       const projectTypeDocument = (
-        await ProjectTypeModel.create([resolvedInput], {
+        await PROJECT_TYPE_MODEL.create([resolvedInput], {
           validateBeforeSave: false,
         })
       )[0];
@@ -123,7 +171,7 @@ schema.static(
         );
       }
     }
-    if (id) return await ProjectTypeModel.getProjectTypeById(id);
+    if (id) return await PROJECT_TYPE_MODEL.getProjectTypeById(id);
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the project type may not have been created.  I have no other information to provide.'
@@ -131,7 +179,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateUpdateObject',
   (projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>): void => {
     if (projectType.createdAt) {
@@ -173,20 +221,20 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateProjectTypeWithFilter',
   async (
     filter: Record<string, unknown>,
     projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>
   ): Promise<void> => {
     try {
-      ProjectTypeModel.validateUpdateObject(projectType);
+      PROJECT_TYPE_MODEL.validateUpdateObject(projectType);
       const updateDate = new Date();
       projectType.updatedAt = updateDate;
       //someone could sneak in an empty array and we do not want to accidently
       //overwrite projects that already exist.
       delete projectType.projects;
-      const updateResult = await ProjectTypeModel.updateOne(
+      const updateResult = await PROJECT_TYPE_MODEL.updateOne(
         filter,
         projectType
       );
@@ -216,25 +264,25 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateProjectTypeById',
   async (
     projectTypeId: mongooseTypes.ObjectId,
     projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>
   ): Promise<databaseTypes.IProjectType> => {
-    await ProjectTypeModel.updateProjectTypeWithFilter(
-      {_id: projectType},
+    await PROJECT_TYPE_MODEL.updateProjectTypeWithFilter(
+      {_id: projectTypeId},
       projectType
     );
-    return await ProjectTypeModel.getProjectTypeById(projectTypeId);
+    return await PROJECT_TYPE_MODEL.getProjectTypeById(projectTypeId);
   }
 );
 
-schema.static(
+SCHEMA.static(
   'deleteProjectTypeById',
   async (projectTypeId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await ProjectTypeModel.deleteOne({_id: projectTypeId});
+      const results = await PROJECT_TYPE_MODEL.deleteOne({_id: projectTypeId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `A project type with an _id: ${projectTypeId} was not found in the database`,
@@ -245,7 +293,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the projectType from the database. The projectType may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the projectType from the database. The projectType may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete projectType',
           {_id: projectTypeId},
@@ -254,10 +302,141 @@ schema.static(
     }
   }
 );
+SCHEMA.static(
+  'addProjects',
+  async (
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const projectTypeDocument = await PROJECT_TYPE_MODEL.findById(
+        projectTypeId
+      );
+      if (!projectTypeDocument)
+        throw new error.DataNotFoundError(
+          `A ProjectType Document with _id : ${projectTypeId} cannot be found`,
+          'projectType._id',
+          projectTypeId
+        );
 
-const ProjectTypeModel = model<IProjectTypeDocument, IProjectTypeStaticMethods>(
-  'projecttype',
-  schema
+      const reconciledIds = await PROJECT_TYPE_MODEL.validateProjects(projects);
+      let dirty = false;
+      reconciledIds.forEach(p => {
+        if (
+          !projectTypeDocument.projects.find(
+            progId => progId.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          projectTypeDocument.projects.push(
+            p as unknown as databaseTypes.IProject
+          );
+        }
+      });
+
+      if (dirty) await projectTypeDocument.save();
+
+      return await PROJECT_TYPE_MODEL.getProjectTypeById(projectTypeId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the projects. See the innner error for additional information',
+          'mongoDb',
+          'projectType.addProjects',
+          err
+        );
+      }
+    }
+  }
 );
 
-export {ProjectTypeModel};
+SCHEMA.static(
+  'removeProjects',
+  async (
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          projects
+        );
+      const projectTypeDocument = await PROJECT_TYPE_MODEL.findById(
+        projectTypeId
+      );
+      if (!projectTypeDocument)
+        throw new error.DataNotFoundError(
+          `An ProjectType Document with _id : ${projectTypeId} cannot be found`,
+          'projectType ._id',
+          projectTypeId
+        );
+
+      const reconciledIds = projects.map(i =>
+        //istanbul ignore next
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedProjects = projectTypeDocument.projects.filter(p => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        projectTypeDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await projectTypeDocument.save();
+      }
+
+      return await PROJECT_TYPE_MODEL.getProjectTypeById(projectTypeId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the projects. See the innner error for additional information',
+          'mongoDb',
+          'projectTyperemoveProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+const PROJECT_TYPE_MODEL = model<
+  IProjectTypeDocument,
+  IProjectTypeStaticMethods
+>('projecttype', SCHEMA);
+
+export {PROJECT_TYPE_MODEL as ProjectTypeModel};

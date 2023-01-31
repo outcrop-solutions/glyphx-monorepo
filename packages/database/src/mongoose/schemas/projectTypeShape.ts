@@ -1,8 +1,8 @@
 import {Schema} from 'mongoose';
 
-const projectTypeShapeSchema = new Schema({
+const PROJECT_TYPE_SHAPE_SCHEMA = new Schema({
   type: {type: String, required: true},
   required: {type: Boolean, required: true},
 });
 
-export {projectTypeShapeSchema};
+export {PROJECT_TYPE_SHAPE_SCHEMA as projectTypeShapeSchema};

@@ -6,7 +6,7 @@ import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
-const mockWebhook: databaseTypes.IWebhook = {
+const MOCK_WEBHOOK: databaseTypes.IWebhook = {
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'test webhook',
@@ -83,7 +83,7 @@ describe('#mongoose/models/webhook', () => {
 
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookByIdStub);
 
-      const result = await WebhookModel.createWebhook(mockWebhook);
+      const result = await WebhookModel.createWebhook(MOCK_WEBHOOK);
       assert.strictEqual(result._id, webhookId);
       assert.isTrue(getWebhookByIdStub.calledOnce);
     });
@@ -109,7 +109,7 @@ describe('#mongoose/models/webhook', () => {
       let errorred = false;
 
       try {
-        await WebhookModel.createWebhook(mockWebhook);
+        await WebhookModel.createWebhook(MOCK_WEBHOOK);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -138,7 +138,7 @@ describe('#mongoose/models/webhook', () => {
       let errorred = false;
 
       try {
-        await WebhookModel.createWebhook(mockWebhook);
+        await WebhookModel.createWebhook(MOCK_WEBHOOK);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -159,7 +159,7 @@ describe('#mongoose/models/webhook', () => {
       let errorred = false;
 
       try {
-        await WebhookModel.createWebhook(mockWebhook);
+        await WebhookModel.createWebhook(MOCK_WEBHOOK);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -556,6 +556,99 @@ describe('#mongoose/models/webhook', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(findStub.calledOnce);
+    });
+  });
+
+  context('getWebhookById', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockWebHook: databaseTypes.IWebhook = {
+      _id: new mongoose.Types.ObjectId(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      name: 'testWebHook',
+      url: 'http://test.web.hook',
+      __v: 1,
+      user: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+    } as databaseTypes.IWebhook;
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive a webook document with the user populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(mockWebHook));
+      sandbox.replace(WebhookModel, 'findById', findByIdStub);
+
+      const doc = await WebhookModel.getWebhookById(
+        mockWebHook._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.user as any).__v);
+
+      assert.strictEqual(doc._id, mockWebHook._id);
+    });
+
+    it('will throw a DataNotFoundError when the webhook does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(null));
+      sandbox.replace(WebhookModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await WebhookModel.getWebhookById(
+          mockWebHook._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace(WebhookModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await WebhookModel.getWebhookById(
+          mockWebHook._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
     });
   });
 });

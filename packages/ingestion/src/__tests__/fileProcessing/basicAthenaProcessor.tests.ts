@@ -9,7 +9,7 @@ import {
   BasicJoinProcessor,
 } from '@fileProcessing';
 import {IJoinTableDefinition} from '@interfaces/fileProcessing';
-import {fileIngestion} from '../../../../glyphx-core/node_modules/@glyphx/types/dist';
+import {fileIngestion} from '@glyphx/types';
 
 const mockFileInformation = [
   {

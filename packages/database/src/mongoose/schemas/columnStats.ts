@@ -1,6 +1,6 @@
 import {Schema} from 'mongoose';
 import {fileIngestion as fileIngestionTypes} from '@glyphx/types';
-const columnStatsSchema = new Schema({
+const COLUMN_STATS_SCHEMA = new Schema({
   name: {type: String, required: true},
   fieldType: {
     type: Number,
@@ -10,4 +10,4 @@ const columnStatsSchema = new Schema({
   longestString: {type: Number, required: false},
 });
 
-export {columnStatsSchema};
+export {COLUMN_STATS_SCHEMA as columnStatsSchema};

@@ -1,10 +1,4 @@
-import mongoose, {
-  Types as mongooseTypes,
-  Model,
-  Schema,
-  HydratedDocument,
-  model,
-} from 'mongoose';
+import {Types as mongooseTypes, Model} from 'mongoose';
 import {database as databaseTypes} from '@glyphx/types';
 import {IUserMethods} from './iUserMethods';
 
@@ -41,4 +35,44 @@ export interface IUserStaticMethods
   validateUpdateObject(
     input: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): boolean;
+  addProjects(
+    userId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeProjects(
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  addAccounts(
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeAccounts(
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  addSessions(
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeSessions(
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  addWebhooks(
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeWebhooks(
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  addOrganizations(
+    userId: mongooseTypes.ObjectId,
+    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeOrganizations(
+    userId: mongooseTypes.ObjectId,
+    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
 }

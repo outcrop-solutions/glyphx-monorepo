@@ -1,5 +1,2 @@
-import { database as databaseTypes } from '@glyphx/types';
-
-export interface IUserMethods {
-  updateUser(input: databaseTypes.IUser): Promise<any>;
-}
+/*eslint-disable  @typescript-eslint/no-empty-interface*/
+export interface IUserMethods {}
