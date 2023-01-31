@@ -10,11 +10,10 @@ const Workspace = () => {
     workspace && (
       <AccountLayout>
         <Meta title={`Nextacular - ${workspace.name} | Dashboard`} />
-        <Content.Title
-          title={workspace.name}
-          subtitle="This is your project's workspace"
-        />
+        <Content.Title title={workspace.name} subtitle="This is your project's workspace" />
+        {/* @ts-ignore */}
         <Content.Divider />
+        {/* @ts-ignore */}
         <Content.Container />
       </AccountLayout>
     )

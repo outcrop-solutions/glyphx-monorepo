@@ -9,4 +9,4 @@ export * from "./properties";
 export * from "./search";
 export * from "./shared";
 export * from "./states";
-export * from "./Visualizations";
+export * from "./visualizations";

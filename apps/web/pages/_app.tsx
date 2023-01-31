@@ -4,15 +4,13 @@ import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
 // import * as Sentry from "@sentry/react";
 // import { BrowserTracing } from "@sentry/tracing"
-import { Amplify } from 'aws-amplify';
-import awsExports from 'aws-exports';
+
 import { RecoilRoot } from 'recoil';
 import { ErrorFallback } from '@/partials/fallback';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 
 import { SuspenseFallback } from '@/partials/fallback';
-Amplify.configure({ ...awsExports, ssr: true });
 // To safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
 // const memoize = (fn) => {

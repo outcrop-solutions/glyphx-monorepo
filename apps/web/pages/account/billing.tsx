@@ -10,10 +10,10 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import Modal from '@/components/Modal/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@/lib/common/api';
-import { redirectToCheckout } from '@/lib/client/stripe';
-import { getInvoices, getProducts } from '@/lib/server/stripe';
-import { getPayment } from '@/prisma/services/customer';
+import api from '@glyphx/business/src/lib/common/api';
+import { redirectToCheckout } from '@glyphx/business/src/lib/client/stripe';
+import { getInvoices, getProducts } from '@glyphx/business/src/lib/server/stripe';
+import { getPayment } from '@glyphx/business/src/services/customer';
 
 const Billing = ({ invoices, products }) => {
   const [isSubmitting, setSubmittingState] = useState(false);
@@ -27,9 +27,7 @@ const Billing = ({ invoices, products }) => {
       setSubmittingState(false);
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         (async () => redirectToCheckout(response.data.sessionId))();
       }
@@ -41,49 +39,35 @@ const Billing = ({ invoices, products }) => {
   return (
     <AccountLayout>
       <Meta title="Nextacular - Billing" />
-      <Content.Title
-        title="Billing"
-        subtitle="Manage your billing and preferences"
-      />
+      <Content.Title title="Billing" subtitle="Manage your billing and preferences" />
+      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
+        {/* @ts-ignore */}
         <Card>
-          <Card.Body
-            title="Upgrade Plan"
-            subtitle="You are currently under the&nbsp; FREE plan"
-          >
+          <Card.Body title="Upgrade Plan" subtitle="You are currently under the&nbsp; FREE plan">
             <p className="p-3 text-sm border rounded">
-              Personal accounts cannot be upgraded and will remain free forever.
-              In order to use the platform for professional purposes or work
-              with a team, get started by creating a team or contacting sales.
+              Personal accounts cannot be upgraded and will remain free forever. In order to use the platform for
+              professional purposes or work with a team, get started by creating a team or contacting sales.
             </p>
           </Card.Body>
           <Card.Footer>
             <small>You will be redirected to the payment page</small>
-            <Button
-              className="text-white bg-blue-600 hover:bg-blue-500"
-              disabled={isSubmitting}
-              onClick={toggleModal}
-            >
+            <Button className="text-white bg-blue-600 hover:bg-blue-500" disabled={isSubmitting} onClick={toggleModal}>
               Upgrade
             </Button>
           </Card.Footer>
         </Card>
-        <Modal
-          show={showModal}
-          title="Upgrade Subscription"
-          toggle={toggleModal}
-        >
+        <Modal show={showModal} title="Upgrade Subscription" toggle={toggleModal}>
           <div className="space-y-0 text-sm text-gray-600">
             <p>You are currently under the FREE plan</p>
           </div>
           <div className="flex space-x-5">
             {products.map((product, index) => (
+              // @ts-ignore
               <Card key={index}>
                 <Card.Body title={product.name} subtitle={product.description}>
-                  <h3 className="text-4xl font-bold">
-                    ${Number(product.prices.unit_amount / 100).toFixed(2)}
-                  </h3>
+                  <h3 className="text-4xl font-bold">${Number(product.prices.unit_amount / 100).toFixed(2)}</h3>
                 </Card.Body>
                 <Card.Footer>
                   <Button
@@ -91,9 +75,7 @@ const Billing = ({ invoices, products }) => {
                     disabled={isSubmitting}
                     onClick={() => subscribe(product.prices.id)}
                   >
-                    {isSubmitting
-                      ? 'Redirecting...'
-                      : `Upgrade to ${product.name}`}
+                    {isSubmitting ? 'Redirecting...' : `Upgrade to ${product.name}`}
                   </Button>
                 </Card.Footer>
               </Card>
@@ -102,10 +84,8 @@ const Billing = ({ invoices, products }) => {
         </Modal>
       </Content.Container>
       <Content.Divider thick />
-      <Content.Title
-        title="Invoices"
-        subtitle="View and download invoices you may need"
-      />
+      <Content.Title title="Invoices" subtitle="View and download invoices you may need" />
+      {/* @ts-ignore */}
       <Content.Divider />
       {invoices.length > 0 ? (
         <Content.Container>
@@ -129,13 +109,9 @@ const Billing = ({ invoices, products }) => {
                     </Link>
                   </td>
                   <td className="py-5">
-                    {formatDistance(
-                      new Date(invoice.created * 1000),
-                      new Date(),
-                      {
-                        addSuffix: true,
-                      }
-                    )}
+                    {formatDistance(new Date(invoice.created * 1000), new Date(), {
+                      addSuffix: true,
+                    })}
                   </td>
                   <td className="py-5">{invoice.status}</td>
                   <td className="py-5">
@@ -151,10 +127,7 @@ const Billing = ({ invoices, products }) => {
           </table>
         </Content.Container>
       ) : (
-        <Content.Empty>
-          Once you&apos;ve paid for something on Nextacular, invoices will show
-          up here
-        </Content.Empty>
+        <Content.Empty>Once you&apos;ve paid for something on Nextacular, invoices will show up here</Content.Empty>
       )}
     </AccountLayout>
   );
@@ -163,10 +136,7 @@ const Billing = ({ invoices, products }) => {
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
   const customerPayment = await getPayment(session.user?.email);
-  const [invoices, products] = await Promise.all([
-    getInvoices(customerPayment?.paymentId),
-    getProducts(),
-  ]);
+  const [invoices, products] = await Promise.all([getInvoices(customerPayment?.paymentId), getProducts()]);
   return {
     props: {
       invoices,

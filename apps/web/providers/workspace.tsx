@@ -18,9 +18,7 @@ const WorkspaceProvider = ({ children }) => {
 
   return (
     //@ts-ignore
-    <WorkspaceContext.Provider value={{ setWorkspace, workspace }}>
-      {children}
-    </WorkspaceContext.Provider>
+    <WorkspaceContext.Provider value={{ setWorkspace, workspace }}>{children}</WorkspaceContext.Provider>
   );
 };
 
