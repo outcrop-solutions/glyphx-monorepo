@@ -33,7 +33,7 @@ const INPUT_MEMBER = {
   emailVerified: new Date(),
   isVerified: true,
   apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.USER,
+  role: databaseTypes.constants.ROLE.MEMBER,
 };
 
 const INPUT_MEMBER2 = {
@@ -44,7 +44,7 @@ const INPUT_MEMBER2 = {
   emailVerified: new Date(),
   isVerified: true,
   apiKey: 'testApiKey2' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.USER,
+  role: databaseTypes.constants.ROLE.MEMBER,
 };
 
 const INPUT_USER = {
@@ -55,7 +55,7 @@ const INPUT_USER = {
   emailVerified: new Date(),
   isVerified: true,
   apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.USER,
+  role: databaseTypes.constants.ROLE.MEMBER,
 };
 
 const INPUT_DATA = {

@@ -26,7 +26,7 @@ const INPUT_USER = {
   emailVerified: new Date(),
   isVerified: true,
   apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.USER,
+  role: databaseTypes.constants.ROLE.MEMBER,
 };
 
 const INPUT_STATE = {

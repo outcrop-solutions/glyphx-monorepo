@@ -22,7 +22,7 @@ const MOCK_USER: databaseTypes.IUser = {
   sessions: [],
   webhooks: [],
   organization: new mongoose.Types.ObjectId(),
-  role: databaseTypes.constants.ROLE.USER,
+  role: databaseTypes.constants.ROLE.MEMBER,
   ownedOrgs: [],
   projects: [],
 };
@@ -1309,7 +1309,7 @@ describe('#mongoose/models/user', () => {
         __v: 1,
       } as unknown as databaseTypes.IOrganization,
       apiKey: 'testApiKey',
-      role: databaseTypes.constants.ROLE.USER,
+      role: databaseTypes.constants.ROLE.MEMBER,
       ownedOrgs: [
         {
           _id: new mongoose.Types.ObjectId(),

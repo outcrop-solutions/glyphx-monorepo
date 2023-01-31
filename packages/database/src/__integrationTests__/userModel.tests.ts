@@ -129,7 +129,7 @@ const INPUT_DATA = {
   isVerified: true,
   image: 'testimage' + UNIQUE_KEY,
   apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.USER,
+  role: databaseTypes.constants.ROLE.MEMBER,
   organization: {},
   accounts: [],
   sessions: [],

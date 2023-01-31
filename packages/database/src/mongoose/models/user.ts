@@ -31,7 +31,7 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
     type: Number,
     required: true,
     enum: databaseTypes.constants.ROLE,
-    default: databaseTypes.constants.ROLE.USER,
+    default: databaseTypes.constants.ROLE.MEMBER,
   },
   ownedOrgs: {type: [Schema.Types.ObjectId], default: [], ref: 'organization'},
   projects: {type: [Schema.Types.ObjectId], default: [], ref: 'project'},

@@ -106,6 +106,7 @@ export function boundProperty(
       extractor =
         val3 ??
         ((input: any) => {
+          //istanbul ignore next
           return input[secretName];
         });
     } else {
