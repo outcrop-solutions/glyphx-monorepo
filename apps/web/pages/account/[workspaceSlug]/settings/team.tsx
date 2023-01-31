@@ -100,7 +100,7 @@ const Team = ({ isTeamOwner, workspace }) => {
 
   return (
     <AccountLayout>
-      <Meta title={`Nextacular - ${workspace.name} | Team Management`} />
+      <Meta title={`Glyphx - ${workspace.name} | Team Management`} />
       <Content.Title title="Team Management" subtitle="Manage your team under your workspace and invite team members" />
       {/* @ts-ignore */}
       <Content.Divider />

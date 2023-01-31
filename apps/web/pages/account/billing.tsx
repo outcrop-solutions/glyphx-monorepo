@@ -38,7 +38,7 @@ const Billing = ({ invoices, products }) => {
 
   return (
     <AccountLayout>
-      <Meta title="Nextacular - Billing" />
+      <Meta title="Glyphx - Billing" />
       <Content.Title title="Billing" subtitle="Manage your billing and preferences" />
       {/* @ts-ignore */}
       <Content.Divider />
@@ -127,7 +127,7 @@ const Billing = ({ invoices, products }) => {
           </table>
         </Content.Container>
       ) : (
-        <Content.Empty>Once you&apos;ve paid for something on Nextacular, invoices will show up here</Content.Empty>
+        <Content.Empty>Once you&apos;ve paid for something on Glyphx, invoices will show up here</Content.Empty>
       )}
     </AccountLayout>
   );

@@ -1,8 +1,8 @@
 import { buffer } from 'micro';
 
-import stripe from '@/lib/server/stripe';
-import { updateSubscription } from '@/prisma/services/customer';
-import prisma from '@/prisma/index';
+import stripe from '@glyphx/business/src/lib/server/stripe';
+import { updateSubscription } from '@glyphx/business/src/services/customer';
+import { prisma } from '@glyphx/database';
 
 export const config = { api: { bodyParser: false } };
 

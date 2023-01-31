@@ -14,7 +14,7 @@ const Hero = () => {
       <div className="relative flex flex-col px-10 mx-auto space-y-5 md:w-3/4">
         <header className="flex items-center justify-between space-x-3">
           <Link href="/">
-            <a className="text-2xl font-bold">Nextacular</a>
+            <a className="text-2xl font-bold">Glyphx</a>
           </Link>
           <button className="md:hidden" onClick={toggleMenu}>
             {!showMenu ? (

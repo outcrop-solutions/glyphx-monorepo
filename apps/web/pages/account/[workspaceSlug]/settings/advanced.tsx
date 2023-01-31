@@ -49,7 +49,7 @@ const Advanced = ({ isCreator }) => {
 
   return (
     <AccountLayout>
-      <Meta title={`Nextacular - ${workspace?.name} | Advanced Settings`} />
+      <Meta title={`Glyphx - ${workspace?.name} | Advanced Settings`} />
       <Content.Title title="Advanced Workspace Settings" subtitle="Manage your workspace settings" />
       {/* @ts-ignore */}
       <Content.Divider />

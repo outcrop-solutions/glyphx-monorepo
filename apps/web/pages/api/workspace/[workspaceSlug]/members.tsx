@@ -1,5 +1,5 @@
-import { getMembers } from '@/prisma/services/membership';
-import { validateSession } from '@/config/api-validation';
+import { getMembers } from '@glyphx/business/src/services/membership';
+import { validateSession } from '@glyphx/business/src/validation';
 
 const handler = async (req, res) => {
   const { method } = req;

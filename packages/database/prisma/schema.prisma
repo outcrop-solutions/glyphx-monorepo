@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGO_DEV")
+  url      = env("MONGODB_DEV")
 }
 
 model Workspace {
@@ -123,8 +123,8 @@ model Member {
   teamRole     Role             @default(MEMBER)
   member       User?            @relation(fields: [email], references: [email], name: "membership")
   invitedBy    User?            @relation(fields: [inviter], references: [email], name: "inviter")
-  orgId        String
-  organization Workspace        @relation(fields: [orgId], references: [id])
+  workspaceId        String
+  workspace Workspace        @relation(fields: [workspaceId], references: [id])
 
   @@map("members")
 }

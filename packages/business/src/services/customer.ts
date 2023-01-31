@@ -1,4 +1,4 @@
-import { createCustomer } from 'lib/server/stripe';
+import { createCustomer } from '../lib/server/stripe';
 import { prisma } from '@glyphx/database';
 
 export const createPaymentAccount = async (email, customerId) => {

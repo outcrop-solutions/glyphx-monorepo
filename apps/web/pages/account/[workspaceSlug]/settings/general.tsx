@@ -83,7 +83,7 @@ const General = ({ isTeamOwner, workspace }) => {
 
   return (
     <AccountLayout>
-      <Meta title={`Nextacular - ${workspace.name} | Settings`} />
+      <Meta title={`Glyphx - ${workspace.name} | Settings`} />
       <Content.Title
         title="Workspace Information"
         subtitle="Manage your workspace details and information"

@@ -58,8 +58,8 @@ const Welcome = () => {
 
   return (
     <AccountLayout>
-      <Meta title="Nextacular - Dashboard" />
-      <Content.Title title="Nextacular Dashboard" subtitle="Start building SaaS platforms in a day" />
+      <Meta title="Glyphx - Dashboard" />
+      <Content.Title title="Glyphx Dashboard" subtitle="Start building SaaS platforms in a day" />
       {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>

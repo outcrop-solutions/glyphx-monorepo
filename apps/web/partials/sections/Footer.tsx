@@ -10,7 +10,7 @@ const Footer = () => {
           <a className="px-5 py-2 text-xl rounded hover:underline">Terms</a>
         </footer>
         <p className="py-5 text-center text-gray-400">
-          &copy; Nextacular. All rights reserved {new Date().getFullYear()}.
+          &copy; Glyphx. All rights reserved {new Date().getFullYear()}.
         </p>
       </div>
     </div>

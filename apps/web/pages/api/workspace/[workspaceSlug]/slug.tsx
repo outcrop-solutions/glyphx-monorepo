@@ -1,8 +1,8 @@
 import {
   validateUpdateWorkspaceSlug,
   validateSession,
-} from '@/config/api-validation/index';
-import { updateSlug } from '@/prisma/services/workspace';
+} from '@glyphx/business/src/validation/index';
+import { updateSlug } from '@glyphx/business/src/services/workspace';
 
 const handler = async (req, res) => {
   const { method } = req;

@@ -1,7 +1,7 @@
 import {
   validateUpdateEmail,
   validateSession,
-} from '@/config/api-validation/index';
+} from '@glyphx/business/src/validation/index';
 
 const handler = async (req, res) => {
   const { method } = req;

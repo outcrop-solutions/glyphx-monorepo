@@ -1,8 +1,8 @@
 import {
   validateWorkspaceInvite,
   validateSession,
-} from '@/config/api-validation/index';
-import { inviteUsers } from '@/prisma/services/workspace';
+} from '@glyphx/business/src/validation/index';
+import { inviteUsers } from '@glyphx/business/src/services/workspace';
 
 const handler = async (req, res) => {
   const { method } = req;
