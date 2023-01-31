@@ -8,7 +8,7 @@ import {
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
 
-const schema = new Schema<
+const SCHEMA = new Schema<
   IAccountDocument,
   IAccountStaticMethods,
   IAccountMethods
@@ -49,12 +49,12 @@ const schema = new Schema<
   user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });
 
-schema.static(
+SCHEMA.static(
   'accountIdExists',
   async (accountId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await AccountModel.findById(accountId, ['_id']);
+      const result = await ACCOUNT_MODEL.findById(accountId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -69,13 +69,12 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'allAccountIdsExist',
   async (accountIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    const retval = true;
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await AccountModel.find({_id: {$in: accountIds}}, [
+      const foundIds = (await ACCOUNT_MODEL.find({_id: {$in: accountIds}}, [
         '_id',
       ])) as {_id: mongooseTypes.ObjectId}[];
 
@@ -107,12 +106,37 @@ schema.static(
   }
 );
 
-schema.static(
-  'getAccountById',
-  async (accountId: mongooseTypes.ObjectId) => {}
-);
+SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
+  try {
+    const accountDocument = (await ACCOUNT_MODEL.findById(accountId)
+      .populate('user')
+      .lean()) as databaseTypes.IWebhook;
+    if (!accountDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a account with the _id: ${accountId}`,
+        'account_id',
+        accountId
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (accountDocument as any)['__v'];
+    delete (accountDocument as any).user['__v'];
 
-schema.static(
+    return accountDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the account.  See the inner error for additional information',
+        'mongoDb',
+        'getAccountById',
+        err
+      );
+  }
+});
+
+SCHEMA.static(
   'validateUpdateObject',
   async (
     account: Omit<Partial<databaseTypes.IAccount>, '_id'>
@@ -133,14 +157,14 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateAccountWithFilter',
   async (
     filter: Record<string, unknown>,
     account: Omit<Partial<databaseTypes.IAccount>, '_id'>
   ): Promise<boolean> => {
     //TODO: we need to set and validate the updateDate and make the createdDate immutable.
-    await AccountModel.validateUpdateObject(account);
+    await ACCOUNT_MODEL.validateUpdateObject(account);
     try {
       const transformedAccount: Partial<IAccountDocument> &
         Record<string, any> = {};
@@ -152,7 +176,7 @@ schema.static(
           transformedAccount[key] = value._id;
         }
       }
-      const updateResult = await AccountModel.updateOne(
+      const updateResult = await ACCOUNT_MODEL.updateOne(
         filter,
         transformedAccount
       );
@@ -182,19 +206,19 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateAccountById',
   async (
     accountId: mongooseTypes.ObjectId,
     account: Omit<Partial<databaseTypes.IAccount>, '_id'>
   ): Promise<databaseTypes.IAccount> => {
-    await AccountModel.updateAccountWithFilter({_id: accountId}, account);
-    const retval = await AccountModel.getAccountById(accountId);
+    await ACCOUNT_MODEL.updateAccountWithFilter({_id: accountId}, account);
+    const retval = await ACCOUNT_MODEL.getAccountById(accountId);
     return retval;
   }
 );
 
-schema.static(
+SCHEMA.static(
   'createAccount',
   async (
     input: Omit<databaseTypes.IAccount, '_id'>
@@ -227,7 +251,7 @@ schema.static(
     };
 
     try {
-      await AccountModel.validate(transformedDocument);
+      await ACCOUNT_MODEL.validate(transformedDocument);
     } catch (err) {
       throw new error.DataValidationError(
         'An error occurred while validating the account document.  See the inner error for additional details.',
@@ -239,12 +263,11 @@ schema.static(
 
     try {
       const createdDocument = (
-        await AccountModel.create([
-          transformedDocument,
-          {validateBeforeSave: false},
-        ])
+        await ACCOUNT_MODEL.create([transformedDocument], {
+          validateBeforeSave: false,
+        })
       )[0];
-      return await AccountModel.getAccountById(createdDocument._id);
+      return await ACCOUNT_MODEL.getAccountById(createdDocument._id);
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the account. See the inner error for additional information',
@@ -257,11 +280,11 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'deleteAccountById',
   async (accountId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await AccountModel.deleteOne({_id: accountId});
+      const results = await ACCOUNT_MODEL.deleteOne({_id: accountId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `An account with a _id: ${accountId} was not found in the database`,
@@ -272,7 +295,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the account from the database. The account may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the account from the database. The account may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete account',
           {_id: accountId},
@@ -282,9 +305,9 @@ schema.static(
   }
 );
 
-const AccountModel = model<IAccountDocument, IAccountStaticMethods>(
+const ACCOUNT_MODEL = model<IAccountDocument, IAccountStaticMethods>(
   'account',
-  schema
+  SCHEMA
 );
 
-export {AccountModel};
+export {ACCOUNT_MODEL as AccountModel};

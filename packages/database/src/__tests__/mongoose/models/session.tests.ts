@@ -6,7 +6,7 @@ import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
-const mockSession: databaseTypes.ISession = {
+const MOCK_SESSION: databaseTypes.ISession = {
   sessionToken: 'session token',
   expires: new Date(),
   user: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
@@ -81,7 +81,7 @@ describe('#mongoose/models/session', () => {
 
       sandbox.replace(SessionModel, 'getSessionById', getSessionByIdStub);
 
-      const result = await SessionModel.createSession(mockSession);
+      const result = await SessionModel.createSession(MOCK_SESSION);
       assert.strictEqual(result._id, sessionId);
       assert.isTrue(getSessionByIdStub.calledOnce);
     });
@@ -107,7 +107,7 @@ describe('#mongoose/models/session', () => {
       let errorred = false;
 
       try {
-        await SessionModel.createSession(mockSession);
+        await SessionModel.createSession(MOCK_SESSION);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -136,7 +136,7 @@ describe('#mongoose/models/session', () => {
       let errorred = false;
 
       try {
-        await SessionModel.createSession(mockSession);
+        await SessionModel.createSession(MOCK_SESSION);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -157,7 +157,7 @@ describe('#mongoose/models/session', () => {
       let errorred = false;
 
       try {
-        await SessionModel.createSession(mockSession);
+        await SessionModel.createSession(MOCK_SESSION);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -511,6 +511,97 @@ describe('#mongoose/models/session', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(findStub.calledOnce);
+    });
+  });
+
+  context('getSessionById', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockSession: databaseTypes.ISession = {
+      _id: new mongoose.Types.ObjectId(),
+      sessionToken: 'test session token',
+      expires: new Date(),
+      __v: 1,
+      user: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+    } as databaseTypes.ISession;
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive a session document with the user populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(mockSession));
+      sandbox.replace(SessionModel, 'findById', findByIdStub);
+
+      const doc = await SessionModel.getSessionById(
+        mockSession._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.user as any).__v);
+
+      assert.strictEqual(doc._id, mockSession._id);
+    });
+
+    it('will throw a DataNotFoundError when the session does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(null));
+      sandbox.replace(SessionModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await SessionModel.getSessionById(
+          mockSession._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace(SessionModel, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await SessionModel.getSessionById(
+          mockSession._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
     });
   });
 });

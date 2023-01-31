@@ -1,4 +1,4 @@
-import mongoose, {Types as mongooseTypes, Model} from 'mongoose';
+import {Types as mongooseTypes, Model} from 'mongoose';
 import {database as databaseTypes} from '@glyphx/types';
 import {IWebhookMethods} from './iWebhookMethods';
 export interface IWebhookStaticMethods

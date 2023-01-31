@@ -8,24 +8,36 @@ import {
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
 
-const schema = new Schema<
+const SCHEMA = new Schema<
   IWebhookDocument,
   IWebhookStaticMethods,
   IWebhookMethods
 >({
-  createdAt: {type: Date, required: true, default: () => new Date()},
-  updatedAt: {type: Date, required: true, default: () => new Date()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   name: {type: String, required: true},
   url: {type: String, required: true},
   user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });
 
-schema.static(
+SCHEMA.static(
   'webhookIdExists',
   async (webhookId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await WebhookModel.findById(webhookId, ['_id']);
+      const result = await WEBHOOK_MODEL.findById(webhookId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -40,13 +52,12 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'allWebhookIdsExist',
   async (webhookIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    const retval = true;
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await WebhookModel.find({_id: {$in: webhookIds}}, [
+      const foundIds = (await WEBHOOK_MODEL.find({_id: {$in: webhookIds}}, [
         '_id',
       ])) as {_id: mongooseTypes.ObjectId}[];
 
@@ -78,12 +89,42 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'getWebhookById',
-  async (webhookId: mongooseTypes.ObjectId) => {}
+  async (
+    webhookId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IWebhook> => {
+    try {
+      const webhookDocument = (await WEBHOOK_MODEL.findById(webhookId)
+        .populate('user')
+        .lean()) as databaseTypes.IWebhook;
+      if (!webhookDocument) {
+        throw new error.DataNotFoundError(
+          `Could not find a webhook with the _id: ${webhookId}`,
+          'webhook._id',
+          webhookId
+        );
+      }
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      delete (webhookDocument as any)['__v'];
+      delete (webhookDocument as any).user['__v'];
+
+      return webhookDocument;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the webhook.  See the inner error for additional information',
+          'mongoDb',
+          'getWebhookById',
+          err
+        );
+    }
+  }
 );
 
-schema.static(
+SCHEMA.static(
   'createWebhook',
   async (
     input: Omit<databaseTypes.IWebhook, '_id'>
@@ -107,7 +148,7 @@ schema.static(
     };
 
     try {
-      await WebhookModel.validate(transformedDocument);
+      await WEBHOOK_MODEL.validate(transformedDocument);
     } catch (err) {
       throw new error.DataValidationError(
         'An error occurred while validating the webhook document.  See the inner error for additional details.',
@@ -119,12 +160,11 @@ schema.static(
 
     try {
       const createdDocument = (
-        await WebhookModel.create([
-          transformedDocument,
-          {validateBeforeSave: false},
-        ])
+        await WEBHOOK_MODEL.create([transformedDocument], {
+          validateBeforeSave: false,
+        })
       )[0];
-      return await WebhookModel.getWebhookById(createdDocument._id);
+      return await WEBHOOK_MODEL.getWebhookById(createdDocument._id);
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the Webhook. See the inner error for additional information',
@@ -137,7 +177,7 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'validateUpdateObject',
   async (
     webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
@@ -167,13 +207,13 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateWebhookWithFilter',
   async (
     filter: Record<string, unknown>,
     webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
   ): Promise<void> => {
-    await WebhookModel.validateUpdateObject(webhook);
+    await WEBHOOK_MODEL.validateUpdateObject(webhook);
     try {
       const updateDate = new Date();
       const transformedWebhook: Partial<IWebhookDocument> &
@@ -184,7 +224,7 @@ schema.static(
           transformedWebhook.owner = value._id as mongooseTypes.ObjectId;
         else transformedWebhook[key] = value;
       }
-      const updateResult = await WebhookModel.updateOne(
+      const updateResult = await WEBHOOK_MODEL.updateOne(
         filter,
         transformedWebhook
       );
@@ -213,23 +253,23 @@ schema.static(
   }
 );
 
-schema.static(
+SCHEMA.static(
   'updateWebhookById',
   async (
     webhookId: mongooseTypes.ObjectId,
     webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
   ): Promise<databaseTypes.IWebhook> => {
-    await WebhookModel.updateWebhookWithFilter({_id: webhookId}, webhook);
-    const retval = await WebhookModel.getWebhookById(webhookId);
+    await WEBHOOK_MODEL.updateWebhookWithFilter({_id: webhookId}, webhook);
+    const retval = await WEBHOOK_MODEL.getWebhookById(webhookId);
     return retval;
   }
 );
 
-schema.static(
+SCHEMA.static(
   'deleteWebhookById',
   async (webhookId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await WebhookModel.deleteOne({_id: webhookId});
+      const results = await WEBHOOK_MODEL.deleteOne({_id: webhookId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `An webhook with a _id: ${webhookId} was not found in the database`,
@@ -240,7 +280,7 @@ schema.static(
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while deleteing the webhook from the database. The webhook may still exist.  See the inner error for additional information`,
+          'An unexpected error occurred while deleteing the webhook from the database. The webhook may still exist.  See the inner error for additional information',
           'mongoDb',
           'delete webhook',
           {_id: webhookId},
@@ -250,9 +290,9 @@ schema.static(
   }
 );
 
-const WebhookModel = model<IWebhookDocument, IWebhookStaticMethods>(
+const WEBHOOK_MODEL = model<IWebhookDocument, IWebhookStaticMethods>(
   'webhook',
-  schema
+  SCHEMA
 );
 
-export {WebhookModel};
+export {WEBHOOK_MODEL as WebhookModel};

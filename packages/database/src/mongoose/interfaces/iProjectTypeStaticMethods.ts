@@ -1,4 +1,4 @@
-import mongoose, {Types as mongooseTypes, Model} from 'mongoose';
+import {Types as mongooseTypes, Model} from 'mongoose';
 import {database as databaseTypes} from '@glyphx/types';
 import {IProjectTypeMethods} from './iProjectTypeMethods';
 export interface IProjectTypeStaticMethods
@@ -25,4 +25,12 @@ export interface IProjectTypeStaticMethods
   validateUpdateObject(
     projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>
   ): void;
+  addProjects(
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType>;
+  removeProjects(
+    projectTypeId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectType>;
 }

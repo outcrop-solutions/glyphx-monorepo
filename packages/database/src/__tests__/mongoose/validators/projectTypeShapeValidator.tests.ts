@@ -1,4 +1,4 @@
-import mocha from 'mocha';
+import 'mocha';
 import {assert} from 'chai';
 import {projectTypeShapeValidator} from '../../../mongoose/validators';
 
