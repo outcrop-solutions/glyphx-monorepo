@@ -419,10 +419,10 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (projectDocument as any)['__v'];
-    delete (projectDocument as any).owner['__v'];
-    delete (projectDocument as any).type['__v'];
-    delete (projectDocument as any).state['__v'];
-    delete (projectDocument as any).organization['__v'];
+    delete (projectDocument as any).owner?.['__v'];
+    delete (projectDocument as any).type?.['__v'];
+    delete (projectDocument as any).state?.['__v'];
+    delete (projectDocument as any).organization?.['__v'];
 
     return projectDocument;
   } catch (err) {

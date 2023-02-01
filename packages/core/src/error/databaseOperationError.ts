@@ -4,7 +4,7 @@ import {ErrorCodes} from '../constants';
 /**
  * An {@link error/glyphxError!GlyphxError} for handling invalid operations.
  */
-export class DataServiceError extends GlyphxError {
+export class DatabaseOperationError extends GlyphxError {
   /**
    * @param message - the message to be displayed.
    * @param databaseName -- The name of the database that trapped the error.
@@ -26,4 +26,4 @@ export class DataServiceError extends GlyphxError {
   }
 }
 
-export default DataServiceError;
+export default DatabaseOperationError;

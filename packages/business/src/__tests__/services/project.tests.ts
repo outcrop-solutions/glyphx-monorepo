@@ -8,9 +8,9 @@ import {
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';
-import {project as projectService} from '../../services';
+import {projectService} from '../../services';
 
-describe.only('#services/project', () => {
+describe('#services/project', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
   afterEach(() => {

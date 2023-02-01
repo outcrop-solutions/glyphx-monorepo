@@ -8,7 +8,7 @@ import {
   fileIngestion as fileIngestionTypes,
 } from '@glyphx/types';
 import {error} from '@glyphx/core';
-import {project as projectService} from '../services';
+import {projectService} from '../services';
 
 type ObjectId = mongooseTypes.ObjectId;
 

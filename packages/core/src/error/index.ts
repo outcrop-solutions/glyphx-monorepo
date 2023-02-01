@@ -5,7 +5,7 @@ export {QueryTimeoutError} from './queryTimeoutError';
 export {QueryExecutionError} from './queryExecutionError';
 export {UnexpectedError} from './unexpectedError';
 export {DataValidationError} from './dataValidationError';
-export {DataServiceError as DatabaseOperationError} from './databaseOperationError';
+export {DatabaseOperationError} from './databaseOperationError';
 export {DataNotFoundError} from './dataNotFoundError';
 export {AwsSecretError} from './awsSecretError';
 export {DataServiceError} from './dataServiceError';

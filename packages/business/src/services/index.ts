@@ -1,1 +1,1 @@
-export * as project from './project';
+export {projectService} from './project';

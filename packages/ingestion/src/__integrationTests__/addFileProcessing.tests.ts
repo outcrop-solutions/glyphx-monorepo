@@ -5,7 +5,22 @@ import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
+import {Initializer, projectService, dbConnection} from '@glyphx/business';
+import {v4} from 'uuid';
 
+const UNIQUE_KEY = v4().replaceAll('-', '');
+
+const INPUT_PROJECT = {
+  name: 'testProject' + UNIQUE_KEY,
+  sdtPath: 'testsdtPath' + UNIQUE_KEY,
+  organization: {},
+  slug: 'testSlug' + UNIQUE_KEY,
+  isTemplate: false,
+  type: {},
+  owner: {},
+  state: {},
+  files: [],
+};
 describe('#fileProcessing', () => {
   context('Inbound s3 file to parquet to S3', () => {
     let s3Bucket: aws.S3Manager;
@@ -18,8 +33,19 @@ describe('#fileProcessing', () => {
     let testDataDirectory: string;
     let payload: fileIngestion.IPayload;
     let fileNames: string[];
+    let projectId: any;
 
     before(async () => {
+      await Initializer.init();
+      const projectDocument = (
+        await dbConnection.models.ProjectModel.create([INPUT_PROJECT], {
+          validateBeforeSave: false,
+        })
+      )[0];
+      projectId = projectDocument._id;
+      assert.isOk(projectId);
+      addFilesJson.payload.modelId = projectId.toString();
+
       bucketName = addFilesJson.bucketName;
       databaseName = addFilesJson.databaseName;
       clientId = addFilesJson.payload.clientId;
@@ -62,12 +88,14 @@ describe('#fileProcessing', () => {
         s3Bucket,
         athenaManager
       );
+
+      await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
     });
     it('Basic pipeline test', async () => {
       console.log('stuff spun up ok');
       const fileIngestor = new FileIngestor(payload, databaseName);
       await fileIngestor.init();
-      const {joinInformation} = await fileIngestor.process();
+      const {fileInformation, joinInformation} = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(
         joinInformation,
         athenaManager
@@ -77,6 +105,12 @@ describe('#fileProcessing', () => {
         `${clientId}_${modelId}_view`,
         joinInformation
       );
+
+      const fileStats = await projectService.getProjectFileStats(
+        payload.modelId
+      );
+      assert.strictEqual(fileStats.length, fileInformation.length);
+      assert.strictEqual(fileStats[0].fileName, fileInformation[0].fileName);
       console.log('I am done');
     });
   });
