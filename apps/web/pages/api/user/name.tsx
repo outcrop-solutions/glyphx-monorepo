@@ -1,8 +1,8 @@
 import {
   validateUpdateName,
   validateSession,
-} from '@/config/api-validation/index';
-import { updateName } from '@/prisma/services/user';
+} from '@glyphx/business/src/validation/index';
+import { updateName } from '@glyphx/business/src/services/user';
 
 const handler = async (req, res) => {
   const { method } = req;

@@ -7,7 +7,7 @@ import {
   PlusCircleIcon,
   XIcon,
 } from '@heroicons/react/outline';
-import { InvitationStatus, TeamRole } from '@prisma/client';
+import { InvitationStatus, Role } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
@@ -17,19 +17,18 @@ import Button from '@/components/Button/index';
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
-import { useMembers } from '@/hooks/data';
+import { useMembers } from 'hooks/data';
 import { AccountLayout } from '@/layouts/index';
-import api from '@/lib/common/api';
-import { getWorkspace, isWorkspaceOwner } from '@/prisma/services/workspace';
+import api from '@glyphx/business/src/lib/common/api';
+import { getWorkspace, isWorkspaceOwner } from '@glyphx/business/src/services/workspace';
 
-const MEMBERS_TEMPLATE = { email: '', role: TeamRole.MEMBER };
+const MEMBERS_TEMPLATE = { email: '', role: Role.MEMBER };
 
 const Team = ({ isTeamOwner, workspace }) => {
   const { data, isLoading } = useMembers(workspace.slug);
   const [isSubmitting, setSubmittingState] = useState(false);
   const [members, setMembers] = useState([{ ...MEMBERS_TEMPLATE }]);
-  const validateEmails =
-    members.filter((member) => !isEmail(member.email)).length !== 0;
+  const validateEmails = members.filter((member) => !isEmail(member.email)).length !== 0;
 
   const addEmail = () => {
     members.push({ ...MEMBERS_TEMPLATE });
@@ -42,9 +41,7 @@ const Team = ({ isTeamOwner, workspace }) => {
       method: 'PUT',
     }).then((response) => {
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Updated team member role!');
       }
@@ -74,9 +71,7 @@ const Team = ({ isTeamOwner, workspace }) => {
       setSubmittingState(false);
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         const members = [{ ...MEMBERS_TEMPLATE }];
         setMembers([...members]);
@@ -96,9 +91,7 @@ const Team = ({ isTeamOwner, workspace }) => {
       method: 'DELETE',
     }).then((response) => {
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Removed team member from workspace!');
       }
@@ -107,46 +100,33 @@ const Team = ({ isTeamOwner, workspace }) => {
 
   return (
     <AccountLayout>
-      <Meta title={`Nextacular - ${workspace.name} | Team Management`} />
-      <Content.Title
-        title="Team Management"
-        subtitle="Manage your team under your workspace and invite team members"
-      />
+      <Meta title={`Glyphx - ${workspace.name} | Team Management`} />
+      <Content.Title title="Team Management" subtitle="Manage your team under your workspace and invite team members" />
+      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
+        {/* @ts-ignore */}
         <Card>
-          <Card.Body
-            title="Invite Link"
-            subtitle="Allow other people to join your team through the link below"
-          >
+          <Card.Body title="Invite Link" subtitle="Allow other people to join your team through the link below">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded">
               <span className="overflow-x-auto">{workspace.inviteLink}</span>
-              <CopyToClipboard
-                onCopy={copyToClipboard}
-                text={workspace.inviteLink}
-              >
+              <CopyToClipboard onCopy={copyToClipboard} text={workspace.inviteLink}>
                 <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
               </CopyToClipboard>
             </div>
           </Card.Body>
         </Card>
         {isTeamOwner && (
+          // @ts-ignore
           <Card>
-            <Card.Body
-              title="Add New Members"
-              subtitle="Invite Team members using email address"
-            >
+            <Card.Body title="Add New Members" subtitle="Invite Team members using email address">
               <div className="flex flex-col space-y-3">
                 <div className="flex flex-row space-x-5">
                   <div className="w-1/2">
-                    <label className="text-sm font-bold text-gray-400">
-                      Email
-                    </label>
+                    <label className="text-sm font-bold text-gray-400">Email</label>
                   </div>
                   <div className="w-1/2 md:w-1/4">
-                    <label className="text-sm font-bold text-gray-400">
-                      Role
-                    </label>
+                    <label className="text-sm font-bold text-gray-400">Role</label>
                   </div>
                 </div>
                 {members.map((member, index) => (
@@ -165,9 +145,9 @@ const Team = ({ isTeamOwner, workspace }) => {
                         disabled={isSubmitting}
                         onChange={(event) => handleRoleChange(event, index)}
                       >
-                        {Object.keys(TeamRole).map((key, index) => (
-                          <option key={index} value={TeamRole[`${key}`]}>
-                            {TeamRole[`${key}`].toLowerCase()}
+                        {Object.keys(Role).map((key, index) => (
+                          <option key={index} value={Role[`${key}`]}>
+                            {Role[`${key}`].toLowerCase()}
                           </option>
                         ))}
                       </select>
@@ -176,10 +156,7 @@ const Team = ({ isTeamOwner, workspace }) => {
                       </div>
                     </div>
                     {index !== 0 && (
-                      <button
-                        className="text-red-600"
-                        onClick={() => remove(index)}
-                      >
+                      <button className="text-red-600" onClick={() => remove(index)}>
                         <XIcon className="w-5 h-5" />
                       </button>
                     )}
@@ -213,13 +190,13 @@ const Team = ({ isTeamOwner, workspace }) => {
         )}
       </Content.Container>
       <Content.Divider thick />
-      <Content.Title
-        title="Team Members"
-        subtitle="View team members and pending invites"
-      />
+      <Content.Title title="Team Members" subtitle="View team members and pending invites" />
+      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
+        {/* @ts-ignore */}
         <Card>
+          {/* @ts-ignore */}
           <Card.Body title="Manage Team Members">
             <table className="table-fixed">
               <thead className="text-gray-400 border-b">
@@ -254,60 +231,50 @@ const Team = ({ isTeamOwner, workspace }) => {
                           >
                             {member.status.toLowerCase()}
                           </span>
-                          <h4 className="capitalize">
-                            {member.teamRole.toLowerCase()}
-                          </h4>
-                          {workspace?.creator.email !== member.email &&
-                            isTeamOwner && (
-                              <Menu
-                                as="div"
-                                className="relative inline-block text-left"
+                          <h4 className="capitalize">{member.teamRole.toLowerCase()}</h4>
+                          {workspace?.creator.email !== member.email && isTeamOwner && (
+                            <Menu as="div" className="relative inline-block text-left">
+                              <div>
+                                <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-gray-100">
+                                  <DotsVerticalIcon className="w-5 h-5" />
+                                </Menu.Button>
+                              </div>
+                              <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
                               >
-                                <div>
-                                  <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-gray-100">
-                                    <DotsVerticalIcon className="w-5 h-5" />
-                                  </Menu.Button>
-                                </div>
-                                <Transition
-                                  as={Fragment}
-                                  enter="transition ease-out duration-100"
-                                  enterFrom="transform opacity-0 scale-95"
-                                  enterTo="transform opacity-100 scale-100"
-                                  leave="transition ease-in duration-75"
-                                  leaveFrom="transform opacity-100 scale-100"
-                                  leaveTo="transform opacity-0 scale-95"
-                                >
-                                  <Menu.Items className="absolute right-0 z-20 mt-2 origin-top-right bg-white border divide-y divide-gray-100 rounded w-60">
-                                    <div className="p-2">
-                                      <Menu.Item>
-                                        <button
-                                          className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white"
-                                          onClick={() => changeRole(member.id)}
-                                        >
-                                          <span>
-                                            Change role to &quot;
-                                            {member.teamRole === TeamRole.MEMBER
-                                              ? TeamRole.OWNER
-                                              : TeamRole.MEMBER}
-                                            &quot;
-                                          </span>
-                                        </button>
-                                      </Menu.Item>
-                                      <Menu.Item>
-                                        <button
-                                          className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
-                                          onClick={() =>
-                                            removeMember(member.id)
-                                          }
-                                        >
-                                          <span>Remove Team Member</span>
-                                        </button>
-                                      </Menu.Item>
-                                    </div>
-                                  </Menu.Items>
-                                </Transition>
-                              </Menu>
-                            )}
+                                <Menu.Items className="absolute right-0 z-20 mt-2 origin-top-right bg-white border divide-y divide-gray-100 rounded w-60">
+                                  <div className="p-2">
+                                    <Menu.Item>
+                                      <button
+                                        className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white"
+                                        onClick={() => changeRole(member.id)}
+                                      >
+                                        <span>
+                                          Change role to &quot;
+                                          {member.teamRole === Role.MEMBER ? Role.OWNER : Role.MEMBER}
+                                          &quot;
+                                        </span>
+                                      </button>
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                      <button
+                                        className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
+                                        onClick={() => removeMember(member.id)}
+                                      >
+                                        <span>Remove Team Member</span>
+                                      </button>
+                                    </Menu.Item>
+                                  </div>
+                                </Menu.Items>
+                              </Transition>
+                            </Menu>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -334,17 +301,13 @@ export const getServerSideProps = async (context) => {
   let workspace = null;
 
   if (session) {
-    workspace = await getWorkspace(
-      session.user.userId,
-      session.user.email,
-      context.params.workspaceSlug
-    );
+    // @ts-ignore
+    workspace = await getWorkspace(session.user.userId, session.user.email, context.params.workspaceSlug);
 
     if (workspace) {
+      // @ts-ignore
       isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
-      workspace.inviteLink = `${
-        process.env.APP_URL
-      }/teams/invite?code=${encodeURI(workspace.inviteCode)}`;
+      workspace.inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace.inviteCode)}`;
     }
   }
 

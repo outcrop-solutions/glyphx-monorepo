@@ -13,7 +13,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { ShareModule } from 'partials';
 import { Info } from 'partials/info';
-import { Notification } from '@/partials/Notification';
+import { Notification } from '@/partials/notification';
 import { GridLoadingAnimation, LoadingModelAnimation } from '@/partials/loaders';
 
 // Hooks

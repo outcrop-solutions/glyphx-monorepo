@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGO_DEV")
+  url      = env("MONGODB_DEV")
 }
 
 model Workspace {
@@ -22,10 +22,14 @@ model Workspace {
   creator     User      @relation(name: "ownerRelation", fields: [creatorId], references: [id], onUpdate: NoAction, onDelete: NoAction)
   members     Member[]
   projects    Project[]
+
+  @@unique([workspaceCode, inviteCode])
+  @@map("workspaces")
 }
 
 model User {
   id            String    @id @default(cuid()) @map("_id")
+  userCode      String    @unique @default(cuid())
   name          String?
   username      String?
   gh_username   String?
@@ -47,6 +51,9 @@ model User {
 
   apiKey   String?
   projects Project[]
+
+  @@unique([userCode, email])
+  @@map("users")
 }
 
 model Account {
@@ -69,6 +76,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@index([userId])
+  @@map("accounts")
 }
 
 model Session {
@@ -79,6 +87,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -107,20 +116,21 @@ model CustomerPayment {
 
 model Member {
   id        String    @id @default(cuid()) @map("_id")
-  email     String
+  email     String    @unique
   inviter   String
   invitedAt DateTime? @default(now())
   joinedAt  DateTime?
   deletedAt DateTime?
   updatedAt DateTime? @updatedAt
 
-  status       InvitationStatus @default(PENDING)
-  teamRole     Role             @default(MEMBER)
-  member       User?            @relation(fields: [email], references: [email], name: "membership")
-  invitedBy    User?            @relation(fields: [inviter], references: [email], name: "inviter")
-  orgId        String
-  organization Workspace        @relation(fields: [orgId], references: [id])
+  status      InvitationStatus @default(PENDING)
+  teamRole    Role             @default(MEMBER)
+  member      User?            @relation(fields: [email], references: [email], name: "membership")
+  invitedBy   User?            @relation(fields: [inviter], references: [email], name: "inviter")
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
 
+  @@unique([workspaceId, email])
   @@map("members")
 }
 
@@ -142,6 +152,8 @@ model Project {
   state       State?       @relation(fields: [stateId], references: [id])
   stateId     String
   files       Json[]
+
+  @@map("projects")
 }
 
 // corresponds to a combination of s3 
@@ -154,6 +166,8 @@ model State {
   fileSystemHash String // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
   projects       Project[]
   fileSystem     Json?
+
+  @@map("states")
 }
 
 model ProjectType {
@@ -163,12 +177,14 @@ model ProjectType {
   name      String
   projects  Project[]
   shape     Json
+
   // a map of required props and their types of the form 
   // { "propName": {
   //      type: "string"
   //      required: true
   // }}
   // NOTE: used to map ingestion to project template types
+  @@map("projectTypes")
 }
 
 model Webhook {
@@ -179,6 +195,8 @@ model Webhook {
   url       String
   user      User?    @relation(fields: [userId], references: [id])
   userId    String?
+
+  @@map("webhooks")
 }
 
 // ENUMS

@@ -1,41 +1,45 @@
-import { html, text } from '@/config/email-templates/email-update';
-import { sendMail } from '@/lib/server/mail';
-import prisma from '@/prisma/index';
+//@ts-nocheck
+import {html, text} from 'email/emailUpdate';
+import {sendMail} from 'lib/server/mail';
+import {prisma} from '@glyphx/database';
 
-export const deactivate = async (id) =>
-  await prisma.user.update({
-    data: { deletedAt: new Date() },
-    where: { id },
+export async function deactivate(id) {
+  return await prisma.user.update({
+    data: {deletedAt: new Date()},
+    where: {id},
   });
+}
 
-export const getUser = async (id) =>
-  await prisma.user.findUnique({
+export async function getUser(id) {
+  return await prisma.user.findUnique({
     select: {
       email: true,
       name: true,
       userCode: true,
     },
-    where: { id },
+    where: {id},
   });
+}
 
-export const updateEmail = async (id, email, previousEmail) => {
+export async function updateEmail(id, email, previousEmail) {
   await prisma.user.update({
     data: {
       email,
       emailVerified: null,
     },
-    where: { id },
+    where: {id},
   });
   await sendMail({
-    html: html({ email }),
-    subject: `[Nextacular] Email address updated`,
-    text: text({ email }),
+    html: html({email}),
+    subject: '[Glyphx] Email address updated',
+    text: text({email}),
     to: [email, previousEmail],
   });
-};
+}
 
-export const updateName = async (id, name) =>
-  await prisma.user.update({
-    data: { name },
-    where: { id },
+export async function updateName(id, name) {
+  return await prisma.user.update({
+    data: {name},
+    where: {id},
   });
+}

@@ -1,21 +1,24 @@
-import { createCustomer } from 'lib/server/stripe';
-import { prisma } from '@glyphx/database';
+import {createCustomer} from '../lib/server/stripe';
+import {prisma} from '@glyphx/database';
 
-export const createPaymentAccount = async (email, customerId) => {
+export async function createPaymentAccount(email, customerId) {
   const paymentAccount = await createCustomer(email);
-  await prisma.customerPayment.create({
+  return await prisma.customerPayment.create({
     data: {
       customerId,
       email,
       paymentId: paymentAccount.id,
     },
   });
-};
+}
 
-export const getPayment = async (email) => await prisma.customerPayment.findUnique({ where: { email } });
+export async function getPayment(email) {
+  return await prisma.customerPayment.findUnique({where: {email}});
+}
 
-export const updateSubscription = async (customerId, subscriptionType) =>
-  await prisma.customerPayment.update({
-    data: { subscriptionType },
-    where: { customerId },
+export async function updateSubscription(customerId, subscriptionType) {
+  return await prisma.customerPayment.update({
+    data: {subscriptionType},
+    where: {customerId},
   });
+}

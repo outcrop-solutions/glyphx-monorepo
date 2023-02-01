@@ -1,6 +1,6 @@
-import { validateSession } from '@/config/api-validation';
-import stripe from '@/lib/server/stripe';
-import { getPayment } from '@/prisma/services/customer';
+import { validateSession } from '@glyphx/business/src/validation';
+import stripe from '@glyphx/business/src/lib/server/stripe';
+import { getPayment } from '@glyphx/business/src/services/customer';
 
 const handler = async (req, res) => {
   const { method } = req;

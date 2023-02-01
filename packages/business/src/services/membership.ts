@@ -1,20 +1,22 @@
-import { InvitationStatus } from '@prisma/client';
-import prisma from '@/prisma/index';
+//@ts-nocheck
+import {InvitationStatus} from '@prisma/client';
+import {prisma} from '@glyphx/database';
+// import {database} from '@glyphx/types';
 
-export const getMember = async (id) =>
-  await prisma.member.findFirst({
-    select: { teamRole: true },
-    where: { id },
+export async function getMember(id) {
+  return await prisma.member.findFirst({
+    select: {teamRole: true},
+    where: {id},
   });
-
-export const getMembers = async (slug) =>
-  await prisma.member.findMany({
+}
+export async function getMembers(slug) {
+  return await prisma.member.findMany({
     select: {
       id: true,
       email: true,
       status: true,
       teamRole: true,
-      member: { select: { name: true } },
+      member: {select: {name: true}},
     },
     where: {
       deletedAt: null,
@@ -24,9 +26,10 @@ export const getMembers = async (slug) =>
       },
     },
   });
+}
 
-export const getPendingInvitations = async (email) =>
-  await prisma.member.findMany({
+export async function getPendingInvitations(email) {
+  return await prisma.member.findMany({
     select: {
       id: true,
       email: true,
@@ -59,24 +62,25 @@ export const getPendingInvitations = async (email) =>
       deletedAt: null,
       email,
       status: InvitationStatus.PENDING,
-      workspace: { deletedAt: null },
+      workspace: {deletedAt: null},
     },
   });
-
-export const remove = async (id) =>
-  await prisma.member.update({
-    data: { deletedAt: new Date() },
-    where: { id },
+}
+export async function remove(id) {
+  return await prisma.member.update({
+    data: {deletedAt: new Date()},
+    where: {id},
   });
-
-export const toggleRole = async (id, teamRole) =>
-  await prisma.member.update({
-    data: { teamRole },
-    where: { id },
+}
+export async function toggleRole(id, teamRole) {
+  return await prisma.member.update({
+    data: {teamRole},
+    where: {id},
   });
-
-export const updateStatus = async (id, status) =>
-  await prisma.member.update({
-    data: { status },
-    where: { id },
+}
+export async function updateStatus(id, status) {
+  return await prisma.member.update({
+    data: {status},
+    where: {id},
   });
+}

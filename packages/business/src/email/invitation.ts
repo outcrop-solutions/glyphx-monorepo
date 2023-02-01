@@ -1,4 +1,4 @@
-const html = ({ code, name }) => {
+function html({code, name}): string {
   const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code)}`;
 
   return `
@@ -11,9 +11,9 @@ const html = ({ code, name }) => {
     <p>Cheers,<br />${process.env.EMAIL_FROM}</p>
 </body>
 `;
-};
+}
 
-const text = ({ code, name }) => {
+function text({code, name}): string {
   const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code)}`;
 
   return `
@@ -29,6 +29,6 @@ In case you need any assistance, just hit reply.
 Cheers,
 ${process.env.EMAIL_FROM}
 `;
-};
+}
 
-export { html, text };
+export {html, text};

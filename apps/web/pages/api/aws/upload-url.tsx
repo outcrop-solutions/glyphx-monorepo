@@ -1,4 +1,4 @@
-import S3 from 'aws-sdk/clients/s3'
+import S3 from '@aws-sdk/client-s3'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(

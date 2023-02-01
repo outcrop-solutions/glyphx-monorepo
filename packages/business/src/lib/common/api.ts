@@ -1,6 +1,8 @@
-const api = async (url, options) => {
-  const { body, headers, ...opts } = options;
+const API = async (url, options) => {
+  const {body, headers, ...opts} = options;
   const requestBody = JSON.stringify(body);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const response = await fetch(url, {
     body: requestBody,
     headers: {
@@ -10,7 +12,7 @@ const api = async (url, options) => {
     ...opts,
   });
   const result = await response.json();
-  return { status: response.status, ...result, url };
+  return {status: response.status, ...result, url};
 };
 
-export default api;
+export default API;

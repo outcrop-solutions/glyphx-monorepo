@@ -1,73 +1,67 @@
-// TODO: Move to next-auth from cognito to easily support OAuth clients
-import AWS from 'aws-sdk';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import NextAuth from 'next-auth';
-
-// OAUTH CLIENTS
-// import GitHubProvider from 'next-auth/providers/github';
-// import GoogleProvider from 'next-auth/providers/google';
-
-// SEND VERIFICATION EMAIL
 import EmailProvider from 'next-auth/providers/email';
-import { sendVerificationRequest } from 'email/sendVerificationRequest';
 
-// UNCOMMENT TO ENABLE PRISMA/MONGO ORM
-// import { PrismaAdapter } from '@next-auth/prisma-adapter';
-// import { prisma } from '@glyphx/database';
+import { prisma } from '@glyphx/database';
+import { html, text } from '@glyphx/business/src/email/signin';
+import { EMAIL_CONFIG, sendMail } from '@glyphx/business/src/lib/server/mail';
+import { createPaymentAccount, getPayment } from '@glyphx/business/src/services/customer';
+// import { log } from '@/lib/server/logsnag';
 
-// COMMENT TO DISABLE DYNAMO ORM
-import { DynamoDBAdapter } from '@next-auth/dynamodb-adapter';
-
-import type { NextAuthOptions } from 'next-auth';
-
-// The default table name is next-auth, but you can customise that by passing { tableName: 'your-table-name' } as the second parameter in the adapter.
-
-AWS.config.update({
-  accessKeyId: process.env.NEXT_AUTH_AWS_ACCESS_KEY,
-  secretAccessKey: process.env.NEXT_AUTH_AWS_SECRET_KEY,
-  region: process.env.NEXT_AUTH_AWS_REGION,
-});
-
-// if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET)
-//   throw new Error("Failed to initialize Github authentication");
-
-export const authOptions = {
-  providers: [
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    // }),
-    EmailProvider({
-      server: process.env.EMAIL_SERVER,
-      from: process.env.EMAIL_FROM,
-      sendVerificationRequest,
-    }),
-  ],
-  secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: `/login`,
-    verifyRequest: `/login`,
-    error: '/login', // Error code passed in query string as ?error=
-  },
-  // UNCOMMENT TO ENABLE PRISMA/MONGO ORM
-  // adapter: PrismaAdapter(prisma),
-  // COMMENT TO DISABLE DYNAMO ORM
-  adapter: DynamoDBAdapter(new AWS.DynamoDB.DocumentClient()),
+export default NextAuth({
+  adapter: PrismaAdapter(prisma),
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
+    session: async ({ session, user }) => {
+      if (session.user) {
+        const customerPayment = await getPayment(user.email);
         // @ts-ignore
-        username: user.username,
-        // @ts-ignore
-        orgId: user.orgId,
-      },
-    }),
-    profile(profile) {
-      return { ...profile };
+        session.user.userId = user.id;
+
+        if (customerPayment) {
+          // @ts-ignore
+          session.user.subscription = customerPayment.subscriptionType;
+        }
+      }
+
+      return session;
     },
   },
-} as NextAuthOptions;
-
-export default NextAuth(authOptions);
+  debug: !(process.env.NODE_ENV === 'production'),
+  events: {
+    signIn: async ({ user, isNewUser }) => {
+      const customerPayment = await getPayment(user.email);
+      // @ts-ignore
+      if (isNewUser || customerPayment === null || user.createdAt === null) {
+        await Promise.all([
+          createPaymentAccount(user.email, user.id),
+          // log(
+          //   'user-registration',
+          //   'New User Signup',
+          //   `A new user recently signed up. (${user.email})`
+          // ),
+        ]);
+      }
+    },
+  },
+  providers: [
+    EmailProvider({
+      from: process.env.EMAIL_FROM,
+      server: EMAIL_CONFIG,
+      sendVerificationRequest: async ({ identifier: email, url }) => {
+        const { host } = new URL(url);
+        // @ts-ignore
+        await sendMail({
+          html: html({ email, url }),
+          subject: `[Glyphx] Sign in to ${host}`,
+          text: text({ email, url }),
+          to: email,
+        });
+      },
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET || null,
+  session: {
+    // @ts-ignore
+    jwt: true,
+  },
+});

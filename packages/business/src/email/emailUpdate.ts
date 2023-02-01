@@ -1,4 +1,4 @@
-const html = ({ email }) => {
+function html({email}): string {
   return `
 <body>
     <p>Hello there!</p>
@@ -8,9 +8,9 @@ const html = ({ email }) => {
     <p>Cheers,<br />${process.env.EMAIL_FROM}</p>
 </body>
 `;
-};
+}
 
-const text = ({ email }) => {
+function text({email}): string {
   return `
 Hello there!
 
@@ -23,6 +23,6 @@ In case you need any assistance, just hit reply.
 Cheers,
 ${process.env.EMAIL_FROM}
 `;
-};
+}
 
-export { html, text };
+export {html, text};

@@ -6,17 +6,15 @@ import Button from '@/components/Button/index';
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
-import { useInvitations, useWorkspaces } from '@/hooks/data/index';
+import { useInvitations, useWorkspaces } from 'hooks/data/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@/lib/common/api';
+import api from '@glyphx/business/src/lib/common/api';
 import { useWorkspace } from '@/providers/workspace';
 
 const Welcome = () => {
   const router = useRouter();
-  const { data: invitationsData, isLoading: isFetchingInvitations } =
-    useInvitations();
-  const { data: workspacesData, isLoading: isFetchingWorkspaces } =
-    useWorkspaces();
+  const { data: invitationsData, isLoading: isFetchingInvitations } = useInvitations();
+  const { data: workspacesData, isLoading: isFetchingWorkspaces } = useWorkspaces();
   const { setWorkspace } = useWorkspace();
   const [isSubmitting, setSubmittingState] = useState(false);
 
@@ -29,9 +27,7 @@ const Welcome = () => {
       setSubmittingState(false);
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Accepted invitation!');
       }
@@ -47,9 +43,7 @@ const Welcome = () => {
       setSubmittingState(false);
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Declined invitation!');
       }
@@ -57,34 +51,35 @@ const Welcome = () => {
   };
 
   const navigate = (workspace) => {
+    // @ts-ignore
     setWorkspace(workspace);
     router.replace(`/account/${workspace.slug}`);
   };
 
   return (
     <AccountLayout>
-      <Meta title="Nextacular - Dashboard" />
-      <Content.Title
-        title="Nextacular Dashboard"
-        subtitle="Start building SaaS platforms in a day"
-      />
+      <Meta title="Glyphx - Dashboard" />
+      <Content.Title title="Glyphx Dashboard" subtitle="Start building SaaS platforms in a day" />
+      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {isFetchingWorkspaces ? (
+            //  @ts-ignore
             <Card>
+              {/* @ts-ignore */}
               <Card.Body />
+              {/* @ts-ignore */}
               <Card.Footer />
             </Card>
           ) : workspacesData?.workspaces.length > 0 ? (
             workspacesData.workspaces.map((workspace, index) => (
+              // @ts-ignore
               <Card key={index}>
+                {/* @ts-ignore */}
                 <Card.Body title={workspace.name} />
                 <Card.Footer>
-                  <button
-                    className="text-blue-600"
-                    onClick={() => navigate(workspace)}
-                  >
+                  <button className="text-blue-600" onClick={() => navigate(workspace)}>
                     Select workspace &rarr;
                   </button>
                 </Card.Footer>
@@ -100,22 +95,26 @@ const Welcome = () => {
         title="Workspace Invitations"
         subtitle="Listed here are the invitations received by your account"
       />
+      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {isFetchingInvitations ? (
+            // @ts-ignore
             <Card>
+              {/* @ts-ignore */}
               <Card.Body />
+              {/* @ts-ignore */}
               <Card.Footer />
             </Card>
           ) : invitationsData?.invitations.length > 0 ? (
             invitationsData.invitations.map((invitation, index) => (
+              // @ts-ignore
               <Card key={index}>
+                {/* @ts-ignore */}
                 <Card.Body
                   title={invitation.workspace.name}
-                  subtitle={`You have been invited by ${
-                    invitation.invitedBy.name || invitation.invitedBy.email
-                  }`}
+                  subtitle={`You have been invited by ${invitation.invitedBy.name || invitation.invitedBy.email}`}
                 />
                 <Card.Footer>
                   <Button
@@ -136,9 +135,7 @@ const Welcome = () => {
               </Card>
             ))
           ) : (
-            <Card.Empty>
-              You haven&apos;t received any invitations to a workspace yet.
-            </Card.Empty>
+            <Card.Empty>You haven&apos;t received any invitations to a workspace yet.</Card.Empty>
           )}
         </div>
       </Content.Container>

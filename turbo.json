@@ -24,6 +24,12 @@
     "start": {
       "cache": false
     },
+    "count": {
+      "cache": false
+    },
+    "coverage": {
+      "cache": false
+    },
     "clean": {
       "cache": false
     },

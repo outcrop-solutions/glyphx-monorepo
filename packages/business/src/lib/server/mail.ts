@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-export const emailConfig = {
+export const EMAIL_CONFIG = {
   auth: {
     user: process.env.EMAIL_SERVER_USER,
     pass: process.env.EMAIL_SERVER_PASSWORD,
@@ -8,9 +8,17 @@ export const emailConfig = {
   service: process.env.EMAIL_SERVICE,
 };
 
-const transporter = nodemailer.createTransport(emailConfig);
+const TRANSPORT = nodemailer.createTransport(EMAIL_CONFIG);
 
-export const sendMail = async ({ from, html, subject, text, to }) => {
+export interface ISendMail {
+  from?: string | null | undefined;
+  html: string;
+  subject: string;
+  text: string;
+  to: string | any[];
+}
+
+export async function sendMail({from, html, subject, text, to}: ISendMail) {
   const data = {
     from: from ?? process.env.EMAIL_FROM,
     to,
@@ -20,8 +28,8 @@ export const sendMail = async ({ from, html, subject, text, to }) => {
   };
 
   process.env.NODE_ENV === 'production'
-    ? await transporter.sendMail(data)
+    ? await TRANSPORT.sendMail(data)
     : console.log(data);
-};
+}
 
-export default transporter;
+export default TRANSPORT;

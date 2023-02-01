@@ -11,8 +11,8 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta';
 import Modal from '@/components/Modal/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@/lib/common/api';
-import { getUser } from '@/prisma/services/user';
+import api from '@glyphx/business/src/lib/common/api';
+import { getUser } from '@glyphx/business/src/services/user';
 
 const Settings = ({ user }) => {
   const [email, setEmail] = useState(user.email || '');
@@ -37,9 +37,7 @@ const Settings = ({ user }) => {
       setSubmittingState(false);
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Name successfully updated!');
       }
@@ -48,9 +46,7 @@ const Settings = ({ user }) => {
 
   const changeEmail = (event) => {
     event.preventDefault();
-    const result = confirm(
-      'Are you sure you want to update your email address?'
-    );
+    const result = confirm('Are you sure you want to update your email address?');
 
     if (result) {
       setSubmittingState(true);
@@ -61,9 +57,7 @@ const Settings = ({ user }) => {
         setSubmittingState(false);
 
         if (response.errors) {
-          Object.keys(response.errors).forEach((error) =>
-            toast.error(response.errors[error].msg)
-          );
+          Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
         } else {
           toast.success('Email successfully updated and signing you out!');
           setTimeout(() => signOut({ callbackUrl: '/auth/login' }), 2000);
@@ -82,9 +76,7 @@ const Settings = ({ user }) => {
       toggleModal();
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Account has been deactivated!');
       }
@@ -104,13 +96,12 @@ const Settings = ({ user }) => {
 
   return (
     <AccountLayout>
-      <Meta title="Nextacular - Account Settings" />
-      <Content.Title
-        title="Account Settings"
-        subtitle="Manage your profile, preferences, and account settings"
-      />
+      <Meta title="Glyphx - Account Settings" />
+      <Content.Title title="Account Settings" subtitle="Manage your profile, preferences, and account settings" />
+      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
+        {/* @ts-ignore */}
         <Card>
           <form>
             <Card.Body
@@ -137,12 +128,13 @@ const Settings = ({ user }) => {
             </Card.Footer>
           </form>
         </Card>
+        {/* @ts-ignore */}
         <Card>
           <form>
             <Card.Body
               title="Email Address"
               subtitle="Please enter the email address you want to use to log in with
-              Nextacular"
+              Glyphx"
             >
               <input
                 className="px-3 py-2 border rounded md:w-1/2"
@@ -164,11 +156,9 @@ const Settings = ({ user }) => {
             </Card.Footer>
           </form>
         </Card>
+        {/* @ts-ignore */}
         <Card>
-          <Card.Body
-            title="Personal Account ID"
-            subtitle="Used when interacting with APIs"
-          >
+          <Card.Body title="Personal Account ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
               <span className="overflow-x-auto">{userCode}</span>
               <CopyToClipboard onCopy={copyToClipboard} text={userCode}>
@@ -178,34 +168,22 @@ const Settings = ({ user }) => {
           </Card.Body>
         </Card>
         <Card danger>
+          {/* @ts-ignore */}
           <Card.Body
             title="Danger Zone"
             subtitle="Permanently remove your Personal Account and all of its contents
-              from Nextacular platform"
+              from Glyphx platform"
           />
           <Card.Footer>
-            <small>
-              This action is not reversible, so please continue with caution
-            </small>
-            <Button
-              className="text-white bg-red-600 hover:bg-red-500"
-              onClick={toggleModal}
-            >
+            <small>This action is not reversible, so please continue with caution</small>
+            <Button className="text-white bg-red-600 hover:bg-red-500" onClick={toggleModal}>
               Deactivate Personal Account
             </Button>
           </Card.Footer>
-          <Modal
-            show={showModal}
-            title="Deactivate Personal Account"
-            toggle={toggleModal}
-          >
-            <p>
-              Your account will be deleted, along with all of its Workspace
-              contents.
-            </p>
+          <Modal show={showModal} title="Deactivate Personal Account" toggle={toggleModal}>
+            <p>Your account will be deleted, along with all of its Workspace contents.</p>
             <p className="px-3 py-2 text-red-600 border border-red-600 rounded">
-              <strong>Warning:</strong> This action is not reversible. Please be
-              certain.
+              <strong>Warning:</strong> This action is not reversible. Please be certain.
             </p>
             <div className="flex flex-col">
               <label className="text-sm text-gray-400">
@@ -237,6 +215,7 @@ const Settings = ({ user }) => {
 
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
+  // @ts-ignore
   const { email, name, userCode } = await getUser(session.user?.userId);
   return {
     props: {
