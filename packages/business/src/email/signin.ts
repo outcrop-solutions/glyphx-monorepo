@@ -1,4 +1,4 @@
-const html = ({ email, url }) => {
+function html({email, url}): string {
   return `
 <body>
     <p>Welcome! You are logging in with ${email}</p>
@@ -9,9 +9,9 @@ const html = ({ email, url }) => {
     <p>Cheers,<br />${process.env.EMAIL_FROM}</p>
 </body>
 `;
-};
+}
 
-const text = ({ email, url }) => {
+function text({email, url}): string {
   return `
 Welcome! You are logging in with ${email}
 
@@ -24,6 +24,6 @@ In case you need any assistance, just hit reply.
 Cheers,
 ${process.env.EMAIL_FROM}
 `;
-};
+}
 
-export { html, text };
+export {html, text};
