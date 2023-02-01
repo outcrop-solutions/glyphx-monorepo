@@ -37,6 +37,25 @@ describe('#services/project', () => {
       assert.isTrue(getProjectFromModelStub.calledOnce);
     });
 
+    it('should get a project by id when id is a string', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+
+      const getProjectFromModelStub = sandbox.stub();
+      getProjectFromModelStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'getProjectById',
+        getProjectFromModelStub
+      );
+
+      const project = await projectService.getProject(projectId.toString());
+      assert.isOk(project);
+      assert.strictEqual(project?._id?.toString(), projectId.toString());
+
+      assert.isTrue(getProjectFromModelStub.calledOnce);
+    });
     it('will log the failure and return null if the project cannot be found', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the psoject';
@@ -190,6 +209,37 @@ describe('#services/project', () => {
       const project = await projectService.updateProjectFileStats(projectId, [
         fileStats,
       ]);
+      assert.isOk(project);
+      assert.strictEqual(project._id, projectId);
+      assert.strictEqual(project.files[0].fileName, fileStats.fileName);
+
+      assert.isTrue(updateProjectFromModelStub.calledOnce);
+    });
+    it('will update a projects file stats when the id is a string', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const fileStats: fileIngestionTypes.IFileStats = {
+        fileName: 'testFile',
+        tableName: 'testTable',
+        numberOfRows: 10,
+        numberOfColumns: 5,
+        columns: [],
+        fileSize: 1000,
+      };
+      const updateProjectFromModelStub = sandbox.stub();
+      updateProjectFromModelStub.resolves({
+        _id: projectId,
+        files: [fileStats],
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'updateProjectById',
+        updateProjectFromModelStub
+      );
+
+      const project = await projectService.updateProjectFileStats(
+        projectId.toString(),
+        [fileStats]
+      );
       assert.isOk(project);
       assert.strictEqual(project._id, projectId);
       assert.strictEqual(project.files[0].fileName, fileStats.fileName);

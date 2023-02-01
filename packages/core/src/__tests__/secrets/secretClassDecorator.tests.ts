@@ -1,3 +1,4 @@
+/*eslint-disable-next-line node/no-unpublished-import*/
 import 'mocha';
 import {assert} from 'chai';
 import * as secrets from '../../secrets/secretClassDecorator';
@@ -13,7 +14,7 @@ import {
 describe('#/secrets/secretClassDecorator', () => {
   context('initializer', () => {
     it('will attach metadata to our initializer', () => {
-      class testClass {
+      class TestClass {
         @secrets.initializer
         async init(): Promise<void> {
           console.log('I am init');
@@ -22,17 +23,18 @@ describe('#/secrets/secretClassDecorator', () => {
 
       const metaData = Reflect.getMetadata(
         'boundSecrets:initializerFunction',
-        testClass.prototype
+        TestClass.prototype
       );
 
       assert.isOk(metaData);
       assert.strictEqual(metaData.name, 'init');
-      assert.strictEqual(metaData.descriptor.value, testClass.prototype.init);
+      assert.strictEqual(metaData.descriptor.value, TestClass.prototype.init);
     });
 
     it('will throw an InvalidOperationException if the initilizer is set more than once', () => {
       assert.throws(() => {
-        class testClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class TestClass {
           @secrets.initializer
           async init(): Promise<void> {
             console.log('I am init');
@@ -48,7 +50,8 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationException if the initilizer is set on a property', () => {
       assert.throws(() => {
-        class testClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class TestClass {
           @secrets.initializer
           get init(): string {
             return 'init';
@@ -59,7 +62,8 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationException if the initilizer is set on a function that is not async', () => {
       assert.throws(() => {
-        class testClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class TestClass {
           @secrets.initializer
           init(): void {
             console.log('I am init');
@@ -71,12 +75,13 @@ describe('#/secrets/secretClassDecorator', () => {
 
   context('boundPropery', () => {
     it('bind a field using the secret name', () => {
-      class testClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
         @secrets.boundProperty('bar')
-        foo: string = '';
+        foo = '';
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.foo = fooTest;
 
@@ -109,15 +114,16 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('bind a field using a secret name and extractor', () => {
       const extractorText = 'I am Groot';
-      const extractor = (input: any) => {
+      const extractor = () => {
         return extractorText;
       };
-      class testClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
         @secrets.boundProperty('bar', extractor)
-        foo: string = '';
+        foo = '';
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.foo = fooTest;
 
@@ -152,8 +158,9 @@ describe('#/secrets/secretClassDecorator', () => {
     });
 
     it('bind a property using secret name', () => {
-      class testClass {
-        fooField: string = '';
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
+        fooField = '';
 
         @secrets.boundProperty('bar')
         get foo() {
@@ -165,7 +172,7 @@ describe('#/secrets/secretClassDecorator', () => {
         }
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.fooField = fooTest;
 
@@ -204,8 +211,9 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an error if you try to bind to a property without a getter', () => {
       assert.throws(() => {
-        class testClass {
-          fooField: string = '';
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class TestClass {
+          fooField = '';
 
           @secrets.boundProperty('bar')
           set foo(input: string) {
@@ -217,8 +225,9 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an error if you try to bind to a property without a setter', () => {
       assert.throws(() => {
-        class testClass {
-          fooField: string = '';
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class TestClass {
+          fooField = '';
 
           @secrets.boundProperty('bar')
           get foo() {
@@ -229,12 +238,13 @@ describe('#/secrets/secretClassDecorator', () => {
     });
 
     it('bind a property with no arguments', () => {
-      class testClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
         @secrets.boundProperty()
-        foo: string = '';
+        foo = '';
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.foo = fooTest;
 
@@ -266,12 +276,13 @@ describe('#/secrets/secretClassDecorator', () => {
     });
 
     it('bind a property with the boolean == true', () => {
-      class testClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
         @secrets.boundProperty(true)
-        foo: string = '';
+        foo = '';
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.foo = fooTest;
 
@@ -303,12 +314,13 @@ describe('#/secrets/secretClassDecorator', () => {
     });
 
     it('bind a property with the boolean == false', () => {
-      class testClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
         @secrets.boundProperty(false)
-        foo: string = '';
+        foo = '';
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.foo = fooTest;
 
@@ -340,12 +352,13 @@ describe('#/secrets/secretClassDecorator', () => {
     });
 
     it('bind a property with the boolean and secret name', () => {
-      class testClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
         @secrets.boundProperty(true, 'bar')
-        foo: string = '';
+        foo = '';
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.foo = fooTest;
 
@@ -378,15 +391,16 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('bind a property with the boolean, secret name and extractor', () => {
       const extractorText = 'I am Groot';
-      const extractor = (input: any) => {
+      const extractor = () => {
         return extractorText;
       };
-      class testClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class TestClass {
         @secrets.boundProperty(true, 'bar', extractor)
-        foo: string = '';
+        foo = '';
       }
 
-      const test = new testClass();
+      const test = new TestClass();
       const fooTest = 'I am bound';
       test.foo = fooTest;
 
@@ -445,20 +459,20 @@ describe('#/secrets/secretClassDecorator', () => {
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      class boundClass {
+      class BoundClass {
         @secrets.boundProperty('userName')
-        user: string = '';
+        user = '';
         @secrets.boundProperty('userId', (input: any) =>
           input.userId.toUpperCase()
         )
-        id: string = '';
+        id = '';
 
         async init(): Promise<string> {
           return initedResult;
         }
       }
 
-      const testClass = new boundClass();
+      const testClass = new BoundClass();
       assert.strictEqual((testClass as any).secretName, secretName);
       assert.isOk((testClass as any).secretManager);
       assert.isFalse((testClass as any).inited);
@@ -479,13 +493,13 @@ describe('#/secrets/secretClassDecorator', () => {
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      class boundClass {
+      class BoundClass {
         @secrets.boundProperty('userName')
-        user: string = '';
+        user = '';
         @secrets.boundProperty('userId', (input: any) =>
           input.userId.toUpperCase()
         )
-        id: string = '';
+        id = '';
 
         @secrets.initializer
         async init(): Promise<string> {
@@ -493,7 +507,7 @@ describe('#/secrets/secretClassDecorator', () => {
         }
       }
 
-      const testClass = new boundClass();
+      const testClass = new BoundClass();
       assert.strictEqual((testClass as any).secretName, secretName);
       assert.isOk((testClass as any).secretManager);
       assert.isFalse((testClass as any).inited);
@@ -515,13 +529,14 @@ describe('#/secrets/secretClassDecorator', () => {
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        class boundClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class BoundClass {
           @secrets.boundProperty('userName')
-          user: string = '';
+          user = '';
           @secrets.boundProperty('userId', (input: any) =>
             input.userId.toUpperCase()
           )
-          id: string = '';
+          id = '';
 
           init(): string {
             return initedResult;
@@ -538,13 +553,14 @@ describe('#/secrets/secretClassDecorator', () => {
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        class boundClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class BoundClass {
           @secrets.boundProperty('userName')
-          user: string = '';
+          user = '';
           @secrets.boundProperty('userId', (input: any) =>
             input.userId.toUpperCase()
           )
-          id: string = '';
+          id = '';
 
           notinit(): string {
             return initedResult;
@@ -562,15 +578,16 @@ describe('#/secrets/secretClassDecorator', () => {
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        class boundClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class BoundClass {
           @secrets.boundProperty('userName')
-          user: string = '';
+          user = '';
           @secrets.boundProperty('userName')
-          name: string = '';
+          name = '';
           @secrets.boundProperty('userId', (input: any) =>
             input.userId.toUpperCase()
           )
-          id: string = '';
+          id = '';
 
           init(): string {
             return initedResult;
@@ -581,40 +598,40 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationError becuase there is no initalizer function', async () => {
       const secretName = 'testSecret';
-      const initedResult = 'I am inited';
       secretsManagerMock
         .on(GetSecretValueCommand)
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        class boundClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class BoundClass {
           @secrets.boundProperty('userName')
-          user: string = '';
+          user = '';
           @secrets.boundProperty('userId', (input: any) =>
             input.userId.toUpperCase()
           )
-          id: string = '';
+          id = '';
         }
       }, InvalidOperationError);
     });
 
     it('will throw an InvalidOperationError becuase there is no initalizer function', async () => {
       const secretName = 'testSecret';
-      const initedResult = 'I am inited';
       secretsManagerMock
         .on(GetSecretValueCommand)
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        class boundClass {
+        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        class BoundClass {
           @secrets.boundProperty('userName')
-          user: string = '';
+          user = '';
           @secrets.boundProperty('userId', (input: any) =>
             input.userId.toUpperCase()
           )
-          id: string = '';
+          id = '';
         }
       }, InvalidOperationError);
     });
@@ -627,13 +644,14 @@ describe('#/secrets/secretClassDecorator', () => {
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      class boundClass {
+      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+      class BoundClass {
         @secrets.boundProperty('userName')
-        user: string = '';
+        user = '';
         @secrets.boundProperty('userId', (input: any) =>
           input.userId.toUpperCase()
         )
-        id: string = '';
+        id = '';
 
         unboundField = 'I am unbound';
 
@@ -642,7 +660,7 @@ describe('#/secrets/secretClassDecorator', () => {
         }
       }
 
-      const testClass = new boundClass();
+      const testClass = new BoundClass();
       assert.throws(() => testClass.id);
       assert.throws(() => testClass.user);
 
@@ -667,8 +685,8 @@ describe('#/secrets/secretClassDecorator', () => {
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      class boundClass {
-        user: string = '';
+      class BoundClass {
+        user = '';
         get userName() {
           return this.user;
         }
@@ -679,14 +697,14 @@ describe('#/secrets/secretClassDecorator', () => {
         @secrets.boundProperty('userId', (input: any) =>
           input.userId.toUpperCase()
         )
-        id: string = '';
+        id = '';
 
         async init(): Promise<string> {
           return initedResult;
         }
       }
 
-      const testClass = new boundClass();
+      const testClass = new BoundClass();
       const initResult = await testClass.init();
       assert.strictEqual(initResult, initedResult);
 
@@ -702,9 +720,9 @@ describe('#/secrets/secretClassDecorator', () => {
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      class boundClass {
+      class BoundClass {
         @secrets.boundProperty('userName')
-        user: string = '';
+        user = '';
 
         get userName() {
           return this.user;
@@ -716,14 +734,14 @@ describe('#/secrets/secretClassDecorator', () => {
         @secrets.boundProperty('userId', (input: any) =>
           input.userId.toUpperCase()
         )
-        id: string = '';
+        id = '';
 
         async init(): Promise<string> {
           return initedResult;
         }
       }
 
-      const testClass = new boundClass();
+      const testClass = new BoundClass();
       const initResult = await testClass.init();
       assert.strictEqual(initResult, initedResult);
 
@@ -739,10 +757,10 @@ describe('#/secrets/secretClassDecorator', () => {
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      class boundClass {
-        userNameField: string = '';
+      class BoundClass {
+        userNameField = '';
 
-        userField: string = '';
+        userField = '';
 
         @secrets.boundProperty('userName')
         get zuser() {
@@ -755,7 +773,7 @@ describe('#/secrets/secretClassDecorator', () => {
         @secrets.boundProperty('userId', (input: any) =>
           input.userId.toUpperCase()
         )
-        id: string = '';
+        id = '';
 
         get userName() {
           return this.userNameField;
@@ -769,7 +787,7 @@ describe('#/secrets/secretClassDecorator', () => {
         }
       }
 
-      const testClass = new boundClass();
+      const testClass = new BoundClass();
       const initResult = await testClass.init();
       assert.strictEqual(initResult, initedResult);
 
@@ -785,10 +803,10 @@ describe('#/secrets/secretClassDecorator', () => {
         .resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      class boundClass {
-        userNameField: string = '';
+      class BoundClass {
+        userNameField = '';
 
-        userField: string = '';
+        userField = '';
 
         @secrets.boundProperty('userName')
         get zuser() {
@@ -801,7 +819,7 @@ describe('#/secrets/secretClassDecorator', () => {
         @secrets.boundProperty('userId', (input: any) =>
           input.userId.toUpperCase()
         )
-        id: string = '';
+        id = '';
         @secrets.boundProperty(false)
         get userName() {
           return this.userNameField;
@@ -815,7 +833,7 @@ describe('#/secrets/secretClassDecorator', () => {
         }
       }
 
-      const testClass = new boundClass();
+      const testClass = new BoundClass();
       const initResult = await testClass.init();
       assert.strictEqual(initResult, initedResult);
 

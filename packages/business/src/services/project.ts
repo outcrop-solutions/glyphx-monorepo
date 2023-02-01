@@ -6,7 +6,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from '../lib/server/databaseConnection';
 
-export class projectService {
+export class ProjectService {
   public static async getProject(
     projectId: mongooseTypes.ObjectId | string
   ): Promise<databaseTypes.IProject | null> {
@@ -39,7 +39,7 @@ export class projectService {
   public static async getProjectFileStats(
     id: mongooseTypes.ObjectId | string
   ): Promise<fileIngestionTypes.IFileStats[]> {
-    const project = await projectService.getProject(id);
+    const project = await ProjectService.getProject(id);
     return project?.files ?? [];
   }
 

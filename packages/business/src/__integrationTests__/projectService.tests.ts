@@ -7,7 +7,6 @@ import {
   database as databaseTypes,
   fileIngestion as fileIngestionTypes,
 } from '@glyphx/types';
-import {error} from '@glyphx/core';
 import {projectService} from '../services';
 
 type ObjectId = mongooseTypes.ObjectId;

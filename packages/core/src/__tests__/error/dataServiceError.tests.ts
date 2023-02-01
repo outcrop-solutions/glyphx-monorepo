@@ -1,3 +1,4 @@
+/*eslint-disable node/no-unpublished-import*/
 import 'mocha';
 import {DataServiceError} from '../../error';
 import {testError, IErrorTestingParameters} from './errorHelper';
