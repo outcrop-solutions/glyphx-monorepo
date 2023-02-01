@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 import Button from 'components/Button/index';
 import Modal from 'components/Modal/index';
-import { useWorkspaces } from '@glyphx/business/src/hooks/data';
+import { useWorkspaces } from 'hooks/data';
 import api from '@glyphx/business/src/lib/common/api';
 import { useWorkspace } from '@/providers/workspace';
 
@@ -29,9 +29,7 @@ const Actions = () => {
       setSubmittingState(false);
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toggleModal();
         setName('');
@@ -43,6 +41,7 @@ const Actions = () => {
   const handleNameChange = (event) => setName(event.target.value);
 
   const handleWorkspaceChange = (workspace) => {
+    // @ts-ignore
     setWorkspace(workspace);
     router.replace(`/account/${workspace?.slug}`);
   };
@@ -51,25 +50,18 @@ const Actions = () => {
 
   return (
     <div className="flex flex-col items-stretch justify-center px-5 space-y-3">
-      <Button
-        className="text-white bg-blue-600 hover:bg-blue-500"
-        onClick={toggleModal}
-      >
+      <Button className="text-white bg-blue-600 hover:bg-blue-500" onClick={toggleModal}>
         <PlusIcon className="w-5 h-5 text-white" aria-hidden="true" />
         <span>Create Workspace</span>
       </Button>
       <Modal show={showModal} title="Create a Workspace" toggle={toggleModal}>
         <div className="space-y-0 text-sm text-gray-600">
-          <p>
-            Create a workspace to keep your team&apos;s content in one place.
-          </p>
+          <p>Create a workspace to keep your team&apos;s content in one place.</p>
           <p>You&apos;ll be able to invite everyone later!</p>
         </div>
         <div className="space-y-1">
           <h3 className="text-xl font-bold">Workspace Name</h3>
-          <p className="text-sm text-gray-400">
-            Name your workspace. Keep it simple.
-          </p>
+          <p className="text-sm text-gray-400">Name your workspace. Keep it simple.</p>
           <input
             className="w-full px-3 py-2 border rounded"
             disabled={isSubmitting}
@@ -101,10 +93,7 @@ const Actions = () => {
                 : workspace.name}
             </span>
             <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-              <SelectorIcon
-                className="w-5 h-5 text-gray-400"
-                aria-hidden="true"
-              />
+              <SelectorIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
             </span>
           </Listbox.Button>
           {data?.workspaces.length > 0 && (
@@ -126,18 +115,12 @@ const Actions = () => {
                   >
                     {({ selected, active }) => (
                       <>
-                        <span
-                          className={`${
-                            selected ? 'font-bold' : 'font-normal'
-                          } block truncate`}
-                        >
+                        <span className={`${selected ? 'font-bold' : 'font-normal'} block truncate`}>
                           {workspace.name}
                         </span>
                         {selected ? (
                           <span
-                            className={`${
-                              active ? 'text-blue-600' : 'text-blue-600'
-                            }
+                            className={`${active ? 'text-blue-600' : 'text-blue-600'}
                                 absolute inset-y-0 left-0 flex items-center pl-3`}
                           >
                             <CheckIcon className="w-5 h-5" aria-hidden="true" />

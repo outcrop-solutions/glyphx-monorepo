@@ -1,9 +1,5 @@
 const Content = ({ children }) => {
-  return (
-    <div className="flex flex-col h-full p-5 space-y-5 overflow-y-auto md:p-10 md:w-3/4">
-      {children}
-    </div>
-  );
+  return <div className="flex flex-col h-full p-5 space-y-5 overflow-y-auto md:p-10 md:w-3/4">{children}</div>;
 };
 
 Content.Container = ({ children }) => {
@@ -11,11 +7,7 @@ Content.Container = ({ children }) => {
 };
 
 Content.Divider = ({ thick }) => {
-  return thick ? (
-    <hr className="border-2 dark:border-gray-600" />
-  ) : (
-    <hr className="border dark:border-gray-700" />
-  );
+  return thick ? <hr className="border-2 dark:border-gray-600" /> : <hr className="border dark:border-gray-700" />;
 };
 
 Content.Empty = ({ children }) => {
@@ -37,9 +29,13 @@ Content.Title = ({ subtitle, title }) => {
   );
 };
 
+// @ts-ignore
 Content.Container.displayName = 'Container';
+// @ts-ignore
 Content.Divider.displayName = 'Divider';
+// @ts-ignore
 Content.Empty.displayName = 'Empty';
+// @ts-ignore
 Content.Title.displayName = 'Title';
 
 export default Content;

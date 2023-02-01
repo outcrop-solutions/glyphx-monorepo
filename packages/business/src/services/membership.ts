@@ -3,13 +3,13 @@ import {prisma} from '@glyphx/database';
 // import {database} from '@glyphx/types';
 
 export async function getMember(id) {
-  await prisma.member.findFirst({
+  return await prisma.member.findFirst({
     select: {teamRole: true},
     where: {id},
   });
 }
 export async function getMembers(slug) {
-  await prisma.member.findMany({
+  return await prisma.member.findMany({
     select: {
       id: true,
       email: true,
@@ -28,7 +28,7 @@ export async function getMembers(slug) {
 }
 
 export async function getPendingInvitations(email) {
-  await prisma.member.findMany({
+  return await prisma.member.findMany({
     select: {
       id: true,
       email: true,
@@ -66,19 +66,19 @@ export async function getPendingInvitations(email) {
   });
 }
 export async function remove(id) {
-  await prisma.member.update({
+  return await prisma.member.update({
     data: {deletedAt: new Date()},
     where: {id},
   });
 }
 export async function toggleRole(id, teamRole) {
-  await prisma.member.update({
+  return await prisma.member.update({
     data: {teamRole},
     where: {id},
   });
 }
 export async function updateStatus(id, status) {
-  await prisma.member.update({
+  return await prisma.member.update({
     data: {status},
     where: {id},
   });

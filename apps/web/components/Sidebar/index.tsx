@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Actions from './actions';
 import Menu from './menu';
 import sidebarMenu from 'config/menu/sidebar-static';
-import { useWorkspaces } from '@glyphx/business/src/hooks/data';
+import { useWorkspaces } from 'hooks/data';
 import { useWorkspace } from 'providers/workspace';
 import { MenuIcon } from '@heroicons/react/outline';
 

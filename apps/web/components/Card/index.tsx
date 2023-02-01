@@ -1,12 +1,8 @@
 const Card = ({ children, danger }) => {
   return danger ? (
-    <div className="flex flex-col justify-between border-2 border-red-600 rounded">
-      {children}
-    </div>
+    <div className="flex flex-col justify-between border-2 border-red-600 rounded">{children}</div>
   ) : (
-    <div className="flex flex-col justify-between border rounded dark:border-gray-600">
-      {children}
-    </div>
+    <div className="flex flex-col justify-between border rounded dark:border-gray-600">{children}</div>
   );
 };
 
@@ -42,8 +38,11 @@ Card.Footer = ({ children }) => {
   );
 };
 
+// @ts-ignore
 Card.Body.displayName = 'Body';
+// @ts-ignore
 Card.Empty.displayName = 'Empty';
+// @ts-ignore
 Card.Footer.displayName = 'Footer';
 
 export default Card;

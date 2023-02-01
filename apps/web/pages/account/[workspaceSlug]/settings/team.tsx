@@ -17,7 +17,7 @@ import Button from '@/components/Button/index';
 import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
-import { useMembers } from '@glyphx/business/src/hooks/data';
+import { useMembers } from 'hooks/data';
 import { AccountLayout } from '@/layouts/index';
 import api from '@glyphx/business/src/lib/common/api';
 import { getWorkspace, isWorkspaceOwner } from '@glyphx/business/src/services/workspace';
@@ -305,6 +305,7 @@ export const getServerSideProps = async (context) => {
     workspace = await getWorkspace(session.user.userId, session.user.email, context.params.workspaceSlug);
 
     if (workspace) {
+      // @ts-ignore
       isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
       workspace.inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace.inviteCode)}`;
     }

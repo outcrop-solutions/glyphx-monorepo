@@ -3,14 +3,14 @@ import {sendMail} from 'lib/server/mail';
 import {prisma} from '@glyphx/database';
 
 export async function deactivate(id) {
-  await prisma.user.update({
+  return await prisma.user.update({
     data: {deletedAt: new Date()},
     where: {id},
   });
 }
 
 export async function getUser(id) {
-  await prisma.user.findUnique({
+  return await prisma.user.findUnique({
     select: {
       email: true,
       name: true,
@@ -37,7 +37,7 @@ export async function updateEmail(id, email, previousEmail) {
 }
 
 export async function updateName(id, name) {
-  await prisma.user.update({
+  return await prisma.user.update({
     data: {name},
     where: {id},
   });

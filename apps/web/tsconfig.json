@@ -10,6 +10,7 @@
       "@/layouts/*": ["layouts/*"],
       "@/lib/*": ["lib/*"],
       "@/pages/*": ["pages/*"],
+      "@/hooks/*": ["hooks/*"],
       "@/partials/*": ["partials/*"],
       "@/providers/*": ["providers/*"],
       "@/state/*": ["state/*"],

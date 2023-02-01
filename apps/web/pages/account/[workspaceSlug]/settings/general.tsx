@@ -24,10 +24,7 @@ const General = ({ isTeamOwner, workspace }) => {
   const [slug, setSlug] = useState(workspace.slug || '');
   const validName = name.length > 0 && name.length <= 16;
   const validSlug =
-    slug.length > 0 &&
-    slug.length <= 16 &&
-    isSlug(slug) &&
-    isAlphanumeric(slug, undefined, { ignore: '-' });
+    slug.length > 0 && slug.length <= 16 && isSlug(slug) && isAlphanumeric(slug, undefined, { ignore: '-' });
 
   const changeName = (event) => {
     event.preventDefault();
@@ -39,9 +36,7 @@ const General = ({ isTeamOwner, workspace }) => {
       setSubmittingState(false);
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Workspace name successfully updated!');
       }
@@ -59,9 +54,7 @@ const General = ({ isTeamOwner, workspace }) => {
       const slug = response?.data?.slug;
 
       if (response.errors) {
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Workspace slug successfully updated!');
         router.replace(`/account/${slug}/settings/general`);
@@ -78,23 +71,20 @@ const General = ({ isTeamOwner, workspace }) => {
   useEffect(() => {
     setName(workspace.name);
     setSlug(workspace.slug);
+    // @ts-ignore
     setWorkspace(workspace);
   }, [workspace, setWorkspace]);
 
   return (
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace.name} | Settings`} />
-      <Content.Title
-        title="Workspace Information"
-        subtitle="Manage your workspace details and information"
-      />
+      <Content.Title title="Workspace Information" subtitle="Manage your workspace details and information" />
+      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
+        {/* @ts-ignore */}
         <Card>
-          <Card.Body
-            title="Workspace Name"
-            subtitle="Used to identify your Workspace on the Dashboard"
-          >
+          <Card.Body title="Workspace Name" subtitle="Used to identify your Workspace on the Dashboard">
             <input
               className="px-3 py-2 border rounded md:w-1/2"
               disabled={isSubmitting || !isTeamOwner}
@@ -116,11 +106,9 @@ const General = ({ isTeamOwner, workspace }) => {
             )}
           </Card.Footer>
         </Card>
+        {/* @ts-ignore */}
         <Card>
-          <Card.Body
-            title="Workspace Slug"
-            subtitle="Used to identify your Workspace on the Dashboard"
-          >
+          <Card.Body title="Workspace Slug" subtitle="Used to identify your Workspace on the Dashboard">
             <div className="flex items-center space-x-3">
               <input
                 className="px-3 py-2 border rounded md:w-1/2"
@@ -129,16 +117,11 @@ const General = ({ isTeamOwner, workspace }) => {
                 type="text"
                 value={slug}
               />
-              <span className={`text-sm ${slug.length > 16 && 'text-red-600'}`}>
-                {slug.length} / 16
-              </span>
+              <span className={`text-sm ${slug.length > 16 && 'text-red-600'}`}>{slug.length} / 16</span>
             </div>
           </Card.Body>
           <Card.Footer>
-            <small>
-              Please use 16 characters at maximum. Hyphenated alphanumeric
-              characters only.
-            </small>
+            <small>Please use 16 characters at maximum. Hyphenated alphanumeric characters only.</small>
             {isTeamOwner && (
               <Button
                 className="text-white bg-blue-600 hover:bg-blue-500"
@@ -150,17 +133,12 @@ const General = ({ isTeamOwner, workspace }) => {
             )}
           </Card.Footer>
         </Card>
+        {/* @ts-ignore */}
         <Card>
-          <Card.Body
-            title="Workspace ID"
-            subtitle="Used when interacting with APIs"
-          >
+          <Card.Body title="Workspace ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
               <span className="overflow-x-auto">{workspace.workspaceCode}</span>
-              <CopyToClipboard
-                onCopy={copyToClipboard}
-                text={workspace.workspaceCode}
-              >
+              <CopyToClipboard onCopy={copyToClipboard} text={workspace.workspaceCode}>
                 <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
               </CopyToClipboard>
             </div>
@@ -177,13 +155,11 @@ export const getServerSideProps = async (context) => {
   let workspace = null;
 
   if (session) {
-    workspace = await getWorkspace(
-      session.user.userId,
-      session.user.email,
-      context.params.workspaceSlug
-    );
+    // @ts-ignore
+    workspace = await getWorkspace(session.user.userId, session.user.email, context.params.workspaceSlug);
 
     if (workspace) {
+      // @ts-ignore
       isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
     }
   }
