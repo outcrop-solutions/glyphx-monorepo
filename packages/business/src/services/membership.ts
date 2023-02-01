@@ -1,20 +1,21 @@
-import { InvitationStatus } from '@prisma/client';
-import { prisma } from '@glyphx/database';
+// import {InvitationStatus} from '@prisma/client';
+import {prisma} from '@glyphx/database';
+import {INVITATION_STATUS} from '@glyphx/types/src/database/constants';
 
-export const getMember = async (id) =>
+export async function getMember(id) {
   await prisma.member.findFirst({
-    select: { teamRole: true },
-    where: { id },
+    select: {teamRole: true},
+    where: {id},
   });
-
-export const getMembers = async (slug) =>
+}
+export async function getMembers(slug) {
   await prisma.member.findMany({
     select: {
       id: true,
       email: true,
       status: true,
       teamRole: true,
-      member: { select: { name: true } },
+      member: {select: {name: true}},
     },
     where: {
       deletedAt: null,
@@ -24,7 +25,9 @@ export const getMembers = async (slug) =>
       },
     },
   });
-export const getPendingInvitations = async (email) =>
+}
+
+export async function getPendingInvitations(email) {
   await prisma.member.findMany({
     select: {
       id: true,
@@ -57,25 +60,26 @@ export const getPendingInvitations = async (email) =>
     where: {
       deletedAt: null,
       email,
-      status: InvitationStatus.PENDING,
-      workspace: { deletedAt: null },
+      status: INVITATION_STATUS.PENDING,
+      workspace: {deletedAt: null},
     },
   });
-
-export const remove = async (id) =>
+}
+export async function remove(id) {
   await prisma.member.update({
-    data: { deletedAt: new Date() },
-    where: { id },
+    data: {deletedAt: new Date()},
+    where: {id},
   });
-
-export const toggleRole = async (id, teamRole) =>
+}
+export async function toggleRole(id, teamRole) {
   await prisma.member.update({
-    data: { teamRole },
-    where: { id },
+    data: {teamRole},
+    where: {id},
   });
-
-export const updateStatus = async (id, status) =>
+}
+export async function updateStatus(id, status) {
   await prisma.member.update({
-    data: { status },
-    where: { id },
+    data: {status},
+    where: {id},
   });
+}

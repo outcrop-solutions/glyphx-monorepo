@@ -1,6 +1,13 @@
-import { createPaymentAccount, getPayment, updateSubscription } from './customer';
-import { getMember, getMembers, getPendingInvitations, remove, toggleRole, updateStatus } from './membership';
-import { deactivate, getUser, updateEmail, updateName } from './user';
+import {createPaymentAccount, getPayment, updateSubscription} from './customer';
+import {
+  getMember,
+  getMembers,
+  getPendingInvitations,
+  remove,
+  toggleRole,
+  updateStatus,
+} from './membership';
+import {deactivate, getUser, updateEmail, updateName} from './user';
 import {
   countWorkspaces,
   createWorkspace,

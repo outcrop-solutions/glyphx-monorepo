@@ -4,7 +4,7 @@ import EmailProvider from 'next-auth/providers/email';
 
 import { prisma } from '@glyphx/database';
 import { html, text } from '@glyphx/business/src/email/signin';
-import { emailConfig, sendMail } from '@glyphx/business/src/lib/server/mail';
+import { EMAIL_CONFIG, sendMail } from '@glyphx/business/src/lib/server/mail';
 import { createPaymentAccount, getPayment } from '@glyphx/business/src/services/customer';
 // import { log } from '@/lib/server/logsnag';
 
@@ -46,7 +46,7 @@ export default NextAuth({
   providers: [
     EmailProvider({
       from: process.env.EMAIL_FROM,
-      server: emailConfig,
+      server: EMAIL_CONFIG,
       sendVerificationRequest: async ({ identifier: email, url }) => {
         const { host } = new URL(url);
         // @ts-ignore
