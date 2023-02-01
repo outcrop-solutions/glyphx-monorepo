@@ -8,7 +8,7 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import { useInvitations, useWorkspaces } from 'hooks/data/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@glyphx/business/src/lib/common/api';
+import {api} from '@glyphx/business';
 import { useWorkspace } from '@/providers/workspace';
 
 const Welcome = () => {

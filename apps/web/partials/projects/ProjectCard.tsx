@@ -2,8 +2,8 @@ import React from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
-import { API, Storage } from "aws-amplify";
-import * as mutations from "graphql/mutations";
+// import { API, Storage } from "aws-amplify";
+// import * as mutations from "graphql/mutations";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
 import { projectsAtom } from "@/state/globals";
@@ -25,17 +25,17 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
       return newData;
     });
 
-    await API.graphql({
-      query: mutations.deleteProject,
-      variables: { input: projectDelete },
-    });
+    // await API.graphql({
+    //   query: mutations.deleteProject,
+    //   variables: { input: projectDelete },
+    // });
 
-    const s3Data = await Storage.list(`${project.id}/`);
-    if (s3Data && s3Data.length > 0) {
-      for (let i = 0; i < s3Data.length; i++) {
-        await Storage.remove(`${s3Data[i].key}`);
-      }
-    }
+    // const s3Data = await Storage.list(`${project.id}/`);
+    // if (s3Data && s3Data.length > 0) {
+    //   for (let i = 0; i < s3Data.length; i++) {
+    //     await Storage.remove(`${s3Data[i].key}`);
+    //   }
+    // }
   };
 
   return (

@@ -1,13 +1,9 @@
-import {
-  CheckCircleIcon,
-  PencilIcon,
-  TrashIcon,
-} from "@heroicons/react/outline";
-import { useState } from "react";
-import * as mutations from "graphql/mutations";
-import { API } from "aws-amplify";
-import { activeStateAtom } from "@/state/states";
-import { useRecoilState } from "recoil";
+import { CheckCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/outline';
+import { useState } from 'react';
+// import * as mutations from "graphql/mutations";
+// import { API } from "aws-amplify";
+import { activeStateAtom } from '@/state/states';
+import { useRecoilState } from 'recoil';
 
 export const State = ({ item }) => {
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
@@ -25,10 +21,10 @@ export const State = ({ item }) => {
     const stateDelete = {
       id: item.id,
     };
-    await API.graphql({
-      query: mutations.deleteState,
-      variables: { input: stateDelete },
-    });
+    // await API.graphql({
+    //   query: mutations.deleteState,
+    //   variables: { input: stateDelete },
+    // });
   };
 
   const handleSave = () => {
@@ -55,7 +51,7 @@ export const State = ({ item }) => {
         <div>
           <input
             onKeyPress={(ev) => {
-              if (ev.key === "Enter") {
+              if (ev.key === 'Enter') {
                 ev.preventDefault();
                 handleSave();
               }
@@ -74,11 +70,11 @@ export const State = ({ item }) => {
             className={`text-sm ${
               // @ts-ignore
               item && item.id && activeState && activeState.id
-              // @ts-ignore
-                ? item.id === activeState.id
-                  ? "text-white"
-                  : ""
-                : ""
+                ? // @ts-ignore
+                  item.id === activeState.id
+                  ? 'text-white'
+                  : ''
+                : ''
             } font-medium ml-3 lg:opacity-100 2xl:opacity-100 duration-200`}
           >
             {item.title}

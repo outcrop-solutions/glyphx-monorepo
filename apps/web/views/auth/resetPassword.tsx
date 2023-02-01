@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Auth } from 'aws-amplify';
+// import { Auth } from 'aws-amplify';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
@@ -21,30 +21,30 @@ export default function ResetPassword() {
   const handleNewPass = (e) => {
     setNewPass(e.target.value);
   };
-  const handleResetPassword = async () => {
-    try {
-      const data = await Auth.forgotPassword(email);
-      setIsCodeSent(true);
-    } catch (error) {
-      console.log({ error });
-    }
-  };
-  const handleSubmitCode = async () => {
-    try {
-      const result = await Auth.forgotPasswordSubmit(email, code, newPass);
-      console.log({ result });
-      if (result === 'SUCCESS') {
-        // if successfull navigate to sign in
-        router.push('/auth/signIn');
-      }
-    } catch (error) {
-      console.log({ error });
-      setErrorMessage(error.message);
-      setTimeout(() => {
-        setErrorMessage(false);
-      }, 5000);
-    }
-  };
+  // const handleResetPassword = async () => {
+  //   try {
+  //     const data = await Auth.forgotPassword(email);
+  //     setIsCodeSent(true);
+  //   } catch (error) {
+  //     console.log({ error });
+  //   }
+  // };
+  // const handleSubmitCode = async () => {
+  //   try {
+  //     const result = await Auth.forgotPasswordSubmit(email, code, newPass);
+  //     console.log({ result });
+  //     if (result === 'SUCCESS') {
+  //       // if successfull navigate to sign in
+  //       router.push('/auth/signIn');
+  //     }
+  //   } catch (error) {
+  //     console.log({ error });
+  //     setErrorMessage(error.message);
+  //     setTimeout(() => {
+  //       setErrorMessage(false);
+  //     }, 5000);
+  //   }
+  // };
 
   const handleBack = () => {
     router.push('/auth/signIn');
@@ -63,7 +63,7 @@ export default function ResetPassword() {
                 onKeyPress={(ev) => {
                   if (ev.key === 'Enter') {
                     ev.preventDefault();
-                    handleSubmitCode();
+                    // handleSubmitCode();
                   }
                 }}
               >
@@ -102,7 +102,7 @@ export default function ResetPassword() {
                 <div>
                   <button
                     className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow hover:bg-primary-yellow-hover cursor-pointer"
-                    onClick={handleSubmitCode}
+                    // onClick={handleSubmitCode}
                   >
                     Submit
                   </button>
@@ -116,7 +116,7 @@ export default function ResetPassword() {
                 onKeyPress={(ev) => {
                   if (ev.key === 'Enter') {
                     ev.preventDefault();
-                    handleResetPassword();
+                    // handleResetPassword();
                   }
                 }}
               >
@@ -148,7 +148,7 @@ export default function ResetPassword() {
                 <div>
                   <button
                     className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow hover:bg-primary-yellow-hover cursor-pointer"
-                    onClick={handleResetPassword}
+                    // onClick={handleResetPassword}
                   >
                     Send Code
                   </button>

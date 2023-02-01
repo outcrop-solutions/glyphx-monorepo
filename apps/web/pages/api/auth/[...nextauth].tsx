@@ -3,9 +3,7 @@ import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 
 import { prisma } from '@glyphx/database';
-import { html, text } from '@glyphx/business/src/email/signin';
-import { EMAIL_CONFIG, sendMail } from '@glyphx/business/src/lib/server/mail';
-import { createPaymentAccount, getPayment } from '@glyphx/business/src/services/customer';
+import { EMAIL_CONFIG, sendMail, signInHtml, signInText, createPaymentAccount, getPayment } from '@glyphx/business';
 // import { log } from '@/lib/server/logsnag';
 
 export default NextAuth({
@@ -51,9 +49,9 @@ export default NextAuth({
         const { host } = new URL(url);
         // @ts-ignore
         await sendMail({
-          html: html({ email, url }),
+          html: signInHtml({ email, url }),
           subject: `[Glyphx] Sign in to ${host}`,
-          text: text({ email, url }),
+          text: signInText({ email, url }),
           to: email,
         });
       },

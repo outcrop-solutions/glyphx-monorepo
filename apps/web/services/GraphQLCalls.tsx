@@ -1,5 +1,5 @@
 
-import { updateProject } from "graphql/mutations";
+// import { updateProject } from "graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
 
 /**
@@ -9,11 +9,11 @@ import { API, graphqlOperation } from "aws-amplify";
  */
 export const updateProjectInfo = async (newProjectState) => {
     try {
-        const result = await API.graphql(
-            graphqlOperation(updateProject, { input: newProjectState })
-        );
-        console.log({ result });
-        return result;
+        // const result = await API.graphql(
+        //     graphqlOperation(updateProject, { input: newProjectState })
+        // );
+        // console.log({ result });
+        // return result;
     } catch (error) {
         // TODO: put error handling in toast
         console.log({ error });

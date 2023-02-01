@@ -1,8 +1,8 @@
 import {
   validateSession,
   validateUpdateWorkspaceName,
-} from '@glyphx/business/src/validation/index';
-import { updateName } from '@glyphx/business/src/services/workspace';
+} from '@glyphx/business';
+import { updateWorkspaceName } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;
@@ -11,7 +11,7 @@ const handler = async (req, res) => {
     const session = await validateSession(req, res);
     await validateUpdateWorkspaceName(req, res);
     const { name } = req.body;
-    updateName(
+    updateWorkspaceName(
       session.user.userId,
       session.user.email,
       name,

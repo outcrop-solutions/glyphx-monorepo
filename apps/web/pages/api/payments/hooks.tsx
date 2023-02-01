@@ -1,7 +1,6 @@
 import { buffer } from 'micro';
 
-import stripe from '@glyphx/business/src/lib/server/stripe';
-import { updateSubscription } from '@glyphx/business/src/services/customer';
+import { stripe, updateSubscription } from '@glyphx/business';
 import { prisma } from '@glyphx/database';
 
 export const config = { api: { bodyParser: false } };
@@ -12,11 +11,7 @@ const handler = async (req, res) => {
   let event = null;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      reqBuffer,
-      signature,
-      process.env.PAYMENTS_SIGNING_SECRET
-    );
+    event = stripe.webhooks.constructEvent(reqBuffer, signature, process.env.PAYMENTS_SIGNING_SECRET);
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
@@ -31,9 +26,7 @@ const handler = async (req, res) => {
         }
         break;
       default:
-        res
-          .status(400)
-          .send(`Webhook Error: Unhandled event type ${event.type}`);
+        res.status(400).send(`Webhook Error: Unhandled event type ${event.type}`);
     }
   } else {
     return res.status(400).send(`Webhook Error: Event not created`);

@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Transition } from "utils/Transition";
-import { Auth } from "aws-amplify";
+// import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
 import {userAtom } from "@/state/user";
 import { useRecoilValue } from "recoil";
@@ -40,8 +40,8 @@ export const UserMenu = ({ align }) => {
 
   const signOut = async () => {
     try {
-      await Auth.signOut();
-      router.push("/");
+      // await Auth.signOut();
+      // router.push("/");
     } catch (error) {
       console.log("error sigingin out" + error);
     }

@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
 import { PencilIcon } from "@heroicons/react/outline";
 
-import { updateProject } from "graphql/mutations";
-import { API, graphqlOperation } from "aws-amplify";
-import { Project } from "API";
+// import { updateProject } from "graphql/mutations";
+// import { API, graphqlOperation } from "aws-amplify";
+// import { Project } from "API";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
     orientationAtom,
@@ -89,9 +89,9 @@ export const ProjectHeader = () => {
             shared: selectedProject.shared,
         };
         try {
-            const result = await API.graphql(
-                graphqlOperation(updateProject, { input: updateProjectInput })
-            );
+            // const result = await API.graphql(
+            //     graphqlOperation(updateProject, { input: updateProjectInput })
+            // );
         } catch (error) {
             console.log({ error });
         }

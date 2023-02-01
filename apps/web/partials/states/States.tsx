@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { createState } from "graphql/mutations";
+// import { createState } from "graphql/mutations";
 import { v4 as uuid } from "uuid";
 import { StateList } from "./StateList";
 // import { PlusIcon } from "@heroicons/react/outline";

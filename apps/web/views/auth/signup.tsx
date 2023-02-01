@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Auth } from 'aws-amplify';
+// import { Auth } from 'aws-amplify';
 import { useRouter } from 'next/router';
 import { userAtom } from '@/state/user';
 import { useSetRecoilState } from 'recoil';
@@ -17,15 +17,15 @@ export default function Signup() {
 
   const handleSignUp = async () => {
     try {
-      const user = await Auth.signUp({
-        username,
-        password,
-        attributes: {
-          email: username,
-          name: fullName,
-        },
-      });
-      setUser(user);
+      // const user = await Auth.signUp({
+      //   username,
+      //   password,
+      //   attributes: {
+      //     email: username,
+      //     name: fullName,
+      //   },
+      // });
+      // setUser(user);
       // setUser({
       //   username: username,
       //   password: password,

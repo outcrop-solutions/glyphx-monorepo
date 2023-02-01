@@ -5,10 +5,10 @@ import { showAddProjectAtom } from '@/state/globals';
 import { selectedProjectSelector } from '@/state/project';
 import { propertiesAtom, showReorderConfirmAtom } from '@/state/properties';
 import { filtersSelector } from '@/state/filters';
-import { API, graphqlOperation, Storage } from 'aws-amplify';
-import { CreateProjectInput, CreateProjectMutation } from 'API';
+// import { API, graphqlOperation, Storage } from 'aws-amplify';
+// import { CreateProjectInput, CreateProjectMutation } from 'API';
 import { userAtom } from '@/state/user';
-import { createProject } from 'graphql/mutations';
+// import { createProject } from 'graphql/mutations';
 
 export const ReorderConfirmModal = () => {
   const user = useRecoilValue(userAtom);
@@ -41,25 +41,25 @@ export const ReorderConfirmModal = () => {
           // @ts-ignore
           shared: [user.username],
         };
-        const result = (await API.graphql(graphqlOperation(createProject, { input: createProjectInput }))) as {
-          data: CreateProjectMutation;
-        };
+        // const result = (await API.graphql(graphqlOperation(createProject, { input: createProjectInput }))) as {
+        //   data: CreateProjectMutation;
+        // };
 
-        return {
-          projId: result.data.createProject.id,
-          projectData: result.data.createProject,
-        };
+        // return {
+        //   projId: result.data.createProject.id,
+        //   projectData: result.data.createProject,
+        // };
       } catch (error) {
         console.log({ error });
       }
     };
     const copyFiles = async (id) => {
       try {
-        const data = await Storage.list(`${project.id}/input/`);
+        // const data = await Storage.list(`${project.id}/input/`);
         // @ts-ignore
         for (let i = 0; i < data.length; i++) {
-          const copied = await Storage.copy({ key: `${data[i].key}` }, { key: `${id}${data[i].key.slice(36)}` });
-          return copied;
+          // const copied = await Storage.copy({ key: `${data[i].key}` }, { key: `${id}${data[i].key.slice(36)}` });
+          // return copied;
         }
       } catch (error) {
         console.log({ error });
@@ -92,11 +92,11 @@ export const ReorderConfirmModal = () => {
       }
     };
 
-    let { projId } = await createProj();
-    let isCopied = await copyFiles(projId);
-    if (isCopied) {
-      await callETL();
-    }
+    // let { projId } = await createProj();
+    // let isCopied = await copyFiles(projId);
+    // if (isCopied) {
+    //   await callETL();
+    // }
 
     // copy S3 files
     // call ETL

@@ -1,7 +1,5 @@
-import initMiddleware from 'lib/server/initMiddleware';
-import validate from 'lib/server/sessionCheck';
-
+import {initMiddleware, validateSessionMiddleware} from 'lib';
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const validateSession = initMiddleware(validate());
+const validateSession = initMiddleware(validateSessionMiddleware());
 
 export default validateSession;

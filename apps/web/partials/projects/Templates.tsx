@@ -6,15 +6,16 @@ import {
   TerminalIcon,
 } from "@heroicons/react/outline";
 import { v4 as uuid } from "uuid";
-import { createProject } from "graphql/mutations";
-import { listProjects } from "graphql/queries";
-import { API, graphqlOperation } from "aws-amplify";
+// import { createProject } from "graphql/mutations";
+// import { listProjects } from "graphql/queries";
+// import { API, graphqlOperation } from "aws-amplify";
 
 import sortArray from "sort-array";
 import { useUser } from "services";
 import { useRouter } from "next/router";
-import { CreateProjectMutation } from "API";
+// import { CreateProjectMutation } from "API";
 import {userAtom } from "@/state/user";
+
 import { useRecoilValue } from "recoil";
 const items = [
   {
@@ -85,12 +86,12 @@ export const Templates = () => {
       expiry: new Date(),
     };
     try {
-      const result = (await API.graphql(
-        graphqlOperation(createProject, { input: createProjectInput })
-      )) as {
-        data: CreateProjectMutation;
-      };
-      router.push(`/project/${result.data.createProject.id}`);
+      // const result = (await API.graphql(
+      //   graphqlOperation(createProject, { input: createProjectInput })
+      // )) as {
+      //   data: CreateProjectMutation;
+      // };
+      // router.push(`/project/${result.data.createProject.id}`);
     } catch (error) {
       console.log({ error });
     }

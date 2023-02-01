@@ -300,7 +300,7 @@ export async function joinWorkspace(workspaceCode, email: string) {
   }
 }
 
-export async function updateName(id, email, name, slug) {
+export async function updateWorkspaceName(id, email, name, slug) {
   const workspace = await getOwnWorkspace(id, email, slug);
 
   if (workspace) {

@@ -1,5 +1,5 @@
-import { validateSession } from '@glyphx/business/src/validation';
-import { deactivate } from '@glyphx/business/src/services/user';
+import { validateSession } from '@glyphx/business';
+import { deactivate } from '@glyphx/business';
 
 const ALLOW_DEACTIVATION = false;
 

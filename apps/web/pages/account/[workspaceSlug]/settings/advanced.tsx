@@ -8,10 +8,9 @@ import Modal from 'components/Modal/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@glyphx/business/src/lib/common/api';
+import {api, getWorkspace, isWorkspaceCreator}from '@glyphx/business';
 import { useWorkspace } from 'providers/workspace';
 import { getSession } from 'next-auth/react';
-import { getWorkspace, isWorkspaceCreator } from '@glyphx/business/src/services/workspace';
 
 const Advanced = ({ isCreator }) => {
   const { setWorkspace, workspace } = useWorkspace();

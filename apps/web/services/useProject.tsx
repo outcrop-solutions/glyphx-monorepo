@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { API, graphqlOperation, Auth } from "aws-amplify";
+// import { API, graphqlOperation, Auth } from "aws-amplify";
 import update from "immutability-helper";
 import {
   droppedPropertiesSelector,
@@ -20,7 +20,7 @@ import {
   selectedFileAtom
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { updateProject } from "graphql/mutations";
+// import { updateProject } from "graphql/mutations";
 import { createModelCall } from "./ETLCalls";
 import { formatColumnHeader } from "@/utils/Utils";
 /**
@@ -100,10 +100,10 @@ export const useProject = () => {
           url: res.url,
         };
         try {
-          const result = await API.graphql(
-            graphqlOperation(updateProject, { input: updateProjectInput })
-          );
-          console.log({ result });
+          // const result = await API.graphql(
+          //   graphqlOperation(updateProject, { input: updateProjectInput })
+          // );
+          // console.log({ result });
           console.log({ payload });
         } catch (error) {
           // TODO: put error handling in toast

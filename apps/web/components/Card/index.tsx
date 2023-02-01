@@ -1,4 +1,4 @@
-const Card = ({ children, danger }) => {
+const Card = ({ children, danger = null }) => {
   return danger ? (
     <div className="flex flex-col justify-between border-2 border-red-600 rounded">{children}</div>
   ) : (
@@ -6,7 +6,7 @@ const Card = ({ children, danger }) => {
   );
 };
 
-Card.Body = ({ children, subtitle, title }) => {
+Card.Body = ({ children = null, subtitle = null, title = null }) => {
   return (
     <div className="flex flex-col p-5 space-y-3 overflow-auto">
       {title ? (

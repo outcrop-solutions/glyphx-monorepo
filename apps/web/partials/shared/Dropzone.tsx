@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Storage } from 'aws-amplify';
+// import { Storage } from 'aws-amplify';
 import { parse } from 'papaparse';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -113,66 +113,66 @@ export const Dropzone = ({ toastRef }) => {
           // Do whatever you want with the file contents
           const binaryStr = reader.result;
           console.log('inside reader.onLOAD');
-          Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
-            async progressCallback(progress) {
-              setProgress({
-                progress: progress.loaded,
-                total: progress.total,
-              });
-              console.log('Inside storage.put');
-              if (progress.loaded / progress.total === 1) {
-                console.log('upload complete');
-                console.log('about to do api call');
-                //api call here
-                try {
-                  const result = await postUploadCall(selectedProject.id);
-                  console.log({ result });
-                  if (result.Error) {
-                    // if there is an error
-                    setGridErrorModal({
-                      show: true,
-                      title: 'Fatal Error',
-                      message: 'Error Occured When Processing Your Spreadsheet',
-                      devError: result.message,
-                    });
-                  } else {
-                    // TODO: SAVE FILE NAME TO PROJECT
-                    console.log({ project });
-                    let fileArr = [file.name];
-                    if (project?.files !== null) {
-                      fileArr = [...fileArr, ...project.files];
-                    }
-                    const updatedProject = {
-                      id: project?.id,
-                      filePath: project?.filePath,
-                      expiry: new Date().toISOString(),
-                      properties: project?.properties,
-                      url: project?.url,
-                      shared: project.shared,
-                      description: project.description,
-                      files: fileArr, //adding file to dynamo db
-                    };
-                    console.log({ updatedProject });
-                    let GraphQLresult = await updateProjectInfo(updatedProject);
-                    console.log('GraphQL file update:', { GraphQLresult });
-                  }
-                } catch (error) {
-                  setGridErrorModal({
-                    show: true,
-                    title: 'Fatal Error',
-                    message: 'Failed to Call ETL Post File Upload',
-                    devError: error.message,
-                  });
-                  console.log({ error });
-                  setDataGridState(false);
-                }
-                setDataGridState(false);
-              } else {
-                console.log('upload incomplete');
-              }
-              console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-            },
-          });
+          // Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
+          //   async progressCallback(progress) {
+          //     setProgress({
+          //       progress: progress.loaded,
+          //       total: progress.total,
+          //     });
+          //     console.log('Inside storage.put');
+          //     if (progress.loaded / progress.total === 1) {
+          //       console.log('upload complete');
+          //       console.log('about to do api call');
+          //       //api call here
+          //       try {
+          //         const result = await postUploadCall(selectedProject.id);
+          //         console.log({ result });
+          //         if (result.Error) {
+          //           // if there is an error
+          //           setGridErrorModal({
+          //             show: true,
+          //             title: 'Fatal Error',
+          //             message: 'Error Occured When Processing Your Spreadsheet',
+          //             devError: result.message,
+          //           });
+          //         } else {
+          //           // TODO: SAVE FILE NAME TO PROJECT
+          //           console.log({ project });
+          //           let fileArr = [file.name];
+          //           if (project?.files !== null) {
+          //             fileArr = [...fileArr, ...project.files];
+          //           }
+          //           const updatedProject = {
+          //             id: project?.id,
+          //             filePath: project?.filePath,
+          //             expiry: new Date().toISOString(),
+          //             properties: project?.properties,
+          //             url: project?.url,
+          //             shared: project.shared,
+          //             description: project.description,
+          //             files: fileArr, //adding file to dynamo db
+          //           };
+          //           console.log({ updatedProject });
+          //           let GraphQLresult = await updateProjectInfo(updatedProject);
+          //           console.log('GraphQL file update:', { GraphQLresult });
+          //         }
+          //       } catch (error) {
+          //         setGridErrorModal({
+          //           show: true,
+          //           title: 'Fatal Error',
+          //           message: 'Failed to Call ETL Post File Upload',
+          //           devError: error.message,
+          //         });
+          //         console.log({ error });
+          //         setDataGridState(false);
+          //       }
+          //       setDataGridState(false);
+          //     } else {
+          //       console.log('upload incomplete');
+          //     }
+          //     console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+          //   },
+          // });
 
           console.log(`sent ${file.name} to S3`);
         };

@@ -19,8 +19,7 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import { useMembers } from 'hooks/data';
 import { AccountLayout } from '@/layouts/index';
-import api from '@glyphx/business/src/lib/common/api';
-import { getWorkspace, isWorkspaceOwner } from '@glyphx/business/src/services/workspace';
+import { api, getWorkspace, isWorkspaceOwner } from '@glyphx/business';
 
 const MEMBERS_TEMPLATE = { email: '', role: Role.MEMBER };
 

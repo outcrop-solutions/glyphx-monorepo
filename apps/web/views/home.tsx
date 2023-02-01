@@ -45,6 +45,7 @@ export default function Home() {
   useEffect(()=>{
 
     isUserLogged().then((result)=>{
+      // @ts-ignore
       if(!result){
         router.push("/auth/signIn");
       }

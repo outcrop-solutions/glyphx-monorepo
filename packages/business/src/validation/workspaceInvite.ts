@@ -1,8 +1,6 @@
 import {ROLE} from '@glyphx/types/src/database/constants';
 import {check} from 'express-validator';
-import initMiddleware from 'lib/server/initMiddleware';
-import validate from 'lib/server/validate';
-
+import {initMiddleware, validateMiddleware} from 'lib';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const rules = [
   check('members')
@@ -15,6 +13,6 @@ const rules = [
 ];
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const validateWorkspaceInvite = initMiddleware(validate(rules));
+const validateWorkspaceInvite = initMiddleware(validateMiddleware(rules));
 
 export default validateWorkspaceInvite;

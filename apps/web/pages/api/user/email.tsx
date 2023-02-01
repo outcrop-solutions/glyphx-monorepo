@@ -1,7 +1,5 @@
-import {
-  validateUpdateEmail,
-  validateSession,
-} from '@glyphx/business/src/validation/index';
+import { updateEmail } from '@glyphx/business';
+import { validateUpdateEmail, validateSession } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;
@@ -13,9 +11,7 @@ const handler = async (req, res) => {
     await updateEmail(session.user.userId, email, session.user.email);
     res.status(200).json({ data: { email } });
   } else {
-    res
-      .status(405)
-      .json({ errors: { error: { msg: `${method} method unsupported` } } });
+    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
   }
 };
 

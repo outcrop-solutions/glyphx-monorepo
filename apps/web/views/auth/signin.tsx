@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Auth } from 'aws-amplify';
+// import { Auth } from 'aws-amplify';
 import React from 'react';
 import { userAtom } from '@/state/user';
 import { useSetRecoilState } from 'recoil';
@@ -21,21 +21,21 @@ export default function Signin() {
   const handlePass = (e) => {
     setPassword(e.target.value);
   };
-  const signIn = async () => {
-    try {
-      const user = await Auth.signIn(username, password);
-      //on succfull log in
-      console.log({ user });
-      router.push('/');
-    } catch (error) {
-      setError(error.message);
-      setTimeout(() => {
-        setError(false);
-      }, 5000);
-      console.log('error on signin page' + error);
-      // setIsLoggedIn(false);
-    }
-  };
+  // const signIn = async () => {
+  //   try {
+  //     const user = await Auth.signIn(username, password);
+  //     //on succfull log in
+  //     console.log({ user });
+  //     router.push('/');
+  //   } catch (error) {
+  //     setError(error.message);
+  //     setTimeout(() => {
+  //       setError(false);
+  //     }, 5000);
+  //     console.log('error on signin page' + error);
+  //     // setIsLoggedIn(false);
+  //   }
+  // };
   return (
     // TODO: @Johnathan I fixed the width and centering of the form here
     <div className="flex h-full items-center justify-center w-full scrollbar-none bg-secondary-midnight">
@@ -48,7 +48,7 @@ export default function Signin() {
             onKeyPress={(ev) => {
               if (ev.key === 'Enter') {
                 ev.preventDefault();
-                signIn();
+                // signIn();
               }
             }}
           >
@@ -99,7 +99,7 @@ export default function Signin() {
             <div data-test="sign-in-sign-in-button">
               <button
                 className="font-roboto font-medium text-[14px] leading-[16px] p-2 rounded-sm text-secondary-space-blue bg-yellow hover:bg-primary-yellow-hover cursor-pointer"
-                onClick={signIn}
+                // onClick={signIn}
               >
                 Log In
               </button>

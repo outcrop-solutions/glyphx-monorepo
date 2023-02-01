@@ -6,8 +6,8 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import Card from '@/components/Card/index';
 import Button from '@/components/Button';
-import api from '@/lib/common/api';
-import { getInvitation } from '@glyphx/business/src/services/workspace';
+import api from '@glyphx/business/lib/common/api';
+import { getInvitation } from '@glyphx/business';
 
 const Invite = ({ workspace }) => {
   const { data } = useSession();
@@ -27,9 +27,7 @@ const Invite = ({ workspace }) => {
           router.replace('/account');
         }
 
-        Object.keys(response.errors).forEach((error) =>
-          toast.error(response.errors[error].msg)
-        );
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       } else {
         toast.success('Accepted invitation!');
       }
@@ -43,17 +41,10 @@ const Invite = ({ workspace }) => {
         <div className="relative flex flex-col mx-auto space-y-5">
           <div className="flex flex-col items-center justify-center mx-auto">
             <Card>
-              <Card.Body
-                title={workspace.name}
-                subtitle="You are invited to join this workspace."
-              />
+              <Card.Body title={workspace.name} subtitle="You are invited to join this workspace." />
               <Card.Footer>
                 {data ? (
-                  <Button
-                    className="text-white bg-blue-600 hover:bg-blue-500"
-                    disabled={isSubmitting}
-                    onClick={join}
-                  >
+                  <Button className="text-white bg-blue-600 hover:bg-blue-500" disabled={isSubmitting} onClick={join}>
                     Join Workspace
                   </Button>
                 ) : (

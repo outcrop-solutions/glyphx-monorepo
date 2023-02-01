@@ -1,8 +1,8 @@
 import {
   validateUpdateWorkspaceSlug,
   validateSession,
-} from '@glyphx/business/src/validation/index';
-import { updateSlug } from '@glyphx/business/src/services/workspace';
+  updateSlug
+} from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;

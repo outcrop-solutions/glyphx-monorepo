@@ -1,4 +1,4 @@
-import { Auth } from "aws-amplify";
+// import { Auth } from "aws-amplify";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
@@ -29,14 +29,14 @@ export const useUser = () => {
     // console.log("in useEffect")
     // utility functions
     const getUser = async () => {
-      const user = await Auth.currentAuthenticatedUser();
-      console.log({user})
-      if (!user) {
-        console.log({ user, msg: "no USER" });
-        router.push("/auth/signIn");
-      } else {
-        checkParams();
-      }
+      // const user = await Auth.currentAuthenticatedUser();
+      // console.log({user})
+      // if (!user) {
+      //   console.log({ user, msg: "no USER" });
+      //   router.push("/auth/signIn");
+      // } else {
+      //   checkParams();
+      // }
     };
     getUser();
   }, [setUser]);
@@ -47,11 +47,11 @@ export const useUser = () => {
  * @returns {boolean}
  */
 export const isUserLogged = async () =>{
-  const user = await Auth.currentAuthenticatedUser();
-      console.log({user})
-      if (!user) {
-        return false;
-      } else {
-        return true;
-      }
+  // const user = await Auth.currentAuthenticatedUser();
+      // console.log({user})
+      // if (!user) {
+      //   return false;
+      // } else {
+      //   return true;
+      // }
 }

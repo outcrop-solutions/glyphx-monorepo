@@ -10,10 +10,7 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import Modal from '@/components/Modal/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@glyphx/business/src/lib/common/api';
-import { redirectToCheckout } from '@glyphx/business/src/lib/client/stripe';
-import { getInvoices, getProducts } from '@glyphx/business/src/lib/server/stripe';
-import { getPayment } from '@glyphx/business/src/services/customer';
+import { api, redirectToCheckout, getInvoices, getProducts, getPayment } from '@glyphx/business';
 
 const Billing = ({ invoices, products }) => {
   const [isSubmitting, setSubmittingState] = useState(false);

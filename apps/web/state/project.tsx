@@ -1,7 +1,7 @@
 import { atom, selector, selectorFamily } from 'recoil';
-import { GetProjectQuery } from 'API';
+// import { GetProjectQuery } from 'API';
 
-import { getProject } from 'graphql/queries';
+// import { getProject } from 'graphql/queries';
 import { userAtom } from './user';
 import { API, graphqlOperation } from 'aws-amplify';
 export const projectIdAtom = atom({
@@ -18,10 +18,10 @@ export const selectedProjectSelector = selector({
     if (user && projectId) {
       console.log('Attempting to get selectedProjectSelector');
       try {
-        const response = (await API.graphql(graphqlOperation(getProject, { id: projectId }))) as {
-          data: GetProjectQuery;
-        };
-        return response.data.getProject;
+        // const response = (await API.graphql(graphqlOperation(getProject, { id: projectId }))) as {
+        //   data: GetProjectQuery;
+        // };
+        // return response.data.getProject;
       } catch (error) {
         console.log({ error, recoil: 'selectedProjectSelector' });
       }

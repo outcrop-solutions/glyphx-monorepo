@@ -1,4 +1,4 @@
-import fetcher from '@glyphx/business/src/lib/client/fetcher';
+import {fetcher} from '@glyphx/business';
 
 const handleOnError = (error) => {
   throw new Error(`Error: ${error}`);
