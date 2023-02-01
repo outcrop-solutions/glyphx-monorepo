@@ -21,6 +21,8 @@ export class ErrorCodes {
     DataConflictError: 461,
     DataValidationError: 462,
 
+    DataServiceError: 440,
+
     UnknownDatabaseError: 559,
     AwsSecretError: 560,
 
