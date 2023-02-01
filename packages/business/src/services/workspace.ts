@@ -199,22 +199,14 @@ export async function getWorkspaces(id, email) {
 }
 
 export async function getWorkspacePaths() {
-  const [workspaces, domains] = await Promise.all([
-    prisma.workspace.findMany({
-      select: {slug: true},
-      where: {deletedAt: null},
-    }),
-    prisma.domain.findMany({
-      select: {name: true},
-      where: {deletedAt: null},
-    }),
-  ]);
+  const workspaces = await prisma.workspace.findMany({
+    select: {slug: true},
+    where: {deletedAt: null},
+  });
+
   return [
     ...workspaces.map(workspace => ({
       params: {site: workspace.slug},
-    })),
-    ...domains.map(domain => ({
-      params: {site: domain.name},
     })),
   ];
 }
@@ -236,14 +228,14 @@ export async function inviteUsers(id, email, members, slug) {
     await Promise.all([
       prisma.user.createMany({
         data,
-        skipDuplicates: true,
+        // skipDuplicates: true,
       }),
       prisma.workspace.update({
         data: {
           members: {
             createMany: {
               data: membersList,
-              skipDuplicates: true,
+              // skipDuplicates: true,
             },
           },
         },
@@ -279,7 +271,7 @@ export async function isWorkspaceOwner(email, workspace) {
   return isTeamOwner;
 }
 
-export async function joinWorkspace(workspaceCode, email) {
+export async function joinWorkspace(workspaceCode, email: string) {
   const workspace = await prisma.workspace.findFirst({
     select: {
       creatorId: true,

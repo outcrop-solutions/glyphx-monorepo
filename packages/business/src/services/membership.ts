@@ -1,6 +1,6 @@
-// import {InvitationStatus} from '@prisma/client';
+import {InvitationStatus} from '@prisma/client';
 import {prisma} from '@glyphx/database';
-import {INVITATION_STATUS} from '@glyphx/types/src/database/constants';
+// import {database} from '@glyphx/types';
 
 export async function getMember(id) {
   await prisma.member.findFirst({
@@ -60,7 +60,7 @@ export async function getPendingInvitations(email) {
     where: {
       deletedAt: null,
       email,
-      status: INVITATION_STATUS.PENDING,
+      status: InvitationStatus.PENDING,
       workspace: {deletedAt: null},
     },
   });

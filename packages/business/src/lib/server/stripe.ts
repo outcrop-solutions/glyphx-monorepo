@@ -6,7 +6,7 @@ import initStripe from 'stripe';
 const stripe = initStripe(process.env.PAYMENTS_SECRET_KEY);
 
 export async function createCustomer(email) {
-  await stripe.customers.create({
+  return await stripe.customers.create({
     email,
   });
 }

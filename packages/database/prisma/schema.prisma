@@ -22,6 +22,9 @@ model Workspace {
   creator     User      @relation(name: "ownerRelation", fields: [creatorId], references: [id], onUpdate: NoAction, onDelete: NoAction)
   members     Member[]
   projects    Project[]
+
+  @@unique([workspaceCode, inviteCode])
+  @@map("workspaces")
 }
 
 model User {
@@ -49,6 +52,7 @@ model User {
   apiKey   String?
   projects Project[]
 
+  @@unique([userCode, email])
   @@map("users")
 }
 
@@ -112,20 +116,21 @@ model CustomerPayment {
 
 model Member {
   id        String    @id @default(cuid()) @map("_id")
-  email     String
+  email     String    @unique
   inviter   String
   invitedAt DateTime? @default(now())
   joinedAt  DateTime?
   deletedAt DateTime?
   updatedAt DateTime? @updatedAt
 
-  status       InvitationStatus @default(PENDING)
-  teamRole     Role             @default(MEMBER)
-  member       User?            @relation(fields: [email], references: [email], name: "membership")
-  invitedBy    User?            @relation(fields: [inviter], references: [email], name: "inviter")
-  workspaceId        String
-  workspace Workspace        @relation(fields: [workspaceId], references: [id])
+  status      InvitationStatus @default(PENDING)
+  teamRole    Role             @default(MEMBER)
+  member      User?            @relation(fields: [email], references: [email], name: "membership")
+  invitedBy   User?            @relation(fields: [inviter], references: [email], name: "inviter")
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
 
+  @@unique([workspaceId, email])
   @@map("members")
 }
 
