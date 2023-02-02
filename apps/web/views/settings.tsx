@@ -6,71 +6,64 @@ import {
   PhotographIcon,
   SearchCircleIcon,
   ViewGridAddIcon,
-} from "@heroicons/react/outline";
-import { ChevronLeftIcon } from "@heroicons/react/solid";
-import React from "react";
+} from '@heroicons/react/outline';
+import { ChevronLeftIcon } from '@heroicons/react/solid';
+import React from 'react';
 
 const subNavigation = [
   {
-    name: "Account",
-    description:
-      "Ullamcorper id at suspendisse nec id volutpat vestibulum enim. Interdum blandit.",
-    href: "#",
+    name: 'Account',
+    description: 'Ullamcorper id at suspendisse nec id volutpat vestibulum enim. Interdum blandit.',
+    href: '#',
     icon: CogIcon,
     current: true,
   },
   {
-    name: "Notifications",
-    description:
-      "Enim, nullam mi vel et libero urna lectus enim. Et sed in maecenas tellus.",
-    href: "#",
+    name: 'Notifications',
+    description: 'Enim, nullam mi vel et libero urna lectus enim. Et sed in maecenas tellus.',
+    href: '#',
     icon: BellIcon,
     current: false,
   },
   {
-    name: "Security",
-    description:
-      "Semper accumsan massa vel volutpat massa. Non turpis ut nulla aliquet turpis.",
-    href: "#",
+    name: 'Security',
+    description: 'Semper accumsan massa vel volutpat massa. Non turpis ut nulla aliquet turpis.',
+    href: '#',
     icon: KeyIcon,
     current: false,
   },
   {
-    name: "Appearance",
-    description:
-      "Magna nulla id sed ornare ipsum eget. Massa eget porttitor suscipit consequat.",
-    href: "#",
+    name: 'Appearance',
+    description: 'Magna nulla id sed ornare ipsum eget. Massa eget porttitor suscipit consequat.',
+    href: '#',
     icon: PhotographIcon,
     current: false,
   },
   {
-    name: "Billing",
-    description:
-      "Orci aliquam arcu egestas turpis cursus. Lectus faucibus netus dui auctor mauris.",
-    href: "#",
+    name: 'Billing',
+    description: 'Orci aliquam arcu egestas turpis cursus. Lectus faucibus netus dui auctor mauris.',
+    href: '#',
     icon: CashIcon,
     current: false,
   },
   {
-    name: "Integrations",
-    description:
-      "Nisi, elit volutpat odio urna quis arcu faucibus dui. Mauris adipiscing pellentesque.",
-    href: "#",
+    name: 'Integrations',
+    description: 'Nisi, elit volutpat odio urna quis arcu faucibus dui. Mauris adipiscing pellentesque.',
+    href: '#',
     icon: ViewGridAddIcon,
     current: false,
   },
   {
-    name: "Additional Resources",
-    description:
-      "Quis viverra netus donec ut auctor fringilla facilisis. Nunc sit donec cursus sit quis et.",
-    href: "#",
+    name: 'Additional Resources',
+    description: 'Quis viverra netus donec ut auctor fringilla facilisis. Nunc sit donec cursus sit quis et.',
+    href: '#',
     icon: SearchCircleIcon,
     current: false,
   },
 ];
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(' ');
 }
 
 export default function Settings() {
@@ -78,24 +71,14 @@ export default function Settings() {
     <main className="flex-1 flex bg-primary-dark-blue overflow-hidden">
       <div className="flex-1 flex flex-col overflow-y-auto xl:overflow-hidden">
         {/* Breadcrumb */}
-        <nav
-          aria-label="Breadcrumb"
-          className=" border-b border-gray xl:hidden"
-        >
+        <nav aria-label="Breadcrumb" className=" border-b border-gray xl:hidden">
           <div className="max-w-3xl mx-auto py-3 px-4 flex items-start sm:px-6 lg:px-8">
-            <a
-              href="/"
-              className="-ml-1 inline-flex items-center space-x-3 text-sm font-medium text-white"
-            >
-              <ChevronLeftIcon
-                className="h-5 w-5 text-gray"
-                aria-hidden="true"
-              />
+            <a href="/" className="-ml-1 inline-flex items-center space-x-3 text-sm font-medium text-white">
+              <ChevronLeftIcon className="h-5 w-5 text-gray" aria-hidden="true" />
               <span>Settings</span>
             </a>
           </div>
         </nav>
-
         <div className="flex-1 flex xl:overflow-hidden">
           {/* Secondary sidebar */}
           <nav
@@ -111,17 +94,12 @@ export default function Settings() {
                   key={item.name}
                   href={item.href}
                   className={classNames(
-                    item.current
-                      ? "bg-blue-900 bg-opacity-50"
-                      : "hover:bg-blue-900 hover:bg-opacity-50",
-                    "flex p-6 border-b border-gray"
+                    item.current ? 'bg-blue-900 bg-opacity-50' : 'hover:bg-blue-900 hover:bg-opacity-50',
+                    'flex p-6 border-b border-gray'
                   )}
-                  aria-current={item.current ? "page" : undefined}
+                  aria-current={item.current ? 'page' : undefined}
                 >
-                  <item.icon
-                    className="shrink-0 -mt-0.5 h-6 w-6 text-gray"
-                    aria-hidden="true"
-                  />
+                  <item.icon className="shrink-0 -mt-0.5 h-6 w-6 text-gray" aria-hidden="true" />
                   <div className="ml-3 text-sm">
                     <p className="font-medium text-white">{item.name}</p>
                     <p className="mt-1 text-gray">{item.description}</p>
@@ -130,7 +108,6 @@ export default function Settings() {
               ))}
             </div>
           </nav>
-
           {/* Main content */}
           <div className="flex-1 xl:overflow-y-auto">
             <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:py-12 lg:px-8">
@@ -141,16 +118,12 @@ export default function Settings() {
                   <div className="sm:col-span-6">
                     <h2 className="text-xl font-medium text-white">Profile</h2>
                     <p className="mt-1 text-sm text-gray">
-                      This information will be displayed publicly so be careful
-                      what you share.
+                      This information will be displayed publicly so be careful what you share.
                     </p>
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label
-                      htmlFor="first-name"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="first-name" className="block text-sm font-medium text-white">
                       First name
                     </label>
                     <input
@@ -158,15 +131,11 @@ export default function Settings() {
                       name="first-name"
                       id="first-name"
                       autoComplete="given-name"
-                      className="mt-1 block w-full bg-transparent bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full bg-transparent  border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
-
                   <div className="sm:col-span-3">
-                    <label
-                      htmlFor="last-name"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="last-name" className="block text-sm font-medium text-white">
                       Last name
                     </label>
                     <input
@@ -179,10 +148,7 @@ export default function Settings() {
                   </div>
 
                   <div className="sm:col-span-6">
-                    <label
-                      htmlFor="username"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="username" className="block text-sm font-medium text-white">
                       Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
@@ -199,12 +165,8 @@ export default function Settings() {
                       />
                     </div>
                   </div>
-
                   <div className="sm:col-span-6">
-                    <label
-                      htmlFor="photo"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="photo" className="block text-sm font-medium text-white">
                       Photo
                     </label>
                     <div className="mt-1 flex items-center">
@@ -238,12 +200,8 @@ export default function Settings() {
                       </div>
                     </div>
                   </div>
-
                   <div className="sm:col-span-6">
-                    <label
-                      htmlFor="description"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="description" className="block text-sm font-medium text-white">
                       Description
                     </label>
                     <div className="mt-1">
@@ -252,19 +210,13 @@ export default function Settings() {
                         name="description"
                         rows={4}
                         className="block w-full border border-slate-300 rounded-md shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                        defaultValue={""}
+                        defaultValue={''}
                       />
                     </div>
-                    <p className="mt-3 text-sm text-gray">
-                      Brief description for your profile. URLs are hyperlinked.
-                    </p>
+                    <p className="mt-3 text-sm text-gray">Brief description for your profile. URLs are hyperlinked.</p>
                   </div>
-
                   <div className="sm:col-span-6">
-                    <label
-                      htmlFor="url"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="url" className="block text-sm font-medium text-white">
                       URL
                     </label>
                     <input
@@ -275,23 +227,15 @@ export default function Settings() {
                     />
                   </div>
                 </div>
-
                 <div className="pt-8 grid grid-cols-1 gap-y-6 sm:grid-cols-6 sm:gap-x-6">
                   <div className="sm:col-span-6">
-                    <h2 className="text-xl font-medium text-white">
-                      Personal Information
-                    </h2>
+                    <h2 className="text-xl font-medium text-white">Personal Information</h2>
                     <p className="mt-1 text-sm text-gray">
-                      This information will be displayed publicly so be careful
-                      what you share.
+                      This information will be displayed publicly so be careful what you share.
                     </p>
                   </div>
-
                   <div className="sm:col-span-3">
-                    <label
-                      htmlFor="email-address"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="email-address" className="block text-sm font-medium text-white">
                       Email address
                     </label>
                     <input
@@ -302,12 +246,8 @@ export default function Settings() {
                       className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
-
                   <div className="sm:col-span-3">
-                    <label
-                      htmlFor="phone-number"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="phone-number" className="block text-sm font-medium text-white">
                       Phone number
                     </label>
                     <input
@@ -318,12 +258,8 @@ export default function Settings() {
                       className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
-
                   <div className="sm:col-span-3">
-                    <label
-                      htmlFor="country"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="country" className="block text-sm font-medium text-white">
                       Country
                     </label>
                     <select
@@ -340,10 +276,7 @@ export default function Settings() {
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label
-                      htmlFor="language"
-                      className="block text-sm font-medium text-white"
-                    >
+                    <label htmlFor="language" className="block text-sm font-medium text-white">
                       Language
                     </label>
                     <input
@@ -353,16 +286,10 @@ export default function Settings() {
                       className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
-
                   <p className="text-sm text-gray sm:col-span-6">
-                    This account was created on{" "}
-                    <time dateTime="2017-01-05T20:35:40">
-                      January 5, 2017, 8:35:40 PM
-                    </time>
-                    .
+                    This account was created on <time dateTime="2017-01-05T20:35:40">January 5, 2017, 8:35:40 PM</time>.
                   </p>
                 </div>
-
                 <div className="pt-8 flex justify-end">
                   <button
                     type="button"

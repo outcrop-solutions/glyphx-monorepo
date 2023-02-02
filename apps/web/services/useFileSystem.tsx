@@ -1,15 +1,25 @@
-import { Storage } from "aws-amplify";
-import { formatGridData } from "partials";
-import { parse } from "papaparse";
+import { useCallback, useEffect } from 'react';
+
 import {
-  fileSystemAtom,
   selectedFileAtom,
-  dataGridAtom,
+  fileSystemAtom,
   dataGridLoadingAtom,
-  filesOpenAtom,
-  projectIdAtom,
-} from "../state";
-import { useSetRecoilState, useRecoilState, useRecoilValue } from "recoil";
+  selectedProjectSelector,
+  progressDetailAtom,
+  GridModalErrorAtom,
+  fileStatsSelector,
+  matchingFilesAtom,
+} from '../state';
+import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
+import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'partials/files/transforms';
+import { useRouter } from 'next/router';
+import produce, { original, current } from 'immer';
+import { Storage } from 'aws-amplify';
+import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
+
+const cleanTableName = (fileName) => {
+  return fileName.split('.')[0].trim().toLowerCase();
+};
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -22,106 +32,186 @@ import { useSetRecoilState, useRecoilState, useRecoilValue } from "recoil";
  */
 
 export const useFileSystem = () => {
-  const setFileSystem = useSetRecoilState(fileSystemAtom);
-  const projectId = useRecoilValue(projectIdAtom);
-  const [filesOpen, setFilesOpen] = useRecoilState(filesOpenAtom);
-  const [selectedFile, setSelectedFile] = useRecoilState(selectedFileAtom);
-  const setDataGrid = useSetRecoilState(dataGridAtom);
+  const router = useRouter();
+  const { orgId, projectId } = router.query;
+
+  const project = useRecoilValue(selectedProjectSelector);
+  const existingFileStats = useRecoilValue(fileStatsSelector);
+  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
+  const setSelectedFile = useSetRecoilState(selectedFileAtom);
+  const setMatchingStats = useSetRecoilState(matchingFilesAtom);
   const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
 
-  return {
-    setFiles: (arg) => {
-      console.log({ arg });
-      setFileSystem((prev) => {
-        console.log({ hookset: [...prev, ...arg] });
-        return [...prev, ...arg];
-      });
-    },
-    openFile: async (arg) => {
-      console.log({ arg });
-      // if already in filesOpn && selected, do nothing
-      // if in filesOpen && not selected, select and add to datagrid
-      // if not in filesOpn && not selected, add to filesOpn && select && add to dataGrid
-      // if
-      // add to dataGrid
-      // set as selected File
-      const selectAndLoad = async () => {
-        setSelectedFile(arg);
-        setDataGridLoading(true);
-        const fileData = await Storage.get(`${projectId}/input/${arg}`, {
-          download: true,
-        });
-        // @ts-ignore
-        const blobData = await fileData.Body.text();
-        const { data } = parse(blobData, { header: true });
-        const grid = formatGridData(data);
-        setDataGridLoading(false);
-        setDataGrid(grid);
-      };
+  // update this to be on a per-file basis using an atomFamily
+  const setProgress = useSetRecoilState(progressDetailAtom);
+  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
 
-      if (filesOpen.includes(arg) && selectedFile === arg) {
-        return;
-      } else if (filesOpen.includes(arg) && selectedFile !== arg) {
-        await selectAndLoad();
-      } else if (!filesOpen.includes(arg) && selectedFile !== arg) {
-        setFilesOpen((prev) => {
-          if (prev.length > 0) {
-            return [...prev, arg];
-          } else return [arg];
-        });
-        await selectAndLoad();
-      }
-    },
-    selectFile: async (arg) => {
-      // if already selected, do nothing
-      // if not selected, add to dataGrid && set as selected File
+  // useEffect(() => {
+  //   const refreshFiles = async () => {
+  //     if (!Array.isArray(projectId))
+  //       try {
+  //         // client/clientid/modelid/input/tablename/file.csv
+  //         const data = await Storage.list(`${orgId}/${projectId}/input/`);
+  //         console.log({ data });
+  //         const fileSystemData = await createFileSystemFromS3(data, projectId);
+  //         // setFileSystem(produce((draft) => fileSystemData));
+  //         // // select file
+  //         // setSelectedFile(
+  //         //   produce((draft) => {
+  //         //     draft.index = 0;
+  //         //   })
+  //         // );
+  //       } catch (error) {}
+  //   };
 
-      if (arg === selectedFile) {
-        return;
-      }
-      setSelectedFile(arg);
+  //   // refresh file system on project or org change
+  //   if (orgId && projectId) {
+  //     refreshFiles();
+  //   }
+  //   return () => {};
+  // }, [orgId, projectId]);
+
+  /**
+   * Handle all file ingestion across the application
+   * @param {File[]}
+   * @returns {void}
+   */
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      // create loading state
       setDataGridLoading(true);
-      const fileData = await Storage.get(`${projectId}/input/${arg}`, {
-        download: true,
-      });
-      // @ts-ignore
-      const blobData = await fileData.Body.text();
-      const { data } = parse(blobData, { header: true });
-      const grid = formatGridData(data);
-      setDataGridLoading(false);
-      setDataGrid(grid);
-    },
-    closeFile: async (arg) => {
-      console.log({ arg });
 
-      let newFilesOpen = [...filesOpen.filter((el) => el !== arg)];
-      setFilesOpen(newFilesOpen);
-      if (newFilesOpen.length > 0) {
-        setSelectedFile(newFilesOpen[newFilesOpen.length - 1]);
-        setDataGridLoading(true);
-        const fileData = await Storage.get(
-          `${projectId}/input/${newFilesOpen[newFilesOpen.length - 1]}`,
-          {
-            download: true,
-          }
+      // calculate & compare file stats
+      const newFileStats = await parseFileStats(acceptedFiles);
+      const matchingStats = await compareStats(newFileStats, existingFileStats);
+
+      // immutable update to modal state if decision required
+      if (matchingStats && matchingStats.length > 0) {
+        setMatchingStats(
+          produce((_) => {
+            return matchingStats;
+          })
         );
-        // @ts-ignore
-        const blobData = await fileData.Body.text();
-        const { data } = parse(blobData, { header: true });
-        const grid = formatGridData(data);
-        setDataGridLoading(false);
-        setDataGrid(grid);
-      } else {
-        setDataGridLoading(false);
-        setSelectedFile("");
-        setDataGrid({ rows: [], columns: [] });
       }
+
+      // if no decision required, default to 'ADD'
+
+      // update file system state with processed data based on user decision
+      // let newData = createFileSystem(acceptedFiles, fileSystem);
+      // setFileSystem([...(Array.isArray(newData) ? newData : [])]);
+
+      // send operations to file ingestion
+      // const result = await fetch(`/api/files/browser`, {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     orgId: 'glyphx',
+      //     projectId,
+      //     fileStats: [
+      //       ...(Array.isArray(newFileStats) ? newFileStats : []),
+      //       // ...(Array.isArray(existingFileStats) ? existingFileStats : []),
+      //     ],
+      //     fileInfo: [],
+      //   }),
+      // });
+
+      //call file ingestion here
+      // try {
+      //   await fetch(`/api/files/browser?projectId=${projectId}`, {
+      //     method: 'POST',
+      //     body: createPayload(acceptedFiles)
+      //   });
+
+      //     let fileArr = [file.name];
+      //     if (project?.files !== null) {
+      //       fileArr = [...fileArr, ...project.files];
+      //     }
+      //     const updatedProject = {
+      //       id: project?.id,
+      //       filePath: project?.filePath,
+      //       properties: project?.properties,
+      //       url: project?.url,
+      //       shared: project.shared,
+      //       description: project.description,
+      //       files: fileArr, //adding file to dynamo db
+      //     };
+      //     console.log({ updatedProject });
+      //     let GraphQLresult = await updateProjectInfo(updatedProject);
+      //     console.log('GraphQL file update:', { GraphQLresult });
+      //   }
     },
-    clearFiles: async () => {
-      setDataGrid({ columns: [], rows: [] });
-      setSelectedFile("");
-      setFilesOpen([]);
-      setFileSystem([]);
+    // [setFileSystem, project, fileSystem, setDataGrid]
+    [setFileSystem, project, fileSystem]
+  );
+
+  /**
+   * MANAGE FILESYSTEM USER VIEW
+   */
+  const openFile = useCallback((idx: number) => {
+    // open file
+    setFileSystem(
+      produce((draft) => {
+        draft[idx].open = true;
+      })
+    );
+    // select file
+    setSelectedFile(
+      produce((draft) => {
+        draft.index = idx;
+      })
+    );
+  }, []);
+
+  const selectFile = useCallback(
+    (idx: number) => {
+      // select file
+      setSelectedFile(
+        produce((draft) => {
+          draft.index = idx;
+        })
+      );
     },
+    [setFileSystem]
+  );
+
+  const closeFile = useCallback(
+    (idx: number) => {
+      // close file
+      setFileSystem(
+        produce((draft) => {
+          draft[idx].open = false;
+        })
+      );
+      // update selection
+      setSelectedFile(
+        produce((draft) => {
+          // if closed file is selected, go to next closest file, else select none (via -1)
+          draft.index = draft.index == idx ? idx - 1 : -1;
+        })
+      );
+    },
+    [setFileSystem]
+  );
+
+  /**
+   * Manage File data
+   */
+  const removeFile = useCallback(
+    async (idx, operation: FILE_OPERATION) => {
+      // close file
+      setFileSystem(
+        produce((draft) => {
+          draft[idx].open = false;
+        })
+      );
+    },
+    [setFileSystem]
+  );
+
+  return {
+    onDrop,
+    openFile,
+    selectFile,
+    closeFile,
+    removeFile,
   };
 };

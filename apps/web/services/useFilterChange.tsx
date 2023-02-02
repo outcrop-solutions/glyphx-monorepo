@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useRecoilValue } from "recoil";
-import { filterQuerySelector } from "../state";
+import { useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
+import { filterQuerySelector } from '../state';
 
 /**
  * Applies a filter change by building SQL qeury and passing to Qt
@@ -9,7 +9,7 @@ import { filterQuerySelector } from "../state";
 
 export const useFilterChange = () => {
   const filterQuery = useRecoilValue(filterQuerySelector);
-  console.log({ filterQuery });
+
   useEffect(() => {
     // @ts-ignore
     if (filterQuery) {
@@ -17,9 +17,7 @@ export const useFilterChange = () => {
         //attempt to use Update Filter
         // @ts-ignore
         window.core.UpdateFilter(JSON.stringify(filterQuery));
-      } catch (error) {
-        console.log({ error });
-      }
+      } catch (error) {}
     }
   }, [filterQuery]);
 };

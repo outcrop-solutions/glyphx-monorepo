@@ -1,167 +1,153 @@
-import { atom, selector } from "recoil";
-import { projectIdAtom } from "./project";
-import { Storage } from "aws-amplify";
-import { formatGridData } from "partials";
-import { parse } from "papaparse";
-// utility to process storage list if unzipped
-function processStorageList(results) {
-  const files = {};
+import { atom, selector } from 'recoil';
+import {
+  GridColumn,
+  IFileSystem,
+  IMatchingFileStats,
+  OpenFile,
+  RenderableDataGrid,
+  SelectedIndex,
+} from '@/lib/file-ingest/types';
+import { IFileStats } from '@glyphx/types/src/fileIngestion';
 
-  const add = (source, target, item) => {
-    const elements = source.split("/");
-    const element = elements.shift();
-    if (!element) return; // blank
-    target[element] = target[element] || { __data: item }; // element;
-    if (elements.length) {
-      target[element] =
-        typeof target[element] === "object" ? target[element] : {};
-      add(elements.join("/"), target[element], item);
+/**
+ * APPLICATION FILESYSTEM
+ * @note We use ```fileSystemAtom``` to update filesystem state - the downstream selectors are nodes in the state dependency graph which inherit their value from this atom. State flows through the acyclic directional graph down to state values renderable by react components.  In the future, this can be bi-directional (where selector nodes can update parents) for performance reasons, however for now we are optimizing for readability and maintianability so that we can add functionality in a performant way.
+ * 
+ * The shape looks like this
+ * [
+    {
+      fileName: 'table1.csv',
+      tableName: 'table1',
+      numberOfRows: 101,
+      numberOfColumns: 4,
+      columns: [],
+      fileSize: 2035,
+      dataGrid: { rows: [], columns: [] },
+      open: false,
+    },
+    {
+      fileName: 'table2.csv',
+      tableName: 'table2',
+      numberOfRows: 101,
+      numberOfColumns: 4,
+      columns: [],
+      fileSize: 2035,
+      dataGrid: { rows: [], columns: [] },
+      open: true,
+    },
+  ],
+ **/
+
+// WRITEABLE STATE HERE
+export const fileSystemAtom = atom<IFileSystem>({
+  key: 'fileSystemAtom',
+  default: null,
+});
+
+/**
+ * Holds the index of the currently selected file relative to filesystem. This is important for index based array update patterns to work performantly, -1 denotes non selected
+ * */
+export const selectedFileAtom = atom<SelectedIndex>({
+  key: 'selectedFileSelector',
+  default: { index: -1 },
+});
+
+/**
+ * Holds the matches found upon file ingestion between existing and new file statistics.
+ * If !== null, modal will display asking user to make a ADD | APPEND choice
+ * */
+export const matchingFilesAtom = atom<IMatchingFileStats[]>({
+  key: 'matchingFilesSelector',
+  default: null,
+});
+
+// READ ONLY STATE BELOW THIS
+/**
+ * Holds the list of tableNames in displayed in the filetab
+ * */
+export const filesSelector = selector<string[]>({
+  key: 'filesSelector',
+  get: ({ get }) => {
+    const fileSystem = get(fileSystemAtom);
+    if (Array.isArray(fileSystem)) {
+      return fileSystem.map((file) => file?.tableName);
     }
-  };
-  results.forEach((item) => add(item.key, files, item));
-  return files;
-}
-
-export const filesAtom = atom({
-  key: "filesAtom",
-  default: selector({
-    key: "files/default",
-    get: async ({ get }) => {
-      let projectId = get(projectIdAtom);
-      if (projectId) {
-        try {
-          const data = await Storage.list(`${projectId}/input/`);
-
-          const processed = processStorageList(data);
-          console.log({processed})
-          console.log(Object.keys(processed).length)
-          if(Object.keys(processed).length !== 0){ // if empty then return empty array
-            const files = Object.keys(processed[`${projectId}`].input);
-          const filteredFiles = files.filter(
-            (fileName) => fileName.split(".")[1] === "csv"
-          );
-          return filteredFiles || [];
-          }
-          else{
-            return [];
-          }
-          
-        } catch (error) {
-          console.log({ error });
-        }
-      } else {
-        return [];
-      }
-    },
-  }),
+  },
 });
 
-// holds the virtual filesystem displayed in files Tab
-export const fileSystemAtom = atom({
-  key: "filesystem",
-  default: selector({
-    key: "filesystem/default",
-    get: async ({ get }) => {
-      const files = get(filesAtom);
-      if (files && files.length > 0) {
-        let newData = files.map((item, idx) => {
-          return {
-            id: idx + 1,
-            parent: 0,
-            droppable: false,
-            text: item,
-            data: {
-              fileType: item.split(".")[1],
-              fileSize: "0.5MB",
-            },
-          };
-        });
-        return newData;
-      } else {
-        return [];
-      }
-      // add atom effect
-    },
-  }),
-});
-
-// currently selected file
-export const selectedFileAtom = atom({
-  key: "selectedFileAtom",
-  default: selector({
-    key: "selectedFile/default",
-    get: ({ get }) => {
-      const files = get(filesAtom);
-      if (files && files.length > 0) {
-        return files[0];
-      } else {
-        return [];
-      }
-    },
-  }),
-});
-
-// files currently open
-export const filesOpenAtom = atom({
-  key: "filesOpenAtom",
-  default: selector({
-    key: "filesOpen/default",
-    get: ({ get }) => {
-      const files = get(filesAtom);
-      if (files && files.length > 0) {
-        return [files[0]];
-      } else {
-        return [];
-      }
-    },
-  }),
-});
-
-// holds the excel data grid state
-export const dataGridAtom = atom({
-  key: "dataGrid",
-  default: selector({
-    key: "datagrid/default",
-    get: async ({ get }) => {
-      const files = get(filesAtom);
-      const projectId = get(projectIdAtom);
-      if (files && files.length > 0) {
-        const fileData = await Storage.get(`${projectId}/input/${files[0]}`, {
-          download: true,
-        });
-        // @ts-ignore
-        const blobData = await fileData.Body.text();
-        const { data } = parse(blobData, { header: true });
-        const grid = formatGridData(data);
-        return grid;
-      } else {
-        return { columns: [], rows: [] };
-      }
-    },
-  }),
-});
-
-// holds columns only
-export const columnsSelector = selector({
-  key: "columns",
+/**
+ * Holds the formatted FileState for efficient checking
+ * */
+export const fileStatsSelector = selector<IFileStats[]>({
+  key: 'fileStatsSelector',
   get: ({ get }) => {
-    let dataGrid = get(dataGridAtom);
+    const fileSystem = get(fileSystemAtom);
+    if (Array.isArray(fileSystem) && fileSystem?.length > 0) {
+      return fileSystem.map(({ fileName, tableName, numberOfRows, numberOfColumns, columns, fileSize }) => ({
+        fileName,
+        tableName,
+        numberOfRows,
+        numberOfColumns,
+        columns,
+        fileSize,
+      }));
+    } else {
+      return [];
+    }
+  },
+});
+
+/**
+ * List of files currently "open" from the user's perspective
+ * The index is included to make index based immutable array updates easier / work performantly
+ */
+export const filesOpenSelector = selector<OpenFile[]>({
+  key: 'filesOpenAtom',
+  get: ({ get }) => {
+    const fileSystem = get(fileSystemAtom);
+    return (
+      fileSystem
+        .map(({ open, tableName }, idx) => (open ? { tableName, fileIndex: idx } : null))
+        .filter((el) => el !== null) || null
+    );
+  },
+});
+
+/**
+ * Peels the pre-calculated datagrid off the filesystem to render in react-data-grid
+ */
+export const dataGridSelector = selector<RenderableDataGrid>({
+  key: 'dataGridSelector',
+  get: async ({ get }) => {
+    const selectedFile = get(selectedFileAtom);
+    const fileSystem = get(fileSystemAtom);
+    if (fileSystem && fileSystem?.length > 0 && selectedFile?.index !== -1) {
+      return fileSystem[selectedFile?.index]?.dataGrid;
+    } else {
+      return { columns: [], rows: [] };
+    }
+  },
+});
+
+/**
+ * Holds the renderable columns of the grid, providing dataType for CSS selectors to override colours
+ */
+export const columnsSelector = selector<GridColumn[]>({
+  key: 'columnsSelector',
+  get: ({ get }) => {
+    let dataGrid = get(dataGridSelector);
     // @ts-ignore
-    return dataGrid.columns;
-  },
-  set: ({ get, set }, newValue) => {
-    // TODO: if we want to use as setable selector,  set datagrid based on changes to the new columns value
+    return dataGrid?.columns;
   },
 });
 
-// holds rows only
+/**
+ * Holds rows of the renderable grid
+ */
 export const rowsSelector = selector({
-  key: "rows",
+  key: 'rowsSelector',
   get: ({ get }) => {
-    let dataGrid = get(dataGridAtom);
+    let dataGrid = get(dataGridSelector);
     return dataGrid.rows;
-  },
-  set: ({ get, set }) => {
-   // TODO: if we want to use as setable selector, set datagrid based on changes to the new rows value
   },
 });

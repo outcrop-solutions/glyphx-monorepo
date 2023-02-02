@@ -14,26 +14,29 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ShareModule } from 'partials';
 import { Info } from 'partials/info';
 import { Notification } from '@/partials/notification';
-import { GridLoadingAnimation, LoadingModelAnimation } from '@/partials/loaders';
+import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
 // Hooks
 import { useRouter } from 'next/router';
 import { useProject } from 'services';
 import { useSocket } from 'services';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { GridContainer } from '@/partials/datagrid/GridContainer';
-import { projectIdAtom } from '@/state/project';
-import { shareOpenAtom } from '@/state/share';
-import { showInfoAtom } from '@/state/info';
-import { showNotificationAtom } from '@/state/notification';
+import { GridContainer } from 'partials/datagrid/GridContainer';
+import { projectIdAtom } from 'state/project';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
 import { dataGridLoadingAtom, GridModalErrorAtom, modelCreationLoadingAtom } from '../state';
+import dynamic from 'next/dynamic';
+
+const DynamicDecisionModal = dynamic(() => import('partials/files/DecisionModal'), {
+  ssr: false,
+});
 
 export default function Project() {
-  const [error, setError] = useState(false);
   const { query } = useRouter();
   const { projectId } = query;
   const setProjectId = useSetRecoilState(projectIdAtom);
-  // setProjectId(projectId);
   useEffect(() => {
     if (projectId) setProjectId(projectId);
   }, [projectId]);
@@ -46,14 +49,10 @@ export default function Project() {
   // Qt hook
   try {
     useSocket();
-  } catch (error) {
-    console.log('Error calling useSocket():', { error });
-  }
+  } catch (error) {}
 
   // Project Hook
   const { isDropped, handleDrop } = useProject();
-
-  const toastRef = React.useRef(null);
   // const [share, setShare] = useState(false);
 
   // Check if share model has been turned on
@@ -63,17 +62,17 @@ export default function Project() {
 
   return (
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
+      {/* <DynamicDecisionModal /> */}
       <div className="w-[40px]">
         <MainSidebar />
       </div>
-
       <div className="flex flex-col h-full w-full">
         <ProjectHeader />
         <div className="flex flex-row h-full w-full">
           <DndProvider backend={HTML5Backend}>
             {/* Project sidebar */}
             <div className="w-[250px] shrink-0">
-              <ProjectSidebar handleDrop={handleDrop} toastRef={toastRef} />
+              <ProjectSidebar handleDrop={handleDrop} />
             </div>
             {/* Grid View */}
             <div className="w-full border-r border-gray">
@@ -83,7 +82,7 @@ export default function Project() {
                   message={gridModalError.message}
                   devErrorMessage={gridModalError.devError}
                 />
-              ) : dataGridLoading ? ( //if something is loading
+              ) : dataGridLoading ? (
                 <GridLoadingAnimation />
               ) : modelCreationLoading ? ( //if creating model
                 <LoadingModelAnimation />

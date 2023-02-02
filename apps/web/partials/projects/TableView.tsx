@@ -2,9 +2,9 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useRecoilValue } from "recoil";
-import { projectsAtom } from "@/state/globals";
-import {userAtom } from "@/state/user";
-import { usernameSelector } from "@/state/user";
+import { projectsAtom } from "state/globals";
+import {userAtom } from "state/user";
+import { usernameSelector } from "state/user";
 import { TableListItem } from "./TableListItem";
 
 export const TableView = () => {

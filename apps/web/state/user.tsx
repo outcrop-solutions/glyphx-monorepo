@@ -15,19 +15,6 @@ export const userIdSelector = selector({
     return Auth.currentUserInfo().then((userInfo) => {
       return userInfo.id
     });
-    // // console.log({test:JSON.stringify(user)});
-    // if (Object.keys(user).length == 0) {
-    //   console.log("NO userID value")
-    //   return Auth.currentUserInfo().then((userInfo) => {
-    //     return userInfo.id
-    //   })
-    // } else {
-    //   // @ts-ignore
-    //   console.log("USER ID NO VALUE");
-    //   return Auth.currentUserInfo().then((userInfo) => {
-    //     return userInfo.id
-    //   })
-    // }
   }
 });
 
