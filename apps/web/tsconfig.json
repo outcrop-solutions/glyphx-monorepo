@@ -16,7 +16,6 @@
       "@/state/*": ["state/*"],
       "@/services/*": ["services/*"],
       "@/styles/*": ["styles/*"],
-      "@/types": ["types/index"],
       "@/types/*": ["types/*"],
       "@/utils/*": ["utils/*"]
     },

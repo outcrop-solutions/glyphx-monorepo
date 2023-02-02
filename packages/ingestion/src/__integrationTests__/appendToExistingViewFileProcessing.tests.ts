@@ -7,7 +7,7 @@ import appendFilesJson from './assets/appendTables.json';
 import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
-import {Initializer, projectService, dbConnection} from '@glyphx/business';
+import {Initializer, dbConnection} from '@glyphx/business';
 import {v4} from 'uuid';
 
 const UNIQUE_KEY = v4().replaceAll('-', '');

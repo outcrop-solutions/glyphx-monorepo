@@ -1,4 +1,4 @@
-import { statesSelector } from "@/state/states";
+import { statesSelector } from "state/states";
 import React from "react";
 import { useRecoilValue } from "recoil";
 import { State } from "./State";

@@ -1,152 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { parse } from 'papaparse';
-import { Tree } from '@minoru/react-dnd-treeview';
-import { CustomNode } from './CustomNode';
-import { CustomDragPreview } from './CustomDragPreview';
-import styles from './css/Sidebar.module.css';
-import { Dropzone, formatGridData } from 'partials';
-import { Storage } from 'aws-amplify';
+import React, { useState } from 'react';
+import { File } from './File';
+import { SidebarDropzone } from 'partials';
 import { useDropzone } from 'react-dropzone';
-import { useRouter } from 'next/router';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { dataGridAtom, filesOpenAtom, fileSystemAtom, selectedFileAtom } from '@/state/files';
-import { dataGridLoadingAtom, GridModalErrorAtom, progressDetailAtom } from '@/state/globals';
-import { postUploadCall } from '@/services/ETLCalls';
-import { selectedProjectSelector } from '@/state/project';
-import { updateProjectInfo } from '@/services/GraphQLCalls';
-import { createFileSystemOnUpload } from '@/lib/pipeline/transforms';
+import { useRecoilValue } from 'recoil';
+import { fileSystemAtom, filesSelector } from 'state/files';
+import { useFileSystem } from 'services/useFileSystem';
 
-export const Files = ({ toastRef }) => {
-  const setFiles = useSetRecoilState(fileSystemAtom);
-  // const fileSystem = useRecoilValue(fileSystemAtom);
-  const handleDrop = (newTree) => setFiles(newTree);
-
-  const { query } = useRouter();
-  const { projectId } = query;
-
-  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
-  const setSelectedFile = useSetRecoilState(selectedFileAtom);
-  const setFilesOpen = useSetRecoilState(filesOpenAtom);
-  const setDataGrid = useSetRecoilState(dataGridAtom);
-  const setProgress = useSetRecoilState(progressDetailAtom);
-  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
-  const project = useRecoilValue(selectedProjectSelector);
-
-  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
-
+export const Files = () => {
+  const { onDrop } = useFileSystem();
   const [isCollapsed, setCollapsed] = useState(false);
 
-  const onDrop = useCallback(
-    async (acceptedFiles) => {
-      setDataGridState(true);
-      //update file system state with processed data
-      let newData = createFileSystemOnUpload(acceptedFiles);
-      console.log({ fileSystem }, { newData });
-      setFileSystem([...fileSystem, newData[0]]);
+  const files = useRecoilValue(filesSelector);
 
-      acceptedFiles.forEach(async (file) => {
-        const text = await file.text();
-        const { data } = parse(text, { header: true });
-
-        const grid = formatGridData(data);
-        setDataGrid(grid);
-        setFilesOpen((prev) => [...prev, file.name]);
-        setSelectedFile(file.name);
-      });
-
-      //send file to s3
-      acceptedFiles.forEach((file, idx) => {
-        const reader = new FileReader();
-
-        reader.onabort = () => console.log('file reading was aborted');
-        reader.onerror = () => console.log('file reading has failed');
-        reader.onload = () => {
-          // Do whatever you want with the file contents
-          const binaryStr = reader.result;
-          console.log('inside reader.onLOAD');
-          Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
-            async progressCallback(progress) {
-              setProgress({
-                progress: progress.loaded,
-                total: progress.total,
-              });
-              console.log('Inside storage.put');
-              if (progress.loaded / progress.total === 1) {
-                console.log('upload complete');
-                console.log('about to do api call');
-                //api call here
-                try {
-                  const result = await postUploadCall(project.id);
-                  console.log({ result });
-                  if (result.Error) {
-                    // if there is an error
-                    setGridErrorModal({
-                      show: true,
-                      title: 'Fatal Error',
-                      message: 'Error Occured When Processing Your Spreadsheet',
-                      devError: result.message,
-                    });
-                  } else {
-                    // TODO: SAVE FILE NAME TO PROJECT
-                    console.log({ project });
-                    let fileArr = [file.name];
-                    if (project?.files !== null) {
-                      fileArr = [...fileArr, ...project.files];
-                    }
-                    const updatedProject = {
-                      id: project?.id,
-                      filePath: project?.filePath,
-                      expiry: new Date().toISOString(),
-                      properties: project?.properties,
-                      url: project?.url,
-                      shared: project.shared,
-                      description: project.description,
-                      files: fileArr, //adding file to dynamo db
-                    };
-                    console.log({ updatedProject });
-                    let GraphQLresult = await updateProjectInfo(updatedProject);
-                    console.log('GraphQL file update:', { GraphQLresult });
-                  }
-                } catch (error) {
-                  setGridErrorModal({
-                    show: true,
-                    title: 'Fatal Error',
-                    message: 'Failed to Call ETL Post File Upload',
-                    devError: error.message,
-                  });
-                  console.log({ error });
-                  setDataGridState(false);
-                }
-                setDataGridState(false);
-              } else {
-                console.log('upload incomplete');
-              }
-              console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-            },
-          });
-
-          console.log(`sent ${file.name} to S3`);
-        };
-        reader.readAsArrayBuffer(file);
-      });
-
-      // add to filesystem state
-      // upload files to S3
-    },
-    [setFileSystem, project, fileSystem, setDataGrid]
-  );
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-
-    // accept: [".csv"],
     accept: ['.csv', 'application/vnd.ms-excel', 'text/csv'],
-    multiple: false,
+    multiple: true,
   });
-
-  useEffect(() => {
-    // console.log("rerunning files sidebar useeffect")
-  }, [fileSystem]);
 
   return (
     <React.Fragment>
@@ -179,8 +49,6 @@ export const Files = ({ toastRef }) => {
               </span>
             </a>
           </div>
-          {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
-
           <div
             {...getRootProps()}
             className="border-2 border-transparent hover:border-white hover:cursor-pointer rounded-full p-1 mr-1 bg-secondary-space-blue"
@@ -204,29 +72,11 @@ export const Files = ({ toastRef }) => {
         {!isCollapsed ? (
           <div className={`lg:block py-1 border-b border-gray`}>
             <div>
-              {
-                // @ts-ignore
-                fileSystem && fileSystem.length > 0 ? (
-                  <Tree
-                    initialOpen={true}
-                    // @ts-ignore
-                    tree={fileSystem}
-                    rootId={0}
-                    render={(node, { depth, isOpen, onToggle }) => (
-                      <CustomNode node={node} depth={depth} isOpen={isOpen} onToggle={onToggle} />
-                    )}
-                    dragPreviewRender={(monitorProps) => <CustomDragPreview monitorProps={monitorProps} />}
-                    onDrop={handleDrop}
-                    classes={{
-                      root: styles.treeRoot,
-                      draggingSource: styles.draggingSource,
-                      dropTarget: styles.dropTarget,
-                    }}
-                  />
-                ) : (
-                  <Dropzone toastRef={toastRef} />
-                )
-              }
+              {files && files.length > 0 ? (
+                files?.map((file, idx) => <File key={`${file}-${idx}`} fileName={file} idx={idx} />)
+              ) : (
+                <SidebarDropzone />
+              )}
             </div>
           </div>
         ) : (

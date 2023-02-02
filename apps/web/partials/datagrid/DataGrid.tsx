@@ -1,21 +1,21 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-// import DataGrid from "lib/react-data-grid/lib/bundle";
+// import DataGrid from 'react-data-grid';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { columnsSelector, rowsSelector } from '@/state/files';
-import { shareOpenAtom } from '@/state/share';
-import { showInfoAtom } from '@/state/info';
-import { showNotificationAtom } from '@/state/notification';
+import { columnsSelector, rowsSelector } from 'state/files';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
 
 import dynamic from 'next/dynamic';
 
-const DataGrid = dynamic(() => import('react-data-grid'), {
+const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
   ssr: false,
 });
 
 export const Datagrid = ({ isDropped }) => {
-  const [rows, setRows] = useRecoilState(rowsSelector);
-  const [columns, setColumns] = useRecoilState(columnsSelector);
+  const rows = useRecoilValue(rowsSelector);
+  const columns = useRecoilValue(columnsSelector);
   const isShareModelOpen = useRecoilValue(shareOpenAtom);
   const isShowInfoOpen = useRecoilValue(showInfoAtom);
   const isShowNotificationOpen = useRecoilValue(showNotificationAtom);
@@ -44,7 +44,7 @@ export const Datagrid = ({ isDropped }) => {
 
       reorderedColumns.splice(targetColumnIndex, 0, reorderedColumns.splice(sourceColumnIndex, 1)[0]);
 
-      setColumns(reorderedColumns);
+      // setColumns(reorderedColumns);
     }
 
     return columns.map((c) => {
@@ -74,10 +74,7 @@ export const Datagrid = ({ isDropped }) => {
     return direction === 'DESC' ? sortedRows.reverse() : sortedRows;
   }, [rows, sortColumns]);
 
-  useEffect(() => {
-    // console.log({windowWidth:window.innerWidth});
-    // console.log({calcWidth: Math.round(window.innerWidth-40-192-100)});
-  }, [isShareModelOpen, isShowInfoOpen, isShowNotificationOpen]);
+  useEffect(() => {}, [isShareModelOpen, isShowInfoOpen, isShowNotificationOpen]);
 
   return (
     // @ts-ignore - missing attributes

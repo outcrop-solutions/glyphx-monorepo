@@ -1,4 +1,4 @@
-import { filtersAppliedAtom } from "@/state/filters";
+import { filtersAppliedAtom } from "state/filters";
 import { useState, useEffect, useCallback } from "react";
 import { useSetRecoilState } from "recoil";
 import { produce } from "immer";
@@ -20,7 +20,7 @@ export const SearchFilter = ({ lastDroppedItem }) => {
     );
   }, [chips]);
 
-  const handleAddKeyword = useCallback((value, idx, prop) => {
+  const handleAddKeyword = useCallback((value) => {
     if (value.key === "Enter") {
       value.preventDefault();
       setFiltersApplied(

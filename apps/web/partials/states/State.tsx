@@ -6,7 +6,7 @@ import {
 import { useState } from "react";
 import * as mutations from "graphql/mutations";
 import { API } from "aws-amplify";
-import { activeStateAtom } from "@/state/states";
+import { activeStateAtom } from "state/states";
 import { useRecoilState } from "recoil";
 
 export const State = ({ item }) => {

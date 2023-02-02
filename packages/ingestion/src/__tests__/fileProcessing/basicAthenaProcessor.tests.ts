@@ -11,7 +11,7 @@ import {
 import {IJoinTableDefinition} from '@interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 
-const mockFileInformation = [
+const MOCK_FILE_INFORMATION = [
   {
     tableName: 'testclientid_testmodelid_table1',
     fileName: '',
@@ -220,7 +220,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       sandbox.replace(
         BasicTableSorter.prototype,
         'sortTables',
-        sandbox.fake.returns(mockFileInformation)
+        sandbox.fake.returns(MOCK_FILE_INFORMATION)
       );
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
@@ -252,14 +252,14 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
 
       const result = await athenaProcessor.processTables(
         'A view',
-        mockFileInformation
+        MOCK_FILE_INFORMATION
       );
 
       assert.isArray(result);
       assert.strictEqual(result.length, 2);
     });
     it('should not process our appended files tables', async () => {
-      const copiedMock = JSON.parse(JSON.stringify(mockFileInformation));
+      const copiedMock = JSON.parse(JSON.stringify(MOCK_FILE_INFORMATION));
       copiedMock[0].fileOperationType =
         fileIngestion.constants.FILE_OPERATION.APPEND;
       sandbox.replace(
@@ -299,7 +299,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
 
       const result = await athenaProcessor.processTables(
         'A view',
-        mockFileInformation
+        MOCK_FILE_INFORMATION
       );
 
       assert.isArray(result);
@@ -310,7 +310,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       sandbox.replace(
         BasicTableSorter.prototype,
         'sortTables',
-        sandbox.fake.returns(mockFileInformation)
+        sandbox.fake.returns(MOCK_FILE_INFORMATION)
       );
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
@@ -339,7 +339,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
 
       const result = await athenaProcessor.processTables(
         'A view',
-        mockFileInformation
+        MOCK_FILE_INFORMATION
       );
 
       assert.isArray(result);
@@ -349,7 +349,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       sandbox.replace(
         BasicTableSorter.prototype,
         'sortTables',
-        sandbox.fake.returns(mockFileInformation)
+        sandbox.fake.returns(MOCK_FILE_INFORMATION)
       );
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
@@ -380,10 +380,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       );
       let errored = false;
       try {
-        const result = await athenaProcessor.processTables(
-          'A view',
-          mockFileInformation
-        );
+        await athenaProcessor.processTables('A view', MOCK_FILE_INFORMATION);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -394,7 +391,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       sandbox.replace(
         BasicTableSorter.prototype,
         'sortTables',
-        sandbox.fake.returns(mockFileInformation)
+        sandbox.fake.returns(MOCK_FILE_INFORMATION)
       );
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
@@ -426,10 +423,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       );
       let errored = false;
       try {
-        const result = await athenaProcessor.processTables(
-          'A view',
-          mockFileInformation
-        );
+        await athenaProcessor.processTables('A view', MOCK_FILE_INFORMATION);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;

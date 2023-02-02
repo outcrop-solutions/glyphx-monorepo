@@ -1,13 +1,13 @@
 import ClickAwayListener from 'react-click-away-listener';
 import { CheckIcon } from '@heroicons/react/outline';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { showAddProjectAtom } from '@/state/globals';
-import { selectedProjectSelector } from '@/state/project';
-import { propertiesAtom, showReorderConfirmAtom } from '@/state/properties';
-import { filtersSelector } from '@/state/filters';
+import { showAddProjectAtom } from 'state/globals';
+import { selectedProjectSelector } from 'state/project';
+import { propertiesAtom, showReorderConfirmAtom } from 'state/properties';
+import { filtersSelector } from 'state/filters';
 import { API, graphqlOperation, Storage } from 'aws-amplify';
 import { CreateProjectInput, CreateProjectMutation } from 'API';
-import { userAtom } from '@/state/user';
+import { userAtom } from 'state/user';
 import { createProject } from 'graphql/mutations';
 
 export const ReorderConfirmModal = () => {
@@ -49,9 +49,7 @@ export const ReorderConfirmModal = () => {
           projId: result.data.createProject.id,
           projectData: result.data.createProject,
         };
-      } catch (error) {
-        console.log({ error });
-      }
+      } catch (error) {}
     };
     const copyFiles = async (id) => {
       try {
@@ -61,9 +59,7 @@ export const ReorderConfirmModal = () => {
           const copied = await Storage.copy({ key: `${data[i].key}` }, { key: `${id}${data[i].key.slice(36)}` });
           return copied;
         }
-      } catch (error) {
-        console.log({ error });
-      }
+      } catch (error) {}
     };
 
     const callETL = async () => {

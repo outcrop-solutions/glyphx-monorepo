@@ -1,0 +1,55 @@
+type Organization @model @searchable @auth(rules: [{ allow: private }]) {
+  id: ID!
+  name: String
+  description: String
+  owner: String!
+  members: [String]
+  projects: [Project] @connection(keyName: "byOrganization", fields: ["id"])
+}
+
+type Project @model @searchable @auth(rules: [{ allow: private }]) @key(name: "projectByAuthor", fields: ["author"]) {
+  id: ID!
+  name: String!
+  description: String
+  filePath: String
+  url: String
+  author: String!
+  shared: [String]
+  files: [JSON]
+  orgID: ID!
+  organization: Organization @connection(fields: ["orgID"])
+  views: [View] @connection(keyName: "byProject", fields: ["id"])
+  filters: [Filter] @connection(keyName: "byProject", fields: ["id"])
+  columns: [Column] @connection(keyName: "byProject", fields: ["id"])
+}
+
+# Contains the structure and address of the data that is attached to a project
+type View @model @searchable @auth(rules: [{ allow: private }]) @key(name: "byProject", fields: ["projectID"]) {
+  id: ID!
+  title: String!
+  description: String!
+  version: String
+  comments: [Comment] @connection(keyName: "byView", fields: ["id"])
+  filters: [StateFilter] @connection(keyName: "byView", fields: ["id"])
+  # NEW
+  projectID: ID!
+  project: Project @connection(fields: ["projectID"])
+  fileSystemHash: String
+  static: Boolean
+  tables: [Table] # equivalent to TableSet in ERD
+  camera: String
+  query: String
+}
+
+type Comment
+  @model
+  @searchable
+  @auth(rules: [{ allow: private }])
+  @key(name: "byView", fields: ["viewID", "createdAt"]) {
+  id: ID!
+  author: String!
+  viewID: ID!
+  view: View @connection(fields: ["viewID"])
+  content: String!
+  createdAt: String!
+}
