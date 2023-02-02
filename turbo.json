@@ -9,7 +9,8 @@
       "dependsOn": ["db:generate"]
     },
     "db:push": {
-      "cache": false
+      "cache": false,
+      "env": ["MONGO_DEV", "MONGO_TEST", "MONGO_DEMO", "MONGO_PROD"]
     },
     "db:seed": {
       "cache": false
@@ -21,6 +22,12 @@
       "outputs": []
     },
     "start": {
+      "cache": false
+    },
+    "count": {
+      "cache": false
+    },
+    "coverage": {
       "cache": false
     },
     "clean": {

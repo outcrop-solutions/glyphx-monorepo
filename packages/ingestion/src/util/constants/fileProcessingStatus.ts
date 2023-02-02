@@ -1,0 +1,6 @@
+export enum FILE_PROCESSING_STATUS {
+  OK,
+  WARNING,
+  ERROR,
+  UNKNOWN = 999,
+}

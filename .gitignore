@@ -41,3 +41,10 @@ yarn-error.log*
 
 # test data for integration tests
 testData
+
+#code coverage output
+.nyc_output
+.nyc_output/processinfo
+
+#vim session file
+Session.vim

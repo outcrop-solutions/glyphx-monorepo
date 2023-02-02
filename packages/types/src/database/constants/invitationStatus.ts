@@ -1,0 +1,5 @@
+export enum INVITATION_STATUS {
+  ACCEPTED,
+  PENDING,
+  DECLINED,
+}

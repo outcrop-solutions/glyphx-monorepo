@@ -4,41 +4,56 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      = env("MONGODB_DEV")
 }
 
-model Organization {
-  id          String    @id @default(cuid()) @map("_id")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  name        String?
+model Workspace {
+  id            String    @id @default(cuid()) @map("_id")
+  workspaceCode String    @unique @default(cuid())
+  inviteCode    String    @unique @default(cuid())
+  creatorId     String
+  name          String?
+  slug          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
   description String?
-  owner       User?     @relation(name: "ownerRelation", fields: [ownerId], references: [id], onUpdate: NoAction, onDelete: NoAction)
-  ownerId     String?
-  members     User[]
+  creator     User      @relation(name: "ownerRelation", fields: [creatorId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  members     Member[]
   projects    Project[]
+
+  @@unique([workspaceCode, inviteCode])
+  @@map("workspaces")
 }
 
 model User {
-  id            String         @id @default(cuid()) @map("_id")
+  id            String    @id @default(cuid()) @map("_id")
+  userCode      String    @unique @default(cuid())
   name          String?
   username      String?
   gh_username   String?
-  email         String?        @unique
+  email         String?   @unique
   emailVerified DateTime?
-  isVerified    Boolean        @default(false)
+  isVerified    Boolean   @default(false)
   image         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  accounts      Account[]
-  sessions      Session[]
-  webhooks      Webhook[]
-  organization  Organization?  @relation(fields: [orgId], references: [id])
-  orgId         String?
-  apiKey        String?
-  role          Role           @default(ADMIN)
-  ownedOrgs     Organization[] @relation(name: "ownerRelation")
-  projects      Project[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  accounts         Account[]
+  sessions         Session[]
+  membership       Member[]         @relation("membership")
+  invitedMembers   Member[]         @relation("inviter")
+  createdWorkspace Workspace[]      @relation(name: "ownerRelation")
+  customerPayment  CustomerPayment?
+  webhooks         Webhook[]
+
+  apiKey   String?
+  projects Project[]
+
+  @@unique([userCode, email])
+  @@map("users")
 }
 
 model Account {
@@ -61,6 +76,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@index([userId])
+  @@map("accounts")
 }
 
 model Session {
@@ -71,6 +87,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -82,23 +99,61 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model CustomerPayment {
+  id               String           @id @default(cuid()) @map("_id")
+  paymentId        String           @unique
+  customerId       String           @unique
+  email            String?          @unique
+  subscriptionType SubscriptionType @default(FREE)
+  createdAt        DateTime?        @default(now())
+  deletedAt        DateTime?
+  updatedAt        DateTime?        @updatedAt
+
+  customer User @relation(fields: [customerId], references: [id])
+
+  @@map("customerPayments")
+}
+
+model Member {
+  id        String    @id @default(cuid()) @map("_id")
+  email     String    @unique
+  inviter   String
+  invitedAt DateTime? @default(now())
+  joinedAt  DateTime?
+  deletedAt DateTime?
+  updatedAt DateTime? @updatedAt
+
+  status      InvitationStatus @default(PENDING)
+  teamRole    Role             @default(MEMBER)
+  member      User?            @relation(fields: [email], references: [email], name: "membership")
+  invitedBy   User?            @relation(fields: [inviter], references: [email], name: "inviter")
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, email])
+  @@map("members")
+}
+
 model Project {
-  id           String        @id @default(cuid()) @map("_id")
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  name         String?
-  description  String?
-  sdtPath      String?
-  organization Organization? @relation(fields: [orgId], references: [id])
-  orgId        String?
-  slug         String?
-  isTemplate   Boolean       @default(false)
-  type         ProjectType?  @relation(fields: [typeId], references: [id])
-  typeId       String?
-  owner        User?         @relation(fields: [ownerId], references: [id])
-  ownerId      String?
-  state        State?        @relation(fields: [stateId], references: [id])
-  stateId      String
+  id          String       @id @default(cuid()) @map("_id")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  name        String?
+  description String?
+  sdtPath     String?
+  workspace   Workspace?   @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
+  slug        String?
+  isTemplate  Boolean      @default(false)
+  type        ProjectType? @relation(fields: [typeId], references: [id])
+  typeId      String?
+  owner       User?        @relation(fields: [ownerId], references: [id])
+  ownerId     String?
+  state       State?       @relation(fields: [stateId], references: [id])
+  stateId     String
+  files       Json[]
+
+  @@map("projects")
 }
 
 // corresponds to a combination of s3 
@@ -111,6 +166,8 @@ model State {
   fileSystemHash String // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
   projects       Project[]
   fileSystem     Json?
+
+  @@map("states")
 }
 
 model ProjectType {
@@ -120,12 +177,14 @@ model ProjectType {
   name      String
   projects  Project[]
   shape     Json
+
   // a map of required props and their types of the form 
   // { "propName": {
   //      type: "string"
   //      required: true
   // }}
   // NOTE: used to map ingestion to project template types
+  @@map("projectTypes")
 }
 
 model Webhook {
@@ -136,6 +195,8 @@ model Webhook {
   url       String
   user      User?    @relation(fields: [userId], references: [id])
   userId    String?
+
+  @@map("webhooks")
 }
 
 // ENUMS
@@ -144,8 +205,19 @@ enum FilterType {
   NUMBER
 }
 
+enum InvitationStatus {
+  ACCEPTED
+  PENDING
+  DECLINED
+}
+
+enum SubscriptionType {
+  FREE
+  STANDARD
+  PREMIUM
+}
+
 enum Role {
-  ADMIN
-  USER
-  GUEST
+  MEMBER
+  OWNER
 }

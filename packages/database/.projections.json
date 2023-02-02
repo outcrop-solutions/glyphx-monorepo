@@ -1,0 +1,11 @@
+{
+
+  "src/mongoose/models/*.ts": {
+    "type": "source",
+    "alternate": "src/__tests__/mongoose/models/{}.tests.ts"
+  },
+  "src/__tests__/mongoose/models/*.tests.ts" : {
+    "type" : "test",
+    "alternate":  "src/mongoose/models/{}.ts"
+  }
+}

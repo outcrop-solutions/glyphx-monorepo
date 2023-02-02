@@ -5,14 +5,21 @@
     "baseUrl": ".",
     "paths": {
       "@/email/*": ["email/*"],
-      "@/graphql/*": ["graphql/*"],
+      "@/components/*": ["components/*"],
+      "@/config/*": ["config/*"],
+      "@/layouts/*": ["layouts/*"],
       "@/lib/*": ["lib/*"],
       "@/pages/*": ["pages/*"],
+      "@/hooks/*": ["hooks/*"],
       "@/partials/*": ["partials/*"],
+<<<<<<< HEAD
       "@state/*": ["state/*"],
+=======
+      "@/providers/*": ["providers/*"],
+      "@/state/*": ["state/*"],
+>>>>>>> feature/new-filesystem-merge-commit
       "@/services/*": ["services/*"],
       "@/styles/*": ["styles/*"],
-      "@/types": ["types/index"],
       "@/types/*": ["types/*"],
       "@/utils/*": ["utils/*"]
     },

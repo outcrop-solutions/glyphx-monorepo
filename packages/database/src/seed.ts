@@ -1,9 +1,10 @@
-import { prisma } from '.';
+/*eslint-disable*/
+import {prisma} from '.';
 
-import type { Organization, Project, User } from '@prisma/client';
+import type {Organization, Project, User} from '@prisma/client';
 
 const DEFAULT_ORGS = [
-  { name: 'Robert Weed', description: 'Customer #1' },
+  {name: 'Robert Weed', description: 'Customer #1'},
   {
     name: 'Glyphx',
     description: 'Admin of software',
@@ -34,8 +35,8 @@ const DEFAULT_ORGS = [
       },
     ],
     projects: [
-      { name: 'First Project', description: 'Project #1' },
-      { name: 'Second Project', description: 'Project #2' },
+      {name: 'First Project', description: 'Project #1'},
+      {name: 'Second Project', description: 'Project #2'},
     ],
   },
 ] as Array<Partial<Organization>>;
@@ -43,7 +44,7 @@ const DEFAULT_ORGS = [
 (async () => {
   try {
     await Promise.all(
-      DEFAULT_ORGS.map((org) =>
+      DEFAULT_ORGS.map(org =>
         prisma.organization.create({
           data: {
             ...org,

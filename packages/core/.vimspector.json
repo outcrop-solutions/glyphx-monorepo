@@ -1,0 +1,50 @@
+{
+  "configurations": {
+    "test": {
+      "adapter": "vscode-node",
+      "configuration": {
+        "request": "launch",
+        "protocol": "auto",
+        "stopOnEntry": false,
+        "console": "integratedTerminal",
+        "program": "${workspaceRoot}/node_modules/mocha/bin/mocha",
+        "args": [
+          "-r",
+          "ts-node/register",
+	  "-r",
+	  "tsconfig-paths/register",
+          "--timeout",
+          "999999",
+          "--exit",
+          "src/__tests__/**/*.tests.ts"
+        ],
+        "cwd": "${workspaceRoot}",
+        "env": {"TS_NODE_FILES": "true"}
+      }
+    },
+    "integration_tests": {
+      "adapter": "vscode-node",
+      "configuration": {
+        "request": "launch",
+        "protocol": "auto",
+        "stopOnEntry": false,
+        "console": "integratedTerminal",
+        "program": "${workspaceRoot}/node_modules/mocha/bin/mocha",
+        "args": [
+          "-r",
+          "ts-node/register",
+          "-r",
+          "tsconfig-paths/register",
+          "-r",
+          "dotenv/config",
+          "--timeout",
+          "999999",
+          "--exit",
+          "src/__integrationTests__/**/*.tests.ts"
+        ],
+        "cwd": "${workspaceRoot}",
+        "env": {"TS_NODE_FILES": "true", "DOTENV_CONFIG_PATH": "src/__integrationTests__/.env.integration"}
+      }
+    }
+  }
+}

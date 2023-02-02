@@ -1,0 +1,9 @@
+{
+  "extends": "@glyphx/tsconfig/node18.json",
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts"],
+  "exclude": ["src/__tests__/**", "src/__integrationTests__/**"],
+  "compilerOptions": {
+	  "experimentalDecorators": true,
+	  "emitDecoratorMetadata": true
+  }
+}
