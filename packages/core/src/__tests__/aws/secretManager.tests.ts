@@ -7,7 +7,6 @@ import {
   GetSecretValueCommand,
 } from '@aws-sdk/client-secrets-manager';
 import * as error from '../../error';
-import {createSandbox} from 'sinon';
 
 describe('#aws/SecretManager', () => {
   context('constructor', () => {

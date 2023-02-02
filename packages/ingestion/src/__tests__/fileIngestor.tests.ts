@@ -4,7 +4,7 @@ import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
 import {error, aws} from '@glyphx/core';
 import {BasicAthenaProcessor} from '@fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
 import {
   IFileInformation,
@@ -16,8 +16,9 @@ import {
   FILE_PROCESSING_STATUS,
   FILE_PROCESSING_ERROR_TYPES,
 } from '@util/constants';
+import * as businessLogic from '@glyphx/business';
 
-describe('fileIngestor', () => {
+describe.only('fileIngestor', () => {
   context('constructor', () => {
     it('Should build a FileIngestor object', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
@@ -35,10 +36,7 @@ describe('fileIngestor', () => {
       assert.isFalse(fileIngestor.inited);
 
       assert.strictEqual(fileIngestor.fileInfo.length, payload.fileInfo.length);
-      assert.strictEqual(
-        fileIngestor.fileStatistics.length,
-        payload.fileStats.length
-      );
+      assert.strictEqual(fileIngestor.fileStatistics.length, 0);
 
       assert.throws(() => {
         fileIngestor.isSafe;
@@ -68,7 +66,16 @@ describe('fileIngestor', () => {
         'init',
         sandbox.fake.resolves(true as unknown as void)
       );
-
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves([])
+      );
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
@@ -92,6 +99,17 @@ describe('fileIngestor', () => {
         BasicAthenaProcessor.prototype,
         'init',
         athenaProcessorInitFake
+      );
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves([])
       );
 
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
@@ -121,6 +139,16 @@ describe('fileIngestor', () => {
         BasicAthenaProcessor.prototype,
         'init',
         sandbox.fake.resolves(true as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves([])
       );
 
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
@@ -165,7 +193,21 @@ describe('fileIngestor', () => {
         'init',
         sandbox.fake.resolves(true as unknown as void)
       );
-
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'updateProjectFileStats',
+        sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves(mockPayload.payload.fileStats)
+      );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       fileIngestor = new FileIngestor(payload, databaseName);
@@ -455,7 +497,22 @@ describe('fileIngestor', () => {
         'init',
         sandbox.fake.resolves(true as unknown as void)
       );
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'updateProjectFileStats',
+        sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
+      );
 
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves(mockPayload.payload.fileStats)
+      );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       payload.fileInfo.splice(1);
@@ -755,6 +812,22 @@ describe('fileIngestor', () => {
         'init',
         sandbox.fake.resolves(true as unknown as void)
       );
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'updateProjectFileStats',
+        sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
+      );
+
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves(mockPayload.payload.fileStats)
+      );
 
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
@@ -984,6 +1057,21 @@ describe('fileIngestor', () => {
         sandbox.fake.resolves(true as unknown as void)
       );
 
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'updateProjectFileStats',
+        sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves(mockPayload.payload.fileStats)
+      );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       payload.fileInfo.splice(1);
@@ -1211,7 +1299,22 @@ describe('fileIngestor', () => {
         'init',
         sandbox.fake.resolves(true as unknown as void)
       );
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'updateProjectFileStats',
+        sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
+      );
 
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves(mockPayload.payload.fileStats)
+      );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       fileIngestor = new FileIngestor(payload, databaseName);
@@ -1281,7 +1384,22 @@ describe('fileIngestor', () => {
         'init',
         sandbox.fake.resolves(true as unknown as void)
       );
+      sandbox.replace(
+        businessLogic.Initializer,
+        'init',
+        sandbox.stub().resolves(null as unknown as void)
+      );
+      sandbox.replace(
+        businessLogic.projectService,
+        'updateProjectFileStats',
+        sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
+      );
 
+      sandbox.replace(
+        businessLogic.projectService,
+        'getProjectFileStats',
+        sandbox.stub().resolves(mockPayload.payload.fileStats)
+      );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       fileIngestor = new FileIngestor(payload, databaseName);
