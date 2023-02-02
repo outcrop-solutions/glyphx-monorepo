@@ -1,11 +1,11 @@
 import {assert} from 'chai';
 import {ForkingStream} from '../../streams';
-import {Readable, Transform, Writable, PassThrough} from 'stream';
+import {Readable, Transform} from 'stream';
 import {createSandbox} from 'sinon';
 import {InvalidOperationError, InvalidArgumentError} from '../../error';
 import {PIPELINE_STATUS} from '../../constants';
 
-const streamData =
+const STREAM_DATA =
   'I am the stream data. It really makes no difference what you set here; as long as you set something'.split(
     ' '
   );
@@ -15,37 +15,30 @@ describe('#stream/ForkingStream', () => {
 
   let inputStream: Readable;
   let transform1Count: number;
-  let transform1ErrorCount: number;
   let transformStream1: Transform;
 
   let transform2Count: number;
-  let transform2ErrorCount: number;
   let transformStream2: Transform;
 
   let transform3Count: number;
-  let transform3ErrorCount: number;
   let transformStream3: Transform;
 
   let transform4Count: number;
-  let transform4ErrorCount: number;
   let transformStream4: Transform;
 
   let transform5Count: number;
-  let transform5ErrorCount: number;
   let transformStream5: Transform;
 
-  let errorTransform1Count: number;
   let errorTransform1ErrorCount: number;
   let errorTtransformStream1: Transform;
 
-  let errorTransform2Count: number;
   let errorTransform2ErrorCount: number;
   let errorTtransformStream2: Transform;
   beforeEach(() => {
-    inputStream = Readable.from(streamData);
+    /*eslint-disable-next-line node/no-unsupported-features/node-builtins*/
+    inputStream = Readable.from(STREAM_DATA);
 
     transform1Count = 0;
-    transform1ErrorCount = 0;
     transformStream1 = new Transform({
       transform: (chunk, encoding, callback) => {
         transform1Count++;
@@ -54,7 +47,6 @@ describe('#stream/ForkingStream', () => {
     });
 
     transform2Count = 0;
-    transform2ErrorCount = 0;
     transformStream2 = new Transform({
       transform: (chunk, encoding, callback) => {
         transform2Count++;
@@ -63,7 +55,6 @@ describe('#stream/ForkingStream', () => {
     });
 
     transform3Count = 0;
-    transform3ErrorCount = 0;
     transformStream3 = new Transform({
       transform: (chunk, encoding, callback) => {
         transform3Count++;
@@ -72,7 +63,6 @@ describe('#stream/ForkingStream', () => {
     });
 
     transform4Count = 0;
-    transform4ErrorCount = 0;
     transformStream4 = new Transform({
       transform: (chunk, encoding, callback) => {
         transform4Count++;
@@ -81,7 +71,6 @@ describe('#stream/ForkingStream', () => {
     });
 
     transform5Count = 0;
-    transform5ErrorCount = 0;
     transformStream5 = new Transform({
       transform: (chunk, encoding, callback) => {
         transform5Count++;
@@ -89,7 +78,6 @@ describe('#stream/ForkingStream', () => {
       },
     });
 
-    errorTransform1Count = 0;
     errorTransform1ErrorCount = 0;
     errorTtransformStream1 = new Transform({
       transform: (chunk, encoding, callback) => {
@@ -98,7 +86,6 @@ describe('#stream/ForkingStream', () => {
       },
     });
 
-    errorTransform2Count = 0;
     errorTransform2ErrorCount = 0;
     errorTtransformStream2 = new Transform({
       transform: (chunk, encoding, callback) => {
@@ -154,7 +141,6 @@ describe('#stream/ForkingStream', () => {
       assert.strictEqual(spy.firstCall.args.length, 2);
     });
     it('should throw an exception when it is not safe', () => {
-      const spy = sandbox.spy(ForkingStream.prototype, 'addStreams');
       const splitStream = new ForkingStream(inputStream);
       splitStream.startPipeline();
       assert.throws(() => {
@@ -218,7 +204,7 @@ describe('#stream/ForkingStream', () => {
     });
     it('should throw an InvalidOperationError when adding a stream to a fork that is unsafe', () => {
       const splitStream = new ForkingStream(inputStream);
-      const fork = splitStream.fork('fork1', transformStream1);
+      splitStream.fork('fork1', transformStream1);
 
       splitStream.startPipeline();
 
@@ -228,7 +214,7 @@ describe('#stream/ForkingStream', () => {
     });
     it('should throw an InvalidArgumentError when adding a stream to a fork that is does not exist', () => {
       const splitStream = new ForkingStream(inputStream);
-      const fork = splitStream.fork('fork1', transformStream1);
+      splitStream.fork('fork1', transformStream1);
 
       assert.throws(() => {
         splitStream.addStreamsToFork('fork2', transformStream3);
@@ -239,18 +225,10 @@ describe('#stream/ForkingStream', () => {
   context('functional testing', () => {
     it('should fork our stream at the same branch point and process both pipelines', async () => {
       const splitStream = new ForkingStream(inputStream, transformStream1);
-      const fork = splitStream.fork(
-        'fork1',
-        transformStream2,
-        transformStream3
-      );
-      const fork2 = splitStream.fork(
-        'fork2',
-        transformStream4,
-        transformStream5
-      );
+      splitStream.fork('fork1', transformStream2, transformStream3);
+      splitStream.fork('fork2', transformStream4, transformStream5);
 
-      const numberOfCalls = streamData.length;
+      const numberOfCalls = STREAM_DATA.length;
 
       splitStream.startPipeline();
       await splitStream.done();
@@ -274,7 +252,7 @@ describe('#stream/ForkingStream', () => {
     it('It will run just our base stream with no forks', async () => {
       const splitStream = new ForkingStream(inputStream, transformStream1);
 
-      const numberOfCalls = streamData.length;
+      const numberOfCalls = STREAM_DATA.length;
 
       splitStream.startPipeline();
       await splitStream.done();
@@ -284,8 +262,8 @@ describe('#stream/ForkingStream', () => {
     });
     it('It fork a stream with no additional streams', async () => {
       const splitStream = new ForkingStream(inputStream, transformStream1);
-      const fork = splitStream.fork('fork1');
-      const numberOfCalls = streamData.length;
+      splitStream.fork('fork1');
+      const numberOfCalls = STREAM_DATA.length;
 
       splitStream.startPipeline();
       await splitStream.done();
@@ -295,18 +273,10 @@ describe('#stream/ForkingStream', () => {
     });
     it('should fork our stream at the same branch point and process both pipelines fork 1 will error', async () => {
       const splitStream = new ForkingStream(inputStream, transformStream1);
-      const fork = splitStream.fork(
-        'fork1',
-        errorTtransformStream1,
-        transformStream3
-      );
-      const fork2 = splitStream.fork(
-        'fork2',
-        transformStream4,
-        transformStream5
-      );
+      splitStream.fork('fork1', errorTtransformStream1, transformStream3);
+      splitStream.fork('fork2', transformStream4, transformStream5);
 
-      const numberOfCalls = streamData.length;
+      const numberOfCalls = STREAM_DATA.length;
       splitStream.startPipeline();
       assert.isTrue(splitStream.started);
       assert.isTrue(splitStream.unsafe);
@@ -340,18 +310,9 @@ describe('#stream/ForkingStream', () => {
         errorTtransformStream2,
         transformStream1
       );
-      const fork = splitStream.fork(
-        'fork1',
-        transformStream2,
-        transformStream3
-      );
-      const fork2 = splitStream.fork(
-        'fork2',
-        transformStream4,
-        transformStream5
-      );
+      splitStream.fork('fork1', transformStream2, transformStream3);
+      splitStream.fork('fork2', transformStream4, transformStream5);
 
-      const numberOfCalls = streamData.length;
       splitStream.startPipeline();
       assert.isTrue(splitStream.started);
       assert.isTrue(splitStream.unsafe);
@@ -380,18 +341,9 @@ describe('#stream/ForkingStream', () => {
     });
     it('Should throw an exception if we call start twice', async () => {
       const splitStream = new ForkingStream(inputStream, transformStream1);
-      const fork = splitStream.fork(
-        'fork1',
-        transformStream2,
-        transformStream3
-      );
-      const fork2 = splitStream.fork(
-        'fork2',
-        transformStream4,
-        transformStream5
-      );
+      splitStream.fork('fork1', transformStream2, transformStream3);
+      splitStream.fork('fork2', transformStream4, transformStream5);
 
-      const numberOfCalls = streamData.length;
       let errored = false;
       try {
         splitStream.startPipeline();

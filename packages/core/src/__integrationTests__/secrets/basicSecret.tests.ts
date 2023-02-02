@@ -1,15 +1,17 @@
-import mocha from 'mocha';
+/*eslint-disable-next-line node/no-unpublished-import*/
+import 'mocha';
 import {assert} from 'chai';
 import {SecretsManager} from '@aws-sdk/client-secrets-manager';
 import {SecretManager} from '../../aws';
+/*eslint-disable-next-line node/no-unpublished-import*/
 import {v4} from 'uuid';
 
-const secret = {
+const SECRET = {
   foo: 1,
   bar: 2,
   baz: 'hi mom',
 };
-let secretName = 'testSecret_' + v4().replace(/-/g, '');
+const SECRET_NAME = 'testSecret_' + v4().replace(/-/g, '');
 
 describe('#integrationTests/secrets/basicSecret', () => {
   context('Retreive secrets from an existing aws secret', () => {
@@ -17,8 +19,8 @@ describe('#integrationTests/secrets/basicSecret', () => {
     before(async () => {
       //1. create our test secret with a random name for this test.
       await mgr.createSecret({
-        SecretString: JSON.stringify(secret),
-        Name: secretName,
+        SecretString: JSON.stringify(SECRET),
+        Name: SECRET_NAME,
       });
     });
 
@@ -27,7 +29,7 @@ describe('#integrationTests/secrets/basicSecret', () => {
       //command so we are going to wait 5 seconds to make sure that it shows up.
       await new Promise(resolve => setTimeout(resolve, 5000));
       const definedSecrets = await (mgr.listSecrets({
-        Filters: [{Key: 'name', Values: [secretName]}],
+        Filters: [{Key: 'name', Values: [SECRET_NAME]}],
       }) as Promise<any>);
 
       assert.strictEqual(definedSecrets.SecretList.length, 1);
@@ -41,13 +43,13 @@ describe('#integrationTests/secrets/basicSecret', () => {
     });
 
     it('should retrive our secret value', async () => {
-      const secretManager = new SecretManager(secretName);
+      const secretManager = new SecretManager(SECRET_NAME);
 
       const secretValue = await secretManager.getSecrets();
 
-      assert.strictEqual(secretValue.foo, secret.foo);
-      assert.strictEqual(secretValue.bar, secret.bar);
-      assert.strictEqual(secretValue.baz, secret.baz);
+      assert.strictEqual(secretValue.foo, SECRET.foo);
+      assert.strictEqual(secretValue.bar, SECRET.bar);
+      assert.strictEqual(secretValue.baz, SECRET.baz);
     });
   });
 });
