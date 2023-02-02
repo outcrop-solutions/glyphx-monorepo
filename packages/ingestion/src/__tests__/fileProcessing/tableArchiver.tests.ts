@@ -1,11 +1,10 @@
 import {assert} from 'chai';
 import {TableArchiver} from '@fileProcessing';
-import {createSandbox, SinonSandbox} from 'sinon';
+import {createSandbox} from 'sinon';
 import {aws, error} from '@glyphx/core';
-import {Readable, PassThrough, Writable} from 'stream';
-import {default as streamStuff} from 'stream/promises';
+import {Readable} from 'stream';
 
-class mockS3Manger {
+class MockS3Manger {
   public initedField: boolean;
   get inited(): boolean {
     return this.initedField;
@@ -24,7 +23,7 @@ class mockS3Manger {
     return Readable['from'](['I am a stream']);
   }
 
-  public getUploadStream(fileName: string, passthrogh: PassThrough) {
+  public getUploadStream() {
     return {
       done: async () => {
         return true;
@@ -46,7 +45,7 @@ describe('#fileProcessing/TableArchiver', () => {
     const modelId = 'testModelId';
 
     it('will build a new TableArchiverObject', () => {
-      const s3Manager = new mockS3Manger() as unknown as aws.S3Manager;
+      const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
 
       assert.strictEqual(tableArchiver['clientId'], clientId);
@@ -61,14 +60,14 @@ describe('#fileProcessing/TableArchiver', () => {
     const modelId = 'testModelId';
 
     it('should be safe', () => {
-      const s3Manager = new mockS3Manger() as unknown as aws.S3Manager;
+      const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
 
       assert.isTrue(tableArchiver.isSafe);
     });
 
     it('should throw an exception because it is not safe', () => {
-      const s3Manager = new mockS3Manger();
+      const s3Manager = new MockS3Manger();
       s3Manager.inited = false;
       const tableArchiver = new TableArchiver(
         clientId,
@@ -100,7 +99,7 @@ describe('#fileProcessing/TableArchiver', () => {
     it('should archive the files in a table', async () => {
       const tableName = 'testTable';
 
-      const s3Manager = new mockS3Manger() as unknown as aws.S3Manager;
+      const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
 
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
 
@@ -113,7 +112,7 @@ describe('#fileProcessing/TableArchiver', () => {
     it('will return if there are no files to archive', async () => {
       const tableName = 'testTable';
 
-      const s3Manager = new mockS3Manger() as unknown as aws.S3Manager;
+      const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
       sandbox.replace(s3Manager, 'listObjects', sandbox.fake.resolves([]));
 
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
@@ -127,7 +126,7 @@ describe('#fileProcessing/TableArchiver', () => {
 
     it('should throw an exception when s3 manager throws an exception', async () => {
       const tableName = 'testTable';
-      const s3Manager = new mockS3Manger() as unknown as aws.S3Manager;
+      const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
       sandbox.replace(
         s3Manager,
         'listObjects',
@@ -137,7 +136,7 @@ describe('#fileProcessing/TableArchiver', () => {
 
       let errored = false;
       try {
-        const results = await tableArchiver.archiveTable(tableName);
+        await tableArchiver.archiveTable(tableName);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         assert.strictEqual(
@@ -154,7 +153,7 @@ describe('#fileProcessing/TableArchiver', () => {
     it('should throw an exception when archiveFile throws an exception', async () => {
       const tableName = 'testTable';
 
-      const s3Manager = new mockS3Manger() as unknown as aws.S3Manager;
+      const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
       const stub = sandbox.stub(tableArchiver, 'archiveFile');
       stub.onCall(4).rejects('Oops something went wrong');
@@ -163,7 +162,7 @@ describe('#fileProcessing/TableArchiver', () => {
       });
       let errored = false;
       try {
-        const results = await tableArchiver.archiveTable(tableName);
+        await tableArchiver.archiveTable(tableName);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         assert.strictEqual(
@@ -179,7 +178,7 @@ describe('#fileProcessing/TableArchiver', () => {
     it('file archiver will catch and throw an exception when underlying calls throw an exception', async () => {
       const tableName = 'testTable';
 
-      const s3Manager = new mockS3Manger() as unknown as aws.S3Manager;
+      const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
       sandbox.replace(
         s3Manager,
         'removeObject',
@@ -188,7 +187,7 @@ describe('#fileProcessing/TableArchiver', () => {
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
       let errored = false;
       try {
-        const results = await tableArchiver.archiveTable(tableName);
+        await tableArchiver.archiveTable(tableName);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         assert.strictEqual(

@@ -1,8 +1,11 @@
 import {fileIngestion} from '@glyphx/types';
 import {error, aws} from '@glyphx/core';
-import {BasicAthenaProcessor} from '@fileProcessing';
 import {Readable} from 'node:stream';
-import {FileUploadManager, FileReconciliator} from './fileProcessing';
+import {
+  BasicAthenaProcessor,
+  FileUploadManager,
+  FileReconciliator,
+} from './fileProcessing';
 import {
   projectService,
   Initializer as businessLogicInit,

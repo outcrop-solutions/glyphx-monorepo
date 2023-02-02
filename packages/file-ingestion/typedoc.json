@@ -1,6 +1,0 @@
-{
-	"entryPoints": ["./src"],
-	"entryPointStrategy": "expand",
-	"exclude": ["**/__tests__/**/*"],
-	"excludeNotDocumented": true
-}

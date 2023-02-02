@@ -6,11 +6,18 @@ module.exports = {
   },
   extends: '@glyphx/eslint-config-glyphx-backend',
   rules: {
-    // 'node/no-unpublished-import': [
-    //   'error',
-    //   {
-    //     allowModules: ['chai', 'sinon'],
-    //   },
-    // ],
+    'node/no-unpublished-import': [
+      'error',
+      {
+        allowModules: [
+          'aws-sdk-client-mock',
+          'uuid',
+          'tsup',
+          '@glyphx/types',
+          'chai',
+          'sinon',
+        ],
+      },
+    ],
   },
 };
