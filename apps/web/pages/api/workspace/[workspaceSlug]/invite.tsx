@@ -1,7 +1,4 @@
-import {
-  validateWorkspaceInvite,
-  validateSession,
-} from '@glyphx/business';
+import { validateWorkspaceInvite, validateSession } from '@glyphx/business';
 import { inviteUsers } from '@glyphx/business';
 
 const handler = async (req, res) => {
@@ -11,20 +8,19 @@ const handler = async (req, res) => {
     const session = await validateSession(req, res);
     await validateWorkspaceInvite(req, res);
     const { members } = req.body;
+
     await inviteUsers(
-      session.user.userId,
-      session.user.email,
+      // @ts-ignore
+      session?.user?.userId,
+      // @ts-ignore
+      session?.user?.email,
       members,
       req.query.workspaceSlug
     )
       .then((members) => res.status(200).json({ data: { members } }))
-      .catch((error) =>
-        res.status(404).json({ errors: { error: { msg: error.message } } })
-      );
+      .catch((error) => res.status(404).json({ errors: { error: { msg: error.message } } }));
   } else {
-    res
-      .status(405)
-      .json({ errors: { error: { msg: `${method} method unsupported` } } });
+    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
   }
 };
 

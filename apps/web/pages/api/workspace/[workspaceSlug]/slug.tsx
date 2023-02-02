@@ -12,8 +12,10 @@ const handler = async (req, res) => {
     let { slug } = req.body;
     await validateUpdateWorkspaceSlug(req, res);
     updateSlug(
-      session.user.userId,
-      session.user.email,
+      // @ts-ignore
+      session?.user?.userId,
+      // @ts-ignore
+      session?.user?.email,
       slug,
       req.query.workspaceSlug
     )

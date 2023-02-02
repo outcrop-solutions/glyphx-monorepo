@@ -6,8 +6,8 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import Card from '@/components/Card/index';
 import Button from '@/components/Button';
-import api from '@glyphx/business/lib/common/api';
-import { getInvitation } from '@glyphx/business';
+import {api, getInvitation} from '@glyphx/business';
+
 
 const Invite = ({ workspace }) => {
   const { data } = useSession();

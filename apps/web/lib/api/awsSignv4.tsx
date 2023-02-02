@@ -18,7 +18,7 @@ export async function awsSignv4(
   session: Session
 ): Promise<void | NextApiResponse> {
   // @ts-ignore
-  if (!session.user.id) return res.status(500).end('Server failed to get session user ID');
+  if (!session?.user?.id) return res.status(500).end('Server failed to get session user ID');
 
   try {
     const timestamp = Date.now().toString().substring(0, 8);

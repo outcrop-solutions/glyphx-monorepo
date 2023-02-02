@@ -7,8 +7,10 @@ const handler = async (req, res) => {
   if (method === 'GET') {
     const session = await validateSession(req, res);
     const workspaces = await getWorkspaces(
-      session.user.userId,
-      session.user.email
+      // @ts-ignore
+      session?.user?.userId,
+      // @ts-ignore
+      session?.user?.email
     );
     res.status(200).json({ data: { workspaces } });
   } else {

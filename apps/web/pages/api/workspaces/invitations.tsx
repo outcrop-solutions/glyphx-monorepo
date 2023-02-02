@@ -5,7 +5,8 @@ const handler = async (req, res) => {
 
   if (method === 'GET') {
     const session = await validateSession(req, res);
-    const invitations = await getPendingInvitations(session.user.email);
+    // @ts-ignore
+    const invitations = await getPendingInvitations(session?.user?.email);
     res.status(200).json({ data: { invitations } });
   } else {
     res.status(405).json({ error: `${method} method unsupported` });

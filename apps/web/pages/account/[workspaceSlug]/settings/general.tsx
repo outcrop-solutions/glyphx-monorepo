@@ -156,11 +156,11 @@ export const getServerSideProps = async (context) => {
 
   if (session) {
     // @ts-ignore
-    workspace = await getWorkspace(session.user.userId, session.user.email, context.params.workspaceSlug);
+    workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
 
     if (workspace) {
       // @ts-ignore
-      isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
+      isTeamOwner = isWorkspaceOwner(session?.user?.email, workspace);
     }
   }
 

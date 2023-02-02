@@ -10,7 +10,7 @@ export default NextAuth({
   adapter: PrismaAdapter(prisma),
   callbacks: {
     session: async ({ session, user }) => {
-      if (session.user) {
+      if (session?.user) {
         const customerPayment = await getPayment(user.email);
         // @ts-ignore
         session.user.userId = user.id;

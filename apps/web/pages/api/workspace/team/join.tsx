@@ -6,7 +6,8 @@ const handler = async (req, res) => {
   if (method === 'POST') {
     const session = await validateSession(req, res);
     const { workspaceCode } = req.body;
-    joinWorkspace(workspaceCode, session.user.email)
+    // @ts-ignore
+    joinWorkspace(workspaceCode, session?.user?.email)
       .then((joinedAt) => res.status(200).json({ data: { joinedAt } }))
       .catch((error) =>
         res.status(404).json({ errors: { error: { msg: error.message } } })

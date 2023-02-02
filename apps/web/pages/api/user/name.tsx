@@ -11,7 +11,8 @@ const handler = async (req, res) => {
     const session = await validateSession(req, res);
     await validateUpdateName(req, res);
     const { name } = req.body;
-    await updateName(session.user.userId, name);
+    // @ts-ignore
+    await updateName(session?.user?.userId, name);
     res.status(200).json({ data: { name } });
   } else {
     res

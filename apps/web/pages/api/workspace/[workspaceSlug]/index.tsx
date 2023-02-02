@@ -6,8 +6,10 @@ const handler = async (req, res) => {
   if (method === 'DELETE') {
     const session = await validateSession(req, res);
     deleteWorkspace(
-      session.user.userId,
-      session.user.email,
+      // @ts-ignore
+      session?.user?.userId,
+      // @ts-ignore
+      session?.user?.email,
       req.query.workspaceSlug
     )
       .then((slug) => res.status(200).json({ data: { slug } }))

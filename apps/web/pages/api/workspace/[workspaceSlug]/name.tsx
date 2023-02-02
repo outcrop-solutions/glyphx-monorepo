@@ -12,8 +12,10 @@ const handler = async (req, res) => {
     await validateUpdateWorkspaceName(req, res);
     const { name } = req.body;
     updateWorkspaceName(
-      session.user.userId,
-      session.user.email,
+      // @ts-ignore
+      session?.user?.userId,
+      // @ts-ignore
+      session?.user?.email,
       name,
       req.query.workspaceSlug
     )

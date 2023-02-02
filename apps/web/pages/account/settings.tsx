@@ -216,7 +216,7 @@ const Settings = ({ user }) => {
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
   // @ts-ignore
-  const { email, name, userCode } = await getUser(session.user?.userId);
+  const { email, name, userCode } = await getUser(session?.user?.userId);
   return {
     props: {
       user: {

@@ -132,7 +132,8 @@ const Billing = ({ invoices, products }) => {
 
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
-  const customerPayment = await getPayment(session.user?.email);
+  // @ts-ignore
+  const customerPayment = await getPayment(session?.user?.email);
   // @ts-ignore
   const [invoices, products] = await Promise.all([getInvoices(customerPayment?.paymentId), getProducts()]);
   return {

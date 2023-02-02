@@ -9,9 +9,11 @@ const handler = async (req, res) => {
   if (method === 'DELETE') {
     const session = await validateSession(req, res);
     if (ALLOW_DEACTIVATION) {
-      await deactivate(session.user.userId);
+      // @ts-ignore
+      await deactivate(session?.user?.userId);
     }
-    res.status(200).json({ data: { email: session.user.email } });
+    // @ts-ignore
+    res.status(200).json({ data: { email: session?.user?.email } });
   } else {
     res
       .status(405)
