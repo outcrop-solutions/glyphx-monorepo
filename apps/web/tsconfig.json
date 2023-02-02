@@ -12,12 +12,8 @@
       "@/pages/*": ["pages/*"],
       "@/hooks/*": ["hooks/*"],
       "@/partials/*": ["partials/*"],
-<<<<<<< HEAD
-      "@state/*": ["state/*"],
-=======
       "@/providers/*": ["providers/*"],
       "@/state/*": ["state/*"],
->>>>>>> feature/new-filesystem-merge-commit
       "@/services/*": ["services/*"],
       "@/styles/*": ["styles/*"],
       "@/types/*": ["types/*"],
