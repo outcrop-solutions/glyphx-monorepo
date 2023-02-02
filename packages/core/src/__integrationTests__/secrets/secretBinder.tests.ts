@@ -1,15 +1,17 @@
-import mocha from 'mocha';
+/*eslint-disable-next-line node/no-unpublished-import*/
+import 'mocha';
 import {assert} from 'chai';
 import {SecretsManager} from '@aws-sdk/client-secrets-manager';
+/*eslint-disable-next-line node/no-unpublished-import*/
 import {v4} from 'uuid';
 import * as secrets from '../../secrets/secretClassDecorator';
 
-const secret = {
+const SECRET = {
   foo: 1,
   bar: 2,
   baz: 'hi mom',
 };
-let secretName = 'testSecret_' + v4().replace(/-/g, '');
+const SECRET_NAME = 'testSecret_' + v4().replace(/-/g, '');
 
 describe('#integrationTests/secrets/basicSecret', () => {
   context('Bind secrets from an existing aws secret to an object', () => {
@@ -17,8 +19,8 @@ describe('#integrationTests/secrets/basicSecret', () => {
     before(async () => {
       //1. create our test secret with a random name for this test.
       await mgr.createSecret({
-        SecretString: JSON.stringify(secret),
-        Name: secretName,
+        SecretString: JSON.stringify(SECRET),
+        Name: SECRET_NAME,
       });
     });
 
@@ -27,7 +29,7 @@ describe('#integrationTests/secrets/basicSecret', () => {
       //command so we are going to wait 5 seconds to make sure that it shows up.
       await new Promise(resolve => setTimeout(resolve, 5000));
       const definedSecrets = await (mgr.listSecrets({
-        Filters: [{Key: 'name', Values: [secretName]}],
+        Filters: [{Key: 'name', Values: [SECRET_NAME]}],
       }) as Promise<any>);
 
       assert.strictEqual(definedSecrets.SecretList.length, 1);
@@ -41,8 +43,8 @@ describe('#integrationTests/secrets/basicSecret', () => {
     });
 
     it('should bind our secret values', async () => {
-      @secrets.bindSecrets(secretName)
-      class boundObject {
+      @secrets.bindSecrets(SECRET_NAME)
+      class BoundObject {
         @secrets.boundProperty()
         foo: number;
         @secrets.boundProperty()
@@ -61,12 +63,12 @@ describe('#integrationTests/secrets/basicSecret', () => {
         }
       }
 
-      const bo = new boundObject();
+      const bo = new BoundObject();
       await bo.init();
 
-      assert.strictEqual(bo.foo, secret.foo);
-      assert.strictEqual(bo.bar, secret.bar);
-      assert.strictEqual(bo.baz, secret.baz);
+      assert.strictEqual(bo.foo, SECRET.foo);
+      assert.strictEqual(bo.bar, SECRET.bar);
+      assert.strictEqual(bo.baz, SECRET.baz);
     });
   });
 });

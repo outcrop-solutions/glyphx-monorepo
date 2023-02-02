@@ -1,3 +1,4 @@
+//@ts-nocheck
 import {html, text} from 'email/emailUpdate';
 import {sendMail} from 'lib/server/mail';
 import {prisma} from '@glyphx/database';

@@ -1,4 +1,5 @@
 {
-  "extends": "./tsconfig.json",
-  "include": ["src", ".eslintrc.js", "tsup.config.ts"]
+  "extends": "@glyphx/tsconfig/node18.json",
+  "include": ["src", "**/*.ts", "**/*.tsx", ".eslintrc.js", "tsup.config.ts"],
+  "exclude": ["node_modules"]
 }

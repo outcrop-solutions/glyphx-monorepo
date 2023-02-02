@@ -1,18 +1,16 @@
 import {SecretManager} from '../aws';
-import {SecretsManager} from '@aws-sdk/client-secrets-manager';
 import 'reflect-metadata';
-import {InvalidOperationError} from '../error';
 export interface ISecretBoundObject extends Record<string, any> {
   secretName: string;
   secretManager: SecretManager;
 }
 
 //snagged this form here: https://stackoverflow.com/questions/51267554/accessing-a-objects-non-enumerable-properties
-function getPropertyNames(Obj: any, prev: string[] = []): string[] {
-  if (Obj) {
+function getPropertyNames(obj: any, prev: string[] = []): string[] {
+  if (obj) {
     return getPropertyNames(
-      Obj.prototype || Obj.__proto__,
-      prev.concat(Object.getOwnPropertyNames(Obj))
+      obj.prototype || obj.__proto__,
+      prev.concat(Object.getOwnPropertyNames(obj))
     );
   }
   return prev.sort();
@@ -48,6 +46,7 @@ function mapProperties(
     if (isBindable == false) continue;
 
     //This is a property that was not bound with a decorator
+    /*eslint-disable-next-line eqeqeq*/
     if (isBindable == undefined) {
       if (retval.get(key)) continue;
       retval.set(key, {

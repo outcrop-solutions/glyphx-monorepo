@@ -1,3 +1,4 @@
+//@ts-nocheck
 import {InvitationStatus} from '@prisma/client';
 import {prisma} from '@glyphx/database';
 // import {database} from '@glyphx/types';

@@ -7,4 +7,7 @@ nnoremap <silent> <C-b><C-o> :%bd<Bar>e#<cr>
 :command BuildTypes :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/types 
 " Build our eslint-config-glyphx-backend package
 :command BuildLint :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/eslint-config-glyphx-backend
-
+" Build our @glyphx/database 
+:command BuildDatabase :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/database
+" Build our @glyphx/business 
+:command BuildBusiness :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/business
