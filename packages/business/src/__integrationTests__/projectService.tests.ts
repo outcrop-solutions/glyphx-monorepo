@@ -68,8 +68,8 @@ const INPUT_PROJECT_TYPE = {
   shape: {field1: {type: 'string', required: true}},
 };
 
-describe('#ProjectModel', () => {
-  context('test the crud functions of the project model', () => {
+describe('#ProjectService', () => {
+  context('test the functions of the project service', () => {
     const mongoConnection = new MongoDbConnection();
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
