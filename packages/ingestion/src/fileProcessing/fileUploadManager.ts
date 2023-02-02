@@ -65,7 +65,9 @@ export class FileUploadManager {
         processedFileErrorInformation.push(input);
       },
       BasicFieldTypeCalculator,
-      BasicColumnNameCleaner
+      BasicColumnNameCleaner,
+      //TODO: This needs to be updates so that we pass in the correct starting id
+      0
     );
     const parquetWriter = new BasicParquetProcessor();
     const passThrough2 = new PassThrough();

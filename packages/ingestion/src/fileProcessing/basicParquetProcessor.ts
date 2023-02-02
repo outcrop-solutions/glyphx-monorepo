@@ -10,6 +10,7 @@ export class BasicParquetProcessor extends Transform {
    * the parquetWriter.
    */
   private readonly pageSize: number;
+
   /**
    * This Transformer expects the first row to be the schema so that
    * it can be passes to the constructor of the parquetJs writer.  This flag keeps track of that.
@@ -31,7 +32,6 @@ export class BasicParquetProcessor extends Transform {
   constructor(pageSize = 4096) {
     super({objectMode: true});
     this.pageSize = pageSize;
-
     this.firstRow = true;
     this.parquetWriter = null;
   }

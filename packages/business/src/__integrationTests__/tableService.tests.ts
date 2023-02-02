@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {TableService} from '../services/table';
 import AthenaConnection from '../lib/server/athenaConnection';
 
-describe.only('#tableService', () => {
+describe('#tableService', () => {
   context('test the services of the tableService', () => {
     let tableName = '';
     before(async () => {

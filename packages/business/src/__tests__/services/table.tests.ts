@@ -20,7 +20,7 @@ class MockAthenaConnection {
   }
 }
 
-describe.only('#services/table', () => {
+describe('#services/table', () => {
   context('getMaxRowId', () => {
     const sandbox = createSandbox();
     afterEach(() => {
