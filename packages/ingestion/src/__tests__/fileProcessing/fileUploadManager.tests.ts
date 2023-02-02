@@ -5,17 +5,11 @@ import {aws, error} from '@glyphx/core';
 import {Readable} from 'stream';
 import {fileIngestion} from '@glyphx/types';
 import {mockClient} from 'aws-sdk-client-mock';
-import {
-  S3,
-  PutObjectCommand,
-  PutObjectOutput,
-  UploadPartCommand,
-  HeadBucketCommand,
-} from '@aws-sdk/client-s3';
+import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
 
 import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 
-const inputData = [
+const INPUT_DATA = [
   `col1,col2,col3,col4
 1,A,flagrant,97683
 2,B,flame,72915
@@ -42,7 +36,7 @@ describe('#fileProcessing/fileUploadManager', () => {
     const fileOperationType = fileIngestion.constants.FILE_OPERATION.ADD;
     beforeEach(() => {
       // eslint-disable-next-line
-      inputStream = Readable.from(inputData);
+      inputStream = Readable.from(INPUT_DATA);
       s3Mock = mockClient(S3);
     });
     afterEach(() => {
@@ -96,16 +90,15 @@ describe('#fileProcessing/fileUploadManager', () => {
       let errored = false;
 
       try {
-        const results =
-          await fileProcessing.FileUploadManager.processAndUploadNewFiles(
-            clientId,
-            modelId,
-            inputStream,
-            tableName,
-            fileName,
-            fileOperationType,
-            s3Bucket
-          );
+        await fileProcessing.FileUploadManager.processAndUploadNewFiles(
+          clientId,
+          modelId,
+          inputStream,
+          tableName,
+          fileName,
+          fileOperationType,
+          s3Bucket
+        );
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;

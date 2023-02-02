@@ -18,7 +18,7 @@ import {
 } from '@util/constants';
 import * as businessLogic from '@glyphx/business';
 
-describe.only('fileIngestor', () => {
+describe('fileIngestor', () => {
   context('constructor', () => {
     it('Should build a FileIngestor object', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;

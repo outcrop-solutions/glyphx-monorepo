@@ -12,7 +12,7 @@ import {
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 
-import {aws, error, generalPurposeFunctions} from '@glyphx/core';
+import {aws, error} from '@glyphx/core';
 
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
 
