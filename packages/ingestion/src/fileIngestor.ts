@@ -363,6 +363,7 @@ export class FileIngestor {
       if (
         fileInformation.operation === fileIngestion.constants.FILE_OPERATION.ADD
       ) {
+        //1. Adding a table starts at rowid = 0
         await this.addTable(
           fileInformation.tableName,
           fileInformation.fileName,
@@ -373,6 +374,7 @@ export class FileIngestor {
         fileInformation.operation ===
         fileIngestion.constants.FILE_OPERATION.APPEND
       ) {
+        //2. Appending a file will require that we get the row id.
         await this.appendFile(
           fileInformation.tableName,
           fileInformation.fileName,
@@ -382,6 +384,7 @@ export class FileIngestor {
         fileInformation.operation ===
         fileIngestion.constants.FILE_OPERATION.REPLACE
       ) {
+        //3. Replace will drop and start over so rowid starts at 0
         await this.replaceTable(
           fileInformation.tableName,
           fileInformation.fileName,
@@ -389,6 +392,7 @@ export class FileIngestor {
         );
         viewAffectingOperations = true;
       } else {
+        //4. no need for rowid here.
         await this.deleteTable(fileInformation.tableName);
         viewAffectingOperations = true;
       }
@@ -420,6 +424,7 @@ export class FileIngestor {
           fileInfoForReturn = reconFileInformation.allFiles;
           //If we delete all of the tables we will have nothing to create.
           if (fileInfoForReturn.length) {
+            //5. We will need to update the view so that we selct the row id as the rowid from the left most column.
             joinInformation = (await this.basicAthenaProcessor?.processTables(
               sharedFunctions.getViewName(this.clientId, this.modelId),
               reconFileInformation.accumFiles
