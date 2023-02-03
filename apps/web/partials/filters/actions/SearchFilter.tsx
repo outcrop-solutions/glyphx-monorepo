@@ -1,5 +1,5 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import { filtersAppliedAtom } from '@/state/filters';
-import { useState, useEffect, useCallback } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { produce } from 'immer';
 export const SearchFilter = ({ lastDroppedItem }) => {

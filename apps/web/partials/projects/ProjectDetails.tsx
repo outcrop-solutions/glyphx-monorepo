@@ -80,7 +80,6 @@ export const ProjectDetails = () => {
       setTimeout(() => {
         setError(false);
       }, 3000);
-      console.log({ error });
     }
   };
 

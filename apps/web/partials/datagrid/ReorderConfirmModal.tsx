@@ -61,9 +61,7 @@ export const ReorderConfirmModal = () => {
           // const copied = await Storage.copy({ key: `${data[i].key}` }, { key: `${id}${data[i].key.slice(36)}` });
           // return copied;
         }
-      } catch (error) {
-        console.log({ error });
-      }
+      } catch (error) {}
     };
 
     const callETL = async () => {

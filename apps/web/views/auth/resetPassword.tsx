@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 // import { Auth } from 'aws-amplify';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -45,10 +45,6 @@ export default function ResetPassword() {
   //     }, 5000);
   //   }
   // };
-
-  const handleBack = () => {
-    router.push('/auth/signIn');
-  };
 
   return (
     <div className="flex h-full items-center justify-center w-full scrollbar-none bg-secondary-midnight">

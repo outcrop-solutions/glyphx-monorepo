@@ -8,3 +8,4 @@ export {DataValidationError} from './dataValidationError';
 export {DatabaseOperationError} from './databaseOperationError';
 export {DataNotFoundError} from './dataNotFoundError';
 export {AwsSecretError} from './awsSecretError';
+export {DataServiceError} from './dataServiceError';

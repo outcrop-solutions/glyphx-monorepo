@@ -1,8 +1,15 @@
 import {fileIngestion} from '@glyphx/types';
 import {error, aws} from '@glyphx/core';
-import {BasicAthenaProcessor} from '@fileProcessing';
 import {Readable} from 'node:stream';
-import {FileUploadManager, FileReconciliator} from './fileProcessing';
+import {
+  BasicAthenaProcessor,
+  FileUploadManager,
+  FileReconciliator,
+} from './fileProcessing';
+import {
+  projectService,
+  Initializer as businessLogicInit,
+} from '@glyphx/business';
 
 import {
   IFileInformation,
@@ -10,10 +17,7 @@ import {
   IJoinTableDefinition,
   IFileProcessingResult,
 } from '@interfaces/fileProcessing';
-import {
-  generalPurposeFunctions,
-  generalPurposeFunctions as sharedFunctions,
-} from '@util';
+import {generalPurposeFunctions as sharedFunctions} from '@util';
 import {TableArchiver} from './fileProcessing/tableArchiver';
 import {
   FILE_PROCESSING_ERROR_TYPES,
@@ -24,7 +28,7 @@ export class FileIngestor {
   private readonly clientIdField: string;
   private readonly modelIdField: string;
   private readonly bucketNameField: string;
-  private readonly fileStatisticsField: fileIngestion.IFileStats[];
+  private fileStatisticsField: fileIngestion.IFileStats[];
   private readonly fileInfoField: fileIngestion.IFileInfo[];
   private readonly databaseNameField: string;
   private readonly s3Manager: aws.S3Manager;
@@ -76,7 +80,6 @@ export class FileIngestor {
     this.clientIdField = payload.clientId;
     this.modelIdField = payload.modelId;
     this.bucketNameField = payload.bucketName;
-    this.fileStatisticsField = payload.fileStats;
     this.fileInfoField = payload.fileInfo;
 
     this.databaseNameField = databaseName;
@@ -96,6 +99,8 @@ export class FileIngestor {
       this.modelId,
       this.s3Manager as aws.S3Manager
     );
+
+    this.fileStatisticsField = [];
   }
 
   public async init() {
@@ -106,6 +111,11 @@ export class FileIngestor {
         await this.athenaManager.init();
 
         await this.basicAthenaProcessor.init();
+        //TODO: set our file statistics here
+        await businessLogicInit.init();
+        this.fileStatisticsField = await projectService.getProjectFileStats(
+          this.modelId
+        );
       } catch (err) {
         throw new error.InvalidArgumentError(
           'An unexpected error occurred while initing the FileIngestor.  See the inner error for additional information',
@@ -424,6 +434,10 @@ export class FileIngestor {
         processingResults = this.processedFileErrorInformation.length
           ? FILE_PROCESSING_STATUS.WARNING
           : FILE_PROCESSING_STATUS.OK;
+        await projectService.updateProjectFileStats(
+          this.modelId,
+          fileInfoForReturn
+        );
       } catch (err) {
         const message = `An unexpected error occurred while processing the files.  See the inner errors for additional information: ${err}`;
         this.processedFileErrorInformation.push({
@@ -439,6 +453,7 @@ export class FileIngestor {
         processingResults = FILE_PROCESSING_STATUS.ERROR;
       }
     }
+
     return {
       fileInformation: fileInfoForReturn,
       fileProcessingErrors: this.processedFileErrorInformation,

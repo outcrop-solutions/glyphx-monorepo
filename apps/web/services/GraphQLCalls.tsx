@@ -5,7 +5,7 @@ import { API, graphqlOperation } from "aws-amplify";
 /**
  * TAKES IN NEW PROJECT STATE AND SAVES IT TO DYNAMO DB. RETURNS NEW PROJECT STATE
  * RETURNS NULL IF ERROR
- * @param newProjectState 
+ * @param newProjectState
  */
 export const updateProjectInfo = async (newProjectState) => {
     try {

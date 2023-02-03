@@ -4,6 +4,7 @@ import { atom, selector, selectorFamily } from 'recoil';
 // import { getProject } from 'graphql/queries';
 import { userAtom } from './user';
 import { API, graphqlOperation } from 'aws-amplify';
+
 export const projectIdAtom = atom({
   key: 'projectId',
   default: null,
@@ -16,7 +17,6 @@ export const selectedProjectSelector = selector({
     const user = get(userAtom);
     const projectId = get(projectIdAtom);
     if (user && projectId) {
-      console.log('Attempting to get selectedProjectSelector');
       try {
         // const response = (await API.graphql(graphqlOperation(getProject, { id: projectId }))) as {
         //   data: GetProjectQuery;
@@ -28,7 +28,6 @@ export const selectedProjectSelector = selector({
     } else return null;
   },
   set: ({ set, get }, id) => {
-    console.log('New project id passed in', { id });
     if (id === null || id === undefined) {
       set(projectIdAtom, null);
     } else {
@@ -54,9 +53,6 @@ export const payloadSelector = selector({
   get: ({ get }) => {
     const selectedProject = get(selectedProjectSelector);
 
-    console.log('getting payload from payload selector');
-    console.log('selectedProject in payload selector:', { selectedProject });
-
     if (!selectedProject) return { url: null, sdt: null };
     return { url: selectedProject.url, sdt: selectedProject.filePath };
   },
@@ -68,7 +64,7 @@ export const payloadSelector = selector({
       url: url,
       filePath: sdt,
     };
-    console.log('Setting new selectedProjectSelector:', { newSelectedProjectValue });
+
     set(selectedProjectSelector, newSelectedProjectValue);
     set(sdtValue, sdt);
   },

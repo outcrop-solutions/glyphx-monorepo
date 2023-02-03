@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 // import { listStates } from "../graphql/queries";
 // import { API, graphqlOperation } from "aws-amplify";
@@ -25,16 +25,11 @@ export const useStates = (project) => {
         //@ts-ignore
         const stateList = statesData?.data.listStates.items;
 
-        console.log({ stateList });
         setStates((prev) => {
-          let newData = [
-            ...stateList.filter((el) => el.projectID === project.id),
-          ];
+          let newData = [...stateList.filter((el) => el.projectID === project.id)];
           return newData;
         });
-      } catch (error) {
-        console.log("error on fetching states", error);
-      }
+      } catch (error) {}
     };
     if (project) fetchStates();
   }, [project]);
@@ -43,7 +38,6 @@ export const useStates = (project) => {
     state,
     setStates: (arg) => {
       setStates((prev) => {
-        console.log({ arg: [...prev, arg] });
         return [...prev, arg];
       });
     },

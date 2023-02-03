@@ -3,7 +3,6 @@ export * from "./DeleteModel";
 export * from "./DropdownEditMenu";
 export * from "./DropdownFilter";
 export * from "./DropdownNotifications";
-export * from "./Dropzone";
 export * from "./EditMenu";
 export * from "./GridToggle";
 export * from "./Help";

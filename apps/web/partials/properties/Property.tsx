@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { AxesIcons } from "../filters/AxesIcons";
-import { AxisInterpolationAtom, AxisDirectionAtom } from "@/state/properties";
-import { modelCreationLoadingAtom } from "@/state/globals";
+import { AxisInterpolationAtom, AxisDirectionAtom } from "state/properties";
+import { modelCreationLoadingAtom } from "state/globals";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 
 export const Property = ({

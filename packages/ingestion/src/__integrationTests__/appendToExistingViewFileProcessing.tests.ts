@@ -7,6 +7,22 @@ import appendFilesJson from './assets/appendTables.json';
 import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
+import {Initializer, dbConnection} from '@glyphx/business';
+import {v4} from 'uuid';
+
+const UNIQUE_KEY = v4().replaceAll('-', '');
+
+const INPUT_PROJECT = {
+  name: 'testProject' + UNIQUE_KEY,
+  sdtPath: 'testsdtPath' + UNIQUE_KEY,
+  organization: {},
+  slug: 'testSlug' + UNIQUE_KEY,
+  isTemplate: false,
+  type: {},
+  owner: {},
+  state: {},
+  files: [],
+};
 async function setupExistingAssets() {
   const payload = addFilesJson.payload as fileIngestion.IPayload;
   fileProcessingHelpers.loadTableStreams(
@@ -30,8 +46,20 @@ describe('#fileProcessing', () => {
     let testDataDirectory: string;
     let payload: fileIngestion.IPayload;
     let fileNames: string[];
+    let projectId: any;
 
     before(async () => {
+      await Initializer.init();
+      const projectDocument = (
+        await dbConnection.models.ProjectModel.create([INPUT_PROJECT], {
+          validateBeforeSave: false,
+        })
+      )[0];
+      projectId = projectDocument._id;
+      assert.isOk(projectId);
+      addFilesJson.payload.modelId = projectId.toString();
+      appendFilesJson.payload.modelId = projectId.toString();
+
       bucketName = appendFilesJson.bucketName;
       databaseName = appendFilesJson.databaseName;
       clientId = appendFilesJson.payload.clientId;
@@ -75,6 +103,7 @@ describe('#fileProcessing', () => {
         s3Bucket,
         athenaManager
       );
+      await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
     });
     it('Basic pipeline test', async () => {
       const fileIngestor = new FileIngestor(payload, databaseName);

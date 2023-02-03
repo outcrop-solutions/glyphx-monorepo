@@ -11,6 +11,8 @@ import { projectDetailsAtom } from "@/state/project";
 
 export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   const router = useRouter();
+  const { orgId, projectId } = router.query;
+
   dayjs.extend(relativeTime);
   const setProjects = useSetRecoilState(projectsAtom);
   const setProjectDetails = useSetRecoilState(projectDetailsAtom);
@@ -39,16 +41,9 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   };
 
   return (
-    // -z-60
     <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue hover:cursor-pointer">
       <div className="absolute top-0 left-0">
-        <svg
-          width="28"
-          height="28"
-          viewBox="0 0 28 28"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g filter="url(#filter0_d_1066_1184)">
             <rect x="6" y="6" width="16" height="16" rx="2" fill="#FFC500" />
           </g>
@@ -76,21 +71,9 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
               <feOffset />
               <feGaussianBlur stdDeviation="3" />
               <feComposite in2="hardAlpha" operator="out" />
-              <feColorMatrix
-                type="matrix"
-                values="0 0 0 0 0.105882 0 0 0 0 0.12549 0 0 0 0 0.227451 0 0 0 0.15 0"
-              />
-              <feBlend
-                mode="normal"
-                in2="BackgroundImageFix"
-                result="effect1_dropShadow_1066_1184"
-              />
-              <feBlend
-                mode="normal"
-                in="SourceGraphic"
-                in2="effect1_dropShadow_1066_1184"
-                result="shape"
-              />
+              <feColorMatrix type="matrix" values="0 0 0 0 0.105882 0 0 0 0 0.12549 0 0 0 0 0.227451 0 0 0 0.15 0" />
+              <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1066_1184" />
+              <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1066_1184" result="shape" />
             </filter>
           </defs>
         </svg>
@@ -138,12 +121,8 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
             fill="white"
           />
         </svg>
-        
       </div>
-      <div
-        onClick={() => router.push(`/project/${project.id}`)}
-        className="flex flex-col h-full"
-      >
+      <div onClick={() => router.push(`/${orgId}/${project.id}`)} className="flex flex-col h-full">
         <img className="w-full h-full rounded-t-md" src="/images/project.png" />
         <footer className="mt-2 px-5 pb-5 pt-1">
           <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{name}</p>
@@ -158,10 +137,10 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
                           <div
                             key={`${member}-${idx}`}
                             className={`rounded-full ${
-                              idx % 2 === 0 ? "bg-blue" : "bg-primary-yellow"
+                              idx % 2 === 0 ? 'bg-blue' : 'bg-primary-yellow'
                             } h-6 w-6 text-sm text-white flex items-center justify-center`}
                           >
-                            {`${member.split("@")[0][0]?.toUpperCase()}`}
+                            {`${member.split('@')[0][0]?.toUpperCase()}`}
                           </div>
                         );
                       }
@@ -170,23 +149,21 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
                 ) : (
                   <div
                     className={`rounded-full ${
-                      idx % 2 === 0 ? "bg-cyan" : "bg-primary-yellow"
+                      idx % 2 === 0 ? 'bg-cyan' : 'bg-primary-yellow'
                     } h-6 w-6 font-roboto font-medium text-[12px] leading-[14px] tracking-[0.01em] text-white flex items-center justify-center`}
                   >
-                    {project.author ? `${project.author[0].toUpperCase()}` : ""}
+                    {project.author ? `${project.author[0].toUpperCase()}` : ''}
                   </div>
                 )}
               </div>
               {project.shared && project.shared.length > 4 ? (
-                <div className="text-xs">{`+ ${
-                  project.shared.length - 3
-                } more`}</div>
+                <div className="text-xs">{`+ ${project.shared.length - 3} more`}</div>
               ) : null}
             </div>
 
             <div>
               <p className="font-roboto font-medium text-sm text-gray leading-[16px] text-right">
-                  {dayjs().to(dayjs(updatedAt))}
+                {dayjs().to(dayjs(updatedAt))}
               </p>
             </div>
           </div>

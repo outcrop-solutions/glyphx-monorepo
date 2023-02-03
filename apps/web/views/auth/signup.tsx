@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 // import { Auth } from 'aws-amplify';
 import { useRouter } from 'next/router';
-import { userAtom } from '@/state/user';
+import { userAtom } from 'state/user';
 import { useSetRecoilState } from 'recoil';
 import Link from 'next/link';
 
@@ -10,8 +10,6 @@ export default function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [confirm, setConfirm] = useState(false);
-  const [code, setCode] = useState('');
   const [error, setError] = useState(false);
   const setUser = useSetRecoilState(userAtom);
 
@@ -36,11 +34,9 @@ export default function Signup() {
       setTimeout(() => {
         setError(false);
       }, 3000);
-      console.log('error signing up' + error);
     }
   };
   return (
-    // TODO: @Johnathan I fixed the width and centering of the form here as well as the sign in form
     <div className="flex h-full w-full items-center justify-center scrollbar-none bg-secondary-midnight pt-5">
       {/* Content */}
       <div className="w-96 min-h-56 flex flex-col justify-center px-4 py-8">
@@ -100,14 +96,12 @@ export default function Signup() {
               >
                 Sign Up
               </button>
-              {/* </Link> */}
             </div>
             {error ? <div className="btn bg-yellow text-white my-4 w-full">{error}</div> : null}
           </div>
           {/* Footer */}
         </div>
       </div>
-      {/* </div> */}
     </div>
   );
 }

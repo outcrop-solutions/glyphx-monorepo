@@ -35,12 +35,10 @@ export const useProjects = () => {
       //   return newData;
       // });
     } catch (error) {
-      console.log("error on fetching projects", error);
-      router.push("/auth/signIn");
+      router.push('/auth/signIn');
     }
   }, []);
-  useEffect(()=>{
+  useEffect(() => {
     fetchProjects();
-  },[])
-  
+  }, []);
 };

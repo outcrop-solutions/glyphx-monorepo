@@ -13,7 +13,7 @@ import swrConfig from 'config/swr/index';
 import WorkspaceProvider from 'providers/workspace';
 
 import { RecoilRoot } from 'recoil';
-import { ErrorFallback } from '@/partials/fallback';
+import { ErrorFallback } from 'partials/fallback';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 
@@ -40,8 +40,9 @@ import { SuspenseFallback } from '@/partials/fallback';
 // }));
 // global.console = mutedConsole(global.console);
 
-// NEXT-AUTH version
+// NEXT-AUTH ENABLED VERSION
 // export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+
 export default function App({ Component, pageProps: { ...pageProps } }: AppProps) {
   const [progress, setProgress] = useState(false);
   const router = useRouter();
@@ -53,7 +54,6 @@ export default function App({ Component, pageProps: { ...pageProps } }: AppProps
     TO ENABLE SENTRY (ERROR LOGGING) WHEN THIS BRANCH GOES LIVE, 
     MAKE SURE TO DISABLE PREVIOUS BRANCH IF IT IS STILL HOSTED
   */
-
   // Sentry.init({
   //   dsn: "https://27cc141e72614ddab6af6b29192e2c1f@o1211173.ingest.sentry.io/6349661",
   //   integrations: [new BrowserTracing()],
@@ -75,6 +75,7 @@ export default function App({ Component, pageProps: { ...pageProps } }: AppProps
     <SessionProvider session={pageProps.session}>
       <SWRConfig value={swrOptions}>
         <ThemeProvider attribute="class">
+          {/* @ts-ignore */}
           <WorkspaceProvider>
             <RecoilRoot>
               {/* Root Fallback for when error is throws */}

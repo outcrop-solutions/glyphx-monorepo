@@ -1,13 +1,10 @@
 import React, { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { HomeErrorFallback, HomeSuspenseFallback } from '@/partials/fallback';
-import useSWR from 'swr';
+import { HomeErrorFallback, HomeSuspenseFallback } from 'partials/fallback';
 
 import dynamic from 'next/dynamic';
 import { ToastWrapper } from 'partials/layout/ToastWrapper';
-import { useRequireAuth } from '@/lib/useRequireAuth';
 import { useRouter } from 'next/router';
-import { fetcher } from 'lib/fetcher';
 const DynamicHome = dynamic(() => import('views/home'), {
   ssr: false,
   // suspense: true,
@@ -35,7 +32,7 @@ export default function Projects() {
         >
           {/* Fallback for when data is loading */}
           {/* <Suspense fallback={<HomeSuspenseFallback />}> */}
-            <DynamicHome />
+          <DynamicHome />
           {/* </Suspense> */}
         </ErrorBoundary>
       </ToastWrapper>

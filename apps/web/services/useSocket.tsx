@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { QWebChannel } from "qwebchannel";
-import { glyphViewerDetails, orientationAtom } from "../state";
-import { shareOpenAtom } from "@/state/share";
-import { showInfoAtom } from "@/state/info";
-import { showNotificationAtom } from "@/state/notification";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useState, useEffect } from 'react';
+import { QWebChannel } from 'qwebchannel';
+import { glyphViewerDetails, orientationAtom } from '../state';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
+import { useRecoilState, useRecoilValue } from 'recoil';
 /**
  * To handle Socket Connection and Communications with Qt window
  * @param {boolean} isSelected
@@ -31,13 +31,13 @@ export const useSocket = () => {
   const openSocket = (baseUrl) => {
     let socket = new WebSocket(baseUrl);
     socket.onclose = function () {
-      console.error("web channel closed");
+      console.error('web channel closed');
     };
     socket.onerror = function (error) {
-      console.error("web channel error: " + error);
+      console.error('web channel error: ' + error);
     };
     socket.onopen = function () {
-      console.log("WebSocket connected, setting up QWebChannel.");
+      console.log('WebSocket connected, setting up QWebChannel.');
       // @ts-ignore
       new QWebChannel(socket, function (channel) {
         // console.log({channel});
@@ -56,19 +56,19 @@ export const useSocket = () => {
           });
           //@ts-ignore
           window.core.GetDrawerPosition.connect(function (message) {
-            console.log("QT Get Drawer Position Response:", message);
+            console.log('QT Get Drawer Position Response:', message);
           });
           //@ts-ignore
           window.core.SendDrawerStatus.connect(function (message) {
-            console.log("QT Get Drawer Status Response:", message);
+            console.log('QT Get Drawer Status Response:', message);
           });
           //@ts-ignore
           window.core.SendSdtName.connect(function (message) {
-            console.log("QT Get SDT Name Response:", message);
+            console.log('QT Get SDT Name Response:', message);
           });
           //@ts-ignore
           window.core.SendCameraPosition.connect(function (message) {
-            console.log("QT Get Camera Position Response:", message);
+            console.log('QT Get Camera Position Response:', message);
           });
 
           setGlyphViewer({
@@ -77,7 +77,7 @@ export const useSocket = () => {
             sendDrawerPositionApp: true,
           });
         } catch (error) {
-          console.log("QWEBCHANEL SETUP ERROR:", { error });
+          console.log('QWEBCHANEL SETUP ERROR:', { error });
         }
         //   try {
         //     // make core object accessible globally
@@ -110,7 +110,7 @@ export const useSocket = () => {
     if (!isSet) {
       //only runs if false
       changeSet(!isSet);
-      var baseUrl = "ws://localhost:12345";
+      var baseUrl = 'ws://localhost:12345';
       openSocket(baseUrl);
     }
   }, []);
@@ -118,33 +118,13 @@ export const useSocket = () => {
   //   Send Drawer position
   //   TODO: make our lives much easier by just setting fixed width header and sidebars
   useEffect(() => {
-    // console.log("in set up in useSocket")
-    // console.log({Screenheight: window.innerHeight},{calc: window.innerHeight * 0.157})
-    // @ts-ignore
-    // console.log({glyphViewer})
     if (glyphViewer.sendDrawerPositionApp) {
-      //for testing purposes
-      console.log("in setting width");
       var yValue = Math.round(window.innerHeight * 0.882);
       var heightValue = Math.round(window.innerHeight * 0.157);
       var leftValue = window.innerWidth;
       if (isShareOpen || isInfoOpen || isNotifOpen || true) {
         leftValue = window.innerWidth - 250;
       }
-
-      console.log(
-        "useSocket initialisation data:",
-        JSON.stringify({
-          filterSidebar: {
-            y: yValue, //843
-            right: 335,
-            height: heightValue,
-          },
-          commentsSidebar: {
-            left: leftValue,
-          },
-        })
-      );
 
       try {
         // @ts-ignore
@@ -165,9 +145,7 @@ export const useSocket = () => {
           ...glyphViewer,
           sendDrawerPositionApp: false,
         });
-      } catch (error) {
-        console.log("useSocket UseEffect:", { error });
-      }
+      } catch (error) {}
     }
   }, [glyphViewer]); //commentsPosition, filterSidebarPosition, sendDrawerPositionApp
 };

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // eslint-disable-next-line node/no-extraneous-import
 import {InvitationStatus, Role} from '@prisma/client';
 import slugify from 'slugify';

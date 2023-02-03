@@ -1,6 +1,5 @@
 import {assert} from 'chai';
 import {FileReconciliator} from '@fileProcessing';
-import {IFileInformation} from '@interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 
 /*
@@ -9,7 +8,7 @@ import {fileIngestion} from '@glyphx/types';
  * so that you can understand how this is working.  PLease do not modify the data structures
  * or the tests unless you realy know what you are doing.
  */
-const fileInfo = [
+const FILE_INFO = [
   {
     tableName: 'table1',
     fileName: 'file1.csv',
@@ -37,7 +36,7 @@ const fileInfo = [
   },
 ] as unknown as fileIngestion.IFileInfo[];
 
-const existingFiles = [
+const EXISTING_FILES = [
   {
     fileName: 'table2.csv',
     tableName: 'table2',
@@ -64,7 +63,7 @@ const existingFiles = [
   },
 ];
 
-const processedFiles = [
+const PROCESSED_FILES = [
   {
     fileName: 'file1.csv',
     parquetFileName: 'file1.parquet',
@@ -120,9 +119,9 @@ describe('#fileProcessing/FileReconciliator', () => {
       const reconciledResults = FileReconciliator.reconcileFileInformation(
         clientId,
         modelId,
-        fileInfo,
-        processedFiles,
-        existingFiles
+        FILE_INFO,
+        PROCESSED_FILES,
+        EXISTING_FILES
       );
       //file1.csv, file1-1.csv, file2.csv, file3-1.csv, file3-csv
       assert.strictEqual(reconciledResults.allFiles.length, 5);
@@ -149,7 +148,7 @@ describe('#fileProcessing/FileReconciliator', () => {
         f => f.tableName === table1Name
       );
 
-      const processedTable1 = processedFiles.filter(
+      const processedTable1 = PROCESSED_FILES.filter(
         t => t.tableName === 'table1'
       );
       const numberOfRows1 =
@@ -169,7 +168,7 @@ describe('#fileProcessing/FileReconciliator', () => {
       const table2 = reconciledResults.accumFiles.find(
         f => f.tableName === table2Name
       );
-      const processedTable2 = processedFiles.filter(
+      const processedTable2 = PROCESSED_FILES.filter(
         t => t.tableName === 'table2'
       );
       const numberOfRows2 =
@@ -188,11 +187,11 @@ describe('#fileProcessing/FileReconciliator', () => {
       const table3 = reconciledResults.accumFiles.find(
         f => f.tableName === table3Name
       );
-      const processedTable3 = processedFiles.filter(
+      const processedTable3 = PROCESSED_FILES.filter(
         t => t.tableName === 'table3'
       );
 
-      const existingTable3 = existingFiles.filter(
+      const existingTable3 = EXISTING_FILES.filter(
         t => t.tableName === 'table3'
       );
       const numberOfRows3 =

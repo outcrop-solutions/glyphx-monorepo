@@ -14,19 +14,18 @@ import { userAtom } from "../state";
 
 export const useUser = () => {
   const router = useRouter();
+  const { orgId, model } = router.query;
   const setUser = useSetRecoilState(userAtom);
   /**
    * Check's if Qt has passed modelID to Front end
    */
   function checkParams() {
-    var params = router.query;
-    if (params.model !== null && params.model !== undefined) {
-      router.push("/project/" + params.model);
+    if (model !== null && model !== undefined) {
+      router.push(`/${orgId}/project/${model}`);
     }
   }
   // check if user is logged in
   useEffect(() => {
-    // console.log("in useEffect")
     // utility functions
     const getUser = async () => {
       // const user = await Auth.currentAuthenticatedUser();

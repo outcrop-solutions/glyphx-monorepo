@@ -34,6 +34,8 @@ export const Files = ({ toastRef }) => {
 
   const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
 
+export const Files = () => {
+  const { onDrop } = useFileSystem();
   const [isCollapsed, setCollapsed] = useState(false);
 
   const onDrop = useCallback(
@@ -138,15 +140,9 @@ export const Files = ({ toastRef }) => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-
-    // accept: [".csv"],
     accept: ['.csv', 'application/vnd.ms-excel', 'text/csv'],
-    multiple: false,
+    multiple: true,
   });
-
-  useEffect(() => {
-    // console.log("rerunning files sidebar useeffect")
-  }, [fileSystem]);
 
   return (
     <React.Fragment>
@@ -179,8 +175,6 @@ export const Files = ({ toastRef }) => {
               </span>
             </a>
           </div>
-          {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
-
           <div
             {...getRootProps()}
             className="border-2 border-transparent hover:border-white hover:cursor-pointer rounded-full p-1 mr-1 bg-secondary-space-blue"
@@ -204,29 +198,11 @@ export const Files = ({ toastRef }) => {
         {!isCollapsed ? (
           <div className={`lg:block py-1 border-b border-gray`}>
             <div>
-              {
-                // @ts-ignore
-                fileSystem && fileSystem.length > 0 ? (
-                  <Tree
-                    initialOpen={true}
-                    // @ts-ignore
-                    tree={fileSystem}
-                    rootId={0}
-                    render={(node, { depth, isOpen, onToggle }) => (
-                      <CustomNode node={node} depth={depth} isOpen={isOpen} onToggle={onToggle} />
-                    )}
-                    dragPreviewRender={(monitorProps) => <CustomDragPreview monitorProps={monitorProps} />}
-                    onDrop={handleDrop}
-                    classes={{
-                      root: styles.treeRoot,
-                      draggingSource: styles.draggingSource,
-                      dropTarget: styles.dropTarget,
-                    }}
-                  />
-                ) : (
-                  <Dropzone toastRef={toastRef} />
-                )
-              }
+              {files && files.length > 0 ? (
+                files?.map((file, idx) => <File key={`${file}-${idx}`} fileName={file} idx={idx} />)
+              ) : (
+                <SidebarDropzone />
+              )}
             </div>
           </div>
         ) : (
