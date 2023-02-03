@@ -6,6 +6,7 @@ import appendFilesJson from './assets/appendTables.json';
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
+import {GLYPHX_ID_COLUMN_NAME} from 'fileProcessing/basicFileTransformer';
 
 import {Initializer, dbConnection} from '@glyphx/business';
 import {v4} from 'uuid';
@@ -122,6 +123,23 @@ describe('#fileProcessing', () => {
       const query = `SELECT * FROM ${clientId}_${modelId}_view WHERE col1 = 163`;
       const results = (await athenaManager.runQuery(query)) as unknown as any[];
       assert.isAtLeast(results.length, 1);
+
+      const foundIds: number[] = [];
+      let maxRowId = 0;
+      const glyphIdQuery = `SELECT ${GLYPHX_ID_COLUMN_NAME} from ${clientId}_${modelId}_view`;
+      const rowIdResults = (await athenaManager.runQuery(
+        glyphIdQuery
+      )) as unknown as any[];
+
+      rowIdResults.forEach(r => {
+        const id = r[GLYPHX_ID_COLUMN_NAME];
+        assert.notOk(foundIds.find(i => i === id));
+        if (id > maxRowId) maxRowId = id;
+        foundIds.push(id);
+      });
+      assert.isAtLeast(rowIdResults.length, 101);
+      assert.strictEqual(rowIdResults.length, foundIds.length);
+      assert.isAtLeast(maxRowId, rowIdResults.length - 1);
       console.log('I am done');
     });
   });

@@ -19,4 +19,5 @@ export interface IProject {
   owner: IUser;
   state?: IState;
   files: IFileStats[];
+  viewName: string;
 }

@@ -12,6 +12,8 @@ import {projectService} from '../services';
 type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
+const INPUT_VIEW_NAME = 'updatedView' + UNIQUE_KEY;
+const INPUT_PROJECT_NAME = 'updatedProjectName' + UNIQUE_KEY;
 
 const INPUT_FILE_STATS: fileIngestionTypes.IFileStats[] = [
   {
@@ -60,6 +62,7 @@ const INPUT_DATA = {
   owner: {},
   state: {},
   files: [],
+  viewName: 'testProjectView' + UNIQUE_KEY,
 };
 
 const INPUT_PROJECT_TYPE = {
@@ -68,8 +71,8 @@ const INPUT_PROJECT_TYPE = {
   shape: {field1: {type: 'string', required: true}},
 };
 
-describe('#ProjectModel', () => {
-  context('test the crud functions of the project model', () => {
+describe('#ProjectService', () => {
+  context('test the functions of the project service', () => {
     const mongoConnection = new MongoDbConnection();
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
@@ -188,6 +191,33 @@ describe('#ProjectModel', () => {
       assert.strictEqual(stats.length, 1);
 
       assert.strictEqual(stats[0].fileName, INPUT_FILE_STATS[0].fileName);
+    });
+
+    it('will update the view name on our project', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProjectView(
+        projectId,
+        INPUT_VIEW_NAME
+      );
+      assert.strictEqual(updatedProject.viewName, INPUT_VIEW_NAME);
+    });
+
+    it('will retreive our viewName', async () => {
+      assert.isOk(projectId);
+      const viewName = await projectService.getProjectViewName(projectId);
+      assert.isNotEmpty(viewName);
+      assert.strictEqual(viewName, INPUT_VIEW_NAME);
+    });
+    it('will update our poroject', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProject(projectId, {
+        name: INPUT_PROJECT_NAME,
+      });
+      assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
+
+      const savedProject = await projectService.getProject(projectId);
+
+      assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
     });
   });
 });

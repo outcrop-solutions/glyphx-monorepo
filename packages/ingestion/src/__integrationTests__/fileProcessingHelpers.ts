@@ -4,7 +4,7 @@ import {createReadStream} from 'fs';
 import {IJoinTableDefinition} from '@interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 import {generalPurposeFunctions as gpFunctions} from '@util';
-
+import {GLYPHX_ID_COLUMN_NAME} from 'fileProcessing/basicFileTransformer';
 export async function removeS3File(filePath: string, s3Bucket: aws.S3Manager) {
   await s3Bucket.removeObject(filePath);
 
@@ -145,6 +145,18 @@ export async function validateViewResults(
       }
     });
   });
+
+  results.forEach(r => {
+    let foundGlypxIdColumn = false;
+    for (const key in r) {
+      if (key === GLYPHX_ID_COLUMN_NAME) {
+        assert.isFalse(foundGlypxIdColumn);
+        foundGlypxIdColumn = true;
+      }
+    }
+
+    assert.isTrue(foundGlypxIdColumn);
+  });
 }
 
 export async function validateTableResults(
@@ -152,6 +164,7 @@ export async function validateTableResults(
   athenaManager: aws.AthenaManager
 ) {
   for (let i = 0; i < joinInformation.length; i++) {
+    let foundGlypxIdColumn = false;
     const joinInfo = joinInformation[i];
     const results = (await athenaManager.runQuery(
       `SELECT * FROM ${joinInfo.tableName} LIMIT 10`,
@@ -164,6 +177,7 @@ export async function validateTableResults(
         const colDefinition = joinInfo.columns.find(
           c => c.columnName.toLowerCase() === key
         );
+        if (key === GLYPHX_ID_COLUMN_NAME) foundGlypxIdColumn = true;
         assert.isOk(colDefinition);
         if (
           colDefinition?.columnType ===
@@ -177,5 +191,6 @@ export async function validateTableResults(
         }
       }
     });
+    assert.isTrue(foundGlypxIdColumn);
   }
 }

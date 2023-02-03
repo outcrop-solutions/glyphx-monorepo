@@ -213,6 +213,7 @@ importers:
     specifiers:
       '@aws-sdk/client-athena': 3.223.0
       '@aws-sdk/client-s3': 3.223.0
+      '@aws-sdk/client-secrets-manager': 3.223.0
       '@aws-sdk/lib-storage': 3.223.0
       '@aws-sdk/types': 3.222.0
       '@glyphx/core': workspace:*
@@ -229,6 +230,7 @@ importers:
       '@types/uuid': ^9.0.0
       '@typescript-eslint/eslint-plugin': ^5.46.1
       '@typescript-eslint/parser': ^5.42.0
+      aws-sdk-client-mock: ^2.0.1
       chai: ^4.3.6
       csv: ^6.2.2
       currency-symbol-map: ^5.1.0
@@ -264,6 +266,7 @@ importers:
     dependencies:
       '@aws-sdk/client-athena': 3.223.0
       '@aws-sdk/client-s3': 3.223.0
+      '@aws-sdk/client-secrets-manager': 3.223.0
       '@aws-sdk/lib-storage': 3.223.0_2mrlmigen7gwtc2u3jsyx7rzbu
       '@glyphx/core': link:../core
       '@glyphx/database': link:../database
@@ -294,6 +297,7 @@ importers:
       '@types/uuid': 9.0.0
       '@typescript-eslint/eslint-plugin': 5.47.0_ncmi6noazr3nzas7jxykisekym
       '@typescript-eslint/parser': 5.47.0_lzzuuodtsqwxnvqeq4g4likcqa
+      aws-sdk-client-mock: 2.0.1
       chai: 4.3.7
       eslint: 8.30.0
       eslint-import-resolver-typescript: 3.5.2_2lbwmhbr7bncddqbzzpg77o75m

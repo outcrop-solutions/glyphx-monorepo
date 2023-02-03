@@ -29,6 +29,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IState,
   files: [],
+  viewName: 'testView',
 };
 
 describe('#mongoose/models/project', () => {
@@ -368,6 +369,7 @@ describe('#mongoose/models/project', () => {
         type: new mongoose.Types.ObjectId(),
         owner: new mongoose.Types.ObjectId(),
         state: new mongoose.Types.ObjectId(),
+        viewName: 'this is my view name',
       } as unknown as databaseTypes.IProject;
 
       const projectId = new mongoose.Types.ObjectId();
@@ -957,6 +959,7 @@ describe('#mongoose/models/project', () => {
         version: 1,
         __v: 1,
       } as unknown as databaseTypes.IState,
+      viewName: 'test View name',
     } as databaseTypes.IProject;
 
     const sandbox = createSandbox();
