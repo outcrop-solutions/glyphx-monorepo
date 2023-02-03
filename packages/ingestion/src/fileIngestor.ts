@@ -407,6 +407,7 @@ export class FileIngestor {
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
+    const viewName = sharedFunctions.getViewName(this.clientId, this.modelId);
     const errors: IFileProcessingError[] = await this.reconcileFileInfo();
     if (errors.length) {
       this.processedFileErrorInformation.push(...errors);
@@ -439,10 +440,10 @@ export class FileIngestor {
         processingResults = this.processedFileErrorInformation.length
           ? FILE_PROCESSING_STATUS.WARNING
           : FILE_PROCESSING_STATUS.OK;
-        await projectService.updateProjectFileStats(
-          this.modelId,
-          fileInfoForReturn
-        );
+        await projectService.updateProject(this.modelId, {
+          files: fileInfoForReturn,
+          viewName: viewName,
+        });
       } catch (err) {
         const message = `An unexpected error occurred while processing the files.  See the inner errors for additional information: ${err}`;
         this.processedFileErrorInformation.push({
@@ -464,6 +465,7 @@ export class FileIngestor {
       fileProcessingErrors: this.processedFileErrorInformation,
       joinInformation: joinInformation,
       status: processingResults,
+      viewName: viewName,
     };
   }
 }

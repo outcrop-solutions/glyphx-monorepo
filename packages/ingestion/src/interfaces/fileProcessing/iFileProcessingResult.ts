@@ -8,4 +8,5 @@ export interface IFileProcessingResult {
   fileInformation: fileIngestion.IFileStats[];
   fileProcessingErrors: IFileProcessingError[];
   joinInformation: IJoinTableDefinition[];
+  viewName: string;
 }
