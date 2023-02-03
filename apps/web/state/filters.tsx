@@ -1,9 +1,9 @@
-import { atom, selector } from "recoil";
-import { payloadSelector, selectedProjectSelector } from "./project";
-import { droppedPropertiesSelector } from "./properties";
+import { atom, selector } from 'recoil';
+import { payloadSelector, selectedProjectSelector } from './project';
+import { droppedPropertiesSelector } from './properties';
 
 export const filtersSelector = selector({
-  key: "filters",
+  key: 'filters',
   get: ({ get }) => {
     let selectedProject = get(selectedProjectSelector);
     // @ts-ignore
@@ -53,12 +53,12 @@ export const filtersSelector = selector({
  * ```
  */
 export const filtersAppliedAtom = atom({
-  key: "filtersApplied",
+  key: 'filtersApplied',
   default: [],
 });
 
 export const isFilterSafeAtom = selector({
-  key: "isFilterSafe",
+  key: 'isFilterSafe',
   get: ({ get }) => {
     const droppedProps = get(droppedPropertiesSelector);
     const filtersApplied = get(filtersAppliedAtom);
@@ -67,9 +67,37 @@ export const isFilterSafeAtom = selector({
 });
 
 export const keywordChipsAtom = atom({
-  key: "keywordChipsAtom",
+  key: 'keywordChipsAtom',
   default: [],
 });
+
+const REPLACEABLE_CHARS = [
+  32, //space
+  40, //(
+  41, //)
+  45, //-
+];
+
+const convertColumnName = (value: string): string => {
+  const outArray: string[] = [];
+  const tempValue = value.toLowerCase();
+  for (let i = 0; i < tempValue.length; i++) {
+    const charValue = tempValue.charCodeAt(i);
+    if (REPLACEABLE_CHARS.find((c) => c === charValue)) {
+      outArray.push('_');
+    }
+    if (
+      (charValue >= 97 && charValue <= 122) || //a-z
+      (charValue >= 48 && charValue <= 57) || //0-9
+      charValue === 95 //_
+    ) {
+      outArray.push(String.fromCharCode(charValue));
+    }
+  }
+
+  const ret = outArray.join('');
+  return ret;
+};
 
 /**
  * TAKES FILTERS THAT ARE APPLIED
@@ -79,7 +107,7 @@ export const keywordChipsAtom = atom({
   TAKE RESULT AND PASS TO QT
  */
 export const filterQuerySelector = selector({
-  key: "filterQuery",
+  key: 'filterQuery',
   get: ({ get }) => {
     const filtersApplied = get(filtersAppliedAtom);
     const isFilterSafe = get(isFilterSafeAtom);
@@ -99,31 +127,26 @@ export const filterQuerySelector = selector({
         let filter = filtersApplied[i];
 
         if (filter.keywords && filter.keywords.length > 0) {
-          let name = filter.name;
+          let name = convertColumnName(filter.name);
           let keywords = filter.keywords;
-          let queryStr = `MATCH \`${name || "-"}\` AGAINST (${
-            keywords.join(" ") || "-"
-          })`;
+          let queryStr = `MATCH ${name || '-'} AGAINST (${keywords.join(' ') || '-'})`;
           filterStringArr.push(queryStr);
         } else {
-          let name = filter.name;
+          let name = convertColumnName(filter.name);
           let min = filter.min;
           let max = filter.max;
 
-          let queryStr = `\`${name || "-"}\` BETWEEN ${min || "-"} AND ${
-            max || "-"
-          }`;
+          let queryStr = `${name || '-'} BETWEEN ${min || '-'} AND ${max || '-'}`;
           filterStringArr.push(queryStr);
           // }
         }
       }
+
       let query =
         filterStringArr.length > 0
           ? // TODO: MAKE IT DYNAMIC PROJECT ID
-            `SELECT rowid from \`${
-              selectedProject.id
-            }\` WHERE ${filterStringArr.join(" AND ")}`
-          : "";
+            `SELECT rowid from ${selectedProject.id} WHERE ${filterStringArr.join(' AND ')}`
+          : '';
 
       const updateFilterInput = {
         filter: query,
