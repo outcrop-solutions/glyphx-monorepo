@@ -16,6 +16,7 @@ module.exports = {
           '@glyphx/types',
           'chai',
           'sinon',
+          'mocha',
         ],
       },
     ],

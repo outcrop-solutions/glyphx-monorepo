@@ -14,7 +14,7 @@ import {fileIngestion} from '@glyphx/types';
  * initialize that stream and then push out all of our saved objects.
  */
 
-export const GLYPHX_ID_COLUMN_NAME = '__glyphx_id__';
+export const GLYPHX_ID_COLUMN_NAME = 'glyphx_id__';
 
 /**
  * An internal interface that is used to store infomation about he discovererd columns.

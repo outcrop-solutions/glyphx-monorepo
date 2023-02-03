@@ -6,6 +6,7 @@ import {Readable} from 'stream';
 import {fileIngestion} from '@glyphx/types';
 import {mockClient} from 'aws-sdk-client-mock';
 import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
+import {tableService} from '@glyphx/business';
 
 import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 
@@ -21,7 +22,7 @@ const INPUT_DATA = [
 8,H,yam,99248
 9,I,puny,62435
 10,J,grouchy,foo
-11,K,excellent,47570`,
+1,K,excellent,47570`,
 ];
 
 describe('#fileProcessing/fileUploadManager', () => {
@@ -47,7 +48,13 @@ describe('#fileProcessing/fileUploadManager', () => {
     it('Will successfuly upload the file', async () => {
       s3Mock.on(PutObjectCommand).resolves(true);
       s3Mock.on(HeadBucketCommand).resolves(true);
-
+      sandbox.replace(
+        tableService,
+        'getMaxRowId',
+        sandbox
+          .stub()
+          .rejects('getMaxRowId shouild not be getting called for an add')
+      );
       const s3Bucket = new aws.S3Manager('testBucket');
       await s3Bucket.init();
 
@@ -85,6 +92,13 @@ describe('#fileProcessing/fileUploadManager', () => {
       s3Mock.on(PutObjectCommand).rejects('an error has occurrred');
       s3Mock.on(HeadBucketCommand).resolves(true);
 
+      const tableServiceStub = sandbox.stub();
+      tableServiceStub.rejects(
+        'getMaxRowId shouild not be getting called for an add'
+      );
+
+      sandbox.replace(tableService, 'getMaxRowId', tableServiceStub);
+
       const s3Bucket = new aws.S3Manager('testBucket');
       await s3Bucket.init();
       let errored = false;
@@ -103,7 +117,71 @@ describe('#fileProcessing/fileUploadManager', () => {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
       }
+
       assert.isTrue(errored);
+      assert.isFalse(tableServiceStub.called);
+    });
+  });
+  context('processAndAppendFiles', () => {
+    let s3Mock: any;
+    const sandbox = createSandbox();
+    const clientId = 'clientId';
+    const modelId = 'modelId';
+    let inputStream: Readable;
+    const fileName = 'file1.csv';
+    const tableName = 'table1';
+    const fileOperationType = fileIngestion.constants.FILE_OPERATION.APPEND;
+    beforeEach(() => {
+      // eslint-disable-next-line
+      inputStream = Readable.from(INPUT_DATA);
+      s3Mock = mockClient(S3);
+    });
+    afterEach(() => {
+      sandbox.restore();
+      s3Mock.restore();
+    });
+
+    it('Will successfuly upload the file', async () => {
+      s3Mock.on(PutObjectCommand).resolves(true);
+      s3Mock.on(HeadBucketCommand).resolves(true);
+      const tableServiceStub = sandbox.stub();
+      tableServiceStub.resolves(6300);
+
+      sandbox.replace(tableService, 'getMaxRowId', tableServiceStub);
+
+      const s3Bucket = new aws.S3Manager('testBucket');
+      await s3Bucket.init();
+
+      const results =
+        await fileProcessing.FileUploadManager.processAndUploadNewFiles(
+          clientId,
+          modelId,
+          inputStream,
+          tableName,
+          fileName,
+          fileOperationType,
+          s3Bucket
+        );
+
+      assert.isOk(results);
+      assert.strictEqual(results.fileInformation.fileName, fileName);
+      assert.strictEqual(
+        results.fileInformation.fileOperationType,
+        fileOperationType
+      );
+      assert.isAtLeast(results.fileInformation.fileSize, 1);
+      assert.strictEqual(results.fileInformation.numberOfColumns, 4);
+      assert.isNotEmpty(results.fileInformation.outputFileDirecotry);
+      assert.isNotEmpty(results.fileInformation.parquetFileName);
+      assert.strictEqual(results.fileInformation.tableName, tableName);
+      assert.isArray(results.errorInformation);
+      assert.isAtLeast(results.errorInformation.length, 1);
+
+      assert.strictEqual(
+        results.errorInformation[0].errorType,
+        FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
+      );
+      assert.isTrue(tableServiceStub.calledOnce);
     });
   });
 });
