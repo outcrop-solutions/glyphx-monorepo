@@ -6,6 +6,7 @@ import {
   IJoinTableColumnDefinition,
 } from '@interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
+import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 
 describe('#fileProcessing/basicJoinProcessor', () => {
   context('cleanTableName', () => {
@@ -23,6 +24,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const testTableName = 'IAmATestTable';
       const backingFileName = `${testTableName}.parquet`;
       const fields: IFieldDefinition[] = [
+        {
+          name: GLYPHX_ID_COLUMN_NAME,
+          origionalName: GLYPHX_ID_COLUMN_NAME,
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
         {
           name: 'field1',
           origionalName: 'field1',
@@ -50,7 +56,7 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       assert.strictEqual(processedTable.backingFileName, backingFileName);
       assert.strictEqual(processedTable.tableIndex, 0);
       assert.strictEqual(processedTable.tableAlias, 'A');
-      assert.strictEqual(processedTable.columns.length, 2);
+      assert.strictEqual(processedTable.columns.length, 3);
 
       for (let i = 0; i < fields.length; i++) {
         const col = processedTable.columns[i];
@@ -123,6 +129,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
 
       const fields: IFieldDefinition[] = [
         {
+          name: GLYPHX_ID_COLUMN_NAME,
+          origionalName: GLYPHX_ID_COLUMN_NAME,
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
+        {
           name: 'field1',
           origionalName: 'field1',
           fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
@@ -153,6 +164,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table1',
         backingFileName: 'table1.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -194,6 +210,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         backingFileName: 'table1.parquet',
         fields: [
           {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
             name: 'field1',
             origionalName: 'field1',
             fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
@@ -210,6 +231,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table2',
         backingFileName: 'table2.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -256,11 +282,15 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const columns2 = tableDefinition2.columns;
       assert.strictEqual(columns2.length, table2.fields.length);
 
-      assert.isTrue(columns2[0].isJoinColumn);
+      //Our glyphxId
+      assert.isFalse(columns2[0].isJoinColumn);
       assert.isFalse(columns2[0].isSelectedColumn);
 
-      assert.isFalse(columns2[1].isJoinColumn);
-      assert.isTrue(columns2[1].isSelectedColumn);
+      assert.isTrue(columns2[1].isJoinColumn);
+      assert.isFalse(columns2[1].isSelectedColumn);
+
+      assert.isFalse(columns2[2].isJoinColumn);
+      assert.isTrue(columns2[2].isSelectedColumn);
     });
 
     it('should join three tables on a single field, 2 to 1 and 3 to 1', () => {
@@ -268,6 +298,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table1',
         backingFileName: 'table1.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -286,6 +321,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         backingFileName: 'table2.parquet',
         fields: [
           {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
             name: 'field1',
             origionalName: 'field1',
             fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
@@ -302,6 +342,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table3',
         backingFileName: 'table3.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -358,20 +403,26 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const columns2 = tableDefinition2.columns;
       assert.strictEqual(columns2.length, table2.fields.length);
 
-      assert.isTrue(columns2[0].isJoinColumn);
+      assert.isFalse(columns2[0].isJoinColumn);
       assert.isFalse(columns2[0].isSelectedColumn);
 
-      assert.isFalse(columns2[1].isJoinColumn);
-      assert.isTrue(columns2[1].isSelectedColumn);
+      assert.isTrue(columns2[1].isJoinColumn);
+      assert.isFalse(columns2[1].isSelectedColumn);
+
+      assert.isFalse(columns2[2].isJoinColumn);
+      assert.isTrue(columns2[2].isSelectedColumn);
 
       const columns3 = tableDefinition3.columns;
       assert.strictEqual(columns3.length, table3.fields.length);
 
-      assert.isTrue(columns3[0].isJoinColumn);
+      assert.isFalse(columns3[0].isJoinColumn);
       assert.isFalse(columns3[0].isSelectedColumn);
 
-      assert.isFalse(columns3[1].isJoinColumn);
-      assert.isTrue(columns3[1].isSelectedColumn);
+      assert.isTrue(columns3[1].isJoinColumn);
+      assert.isFalse(columns3[1].isSelectedColumn);
+
+      assert.isFalse(columns3[2].isJoinColumn);
+      assert.isTrue(columns3[2].isSelectedColumn);
     });
 
     it('should join three tables on a single field, 2 to 1 and 3 to 2', () => {
@@ -379,6 +430,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table1',
         backingFileName: 'table1.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -397,6 +453,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         backingFileName: 'table2.parquet',
         fields: [
           {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
             name: 'field1',
             origionalName: 'field1',
             fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
@@ -413,6 +474,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table3',
         backingFileName: 'table3.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field3',
             origionalName: 'field3',
@@ -469,20 +535,26 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const columns2 = tableDefinition2.columns;
       assert.strictEqual(columns2.length, table2.fields.length);
 
-      assert.isTrue(columns2[0].isJoinColumn);
+      assert.isFalse(columns2[0].isJoinColumn);
       assert.isFalse(columns2[0].isSelectedColumn);
 
-      assert.isFalse(columns2[1].isJoinColumn);
-      assert.isTrue(columns2[1].isSelectedColumn);
+      assert.isTrue(columns2[1].isJoinColumn);
+      assert.isFalse(columns2[1].isSelectedColumn);
+
+      assert.isFalse(columns2[2].isJoinColumn);
+      assert.isTrue(columns2[2].isSelectedColumn);
 
       const columns3 = tableDefinition3.columns;
       assert.strictEqual(columns3.length, table3.fields.length);
 
-      assert.isTrue(columns3[0].isJoinColumn);
+      assert.isFalse(columns3[0].isJoinColumn);
       assert.isFalse(columns3[0].isSelectedColumn);
 
-      assert.isFalse(columns3[1].isJoinColumn);
-      assert.isTrue(columns3[1].isSelectedColumn);
+      assert.isTrue(columns3[1].isJoinColumn);
+      assert.isFalse(columns3[1].isSelectedColumn);
+
+      assert.isFalse(columns3[2].isJoinColumn);
+      assert.isTrue(columns3[2].isSelectedColumn);
     });
 
     it('should join three tables on multiple fields with field type conflicts, 2 to 1 and 3 to 1', () => {
@@ -492,6 +564,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         backingFileName: 'table1.parquet',
         fields: [
           {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
             name: 'field1',
             origionalName: 'field1',
             fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
@@ -520,6 +597,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         backingFileName: 'table2.parquet',
         fields: [
           {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
             name: 'field1',
             origionalName: 'field1',
             fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
@@ -546,6 +628,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table3',
         backingFileName: 'table3.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -617,11 +704,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const columns2 = tableDefinition2.columns;
       assert.strictEqual(columns2.length, table2.fields.length);
 
-      assert.isTrue(columns2[0].isJoinColumn);
+      assert.isFalse(columns2[0].isJoinColumn);
       assert.isFalse(columns2[0].isSelectedColumn);
 
-      assert.isFalse(columns2[1].isJoinColumn);
-      assert.isTrue(columns2[1].isSelectedColumn);
+      assert.isTrue(columns2[1].isJoinColumn);
+      assert.isFalse(columns2[1].isSelectedColumn);
 
       assert.isFalse(columns2[2].isJoinColumn);
       assert.isTrue(columns2[2].isSelectedColumn);
@@ -629,23 +716,29 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       assert.isFalse(columns2[3].isJoinColumn);
       assert.isTrue(columns2[3].isSelectedColumn);
 
+      assert.isFalse(columns2[4].isJoinColumn);
+      assert.isTrue(columns2[4].isSelectedColumn);
+
       const columns3 = tableDefinition3.columns;
       assert.strictEqual(columns3.length, table3.fields.length);
 
-      assert.isTrue(columns3[0].isJoinColumn);
+      assert.isFalse(columns3[0].isJoinColumn);
       assert.isFalse(columns3[0].isSelectedColumn);
 
-      assert.isFalse(columns3[1].isJoinColumn);
-      assert.isTrue(columns3[1].isSelectedColumn);
+      assert.isTrue(columns3[1].isJoinColumn);
+      assert.isFalse(columns3[1].isSelectedColumn);
 
-      assert.isTrue(columns3[2].isJoinColumn);
-      assert.isFalse(columns3[2].isSelectedColumn);
+      assert.isFalse(columns3[2].isJoinColumn);
+      assert.isTrue(columns3[2].isSelectedColumn);
 
       assert.isTrue(columns3[3].isJoinColumn);
       assert.isFalse(columns3[3].isSelectedColumn);
 
-      assert.isFalse(columns3[4].isJoinColumn);
-      assert.isTrue(columns3[4].isSelectedColumn);
+      assert.isTrue(columns3[4].isJoinColumn);
+      assert.isFalse(columns3[4].isSelectedColumn);
+
+      assert.isFalse(columns3[5].isJoinColumn);
+      assert.isTrue(columns3[5].isSelectedColumn);
     });
 
     it('should join three tables on multiple fields with field type conflicts, 2 to 1 and 3 to 2', () => {
@@ -654,6 +747,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table1',
         backingFileName: 'table1.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -683,6 +781,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         backingFileName: 'table2.parquet',
         fields: [
           {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
             name: 'field1',
             origionalName: 'field1',
             fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
@@ -709,6 +812,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table3',
         backingFileName: 'table3.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -780,11 +888,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const columns2 = tableDefinition2.columns;
       assert.strictEqual(columns2.length, table2.fields.length);
 
-      assert.isTrue(columns2[0].isJoinColumn);
+      assert.isFalse(columns2[0].isJoinColumn);
       assert.isFalse(columns2[0].isSelectedColumn);
 
-      assert.isFalse(columns2[1].isJoinColumn);
-      assert.isTrue(columns2[1].isSelectedColumn);
+      assert.isTrue(columns2[1].isJoinColumn);
+      assert.isFalse(columns2[1].isSelectedColumn);
 
       assert.isFalse(columns2[2].isJoinColumn);
       assert.isTrue(columns2[2].isSelectedColumn);
@@ -792,23 +900,29 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       assert.isFalse(columns2[3].isJoinColumn);
       assert.isTrue(columns2[3].isSelectedColumn);
 
+      assert.isFalse(columns2[4].isJoinColumn);
+      assert.isTrue(columns2[4].isSelectedColumn);
+
       const columns3 = tableDefinition3.columns;
       assert.strictEqual(columns3.length, table3.fields.length);
 
-      assert.isTrue(columns3[0].isJoinColumn);
+      assert.isFalse(columns3[0].isJoinColumn);
       assert.isFalse(columns3[0].isSelectedColumn);
 
-      assert.isFalse(columns3[1].isJoinColumn);
-      assert.isTrue(columns3[1].isSelectedColumn);
+      assert.isTrue(columns3[1].isJoinColumn);
+      assert.isFalse(columns3[1].isSelectedColumn);
 
-      assert.isTrue(columns3[2].isJoinColumn);
-      assert.isFalse(columns3[2].isSelectedColumn);
+      assert.isFalse(columns3[2].isJoinColumn);
+      assert.isTrue(columns3[2].isSelectedColumn);
 
       assert.isTrue(columns3[3].isJoinColumn);
       assert.isFalse(columns3[3].isSelectedColumn);
 
-      assert.isFalse(columns3[4].isJoinColumn);
-      assert.isTrue(columns3[4].isSelectedColumn);
+      assert.isTrue(columns3[4].isJoinColumn);
+      assert.isFalse(columns3[4].isSelectedColumn);
+
+      assert.isFalse(columns3[5].isJoinColumn);
+      assert.isTrue(columns3[5].isSelectedColumn);
     });
 
     it('should join two tables but no fields match', () => {
@@ -816,6 +930,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table1',
         backingFileName: 'table1.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field1',
             origionalName: 'field1',
@@ -833,6 +952,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         tableName: 'table2',
         backingFileName: 'table2.parquet',
         fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
           {
             name: 'field11',
             origionalName: 'field11',
@@ -878,10 +1002,13 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       assert.strictEqual(columns2.length, table2.fields.length);
 
       assert.isFalse(columns2[0].isJoinColumn);
-      assert.isTrue(columns2[0].isSelectedColumn);
+      assert.isFalse(columns2[0].isSelectedColumn);
 
       assert.isFalse(columns2[1].isJoinColumn);
       assert.isTrue(columns2[1].isSelectedColumn);
+
+      assert.isFalse(columns2[2].isJoinColumn);
+      assert.isTrue(columns2[2].isSelectedColumn);
     });
   });
 });
