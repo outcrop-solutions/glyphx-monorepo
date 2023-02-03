@@ -9,7 +9,7 @@ import {pipeline} from 'node:stream/promises';
 import {fileIngestion} from '@glyphx/types';
 import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 
-describe.only('#fileProcessing/basicFileTransformer', () => {
+describe('#fileProcessing/basicFileTransformer', () => {
   context('basic processing', () => {
     it('should process 1000 objects and return correct types and information', async () => {
       const fileName = 'testFileName';
@@ -324,7 +324,7 @@ describe.only('#fileProcessing/basicFileTransformer', () => {
               err.errorType,
               FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
             );
-            assert.isAtLeast(err.rowIndex ?? -1, 11);
+            assert.isAtLeast(err.rowIndex ?? -1, 10);
             assert.isAtMost(err.rowIndex ?? -1, 60);
           },
           BasicFieldTypeCalculator,

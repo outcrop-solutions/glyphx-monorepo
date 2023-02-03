@@ -276,7 +276,7 @@ export class BasicFileTransformer extends Transform {
   private buildParquertSchema(): Record<string, unknown> {
     const retval: Record<string, unknown> = {};
     //Add our glyphxId to the parquet schema
-    retval.glyphxId = {
+    retval[GLYPHX_ID_COLUMN_NAME] = {
       type: 'DOUBLE',
       encoding: 'PLAIN',
       optional: false,
@@ -304,7 +304,6 @@ export class BasicFileTransformer extends Transform {
    * @param chunk - or object to be cleaned.
    */
   private cleanRow(chunk: any): Record<string, unknown> {
-    this.rowNumber++;
     const retval: Record<string, unknown> = {};
     let columnIndex = 0;
     for (const key in chunk) {
@@ -343,6 +342,9 @@ export class BasicFileTransformer extends Transform {
       retval[fieldTypeCalculator?.columnName ?? key] = value;
       columnIndex++;
     }
+    //Add a custom id for datalookup.
+    retval[GLYPHX_ID_COLUMN_NAME] = this.begRowNumber + this.rowNumber;
+    this.rowNumber++;
 
     return retval;
   }
@@ -383,8 +385,6 @@ export class BasicFileTransformer extends Transform {
         //TODO: right now, the way the pipelining works, this should always hit, since the csv parsing step will set empty fields to empty strings.  Future connectors will need to pay attention to this.
         fieldTypeCalculator?.fieldTypeCalculator.processItemsSync(value);
     }
-    //Add a custom id for datalookup.
-    chunk.glyphxId = this.begRowNumber + this.rowNumber;
     this.savedRows.push(chunk);
   }
 
