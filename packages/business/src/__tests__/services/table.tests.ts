@@ -14,7 +14,7 @@ class MockAthenaConnection {
     this.throwValue = throwValue;
   }
 
-  async runQuery(): Promise<Record<string, any>[]> {
+  async runQuery(query: string): Promise<Record<string, any>[]> {
     if (this.throwValue) throw this.retrunedValue;
     else return this.retrunedValue as unknown as Record<string, any>[];
   }
@@ -45,14 +45,12 @@ describe('#services/table', () => {
     });
 
     it('will publish and throw a DataServiceError when one of the underlyiong methods throws an error', async () => {
+      const value = 'something bad has happened';
       sandbox.replaceGetter(
         athenaConnection,
         'connection',
         () =>
-          new MockAthenaConnection(
-            'something bad has happened',
-            true
-          ) as unknown as aws.AthenaManager
+          new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
       );
       let didPublish = false;
       function fakePublish() {
