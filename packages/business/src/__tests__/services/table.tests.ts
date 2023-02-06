@@ -50,10 +50,7 @@ describe('#services/table', () => {
         athenaConnection,
         'connection',
         () =>
-          new MockAthenaConnection(
-            'something bad has happened',
-            true
-          ) as unknown as aws.AthenaManager
+          new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
       );
       let didPublish = false;
       function fakePublish() {

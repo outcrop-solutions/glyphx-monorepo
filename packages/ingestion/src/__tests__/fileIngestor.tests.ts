@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
@@ -17,6 +18,7 @@ import {
   FILE_PROCESSING_ERROR_TYPES,
 } from '@util/constants';
 import * as businessLogic from '@glyphx/business';
+import * as sharedFunctions from '../util/generalPurposeFunctions';
 
 describe('fileIngestor', () => {
   context('constructor', () => {
@@ -200,7 +202,7 @@ describe('fileIngestor', () => {
       );
       sandbox.replace(
         businessLogic.projectService,
-        'updateProjectFileStats',
+        'updateProject',
         sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
       );
       sandbox.replace(
@@ -260,6 +262,10 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.joinInformation.length, 1);
       assert.strictEqual(results.joinInformation[0].tableName, 'fooTable');
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
+      assert.strictEqual(
+        results.viewName,
+        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
     });
 
     it('should fail because the table already exists', async () => {
@@ -504,7 +510,7 @@ describe('fileIngestor', () => {
       );
       sandbox.replace(
         businessLogic.projectService,
-        'updateProjectFileStats',
+        'updateProject',
         sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
       );
 
@@ -569,6 +575,10 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
+      assert.strictEqual(
+        results.viewName,
+        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
     });
 
     it('should not fail when the table is added and appended in the same fileInfo set', async () => {
@@ -819,7 +829,7 @@ describe('fileIngestor', () => {
       );
       sandbox.replace(
         businessLogic.projectService,
-        'updateProjectFileStats',
+        'updateProject',
         sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
       );
 
@@ -900,6 +910,10 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 1);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
+      assert.strictEqual(
+        results.viewName,
+        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
     });
 
     it('should fail if the table does not exist', async () => {
@@ -1064,7 +1078,7 @@ describe('fileIngestor', () => {
       );
       sandbox.replace(
         businessLogic.projectService,
-        'updateProjectFileStats',
+        'updateProject',
         sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
       );
       sandbox.replace(
@@ -1143,6 +1157,10 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
+      assert.strictEqual(
+        results.viewName,
+        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
     });
 
     it('should fail if the table does not exist', async () => {
@@ -1306,7 +1324,7 @@ describe('fileIngestor', () => {
       );
       sandbox.replace(
         businessLogic.projectService,
-        'updateProjectFileStats',
+        'updateProject',
         sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
       );
 
@@ -1391,7 +1409,7 @@ describe('fileIngestor', () => {
       );
       sandbox.replace(
         businessLogic.projectService,
-        'updateProjectFileStats',
+        'updateProject',
         sandbox.stub().resolves({} as unknown as databaseTypes.IProject)
       );
 

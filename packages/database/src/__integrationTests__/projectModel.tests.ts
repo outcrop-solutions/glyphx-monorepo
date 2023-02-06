@@ -47,6 +47,7 @@ const INPUT_DATA = {
   owner: {},
   state: {},
   files: [],
+  viewName: 'testViewName' + UNIQUE_KEY,
 };
 
 const INPUT_PROJECT_TYPE = {

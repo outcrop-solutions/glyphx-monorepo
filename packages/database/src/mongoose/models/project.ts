@@ -47,6 +47,7 @@ const SCHEMA = new Schema<
   owner: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   state: {type: Schema.Types.ObjectId, required: false, ref: 'state'},
   files: {type: [fileStatsSchema], required: true, default: []},
+  viewName: {type: String, required: true},
 });
 
 SCHEMA.static(
@@ -366,6 +367,7 @@ SCHEMA.static(
         owner: owner,
         state: state,
         files: input.files && [],
+        viewName: input.viewName,
       };
       try {
         await PROJECT_MODEL.validate(resolvedInput);
