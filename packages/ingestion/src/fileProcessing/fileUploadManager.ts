@@ -46,7 +46,6 @@ export class FileUploadManager {
   ) {
     const fileTransformer = new BasicFileTransformer(
       fileName,
-      999999,
       parquetFileName,
       parquetPath,
       tableName,

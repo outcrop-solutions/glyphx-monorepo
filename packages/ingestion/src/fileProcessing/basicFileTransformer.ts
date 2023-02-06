@@ -94,7 +94,7 @@ export class BasicFileTransformer extends Transform {
    * The size of the input file on disk.  Only stored here so that it can be
    * reported back out through a callback.
    */
-  private readonly fileSize: number;
+  private fileSize: number;
 
   /**
    * The file operation for this transformer.  Only stored here so that it can be
@@ -157,7 +157,6 @@ export class BasicFileTransformer extends Transform {
    */
   constructor(
     fileName: string,
-    fileSize: number,
     outputFileName: string,
     outputDirectory: string,
     tableName: string,
@@ -176,7 +175,7 @@ export class BasicFileTransformer extends Transform {
     this.outputFileName = outputFileName;
     this.tableName = tableName;
     this.fileOperation = fileOperation;
-    this.fileSize = fileSize;
+    this.fileSize = 0;
     this.callback = callback;
     this.errorCallback = errorCallback;
     this.fieldTypeCalculator = fieldTypeCalculator;
@@ -409,7 +408,8 @@ export class BasicFileTransformer extends Transform {
       this.sendSavedRows();
       this.hasMetInitialSample = true;
     }
-
+    const objectSize = JSON.stringify(chunk).length;
+    this.fileSize += objectSize;
     if (!this.hasMetInitialSample) {
       this.checkFieldType(chunk);
       callback();
