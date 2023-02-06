@@ -13,7 +13,6 @@ describe('#fileProcessing/basicFileTransformer', () => {
   context('basic processing', () => {
     it('should process 1000 objects and return correct types and information', async () => {
       const fileName = 'testFileName';
-      const fileSize = 99999;
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
@@ -23,14 +22,14 @@ describe('#fileProcessing/basicFileTransformer', () => {
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
         fileIngestion.constants.FILE_OPERATION.ADD,
         (info: fileProcessingInterfaces.IFileInformation) => {
           assert.strictEqual(info.fileName, fileName);
-          assert.strictEqual(info.fileSize, fileSize);
+          //just make sure this is not 0
+          assert.isAtLeast(info.fileSize, 10);
           assert.strictEqual(info.tableName, tableName);
           assert.strictEqual(info.parquetFileName, outputFileName);
           assert.strictEqual(info.outputFileDirecotry, outputDirectory);
@@ -127,13 +126,11 @@ describe('#fileProcessing/basicFileTransformer', () => {
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
-      const fileSize = 99999;
       const numberOfRows = 10;
       let hasErrors = false;
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
@@ -183,13 +180,11 @@ describe('#fileProcessing/basicFileTransformer', () => {
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
-      const fileSize = 99999;
       const numberOfRows = 100;
       let hasErrors = false;
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
@@ -239,13 +234,11 @@ describe('#fileProcessing/basicFileTransformer', () => {
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
-      const fileSize = 99999;
       const numberOfRows = 123;
       let hasErrors = false;
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
@@ -299,14 +292,12 @@ describe('#fileProcessing/basicFileTransformer', () => {
         const outputFileName = `${fileName}.parquet`;
         const outputDirectory = 'dir1/';
         const tableName = fileName;
-        const fileSize = 99999;
         const numberOfRows = 100;
         let hasErrors = false;
         let numberOfErrors = 0;
         let done = false;
         const fileTransformer = new BasicFileTransformer(
           fileName,
-          fileSize,
           outputFileName,
           outputDirectory,
           tableName,
