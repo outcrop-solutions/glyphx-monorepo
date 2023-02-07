@@ -1,9 +1,7 @@
 {
   "extends": "@glyphx/tsconfig/node18.json",
-  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
-  "exclude": ["src/__tests__/**", "src/__integrationTests__/**"],
   "compilerOptions": {
-    "baseUrl": "./src/",
+    "baseUrl": "./src",
     "noImplicitAny": false
   },
   "paths": {
@@ -11,5 +9,7 @@
     "@/lib/*": ["lib/*"],
     "@/services/*": ["services/*"],
     "@/validation/*": ["validation/*"]
-  }
+  },
+  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "exclude": ["src/__tests__/**", "src/__integrationTests__/**"],
 }

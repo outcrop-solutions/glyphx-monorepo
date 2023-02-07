@@ -47,7 +47,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
           );
           assert.strictEqual(
             info.columns[0].fieldType,
-            fileIngestion.constants.FIELD_TYPE.NUMBER
+            fileIngestion.constants.FIELD_TYPE.INTEGER
           );
 
           assert.strictEqual(info.columns[1].name, 'name');
