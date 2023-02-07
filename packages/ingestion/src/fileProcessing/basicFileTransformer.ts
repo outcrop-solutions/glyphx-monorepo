@@ -215,7 +215,7 @@ export class BasicFileTransformer extends Transform {
     columns.unshift({
       name: GLYPHX_ID_COLUMN_NAME,
       origionalName: GLYPHX_ID_COLUMN_NAME,
-      fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+      fieldType: fileIngestion.constants.FIELD_TYPE.INTEGER,
       longestString: undefined,
     });
     return {
@@ -276,7 +276,7 @@ export class BasicFileTransformer extends Transform {
     const retval: Record<string, unknown> = {};
     //Add our glyphxId to the parquet schema
     retval[GLYPHX_ID_COLUMN_NAME] = {
-      type: 'DOUBLE',
+      type: 'INT64',
       encoding: 'PLAIN',
       optional: false,
     };

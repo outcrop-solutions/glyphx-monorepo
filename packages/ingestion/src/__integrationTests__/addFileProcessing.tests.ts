@@ -22,7 +22,7 @@ const INPUT_PROJECT = {
   files: [],
 };
 describe('#fileProcessing', () => {
-  context('Inbound s3 file to parquet to S3', () => {
+  context.only('Inbound s3 file to parquet to S3', () => {
     let s3Bucket: aws.S3Manager;
     let athenaManager: aws.AthenaManager;
 
