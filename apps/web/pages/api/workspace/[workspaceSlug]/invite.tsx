@@ -1,5 +1,4 @@
-import { validateWorkspaceInvite, validateSession } from '@glyphx/business';
-import { inviteUsers } from '@glyphx/business';
+import { validateWorkspaceInvite, validateSession, inviteUsers } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;

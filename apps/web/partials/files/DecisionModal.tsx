@@ -1,5 +1,5 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { matchingFilesAtom } from '@state/files';
+import { matchingFilesAtom } from 'state/files';
 import { Dialog, Transition } from '@headlessui/react';
 import { useRecoilValue } from 'recoil';
 

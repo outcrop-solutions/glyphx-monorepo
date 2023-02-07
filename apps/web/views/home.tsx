@@ -35,20 +35,6 @@ export default function Home() {
 
   const [isLoading, setLoading] = useState(true);
 
-  useEffect(() => {
-    isUserLogged()
-      .then((result) => {
-        if (!result) {
-          router.push('/auth/signIn');
-        } else {
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        router.push('/auth/signIn');
-      });
-  }, []);
-
   if (isLoading) {
     return (
       <div className="flex flex-col h-screen w-screen">

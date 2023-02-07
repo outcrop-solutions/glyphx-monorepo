@@ -12,9 +12,9 @@ import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import { AccountLayout } from '@/layouts/index';
-import {api, getWorkspace, isWorkspaceOwner} from '@glyphx/business';
+import { api } from 'lib';
+import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
 import { useWorkspace } from '@/providers/workspace';
-
 
 const General = ({ isTeamOwner, workspace }) => {
   const router = useRouter();

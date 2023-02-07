@@ -1,3 +1,14 @@
-export * from './client';
-export * from './common';
-export * from './server';
+import initMiddleware from './initMiddleware';
+import {validateSessionMiddleware} from './sessionCheck';
+import stripe, {createCustomer, getInvoices, getProducts} from './stripe';
+import {validateMiddleware} from './validate';
+
+export {
+  initMiddleware,
+  validateMiddleware,
+  validateSessionMiddleware,
+  createCustomer,
+  getInvoices,
+  getProducts,
+  stripe,
+};

@@ -7,10 +7,8 @@ import { PermissionsDropDown } from '../../invite';
 // import { API, graphqlOperation, Auth } from "aws-amplify";
 // import { createProject } from "graphql/mutations";
 // import { CreateProjectMutation } from "API";
-import { useRouter } from "next/router";
-import { v4 as uuid } from "uuid";
-
-import { userAtom, usernameSelector } from "@/state/user";
+import { useRouter } from 'next/router';
+import { v4 as uuid } from 'uuid';
 
 import { userAtom, usernameSelector } from 'state/user';
 
@@ -51,38 +49,35 @@ export const NewProject = ({ exit }) => {
     if (createMembersArray() === null) {
       return false;
     }
+  }
+  const handleSave = async () => {
+    if (!verifyData()) {
+      alert('Invalid Data input');
+      return;
+    }
 
-    const handleSave = async () => {
+    let memebers = createMembersArray();
 
-        if(!verifyData()){
-            alert("Invalid Data input");
-            return;
-        }
-
-        let memebers = createMembersArray()
-
-        const createProjectInput = {
-            id: uuid(),
-            name,
-            description,
-            expiry: new Date(),
-            author: username,
-            shared: [username, ...memebers],
-        };
-        console.log({ createProjectInput })
-        try {
-            // const result = (await API.graphql(
-            //     graphqlOperation(createProject, { input: createProjectInput })
-            // )) as { data: CreateProjectMutation };
-
-            // console.log({ result })
-
-            // setShowAddProject(false);
-            // router.push(`/project/${result.data.createProject.id}`);
-        } catch (error) {
-            console.log({ error });
-        }
+    const createProjectInput = {
+      id: uuid(),
+      name,
+      description,
+      expiry: new Date(),
+      author: username,
+      shared: [username, ...memebers],
     };
+    console.log({ createProjectInput });
+    try {
+      // const result = (await API.graphql(
+      //     graphqlOperation(createProject, { input: createProjectInput })
+      // )) as { data: CreateProjectMutation };
+      // console.log({ result })
+      // setShowAddProject(false);
+      // router.push(`/project/${result.data.createProject.id}`);
+    } catch (error) {
+      console.log({ error });
+    }
+  };
 
   // const handleSave = async () => {
   //   if (!verifyData()) {

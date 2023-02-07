@@ -21,7 +21,7 @@ import {
 } from "../state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 // import { updateProject } from "graphql/mutations";
-import { createModelCall } from "./ETLCalls";
+import { createModelCall } from "./create-model";
 import { formatColumnHeader } from "@/utils/Utils";
 /**
  * Utility for interfacing with the Project class

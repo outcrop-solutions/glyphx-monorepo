@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
-import { PencilIcon } from "@heroicons/react/outline";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { SearchModal, GridToggle, DropdownNotifications, Help } from 'partials';
+import { PencilIcon } from '@heroicons/react/outline';
 
 // import { updateProject } from "graphql/mutations";
 // import { API, graphqlOperation } from "aws-amplify";
 // import { Project } from "API";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   orientationAtom,
   selectedProjectSelector,
@@ -20,83 +20,45 @@ import {
   sdtValue,
   rowsSelector,
 } from 'state';
+
 export const ProjectHeader = () => {
-    const [selectedProject, setSelectedProject] = useRecoilState(
-        selectedProjectSelector
-    );
-    // console.log({selectedProject})
-    const setShowAddProject = useSetRecoilState(showAddProjectAtom);
-    const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-    const [isShareOpen,setShare] = useRecoilState(shareOpenAtom);
-    const [isInfoOpen,setShowInfo] = useRecoilState(showInfoAtom);
-    const [isNotificationOpen,setNotification] = useRecoilState(showNotificationAtom);
-    const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
-    const payload = useRecoilValue(payloadSelector);
-    const setProperties = useSetRecoilState(propertiesAtom);
-    const [sdtName, setSDTName] = useRecoilState(sdtValue);
-    const rows = useRecoilValue(rowsSelector);
+  const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
+  // console.log({selectedProject})
+  const setShowAddProject = useSetRecoilState(showAddProjectAtom);
+  const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
+  const [isShareOpen, setShare] = useRecoilState(shareOpenAtom);
+  const [isInfoOpen, setShowInfo] = useRecoilState(showInfoAtom);
+  const [isNotificationOpen, setNotification] = useRecoilState(showNotificationAtom);
+  const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
+  const payload = useRecoilValue(payloadSelector);
+  const setProperties = useSetRecoilState(propertiesAtom);
+  const [sdtName, setSDTName] = useRecoilState(sdtValue);
+  const rows = useRecoilValue(rowsSelector);
 
-    const router = useRouter();
+  const router = useRouter();
 
-
-
-    const backPresssed = () => {
-        setSelectedProject(null);
-        setShare(false);
-        setShowInfo(false);
-        setNotification(false);
-        setShowSearchModalOpen(false);
-        setSDTName(null);
-        setProperties([ // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
-            { axis: "X", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "Y", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "Z", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "1", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "2", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-            { axis: "3", accepts: "COLUMN_DRAG", lastDroppedItem: null },
-        ]);
-        try { //close glyph viewer
-            //@ts-ignore
-            window?.core.CloseModel();
-        } catch (error) {
-            // do nothng
-        }
-        router.push("/");
-    };
-
-    const handleChange = (e) => {
-        setSelectedProject((prev) => ({ ...prev, name: e.target.value }));
-    };
-
-    const handlePaneSwitch = () => {
-        if (paneOrientation === "horizontal") {
-            setOrientation("vertical");
-        } else {
-            setOrientation("horizontal");
-        }
-    };
-
-    /**
-     * Changes name to what the selected project name is
-     * @param e 
-     */
-    const handleEditProjectName = async (e) => {
-        // update project info on dynamoDB
-        const updateProjectInput = {
-            id: selectedProject.id,
-            name: e.target.value.trim(),
-            description: selectedProject.description,
-            shared: selectedProject.shared,
-        };
-        try {
-            // const result = await API.graphql(
-            //     graphqlOperation(updateProject, { input: updateProjectInput })
-            // );
-        } catch (error) {
-            console.log({ error });
-        }
-
-
+  const backPresssed = () => {
+    setSelectedProject(null);
+    setShare(false);
+    setShowInfo(false);
+    setNotification(false);
+    setShowSearchModalOpen(false);
+    setSDTName(null);
+    setProperties([
+      // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
+      { axis: 'X', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
+      { axis: 'Y', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
+      { axis: 'Z', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
+      { axis: '1', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
+      { axis: '2', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
+      { axis: '3', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
+    ]);
+    try {
+      //close glyph viewer
+      //@ts-ignore
+      window?.core.CloseModel();
+    } catch (error) {
+      // do nothng
     }
     router.push('/');
   };
@@ -126,8 +88,12 @@ export const ProjectHeader = () => {
       shared: selectedProject.shared,
     };
     try {
-      const result = await API.graphql(graphqlOperation(updateProject, { input: updateProjectInput }));
-    } catch (error) {}
+      // const result = await API.graphql(
+      //     graphqlOperation(updateProject, { input: updateProjectInput })
+      // );
+    } catch (error) {
+      console.log({ error });
+    }
   };
 
   return (

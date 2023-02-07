@@ -11,6 +11,7 @@ export enum IngestionType {
  * S3 Rendering pipeline input
  */
 type ListObjectsCommandOutputContent = _Object;
+
 export interface S3ProviderListOutputItem {
   key: ListObjectsCommandOutputContent['Key'];
   eTag: ListObjectsCommandOutputContent['ETag'];

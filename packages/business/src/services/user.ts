@@ -1,5 +1,4 @@
-import {updateHtml, updateText} from 'email';
-import {sendMail} from 'lib/server/mail';
+import {sendMail, updateHtml, updateText} from '@glyphx/email';
 import {prisma} from '@glyphx/database';
 
 export async function deactivate(id) {

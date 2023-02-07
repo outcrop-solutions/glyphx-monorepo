@@ -1,5 +1,5 @@
 import {logging} from '@glyphx/core';
-import connection from './lib/server/databaseConnection';
+import connection from './lib/databaseConnection';
 
 export class Initializer {
   public static async init() {

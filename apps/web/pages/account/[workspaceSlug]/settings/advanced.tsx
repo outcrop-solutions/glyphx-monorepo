@@ -8,7 +8,8 @@ import Modal from 'components/Modal/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { AccountLayout } from '@/layouts/index';
-import {api, getWorkspace, isWorkspaceCreator}from '@glyphx/business';
+import { api } from 'lib';
+import { getWorkspace, isWorkspaceCreator } from '@glyphx/business';
 import { useWorkspace } from 'providers/workspace';
 import { getSession } from 'next-auth/react';
 

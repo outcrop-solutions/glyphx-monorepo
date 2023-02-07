@@ -1,8 +1,5 @@
-import {
-  validateUpdateName,
-  validateSession,
-} from '@glyphx/business';
-import { updateName } from '@glyphx/business';
+import { updateName, validateUpdateName,
+  validateSession, } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;

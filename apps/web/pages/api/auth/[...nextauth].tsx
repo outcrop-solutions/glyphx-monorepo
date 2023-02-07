@@ -3,8 +3,9 @@ import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 
 import { prisma } from '@glyphx/database';
-import { EMAIL_CONFIG, sendMail, signInHtml, signInText, createPaymentAccount, getPayment } from '@glyphx/business';
-// import { log } from '@/lib/server/logsnag';
+import { signInHtml, signInText, EMAIL_CONFIG, sendMail } from '@glyphx/email';
+import { createPaymentAccount, getPayment } from '@glyphx/business';
+// import { log } from '@/lib/logsnag';
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),

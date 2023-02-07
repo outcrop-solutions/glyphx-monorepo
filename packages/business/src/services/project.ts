@@ -4,7 +4,7 @@ import {
 } from '@glyphx/types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
-import mongoDbConnection from '../lib/server/databaseConnection';
+import mongoDbConnection from 'lib/databaseConnection';
 
 export class ProjectService {
   public static async getProject(

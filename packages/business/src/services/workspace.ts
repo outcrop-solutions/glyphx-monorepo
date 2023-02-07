@@ -1,11 +1,15 @@
-// @ts-nocheck
 // eslint-disable-next-line node/no-extraneous-import
 import {InvitationStatus, Role} from '@prisma/client';
 import slugify from 'slugify';
 
-import {html as createHtml, text as createText} from 'email/workspaceCreate';
-import {html as inviteHtml, text as inviteText} from 'email/invitation';
-import {ISendMail, sendMail} from 'lib/server/mail';
+import {
+  ISendMail,
+  sendMail,
+  workspaceCreateHtml,
+  workspaceCreateText,
+  inviteHtml,
+  inviteText,
+} from '@glyphx/email';
 import {prisma} from '@glyphx/database';
 
 export async function countWorkspaces(slug) {
@@ -37,9 +41,9 @@ export async function createWorkspace(creatorId, email, name, slug) {
     },
   });
   await sendMail({
-    html: createHtml({code: workspace.inviteCode, name}),
+    html: workspaceCreateHtml({code: workspace.inviteCode, name}),
     subject: `[Glyphx] Workspace created: ${name}`,
-    text: createText({code: workspace.inviteCode, name}),
+    text: workspaceCreateText({code: workspace.inviteCode, name}),
     to: email,
   } as ISendMail);
 }

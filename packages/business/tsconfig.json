@@ -1,15 +1,13 @@
 {
   "extends": "@glyphx/tsconfig/node18.json",
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
-  "exclude": ["node_modules"],
+  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "exclude": ["src/__tests__/**", "src/__integrationTests__/**"],
   "compilerOptions": {
     "baseUrl": "./src/",
     "noImplicitAny": false
   },
   "paths": {
     "@/constants/*": ["constants/*"],
-    "@/email/*": ["email/*"],
-    "@/hooks/*": ["hooks/*"],
     "@/lib/*": ["lib/*"],
     "@/services/*": ["services/*"],
     "@/validation/*": ["validation/*"]

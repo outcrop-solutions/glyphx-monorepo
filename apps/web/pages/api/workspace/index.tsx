@@ -3,8 +3,8 @@ import slugify from 'slugify';
 import {
   validateCreateWorkspace,
   validateSession,
+  createWorkspace
 } from '@glyphx/business';
-import { createWorkspace } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;

@@ -1,142 +1,116 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { parse } from 'papaparse';
-import { Tree } from '@minoru/react-dnd-treeview';
-import { CustomNode } from './CustomNode';
-import { CustomDragPreview } from './CustomDragPreview';
-import styles from './css/Sidebar.module.css';
-import { Dropzone, formatGridData } from 'partials';
+import React, { useState } from 'react';
 // import { Storage } from 'aws-amplify';
 import { useDropzone } from 'react-dropzone';
-import { useRouter } from 'next/router';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { dataGridAtom, filesOpenAtom, fileSystemAtom, selectedFileAtom } from '@/state/files';
-import { dataGridLoadingAtom, GridModalErrorAtom, progressDetailAtom } from '@/state/globals';
-import { postUploadCall } from '@/services/ETLCalls';
-import { selectedProjectSelector } from '@/state/project';
-import { updateProjectInfo } from '@/services/GraphQLCalls';
-import { createFileSystem } from '@/lib/pipeline/transforms';
-
-export const Files = ({ toastRef }) => {
-  const setFiles = useSetRecoilState(fileSystemAtom);
-  // const fileSystem = useRecoilValue(fileSystemAtom);
-  const handleDrop = (newTree) => setFiles(newTree);
-
-  const { query } = useRouter();
-  const { projectId } = query;
-
-  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
-  const setSelectedFile = useSetRecoilState(selectedFileAtom);
-  const setFilesOpen = useSetRecoilState(filesOpenAtom);
-  const setDataGrid = useSetRecoilState(dataGridAtom);
-  const setProgress = useSetRecoilState(progressDetailAtom);
-  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
-  const project = useRecoilValue(selectedProjectSelector);
-
-  const setDataGridState = useSetRecoilState(dataGridLoadingAtom);
+import { useRecoilValue } from 'recoil';
+import { filesSelector } from 'state/files';
+import { useFileSystem } from 'services/useFileSystem';
+import { File } from './File';
+import { SidebarDropzone } from './ingest/SidebarDropzone';
 
 export const Files = () => {
   const { onDrop } = useFileSystem();
+  const files = useRecoilValue(filesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
 
-  const onDrop = useCallback(
-    async (acceptedFiles) => {
-      setDataGridState(true);
-      //update file system state with processed data
-      // let newData = createFileSystem(acceptedFiles);
-      // console.log({ fileSystem }, { newData });
-      // setFileSystem([...fileSystem, newData[0]]);
+  // const onDrop = useCallback(
+  // async (acceptedFiles) => {
+  //   setDataGridState(true);
+  //update file system state with processed data
+  // let newData = createFileSystem(acceptedFiles);
+  // console.log({ fileSystem }, { newData });
+  // setFileSystem([...fileSystem, newData[0]]);
 
-      // acceptedFiles.forEach(async (file) => {
-      //   const text = await file.text();
-      //   const { data } = parse(text, { header: true });
+  // acceptedFiles.forEach(async (file) => {
+  //   const text = await file.text();
+  //   const { data } = parse(text, { header: true });
 
-      //   const grid = formatGridData(data);
-      //   setDataGrid(grid);
-      //   setFilesOpen((prev) => [...prev, file.name]);
-      //   setSelectedFile(file.name);
-      // });
+  //   const grid = formatGridData(data);
+  //   setDataGrid(grid);
+  //   setFilesOpen((prev) => [...prev, file.name]);
+  //   setSelectedFile(file.name);
+  // });
 
-      //send file to s3
-      // acceptedFiles.forEach((file, idx) => {
-      //   const reader = new FileReader();
+  //send file to s3
+  // acceptedFiles.forEach((file, idx) => {
+  //   const reader = new FileReader();
 
-      //   reader.onabort = () => console.log('file reading was aborted');
-      //   reader.onerror = () => console.log('file reading has failed');
-      //   reader.onload = () => {
-      //     // Do whatever you want with the file contents
-      //     const binaryStr = reader.result;
-      //     console.log('inside reader.onLOAD');
-      //     Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
-      //       async progressCallback(progress) {
-      //         setProgress({
-      //           progress: progress.loaded,
-      //           total: progress.total,
-      //         });
-      //         console.log('Inside storage.put');
-      //         if (progress.loaded / progress.total === 1) {
-      //           console.log('upload complete');
-      //           console.log('about to do api call');
-      //           //api call here
-      //           try {
-      //             const result = await postUploadCall(project.id);
-      //             console.log({ result });
-      //             if (result.Error) {
-      //               // if there is an error
-      //               setGridErrorModal({
-      //                 show: true,
-      //                 title: 'Fatal Error',
-      //                 message: 'Error Occured When Processing Your Spreadsheet',
-      //                 devError: result.message,
-      //               });
-      //             } else {
-      //               // TODO: SAVE FILE NAME TO PROJECT
-      //               console.log({ project });
-      //               let fileArr = [file.name];
-      //               if (project?.files !== null) {
-      //                 fileArr = [...fileArr, ...project.files];
-      //               }
-      //               const updatedProject = {
-      //                 id: project?.id,
-      //                 filePath: project?.filePath,
-      //                 expiry: new Date().toISOString(),
-      //                 properties: project?.properties,
-      //                 url: project?.url,
-      //                 shared: project.shared,
-      //                 description: project.description,
-      //                 files: fileArr, //adding file to dynamo db
-      //               };
-      //               console.log({ updatedProject });
-      //               let GraphQLresult = await updateProjectInfo(updatedProject);
-      //               console.log('GraphQL file update:', { GraphQLresult });
-      //             }
-      //           } catch (error) {
-      //             setGridErrorModal({
-      //               show: true,
-      //               title: 'Fatal Error',
-      //               message: 'Failed to Call ETL Post File Upload',
-      //               devError: error.message,
-      //             });
-      //             console.log({ error });
-      //             setDataGridState(false);
-      //           }
-      //           setDataGridState(false);
-      //         } else {
-      //           console.log('upload incomplete');
-      //         }
-      //         console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-      //       },
-      //     });
+  //   reader.onabort = () => console.log('file reading was aborted');
+  //   reader.onerror = () => console.log('file reading has failed');
+  //   reader.onload = () => {
+  //     // Do whatever you want with the file contents
+  //     const binaryStr = reader.result;
+  //     console.log('inside reader.onLOAD');
+  //     Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
+  //       async progressCallback(progress) {
+  //         setProgress({
+  //           progress: progress.loaded,
+  //           total: progress.total,
+  //         });
+  //         console.log('Inside storage.put');
+  //         if (progress.loaded / progress.total === 1) {
+  //           console.log('upload complete');
+  //           console.log('about to do api call');
+  //           //api call here
+  //           try {
+  //             const result = await postUploadCall(project.id);
+  //             console.log({ result });
+  //             if (result.Error) {
+  //               // if there is an error
+  //               setGridErrorModal({
+  //                 show: true,
+  //                 title: 'Fatal Error',
+  //                 message: 'Error Occured When Processing Your Spreadsheet',
+  //                 devError: result.message,
+  //               });
+  //             } else {
+  //               // TODO: SAVE FILE NAME TO PROJECT
+  //               console.log({ project });
+  //               let fileArr = [file.name];
+  //               if (project?.files !== null) {
+  //                 fileArr = [...fileArr, ...project.files];
+  //               }
+  //               const updatedProject = {
+  //                 id: project?.id,
+  //                 filePath: project?.filePath,
+  //                 expiry: new Date().toISOString(),
+  //                 properties: project?.properties,
+  //                 url: project?.url,
+  //                 shared: project.shared,
+  //                 description: project.description,
+  //                 files: fileArr, //adding file to dynamo db
+  //               };
+  //               console.log({ updatedProject });
+  //               let GraphQLresult = await updateProjectInfo(updatedProject);
+  //               console.log('GraphQL file update:', { GraphQLresult });
+  //             }
+  //           } catch (error) {
+  //             setGridErrorModal({
+  //               show: true,
+  //               title: 'Fatal Error',
+  //               message: 'Failed to Call ETL Post File Upload',
+  //               devError: error.message,
+  //             });
+  //             console.log({ error });
+  //             setDataGridState(false);
+  //           }
+  //           setDataGridState(false);
+  //         } else {
+  //           console.log('upload incomplete');
+  //         }
+  //         console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+  //       },
+  //     });
 
-      //     console.log(`sent ${file.name} to S3`);
-      //   };
-      //   reader.readAsArrayBuffer(file);
-      // });
+  //     console.log(`sent ${file.name} to S3`);
+  //   };
+  //   reader.readAsArrayBuffer(file);
+  // });
 
-      // add to filesystem state
-      // upload files to S3
-    },
-    [setFileSystem, project, fileSystem, setDataGrid]
-  );
+  // add to filesystem state
+  // upload files to S3
+  // },
+  // [setFileSystem, project, fileSystem, setDataGrid]
+  // );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

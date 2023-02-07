@@ -11,8 +11,8 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta';
 import Modal from '@/components/Modal/index';
 import { AccountLayout } from '@/layouts/index';
-import {api, getUser} from '@glyphx/business';
-
+import { api } from 'lib';
+import { getUser } from '@glyphx/business';
 
 const Settings = ({ user }) => {
   const [email, setEmail] = useState(user.email || '');

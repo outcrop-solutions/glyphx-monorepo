@@ -1,8 +1,8 @@
 import {
   validateSession,
   validateUpdateWorkspaceName,
+  updateWorkspaceName
 } from '@glyphx/business';
-import { updateWorkspaceName } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;
