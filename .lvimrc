@@ -11,3 +11,5 @@ nnoremap <silent> <C-b><C-o> :%bd<Bar>e#<cr>
 :command BuildDatabase :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/database
 " Build our @glyphx/business 
 :command BuildBusiness :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/business
+" Build our @glyphx/glyphEngine 
+:command BuildGlyphEngine :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/glyphengine

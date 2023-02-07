@@ -9,6 +9,7 @@ import {
 import {ResultSetConverter} from './util/resultsetConverter';
 
 import * as error from '../error';
+import {fileIngestion} from '@glyphx/types';
 
 /**
  * The data catalog name that is used to find our database.
@@ -247,5 +248,33 @@ export class AthenaManager {
   public async dropView(viewName: string): Promise<void> {
     const dropQuery = `DROP VIEW IF EXISTS ${viewName};`;
     await this.runQuery(dropQuery);
+  }
+
+  public async getTableDescription(tableName: string): Promise<any> {
+    const query = `DESCRIBE \`${tableName}\`;`;
+    const results = await this.runQuery(query, 10, true);
+    const cleanResults = results.map(r => {
+      const dirty = r.col_name as string;
+      const split = dirty.split('\t');
+      const colTypeString = split[1].trim();
+      let colType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+      if (colTypeString === 'string') {
+        colType = fileIngestion.constants.FIELD_TYPE.STRING;
+      } else if (colTypeString === 'bigint') {
+        colType = fileIngestion.constants.FIELD_TYPE.INTEGER;
+      } else if (colTypeString === 'double') {
+        colType = fileIngestion.constants.FIELD_TYPE.NUMBER;
+      } else {
+        throw new error.InvalidOperationError(
+          `The column type: ${colTypeString} for column: ${split[0].trim()}is not a known column type.`,
+          {columnDefinition: r}
+        );
+      }
+      return {
+        columnName: split[0].trim(),
+        columnType: colType,
+      };
+    });
+    return cleanResults;
   }
 }

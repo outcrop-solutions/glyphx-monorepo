@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {AthenaManager} from '../../aws';
 //eslint-disable-next-line
@@ -12,6 +13,7 @@ import {
 import ResultSetMock from './resultSetMocks.json';
 import * as error from '../../error';
 import {createSandbox} from 'sinon';
+import {fileIngestion} from '@glyphx/types';
 
 describe('#aws/AthenaManager', () => {
   context('init', () => {
@@ -390,6 +392,90 @@ describe('#aws/AthenaManager', () => {
         errored = true;
       }
 
+      assert.isTrue(errored);
+    });
+  });
+
+  context('getTableDescription', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('will get a table description', async () => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(true as unknown as void)
+      );
+
+      sandbox.replace(
+        AthenaManager.prototype,
+        'runQuery',
+        sandbox.fake.resolves([
+          {col_name: 'col1      \tbigint\t'},
+          {col_name: 'col2      \tstring\t'},
+          {col_name: 'col3      \tdouble\t'},
+        ])
+      );
+
+      const athenaManager = new AthenaManager('glyphx-etl-db');
+      await athenaManager.init();
+
+      const r = await athenaManager.getTableDescription(
+        '-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb'
+      );
+
+      assert.isArray(r);
+      assert.strictEqual(r.length, 3);
+
+      assert.strictEqual(r[0].columnName, 'col1');
+      assert.strictEqual(
+        r[0].columnType,
+        fileIngestion.constants.FIELD_TYPE.INTEGER
+      );
+
+      assert.strictEqual(r[1].columnName, 'col2');
+      assert.strictEqual(
+        r[1].columnType,
+        fileIngestion.constants.FIELD_TYPE.STRING
+      );
+
+      assert.strictEqual(r[2].columnName, 'col3');
+      assert.strictEqual(
+        r[2].columnType,
+        fileIngestion.constants.FIELD_TYPE.NUMBER
+      );
+    });
+
+    it('will throw an invalidOperationException when it encounters an unknown column type', async () => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(true as unknown as void)
+      );
+
+      sandbox.replace(
+        AthenaManager.prototype,
+        'runQuery',
+        sandbox.fake.resolves([
+          {col_name: 'col1      \tfoo\t'},
+          {col_name: 'col2      \tstring\t'},
+          {col_name: 'col3      \tdouble\t'},
+        ])
+      );
+
+      const athenaManager = new AthenaManager('glyphx-etl-db');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.getTableDescription(
+          '-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb'
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
       assert.isTrue(errored);
     });
   });
