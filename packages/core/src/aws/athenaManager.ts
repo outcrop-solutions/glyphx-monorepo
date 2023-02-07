@@ -250,7 +250,11 @@ export class AthenaManager {
     await this.runQuery(dropQuery);
   }
 
-  public async getTableDescription(tableName: string): Promise<any> {
+  public async getTableDescription(
+    tableName: string
+  ): Promise<
+    {columnName: string; columnType: fileIngestion.constants.FIELD_TYPE}[]
+  > {
     const query = `DESCRIBE \`${tableName}\`;`;
     const results = await this.runQuery(query, 10, true);
     const cleanResults = results.map(r => {

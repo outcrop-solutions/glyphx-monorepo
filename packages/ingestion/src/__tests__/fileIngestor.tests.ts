@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
-import {error, aws} from '@glyphx/core';
+import {error, aws, generalPurposeFunctions} from '@glyphx/core';
 import {BasicAthenaProcessor} from '@fileProcessing';
 import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
@@ -18,7 +18,6 @@ import {
   FILE_PROCESSING_ERROR_TYPES,
 } from '@util/constants';
 import * as businessLogic from '@glyphx/business';
-import * as sharedFunctions from '../util/generalPurposeFunctions';
 
 describe('fileIngestor', () => {
   context('constructor', () => {
@@ -264,7 +263,10 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+        generalPurposeFunctions.fileIngestion.getViewName(
+          payload.clientId,
+          payload.modelId
+        )
       );
     });
 
@@ -577,7 +579,10 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+        generalPurposeFunctions.fileIngestion.getViewName(
+          payload.clientId,
+          payload.modelId
+        )
       );
     });
 
@@ -912,7 +917,10 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+        generalPurposeFunctions.fileIngestion.getViewName(
+          payload.clientId,
+          payload.modelId
+        )
       );
     });
 
@@ -1159,7 +1167,10 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        sharedFunctions.getViewName(payload.clientId, payload.modelId)
+        generalPurposeFunctions.fileIngestion.getViewName(
+          payload.clientId,
+          payload.modelId
+        )
       );
     });
 

@@ -8,7 +8,6 @@ import {
 import {BasicFieldTypeCalculator} from '@fieldProcessing';
 import {Readable, PassThrough} from 'node:stream';
 import * as csv from 'csv';
-import {generalPurposeFunctions as sharedFunctions} from '@util';
 import {
   IFileInformation,
   IFileProcessingError,
@@ -96,11 +95,12 @@ export class FileUploadManager {
     const deconstructedOutputFileName =
       generalPurposeFunctions.string.deconstructFilePath(csvFileName);
 
-    const parquetPath = sharedFunctions.getTableParquetPath(
-      clientId,
-      modelId,
-      tableName
-    );
+    const parquetPath =
+      generalPurposeFunctions.fileIngestion.getTableParquetPath(
+        clientId,
+        modelId,
+        tableName
+      );
     const parquetFileName = deconstructedOutputFileName.baseName + '.parquet';
     return {parquetFileName, parquetPath};
   }
@@ -115,7 +115,11 @@ export class FileUploadManager {
     s3Manager: aws.S3Manager
   ) {
     const csvFileName =
-      sharedFunctions.getTableCsvPath(clientId, modelId, tableName) + fileName;
+      generalPurposeFunctions.fileIngestion.getTableCsvPath(
+        clientId,
+        modelId,
+        tableName
+      ) + fileName;
     const splitStream = FileUploadManager.creatBaseStream(fileStream);
 
     //Create our fork for the csv stream
@@ -174,11 +178,12 @@ export class FileUploadManager {
     modelId: string,
     tableName: string
   ): Promise<number> {
-    const fullTableName = sharedFunctions.getFullTableName(
-      clientId,
-      modelId,
-      tableName
-    );
+    const fullTableName =
+      generalPurposeFunctions.fileIngestion.getFullTableName(
+        clientId,
+        modelId,
+        tableName
+      );
     const maxRowId = await tableService.getMaxRowId(fullTableName);
     return maxRowId;
   }

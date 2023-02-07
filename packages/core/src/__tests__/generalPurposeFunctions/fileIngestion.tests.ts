@@ -1,13 +1,13 @@
 import {assert} from 'chai';
-import {generalPurposeFunctions} from '@util';
+import * as fileIngestionFunctions from '../../generalPurposeFunctions/fileIngestion';
 
-describe('#util/generalPurposeFunctions', () => {
+describe('#generalPurposeFunctions/fileIngestion', () => {
   const clientId = 'testClientId';
   const modelId = 'testModelId';
   const tableName = 'testTableName';
   context('getFullTableName', () => {
     it('will return the full table name', () => {
-      const fileName = generalPurposeFunctions.getFullTableName(
+      const fileName = fileIngestionFunctions.getFullTableName(
         clientId,
         modelId,
         tableName
@@ -18,14 +18,14 @@ describe('#util/generalPurposeFunctions', () => {
 
   context('getViewName', () => {
     it('will return the viewName', () => {
-      const viewName = generalPurposeFunctions.getViewName(clientId, modelId);
+      const viewName = fileIngestionFunctions.getViewName(clientId, modelId);
       assert.isNotEmpty(viewName);
     });
   });
 
   context('getTableCsvPath', () => {
     it('will get the csv file path', () => {
-      const path = generalPurposeFunctions.getTableCsvPath(
+      const path = fileIngestionFunctions.getTableCsvPath(
         clientId,
         modelId,
         tableName
@@ -36,7 +36,7 @@ describe('#util/generalPurposeFunctions', () => {
 
   context('getTableParquetPath', () => {
     it('will get the prquet file path', () => {
-      const path = generalPurposeFunctions.getTableParquetPath(
+      const path = fileIngestionFunctions.getTableParquetPath(
         clientId,
         modelId,
         tableName
@@ -48,9 +48,9 @@ describe('#util/generalPurposeFunctions', () => {
   context('getArchiveFilePath', () => {
     it('will get the archived file path', () => {
       const key =
-        generalPurposeFunctions.getTableCsvPath(clientId, modelId, tableName) +
+        fileIngestionFunctions.getTableCsvPath(clientId, modelId, tableName) +
         'file.csv';
-      const path = generalPurposeFunctions.getArchiveFilePath(
+      const path = fileIngestionFunctions.getArchiveFilePath(
         clientId,
         modelId,
         key,

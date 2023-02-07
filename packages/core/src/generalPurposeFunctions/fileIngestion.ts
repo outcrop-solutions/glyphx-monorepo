@@ -1,4 +1,4 @@
-import {generalPurposeFunctions as coreFunctions} from '@glyphx/core';
+import * as fileIngestionFunctions from './strings';
 
 export function getFullTableName(
   clientId: string,
@@ -32,7 +32,7 @@ export function getArchiveFilePath(
   key: string,
   timestamp: string
 ): string {
-  const deconstructedFilePath = coreFunctions.string.deconstructFilePath(key);
+  const deconstructedFilePath = fileIngestionFunctions.deconstructFilePath(key);
   const src = deconstructedFilePath.pathParts[2];
   const tableName = deconstructedFilePath.pathParts[3];
   const fileName = deconstructedFilePath.fileName;

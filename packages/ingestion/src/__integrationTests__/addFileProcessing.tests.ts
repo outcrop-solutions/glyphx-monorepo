@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {aws} from '@glyphx/core';
+import {aws, generalPurposeFunctions} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
@@ -7,7 +7,6 @@ import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 import {Initializer, projectService, dbConnection} from '@glyphx/business';
 import {v4} from 'uuid';
-import * as sharedFunctions from '../util/generalPurposeFunctions';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_PROJECT = {
@@ -52,7 +51,10 @@ describe('#fileProcessing', () => {
       clientId = addFilesJson.payload.clientId;
       modelId = addFilesJson.payload.modelId;
       testDataDirectory = addFilesJson.testDataDirectory;
-      viewName = sharedFunctions.getViewName(clientId, modelId);
+      viewName = generalPurposeFunctions.fileIngestion.getViewName(
+        clientId,
+        modelId
+      );
 
       assert.isNotEmpty(bucketName);
       assert.isNotEmpty(databaseName);
