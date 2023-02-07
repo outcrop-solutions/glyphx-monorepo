@@ -1,9 +1,10 @@
 import {logging} from '@glyphx/core';
-import connection from './lib/databaseConnection';
-
+import databaseConnection from 'lib/databaseConnection';
+import athenaConnection from 'lib/athenaConnection';
 export class Initializer {
   public static async init() {
     await logging.Logger.init();
-    await connection.init();
+    await databaseConnection.init();
+    await athenaConnection.init();
   }
 }

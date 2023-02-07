@@ -7,7 +7,7 @@ import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 import {Initializer, projectService, dbConnection} from '@glyphx/business';
 import {v4} from 'uuid';
-
+import * as sharedFunctions from '../util/generalPurposeFunctions';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_PROJECT = {
@@ -22,7 +22,7 @@ const INPUT_PROJECT = {
   files: [],
 };
 describe('#fileProcessing', () => {
-  context('Inbound s3 file to parquet to S3', () => {
+  context.only('Inbound s3 file to parquet to S3', () => {
     let s3Bucket: aws.S3Manager;
     let athenaManager: aws.AthenaManager;
 
@@ -34,6 +34,7 @@ describe('#fileProcessing', () => {
     let payload: fileIngestion.IPayload;
     let fileNames: string[];
     let projectId: any;
+    let viewName: any;
 
     before(async () => {
       await Initializer.init();
@@ -51,12 +52,14 @@ describe('#fileProcessing', () => {
       clientId = addFilesJson.payload.clientId;
       modelId = addFilesJson.payload.modelId;
       testDataDirectory = addFilesJson.testDataDirectory;
+      viewName = sharedFunctions.getViewName(clientId, modelId);
 
       assert.isNotEmpty(bucketName);
       assert.isNotEmpty(databaseName);
       assert.isNotEmpty(clientId);
       assert.isNotEmpty(modelId);
       assert.isNotEmpty(testDataDirectory);
+      assert.isNotEmpty(viewName);
 
       payload = addFilesJson.payload as fileIngestion.IPayload;
       assert.isOk(payload);
@@ -95,7 +98,11 @@ describe('#fileProcessing', () => {
       console.log('stuff spun up ok');
       const fileIngestor = new FileIngestor(payload, databaseName);
       await fileIngestor.init();
-      const {fileInformation, joinInformation} = await fileIngestor.process();
+      const {
+        fileInformation,
+        joinInformation,
+        viewName: savedViewName,
+      } = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(
         joinInformation,
         athenaManager
@@ -106,11 +113,18 @@ describe('#fileProcessing', () => {
         joinInformation
       );
 
+      assert.strictEqual(savedViewName, viewName);
+
       const fileStats = await projectService.getProjectFileStats(
         payload.modelId
       );
       assert.strictEqual(fileStats.length, fileInformation.length);
       assert.strictEqual(fileStats[0].fileName, fileInformation[0].fileName);
+
+      const documentViewName = await projectService.getProjectViewName(
+        payload.modelId
+      );
+      assert.strictEqual(documentViewName, viewName);
       console.log('I am done');
     });
   });

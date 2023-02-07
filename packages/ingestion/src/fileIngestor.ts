@@ -366,6 +366,7 @@ export class FileIngestor {
       if (
         fileInformation.operation === fileIngestion.constants.FILE_OPERATION.ADD
       ) {
+        //1. Adding a table starts at rowid = 0
         await this.addTable(
           fileInformation.tableName,
           fileInformation.fileName,
@@ -376,6 +377,7 @@ export class FileIngestor {
         fileInformation.operation ===
         fileIngestion.constants.FILE_OPERATION.APPEND
       ) {
+        //2. Appending a file will require that we get the row id.
         await this.appendFile(
           fileInformation.tableName,
           fileInformation.fileName,
@@ -385,6 +387,7 @@ export class FileIngestor {
         fileInformation.operation ===
         fileIngestion.constants.FILE_OPERATION.REPLACE
       ) {
+        //3. Replace will drop and start over so rowid starts at 0
         await this.replaceTable(
           fileInformation.tableName,
           fileInformation.fileName,
@@ -392,6 +395,7 @@ export class FileIngestor {
         );
         viewAffectingOperations = true;
       } else {
+        //4. no need for rowid here.
         await this.deleteTable(fileInformation.tableName);
         viewAffectingOperations = true;
       }
@@ -403,6 +407,7 @@ export class FileIngestor {
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
+    const viewName = sharedFunctions.getViewName(this.clientId, this.modelId);
     const errors: IFileProcessingError[] = await this.reconcileFileInfo();
     if (errors.length) {
       this.processedFileErrorInformation.push(...errors);
@@ -423,6 +428,7 @@ export class FileIngestor {
           fileInfoForReturn = reconFileInformation.allFiles;
           //If we delete all of the tables we will have nothing to create.
           if (fileInfoForReturn.length) {
+            //5. We will need to update the view so that we selct the row id as the rowid from the left most column.
             joinInformation = (await this.basicAthenaProcessor?.processTables(
               sharedFunctions.getViewName(this.clientId, this.modelId),
               reconFileInformation.accumFiles
@@ -434,10 +440,10 @@ export class FileIngestor {
         processingResults = this.processedFileErrorInformation.length
           ? FILE_PROCESSING_STATUS.WARNING
           : FILE_PROCESSING_STATUS.OK;
-        await projectService.updateProjectFileStats(
-          this.modelId,
-          fileInfoForReturn
-        );
+        await projectService.updateProject(this.modelId, {
+          files: fileInfoForReturn,
+          viewName: viewName,
+        });
       } catch (err) {
         const message = `An unexpected error occurred while processing the files.  See the inner errors for additional information: ${err}`;
         this.processedFileErrorInformation.push({
@@ -459,6 +465,7 @@ export class FileIngestor {
       fileProcessingErrors: this.processedFileErrorInformation,
       joinInformation: joinInformation,
       status: processingResults,
+      viewName: viewName,
     };
   }
 }

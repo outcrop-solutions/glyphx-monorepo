@@ -13,6 +13,7 @@ import {
   IFileInformation,
   IFileProcessingError,
 } from '@interfaces/fileProcessing';
+import {tableService} from '@glyphx/business';
 
 export class FileUploadManager {
   private static creatBaseStream(fileStream: Readable) {
@@ -40,11 +41,11 @@ export class FileUploadManager {
     splitStream: streams.ForkingStream,
     s3Manager: aws.S3Manager,
     processedFileInformation: IFileInformation,
-    processedFileErrorInformation: IFileProcessingError[]
+    processedFileErrorInformation: IFileProcessingError[],
+    startingRowId: number
   ) {
     const fileTransformer = new BasicFileTransformer(
       fileName,
-      999999,
       parquetFileName,
       parquetPath,
       tableName,
@@ -65,7 +66,8 @@ export class FileUploadManager {
         processedFileErrorInformation.push(input);
       },
       BasicFieldTypeCalculator,
-      BasicColumnNameCleaner
+      BasicColumnNameCleaner,
+      startingRowId
     );
     const parquetWriter = new BasicParquetProcessor();
     const passThrough2 = new PassThrough();
@@ -133,6 +135,10 @@ export class FileUploadManager {
 
     const processedFileInformation: IFileInformation = {} as IFileInformation;
     const processedFileErrorInformation: IFileProcessingError[] = [];
+    const startingRowId =
+      fileOperationType !== fileIngestion.constants.FILE_OPERATION.APPEND
+        ? 0
+        : await FileUploadManager.getMaxRowId(clientId, modelId, tableName);
     const {parquetUpload} = FileUploadManager.createParquetStream(
       fileName,
       parquetFileName,
@@ -142,7 +148,8 @@ export class FileUploadManager {
       splitStream,
       s3Manager,
       processedFileInformation,
-      processedFileErrorInformation
+      processedFileErrorInformation,
+      startingRowId
     );
 
     splitStream.startPipeline();
@@ -160,5 +167,19 @@ export class FileUploadManager {
       fileInformation: processedFileInformation,
       errorInformation: processedFileErrorInformation,
     };
+  }
+
+  static async getMaxRowId(
+    clientId: string,
+    modelId: string,
+    tableName: string
+  ): Promise<number> {
+    const fullTableName = sharedFunctions.getFullTableName(
+      clientId,
+      modelId,
+      tableName
+    );
+    const maxRowId = await tableService.getMaxRowId(fullTableName);
+    return maxRowId;
   }
 }

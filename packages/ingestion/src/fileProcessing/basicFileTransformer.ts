@@ -14,6 +14,8 @@ import {fileIngestion} from '@glyphx/types';
  * initialize that stream and then push out all of our saved objects.
  */
 
+export const GLYPHX_ID_COLUMN_NAME = 'glyphx_id__';
+
 /**
  * An internal interface that is used to store infomation about he discovererd columns.
  */
@@ -63,6 +65,10 @@ export class BasicFileTransformer extends Transform {
   private rowNumber: number;
 
   /**
+   * The beginning value for the rowId
+   */
+  private begRowNumber: number;
+  /**
    * The name of the file that we are processing.  Only stored here so that it can
    * be reported back out though a callback.
    */
@@ -88,7 +94,7 @@ export class BasicFileTransformer extends Transform {
    * The size of the input file on disk.  Only stored here so that it can be
    * reported back out through a callback.
    */
-  private readonly fileSize: number;
+  private fileSize: number;
 
   /**
    * The file operation for this transformer.  Only stored here so that it can be
@@ -151,7 +157,6 @@ export class BasicFileTransformer extends Transform {
    */
   constructor(
     fileName: string,
-    fileSize: number,
     outputFileName: string,
     outputDirectory: string,
     tableName: string,
@@ -160,6 +165,7 @@ export class BasicFileTransformer extends Transform {
     errorCallback: fileProcessingInterfaces.FileProcessingErrorHandler,
     fieldTypeCalculator: fieldProcessingInterfaces.IConstructableFieldTypeCalculator,
     columnNameCleaner: fileProcessingInterfaces.IConstructableColumnNameCleaner,
+    begRowNumber: number,
     sampleSize = 100
   ) {
     super({objectMode: true});
@@ -169,7 +175,7 @@ export class BasicFileTransformer extends Transform {
     this.outputFileName = outputFileName;
     this.tableName = tableName;
     this.fileOperation = fileOperation;
-    this.fileSize = fileSize;
+    this.fileSize = 0;
     this.callback = callback;
     this.errorCallback = errorCallback;
     this.fieldTypeCalculator = fieldTypeCalculator;
@@ -177,6 +183,7 @@ export class BasicFileTransformer extends Transform {
 
     this.hasMetInitialSample = false;
     this.rowNumber = 0;
+    this.begRowNumber = begRowNumber;
     this.savedRows = [];
     this.columTypeTrackers = [];
     //TODO: should these be injected/constructable?
@@ -193,6 +200,24 @@ export class BasicFileTransformer extends Transform {
    * Puts the data together for the callback
    */
   private getDataForCallback(): fileProcessingInterfaces.IFileInformation {
+    const columns = this.columTypeTrackers.map(c => {
+      return {
+        name: c.columnName,
+        origionalName: c.origionalColumnName,
+        fieldType: c.fieldTypeCalculator.fieldType,
+        longestString:
+          c.fieldTypeCalculator.fieldType ===
+          fileIngestion.constants.FIELD_TYPE.STRING
+            ? c.maxFieldLength
+            : undefined,
+      };
+    });
+    columns.unshift({
+      name: GLYPHX_ID_COLUMN_NAME,
+      origionalName: GLYPHX_ID_COLUMN_NAME,
+      fieldType: fileIngestion.constants.FIELD_TYPE.INTEGER,
+      longestString: undefined,
+    });
     return {
       fileName: this.fileName,
       parquetFileName: this.outputFileName,
@@ -200,18 +225,7 @@ export class BasicFileTransformer extends Transform {
       tableName: this.tableName,
       numberOfRows: this.rowNumber,
       numberOfColumns: this.columTypeTrackers.length,
-      columns: this.columTypeTrackers.map(c => {
-        return {
-          name: c.columnName,
-          origionalName: c.origionalColumnName,
-          fieldType: c.fieldTypeCalculator.fieldType,
-          longestString:
-            c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.STRING
-              ? c.maxFieldLength
-              : undefined,
-        };
-      }),
+      columns: columns,
       fileSize: this.fileSize,
       fileOperationType: this.fileOperation,
     };
@@ -260,6 +274,12 @@ export class BasicFileTransformer extends Transform {
    */
   private buildParquertSchema(): Record<string, unknown> {
     const retval: Record<string, unknown> = {};
+    //Add our glyphxId to the parquet schema
+    retval[GLYPHX_ID_COLUMN_NAME] = {
+      type: 'INT64',
+      encoding: 'PLAIN',
+      optional: false,
+    };
     this.columTypeTrackers.forEach(c => {
       retval[c.columnName] = {
         type:
@@ -283,7 +303,6 @@ export class BasicFileTransformer extends Transform {
    * @param chunk - or object to be cleaned.
    */
   private cleanRow(chunk: any): Record<string, unknown> {
-    this.rowNumber++;
     const retval: Record<string, unknown> = {};
     let columnIndex = 0;
     for (const key in chunk) {
@@ -322,6 +341,9 @@ export class BasicFileTransformer extends Transform {
       retval[fieldTypeCalculator?.columnName ?? key] = value;
       columnIndex++;
     }
+    //Add a custom id for datalookup.
+    retval[GLYPHX_ID_COLUMN_NAME] = this.begRowNumber + this.rowNumber;
+    this.rowNumber++;
 
     return retval;
   }
@@ -386,7 +408,8 @@ export class BasicFileTransformer extends Transform {
       this.sendSavedRows();
       this.hasMetInitialSample = true;
     }
-
+    const objectSize = JSON.stringify(chunk).length;
+    this.fileSize += objectSize;
     if (!this.hasMetInitialSample) {
       this.checkFieldType(chunk);
       callback();

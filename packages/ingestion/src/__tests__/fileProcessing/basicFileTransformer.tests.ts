@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {BasicFileTransformer, BasicColumnNameCleaner} from '@fileProcessing';
 import {BasicFieldTypeCalculator} from 'fieldProcessing';
@@ -6,12 +7,12 @@ import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 import {Writable, Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import {fileIngestion} from '@glyphx/types';
+import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 
 describe('#fileProcessing/basicFileTransformer', () => {
   context('basic processing', () => {
     it('should process 1000 objects and return correct types and information', async () => {
       const fileName = 'testFileName';
-      const fileSize = 99999;
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
@@ -21,14 +22,14 @@ describe('#fileProcessing/basicFileTransformer', () => {
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
         fileIngestion.constants.FILE_OPERATION.ADD,
         (info: fileProcessingInterfaces.IFileInformation) => {
           assert.strictEqual(info.fileName, fileName);
-          assert.strictEqual(info.fileSize, fileSize);
+          //just make sure this is not 0
+          assert.isAtLeast(info.fileSize, 10);
           assert.strictEqual(info.tableName, tableName);
           assert.strictEqual(info.parquetFileName, outputFileName);
           assert.strictEqual(info.outputFileDirecotry, outputDirectory);
@@ -39,18 +40,28 @@ describe('#fileProcessing/basicFileTransformer', () => {
             fileIngestion.constants.FILE_OPERATION.ADD
           );
 
-          assert.strictEqual(info.columns[0].name, 'name');
-          assert.strictEqual(info.columns[0].origionalName, 'name');
+          assert.strictEqual(info.columns[0].name, GLYPHX_ID_COLUMN_NAME);
+          assert.strictEqual(
+            info.columns[0].origionalName,
+            GLYPHX_ID_COLUMN_NAME
+          );
           assert.strictEqual(
             info.columns[0].fieldType,
-            fileIngestion.constants.FIELD_TYPE.STRING
+            fileIngestion.constants.FIELD_TYPE.NUMBER
           );
-          assert.strictEqual(info.columns[0].longestString, 8);
 
-          assert.strictEqual(info.columns[1].name, 'value');
-          assert.strictEqual(info.columns[1].origionalName, 'value');
+          assert.strictEqual(info.columns[1].name, 'name');
+          assert.strictEqual(info.columns[1].origionalName, 'name');
           assert.strictEqual(
             info.columns[1].fieldType,
+            fileIngestion.constants.FIELD_TYPE.STRING
+          );
+          assert.strictEqual(info.columns[1].longestString, 8);
+
+          assert.strictEqual(info.columns[2].name, 'value');
+          assert.strictEqual(info.columns[2].origionalName, 'value');
+          assert.strictEqual(
+            info.columns[2].fieldType,
             fileIngestion.constants.FIELD_TYPE.NUMBER
           );
           done = true;
@@ -60,7 +71,8 @@ describe('#fileProcessing/basicFileTransformer', () => {
           hasErrors = true;
         },
         BasicFieldTypeCalculator,
-        BasicColumnNameCleaner
+        BasicColumnNameCleaner,
+        100
       );
       const readStream = new Readable({
         objectMode: true,
@@ -80,6 +92,12 @@ describe('#fileProcessing/basicFileTransformer', () => {
           objectMode: true,
           write: (chunk, encoding, callback) => {
             if (firstRow) {
+              assert.isDefined(chunk[GLYPHX_ID_COLUMN_NAME]);
+              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME].type, 'INT64');
+              assert.strictEqual(
+                chunk[GLYPHX_ID_COLUMN_NAME].encoding,
+                'PLAIN'
+              );
               assert.isDefined(chunk.name);
               assert.strictEqual(chunk.name.type, 'UTF8');
               assert.strictEqual(chunk.name.encoding, 'PLAIN');
@@ -90,9 +108,10 @@ describe('#fileProcessing/basicFileTransformer', () => {
               assert.isTrue(chunk.value.optional);
               firstRow = false;
             } else {
-              seenRows++;
+              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], 100 + seenRows);
               assert.isString(chunk.name);
               assert.isNumber(chunk.value);
+              seenRows++;
             }
             callback();
           },
@@ -107,13 +126,11 @@ describe('#fileProcessing/basicFileTransformer', () => {
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
-      const fileSize = 99999;
       const numberOfRows = 10;
       let hasErrors = false;
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
@@ -126,7 +143,8 @@ describe('#fileProcessing/basicFileTransformer', () => {
           hasErrors = true;
         },
         BasicFieldTypeCalculator,
-        BasicColumnNameCleaner
+        BasicColumnNameCleaner,
+        0
       );
       const readStream = new Readable({
         objectMode: true,
@@ -145,6 +163,8 @@ describe('#fileProcessing/basicFileTransformer', () => {
         new Writable({
           objectMode: true,
           write: (chunk, encoding, callback) => {
+            if (seenRows >= 0)
+              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], seenRows);
             seenRows++;
             callback();
           },
@@ -160,13 +180,11 @@ describe('#fileProcessing/basicFileTransformer', () => {
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
-      const fileSize = 99999;
       const numberOfRows = 100;
       let hasErrors = false;
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
@@ -179,7 +197,8 @@ describe('#fileProcessing/basicFileTransformer', () => {
           hasErrors = true;
         },
         BasicFieldTypeCalculator,
-        BasicColumnNameCleaner
+        BasicColumnNameCleaner,
+        63
       );
       const readStream = new Readable({
         objectMode: true,
@@ -198,6 +217,8 @@ describe('#fileProcessing/basicFileTransformer', () => {
         new Writable({
           objectMode: true,
           write: (chunk, encoding, callback) => {
+            if (seenRows >= 0)
+              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], 63 + seenRows);
             seenRows++;
             callback();
           },
@@ -213,13 +234,11 @@ describe('#fileProcessing/basicFileTransformer', () => {
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
       const tableName = fileName;
-      const fileSize = 99999;
       const numberOfRows = 123;
       let hasErrors = false;
       let done = false;
       const fileTransformer = new BasicFileTransformer(
         fileName,
-        fileSize,
         outputFileName,
         outputDirectory,
         tableName,
@@ -232,7 +251,8 @@ describe('#fileProcessing/basicFileTransformer', () => {
           hasErrors = true;
         },
         BasicFieldTypeCalculator,
-        BasicColumnNameCleaner
+        BasicColumnNameCleaner,
+        0
       );
       const readStream = new Readable({
         objectMode: true,
@@ -251,6 +271,8 @@ describe('#fileProcessing/basicFileTransformer', () => {
         new Writable({
           objectMode: true,
           write: (chunk, encoding, callback) => {
+            if (seenRows >= 0)
+              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], seenRows);
             seenRows++;
             callback();
           },
@@ -270,14 +292,12 @@ describe('#fileProcessing/basicFileTransformer', () => {
         const outputFileName = `${fileName}.parquet`;
         const outputDirectory = 'dir1/';
         const tableName = fileName;
-        const fileSize = 99999;
         const numberOfRows = 100;
         let hasErrors = false;
         let numberOfErrors = 0;
         let done = false;
         const fileTransformer = new BasicFileTransformer(
           fileName,
-          fileSize,
           outputFileName,
           outputDirectory,
           tableName,
@@ -295,11 +315,12 @@ describe('#fileProcessing/basicFileTransformer', () => {
               err.errorType,
               FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
             );
-            assert.isAtLeast(err.rowIndex ?? -1, 11);
+            assert.isAtLeast(err.rowIndex ?? -1, 10);
             assert.isAtMost(err.rowIndex ?? -1, 60);
           },
           BasicFieldTypeCalculator,
           BasicColumnNameCleaner,
+          0,
           10
         );
         const readStream = new Readable({

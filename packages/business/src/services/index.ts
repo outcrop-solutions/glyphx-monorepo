@@ -1,4 +1,5 @@
 export {ProjectService as projectService} from './project';
+export {TableService as tableService} from './table';
 import {createPaymentAccount, getPayment, updateSubscription} from './customer';
 import {
   getMember,

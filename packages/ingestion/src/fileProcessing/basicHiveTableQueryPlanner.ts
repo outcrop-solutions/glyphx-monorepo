@@ -80,7 +80,9 @@ export class BasicHiveTableQueryPlanner implements ITableQueryPlanner {
             ? `varchar(${
                 (c.columnLength ?? -1) > 65535 ? 65535 : c.columnLength ?? 100
               })`
-            : 'double'
+            : c.columnType === fileIngestion.constants.FIELD_TYPE.NUMBER
+            ? 'double'
+            : 'bigint'
         }`;
       })
       .join(',\n');

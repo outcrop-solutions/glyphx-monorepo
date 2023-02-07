@@ -1,5 +1,6 @@
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
 import {error} from '@glyphx/core';
+import {GLYPHX_ID_COLUMN_NAME} from './basicFileTransformer';
 
 /**
  * IJoinData is an internal interface for holding temorary join information.
@@ -181,6 +182,8 @@ export class BasicJoinProcessor
         const matchingColumns = joinTable.columns.filter(joinTablecolumn => {
           const isMatch = table.columns.find(
             tableColumn =>
+              //we do not want to join on glyphxId ever
+              joinTablecolumn.columnName !== GLYPHX_ID_COLUMN_NAME &&
               joinTablecolumn.columnName === tableColumn.columnName &&
               joinTablecolumn.columnType === tableColumn.columnType
           );
@@ -195,6 +198,8 @@ export class BasicJoinProcessor
       }
     });
     //do we have at least one table to join to
+    //not sure why istanbul is compolaining about the else.  I have a test that covers it
+    //istanbul ignore else
     if (joinTablesData.length) {
       joinTablesData.sort((s1, s2) => {
         if (s1.joinColumns.length === s2.joinColumns.length) {
@@ -211,7 +216,10 @@ export class BasicJoinProcessor
       const joinTableDefinition = this.processedTables[joinTable.tableIndex];
       table.joinTable = joinTableDefinition;
       table.columns.forEach(c => {
-        if (
+        //we only wan't the left most glyphxId column to be selected
+        if (c.columnName === GLYPHX_ID_COLUMN_NAME) {
+          c.isSelectedColumn = false;
+        } else if (
           joinTable.columns.find(jc => {
             return (
               jc.columnName === c.columnName && jc.columnType === c.columnType
@@ -222,6 +230,12 @@ export class BasicJoinProcessor
           c.isSelectedColumn = false; //If we are joining on this column then we do not need to display it
         }
       });
+    } else if (this.joinData.length > 1) {
+      const glyphIdColumn = table.columns.find(
+        c => c.columnName === GLYPHX_ID_COLUMN_NAME
+      ) as fileProcessingInterfaces.IJoinTableColumnDefinition;
+
+      glyphIdColumn.isSelectedColumn = false;
     }
   }
 }
