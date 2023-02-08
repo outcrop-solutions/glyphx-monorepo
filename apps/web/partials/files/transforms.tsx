@@ -12,7 +12,6 @@ import { IFileSystemItem, S3ProviderListOutput, RenderableDataGrid, IMatchingFil
  */
 export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | null): IFileSystemItem[] | any[] => {
   let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
-    // @ts-ignore
     id: idx + fileSystem.length + 1,
     parent: 0,
     droppable: false,
@@ -91,10 +90,9 @@ export const formatGridData = (data): RenderableDataGrid => {
     };
   });
   // Generates first column
-  // @ts-ignore
-  cols.unshift({ key: 'id', name: '', width: 40, resizable: true });
+  cols.unshift({ key: 'id', dataType: FIELD_TYPE.NUMBER, name: '', width: 40, resizable: true, sortable: true });
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
-  // @ts-ignore
+
   return { columns: cols, rows };
 };
 

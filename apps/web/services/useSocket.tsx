@@ -38,7 +38,7 @@ export const useSocket = () => {
     };
     socket.onopen = function () {
       console.log('WebSocket connected, setting up QWebChannel.');
-      // @ts-ignore
+
       new QWebChannel(socket, function (channel) {
         // console.log({channel});
 

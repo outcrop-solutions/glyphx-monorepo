@@ -1,6 +1,7 @@
 import 'styles/globals.css';
 import { useEffect, useState } from 'react';
 import type { AppProps } from 'next/app';
+import { Session } from 'next-auth';
 import Router, { useRouter } from 'next/router';
 import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from 'next-themes';
@@ -50,9 +51,12 @@ window.core = window.core || {};
 // global.console = mutedConsole(global.console);
 
 // NEXT-AUTH ENABLED VERSION
-// export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
-
-export default function App({ Component, pageProps: { ...pageProps } }: AppProps) {
+export default function App({
+  Component,
+  pageProps,
+}: AppProps<{
+  session: Session;
+}>) {
   const [progress, setProgress] = useState(false);
   const router = useRouter();
   const swrOptions = swrConfig();
@@ -80,7 +84,6 @@ export default function App({ Component, pageProps: { ...pageProps } }: AppProps
   }, [router.events]);
 
   return (
-    // @ts-ignore
     <SessionProvider session={pageProps.session}>
       <SWRConfig value={swrOptions}>
         <ThemeProvider attribute="class">

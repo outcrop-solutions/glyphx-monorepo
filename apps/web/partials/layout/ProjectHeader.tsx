@@ -55,7 +55,6 @@ export const ProjectHeader = () => {
     ]);
     try {
       //close glyph viewer
-      //@ts-ignore
       window?.core.CloseModel();
     } catch (error) {
       // do nothng

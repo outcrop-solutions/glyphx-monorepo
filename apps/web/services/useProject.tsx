@@ -114,7 +114,6 @@ export const useProject = () => {
           if (isPropsValid) {
             try {
               //hide existing model
-              // @ts-ignore
               window?.core.ToggleDrawer(false);
             } catch (error) {}
 

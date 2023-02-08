@@ -78,9 +78,9 @@ const General = ({ isTeamOwner, workspace }) => {
   return (
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace.name} | Settings`} />
-      <Content.Title title="Workspace Information" subtitle="Manage your workspace details and information" />   
+      <Content.Title title="Workspace Information" subtitle="Manage your workspace details and information" />
       <Content.Divider />
-      <Content.Container> 
+      <Content.Container>
         <Card>
           <Card.Body title="Workspace Name" subtitle="Used to identify your Workspace on the Dashboard">
             <input
@@ -129,7 +129,7 @@ const General = ({ isTeamOwner, workspace }) => {
               </Button>
             )}
           </Card.Footer>
-        </Card> 
+        </Card>
         <Card>
           <Card.Body title="Workspace ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
@@ -151,12 +151,9 @@ export const getServerSideProps = async (context) => {
   let workspace = null;
 
   if (session) {
-    // @ts-ignore
     workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
-
     if (workspace) {
-      // @ts-ignore
-      isTeamOwner = isWorkspaceOwner(session?.user?.email, workspace);
+      isTeamOwner = await isWorkspaceOwner(session?.user?.email, workspace);
     }
   }
 

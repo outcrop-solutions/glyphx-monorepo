@@ -111,11 +111,8 @@ export const getServerSideProps = async (context) => {
   let isCreator = false;
 
   if (session) {
-    // @ts-ignore
     const workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
-
-    // @ts-ignore
-    isCreator = isWorkspaceCreator(session?.user?.userId, workspace.creatorId);
+    isCreator = await isWorkspaceCreator(session?.user?.userId, workspace.creatorId);
   }
 
   return { props: { isCreator } };

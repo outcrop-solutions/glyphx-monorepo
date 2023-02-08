@@ -14,7 +14,6 @@ export const States = () => {
   const [isCollapsed, setCollapsed] = useState(false);
 
   // useEffect(() => {
-  //   // @ts-ignore
   //   if (window && window?.core) {
   //     //window.core.SendCameraPosition.connect(async function (message) {
   //       const createStateInput = {

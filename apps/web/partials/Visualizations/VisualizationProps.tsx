@@ -12,7 +12,6 @@ export const VisualizationProps = () => {
   const [states, setStates] = useRecoilState(statesSelector);
 
   // useEffect(() => {
-  //   // @ts-ignore
   //   if (window && window?.core) {
   //     //window.core.SendCameraPosition.connect(async function (message) {
   //       const createStateInput = {

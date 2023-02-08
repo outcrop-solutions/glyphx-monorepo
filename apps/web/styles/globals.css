@@ -151,10 +151,10 @@ div[aria-colindex="1"] {
   @apply bg-secondary-dark-blue;
 }
 
-div[formattype="string"] {
+div[data-type="string"] {
   @apply bg-blue text-white rounded text-center w-32;
 }
-div[formattype="number"] {
+div[data-type="number"] {
   @apply bg-cyan text-white rounded text-center w-32;
 }
 div[datatype="string"] {

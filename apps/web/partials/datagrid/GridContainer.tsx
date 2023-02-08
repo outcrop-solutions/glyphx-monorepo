@@ -15,8 +15,6 @@ import {
   showNotificationAtom,
 } from 'state';
 
-
-
 export const GridContainer = ({ isDropped }) => {
   const rows = useRecoilValue(rowsSelector);
   const cols = useRecoilValue(columnsSelector);
@@ -43,7 +41,6 @@ export const GridContainer = ({ isDropped }) => {
     doResize(size);
     try {
       //show glyph viewer
-      //@ts-ignore
       window?.core.ToggleDrawer(true);
     } catch (error) {}
   }
@@ -54,7 +51,6 @@ export const GridContainer = ({ isDropped }) => {
 
   function doResize(size) {
     try {
-      //@ts-ignore
       // window?.core.ToggleDrawer(true);
       if (orientation === 'horizontal') {
         var yValue = size + Math.abs(Math.round(window.innerHeight * 0.882) - 700);
@@ -63,8 +59,6 @@ export const GridContainer = ({ isDropped }) => {
         if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
           leftSide = leftSide - 250;
         }
-
-        //@ts-ignore
         window?.core.ResizeEvent(
           JSON.stringify({
             filterSidebar: {
@@ -83,7 +77,6 @@ export const GridContainer = ({ isDropped }) => {
         if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
           leftSide = leftSide - 250;
         }
-        // @ts-ignore
         window?.core.ResizeEvent(
           JSON.stringify({
             filterSidebar: {
@@ -141,7 +134,6 @@ export const GridContainer = ({ isDropped }) => {
         <>
           {stdName !== null ? (
             <div className="">
-              {/* @ts-ignore */}
               <SplitPane
                 split={orientation === 'horizontal' ? 'horizontal' : 'vertical'}
                 allowResize={true}
