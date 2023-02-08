@@ -1,6 +1,7 @@
 import {validationResult} from 'express-validator';
 
-export async function validateMiddleware(validations) {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const validateMiddleware = validations => {
   return async (req, res, next) => {
     await Promise.all(validations.map(validation => validation.run(req)));
     const errors = validationResult(req);
@@ -13,4 +14,6 @@ export async function validateMiddleware(validations) {
     errors.array().forEach(error => (errorObject[error.param] = error));
     res.status(422).json({errors: errorObject});
   };
-}
+};
+
+export default validateMiddleware;

@@ -3,22 +3,21 @@
     "selected": 1,
     "workspacePrefix": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo"
   },
-  "1 info pnpm": {
-    "err": {
-      "name": "Error",
-      "message": "not found: io",
-      "code": "ENOENT",
-      "stack": "Error: not found: io\n    at getNotFoundError (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:21148:51)\n    at Function.whichSync [as sync] (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:21225:13)\n    at getCommandAbsolutePathSync (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:22903:44)\n    at default_1 (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:22912:32)\n    at /Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:184716:39"
-    }
-  },
-  "2 error pnpm": {
-    "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
-    "prefix": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo",
+  "1 error pnpm": {
+    "code": "ELIFECYCLE",
+    "errno": "ENOENT",
+    "syscall": "spawn",
+    "file": "sh",
+    "pkgid": "@glyphx/monorepo@",
+    "stage": "dev",
+    "script": "dotenv -- turbo dev",
+    "pkgname": "@glyphx/monorepo",
     "err": {
       "name": "pnpm",
-      "message": "not found: io",
-      "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
-      "stack": "Error: not found: io\n    at getNotFoundError (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:21148:51)\n    at Function.whichSync [as sync] (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:21225:13)\n    at getCommandAbsolutePathSync (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:22903:44)\n    at default_1 (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:22912:32)\n    at /Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:184716:39"
+      "message": "@glyphx/monorepo@ dev: `dotenv -- turbo dev`\nspawn ENOENT",
+      "code": "ELIFECYCLE",
+      "stack": "pnpm: @glyphx/monorepo@ dev: `dotenv -- turbo dev`\nspawn ENOENT\n    at ChildProcess.<anonymous> (/Users/jamesmurdockgraham/Library/pnpm/global/5/.pnpm/pnpm@7.5.0/node_modules/pnpm/dist/pnpm.cjs:95169:22)\n    at ChildProcess.emit (node:events:513:28)\n    at maybeClose (node:internal/child_process:1091:16)\n    at ChildProcess._handle.onexit (node:internal/child_process:302:5)"
     }
-  }
+  },
+  "2 warn pnpm:global": " Local package.json exists, but node_modules missing, did you mean to install?"
 }

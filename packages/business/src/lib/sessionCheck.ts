@@ -1,6 +1,6 @@
 import {getSession} from 'next-auth/react';
 
-export async function validateSessionMiddleware() {
+export function validateSessionMiddleware() {
   return async (req, res, next) => {
     const session = await getSession({req});
     const errors = [];

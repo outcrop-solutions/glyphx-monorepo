@@ -59,7 +59,7 @@ const Welcome = () => {
   return (
     <AccountLayout>
       <Meta title="Glyphx - Dashboard" />
-      <Content.Title title="Glyphx Dashboard" subtitle="Start building SaaS platforms in a day" />
+      <Content.Title title="Glyphx Dashboard" subtitle="Start 3D modeling today!" />
       {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
