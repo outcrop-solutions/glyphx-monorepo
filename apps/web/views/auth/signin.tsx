@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-// import { Auth } from 'aws-amplify';
 
 export default function Signin() {
   const [username, setUsername] = useState('');
