@@ -1,5 +1,3 @@
-// eslint-disable-next-line node/no-extraneous-import
-import {InvitationStatus, Role} from '@prisma/client';
 import slugify from 'slugify';
 
 import {
@@ -11,6 +9,7 @@ import {
   inviteText,
 } from '@glyphx/email';
 import {prisma} from '@glyphx/database';
+import {database} from '@glyphx/types';
 
 export async function countWorkspaces(slug) {
   return await prisma.workspace.count({
@@ -32,8 +31,8 @@ export async function createWorkspace(creatorId, email, name, slug) {
         create: {
           email,
           inviter: email,
-          status: InvitationStatus.ACCEPTED,
-          teamRole: Role.OWNER,
+          status: database.constants.INVITATION_STATUS.ACCEPTED,
+          teamRole: database.constants.ROLE.OWNER,
         },
       },
       name,
@@ -91,7 +90,7 @@ export async function getOwnWorkspace(id, email, slug) {
           members: {
             some: {
               deletedAt: null,
-              teamRole: Role.OWNER,
+              teamRole: database.constants.ROLE.OWNER,
               email,
             },
           },
@@ -193,7 +192,7 @@ export async function getWorkspaces(id, email) {
             some: {
               email,
               deletedAt: null,
-              status: InvitationStatus.ACCEPTED,
+              status: database.constants.INVITATION_STATUS.ACCEPTED,
             },
           },
         },
@@ -266,7 +265,9 @@ export async function isWorkspaceCreator(id, creatorId) {
 export async function isWorkspaceOwner(email, workspace) {
   let isTeamOwner = false;
   const member = workspace.members.find(
-    member => member.email === email && member.teamRole === Role.OWNER
+    member =>
+      member.email === email &&
+      member.teamRole === database.constants.ROLE.OWNER
   );
 
   if (member) {
@@ -294,7 +295,7 @@ export async function joinWorkspace(workspaceCode, email: string) {
         workspaceId: workspace.id,
         email,
         inviter: workspace.creatorId,
-        status: InvitationStatus.ACCEPTED,
+        status: database.constants.INVITATION_STATUS.ACCEPTED,
       },
       update: {},
       where: {email},

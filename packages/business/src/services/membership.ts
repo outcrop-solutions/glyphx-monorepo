@@ -1,5 +1,4 @@
-//@ts-nocheck
-import {InvitationStatus} from '@prisma/client';
+import {database} from '@glyphx/types';
 import {prisma} from '@glyphx/database';
 // import {database} from '@glyphx/types';
 
@@ -61,7 +60,7 @@ export async function getPendingInvitations(email) {
     where: {
       deletedAt: null,
       email,
-      status: InvitationStatus.PENDING,
+      status: database.constants.INVITATION_STATUS.PENDING,
       workspace: {deletedAt: null},
     },
   });

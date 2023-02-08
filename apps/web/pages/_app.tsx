@@ -22,11 +22,9 @@ import { SuspenseFallback } from '@/partials/fallback';
 
 declare global {
   interface Window {
-    core: any;
+    core: any | undefined;
   }
 }
-
-window.core = window.core || {};
 
 // To safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
@@ -82,6 +80,10 @@ export default function App({
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
+
+  useEffect(() => {
+    window.core = window.core || {};
+  }, []);
 
   return (
     <SessionProvider session={pageProps.session}>

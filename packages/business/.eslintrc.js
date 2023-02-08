@@ -5,6 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
   },
   extends: ['@glyphx/eslint-config-glyphx-backend'],
+  parser: '@typescript-eslint/parser',
   rules: {
     'node/no-unpublished-import': [
       'error',
