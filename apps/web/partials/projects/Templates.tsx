@@ -94,7 +94,6 @@ export const Templates = () => {
       // };
       // router.push(`/project/${result.data.createProject.id}`);
     } catch (error) {
-      console.log({ error });
     }
   };
   return (

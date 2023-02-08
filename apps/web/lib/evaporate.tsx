@@ -16,8 +16,6 @@ const uploadFile = (evaporate) => {
   const addConfig = {
     name: file.name,
     file: file,
-    progress: (progressValue) => console.log('Progress', progressValue),
-    complete: (_xhr, awsKey) => console.log('Complete!'),
   };
 
   /*

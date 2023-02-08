@@ -58,7 +58,6 @@ export const Axes = ({ axis, lastDroppedItem }) => {
     });
 
     // const result = await API.graphql(graphqlOperation(deleteFilter, { input: deleteFilterInput }));
-    // console.log({ result });
   };
 
   function deleteFilter() {

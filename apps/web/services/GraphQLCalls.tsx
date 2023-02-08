@@ -12,11 +12,9 @@ export const updateProjectInfo = async (newProjectState) => {
         // const result = await API.graphql(
         //     graphqlOperation(updateProject, { input: newProjectState })
         // );
-        // console.log({ result });
         // return result;
     } catch (error) {
         // TODO: put error handling in toast
-        console.log({ error });
         return null;
     }
 }

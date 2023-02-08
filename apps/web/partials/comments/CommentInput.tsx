@@ -14,27 +14,6 @@ export const CommentInput = ({ setComments }) => {
     setCommentContent(e.target.value);
   };
 
-  // save comment to DynamoDB
-  // const handleSaveComment = async () => {
-  //   if (typeof activeState !== 'undefined') {
-  //     let commentInput = {
-  //       id: uuid(),
-  //       //@ts-ignore
-  //       author: user ? user.attributes.email : '',
-  //       content: commentContent,
-  //       stateID: activeState,
-  //     };
-  //     try {
-  //       setComments(commentInput);
-  //       setCommentContent('');
-  //       // await API.graphql(
-  //       // graphqlOperation(createComment, { input: commentInput })
-  //       // );
-  //     } catch (error) {
-  //       console.log({ error });
-  //     }
-  //   }
-  // };
   return (
     <div className="relative flex items-center justify-around">
       <input

@@ -118,7 +118,6 @@ export const parseFileStats = async (acceptedFiles): Promise<IFileStats[]> => {
       fileSize: file.size,
     };
   });
-  console.log({ stats });
   return stats;
 };
 

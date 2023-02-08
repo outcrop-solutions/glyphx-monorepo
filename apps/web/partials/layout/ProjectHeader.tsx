@@ -23,7 +23,6 @@ import {
 
 export const ProjectHeader = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
-  // console.log({selectedProject})
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const [isShareOpen, setShare] = useRecoilState(shareOpenAtom);
@@ -91,7 +90,6 @@ export const ProjectHeader = () => {
       //     graphqlOperation(updateProject, { input: updateProjectInput })
       // );
     } catch (error) {
-      console.log({ error });
     }
   };
 

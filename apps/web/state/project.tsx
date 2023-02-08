@@ -17,7 +17,6 @@ export const selectedProjectSelector = selector({
         // };
         // return response.data.getProject;
       } catch (error) {
-        console.log({ error, recoil: 'selectedProjectSelector' });
       }
     } else return null;
   },

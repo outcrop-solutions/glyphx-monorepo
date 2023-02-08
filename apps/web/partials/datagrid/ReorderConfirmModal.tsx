@@ -49,9 +49,7 @@ export const ReorderConfirmModal = () => {
         //   projId: result.data.createProject.id,
         //   projectData: result.data.createProject,
         // };
-      } catch (error) {
-        console.log({ error });
-      }
+      } catch (error) {}
     };
     const copyFiles = async (id) => {
       try {

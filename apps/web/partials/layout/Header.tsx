@@ -84,7 +84,6 @@ export const Header = () => {
       //   graphqlOperation(updateProject, { input: updateProjectInput })
       // );
     } catch (error) {
-      console.log({ error });
     }
 
 

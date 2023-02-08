@@ -17,7 +17,6 @@ export const Files = () => {
   //   setDataGridState(true);
   //update file system state with processed data
   // let newData = createFileSystem(acceptedFiles);
-  // console.log({ fileSystem }, { newData });
   // setFileSystem([...fileSystem, newData[0]]);
 
   // acceptedFiles.forEach(async (file) => {
@@ -34,26 +33,19 @@ export const Files = () => {
   // acceptedFiles.forEach((file, idx) => {
   //   const reader = new FileReader();
 
-  //   reader.onabort = () => console.log('file reading was aborted');
-  //   reader.onerror = () => console.log('file reading has failed');
   //   reader.onload = () => {
   //     // Do whatever you want with the file contents
   //     const binaryStr = reader.result;
-  //     console.log('inside reader.onLOAD');
   //     Storage.put(`${projectId}/input/${file.name}`, binaryStr, {
   //       async progressCallback(progress) {
   //         setProgress({
   //           progress: progress.loaded,
   //           total: progress.total,
   //         });
-  //         console.log('Inside storage.put');
   //         if (progress.loaded / progress.total === 1) {
-  //           console.log('upload complete');
-  //           console.log('about to do api call');
   //           //api call here
   //           try {
   //             const result = await postUploadCall(project.id);
-  //             console.log({ result });
   //             if (result.Error) {
   //               // if there is an error
   //               setGridErrorModal({
@@ -64,7 +56,6 @@ export const Files = () => {
   //               });
   //             } else {
   //               // TODO: SAVE FILE NAME TO PROJECT
-  //               console.log({ project });
   //               let fileArr = [file.name];
   //               if (project?.files !== null) {
   //                 fileArr = [...fileArr, ...project.files];
@@ -79,9 +70,7 @@ export const Files = () => {
   //                 description: project.description,
   //                 files: fileArr, //adding file to dynamo db
   //               };
-  //               console.log({ updatedProject });
   //               let GraphQLresult = await updateProjectInfo(updatedProject);
-  //               console.log('GraphQL file update:', { GraphQLresult });
   //             }
   //           } catch (error) {
   //             setGridErrorModal({
@@ -90,18 +79,12 @@ export const Files = () => {
   //               message: 'Failed to Call ETL Post File Upload',
   //               devError: error.message,
   //             });
-  //             console.log({ error });
   //             setDataGridState(false);
   //           }
   //           setDataGridState(false);
-  //         } else {
-  //           console.log('upload incomplete');
   //         }
-  //         console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
   //       },
   //     });
-
-  //     console.log(`sent ${file.name} to S3`);
   //   };
   //   reader.readAsArrayBuffer(file);
   // });

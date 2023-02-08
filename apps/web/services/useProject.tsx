@@ -100,11 +100,8 @@ export const useProject = () => {
           // const result = await API.graphql(
           //   graphqlOperation(updateProject, { input: updateProjectInput })
           // );
-          // console.log({ result });
-          console.log({ payload });
         } catch (error) {
           // TODO: put error handling in toast
-          console.log({ error });
         }
       // }
     };

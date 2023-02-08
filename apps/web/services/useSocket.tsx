@@ -37,30 +37,21 @@ export const useSocket = () => {
       console.error('web channel error: ' + error);
     };
     socket.onopen = function () {
-      console.log('WebSocket connected, setting up QWebChannel.');
 
       new QWebChannel(socket, function (channel) {
-        // console.log({channel});
 
-        // console.log("Without Core",{window})
         window.core = channel.objects.core; // making it global
-        // console.log("With Core:",{window})
         try {
                 
           window.core.KeepAlive.connect(function (message) {
-            console.log(message);
           });
           window.core.GetDrawerPosition.connect(function (message) {
-            console.log('QT Get Drawer Position Response:', message);
           });
           window.core.SendDrawerStatus.connect(function (message) {
-            console.log('QT Get Drawer Status Response:', message);
           });
           window.core.SendSdtName.connect(function (message) {
-            console.log('QT Get SDT Name Response:', message);
           });
           window.core.SendCameraPosition.connect(function (message) {
-            console.log('QT Get Camera Position Response:', message);
           });
 
           setGlyphViewer({
@@ -69,19 +60,14 @@ export const useSocket = () => {
             sendDrawerPositionApp: true,
           });
         } catch (error) {
-          console.log('QWEBCHANEL SETUP ERROR:', { error });
         }
         //   try {
         //     // make core object accessible globally
         //     //window.core = channel.objects.core;
         //     //window.core.KeepAlive.connect(function (message) {
         //       //Issued every 30 seconds from Qt to prevent websocket timeout
-        //       console.log(message);
         //     });
-        //     console.log("LINE 44");
         //     //window.core.GetDrawerPosition.connect(function (message) {
-        //       console.log("LINE 47");
-        //       console.log("GetDrawerPosition message:",message)
         //     });
         //     //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
         //     //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size

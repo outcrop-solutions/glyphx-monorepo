@@ -66,16 +66,13 @@ export const NewProject = ({ exit }) => {
       author: username,
       shared: [username, ...memebers],
     };
-    console.log({ createProjectInput });
     try {
       // const result = (await API.graphql(
       //     graphqlOperation(createProject, { input: createProjectInput })
       // )) as { data: CreateProjectMutation };
-      // console.log({ result })
       // setShowAddProject(false);
       // router.push(`/project/${result.data.createProject.id}`);
     } catch (error) {
-      console.log({ error });
     }
   };
 

@@ -32,15 +32,7 @@ export const UserMenu = ({ align }) => {
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
-
-  const signOut = async () => {
-    try {
-      // await Auth.signOut();
-      // router.push("/");
-    } catch (error) {
-      console.log("error sigingin out" + error);
-    }
-  };
+  
   return (
     <div className="relative">
       <button
