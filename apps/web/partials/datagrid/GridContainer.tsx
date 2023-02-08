@@ -15,6 +15,8 @@ import {
   showNotificationAtom,
 } from 'state';
 
+
+
 export const GridContainer = ({ isDropped }) => {
   const rows = useRecoilValue(rowsSelector);
   const cols = useRecoilValue(columnsSelector);
@@ -32,7 +34,6 @@ export const GridContainer = ({ isDropped }) => {
   function startDrag() {
     try {
       //hide glyph viewer
-      //@ts-ignore
       window?.core.ToggleDrawer(false);
     } catch (error) {}
   }

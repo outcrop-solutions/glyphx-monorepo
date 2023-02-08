@@ -98,10 +98,8 @@ const Settings = ({ user }) => {
     <AccountLayout>
       <Meta title="Glyphx - Account Settings" />
       <Content.Title title="Account Settings" subtitle="Manage your profile, preferences, and account settings" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
-        {/* @ts-ignore */}
         <Card>
           <form>
             <Card.Body
@@ -128,7 +126,7 @@ const Settings = ({ user }) => {
             </Card.Footer>
           </form>
         </Card>
-        {/* @ts-ignore */}
+
         <Card>
           <form>
             <Card.Body
@@ -156,7 +154,7 @@ const Settings = ({ user }) => {
             </Card.Footer>
           </form>
         </Card>
-        {/* @ts-ignore */}
+
         <Card>
           <Card.Body title="Personal Account ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
@@ -168,7 +166,6 @@ const Settings = ({ user }) => {
           </Card.Body>
         </Card>
         <Card danger>
-          {/* @ts-ignore */}
           <Card.Body
             title="Danger Zone"
             subtitle="Permanently remove your Personal Account and all of its contents
@@ -215,7 +212,6 @@ const Settings = ({ user }) => {
 
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
-  // @ts-ignore
   const { email, name, userCode } = await getUser(session?.user?.userId);
   return {
     props: {

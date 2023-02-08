@@ -3,18 +3,17 @@ import {
   validateUpdateWorkspaceName,
   updateWorkspaceName
 } from '@glyphx/business';
+import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'PUT') {
-    const session = await validateSession(req, res);
+    const session = await validateSession(req, res) as Session;
     await validateUpdateWorkspaceName(req, res);
     const { name } = req.body;
     updateWorkspaceName(
-      // @ts-ignore
       session?.user?.userId,
-      // @ts-ignore
       session?.user?.email,
       name,
       req.query.workspaceSlug

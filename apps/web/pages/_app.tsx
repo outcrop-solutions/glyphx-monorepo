@@ -18,6 +18,15 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 
 import { SuspenseFallback } from '@/partials/fallback';
+
+declare global {
+  interface Window {
+    core: any;
+  }
+}
+
+window.core = window.core || {};
+
 // To safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
 // const memoize = (fn) => {
@@ -75,7 +84,6 @@ export default function App({ Component, pageProps: { ...pageProps } }: AppProps
     <SessionProvider session={pageProps.session}>
       <SWRConfig value={swrOptions}>
         <ThemeProvider attribute="class">
-          {/* @ts-ignore */}
           <WorkspaceProvider>
             <RecoilRoot>
               {/* Root Fallback for when error is throws */}

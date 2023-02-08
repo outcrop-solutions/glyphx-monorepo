@@ -10,10 +10,8 @@ export const ModelFooter = () => {
   const { sdt, url } = payload;
 
   const handleOpen = () => {
-    // @ts-ignore
 
     if (url && sdt) {
-      // @ts-ignore
       //window.core.ToggleDrawer(true);
       // //window.core.OpenProject(url);
       // setProgress(true);
@@ -21,10 +19,8 @@ export const ModelFooter = () => {
       //   setProgress(false);
       // }, 3000);
     } else if (url) {
-      // @ts-ignore
       //window.core.OpenProject(JSON.stringify(url));
     } else {
-      // @ts-ignore
       //window.core.OpenProject({});
     }
   };

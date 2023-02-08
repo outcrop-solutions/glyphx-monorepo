@@ -102,10 +102,8 @@ const Team = ({ isTeamOwner, workspace }) => {
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace.name} | Team Management`} />
       <Content.Title title="Team Management" subtitle="Manage your team under your workspace and invite team members" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
-        {/* @ts-ignore */}
         <Card>
           <Card.Body title="Invite Link" subtitle="Allow other people to join your team through the link below">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded">
@@ -117,7 +115,6 @@ const Team = ({ isTeamOwner, workspace }) => {
           </Card.Body>
         </Card>
         {isTeamOwner && (
-          // @ts-ignore
           <Card>
             <Card.Body title="Add New Members" subtitle="Invite Team members using email address">
               <div className="flex flex-col space-y-3">
@@ -191,12 +188,9 @@ const Team = ({ isTeamOwner, workspace }) => {
       </Content.Container>
       <Content.Divider thick />
       <Content.Title title="Team Members" subtitle="View team members and pending invites" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
-        {/* @ts-ignore */}
         <Card>
-          {/* @ts-ignore */}
           <Card.Body title="Manage Team Members">
             <table className="table-fixed">
               <thead className="text-gray-400 border-b">

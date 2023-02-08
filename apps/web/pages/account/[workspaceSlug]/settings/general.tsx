@@ -78,11 +78,9 @@ const General = ({ isTeamOwner, workspace }) => {
   return (
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace.name} | Settings`} />
-      <Content.Title title="Workspace Information" subtitle="Manage your workspace details and information" />
-      {/* @ts-ignore */}
+      <Content.Title title="Workspace Information" subtitle="Manage your workspace details and information" />   
       <Content.Divider />
-      <Content.Container>
-        {/* @ts-ignore */}
+      <Content.Container> 
         <Card>
           <Card.Body title="Workspace Name" subtitle="Used to identify your Workspace on the Dashboard">
             <input
@@ -106,7 +104,6 @@ const General = ({ isTeamOwner, workspace }) => {
             )}
           </Card.Footer>
         </Card>
-        {/* @ts-ignore */}
         <Card>
           <Card.Body title="Workspace Slug" subtitle="Used to identify your Workspace on the Dashboard">
             <div className="flex items-center space-x-3">
@@ -132,8 +129,7 @@ const General = ({ isTeamOwner, workspace }) => {
               </Button>
             )}
           </Card.Footer>
-        </Card>
-        {/* @ts-ignore */}
+        </Card> 
         <Card>
           <Card.Body title="Workspace ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">

@@ -1,4 +1,4 @@
-const Card = ({ children, danger = null }) => {
+const Card = ({ children, danger }: { children?: any; danger?: any }) => {
   return danger ? (
     <div className="flex flex-col justify-between border-2 border-red-600 rounded">{children}</div>
   ) : (
@@ -6,7 +6,7 @@ const Card = ({ children, danger = null }) => {
   );
 };
 
-Card.Body = ({ children = null, subtitle = null, title = null }) => {
+Card.Body = ({ children, subtitle, title }: { children?: any; subtitle?: string; title?: string }) => {
   return (
     <div className="flex flex-col p-5 space-y-3 overflow-auto">
       {title ? (
@@ -20,7 +20,7 @@ Card.Body = ({ children = null, subtitle = null, title = null }) => {
   );
 };
 
-Card.Empty = ({ children }) => {
+Card.Empty = ({ children }: { children?: any }) => {
   return (
     <div>
       <div className="flex items-center justify-center p-5 bg-gray-100 border-4 border-dashed rounded dark:bg-transparent dark:border-gray-600">
@@ -30,19 +30,12 @@ Card.Empty = ({ children }) => {
   );
 };
 
-Card.Footer = ({ children }) => {
+Card.Footer = ({ children }: { children?: any }) => {
   return (
     <div className="flex flex-row items-center justify-between px-5 py-3 space-x-5 bg-gray-100 border-t rounded-b dark:border-t-gray-600 dark:bg-gray-900">
       {children}
     </div>
   );
 };
-
-// @ts-ignore
-Card.Body.displayName = 'Body';
-// @ts-ignore
-Card.Empty.displayName = 'Empty';
-// @ts-ignore
-Card.Footer.displayName = 'Footer';
 
 export default Card;

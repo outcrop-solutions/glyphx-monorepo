@@ -13,11 +13,10 @@ export default NextAuth({
     session: async ({ session, user }) => {
       if (session?.user) {
         const customerPayment = await getPayment(user.email);
-        // @ts-ignore
+
         session.user.userId = user.id;
 
         if (customerPayment) {
-          // @ts-ignore
           session.user.subscription = customerPayment.subscriptionType;
         }
       }
@@ -48,7 +47,6 @@ export default NextAuth({
       server: process.env.EMAIL_SERVER,
       sendVerificationRequest: async ({ identifier: email, url }) => {
         const { host } = new URL(url);
-        // @ts-ignore
         await sendMail({
           html: signInHtml({ email, url }),
           subject: `[Glyphx] Sign in to ${host}`,

@@ -51,18 +51,15 @@ const Advanced = ({ isCreator }) => {
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace?.name} | Advanced Settings`} />
       <Content.Title title="Advanced Workspace Settings" subtitle="Manage your workspace settings" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
         <Card danger>
-          {/* @ts-ignore */}
           <Card.Body
             title="Delete Workspace"
             subtitle="The workspace will be permanently deleted, including its contents and domains. This action is irreversible and can not be undone."
           />
           <Card.Footer>
-            {/* @ts-ignore */}
-            <small className={[isCreator && 'text-red-600']}>
+            <small className={`${isCreator && 'text-red-600'}`}>
               {isCreator
                 ? 'This action is not reversible. Please be certain.'
                 : 'Please contact your team creator for the deletion of your workspace.'}

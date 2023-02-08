@@ -1,17 +1,16 @@
 import { validateWorkspaceInvite, validateSession, inviteUsers } from '@glyphx/business';
+import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'POST') {
-    const session = await validateSession(req, res);
+    const session = await validateSession(req, res) as Session;
     await validateWorkspaceInvite(req, res);
     const { members } = req.body;
 
     await inviteUsers(
-      // @ts-ignore
       session?.user?.userId,
-      // @ts-ignore
       session?.user?.email,
       members,
       req.query.workspaceSlug

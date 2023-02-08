@@ -1,4 +1,4 @@
-import type { Role, Member } from '@prisma/client';
+import type { Role } from '@prisma/client';
 
 import { validateSession, getMember, toggleRole } from '@glyphx/business';
 

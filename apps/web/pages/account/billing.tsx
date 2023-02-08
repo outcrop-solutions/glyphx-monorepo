@@ -10,7 +10,7 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import Modal from '@/components/Modal/index';
 import { AccountLayout } from '@/layouts/index';
-import {api, redirectToCheckout} from 'lib'
+import { api, redirectToCheckout } from 'lib';
 import { getInvoices, getProducts, getPayment } from '@glyphx/business';
 
 const Billing = ({ invoices, products }) => {
@@ -38,10 +38,8 @@ const Billing = ({ invoices, products }) => {
     <AccountLayout>
       <Meta title="Glyphx - Billing" />
       <Content.Title title="Billing" subtitle="Manage your billing and preferences" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
-        {/* @ts-ignore */}
         <Card>
           <Card.Body title="Upgrade Plan" subtitle="You are currently under the&nbsp; FREE plan">
             <p className="p-3 text-sm border rounded">
@@ -62,7 +60,6 @@ const Billing = ({ invoices, products }) => {
           </div>
           <div className="flex space-x-5">
             {products.map((product, index) => (
-              // @ts-ignore
               <Card key={index}>
                 <Card.Body title={product.name} subtitle={product.description}>
                   <h3 className="text-4xl font-bold">${Number(product.prices.unit_amount / 100).toFixed(2)}</h3>
@@ -83,7 +80,7 @@ const Billing = ({ invoices, products }) => {
       </Content.Container>
       <Content.Divider thick />
       <Content.Title title="Invoices" subtitle="View and download invoices you may need" />
-      {/* @ts-ignore */}
+
       <Content.Divider />
       {invoices.length > 0 ? (
         <Content.Container>
@@ -133,9 +130,9 @@ const Billing = ({ invoices, products }) => {
 
 export const getServerSideProps = async (context) => {
   const session = await getSession(context);
-  // @ts-ignore
+
   const customerPayment = await getPayment(session?.user?.email);
-  // @ts-ignore
+
   const [invoices, products] = await Promise.all([getInvoices(customerPayment?.paymentId), getProducts()]);
   return {
     props: {

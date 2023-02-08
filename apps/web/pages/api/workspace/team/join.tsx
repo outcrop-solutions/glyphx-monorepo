@@ -1,12 +1,11 @@
 import { validateSession, joinWorkspace } from '@glyphx/business';
-
+import { Session } from 'next-auth';
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'POST') {
-    const session = await validateSession(req, res);
+    const session = await validateSession(req, res) as Session
     const { workspaceCode } = req.body;
-    // @ts-ignore
     joinWorkspace(workspaceCode, session?.user?.email)
       .then((joinedAt) => res.status(200).json({ data: { joinedAt } }))
       .catch((error) =>

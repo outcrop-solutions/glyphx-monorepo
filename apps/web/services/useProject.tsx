@@ -149,7 +149,6 @@ export const useProject = () => {
                 }); // on success send data to payload
                 try {
                   // create glyph window
-                  // @ts-ignore
                   window.core.OpenProject(
                     JSON.stringify({
                       user_id: userId,

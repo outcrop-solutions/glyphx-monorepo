@@ -43,30 +43,22 @@ export const useSocket = () => {
         // console.log({channel});
 
         // console.log("Without Core",{window})
-        //@ts-ignore
         window.core = channel.objects.core; // making it global
         // console.log("With Core:",{window})
         try {
-          //@ts-ignore
-          console.log(channel.objects.core); // just to see what is inside it
-
-          //@ts-ignore
+                
           window.core.KeepAlive.connect(function (message) {
             console.log(message);
           });
-          //@ts-ignore
           window.core.GetDrawerPosition.connect(function (message) {
             console.log('QT Get Drawer Position Response:', message);
           });
-          //@ts-ignore
           window.core.SendDrawerStatus.connect(function (message) {
             console.log('QT Get Drawer Status Response:', message);
           });
-          //@ts-ignore
           window.core.SendSdtName.connect(function (message) {
             console.log('QT Get SDT Name Response:', message);
           });
-          //@ts-ignore
           window.core.SendCameraPosition.connect(function (message) {
             console.log('QT Get Camera Position Response:', message);
           });
@@ -81,15 +73,12 @@ export const useSocket = () => {
         }
         //   try {
         //     // make core object accessible globally
-        //     //   @ts-ignore
         //     //window.core = channel.objects.core;
-        //     //   @ts-ignore
         //     //window.core.KeepAlive.connect(function (message) {
         //       //Issued every 30 seconds from Qt to prevent websocket timeout
         //       console.log(message);
         //     });
         //     console.log("LINE 44");
-        //     //   @ts-ignore
         //     //window.core.GetDrawerPosition.connect(function (message) {
         //       console.log("LINE 47");
         //       console.log("GetDrawerPosition message:",message)
@@ -127,7 +116,6 @@ export const useSocket = () => {
       }
 
       try {
-        // @ts-ignore
         window.core.SendDrawerPosition(
           JSON.stringify({
             filterSidebar: {

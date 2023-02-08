@@ -68,7 +68,6 @@ export const ReorderConfirmModal = () => {
       if (
         project &&
         window &&
-        // @ts-ignore
         //window.core &&
         properties &&
         properties.length >= 3

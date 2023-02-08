@@ -1,20 +1,16 @@
-import { updateName, validateUpdateName,
-  validateSession, } from '@glyphx/business';
-
+import { updateName, validateUpdateName, validateSession } from '@glyphx/business';
+import { Session } from 'next-auth';
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'PUT') {
-    const session = await validateSession(req, res);
+    const session = (await validateSession(req, res)) as Session;
     await validateUpdateName(req, res);
     const { name } = req.body;
-    // @ts-ignore
     await updateName(session?.user?.userId, name);
     res.status(200).json({ data: { name } });
   } else {
-    res
-      .status(405)
-      .json({ errors: { error: { msg: `${method} method unsupported` } } });
+    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
   }
 };
 

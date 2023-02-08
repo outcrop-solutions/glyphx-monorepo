@@ -15,7 +15,6 @@ export const useFilterChange = () => {
     if (filterQuery) {
       try {
         //attempt to use Update Filter
-        // @ts-ignore
         window.core.UpdateFilter(JSON.stringify(filterQuery));
       } catch (error) {}
     }
