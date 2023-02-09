@@ -242,4 +242,20 @@ export class S3Manager {
 
     return retval;
   }
+
+  async putObject(key: string, content: string | Buffer): Promise<void> {
+    try {
+      await this.bucket.putObject({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: content,
+      });
+    } catch (err) {
+      throw new error.InvalidOperationError(
+        'An unexpected error occurred while storing the object, See the inner error for more information',
+        {key: key, bucketName: this.bucketName},
+        err
+      );
+    }
+  }
 }

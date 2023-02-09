@@ -4,6 +4,8 @@ import {
   HeadObjectOutput,
   ListObjectsV2Request,
   DeleteObjectOutput,
+  PutObjectCommandOutput,
+  PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
 
 import {Readable} from 'node:stream';
@@ -14,6 +16,7 @@ interface IS3MockOptions {
   failsOnListObjects?: string;
   failsOnGetObjects?: string;
   failsOnDelteObject?: string;
+  failsOnPutObject?: string;
   numberOfObjects?: number;
   headObjectFileSize?: number;
   getObjectStream?: Readable;
@@ -22,9 +25,15 @@ interface IS3MockOptions {
 export class S3Mock {
   private keys: string[];
   private options?: IS3MockOptions;
+  private putFileNameField: string;
+
+  public get putFileName() {
+    return this.putFileNameField;
+  }
   constructor(options?: IS3MockOptions) {
     this.options = options;
     this.keys = [];
+    this.putFileNameField = '';
   }
 
   async headBucket() {
@@ -110,6 +119,19 @@ export class S3Mock {
       throw this.options?.failsOnDelteObject;
     else {
       return true as unknown as DeleteObjectOutput;
+    }
+  }
+
+  async putObject(
+    input: PutObjectCommandInput
+  ): Promise<PutObjectCommandOutput> {
+    this.putFileNameField = input.Key ?? '';
+    if (this.options?.failsOnPutObject) {
+      throw this.options?.failsOnPutObject;
+    } else {
+      return {
+        ETag: input.Key,
+      } as PutObjectCommandOutput;
     }
   }
 }
