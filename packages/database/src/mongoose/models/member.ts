@@ -14,14 +14,24 @@ const SCHEMA = new Schema<
   IMemberStaticMethods,
   IMemberMethods
 >({
-  memberToken: {type: String, required: true},
   email: {type: String, required: true},
   inviter: {type: String, required: true},
   joinedAt: {type: Date, required: true},
   deletedAt: {type: Date, required: false},
   updatedAt: {type: Date, required: false},
   createdAt: {type: Date, required: false},
-  status: {type: databaseTypes.INVITATION_STATUS, required: true},
+  status: {
+    type: Number,
+    required: true,
+    enum: databaseTypes.constants.INVITATION_STATUS,
+    default: databaseTypes.constants.INVITATION_STATUS.PENDING,
+  },
+  teamRole: {
+    type: Number,
+    required: true,
+    enum: databaseTypes.constants.ROLE,
+    default: databaseTypes.constants.ROLE.MEMBER,
+  },
   member: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   invitedBy: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   workspace: {type: Schema.Types.ObjectId, required: true, ref: 'workspace'},

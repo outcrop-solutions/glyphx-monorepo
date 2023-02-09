@@ -122,7 +122,6 @@ model Member {
   joinedAt  DateTime?
   deletedAt DateTime?
   updatedAt DateTime? @updatedAt
-
   status      InvitationStatus @default(PENDING)
   teamRole    Role             @default(MEMBER)
   member      User?            @relation(fields: [email], references: [email], name: "membership")

@@ -40,6 +40,7 @@ const INPUT_DATA = {
   updatedAt: new Date(),
   createdAt: new Date(),
   status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.constants.ROLE.MEMBER,
   member: {},
   invitedBy: {},
   workspace: {},
