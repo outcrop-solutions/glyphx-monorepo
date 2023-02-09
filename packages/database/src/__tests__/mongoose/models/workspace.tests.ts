@@ -2,49 +2,49 @@ import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
-import {OrganizationModel} from '../../../mongoose/models/organization';
+import {WorkspaceModel} from '../../../mongoose/models/workspace';
 import {assert} from 'chai';
 import {UserModel} from '../../../mongoose/models/user';
 import {ProjectModel} from '../../../mongoose/models/project';
 
-const MOCK_ORGANIZATION: databaseTypes.IWorkspace = {
+const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   createdAt: new Date(),
   updatedAt: new Date(),
-  name: 'Test Organization',
-  description: 'a test organization',
+  name: 'Test Workspace',
+  description: 'a test workspace',
   owner: {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
   members: [],
   projects: [],
 };
 
-describe('#mongoose/models/organization', () => {
-  context('organizationIdExists', () => {
+describe('#mongoose/models/workspace', () => {
+  context('workspaceIdExists', () => {
     const sandbox = createSandbox();
     afterEach(() => {
       sandbox.restore();
     });
 
-    it('should return true if the organizationId exists', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
+    it('should return true if the workspaceId exists', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves({_id: organizationId});
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves({_id: workspaceId});
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
-      const result = await OrganizationModel.organizationIdExists(
-        organizationId
+      const result = await WorkspaceModel.workspaceIdExists(
+        workspaceId
       );
 
       assert.isTrue(result);
     });
 
-    it('should return false if the organizationId does not exist', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
+    it('should return false if the workspaceId does not exist', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
-      const result = await OrganizationModel.organizationIdExists(
-        organizationId
+      const result = await WorkspaceModel.workspaceIdExists(
+        workspaceId
       );
 
       assert.isFalse(result);
@@ -53,11 +53,11 @@ describe('#mongoose/models/organization', () => {
       const userId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       let errorred = false;
       try {
-        await OrganizationModel.organizationIdExists(userId);
+        await WorkspaceModel.workspaceIdExists(userId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -66,49 +66,49 @@ describe('#mongoose/models/organization', () => {
     });
   });
 
-  context('createOrganization', () => {
+  context('createWorkspace', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
       sandbox.restore();
     });
 
-    it('will create an organization document', async () => {
+    it('will create an workspace document', async () => {
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves([])
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         sandbox.stub().resolves([])
       );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'create',
         sandbox.stub().resolves([{_id: objectId}])
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validate',
         sandbox.stub().resolves(true)
       );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
-      const organizationDocument = await OrganizationModel.createOrganization(
-        MOCK_ORGANIZATION
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
+      const workspaceDocument = await WorkspaceModel.createWorkspace(
+        MOCK_WORKSPACE
       );
 
-      assert.strictEqual(organizationDocument._id, objectId);
+      assert.strictEqual(workspaceDocument._id, objectId);
       assert.isTrue(stub.calledOnce);
     });
     it('will rethrow a DataValidationError when a validator throws one', async () => {
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         sandbox
           .stub()
@@ -121,28 +121,28 @@ describe('#mongoose/models/organization', () => {
           )
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         sandbox.stub().resolves([])
       );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validate',
         sandbox.stub().resolves(true)
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'create',
         sandbox.stub().resolves([{_id: objectId}])
       );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
+        await WorkspaceModel.createWorkspace(MOCK_WORKSPACE);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -151,33 +151,33 @@ describe('#mongoose/models/organization', () => {
     });
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves()
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         sandbox.stub().resolves([])
       );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validate',
         sandbox.stub().resolves(true)
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'create',
         sandbox.stub().rejects('oops, something bad has happened')
       );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
+        await WorkspaceModel.createWorkspace(MOCK_WORKSPACE);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         hasError = true;
@@ -186,32 +186,32 @@ describe('#mongoose/models/organization', () => {
     });
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves()
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         sandbox.stub().resolves([])
       );
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validate',
         sandbox.stub().resolves(true)
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'create',
         sandbox.stub().resolves([{}])
       );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
+        await WorkspaceModel.createWorkspace(MOCK_WORKSPACE);
       } catch (err) {
         assert.instanceOf(err, error.UnexpectedError);
         hasError = true;
@@ -220,33 +220,33 @@ describe('#mongoose/models/organization', () => {
     });
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves([])
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         sandbox.stub().resolves([])
       );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validate',
         sandbox.stub().rejects('oops an error has occurred')
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'create',
         sandbox.stub().resolves([{_id: objectId}])
       );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(OrganizationModel, 'getOrganizationById', stub);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
       let hasError = false;
       try {
-        await OrganizationModel.createOrganization(MOCK_ORGANIZATION);
+        await WorkspaceModel.createWorkspace(MOCK_WORKSPACE);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -255,90 +255,90 @@ describe('#mongoose/models/organization', () => {
     });
   });
 
-  context('updateOrganizationById', () => {
+  context('updateWorkspaceById', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
       sandbox.restore();
     });
 
-    it('Should update an existing organization', async () => {
-      const updateOrganization = {
+    it('Should update an existing workspace', async () => {
+      const updateWorkspace = {
         name: 'Camp Crystal Lake',
         description: 'Re-Opening Summer 1980',
       };
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(OrganizationModel, 'updateOne', updateStub);
+      sandbox.replace(WorkspaceModel, 'updateOne', updateStub);
 
-      const getOrganizationStub = sandbox.stub();
-      getOrganizationStub.resolves({_id: organizationId});
+      const getWorkspaceStub = sandbox.stub();
+      getWorkspaceStub.resolves({_id: workspaceId});
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceStub
       );
 
       const validateUpdateObjectStub = sandbox.stub();
       validateUpdateObjectStub.resolves(true);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateUpdateObject',
         validateUpdateObjectStub
       );
 
-      const result = await OrganizationModel.updateOrganizationById(
-        organizationId,
-        updateOrganization
+      const result = await WorkspaceModel.updateWorkspaceById(
+        workspaceId,
+        updateWorkspace
       );
 
-      assert.strictEqual(result._id, organizationId);
+      assert.strictEqual(result._id, workspaceId);
       assert.isTrue(updateStub.calledOnce);
-      assert.isTrue(getOrganizationStub.calledOnce);
+      assert.isTrue(getWorkspaceStub.calledOnce);
       assert.isTrue(validateUpdateObjectStub.calledOnce);
     });
 
-    it('Should update an existing organization changing the owner', async () => {
+    it('Should update an existing workspace changing the owner', async () => {
       const ownerId = new mongoose.Types.ObjectId();
-      const updateOrganization = {
+      const updateWorkspace = {
         name: 'Camp Crystal Lake',
         description: 'Re-Opening Summer 1980',
         owner: {_id: ownerId} as unknown as databaseTypes.IUser,
       };
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(OrganizationModel, 'updateOne', updateStub);
+      sandbox.replace(WorkspaceModel, 'updateOne', updateStub);
 
-      const getOrganizationStub = sandbox.stub();
-      getOrganizationStub.resolves({_id: organizationId});
+      const getWorkspaceStub = sandbox.stub();
+      getWorkspaceStub.resolves({_id: workspaceId});
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceStub
       );
 
       const validateUpdateObjectStub = sandbox.stub();
       validateUpdateObjectStub.resolves(true);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateUpdateObject',
         validateUpdateObjectStub
       );
 
-      const result = await OrganizationModel.updateOrganizationById(
-        organizationId,
-        updateOrganization
+      const result = await WorkspaceModel.updateWorkspaceById(
+        workspaceId,
+        updateWorkspace
       );
 
-      assert.strictEqual(result._id, organizationId);
+      assert.strictEqual(result._id, workspaceId);
       assert.isTrue(updateStub.calledOnce);
-      assert.isTrue(getOrganizationStub.calledOnce);
+      assert.isTrue(getWorkspaceStub.calledOnce);
       assert.isTrue(validateUpdateObjectStub.calledOnce);
 
       const updateArg = updateStub.args[0];
@@ -347,38 +347,38 @@ describe('#mongoose/models/organization', () => {
       assert.strictEqual(updateDocument.owner, ownerId);
     });
 
-    it('Will fail when the organization does not exist', async () => {
-      const updateOrganization = {
+    it('Will fail when the workspace does not exist', async () => {
+      const updateWorkspace = {
         name: 'Camp Crystal Lake',
         description: 'Re-Opening Summer 1980',
       };
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
-      sandbox.replace(OrganizationModel, 'updateOne', updateStub);
+      sandbox.replace(WorkspaceModel, 'updateOne', updateStub);
 
-      const getOrganizationStub = sandbox.stub();
-      getOrganizationStub.resolves({_id: organizationId});
+      const getWorkspaceStub = sandbox.stub();
+      getWorkspaceStub.resolves({_id: workspaceId});
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceStub
       );
       const validateUpdateObjectStub = sandbox.stub();
       validateUpdateObjectStub.resolves(true);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateUpdateObject',
         validateUpdateObjectStub
       );
 
       let errorred = false;
       try {
-        await OrganizationModel.updateOrganizationById(
-          organizationId,
-          updateOrganization
+        await WorkspaceModel.updateWorkspaceById(
+          workspaceId,
+          updateWorkspace
         );
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
@@ -388,23 +388,23 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('Will fail when validateUpdateObject fails', async () => {
-      const updateOrganization = {
+      const updateWorkspace = {
         name: 'Camp Crystal Lake',
         description: 'Re-Opening Summer 1980',
       };
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(OrganizationModel, 'updateOne', updateStub);
+      sandbox.replace(WorkspaceModel, 'updateOne', updateStub);
 
-      const getOrganizationStub = sandbox.stub();
-      getOrganizationStub.resolves({_id: organizationId});
+      const getWorkspaceStub = sandbox.stub();
+      getWorkspaceStub.resolves({_id: workspaceId});
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceStub
       );
 
       const validateUpdateObjectStub = sandbox.stub();
@@ -412,16 +412,16 @@ describe('#mongoose/models/organization', () => {
         new error.InvalidOperationError('You cant do this', {})
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateUpdateObject',
         validateUpdateObjectStub
       );
 
       let errorred = false;
       try {
-        await OrganizationModel.updateOrganizationById(
-          organizationId,
-          updateOrganization
+        await WorkspaceModel.updateWorkspaceById(
+          workspaceId,
+          updateWorkspace
         );
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
@@ -431,37 +431,37 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('Will fail when a database error occurs', async () => {
-      const updateOrganization = {
+      const updateWorkspace = {
         name: 'Camp Crystal Lake',
         description: 'Re-Opening Summer 1980',
       };
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
-      sandbox.replace(OrganizationModel, 'updateOne', updateStub);
+      sandbox.replace(WorkspaceModel, 'updateOne', updateStub);
 
-      const getOrganizationStub = sandbox.stub();
-      getOrganizationStub.resolves({_id: organizationId});
+      const getWorkspaceStub = sandbox.stub();
+      getWorkspaceStub.resolves({_id: workspaceId});
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceStub
       );
       const validateUpdateObjectStub = sandbox.stub();
       validateUpdateObjectStub.resolves(true);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateUpdateObject',
         validateUpdateObjectStub
       );
 
       let errorred = false;
       try {
-        await OrganizationModel.updateOrganizationById(
-          organizationId,
-          updateOrganization
+        await WorkspaceModel.updateWorkspaceById(
+          workspaceId,
+          updateWorkspace
         );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
@@ -479,25 +479,25 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will return true when no restricted fields are present', async () => {
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [],
         members: [],
       };
 
       assert.isTrue(
-        await OrganizationModel.validateUpdateObject(inputOrganization)
+        await WorkspaceModel.validateUpdateObject(inputWorkspace)
       );
     });
 
     it('will fail when trying to update projects', async () => {
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [new mongoose.Types.ObjectId()],
         members: [],
       } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
       try {
-        await OrganizationModel.validateUpdateObject(inputOrganization);
+        await WorkspaceModel.validateUpdateObject(inputWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -506,14 +506,14 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will fail when trying to update members', async () => {
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [],
         members: [new mongoose.Types.ObjectId()],
       } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
       try {
-        await OrganizationModel.validateUpdateObject(inputOrganization);
+        await WorkspaceModel.validateUpdateObject(inputWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -522,7 +522,7 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will fail when trying to update _id', async () => {
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [],
         members: [],
         _id: new mongoose.Types.ObjectId(),
@@ -530,7 +530,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateUpdateObject(inputOrganization);
+        await WorkspaceModel.validateUpdateObject(inputWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -539,7 +539,7 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will fail when trying to update createdAt', async () => {
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [],
         members: [],
         createdAt: new Date(),
@@ -547,7 +547,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateUpdateObject(inputOrganization);
+        await WorkspaceModel.validateUpdateObject(inputWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -556,7 +556,7 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will fail when trying to update updatedAt', async () => {
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [],
         members: [],
         updatedAt: new Date(),
@@ -564,7 +564,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateUpdateObject(inputOrganization);
+        await WorkspaceModel.validateUpdateObject(inputWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -575,7 +575,7 @@ describe('#mongoose/models/organization', () => {
     it('will fail when trying to update an owner that does not exist', async () => {
       const ownerId = new mongoose.Types.ObjectId();
 
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [],
         members: [],
         owner: {_id: ownerId} as unknown as databaseTypes.IUser,
@@ -587,7 +587,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateUpdateObject(inputOrganization);
+        await WorkspaceModel.validateUpdateObject(inputWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -599,7 +599,7 @@ describe('#mongoose/models/organization', () => {
     it('will not fail when trying to update an owner that does exist', async () => {
       const ownerId = new mongoose.Types.ObjectId();
 
-      const inputOrganization = {
+      const inputWorkspace = {
         projects: [],
         members: [],
         owner: {_id: ownerId} as unknown as databaseTypes.IUser,
@@ -609,40 +609,40 @@ describe('#mongoose/models/organization', () => {
       userIdExistsStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
 
-      await OrganizationModel.validateUpdateObject(inputOrganization);
+      await WorkspaceModel.validateUpdateObject(inputWorkspace);
       assert.isTrue(userIdExistsStub.calledOnce);
     });
   });
 
-  context('Delete an organization document', () => {
+  context('Delete an workspace document', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
       sandbox.restore();
     });
 
-    it('should remove an organization', async () => {
+    it('should remove an workspace', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves({deletedCount: 1});
-      sandbox.replace(OrganizationModel, 'deleteOne', deleteStub);
+      sandbox.replace(WorkspaceModel, 'deleteOne', deleteStub);
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
-      await OrganizationModel.deleteOrganizationById(organizationId);
+      await WorkspaceModel.deleteWorkspaceById(workspaceId);
 
       assert.isTrue(deleteStub.calledOnce);
     });
 
-    it('should fail with an InvalidArgumentError when the organization does not exist', async () => {
+    it('should fail with an InvalidArgumentError when the workspace does not exist', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves({deletedCount: 0});
-      sandbox.replace(OrganizationModel, 'deleteOne', deleteStub);
+      sandbox.replace(WorkspaceModel, 'deleteOne', deleteStub);
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
       let errorred = false;
       try {
-        await OrganizationModel.deleteOrganizationById(organizationId);
+        await WorkspaceModel.deleteWorkspaceById(workspaceId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -654,13 +654,13 @@ describe('#mongoose/models/organization', () => {
     it('should fail with an DatabaseOperationError when the underlying database connection throws an error', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.rejects('something bad has happened');
-      sandbox.replace(OrganizationModel, 'deleteOne', deleteStub);
+      sandbox.replace(WorkspaceModel, 'deleteOne', deleteStub);
 
-      const organizationId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
 
       let errorred = false;
       try {
-        await OrganizationModel.deleteOrganizationById(organizationId);
+        await WorkspaceModel.deleteWorkspaceById(workspaceId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -670,58 +670,58 @@ describe('#mongoose/models/organization', () => {
     });
   });
 
-  context('allOrganization1IdsExist', () => {
+  context('allWorkspace1IdsExist', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
       sandbox.restore();
     });
 
-    it('should return true when all the organization ids exist', async () => {
-      const organizationIds = [
+    it('should return true when all the workspace ids exist', async () => {
+      const workspaceIds = [
         new mongoose.Types.ObjectId(),
         new mongoose.Types.ObjectId(),
       ];
 
-      const returnedOrganizationIds = organizationIds.map(organizationId => {
+      const returnedWorkspaceIds = workspaceIds.map(workspaceId => {
         return {
-          _id: organizationId,
+          _id: workspaceId,
         };
       });
 
       const findStub = sandbox.stub();
-      findStub.resolves(returnedOrganizationIds);
-      sandbox.replace(OrganizationModel, 'find', findStub);
+      findStub.resolves(returnedWorkspaceIds);
+      sandbox.replace(WorkspaceModel, 'find', findStub);
 
       assert.isTrue(
-        await OrganizationModel.allOrganizationIdsExist(organizationIds)
+        await WorkspaceModel.allWorkspaceIdsExist(workspaceIds)
       );
       assert.isTrue(findStub.calledOnce);
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const organizationIds = [
+      const workspaceIds = [
         new mongoose.Types.ObjectId(),
         new mongoose.Types.ObjectId(),
       ];
 
-      const returnedOrganizationIds = [
+      const returnedWorkspaceIds = [
         {
-          _id: organizationIds[0],
+          _id: workspaceIds[0],
         },
       ];
 
       const findStub = sandbox.stub();
-      findStub.resolves(returnedOrganizationIds);
-      sandbox.replace(OrganizationModel, 'find', findStub);
+      findStub.resolves(returnedWorkspaceIds);
+      sandbox.replace(WorkspaceModel, 'find', findStub);
       let errored = false;
       try {
-        await OrganizationModel.allOrganizationIdsExist(organizationIds);
+        await WorkspaceModel.allWorkspaceIdsExist(workspaceIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
         assert.strictEqual(
           err.data.value[0].toString(),
-          organizationIds[1].toString()
+          workspaceIds[1].toString()
         );
         errored = true;
       }
@@ -730,17 +730,17 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const organizationIds = [
+      const workspaceIds = [
         new mongoose.Types.ObjectId(),
         new mongoose.Types.ObjectId(),
       ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
-      sandbox.replace(OrganizationModel, 'find', findStub);
+      sandbox.replace(WorkspaceModel, 'find', findStub);
       let errored = false;
       try {
-        await OrganizationModel.allOrganizationIdsExist(organizationIds);
+        await WorkspaceModel.allWorkspaceIdsExist(workspaceIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -771,7 +771,7 @@ describe('#mongoose/models/organization', () => {
       allUserIdsExistStub.resolves(true);
       sandbox.replace(UserModel, 'allUserIdsExist', allUserIdsExistStub);
 
-      const results = await OrganizationModel.validateMembers(inputMembers);
+      const results = await WorkspaceModel.validateMembers(inputMembers);
 
       assert.strictEqual(results.length, inputMembers.length);
       results.forEach(r => {
@@ -792,7 +792,7 @@ describe('#mongoose/models/organization', () => {
       allUserIdsExistStub.resolves(true);
       sandbox.replace(UserModel, 'allUserIdsExist', allUserIdsExistStub);
 
-      const results = await OrganizationModel.validateMembers(inputMembers);
+      const results = await WorkspaceModel.validateMembers(inputMembers);
 
       assert.strictEqual(results.length, inputMembers.length);
       results.forEach(r => {
@@ -821,7 +821,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateMembers(inputMembers);
+        await WorkspaceModel.validateMembers(inputMembers);
       } catch (err: any) {
         assert.instanceOf(err, error.DataValidationError);
         assert.instanceOf(err.innerError, error.DataNotFoundError);
@@ -844,7 +844,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateMembers(inputMembers);
+        await WorkspaceModel.validateMembers(inputMembers);
       } catch (err: any) {
         assert.strictEqual(err.name, errorText);
         errored = true;
@@ -878,7 +878,7 @@ describe('#mongoose/models/organization', () => {
         allProjectIdsExistStub
       );
 
-      const results = await OrganizationModel.validateProjects(inputProjects);
+      const results = await WorkspaceModel.validateProjects(inputProjects);
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach(r => {
@@ -903,7 +903,7 @@ describe('#mongoose/models/organization', () => {
         allProjectIdsExistStub
       );
 
-      const results = await OrganizationModel.validateProjects(inputProjects);
+      const results = await WorkspaceModel.validateProjects(inputProjects);
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach(r => {
@@ -936,7 +936,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateProjects(inputProjects);
+        await WorkspaceModel.validateProjects(inputProjects);
       } catch (err: any) {
         assert.instanceOf(err, error.DataValidationError);
         assert.instanceOf(err.innerError, error.DataNotFoundError);
@@ -963,7 +963,7 @@ describe('#mongoose/models/organization', () => {
 
       let errored = false;
       try {
-        await OrganizationModel.validateProjects(inputProjects);
+        await WorkspaceModel.validateProjects(inputProjects);
       } catch (err: any) {
         assert.strictEqual(err.name, errorText);
         errored = true;
@@ -972,11 +972,11 @@ describe('#mongoose/models/organization', () => {
     });
   });
 
-  context('getOrganizationById', () => {
-    const mockOrganization = {
+  context('getWorkspaceById', () => {
+    const mockWorkspace = {
       _id: new mongoose.Types.ObjectId(),
-      name: 'testOrganization',
-      description: 'This is a test organization',
+      name: 'testWorkspace',
+      description: 'This is a test workspace',
       members: [
         {
           _id: new mongoose.Types.ObjectId(),
@@ -1031,13 +1031,13 @@ describe('#mongoose/models/organization', () => {
       sandbox.restore();
     });
 
-    it('will get an organization', async () => {
+    it('will get an workspace', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery(mockOrganization));
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.returns(new MockMongooseQuery(mockWorkspace));
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
-      const doc = await OrganizationModel.getOrganizationById(
-        mockOrganization._id as mongoose.Types.ObjectId
+      const doc = await WorkspaceModel.getWorkspaceById(
+        mockWorkspace._id as mongoose.Types.ObjectId
       );
 
       assert.isTrue(findByIdStub.calledOnce);
@@ -1051,18 +1051,18 @@ describe('#mongoose/models/organization', () => {
         assert.isUndefined((p as any).__v);
       });
 
-      assert.strictEqual(doc._id, mockOrganization._id);
+      assert.strictEqual(doc._id, mockWorkspace._id);
     });
 
-    it('will throw a DataNotFoundError when the organization does not exist', async () => {
+    it('will throw a DataNotFoundError when the workspace does not exist', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new MockMongooseQuery(null));
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await OrganizationModel.getOrganizationById(
-          mockOrganization._id as mongoose.Types.ObjectId
+        await WorkspaceModel.getWorkspaceById(
+          mockWorkspace._id as mongoose.Types.ObjectId
         );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
@@ -1077,12 +1077,12 @@ describe('#mongoose/models/organization', () => {
       findByIdStub.returns(
         new MockMongooseQuery('something bad happened', true)
       );
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await OrganizationModel.getOrganizationById(
-          mockOrganization._id as mongoose.Types.ObjectId
+        await WorkspaceModel.getWorkspaceById(
+          mockWorkspace._id as mongoose.Types.ObjectId
         );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
@@ -1100,20 +1100,20 @@ describe('#mongoose/models/organization', () => {
       sandbox.restore();
     });
 
-    it('will add a project to an organization', async () => {
+    it('will add a project to an workspace', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
       localMockOrg._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockOrg);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateProjectsStub = sandbox.stub();
       validateProjectsStub.resolves([projectId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         validateProjectsStub
       );
@@ -1122,44 +1122,44 @@ describe('#mongoose/models/organization', () => {
       saveStub.resolves(localMockOrg);
       localMockOrg.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrg);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.addProjects(orgId, [
+      const updatedWorkspace = await WorkspaceModel.addProjects(orgId, [
         projectId,
       ]);
 
-      assert.strictEqual(updatedOrganization._id, orgId);
+      assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(
-        updatedOrganization.projects[0].toString(),
+        updatedWorkspace.projects[0].toString(),
         projectId.toString()
       );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateProjectsStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will not save when a project is already attached to an organization', async () => {
+    it('will not save when a project is already attached to an workspace', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
       localMockOrg._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
       localMockOrg.projects.push(projectId);
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockOrg);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateProjectsStub = sandbox.stub();
       validateProjectsStub.resolves([projectId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         validateProjectsStub
       );
@@ -1168,61 +1168,61 @@ describe('#mongoose/models/organization', () => {
       saveStub.resolves(localMockOrg);
       localMockOrg.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrg);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.addProjects(orgId, [
+      const updatedWorkspace = await WorkspaceModel.addProjects(orgId, [
         projectId,
       ]);
 
-      assert.strictEqual(updatedOrganization._id, orgId);
+      assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(
-        updatedOrganization.projects[0].toString(),
+        updatedWorkspace.projects[0].toString(),
         projectId.toString()
       );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateProjectsStub.calledOnce);
       assert.isFalse(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will throw a data not found error when the organization does not exist', async () => {
+    it('will throw a data not found error when the workspace does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateProjectsStub = sandbox.stub();
       validateProjectsStub.resolves([projectId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         validateProjectsStub
       );
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
       const getOrgByIdStub = sandbox.stub();
-      getOrgByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'getOrganizationById', getOrgByIdStub);
+      getOrgByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getOrgByIdStub);
 
       let errored = false;
       try {
-        await OrganizationModel.addProjects(orgId, [projectId]);
+        await WorkspaceModel.addProjects(orgId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1233,15 +1233,15 @@ describe('#mongoose/models/organization', () => {
 
     it('will throw a data validation error when project id does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateProjectsStub = sandbox.stub();
       validateProjectsStub.rejects(
@@ -1252,26 +1252,26 @@ describe('#mongoose/models/organization', () => {
         )
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         validateProjectsStub
       );
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.addProjects(orgId, [projectId]);
+        await WorkspaceModel.addProjects(orgId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1281,40 +1281,40 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will throw a data operation error when the underlying connection fails', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const projectId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateProjectsStub = sandbox.stub();
       validateProjectsStub.resolves([projectId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         validateProjectsStub
       );
 
       const saveStub = sandbox.stub();
       saveStub.rejects('Something bad has happened');
-      localMockOrganization.save = saveStub;
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.addProjects(organizationId, [projectId]);
+        await WorkspaceModel.addProjects(workspaceId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1324,40 +1324,40 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const projectId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateProjectsStub = sandbox.stub();
       validateProjectsStub.resolves([projectId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateProjects',
         validateProjectsStub
       );
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.addProjects(organizationId, []);
+        await WorkspaceModel.addProjects(workspaceId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1374,147 +1374,147 @@ describe('#mongoose/models/organization', () => {
       sandbox.restore();
     });
 
-    it('will remove a project from the organization', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+    it('will remove a project from the workspace', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const projectId = new mongoose.Types.ObjectId();
-      localMockOrganization.projects.push(projectId);
+      localMockWorkspace.projects.push(projectId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.removeProjects(
-        organizationId,
+      const updatedWorkspace = await WorkspaceModel.removeProjects(
+        workspaceId,
         [projectId]
       );
 
-      assert.strictEqual(updatedOrganization._id, organizationId);
-      assert.strictEqual(updatedOrganization.projects.length, 0);
+      assert.strictEqual(updatedWorkspace._id, workspaceId);
+      assert.strictEqual(updatedWorkspace.projects.length, 0);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will remove a project from the organization passing in an IProject', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+    it('will remove a project from the workspace passing in an IProject', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const projectId = new mongoose.Types.ObjectId();
-      localMockOrganization.projects.push(projectId);
+      localMockWorkspace.projects.push(projectId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.removeProjects(
-        organizationId,
+      const updatedWorkspace = await WorkspaceModel.removeProjects(
+        workspaceId,
         [{_id: projectId} as unknown as databaseTypes.IProject]
       );
 
-      assert.strictEqual(updatedOrganization._id, organizationId);
-      assert.strictEqual(updatedOrganization.projects.length, 0);
+      assert.strictEqual(updatedWorkspace._id, workspaceId);
+      assert.strictEqual(updatedWorkspace.projects.length, 0);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
-    it('will not modify the projects if the projectid are not on the organizations projects', async () => {
+    it('will not modify the projects if the projectid are not on the workspaces projects', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
-      localMockOrganization.projects.push(projectId);
+      localMockWorkspace.projects.push(projectId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.removeProjects(
+      const updatedWorkspace = await WorkspaceModel.removeProjects(
         orgId,
         [new mongoose.Types.ObjectId()]
       );
 
-      assert.strictEqual(updatedOrganization._id, orgId);
-      assert.strictEqual(updatedOrganization.projects.length, 1);
+      assert.strictEqual(updatedWorkspace._id, orgId);
+      assert.strictEqual(updatedWorkspace.projects.length, 1);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isFalse(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will throw a data not found error when the organization does not exist', async () => {
+    it('will throw a data not found error when the workspace does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
-      localMockOrganization.projects.push(projectId);
+      localMockWorkspace.projects.push(projectId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.removeProjects(orgId, [projectId]);
+        await WorkspaceModel.removeProjects(orgId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1524,33 +1524,33 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will throw a data operation error when the underlying connection fails', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const projectId = new mongoose.Types.ObjectId();
-      localMockOrganization.projects.push(projectId);
+      localMockWorkspace.projects.push(projectId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
       saveStub.rejects('Something bad has happened');
-      localMockOrganization.save = saveStub;
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.removeProjects(organizationId, [projectId]);
+        await WorkspaceModel.removeProjects(workspaceId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1561,32 +1561,32 @@ describe('#mongoose/models/organization', () => {
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const projectId = new mongoose.Types.ObjectId();
-      localMockOrganization.projects.push(projectId);
+      localMockWorkspace.projects.push(projectId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.removeProjects(orgId, []);
+        await WorkspaceModel.removeProjects(orgId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1603,20 +1603,20 @@ describe('#mongoose/models/organization', () => {
       sandbox.restore();
     });
 
-    it('will add a member to an organization', async () => {
+    it('will add a member to an workspace', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
       localMockOrg._id = orgId;
       const userId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockOrg);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateMembersStub = sandbox.stub();
       validateMembersStub.resolves([userId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         validateMembersStub
       );
@@ -1625,44 +1625,44 @@ describe('#mongoose/models/organization', () => {
       saveStub.resolves(localMockOrg);
       localMockOrg.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrg);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.addMembers(orgId, [
+      const updatedWorkspace = await WorkspaceModel.addMembers(orgId, [
         userId,
       ]);
 
-      assert.strictEqual(updatedOrganization._id, orgId);
+      assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(
-        updatedOrganization.members[0].toString(),
+        updatedWorkspace.members[0].toString(),
         userId.toString()
       );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateMembersStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will not save when a member is already attached to an organization', async () => {
+    it('will not save when a member is already attached to an workspace', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrg = JSON.parse(JSON.stringify(MOCK_ORGANIZATION));
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
       localMockOrg._id = orgId;
       const userId = new mongoose.Types.ObjectId();
       localMockOrg.members.push(userId);
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockOrg);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateMembersStub = sandbox.stub();
       validateMembersStub.resolves([userId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         validateMembersStub
       );
@@ -1671,61 +1671,61 @@ describe('#mongoose/models/organization', () => {
       saveStub.resolves(localMockOrg);
       localMockOrg.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrg);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.addMembers(orgId, [
+      const updatedWorkspace = await WorkspaceModel.addMembers(orgId, [
         userId,
       ]);
 
-      assert.strictEqual(updatedOrganization._id, orgId);
+      assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(
-        updatedOrganization.members[0].toString(),
+        updatedWorkspace.members[0].toString(),
         userId.toString()
       );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateMembersStub.calledOnce);
       assert.isFalse(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will throw a data not found error when the organization does not exist', async () => {
+    it('will throw a data not found error when the workspace does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const userId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateMembersStub = sandbox.stub();
       validateMembersStub.resolves([userId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         validateMembersStub
       );
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
       const getOrgByIdStub = sandbox.stub();
-      getOrgByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'getOrganizationById', getOrgByIdStub);
+      getOrgByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getOrgByIdStub);
 
       let errored = false;
       try {
-        await OrganizationModel.addMembers(orgId, [userId]);
+        await WorkspaceModel.addMembers(orgId, [userId]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1736,15 +1736,15 @@ describe('#mongoose/models/organization', () => {
 
     it('will throw a data validation error when user id does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const userId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateMembersStub = sandbox.stub();
       validateMembersStub.rejects(
@@ -1755,26 +1755,26 @@ describe('#mongoose/models/organization', () => {
         )
       );
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         validateMembersStub
       );
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.addMembers(orgId, [userId]);
+        await WorkspaceModel.addMembers(orgId, [userId]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1784,40 +1784,40 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will throw a data operation error when the underlying connection fails', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const userId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateMembersStub = sandbox.stub();
       validateMembersStub.resolves([userId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         validateMembersStub
       );
 
       const saveStub = sandbox.stub();
       saveStub.rejects('Something bad has happened');
-      localMockOrganization.save = saveStub;
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.addMembers(organizationId, [userId]);
+        await WorkspaceModel.addMembers(workspaceId, [userId]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1827,40 +1827,40 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will throw an invalid argument error when the members array is empty', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const userId = new mongoose.Types.ObjectId();
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateMembersStub = sandbox.stub();
       validateMembersStub.resolves([userId]);
       sandbox.replace(
-        OrganizationModel,
+        WorkspaceModel,
         'validateMembers',
         validateMembersStub
       );
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.addMembers(organizationId, []);
+        await WorkspaceModel.addMembers(workspaceId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1877,146 +1877,146 @@ describe('#mongoose/models/organization', () => {
       sandbox.restore();
     });
 
-    it('will remove a member from the organization', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+    it('will remove a member from the workspace', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const userId = new mongoose.Types.ObjectId();
-      localMockOrganization.members.push(userId);
+      localMockWorkspace.members.push(userId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.removeMembers(
-        organizationId,
+      const updatedWorkspace = await WorkspaceModel.removeMembers(
+        workspaceId,
         [userId]
       );
 
-      assert.strictEqual(updatedOrganization._id, organizationId);
-      assert.strictEqual(updatedOrganization.members.length, 0);
+      assert.strictEqual(updatedWorkspace._id, workspaceId);
+      assert.strictEqual(updatedWorkspace.members.length, 0);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will remove a member from the organization passing in an IUser', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+    it('will remove a member from the workspace passing in an IUser', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const userId = new mongoose.Types.ObjectId();
-      localMockOrganization.members.push(userId);
+      localMockWorkspace.members.push(userId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.removeMembers(
-        organizationId,
+      const updatedWorkspace = await WorkspaceModel.removeMembers(
+        workspaceId,
         [{_id: userId} as unknown as databaseTypes.IUser]
       );
 
-      assert.strictEqual(updatedOrganization._id, organizationId);
-      assert.strictEqual(updatedOrganization.members.length, 0);
+      assert.strictEqual(updatedWorkspace._id, workspaceId);
+      assert.strictEqual(updatedWorkspace.members.length, 0);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
-    it('will not modify the membersif the userIds are not on the organizations members', async () => {
+    it('will not modify the membersif the userIds are not on the workspaces members', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const userId = new mongoose.Types.ObjectId();
-      localMockOrganization.members.push(userId);
+      localMockWorkspace.members.push(userId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
-      const updatedOrganization = await OrganizationModel.removeMembers(orgId, [
+      const updatedWorkspace = await WorkspaceModel.removeMembers(orgId, [
         new mongoose.Types.ObjectId(),
       ]);
 
-      assert.strictEqual(updatedOrganization._id, orgId);
-      assert.strictEqual(updatedOrganization.members.length, 1);
+      assert.strictEqual(updatedWorkspace._id, orgId);
+      assert.strictEqual(updatedWorkspace.members.length, 1);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isFalse(saveStub.calledOnce);
-      assert.isTrue(getOrganizationByIdStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
     });
 
-    it('will throw a data not found error when the organization does not exist', async () => {
+    it('will throw a data not found error when the workspace does not exist', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const userId = new mongoose.Types.ObjectId();
-      localMockOrganization.members.push(userId);
+      localMockWorkspace.members.push(userId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.removeMembers(orgId, [userId]);
+        await WorkspaceModel.removeMembers(orgId, [userId]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -2026,33 +2026,33 @@ describe('#mongoose/models/organization', () => {
     });
 
     it('will throw a data operation error when the underlying connection fails', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = organizationId;
+      localMockWorkspace._id = workspaceId;
       const userId = new mongoose.Types.ObjectId();
-      localMockOrganization.members.push(userId);
+      localMockWorkspace.members.push(userId);
 
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockOrganization);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
       saveStub.rejects('Something bad has happened');
-      localMockOrganization.save = saveStub;
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.removeMembers(organizationId, [userId]);
+        await WorkspaceModel.removeMembers(workspaceId, [userId]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -2063,32 +2063,32 @@ describe('#mongoose/models/organization', () => {
 
     it('will throw an invalid argument error when the members array is empty', async () => {
       const orgId = new mongoose.Types.ObjectId();
-      const localMockOrganization = JSON.parse(
-        JSON.stringify(MOCK_ORGANIZATION)
+      const localMockWorkspace = JSON.parse(
+        JSON.stringify(MOCK_WORKSPACE)
       );
-      localMockOrganization._id = orgId;
+      localMockWorkspace._id = orgId;
       const userId = new mongoose.Types.ObjectId();
-      localMockOrganization.members.push(userId);
+      localMockWorkspace.members.push(userId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(OrganizationModel, 'findById', findByIdStub);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const saveStub = sandbox.stub();
-      saveStub.resolves(localMockOrganization);
-      localMockOrganization.save = saveStub;
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
 
-      const getOrganizationByIdStub = sandbox.stub();
-      getOrganizationByIdStub.resolves(localMockOrganization);
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(
-        OrganizationModel,
-        'getOrganizationById',
-        getOrganizationByIdStub
+        WorkspaceModel,
+        'getWorkspaceById',
+        getWorkspaceByIdStub
       );
 
       let errored = false;
       try {
-        await OrganizationModel.removeMembers(orgId, []);
+        await WorkspaceModel.removeMembers(orgId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
