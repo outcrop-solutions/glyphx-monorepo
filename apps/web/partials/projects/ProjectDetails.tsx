@@ -4,12 +4,12 @@ import { FolderIcon, UserCircleIcon, XIcon } from '@heroicons/react/outline';
 import { CheckIcon, PencilIcon, PlusSmIcon } from '@heroicons/react/solid';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { updateProject } from 'graphql/mutations';
-import { API, graphqlOperation } from 'aws-amplify';
+// import { updateProject } from "graphql/mutations";
+// import { API, graphqlOperation } from "aws-amplify";
 
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { projectDetailsAtom } from 'state/project';
-import { userAtom } from 'state/user';
+import { projectDetailsAtom } from '@/state/project';
+import { userAtom } from '@/state/user';
 
 const tabs = [
   { name: 'Info', href: '#', current: true },
@@ -67,7 +67,9 @@ export const ProjectDetails = () => {
     setEditTitle(false);
     setEditShare(false);
     try {
-      const result = await API.graphql(graphqlOperation(updateProject, { input: updateProjectInput }));
+      // const result = await API.graphql(
+      //   graphqlOperation(updateProject, { input: updateProjectInput })
+      // );
 
       setMsg('Successfully Saved!');
       setTimeout(() => {

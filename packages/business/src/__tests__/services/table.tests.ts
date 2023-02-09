@@ -2,7 +2,7 @@ import 'mocha';
 import {assert} from 'chai';
 import {tableService} from '../../services';
 import {createSandbox} from 'sinon';
-import athenaConnection from '../../lib/server/athenaConnection';
+import athenaConnection from '../../lib/athenaConnection';
 import {aws, error} from '@glyphx/core';
 
 class MockAthenaConnection {

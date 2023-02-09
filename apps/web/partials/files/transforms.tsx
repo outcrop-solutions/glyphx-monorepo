@@ -12,7 +12,6 @@ import { IFileSystemItem, S3ProviderListOutput, RenderableDataGrid, IMatchingFil
  */
 export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | null): IFileSystemItem[] | any[] => {
   let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
-    // @ts-ignore
     id: idx + fileSystem.length + 1,
     parent: 0,
     droppable: false,
@@ -51,7 +50,7 @@ export const createFileSystemFromS3 = (
   if (Array.isArray(s3Directory)) {
     s3Directory.forEach((item) => add(item.key, files, item));
   }
-  
+
   // TODO: this needs to change to orgLevel
   if (Object.keys(files).length !== 0) {
     // if empty then return empty array
@@ -83,7 +82,7 @@ export const formatGridData = (data): RenderableDataGrid => {
     const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {
       key: item,
-      dataType: !isNaN(parseInt(data[0][item])) ? 'number' : 'string',
+      dataType: isNaN(Number(data[0][item])) ? FIELD_TYPE.STRING : FIELD_TYPE.NUMBER,
       name: capitalized,
       width: 120,
       resizable: true,
@@ -91,10 +90,9 @@ export const formatGridData = (data): RenderableDataGrid => {
     };
   });
   // Generates first column
-  // @ts-ignore
-  cols.unshift({ key: 'id', name: '', width: 40, resizable: true });
+  cols.unshift({ key: 'id', dataType: FIELD_TYPE.NUMBER, name: '', width: 40, resizable: true, sortable: true });
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
-  // @ts-ignore
+
   return { columns: cols, rows };
 };
 
@@ -114,13 +112,12 @@ export const parseFileStats = async (acceptedFiles): Promise<IFileStats[]> => {
       numberOfColumns: Object.keys(data[0]).length,
       columns: Object.keys(data[0]).map((item) => ({
         name: item,
-        fieldType: !isNaN(parseInt(data[0][item])) ? FIELD_TYPE.NUMBER : FIELD_TYPE.STRING,
+        fieldType: isNaN(Number(data[0][item])) ? FIELD_TYPE.STRING : FIELD_TYPE.NUMBER,
         longestString: undefined,
       })),
       fileSize: file.size,
     };
   });
-  console.log({ stats });
   return stats;
 };
 

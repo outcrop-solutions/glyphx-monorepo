@@ -20,6 +20,12 @@ import {
   getWorkspace,
   getWorkspaces,
   getWorkspacePaths,
+  inviteUsers,
+  isWorkspaceCreator,
+  isWorkspaceOwner,
+  joinWorkspace,
+  updateWorkspaceName,
+  updateSlug,
 } from './workspace';
 
 export {
@@ -45,4 +51,10 @@ export {
   getWorkspace,
   getWorkspaces,
   getWorkspacePaths,
+  inviteUsers,
+  isWorkspaceCreator,
+  isWorkspaceOwner,
+  joinWorkspace,
+  updateWorkspaceName,
+  updateSlug,
 };

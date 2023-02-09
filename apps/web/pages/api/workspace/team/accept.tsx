@@ -1,6 +1,6 @@
 import { InvitationStatus } from '@prisma/client';
 
-import { validateSession } from '@glyphx/business/src/validation';
+import { validateSession, updateStatus } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;

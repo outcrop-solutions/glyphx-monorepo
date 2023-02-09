@@ -4,9 +4,9 @@ import { projectsAtom, showAddProjectAtom } from 'state/globals';
 import { LinkDropDown, MemberList } from '../../invite';
 import { PermissionsDropDown } from '../../invite';
 
-import { API, graphqlOperation, Auth } from 'aws-amplify';
-import { createProject } from 'graphql/mutations';
-import { CreateProjectMutation } from 'API';
+// import { API, graphqlOperation, Auth } from "aws-amplify";
+// import { createProject } from "graphql/mutations";
+// import { CreateProjectMutation } from "API";
 import { useRouter } from 'next/router';
 import { v4 as uuid } from 'uuid';
 
@@ -49,17 +49,14 @@ export const NewProject = ({ exit }) => {
     if (createMembersArray() === null) {
       return false;
     }
-
-    return true;
   }
-
   const handleSave = async () => {
     if (!verifyData()) {
       alert('Invalid Data input');
       return;
     }
 
-    let members = createMembersArray();
+    let memebers = createMembersArray();
 
     const createProjectInput = {
       id: uuid(),
@@ -67,18 +64,44 @@ export const NewProject = ({ exit }) => {
       description,
       expiry: new Date(),
       author: username,
-      shared: [username, ...members],
+      shared: [username, ...memebers],
     };
-
     try {
-      const result = (await API.graphql(graphqlOperation(createProject, { input: createProjectInput }))) as {
-        data: CreateProjectMutation;
-      };
-
-      setShowAddProject(false);
-      router.push(`/${orgId}/${result.data.createProject.id}`);
-    } catch (error) {}
+      // const result = (await API.graphql(
+      //     graphqlOperation(createProject, { input: createProjectInput })
+      // )) as { data: CreateProjectMutation };
+      // setShowAddProject(false);
+      // router.push(`/project/${result.data.createProject.id}`);
+    } catch (error) {
+    }
   };
+
+  // const handleSave = async () => {
+  //   if (!verifyData()) {
+  //     alert('Invalid Data input');
+  //     return;
+  //   }
+
+  //   let members = createMembersArray();
+
+  //   const createProjectInput = {
+  //     id: uuid(),
+  //     name,
+  //     description,
+  //     expiry: new Date(),
+  //     author: username,
+  //     shared: [username, ...members],
+  //   };
+
+  //   try {
+  //     const result = (await API.graphql(graphqlOperation(createProject, { input: createProjectInput }))) as {
+  //       data: CreateProjectMutation;
+  //     };
+
+  //     setShowAddProject(false);
+  //     router.push(`/${orgId}/${result.data.createProject.id}`);
+  //   } catch (error) {}
+  // };
 
   return (
     <div className="px-4 py-5 w-full">

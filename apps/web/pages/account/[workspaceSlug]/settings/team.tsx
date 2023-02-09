@@ -19,8 +19,8 @@ import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import { useMembers } from 'hooks/data';
 import { AccountLayout } from '@/layouts/index';
-import api from '@glyphx/business/src/lib/common/api';
-import { getWorkspace, isWorkspaceOwner } from '@glyphx/business/src/services/workspace';
+import { api } from 'lib';
+import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
 
 const MEMBERS_TEMPLATE = { email: '', role: Role.MEMBER };
 
@@ -102,10 +102,8 @@ const Team = ({ isTeamOwner, workspace }) => {
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace.name} | Team Management`} />
       <Content.Title title="Team Management" subtitle="Manage your team under your workspace and invite team members" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
-        {/* @ts-ignore */}
         <Card>
           <Card.Body title="Invite Link" subtitle="Allow other people to join your team through the link below">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded">
@@ -117,7 +115,6 @@ const Team = ({ isTeamOwner, workspace }) => {
           </Card.Body>
         </Card>
         {isTeamOwner && (
-          // @ts-ignore
           <Card>
             <Card.Body title="Add New Members" subtitle="Invite Team members using email address">
               <div className="flex flex-col space-y-3">
@@ -191,12 +188,9 @@ const Team = ({ isTeamOwner, workspace }) => {
       </Content.Container>
       <Content.Divider thick />
       <Content.Title title="Team Members" subtitle="View team members and pending invites" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
-        {/* @ts-ignore */}
         <Card>
-          {/* @ts-ignore */}
           <Card.Body title="Manage Team Members">
             <table className="table-fixed">
               <thead className="text-gray-400 border-b">
@@ -301,12 +295,9 @@ export const getServerSideProps = async (context) => {
   let workspace = null;
 
   if (session) {
-    // @ts-ignore
-    workspace = await getWorkspace(session.user.userId, session.user.email, context.params.workspaceSlug);
-
+    workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
     if (workspace) {
-      // @ts-ignore
-      isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
+      isTeamOwner = await isWorkspaceOwner(session?.user?.email, workspace);
       workspace.inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace.inviteCode)}`;
     }
   }

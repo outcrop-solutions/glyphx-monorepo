@@ -48,3 +48,6 @@ testData
 
 #vim session file
 Session.vim
+
+**/*.pnpm-debug.log
+.pnpm-debug.log

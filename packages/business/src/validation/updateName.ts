@@ -1,6 +1,5 @@
 import {check} from 'express-validator';
-import initMiddleware from 'lib/server/initMiddleware';
-import validate from 'lib/server/validate';
+import {initMiddleware, validateMiddleware} from 'lib';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const rules = [
@@ -10,6 +9,6 @@ const rules = [
 ];
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const validateUpdateName = initMiddleware(validate(rules));
+const validateUpdateName = initMiddleware(validateMiddleware(rules));
 
 export default validateUpdateName;

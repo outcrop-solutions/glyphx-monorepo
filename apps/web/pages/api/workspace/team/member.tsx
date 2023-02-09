@@ -1,5 +1,5 @@
-import { validateSession } from '@glyphx/business/src/validation';
-import { remove } from '@glyphx/business/src/services/membership';
+import { validateSession, remove } from '@glyphx/business';
+
 
 const handler = async (req, res) => {
   const { method } = req;

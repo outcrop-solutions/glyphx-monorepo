@@ -1,5 +1,4 @@
-import { getMembers } from '@glyphx/business/src/services/membership';
-import { validateSession } from '@glyphx/business/src/validation';
+import { validateSession, getMembers } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;

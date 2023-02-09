@@ -1,6 +1,7 @@
 import 'styles/globals.css';
 import { useEffect, useState } from 'react';
 import type { AppProps } from 'next/app';
+import { Session } from 'next-auth';
 import Router, { useRouter } from 'next/router';
 import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from 'next-themes';
@@ -18,6 +19,13 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 
 import { SuspenseFallback } from '@/partials/fallback';
+
+declare global {
+  interface Window {
+    core: any | undefined;
+  }
+}
+
 // To safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
 // const memoize = (fn) => {
@@ -41,9 +49,12 @@ import { SuspenseFallback } from '@/partials/fallback';
 // global.console = mutedConsole(global.console);
 
 // NEXT-AUTH ENABLED VERSION
-// export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
-
-export default function App({ Component, pageProps: { ...pageProps } }: AppProps) {
+export default function App({
+  Component,
+  pageProps,
+}: AppProps<{
+  session: Session;
+}>) {
   const [progress, setProgress] = useState(false);
   const router = useRouter();
   const swrOptions = swrConfig();
@@ -70,12 +81,14 @@ export default function App({ Component, pageProps: { ...pageProps } }: AppProps
     };
   }, [router.events]);
 
+  useEffect(() => {
+    window.core = window.core || {};
+  }, []);
+
   return (
-    // @ts-ignore
     <SessionProvider session={pageProps.session}>
       <SWRConfig value={swrOptions}>
         <ThemeProvider attribute="class">
-          {/* @ts-ignore */}
           <WorkspaceProvider>
             <RecoilRoot>
               {/* Root Fallback for when error is throws */}

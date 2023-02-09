@@ -1,15 +1,14 @@
-import { validateSession } from '@glyphx/business/src/validation';
-import stripe from '@glyphx/business/src/lib/server/stripe';
-import { getPayment } from '@glyphx/business/src/services/customer';
+import { stripe, validateSession, getPayment } from '@glyphx/business';
+import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'POST') {
-    const session = await validateSession(req, res);
+    const session = await validateSession(req, res) as Session;
     const { priceId } = req.query;
     const [customerPayment, price] = await Promise.all([
-      getPayment(session.user?.email),
+      getPayment(session?.user?.email),
       stripe.prices.retrieve(priceId),
     ]);
     const product = await stripe.products.retrieve(price.product);
@@ -33,9 +32,7 @@ const handler = async (req, res) => {
     });
     res.status(200).json({ data: { sessionId: paymentSession.id } });
   } else {
-    res
-      .status(405)
-      .json({ errors: { error: { msg: `${method} method unsupported` } } });
+    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
   }
 };
 

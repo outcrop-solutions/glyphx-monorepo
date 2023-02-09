@@ -1,14 +1,12 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { v4 as uuid } from 'uuid';
-import { API, graphqlOperation } from 'aws-amplify';
-import { createComment } from 'graphql/mutations';
-import { userAtom } from 'state/user';
+// import { API, graphqlOperation } from "aws-amplify";
+// import { createComment } from "graphql/mutations";
 import { useRecoilValue } from 'recoil';
-import { activeStateAtom } from 'state/states';
+import { activeStateAtom } from '@/state/states';
 
 export const CommentInput = ({ setComments }) => {
   const [commentContent, setCommentContent] = useState('');
-  const user = useRecoilValue(userAtom);
   const activeState = useRecoilValue(activeStateAtom);
 
   // update comment state
@@ -16,23 +14,6 @@ export const CommentInput = ({ setComments }) => {
     setCommentContent(e.target.value);
   };
 
-  // save comment to DynamoDB
-  const handleSaveComment = async () => {
-    if (typeof activeState !== 'undefined') {
-      let commentInput = {
-        id: uuid(),
-        //@ts-ignore
-        author: user ? user.attributes.email : '',
-        content: commentContent,
-        stateID: activeState,
-      };
-      try {
-        setComments(commentInput);
-        setCommentContent('');
-        await API.graphql(graphqlOperation(createComment, { input: commentInput }));
-      } catch (error) {}
-    }
-  };
   return (
     <div className="relative flex items-center justify-around">
       <input

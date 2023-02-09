@@ -147,7 +147,7 @@ export const Property = ({
       ) : (
         <div
           // @ts-ignore
-          formattype={lastDroppedItem ? lastDroppedItem.dataType : ""}
+          data-type={lastDroppedItem ? lastDroppedItem.dataType : ""}
           className={`flex min-w-[8rem] grow text-white uppercase justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">

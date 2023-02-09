@@ -1,5 +1,6 @@
 import { _Object } from '@aws-sdk/client-s3';
 import { IFileStats } from '@glyphx/types/src/fileIngestion';
+import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 
 // THIS FLAG DETERMINES INITIAL TRANSFORMATION FROM S3 OR BROWSER "ACCEPTEDFILES"
 export enum IngestionType {
@@ -11,6 +12,7 @@ export enum IngestionType {
  * S3 Rendering pipeline input
  */
 type ListObjectsCommandOutputContent = _Object;
+
 export interface S3ProviderListOutputItem {
   key: ListObjectsCommandOutputContent['Key'];
   eTag: ListObjectsCommandOutputContent['ETag'];
@@ -61,7 +63,7 @@ export interface IMatchingFileStats {
  * */
 export type GridColumn = {
   key: string;
-  dataType: 'number' | 'string' | null;
+  dataType: FIELD_TYPE;
   name: string;
   width: number;
   resizable: boolean;

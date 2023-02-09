@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { SearchModal, GridToggle, DropdownNotifications, Help } from 'partials';
-import { PencilIcon } from '@heroicons/react/outline';
-import { API, graphqlOperation } from 'aws-amplify';
-import { updateProject } from 'graphql/mutations';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { SearchModal, GridToggle, DropdownNotifications, Help } from "partials";
+import { PencilIcon } from "@heroicons/react/outline";
+// import { API, graphqlOperation } from "aws-amplify";
+// import { updateProject } from "graphql/mutations";
 
-import { Project } from 'API';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+// import { Project } from "API";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   orientationAtom,
   selectedProjectSelector,
@@ -48,7 +48,6 @@ export const Header = () => {
     ]);
     try {
       //close glyph viewer
-      //@ts-ignore
       window?.core.CloseModel();
     } catch (error) {
       // do nothng
@@ -81,9 +80,14 @@ export const Header = () => {
       shared: selectedProject.shared,
     };
     try {
-      const result = await API.graphql(graphqlOperation(updateProject, { input: updateProjectInput }));
-    } catch (error) {}
-  };
+      // const result = await API.graphql(
+      //   graphqlOperation(updateProject, { input: updateProjectInput })
+      // );
+    } catch (error) {
+    }
+
+
+  }
 
   return (
     // border-b border-gray

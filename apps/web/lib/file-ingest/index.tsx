@@ -53,7 +53,6 @@ export const handleIngestion = async (req: NextApiRequest, res: NextApiResponse)
   // await ingestor.init();
 
   // const result = await ingestor.process();
-  // console.log({ type: fieldCalculator.fieldType });
   // return res.status(200).json({ fieldCalculator });
   return res.status(200).json({ ok: true });
 };
@@ -78,7 +77,7 @@ export const streamS3 = async (req: NextApiRequest, res: NextApiResponse): Promi
   // const s3Client = new aws.S3Manager(`${S3_BUCKET_NAME}`);
   // await s3Client.init();
   // const objects = await s3Client.listObjects('bigtable');
-  // console.log({ objects });
+  // { objects });
   // // TODO: Get S3 location from Dynamo table using projectId
   // // Use the location as the RESOURCE_URL below to stream a set of files  for a given project.
   // const fileInfo = await s3Client.getFileInformation(objects[1]);

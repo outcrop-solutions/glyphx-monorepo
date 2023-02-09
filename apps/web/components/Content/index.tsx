@@ -2,15 +2,15 @@ const Content = ({ children }) => {
   return <div className="flex flex-col h-full p-5 space-y-5 overflow-y-auto md:p-10 md:w-3/4">{children}</div>;
 };
 
-Content.Container = ({ children }) => {
+Content.Container = ({ children }: { children?: any }) => {
   return <div className="flex flex-col pb-10 space-y-5">{children}</div>;
 };
 
-Content.Divider = ({ thick }) => {
+Content.Divider = ({ thick }: { thick?: boolean }) => {
   return thick ? <hr className="border-2 dark:border-gray-600" /> : <hr className="border dark:border-gray-700" />;
 };
 
-Content.Empty = ({ children }) => {
+Content.Empty = ({ children }: { children?: any }) => {
   return (
     <div>
       <div className="flex items-center justify-center p-5 bg-gray-100 border-4 border-dashed rounded">
@@ -20,7 +20,7 @@ Content.Empty = ({ children }) => {
   );
 };
 
-Content.Title = ({ subtitle, title }) => {
+Content.Title = ({ subtitle, title }: { subtitle?: string; title?: string }) => {
   return (
     <div>
       <h1 className="text-3xl font-bold md:text-4xl">{title}</h1>
@@ -28,14 +28,5 @@ Content.Title = ({ subtitle, title }) => {
     </div>
   );
 };
-
-// @ts-ignore
-Content.Container.displayName = 'Container';
-// @ts-ignore
-Content.Divider.displayName = 'Divider';
-// @ts-ignore
-Content.Empty.displayName = 'Empty';
-// @ts-ignore
-Content.Title.displayName = 'Title';
 
 export default Content;

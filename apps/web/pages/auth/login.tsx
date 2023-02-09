@@ -51,8 +51,8 @@ const Login = () => {
   return (
     <AuthLayout>
       <Meta
-        title="NextJS SaaS Boilerplate | Login"
-        description="A boilerplate for your NextJS SaaS projects."
+        title="Glyphx | Login"
+        description="Data exploration for enterprise"
       />
       <div className="flex flex-col items-center justify-center p-5 m-auto space-y-5 rounded shadow-lg md:p-10 md:w-1/3">
         <div>
@@ -76,7 +76,7 @@ const Login = () => {
             value={email}
           />
           <button
-            className="py-2 text-white bg-blue-600 rounded hover:bg-blue-500 disabled:opacity-75"
+            className="py-2 text-white bg-primary-dark-blue rounded hover:bg-secondary-deep-blue disabled:opacity-75"
             disabled={status === 'loading' || !validate || isSubmitting}
             onClick={signInWithEmail}
           >

@@ -11,9 +11,7 @@ const Workspace = () => {
       <AccountLayout>
         <Meta title={`Glyphx - ${workspace.name} | Dashboard`} />
         <Content.Title title={workspace.name} subtitle="This is your project's workspace" />
-        {/* @ts-ignore */}
         <Content.Divider />
-        {/* @ts-ignore */}
         <Content.Container />
       </AccountLayout>
     )

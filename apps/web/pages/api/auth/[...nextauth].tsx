@@ -3,22 +3,20 @@ import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 
 import { prisma } from '@glyphx/database';
-import { html, text } from '@glyphx/business/src/email/signin';
-import { EMAIL_CONFIG, sendMail } from '@glyphx/business/src/lib/server/mail';
-import { createPaymentAccount, getPayment } from '@glyphx/business/src/services/customer';
-// import { log } from '@/lib/server/logsnag';
+import { signInHtml, signInText, sendMail } from '@glyphx/email';
+import { createPaymentAccount, getPayment } from '@glyphx/business';
+// import { log } from '@/lib/logsnag';
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
   callbacks: {
     session: async ({ session, user }) => {
-      if (session.user) {
+      if (session?.user) {
         const customerPayment = await getPayment(user.email);
-        // @ts-ignore
+
         session.user.userId = user.id;
 
         if (customerPayment) {
-          // @ts-ignore
           session.user.subscription = customerPayment.subscriptionType;
         }
       }
@@ -46,14 +44,13 @@ export default NextAuth({
   providers: [
     EmailProvider({
       from: process.env.EMAIL_FROM,
-      server: EMAIL_CONFIG,
+      server: process.env.EMAIL_SERVER,
       sendVerificationRequest: async ({ identifier: email, url }) => {
         const { host } = new URL(url);
-        // @ts-ignore
         await sendMail({
-          html: html({ email, url }),
+          html: signInHtml({ email, url }),
           subject: `[Glyphx] Sign in to ${host}`,
-          text: text({ email, url }),
+          text: signInText({ email, url }),
           to: email,
         });
       },

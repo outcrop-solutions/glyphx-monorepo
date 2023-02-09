@@ -3,18 +3,19 @@ import slugify from 'slugify';
 import {
   validateCreateWorkspace,
   validateSession,
-} from '@glyphx/business/src/validation/index';
-import { createWorkspace } from '@glyphx/business/src/services/workspace';
+  createWorkspace
+} from '@glyphx/business';
+import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'POST') {
-    const session = await validateSession(req, res);
+    const session = await validateSession(req, res) as Session;
     await validateCreateWorkspace(req, res);
     const { name } = req.body;
     let slug = slugify(name.toLowerCase());
-    await createWorkspace(session.user.userId, session.user.email, name, slug);
+    await createWorkspace(session?.user?.userId, session?.user?.email, name, slug);
     res.status(200).json({ data: { name, slug } });
   } else {
     res
