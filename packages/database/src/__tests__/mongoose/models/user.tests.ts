@@ -1069,10 +1069,10 @@ describe('#mongoose/models/user', () => {
       const inputOrganizations = [
         {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
       ];
 
       const allOrganizationIdsExistStub = sandbox.stub();
@@ -1307,7 +1307,7 @@ describe('#mongoose/models/user', () => {
         _id: new mongoose.Types.ObjectId(),
         name: 'testOrganization',
         __v: 1,
-      } as unknown as databaseTypes.IOrganization,
+      } as unknown as databaseTypes.IWorkspace,
       apiKey: 'testApiKey',
       role: databaseTypes.constants.ROLE.MEMBER,
       ownedOrgs: [
@@ -1315,7 +1315,7 @@ describe('#mongoose/models/user', () => {
           _id: new mongoose.Types.ObjectId(),
           name: 'ownedOrganization',
           __v: 1,
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
       ],
       projects: [
         {

@@ -10,15 +10,19 @@ export interface IUserDocument
     databaseTypes.IUser,
     | 'accounts'
     | 'sessions'
+    | 'membership'
+    | 'invitedMembers'
+    | 'createdWorkspace'
+    | 'customerPayment'
     | 'webhooks'
-    | 'organization'
-    | 'ownedOrgs'
     | 'projects'
   > {
   accounts: mongooseTypes.ObjectId[];
   sessions: mongooseTypes.ObjectId[];
+  membership: mongooseTypes.ObjectId[];
+  invitedMembers: mongooseTypes.ObjectId[];
+  createdWorkspace: mongooseTypes.ObjectId[];
+  customerPayment: mongooseTypes.ObjectId;
   webhooks: mongooseTypes.ObjectId[];
-  organization: mongooseTypes.ObjectId;
-  ownedOrgs: mongooseTypes.ObjectId[];
   projects: mongooseTypes.ObjectId[];
 }

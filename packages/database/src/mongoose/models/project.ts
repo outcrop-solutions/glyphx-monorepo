@@ -282,7 +282,7 @@ SCHEMA.static(
 SCHEMA.static(
   'validateOrganization',
   async (
-    input: databaseTypes.IOrganization | mongooseTypes.ObjectId
+    input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId> => {
     const organizationId =
       input instanceof mongooseTypes.ObjectId

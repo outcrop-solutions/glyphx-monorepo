@@ -7,7 +7,7 @@ import {assert} from 'chai';
 import {UserModel} from '../../../mongoose/models/user';
 import {ProjectModel} from '../../../mongoose/models/project';
 
-const MOCK_ORGANIZATION: databaseTypes.IOrganization = {
+const MOCK_ORGANIZATION: databaseTypes.IWorkspace = {
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'Test Organization',
@@ -493,7 +493,7 @@ describe('#mongoose/models/organization', () => {
       const inputOrganization = {
         projects: [new mongoose.Types.ObjectId()],
         members: [],
-      } as unknown as databaseTypes.IOrganization;
+      } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
       try {
@@ -509,7 +509,7 @@ describe('#mongoose/models/organization', () => {
       const inputOrganization = {
         projects: [],
         members: [new mongoose.Types.ObjectId()],
-      } as unknown as databaseTypes.IOrganization;
+      } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
       try {
@@ -526,7 +526,7 @@ describe('#mongoose/models/organization', () => {
         projects: [],
         members: [],
         _id: new mongoose.Types.ObjectId(),
-      } as unknown as databaseTypes.IOrganization;
+      } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
       try {
@@ -543,7 +543,7 @@ describe('#mongoose/models/organization', () => {
         projects: [],
         members: [],
         createdAt: new Date(),
-      } as unknown as databaseTypes.IOrganization;
+      } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
       try {
@@ -560,7 +560,7 @@ describe('#mongoose/models/organization', () => {
         projects: [],
         members: [],
         updatedAt: new Date(),
-      } as unknown as databaseTypes.IOrganization;
+      } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
       try {
@@ -579,7 +579,7 @@ describe('#mongoose/models/organization', () => {
         projects: [],
         members: [],
         owner: {_id: ownerId} as unknown as databaseTypes.IUser,
-      } as unknown as databaseTypes.IOrganization;
+      } as unknown as databaseTypes.IWorkspace;
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(false);
@@ -603,7 +603,7 @@ describe('#mongoose/models/organization', () => {
         projects: [],
         members: [],
         owner: {_id: ownerId} as unknown as databaseTypes.IUser,
-      } as unknown as databaseTypes.IOrganization;
+      } as unknown as databaseTypes.IWorkspace;
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);

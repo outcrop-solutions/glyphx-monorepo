@@ -1,18 +1,18 @@
 import {database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
-  IOrganizationMethods,
-  IOrganizationStaticMethods,
-  IOrganizationDocument,
+  IWorkspaceMethods,
+  IWorkspaceStaticMethods,
+  IWorkspaceDocument,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
 import {ProjectModel} from './project';
 
 const SCHEMA = new Schema<
-  IOrganizationDocument,
-  IOrganizationStaticMethods,
-  IOrganizationMethods
+  IWorkspaceDocument,
+  IWorkspaceStaticMethods,
+  IWorkspaceMethods
 >({
   createdAt: {type: Date, required: true, default: new Date()},
   updatedAt: {type: Date, required: true, default: new Date()},
@@ -148,8 +148,8 @@ SCHEMA.static(
 SCHEMA.static(
   'createOrganization',
   async (
-    input: Omit<databaseTypes.IOrganization, '_id' | 'createdAt' | 'updatedAt'>
-  ): Promise<databaseTypes.IOrganization> => {
+    input: Omit<databaseTypes.IWorkspace, '_id' | 'createdAt' | 'updatedAt'>
+  ): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const users = Array.from(input.members) as (
@@ -164,7 +164,7 @@ SCHEMA.static(
       const createDate = new Date();
 
       const owner = members.shift() as mongooseTypes.ObjectId;
-      const resolvedInput: IOrganizationDocument = {
+      const resolvedInput: IWorkspaceDocument = {
         createdAt: createDate,
         updatedAt: createDate,
         name: input.name,
@@ -178,7 +178,7 @@ SCHEMA.static(
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
-          'IOrganizationDocument',
+          'IWorkspaceDocument',
           resolvedInput,
           err
         );
@@ -213,7 +213,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateUpdateObject',
-  async (input: Partial<databaseTypes.IOrganization>): Promise<boolean> => {
+  async (input: Partial<databaseTypes.IWorkspace>): Promise<boolean> => {
     if (input.projects?.length)
       throw new error.InvalidOperationError(
         "This method cannot be used to alter the organizations' projects.  Use the add/remove project functions to complete this operation",
@@ -257,11 +257,11 @@ SCHEMA.static(
   'updateOrganizationByFilter',
   async (
     filter: Record<string, unknown>,
-    input: Partial<databaseTypes.IOrganization>
+    input: Partial<databaseTypes.IWorkspace>
   ): Promise<void> => {
     try {
       await ORGANIZATION_MODEL.validateUpdateObject(input);
-      const transformedDocument: Partial<databaseTypes.IOrganization> &
+      const transformedDocument: Partial<databaseTypes.IWorkspace> &
         Record<string, any> = {};
       const updateDate = new Date();
       for (const key in input) {
@@ -306,8 +306,8 @@ SCHEMA.static(
   'updateOrganizationById',
   async (
     id: mongooseTypes.ObjectId,
-    input: Partial<databaseTypes.IOrganization>
-  ): Promise<databaseTypes.IOrganization> => {
+    input: Partial<databaseTypes.IWorkspace>
+  ): Promise<databaseTypes.IWorkspace> => {
     await ORGANIZATION_MODEL.updateOrganizationByFilter({_id: id}, input);
     return await ORGANIZATION_MODEL.getOrganizationById(id);
   }
@@ -317,7 +317,7 @@ SCHEMA.static(
   'getOrganizationById',
   async (
     organizationId: mongooseTypes.ObjectId
-  ): Promise<databaseTypes.IOrganization> => {
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       const organizationDocument = (await ORGANIZATION_MODEL.findById(
         organizationId
@@ -325,7 +325,7 @@ SCHEMA.static(
         .populate('owner')
         .populate('members')
         .populate('projects')
-        .lean()) as databaseTypes.IOrganization;
+        .lean()) as databaseTypes.IWorkspace;
       if (!organizationDocument)
         throw new error.DataNotFoundError(
           `Could not find an Organization with the _id: ${organizationId}`,
@@ -381,7 +381,7 @@ SCHEMA.static(
   async (
     organizationId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError(
@@ -441,7 +441,7 @@ SCHEMA.static(
   async (
     organizationId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError(
@@ -512,7 +512,7 @@ SCHEMA.static(
   async (
     organizationId: mongooseTypes.ObjectId,
     members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!members.length)
         throw new error.InvalidArgumentError(
@@ -572,7 +572,7 @@ SCHEMA.static(
   async (
     organizationId: mongooseTypes.ObjectId,
     members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!members.length)
         throw new error.InvalidArgumentError(
@@ -638,8 +638,8 @@ SCHEMA.static(
   }
 );
 const ORGANIZATION_MODEL = model<
-  IOrganizationDocument,
-  IOrganizationStaticMethods
+  IWorkspaceDocument,
+  IWorkspaceStaticMethods
 >('organization', SCHEMA);
 
 export {ORGANIZATION_MODEL as OrganizationModel};

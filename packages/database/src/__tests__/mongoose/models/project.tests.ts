@@ -18,7 +18,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   sdtPath: 'sdtPath',
   organization: {
     _id: new mongoose.Types.ObjectId(),
-  } as unknown as databaseTypes.IOrganization,
+  } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
   isTemplate: false,
   type: {
@@ -324,7 +324,7 @@ describe('#mongoose/models/project', () => {
         description: 'This is a test project',
         organization: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -513,7 +513,7 @@ describe('#mongoose/models/project', () => {
         description: 'This is a test project',
         organization: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -560,7 +560,7 @@ describe('#mongoose/models/project', () => {
         description: 'This is a test project',
         organization: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -604,7 +604,7 @@ describe('#mongoose/models/project', () => {
         description: 'This is a test project',
         organization: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -648,7 +648,7 @@ describe('#mongoose/models/project', () => {
         description: 'This is a test project',
         organization: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -691,7 +691,7 @@ describe('#mongoose/models/project', () => {
         description: 'This is a test project',
         organization: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -735,7 +735,7 @@ describe('#mongoose/models/project', () => {
         description: 'This is a test project',
         organization: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -947,7 +947,7 @@ describe('#mongoose/models/project', () => {
         _id: new mongoose.Types.ObjectId(),
         name: 'test organization',
         __v: 1,
-      } as unknown as databaseTypes.IOrganization,
+      } as unknown as databaseTypes.IWorkspace,
       type: {
         _id: new mongoose.Types.ObjectId(),
         name: 'test organization',
@@ -1199,7 +1199,7 @@ describe('#mongoose/models/project', () => {
       assert.isTrue(idExistsStub.calledOnce);
     });
 
-    it('will validate the organization passing the organization as an IOrganization', async () => {
+    it('will validate the organization passing the organization as an IWorkspace', async () => {
       const organizationId = new mongoose.Types.ObjectId();
 
       const idExistsStub = sandbox.stub();
@@ -1208,7 +1208,7 @@ describe('#mongoose/models/project', () => {
 
       const result = await ProjectModel.validateOrganization({
         _id: organizationId,
-      } as unknown as databaseTypes.IOrganization);
+      } as unknown as databaseTypes.IWorkspace);
 
       assert.strictEqual(result.toString(), organizationId.toString());
       assert.isTrue(idExistsStub.calledOnce);

@@ -273,7 +273,7 @@ SCHEMA.static(
 SCHEMA.static(
   'validateOrganizations',
   async (
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
     const organizationIds: mongooseTypes.ObjectId[] = [];
     organizations.forEach(p => {
@@ -374,7 +374,7 @@ SCHEMA.static(
     const orgs = Array.from(
       //istanbul ignore next
       input.ownedOrgs ?? []
-    ) as (databaseTypes.IOrganization | mongooseTypes.ObjectId)[];
+    ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
     //istanbul ignore else
     if (input.organization) orgs.unshift(input.organization);
     let id: undefined | mongooseTypes.ObjectId = undefined;
@@ -989,7 +989,7 @@ SCHEMA.static(
   'addOrganizations',
   async (
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser> => {
     try {
       if (!organizations.length)
@@ -1018,7 +1018,7 @@ SCHEMA.static(
         ) {
           dirty = true;
           userDocument.ownedOrgs.push(
-            o as unknown as databaseTypes.IOrganization
+            o as unknown as databaseTypes.IWorkspace
           );
         }
       });
@@ -1049,7 +1049,7 @@ SCHEMA.static(
   'removeOrganizations',
   async (
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser> => {
     try {
       if (!organizations.length)
@@ -1091,7 +1091,7 @@ SCHEMA.static(
 
       if (dirty) {
         userDocument.ownedOrgs =
-          updatedOrganizations as unknown as databaseTypes.IOrganization[];
+          updatedOrganizations as unknown as databaseTypes.IWorkspace[];
         await userDocument.save();
       }
 
