@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { Filter } from './Filter';
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';
-import { API, graphqlOperation } from 'aws-amplify';
+// import { API, graphqlOperation } from 'aws-amplify';
 
-import { deleteFilter } from 'graphql/mutations';
+// import { deleteFilter } from 'graphql/mutations';
 import { ShowHide } from './actions/ShowHide';
 import { DeleteFilter } from './actions/DeleteFilter';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -57,7 +57,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
       return newProps;
     });
 
-    const result = await API.graphql(graphqlOperation(deleteFilter, { input: deleteFilterInput }));
+    // const result = await API.graphql(graphqlOperation(deleteFilter, { input: deleteFilterInput }));
   };
 
   function deleteFilter() {
@@ -91,8 +91,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
         <AxesIcons property={axis} />
         {/* PROPERTY CHIP */}
         <div
-          // @ts-ignore
-          formattype={lastDroppedItem ? lastDroppedItem.dataType : ''}
+          data-type={lastDroppedItem ? lastDroppedItem.dataType : ''}
           className={`flex grow justify-center bg-gray h-4 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium uppercase lg:opacity-100 2xl:opacity-100 transition duration-150 truncate">

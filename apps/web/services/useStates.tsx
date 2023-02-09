@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import { listStates } from '../graphql/queries';
-import { API, graphqlOperation } from 'aws-amplify';
 /**
  * Utility for interfacing with the States class
  * @param {Object} project
@@ -20,7 +18,7 @@ export const useStates = (project) => {
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const statesData = await API.graphql(graphqlOperation(listStates));
+        // const statesData = await API.graphql(graphqlOperation(listStates));
 
         //@ts-ignore
         const stateList = statesData?.data.listStates.items;

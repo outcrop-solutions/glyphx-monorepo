@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { API, graphqlOperation, Auth } from 'aws-amplify';
-import update from 'immutability-helper';
+import { useCallback, useEffect, useState } from "react";
+// import { API, graphqlOperation, Auth } from "aws-amplify";
+import update from "immutability-helper";
 import {
   droppedPropertiesSelector,
   isPropsValidSelector,
@@ -17,13 +17,12 @@ import {
   AxisDirectionAtom,
   GridModalErrorAtom,
   progressDetailAtom,
-  selectedFileAtom,
-} from '../state';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { updateProject } from 'graphql/mutations';
-import { createModelCall } from './create-model';
-import { formatColumnHeader } from '@/utils/Utils';
-
+  selectedFileAtom
+} from "../state";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+// import { updateProject } from "graphql/mutations";
+import { createModelCall } from "./create-model";
+import { formatColumnHeader } from "@/utils/Utils";
 /**
  * Utility for interfacing with the Project class
  * @returns {Object}
@@ -81,25 +80,29 @@ export const useProject = () => {
     // utilties
     const updateProjectState = async (res) => {
       // if (res?.statusCode === 200) {
-      setIsQtOpen(true);
-      setPayload({ url: res.url, sdt: res.sdt });
-      // update Dynamo Project Item
-      const updateProjectInput = {
-        id: selectedProject.id,
-        filePath: res.sdt,
-        expiry: new Date().toISOString(),
-        properties: properties.map((el) =>
-          el.lastDroppedItem
-            ? el.lastDroppedItem.key
-              ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
-              : ''
-            : ''
-        ),
-        url: res.url,
-      };
-      try {
-        const result = await API.graphql(graphqlOperation(updateProject, { input: updateProjectInput }));
-      } catch (error) {}
+        setIsQtOpen(true);
+        setPayload({ url: res.url, sdt: res.sdt });
+        // update Dynamo Project Item
+        const updateProjectInput = {
+          id: selectedProject.id,
+          filePath: res.sdt,
+          expiry: new Date().toISOString(),
+          properties: properties.map((el) =>
+            el.lastDroppedItem
+              ? el.lastDroppedItem.key
+                ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
+                : ""
+              : ""
+          ),
+          url: res.url,
+        };
+        try {
+          // const result = await API.graphql(
+          //   graphqlOperation(updateProject, { input: updateProjectInput })
+          // );
+        } catch (error) {
+          // TODO: put error handling in toast
+        }
       // }
     };
     const callETL = async () => {
@@ -108,7 +111,6 @@ export const useProject = () => {
           if (isPropsValid) {
             try {
               //hide existing model
-              // @ts-ignore
               window?.core.ToggleDrawer(false);
             } catch (error) {}
 
@@ -143,7 +145,6 @@ export const useProject = () => {
                 }); // on success send data to payload
                 try {
                   // create glyph window
-                  // @ts-ignore
                   window.core.OpenProject(
                     JSON.stringify({
                       user_id: userId,

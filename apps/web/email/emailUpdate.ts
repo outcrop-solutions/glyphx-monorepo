@@ -1,4 +1,4 @@
-function html({email}): string {
+export function html({email}): string {
   return `
 <body>
     <p>Hello there!</p>
@@ -10,7 +10,7 @@ function html({email}): string {
 `;
 }
 
-function text({email}): string {
+export function text({email}): string {
   return `
 Hello there!
 
@@ -25,4 +25,4 @@ ${process.env.EMAIL_FROM}
 `;
 }
 
-export {html, text};
+// export {html, text};

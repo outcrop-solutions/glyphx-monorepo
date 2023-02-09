@@ -52,7 +52,6 @@ export const useFileSystem = () => {
   //       try {
   //         // client/clientid/modelid/input/tablename/file.csv
   //         const data = await Storage.list(`${orgId}/${projectId}/input/`);
-  //         console.log({ data });
   //         const fileSystemData = await createFileSystemFromS3(data, projectId);
   //         // setFileSystem(produce((draft) => fileSystemData));
   //         // // select file
@@ -134,9 +133,7 @@ export const useFileSystem = () => {
       //       description: project.description,
       //       files: fileArr, //adding file to dynamo db
       //     };
-      //     console.log({ updatedProject });
       //     let GraphQLresult = await updateProjectInfo(updatedProject);
-      //     console.log('GraphQL file update:', { GraphQLresult });
       //   }
     },
     // [setFileSystem, project, fileSystem, setDataGrid]

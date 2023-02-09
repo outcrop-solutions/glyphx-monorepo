@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-// import DataGrid from 'react-data-grid';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { columnsSelector, rowsSelector } from 'state/files';
@@ -77,7 +76,6 @@ export const Datagrid = ({ isDropped }) => {
   useEffect(() => {}, [isShareModelOpen, isShowInfoOpen, isShowNotificationOpen]);
 
   return (
-    // @ts-ignore - missing attributes
     <DataGrid
       headerRowHeight={20}
       rowHeight={20}

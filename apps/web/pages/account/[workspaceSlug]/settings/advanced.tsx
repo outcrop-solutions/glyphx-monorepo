@@ -8,10 +8,10 @@ import Modal from 'components/Modal/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@glyphx/business/src/lib/common/api';
+import { api } from 'lib';
+import { getWorkspace, isWorkspaceCreator } from '@glyphx/business';
 import { useWorkspace } from 'providers/workspace';
 import { getSession } from 'next-auth/react';
-import { getWorkspace, isWorkspaceCreator } from '@glyphx/business/src/services/workspace';
 
 const Advanced = ({ isCreator }) => {
   const { setWorkspace, workspace } = useWorkspace();
@@ -51,18 +51,15 @@ const Advanced = ({ isCreator }) => {
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace?.name} | Advanced Settings`} />
       <Content.Title title="Advanced Workspace Settings" subtitle="Manage your workspace settings" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
         <Card danger>
-          {/* @ts-ignore */}
           <Card.Body
             title="Delete Workspace"
             subtitle="The workspace will be permanently deleted, including its contents and domains. This action is irreversible and can not be undone."
           />
           <Card.Footer>
-            {/* @ts-ignore */}
-            <small className={[isCreator && 'text-red-600']}>
+            <small className={`${isCreator && 'text-red-600'}`}>
               {isCreator
                 ? 'This action is not reversible. Please be certain.'
                 : 'Please contact your team creator for the deletion of your workspace.'}
@@ -114,11 +111,8 @@ export const getServerSideProps = async (context) => {
   let isCreator = false;
 
   if (session) {
-    // @ts-ignore
-    const workspace = await getWorkspace(session.user.userId, session.user.email, context.params.workspaceSlug);
-
-    // @ts-ignore
-    isCreator = isWorkspaceCreator(session.user.userId, workspace.creatorId);
+    const workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
+    isCreator = await isWorkspaceCreator(session?.user?.userId, workspace.creatorId);
   }
 
   return { props: { isCreator } };

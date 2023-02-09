@@ -1,5 +1,6 @@
-import { updateProject } from 'graphql/mutations';
-import { API, graphqlOperation } from 'aws-amplify';
+
+// import { updateProject } from "graphql/mutations";
+import { API, graphqlOperation } from "aws-amplify";
 
 /**
  * TAKES IN NEW PROJECT STATE AND SAVES IT TO DYNAMO DB. RETURNS NEW PROJECT STATE
@@ -7,12 +8,13 @@ import { API, graphqlOperation } from 'aws-amplify';
  * @param newProjectState
  */
 export const updateProjectInfo = async (newProjectState) => {
-  try {
-    const result = await API.graphql(graphqlOperation(updateProject, { input: newProjectState }));
-    return result;
-  } catch (error) {
-    // TODO: put error handling in toast
-
-    return null;
-  }
-};
+    try {
+        // const result = await API.graphql(
+        //     graphqlOperation(updateProject, { input: newProjectState })
+        // );
+        // return result;
+    } catch (error) {
+        // TODO: put error handling in toast
+        return null;
+    }
+}

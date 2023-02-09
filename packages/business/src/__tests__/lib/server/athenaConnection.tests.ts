@@ -3,9 +3,9 @@ import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import rewire from 'rewire';
 import {aws, error} from '@glyphx/core';
-import athenaConnection from '../../../lib/server/athenaConnection';
+import athenaConnection from '../../../lib/athenaConnection';
 
-describe('#lib/server/athenaConnection', () => {
+describe('#lib/athenaConnection', () => {
   context('validate the singleton', () => {
     it('will validate the exported singleton', () => {
       assert.throws(() => {
@@ -16,7 +16,7 @@ describe('#lib/server/athenaConnection', () => {
   });
   context('constructor', () => {
     it('will construct a new object', () => {
-      const rw = rewire('../../../lib/server/athenaConnection');
+      const rw = rewire('../../../lib/athenaConnection');
       const athenaClass = rw.__get__('AthenaConnection');
 
       const newObject = new athenaClass();
@@ -41,7 +41,7 @@ describe('#lib/server/athenaConnection', () => {
     });
 
     it('will initialize our connection', async () => {
-      const rw = rewire('../../../lib/server/athenaConnection');
+      const rw = rewire('../../../lib/athenaConnection');
       const getSecretsMock = sandbox.stub();
       getSecretsMock.resolves(mockSecret);
       sandbox.replace(
@@ -72,7 +72,7 @@ describe('#lib/server/athenaConnection', () => {
       assert.isTrue(newObject.inited);
     });
     it('will initialize our connection only once', async () => {
-      const rw = rewire('../../../lib/server/athenaConnection');
+      const rw = rewire('../../../lib/athenaConnection');
       const getSecretsMock = sandbox.stub();
       getSecretsMock.resolves(mockSecret);
       sandbox.replace(

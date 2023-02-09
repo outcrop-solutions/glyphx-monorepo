@@ -12,9 +12,7 @@ export const VisualizationProps = () => {
   const [states, setStates] = useRecoilState(statesSelector);
 
   // useEffect(() => {
-  //   // @ts-ignore
   //   if (window && window?.core) {
-  //     // @ts-ignore
   //     //window.core.SendCameraPosition.connect(async function (message) {
   //       const createStateInput = {
   //         id: uuid(),
@@ -39,12 +37,10 @@ export const VisualizationProps = () => {
   // }, []);
 
   const addState = async () => {
-    // @ts-ignore
     if (
       window
       //&& window.core
     ) {
-      // @ts-ignore
       //await window.core.GetCameraPosition(true);
     }
   };

@@ -1,7 +1,6 @@
 import {getSession} from 'next-auth/react';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const validateMiddleware = () => {
+export async function validateSessionMiddleware() {
   return async (req, res, next) => {
     const session = await getSession({req});
     const errors = [];
@@ -20,6 +19,4 @@ const validateMiddleware = () => {
     errors.forEach(error => (errorObject[error.param] = error));
     res.status(401).json({errors: errorObject});
   };
-};
-
-export default validateMiddleware;
+}

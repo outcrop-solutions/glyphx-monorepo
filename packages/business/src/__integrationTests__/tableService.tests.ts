@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {TableService} from '../services/table';
-import AthenaConnection from '../lib/server/athenaConnection';
+import AthenaConnection from '../lib/athenaConnection';
 
 describe('#tableService', () => {
   context('test the services of the tableService', () => {

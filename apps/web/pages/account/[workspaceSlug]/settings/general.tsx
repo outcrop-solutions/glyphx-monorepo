@@ -12,9 +12,9 @@ import Card from '@/components/Card/index';
 import Content from '@/components/Content/index';
 import Meta from '@/components/Meta/index';
 import { AccountLayout } from '@/layouts/index';
-import api from '@glyphx/business/src/lib/common/api';
+import { api } from 'lib';
+import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
 import { useWorkspace } from '@/providers/workspace';
-import { getWorkspace, isWorkspaceOwner } from '@glyphx/business/src/services/workspace';
 
 const General = ({ isTeamOwner, workspace }) => {
   const router = useRouter();
@@ -79,10 +79,8 @@ const General = ({ isTeamOwner, workspace }) => {
     <AccountLayout>
       <Meta title={`Glyphx - ${workspace.name} | Settings`} />
       <Content.Title title="Workspace Information" subtitle="Manage your workspace details and information" />
-      {/* @ts-ignore */}
       <Content.Divider />
       <Content.Container>
-        {/* @ts-ignore */}
         <Card>
           <Card.Body title="Workspace Name" subtitle="Used to identify your Workspace on the Dashboard">
             <input
@@ -106,7 +104,6 @@ const General = ({ isTeamOwner, workspace }) => {
             )}
           </Card.Footer>
         </Card>
-        {/* @ts-ignore */}
         <Card>
           <Card.Body title="Workspace Slug" subtitle="Used to identify your Workspace on the Dashboard">
             <div className="flex items-center space-x-3">
@@ -133,7 +130,6 @@ const General = ({ isTeamOwner, workspace }) => {
             )}
           </Card.Footer>
         </Card>
-        {/* @ts-ignore */}
         <Card>
           <Card.Body title="Workspace ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
@@ -155,12 +151,9 @@ export const getServerSideProps = async (context) => {
   let workspace = null;
 
   if (session) {
-    // @ts-ignore
-    workspace = await getWorkspace(session.user.userId, session.user.email, context.params.workspaceSlug);
-
+    workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
     if (workspace) {
-      // @ts-ignore
-      isTeamOwner = isWorkspaceOwner(session.user.email, workspace);
+      isTeamOwner = await isWorkspaceOwner(session?.user?.email, workspace);
     }
   }
 

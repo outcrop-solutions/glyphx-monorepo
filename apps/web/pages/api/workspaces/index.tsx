@@ -1,14 +1,15 @@
-import { validateSession } from '@glyphx/business/src/validation';
-import { getWorkspaces } from '@glyphx/business/src/services/workspace';
+import { validateSession, getWorkspaces } from '@glyphx/business';
+import { Session } from 'next-auth';
+
 
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'GET') {
-    const session = await validateSession(req, res);
+    const session = await validateSession(req, res) as Session;
     const workspaces = await getWorkspaces(
-      session.user.userId,
-      session.user.email
+      session?.user?.userId,
+      session?.user?.email
     );
     res.status(200).json({ data: { workspaces } });
   } else {

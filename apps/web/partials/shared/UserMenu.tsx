@@ -1,10 +1,10 @@
-import React from 'react';
-import { useState, useRef, useEffect } from 'react';
-import { Transition } from 'utils/Transition';
-import { Auth } from 'aws-amplify';
-import { useRouter } from 'next/router';
-import { userAtom } from 'state/user';
-import { useRecoilValue } from 'recoil';
+import React from "react";
+import { useState, useRef, useEffect } from "react";
+import { Transition } from "utils/Transition";
+// import { Auth } from "aws-amplify";
+import { useRouter } from "next/router";
+import {userAtom } from "@/state/user";
+import { useRecoilValue } from "recoil";
 export const UserMenu = ({ align }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
@@ -32,13 +32,7 @@ export const UserMenu = ({ align }) => {
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
-
-  const signOut = async () => {
-    try {
-      await Auth.signOut();
-      router.push('/');
-    } catch (error) {}
-  };
+  
   return (
     <div className="relative">
       <button

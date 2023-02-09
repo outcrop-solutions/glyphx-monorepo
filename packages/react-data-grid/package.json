@@ -133,8 +133,6 @@
     "prettier:check": "prettier --check .",
     "prettier:format": "prettier --write .",
     "start": "webpack serve --mode=development",
-    "test": "jest",
-    "test:watch": "jest --watch",
     "typecheck": "tsc -p tsconfig.all.json"
   },
   "sideEffects": false,

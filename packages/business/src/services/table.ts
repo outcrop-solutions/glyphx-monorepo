@@ -1,4 +1,4 @@
-import athenaConnection from '../lib/server/athenaConnection';
+import athenaConnection from 'lib/athenaConnection';
 import {error} from '@glyphx/core';
 
 /**

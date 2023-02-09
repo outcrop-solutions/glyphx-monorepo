@@ -1,17 +1,22 @@
-import { useEffect } from 'react';
-import { ChevronRightIcon } from '@heroicons/react/solid';
-import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
-import { v4 as uuid } from 'uuid';
-import { createProject } from 'graphql/mutations';
-import { listProjects } from 'graphql/queries';
-import { API, graphqlOperation } from 'aws-amplify';
+import { useEffect } from "react";
+import { ChevronRightIcon } from "@heroicons/react/solid";
+import {
+  CalendarIcon,
+  SpeakerphoneIcon,
+  TerminalIcon,
+} from "@heroicons/react/outline";
+import { v4 as uuid } from "uuid";
+// import { createProject } from "graphql/mutations";
+// import { listProjects } from "graphql/queries";
+// import { API, graphqlOperation } from "aws-amplify";
 
-import sortArray from 'sort-array';
-import { useUser } from 'services';
-import { useRouter } from 'next/router';
-import { CreateProjectMutation } from 'API';
-import { userAtom } from 'state/user';
-import { useRecoilValue } from 'recoil';
+import sortArray from "sort-array";
+import { useUser } from "services";
+import { useRouter } from "next/router";
+// import { CreateProjectMutation } from "API";
+import {userAtom } from "@/state/user";
+
+import { useRecoilValue } from "recoil";
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -82,11 +87,14 @@ export const Templates = () => {
       expiry: new Date(),
     };
     try {
-      const result = (await API.graphql(graphqlOperation(createProject, { input: createProjectInput }))) as {
-        data: CreateProjectMutation;
-      };
-      router.push(`/${orgId}/${result.data.createProject.id}`);
-    } catch (error) {}
+      // const result = (await API.graphql(
+      //   graphqlOperation(createProject, { input: createProjectInput })
+      // )) as {
+      //   data: CreateProjectMutation;
+      // };
+      // router.push(`/project/${result.data.createProject.id}`);
+    } catch (error) {
+    }
   };
   return (
     <div className="max-w-lg mx-auto my-auto h-full flex flex-col grow justify-center">

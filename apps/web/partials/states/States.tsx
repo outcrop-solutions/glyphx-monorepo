@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-import { createState } from 'graphql/mutations';
-import { v4 as uuid } from 'uuid';
-import { StateList } from './StateList';
+// import { createState } from "graphql/mutations";
+import { v4 as uuid } from "uuid";
+import { StateList } from "./StateList";
 // import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { selectedProjectSelector } from 'state/project';
@@ -14,9 +14,7 @@ export const States = () => {
   const [isCollapsed, setCollapsed] = useState(false);
 
   // useEffect(() => {
-  //   // @ts-ignore
   //   if (window && window?.core) {
-  //     // @ts-ignore
   //     //window.core.SendCameraPosition.connect(async function (message) {
   //       const createStateInput = {
   //         id: uuid(),
@@ -41,12 +39,10 @@ export const States = () => {
   // }, []);
 
   const addState = async () => {
-    // @ts-ignore
     if (
       window
       //&& window.core
     ) {
-      // @ts-ignore
       //await window.core.GetCameraPosition(true);
     }
   };

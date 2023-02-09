@@ -1,14 +1,14 @@
 import nodemailer from 'nodemailer';
 
-export const EMAIL_CONFIG = {
-  auth: {
-    user: process.env.EMAIL_SERVER_USER,
-    pass: process.env.EMAIL_SERVER_PASSWORD,
-  },
-  service: process.env.EMAIL_SERVICE,
-};
+// export const EMAIL_CONFIG = {
+//   auth: {
+//     user: process.env.EMAIL_SERVER_USER,
+//     pass: process.env.EMAIL_SERVER_PASSWORD,
+//   },
+//   service: process.env.EMAIL_SERVICE,
+// };
 
-const TRANSPORT = nodemailer.createTransport(EMAIL_CONFIG);
+const TRANSPORT = nodemailer.createTransport(process.env.EMAIL_SERVER);
 
 export interface ISendMail {
   from?: string | null | undefined;

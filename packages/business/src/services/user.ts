@@ -1,6 +1,4 @@
-//@ts-nocheck
-import {html, text} from 'email/emailUpdate';
-import {sendMail} from 'lib/server/mail';
+import {sendMail, updateHtml, updateText} from '@glyphx/email';
 import {prisma} from '@glyphx/database';
 
 export async function deactivate(id) {
@@ -30,9 +28,9 @@ export async function updateEmail(id, email, previousEmail) {
     where: {id},
   });
   await sendMail({
-    html: html({email}),
+    html: updateHtml({email}),
     subject: '[Glyphx] Email address updated',
-    text: text({email}),
+    text: updateText({email}),
     to: [email, previousEmail],
   });
 }

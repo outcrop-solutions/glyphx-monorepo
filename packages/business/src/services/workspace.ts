@@ -1,12 +1,15 @@
-// @ts-nocheck
-// eslint-disable-next-line node/no-extraneous-import
-import {InvitationStatus, Role} from '@prisma/client';
 import slugify from 'slugify';
 
-import {html as createHtml, text as createText} from 'email/workspaceCreate';
-import {html as inviteHtml, text as inviteText} from 'email/invitation';
-import {ISendMail, sendMail} from 'lib/server/mail';
+import {
+  ISendMail,
+  sendMail,
+  workspaceCreateHtml,
+  workspaceCreateText,
+  inviteHtml,
+  inviteText,
+} from '@glyphx/email';
 import {prisma} from '@glyphx/database';
+import {database} from '@glyphx/types';
 
 export async function countWorkspaces(slug) {
   return await prisma.workspace.count({
@@ -28,8 +31,8 @@ export async function createWorkspace(creatorId, email, name, slug) {
         create: {
           email,
           inviter: email,
-          status: InvitationStatus.ACCEPTED,
-          teamRole: Role.OWNER,
+          status: database.constants.INVITATION_STATUS.ACCEPTED,
+          teamRole: database.constants.ROLE.OWNER,
         },
       },
       name,
@@ -37,9 +40,9 @@ export async function createWorkspace(creatorId, email, name, slug) {
     },
   });
   await sendMail({
-    html: createHtml({code: workspace.inviteCode, name}),
+    html: workspaceCreateHtml({code: workspace.inviteCode, name}),
     subject: `[Glyphx] Workspace created: ${name}`,
-    text: createText({code: workspace.inviteCode, name}),
+    text: workspaceCreateText({code: workspace.inviteCode, name}),
     to: email,
   } as ISendMail);
 }
@@ -87,7 +90,7 @@ export async function getOwnWorkspace(id, email, slug) {
           members: {
             some: {
               deletedAt: null,
-              teamRole: Role.OWNER,
+              teamRole: database.constants.ROLE.OWNER,
               email,
             },
           },
@@ -189,7 +192,7 @@ export async function getWorkspaces(id, email) {
             some: {
               email,
               deletedAt: null,
-              status: InvitationStatus.ACCEPTED,
+              status: database.constants.INVITATION_STATUS.ACCEPTED,
             },
           },
         },
@@ -262,7 +265,9 @@ export async function isWorkspaceCreator(id, creatorId) {
 export async function isWorkspaceOwner(email, workspace) {
   let isTeamOwner = false;
   const member = workspace.members.find(
-    member => member.email === email && member.teamRole === Role.OWNER
+    member =>
+      member.email === email &&
+      member.teamRole === database.constants.ROLE.OWNER
   );
 
   if (member) {
@@ -290,7 +295,7 @@ export async function joinWorkspace(workspaceCode, email: string) {
         workspaceId: workspace.id,
         email,
         inviter: workspace.creatorId,
-        status: InvitationStatus.ACCEPTED,
+        status: database.constants.INVITATION_STATUS.ACCEPTED,
       },
       update: {},
       where: {email},
@@ -301,7 +306,7 @@ export async function joinWorkspace(workspaceCode, email: string) {
   }
 }
 
-export async function updateName(id, email, name, slug) {
+export async function updateWorkspaceName(id, email, name, slug) {
   const workspace = await getOwnWorkspace(id, email, slug);
 
   if (workspace) {

@@ -47,7 +47,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
           );
           assert.strictEqual(
             info.columns[0].fieldType,
-            fileIngestion.constants.FIELD_TYPE.NUMBER
+            fileIngestion.constants.FIELD_TYPE.INTEGER
           );
 
           assert.strictEqual(info.columns[1].name, 'name');
@@ -93,7 +93,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
           write: (chunk, encoding, callback) => {
             if (firstRow) {
               assert.isDefined(chunk[GLYPHX_ID_COLUMN_NAME]);
-              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME].type, 'DOUBLE');
+              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME].type, 'INT64');
               assert.strictEqual(
                 chunk[GLYPHX_ID_COLUMN_NAME].encoding,
                 'PLAIN'
