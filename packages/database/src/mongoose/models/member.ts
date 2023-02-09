@@ -160,6 +160,7 @@ SCHEMA.static(
       createdAt: createDate,
       updatedAt: createDate,
       status: input.status,
+      teamRole: input.teamRole,
       member: input.user._id as mongooseTypes.ObjectId,
       invitedBy: input.user._id as mongooseTypes.ObjectId,
       workspace: input.workspace._id as mongooseTypes.ObjectId,
