@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {ProjectModel} from '../../..//mongoose/models/project';
-import {OrganizationModel} from '../../../mongoose/models/organization';
+import {OrganizationModel} from '../../../mongoose/models/workspace';
 import {UserModel} from '../../../mongoose/models/user';
 import {ProjectTypeModel} from '../../../mongoose/models/projectType';
 import {StateModel} from '../../../mongoose/models/state';

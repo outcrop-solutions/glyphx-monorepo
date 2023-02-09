@@ -28,10 +28,10 @@ export interface IWorkspaceStaticMethods
     input: Partial<databaseTypes.IWorkspace>
   ): Promise<boolean>;
   validateMembers(
-    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateProjects(
-    members: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   addProjects(
     workspaceId: mongooseTypes.ObjectId,
@@ -43,10 +43,10 @@ export interface IWorkspaceStaticMethods
   ): Promise<databaseTypes.IWorkspace>;
   addMembers(
     workspaceId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IWorkspace>;
   removeMembers(
     workspaceId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IWorkspace>;
 }

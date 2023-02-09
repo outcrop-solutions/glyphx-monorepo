@@ -4,7 +4,7 @@ import {ProjectModel} from '../../../mongoose/models/project';
 import {AccountModel} from '../../../mongoose/models/account';
 import {SessionModel} from '../../../mongoose/models/session';
 import {WebhookModel} from '../../../mongoose/models/webhook';
-import {OrganizationModel} from '../../../mongoose/models/organization';
+import {OrganizationModel} from '../../../mongoose/models/workspace';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';

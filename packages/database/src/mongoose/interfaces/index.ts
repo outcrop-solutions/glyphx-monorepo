@@ -1,6 +1,15 @@
 export type {IUserStaticMethods} from './iUserStaticMethods';
 export type {IUserMethods} from './iUserMethods';
 export type {IUserDocument} from './iUserDocument';
+export type {ICustomerPaymentStaticMethods} from './iCustomerPaymentStaticMethods';
+export type {ICustomerPaymentMethods} from './iCustomerPaymentMethods';
+export type {ICustomerPaymentDocument} from './iCustomerPaymentDocument';
+export type {IMemberStaticMethods} from './iMemberStaticMethods';
+export type {IMemberMethods} from './iMemberMethods';
+export type {IMemberDocument} from './iMemberDocument';
+export type {IVerificationTokenStaticMethods} from './iVerificationTokenStaticMethods';
+export type {IVerificationTokenMethods} from './iVerificationTokenMethods';
+export type {IVerificationTokenDocument} from './iVerificationTokenDocument';
 export type {IAccountDocument} from './iAccountDocument';
 export type {IAccountMethods} from './iAccountMethods';
 export type {IAccountStaticMethods} from './iAccountStaticMethods';

@@ -6,7 +6,7 @@ import {ProjectModel} from './project';
 import {AccountModel} from './account';
 import {SessionModel} from './session';
 import {WebhookModel} from './webhook';
-import {OrganizationModel} from './organization';
+import {WorkspaceModel} from './workspace';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   name: {type: String, required: true},
@@ -111,7 +111,7 @@ SCHEMA.static(
 
     if (user.ownedOrgs?.length)
       throw new error.InvalidOperationError(
-        "This method cannot be used to alter the users' ownedOrganizations.  Use the add/remove organization functions to complete this operation",
+        "This method cannot be used to alter the users' ownedWorkspaces.  Use the add/remove organization functions to complete this operation",
         {organizations: user.ownedOrgs}
       );
 
@@ -271,7 +271,7 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validateOrganizations',
+  'validateWorkspaces',
   async (
     organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
@@ -281,7 +281,7 @@ SCHEMA.static(
       else organizationIds.push(p._id as mongooseTypes.ObjectId);
     });
     try {
-      await OrganizationModel.allOrganizationIdsExist(organizationIds);
+      await WorkspaceModel.allWorkspaceIdsExist(organizationIds);
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(
@@ -393,7 +393,7 @@ SCHEMA.static(
             //istanbul ignore next
             input.webhooks ?? []
           ),
-          USER_MODEL.validateOrganizations(
+          USER_MODEL.validateWorkspaces(
             //istanbul ignore next
             orgs ?? []
           ),
@@ -986,7 +986,7 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'addOrganizations',
+  'addWorkspaces',
   async (
     userId: mongooseTypes.ObjectId,
     organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
@@ -1006,7 +1006,7 @@ SCHEMA.static(
           userId
         );
 
-      const reconciledIds = await USER_MODEL.validateOrganizations(
+      const reconciledIds = await USER_MODEL.validateWorkspaces(
         organizations
       );
       let dirty = false;
@@ -1037,7 +1037,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurrred while adding the organizations. See the innner error for additional information',
           'mongoDb',
-          'user.addOrganizations',
+          'user.addWorkspaces',
           err
         );
       }
@@ -1046,7 +1046,7 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'removeOrganizations',
+  'removeWorkspaces',
   async (
     userId: mongooseTypes.ObjectId,
     organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
@@ -1073,7 +1073,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedOrganizations = userDocument.ownedOrgs.filter(o => {
+      const updatedWorkspaces = userDocument.ownedOrgs.filter(o => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -1091,7 +1091,7 @@ SCHEMA.static(
 
       if (dirty) {
         userDocument.ownedOrgs =
-          updatedOrganizations as unknown as databaseTypes.IWorkspace[];
+          updatedWorkspaces as unknown as databaseTypes.IWorkspace[];
         await userDocument.save();
       }
 
@@ -1107,7 +1107,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurrred while removing the organizations. See the innner error for additional information',
           'mongoDb',
-          'user.removeOrganizations',
+          'user.removeWorkspaces',
           err
         );
       }
