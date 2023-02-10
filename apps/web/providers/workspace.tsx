@@ -1,6 +1,12 @@
 import { createContext, useContext, useState } from 'react';
+import { database } from '@glyphx/types';
 
-const initialState = {
+interface IWorkspaceContext {
+  setWorkspace: (workspace: any) => void
+  workspace: database.IWorkspace
+}
+
+const initialState: IWorkspaceContext = {
   setWorkspace: () => {},
   workspace: null,
 };
@@ -17,7 +23,6 @@ const WorkspaceProvider = ({ children }) => {
   };
 
   return (
-    //@ts-ignore
     <WorkspaceContext.Provider value={{ setWorkspace, workspace }}>{children}</WorkspaceContext.Provider>
   );
 };

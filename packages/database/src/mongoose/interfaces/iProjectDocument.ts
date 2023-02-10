@@ -4,9 +4,9 @@ import {Types as mongooseTypes} from 'mongoose';
 export interface IProjectDocument
   extends Omit<
     databaseTypes.IProject,
-    '_id' | 'organization' | 'type' | 'owner' | 'state'
+    '_id' | 'workspace' | 'type' | 'owner' | 'state'
   > {
-  organization: mongooseTypes.ObjectId;
+  workspace: mongooseTypes.ObjectId;
   type: mongooseTypes.ObjectId;
   owner: mongooseTypes.ObjectId;
   state?: mongooseTypes.ObjectId;

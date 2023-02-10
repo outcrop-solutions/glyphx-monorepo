@@ -27,7 +27,7 @@ export interface IProjectStaticMethods
   validateType(
     input: databaseTypes.IProjectType | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
-  validateOrganization(
+  validateWorkspace(
     input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
   validateOwner(

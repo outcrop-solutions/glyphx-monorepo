@@ -61,6 +61,7 @@ export default function App({
   Router.events.on('routeChangeStart', () => setProgress(true));
   Router.events.on('routeChangeComplete', () => setProgress(false));
   TopBarProgress.config(progressBarConfig());
+
   /* 
     TO ENABLE SENTRY (ERROR LOGGING) WHEN THIS BRANCH GOES LIVE, 
     MAKE SURE TO DISABLE PREVIOUS BRANCH IF IT IS STILL HOSTED
@@ -69,13 +70,12 @@ export default function App({
   //   dsn: "https://27cc141e72614ddab6af6b29192e2c1f@o1211173.ingest.sentry.io/6349661",
   //   integrations: [new BrowserTracing()],
   // });
+
   useEffect(() => {
     const handleRouteChange = (url) => {
       ReactGA.pageview(url);
     };
-
     router.events.on('routeChangeComplete', handleRouteChange);
-
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };

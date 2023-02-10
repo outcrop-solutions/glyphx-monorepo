@@ -59,18 +59,18 @@ const INPUT_USER = {
 };
 
 const INPUT_DATA = {
-  name: 'testOrganization' + UNIQUE_KEY,
-  description: 'testorganization' + UNIQUE_KEY,
+  name: 'testWorkspace' + UNIQUE_KEY,
+  description: 'testworkspace' + UNIQUE_KEY,
   owner: {},
   members: [],
   projects: [],
 };
 
-describe('#OrganizationModel', () => {
-  context('test the crud functions of the organization model', () => {
+describe('#WorkspaceModel', () => {
+  context('test the crud functions of the workspace model', () => {
     const mongoConnection = new MongoDbConnection();
-    const organizationModel = mongoConnection.models.OrganizationModel;
-    let organizationId: ObjectId;
+    const workspaceModel = mongoConnection.models.WorkspaceModel;
+    let workspaceId: ObjectId;
     let userId: ObjectId;
     let memberId: ObjectId;
     let memberId2: ObjectId;
@@ -144,125 +144,125 @@ describe('#OrganizationModel', () => {
       await projectModel.findByIdAndDelete(projectId);
       await projectModel.findByIdAndDelete(projectId2);
 
-      if (organizationId) {
-        await organizationModel.findByIdAndDelete(organizationId);
+      if (workspaceId) {
+        await workspaceModel.findByIdAndDelete(workspaceId);
       }
     });
 
-    it('add a new organization ', async () => {
-      const organizationInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      organizationInput.owner = userDocument;
-      organizationInput.members.push(memberDocument);
-      organizationInput.projects.push(projectDocument);
-      const organizationDocument = await organizationModel.createOrganization(
-        organizationInput
+    it('add a new workspace ', async () => {
+      const workspaceInput = JSON.parse(JSON.stringify(INPUT_DATA));
+      workspaceInput.owner = userDocument;
+      workspaceInput.members.push(memberDocument);
+      workspaceInput.projects.push(projectDocument);
+      const workspaceDocument = await workspaceModel.createWorkspace(
+        workspaceInput
       );
 
-      assert.isOk(organizationDocument);
-      assert.strictEqual(organizationDocument.name, organizationInput.name);
+      assert.isOk(workspaceDocument);
+      assert.strictEqual(workspaceDocument.name, workspaceInput.name);
       assert.strictEqual(
-        organizationDocument.owner._id?.toString(),
+        workspaceDocument.owner._id?.toString(),
         userId.toString()
       );
 
       assert.strictEqual(
-        organizationDocument.members[0].name,
+        workspaceDocument.members[0].name,
         memberDocument.name
       );
       assert.strictEqual(
-        organizationDocument.projects[0].name,
+        workspaceDocument.projects[0].name,
         projectDocument.name
       );
 
-      organizationId = organizationDocument._id as mongooseTypes.ObjectId;
+      workspaceId = workspaceDocument._id as mongooseTypes.ObjectId;
     });
 
-    it('retreive an organization ', async () => {
-      assert.isOk(organizationId);
-      const organization = await organizationModel.getOrganizationById(
-        organizationId
+    it('retreive an workspace ', async () => {
+      assert.isOk(workspaceId);
+      const workspace = await workspaceModel.getWorkspaceById(
+        workspaceId
       );
 
-      assert.isOk(organization);
+      assert.isOk(workspace);
       assert.strictEqual(
-        organization._id?.toString(),
-        organizationId.toString()
+        workspace._id?.toString(),
+        workspaceId.toString()
       );
     });
 
-    it('modify an organization', async () => {
-      assert.isOk(organizationId);
+    it('modify an workspace', async () => {
+      assert.isOk(workspaceId);
       const input = {description: 'a modified description'};
-      const updatedDocument = await organizationModel.updateOrganizationById(
-        organizationId,
+      const updatedDocument = await workspaceModel.updateWorkspaceById(
+        workspaceId,
         input
       );
       assert.strictEqual(updatedDocument.description, input.description);
     });
 
-    it('add a project to the organization', async () => {
-      assert.isOk(organizationId);
-      const updatedOrganizationDocument = await organizationModel.addProjects(
-        organizationId,
+    it('add a project to the workspace', async () => {
+      assert.isOk(workspaceId);
+      const updatedWorkspaceDocument = await workspaceModel.addProjects(
+        workspaceId,
         [projectId2]
       );
-      assert.strictEqual(updatedOrganizationDocument.projects.length, 2);
+      assert.strictEqual(updatedWorkspaceDocument.projects.length, 2);
       assert.strictEqual(
-        updatedOrganizationDocument.projects[1]?._id?.toString(),
+        updatedWorkspaceDocument.projects[1]?._id?.toString(),
         projectId2.toString()
       );
     });
 
-    it('remove a project from the organization', async () => {
-      assert.isOk(organizationId);
-      const updatedOrganizationDocument =
-        await organizationModel.removeProjects(organizationId, [projectId2]);
-      assert.strictEqual(updatedOrganizationDocument.projects.length, 1);
+    it('remove a project from the workspace', async () => {
+      assert.isOk(workspaceId);
+      const updatedWorkspaceDocument =
+        await workspaceModel.removeProjects(workspaceId, [projectId2]);
+      assert.strictEqual(updatedWorkspaceDocument.projects.length, 1);
       assert.strictEqual(
-        updatedOrganizationDocument.projects[0]?._id?.toString(),
+        updatedWorkspaceDocument.projects[0]?._id?.toString(),
         projectId.toString()
       );
     });
 
-    it('add a member to the organization', async () => {
-      assert.isOk(organizationId);
-      const updatedOrganizationDocument = await organizationModel.addMembers(
-        organizationId,
+    it('add a member to the workspace', async () => {
+      assert.isOk(workspaceId);
+      const updatedWorkspaceDocument = await workspaceModel.addMembers(
+        workspaceId,
         [memberId2]
       );
-      assert.strictEqual(updatedOrganizationDocument.members.length, 2);
+      assert.strictEqual(updatedWorkspaceDocument.members.length, 2);
       assert.strictEqual(
-        updatedOrganizationDocument.members[1]?._id?.toString(),
+        updatedWorkspaceDocument.members[1]?._id?.toString(),
         memberId2.toString()
       );
     });
 
-    it('remove a member from the organization', async () => {
-      assert.isOk(organizationId);
-      const updatedOrganizationDocument = await organizationModel.removeMembers(
-        organizationId,
+    it('remove a member from the workspace', async () => {
+      assert.isOk(workspaceId);
+      const updatedWorkspaceDocument = await workspaceModel.removeMembers(
+        workspaceId,
         [memberId2]
       );
-      assert.strictEqual(updatedOrganizationDocument.members.length, 1);
+      assert.strictEqual(updatedWorkspaceDocument.members.length, 1);
       assert.strictEqual(
-        updatedOrganizationDocument.members[0]?._id?.toString(),
+        updatedWorkspaceDocument.members[0]?._id?.toString(),
         memberId.toString()
       );
     });
 
-    it('remove an organization', async () => {
-      assert.isOk(organizationId);
-      await organizationModel.deleteOrganizationById(organizationId);
+    it('remove an workspace', async () => {
+      assert.isOk(workspaceId);
+      await workspaceModel.deleteWorkspaceById(workspaceId);
       let errored = false;
       try {
-        await organizationModel.getOrganizationById(organizationId);
+        await workspaceModel.getWorkspaceById(workspaceId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      organizationId = null as unknown as ObjectId;
+      workspaceId = null as unknown as ObjectId;
     });
   });
 });

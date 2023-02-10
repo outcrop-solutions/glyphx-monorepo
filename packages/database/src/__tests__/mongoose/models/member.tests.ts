@@ -598,11 +598,14 @@ describe('#mongoose/models/member', () => {
     const mockMember: databaseTypes.IMember = {
       _id: new mongoose.Types.ObjectId(),
       email: 'james@glyphx.co',
+      inviter: 'jg@glyphx.co',
       invitedAt: new Date(),
       joinedAt: new Date(),
       deletedAt: new Date(),
       updatedAt: new Date(),
       createdAt: new Date(),
+      status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+      teamRole: databaseTypes.constants.ROLE.MEMBER,
       __v: 1,
       member: {
         _id: new mongoose.Types.ObjectId(),
@@ -626,7 +629,7 @@ describe('#mongoose/models/member', () => {
       sandbox.restore();
     });
 
-    it('will retreive a member document with the user populated', async () => {
+    it('will retreive a member document with the member, invitedBy and workspace populated', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new MockMongooseQuery(mockMember));
       sandbox.replace(MemberModel, 'findById', findByIdStub);

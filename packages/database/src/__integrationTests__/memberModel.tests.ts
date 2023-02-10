@@ -16,6 +16,9 @@ const INPUT_USER = {
   gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
+  deletedAt: new Date(),
+  updatedAt: new Date(),
+  createdAt: new Date(),
   isVerified: true,
   apiKey: 'testApiKey' + UNIQUE_KEY,
 };
@@ -23,12 +26,13 @@ const INPUT_USER = {
 const INPUT_WORKSPACE = {
   workspaceCode: 'testWorkspace' + UNIQUE_KEY,
   inviteCode: 'testWorkspace' + UNIQUE_KEY,
-  username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
-  email: 'testEmail' + UNIQUE_KEY + '@email.com',
-  emailVerified: new Date(),
-  isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
+  creatorId: 'testCreator' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  deletedAt: new Date(),
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
 };
 
 const INPUT_DATA = {
@@ -60,7 +64,9 @@ describe('#memberModel', () => {
       const userModel = mongoConnection.models.UserModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
-      await workspaceModel.createWorkspace(INPUT_USER as databaseTypes.IUser);
+      await workspaceModel.createWorkspace(
+        INPUT_WORKSPACE as databaseTypes.IWorkspace
+      );
 
       const savedUserDocument = await userModel
         .findOne({email: INPUT_USER.email})
@@ -68,13 +74,23 @@ describe('#memberModel', () => {
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
-
       assert.isOk(userId);
+
+      const savedWorkspaceDocument = await workspaceModel
+        .findOne({email: INPUT_WORKSPACE.slug})
+        .lean();
+      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
+
+      workspaceDocument = savedWorkspaceDocument;
+      assert.isOk(workspaceId);
     });
 
     after(async () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
+
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
+      await workspaceModel.findByIdAndDelete(workspaceId);
 
       if (memberId) {
         await memberModel.findByIdAndDelete(memberId);
@@ -116,12 +132,12 @@ describe('#memberModel', () => {
 
     it('modify a Member', async () => {
       assert.isOk(memberId);
-      const input = {memberToken: 'a modified Member Token'};
+      const input = {email: 'example@gmail.com'};
       const updatedDocument = await memberModel.updateMemberById(
         memberId,
         input
       );
-      assert.strictEqual(updatedDocument.memberToken, input.memberToken);
+      assert.strictEqual(updatedDocument.email, input.email);
     });
 
     it('remove a member', async () => {

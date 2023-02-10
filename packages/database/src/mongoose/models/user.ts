@@ -21,9 +21,9 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   accounts: {type: [Schema.Types.ObjectId], ref: 'account', default: []},
   sessions: {type: [Schema.Types.ObjectId], ref: 'session', default: []},
   webhooks: {type: [Schema.Types.ObjectId], ref: 'webhook', default: []},
-  organization: {
+  workspace: {
     type: Schema.Types.ObjectId,
-    ref: 'organization',
+    ref: 'workspace',
     required: false,
   },
   apiKey: {type: String, required: false},
@@ -33,7 +33,7 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
     enum: databaseTypes.constants.ROLE,
     default: databaseTypes.constants.ROLE.MEMBER,
   },
-  ownedOrgs: {type: [Schema.Types.ObjectId], default: [], ref: 'organization'},
+  createdWorkspace: {type: [Schema.Types.ObjectId], default: [], ref: 'workspace'},
   projects: {type: [Schema.Types.ObjectId], default: [], ref: 'project'},
 });
 
@@ -109,10 +109,10 @@ SCHEMA.static(
         {sessions: user.sessions}
       );
 
-    if (user.ownedOrgs?.length)
+    if (user.createdWorkspace?.length)
       throw new error.InvalidOperationError(
-        "This method cannot be used to alter the users' ownedWorkspaces.  Use the add/remove organization functions to complete this operation",
-        {organizations: user.ownedOrgs}
+        "This method cannot be used to alter the users' ownedWorkspaces.  Use the add/remove workspace functions to complete this operation",
+        {workspaces: user.createdWorkspace}
       );
 
     if (user.projects?.length)
@@ -273,27 +273,27 @@ SCHEMA.static(
 SCHEMA.static(
   'validateWorkspaces',
   async (
-    organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    const organizationIds: mongooseTypes.ObjectId[] = [];
-    organizations.forEach(p => {
-      if (p instanceof mongooseTypes.ObjectId) organizationIds.push(p);
-      else organizationIds.push(p._id as mongooseTypes.ObjectId);
+    const workspaceIds: mongooseTypes.ObjectId[] = [];
+    workspaces.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) workspaceIds.push(p);
+      else workspaceIds.push(p._id as mongooseTypes.ObjectId);
     });
     try {
-      await WorkspaceModel.allWorkspaceIdsExist(organizationIds);
+      await WorkspaceModel.allWorkspaceIdsExist(workspaceIds);
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(
-          'One or more organization ids do not exisit in the database.  See the inner error for additional information',
-          'organization',
-          organizations,
+          'One or more workspace ids do not exisit in the database.  See the inner error for additional information',
+          'workspace',
+          workspaces,
           err
         );
       else throw err;
     }
 
-    return organizationIds;
+    return workspaceIds;
   }
 );
 
@@ -330,10 +330,10 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
     const userDocument = (await USER_MODEL.findById(userId)
       .populate('accounts')
-      .populate('organization')
+      .populate('workspace')
       .populate('sessions')
       .populate('webhooks')
-      .populate('ownedOrgs')
+      .populate('createdWorkspace')
       .populate('projects')
       .lean()) as databaseTypes.IUser;
     if (!userDocument) {
@@ -346,11 +346,11 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (userDocument as any)['__v'];
-    delete (userDocument as any).organization?.['__v'];
+    delete (userDocument as any).workspace?.['__v'];
     userDocument.accounts.forEach(a => delete (a as any)['__v']);
     userDocument.sessions.forEach(s => delete (s as any)['__v']);
     userDocument.webhooks.forEach(w => delete (w as any)['__v']);
-    userDocument.ownedOrgs.forEach(o => delete (o as any)['__v']);
+    userDocument.createdWorkspace.forEach(o => delete (o as any)['__v']);
     userDocument.projects.forEach(p => delete (p as any)['__v']);
 
     return userDocument;
@@ -373,13 +373,13 @@ SCHEMA.static(
   ) => {
     const orgs = Array.from(
       //istanbul ignore next
-      input.ownedOrgs ?? []
+      input.createdWorkspace ?? []
     ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
     //istanbul ignore else
-    if (input.organization) orgs.unshift(input.organization);
+    if (input.workspace) orgs.unshift(input.workspace);
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const [accounts, sessions, webhooks, organizations, projects] =
+      const [accounts, sessions, webhooks, workspaces, projects] =
         await Promise.all([
           USER_MODEL.validateAccounts(
             //istanbul ignore next
@@ -403,7 +403,7 @@ SCHEMA.static(
           ),
         ]);
       const createDate = new Date();
-      const org = organizations.shift() as mongooseTypes.ObjectId;
+      const org = workspaces.shift() as mongooseTypes.ObjectId;
 
       const resolvedInput: IUserDocument = {
         name: input.name,
@@ -418,10 +418,10 @@ SCHEMA.static(
         accounts: accounts,
         sessions: sessions,
         webhooks: webhooks,
-        organization: org,
+        workspace: org,
         apiKey: input.apiKey,
         role: input.role,
-        ownedOrgs: organizations,
+        createdWorkspace: workspaces,
         projects: projects,
       };
       try {
@@ -989,14 +989,14 @@ SCHEMA.static(
   'addWorkspaces',
   async (
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser> => {
     try {
-      if (!organizations.length)
+      if (!workspaces.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one organizationId',
-          'organizations',
-          organizations
+          'You must supply at least one workspaceId',
+          'workspaces',
+          workspaces
         );
       const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
@@ -1007,17 +1007,17 @@ SCHEMA.static(
         );
 
       const reconciledIds = await USER_MODEL.validateWorkspaces(
-        organizations
+        workspaces
       );
       let dirty = false;
       reconciledIds.forEach(o => {
         if (
-          !userDocument.ownedOrgs.find(
+          !userDocument.createdWorkspace.find(
             orgId => orgId.toString() === o.toString()
           )
         ) {
           dirty = true;
-          userDocument.ownedOrgs.push(
+          userDocument.createdWorkspace.push(
             o as unknown as databaseTypes.IWorkspace
           );
         }
@@ -1035,7 +1035,7 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the organizations. See the innner error for additional information',
+          'An unexpected error occurrred while adding the workspaces. See the innner error for additional information',
           'mongoDb',
           'user.addWorkspaces',
           err
@@ -1049,14 +1049,14 @@ SCHEMA.static(
   'removeWorkspaces',
   async (
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser> => {
     try {
-      if (!organizations.length)
+      if (!workspaces.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one organizationId',
-          'organizations',
-          organizations
+          'You must supply at least one workspaceId',
+          'workspaces',
+          workspaces
         );
       const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
@@ -1066,14 +1066,14 @@ SCHEMA.static(
           userId
         );
 
-      const reconciledIds = organizations.map(i =>
+      const reconciledIds = workspaces.map(i =>
         //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedWorkspaces = userDocument.ownedOrgs.filter(o => {
+      const updatedWorkspaces = userDocument.createdWorkspace.filter(o => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -1090,7 +1090,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        userDocument.ownedOrgs =
+        userDocument.createdWorkspace =
           updatedWorkspaces as unknown as databaseTypes.IWorkspace[];
         await userDocument.save();
       }
@@ -1105,7 +1105,7 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the organizations. See the innner error for additional information',
+          'An unexpected error occurrred while removing the workspaces. See the innner error for additional information',
           'mongoDb',
           'user.removeWorkspaces',
           err
