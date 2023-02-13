@@ -134,7 +134,7 @@ const INPUT_DATA = {
   accounts: [],
   sessions: [],
   webhooks: [],
-  createdWorkspace: [],
+  createdWorkspaces: [],
   projects: [],
 };
 
@@ -338,7 +338,7 @@ describe('#UserModel', () => {
       userInput.accounts.push(accountDocument);
       userInput.sessions.push(sessionDocument);
       userInput.webhooks.push(webhookDocument);
-      userInput.createdWorkspace.push(ownedWorkspaceDocument);
+      userInput.createdWorkspaces.push(ownedWorkspaceDocument);
       userInput.projects.push(projectDocument);
 
       const userDocument = await userModel.createUser(userInput);
@@ -367,7 +367,7 @@ describe('#UserModel', () => {
       );
 
       assert.strictEqual(
-        userDocument.createdWorkspace[0]._id?.toString(),
+        userDocument.createdWorkspaces[0]._id?.toString(),
         ownedWorkspaceId.toString()
       );
 
@@ -495,9 +495,9 @@ describe('#UserModel', () => {
       const updatedUserDocument = await userModel.addWorkspaces(userId, [
         ownedWorkspaceId2,
       ]);
-      assert.strictEqual(updatedUserDocument.createdWorkspace.length, 2);
+      assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 2);
       assert.strictEqual(
-        updatedUserDocument.createdWorkspace[1]?._id?.toString(),
+        updatedUserDocument.createdWorkspaces[1]?._id?.toString(),
         ownedWorkspaceId2.toString()
       );
     });
@@ -507,9 +507,9 @@ describe('#UserModel', () => {
       const updatedUserDocument = await userModel.removeWorkspaces(userId, [
         ownedWorkspaceId2,
       ]);
-      assert.strictEqual(updatedUserDocument.createdWorkspace.length, 1);
+      assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 1);
       assert.strictEqual(
-        updatedUserDocument.createdWorkspace[0]?._id?.toString(),
+        updatedUserDocument.createdWorkspaces[0]?._id?.toString(),
         ownedWorkspaceId.toString()
       );
     });

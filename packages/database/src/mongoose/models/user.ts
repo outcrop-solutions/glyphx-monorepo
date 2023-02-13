@@ -31,7 +31,7 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
     required: false,
     ref: 'customerPayment',
   },
-  createdWorkspace: {
+  createdWorkspaces: {
     type: [Schema.Types.ObjectId],
     default: [],
     ref: 'workspace',
@@ -114,20 +114,20 @@ SCHEMA.static(
 
     if (user.membership?.length)
       throw new error.InvalidOperationError(
-        "This method cannot be used to alter the users' sessions.  Use the add/remove session functions to complete this operation",
+        "This method cannot be used to alter the users' membership.  Use the add/remove session functions to complete this operation",
         {sessions: user.sessions}
       );
 
     if (user.invitedMembers?.length)
       throw new error.InvalidOperationError(
-        "This method cannot be used to alter the users' sessions.  Use the add/remove session functions to complete this operation",
+        "This method cannot be used to alter the users' invites.  Use the add/remove invitedMember functions to complete this operation",
         {sessions: user.sessions}
       );
 
-    if (user.createdWorkspace?.length)
+    if (user.createdWorkspaces?.length)
       throw new error.InvalidOperationError(
-        "This method cannot be used to alter the users' ownedWorkspaces.  Use the add/remove workspace functions to complete this operation",
-        {workspaces: user.createdWorkspace}
+        "This method cannot be used to alter the users' createdWorkspaces.  Use the add/remove workspace functions to complete this operation",
+        {workspaces: user.createdWorkspaces}
       );
 
     if (user.projects?.length)
@@ -313,7 +313,7 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validateMembers',
+  'validateMembership',
   async (
     members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
@@ -375,7 +375,7 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
       .populate('sessions')
       .populate('membership')
       .populate('invitedMembers')
-      .populate('createdWorkspace')
+      .populate('createdWorkspaces')
       .populate('customerPayment')
       .populate('projects')
       .populate('webhooks')
@@ -396,7 +396,9 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     userDocument.membership.forEach((m: any) => delete (m as any)['__v']);
     userDocument.invitedMembers.forEach((i: any) => delete (i as any)['__v']);
     userDocument.webhooks.forEach((w: any) => delete (w as any)['__v']);
-    userDocument.createdWorkspace.forEach((c: any) => delete (c as any)['__v']);
+    userDocument.createdWorkspaces.forEach(
+      (c: any) => delete (c as any)['__v']
+    );
     userDocument.projects.forEach((p: any) => delete (p as any)['__v']);
 
     return userDocument;
@@ -417,45 +419,56 @@ SCHEMA.static(
   async (
     input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
   ) => {
-    const workspaces = Array.from(
-      //istanbul ignore next
-      input.createdWorkspace ?? []
-    ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
+    // const workspaces = Array.from(
+    //   //istanbul ignore next
+    //   input.createdWorkspaces ?? []
+    // ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
     //istanbul ignore else
-    if (input.createdWorkspace) workspaces.unshift(input.workspace);
+    // if (input.createdWorkspaces) workspaces.unshift(input.createdWorkspaces);
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const [accounts, sessions, webhooks, workspaces, projects] =
-        await Promise.all([
-          USER_MODEL.validateAccounts(
-            //istanbul ignore next
-            input.accounts ?? []
-          ),
-          USER_MODEL.validateSessions(
-            //istanbul ignore next
-            input.sessions ?? []
-          ),
-          USER_MODEL.validateWebhooks(
-            //istanbul ignore next
-            input.webhooks ?? []
-          ),
-          USER_MODEL.validateWorkspaces(
-            //istanbul ignore next
-            workspaces ?? []
-          ),
-          USER_MODEL.validateProjects(
-            //istanbul ignore next
-            input.projects ?? []
-          ),
-          USER_MODEL.validateMembership(
-            //istanbul ignore next
-            input.membership ?? []
-          ),
-        ]);
+      const [
+        accounts,
+        sessions,
+        webhooks,
+        membership,
+        invitedMembers,
+        createdWorkspaces,
+        projects,
+      ] = await Promise.all([
+        USER_MODEL.validateAccounts(
+          //istanbul ignore next
+          input.accounts ?? []
+        ),
+        USER_MODEL.validateSessions(
+          //istanbul ignore next
+          input.sessions ?? []
+        ),
+        USER_MODEL.validateWebhooks(
+          //istanbul ignore next
+          input.webhooks ?? []
+        ),
+        USER_MODEL.validateMembership(
+          //istanbul ignore next
+          input.membership ?? []
+        ),
+        USER_MODEL.validateMembership(
+          //istanbul ignore next
+          input.invitedMembers ?? []
+        ),
+        USER_MODEL.validateWorkspaces(
+          //istanbul ignore next
+          input.createdWorkspaces ?? []
+        ),
+        USER_MODEL.validateProjects(
+          //istanbul ignore next
+          input.projects ?? []
+        ),
+      ]);
       const createDate = new Date();
-      const org = workspaces.shift() as mongooseTypes.ObjectId;
 
       const resolvedInput: IUserDocument = {
+        userCode: input.userCode,
         name: input.name,
         username: input.username,
         gh_username: input.gh_username,
@@ -467,11 +480,11 @@ SCHEMA.static(
         updatedAt: createDate,
         accounts: accounts,
         sessions: sessions,
+        membership: membership,
+        invitedMembers: invitedMembers,
         webhooks: webhooks,
-        workspace: org,
         apiKey: input.apiKey,
-        role: input.role,
-        createdWorkspace: workspaces,
+        createdWorkspaces: createdWorkspaces,
         projects: projects,
       };
       try {
@@ -915,7 +928,7 @@ SCHEMA.static(
   'addMembership',
   async (
     userId: mongooseTypes.ObjectId,
-    members: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser> => {
     try {
       if (!members.length)
@@ -932,16 +945,16 @@ SCHEMA.static(
           userId
         );
 
-      const reconciledIds = await USER_MODEL.validateMembers(members);
+      const reconciledIds = await USER_MODEL.validateMembership(members);
       let dirty = false;
-      reconciledIds.forEach(s => {
+      reconciledIds.forEach((s: any) => {
         if (
-          !userDocument.members.find(
-            memId => memId.toString() === s.toString()
+          !userDocument.membership.find(
+            (memId: any) => memId.toString() === s.toString()
           )
         ) {
           dirty = true;
-          userDocument.members.push(s as unknown as databaseTypes.IMember);
+          userDocument.membership.push(s as unknown as databaseTypes.IMember);
         }
       });
 
@@ -995,7 +1008,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedMembers = userDocument.members.filter(s => {
+      const updatedMembers = userDocument.membership.filter(s => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -1012,7 +1025,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        userDocument.members =
+        userDocument.membership =
           updatedMembers as unknown as databaseTypes.IMember[];
         await userDocument.save();
       }
@@ -1186,12 +1199,12 @@ SCHEMA.static(
       let dirty = false;
       reconciledIds.forEach(o => {
         if (
-          !userDocument.createdWorkspace.find(
+          !userDocument.createdWorkspaces.find(
             orgId => orgId.toString() === o.toString()
           )
         ) {
           dirty = true;
-          userDocument.createdWorkspace.push(
+          userDocument.createdWorkspaces.push(
             o as unknown as databaseTypes.IWorkspace
           );
         }
@@ -1247,7 +1260,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedWorkspaces = userDocument.createdWorkspace.filter(o => {
+      const updatedWorkspaces = userDocument.createdWorkspaces.filter(o => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -1264,7 +1277,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        userDocument.createdWorkspace =
+        userDocument.createdWorkspaces =
           updatedWorkspaces as unknown as databaseTypes.IWorkspace[];
         await userDocument.save();
       }

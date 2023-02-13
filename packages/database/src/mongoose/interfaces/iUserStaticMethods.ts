@@ -26,7 +26,7 @@ export interface IUserStaticMethods
   validateWebhooks(
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
-  validateMembers(
+  validateMembership(
     members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateWorkspaces(

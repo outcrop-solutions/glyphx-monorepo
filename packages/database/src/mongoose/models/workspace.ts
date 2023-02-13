@@ -131,7 +131,7 @@ SCHEMA.static(
       else memberIds.push(p._id as mongooseTypes.ObjectId);
     });
     try {
-      await MemberModel.allUserIdsExist(memberIds);
+      await MemberModel.allMemberIdsExist(memberIds);
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(

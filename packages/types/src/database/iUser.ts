@@ -24,9 +24,9 @@ export interface IUser {
   sessions: ISession[];
   membership: IMember[];
   invitedMembers: IMember[];
-  createdWorkspace: IWorkspace[];
+  createdWorkspaces: IWorkspace[];
+  projects: IProject[];
   customerPayment?: ICustomerPayment;
   webhooks: IWebhook[];
   apiKey?: string;
-  projects: IProject[];
 }

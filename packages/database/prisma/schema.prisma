@@ -45,7 +45,7 @@ model User {
   sessions         Session[]
   membership       Member[]         @relation("membership")
   invitedMembers   Member[]         @relation("inviter")
-  createdWorkspace Workspace[]      @relation(name: "ownerRelation")
+  createdWorkspaces Workspace[]      @relation(name: "ownerRelation")
   customerPayment  CustomerPayment?
   webhooks         Webhook[]
 

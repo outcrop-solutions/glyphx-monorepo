@@ -11,6 +11,7 @@ import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
 const MOCK_USER: databaseTypes.IUser = {
+  userCode: 'dfkadfkljafdkalsjskldf',
   name: 'testUser',
   username: 'test@user.com',
   email: 'test@user.com',
@@ -20,11 +21,11 @@ const MOCK_USER: databaseTypes.IUser = {
   updatedAt: new Date(),
   accounts: [],
   sessions: [],
-  webhooks: [],
-  workspace: new mongoose.Types.ObjectId(),
-  role: databaseTypes.constants.ROLE.MEMBER,
-  createdWorkspace: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
   projects: [],
+  webhooks: [],
 };
 
 describe('#mongoose/models/user', () => {
@@ -44,6 +45,11 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(
         UserModel,
         'validateWorkspaces',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateMembership',
         sandbox.stub().resolves([])
       );
       sandbox.replace(
@@ -104,6 +110,11 @@ describe('#mongoose/models/user', () => {
       );
       sandbox.replace(
         UserModel,
+        'validateMembership',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
         'validateSessions',
         sandbox.stub().resolves([])
       );
@@ -152,6 +163,11 @@ describe('#mongoose/models/user', () => {
       );
       sandbox.replace(
         UserModel,
+        'validateMembership',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
         'validateAccounts',
         sandbox.stub().resolves([])
       );
@@ -186,6 +202,11 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(
         UserModel,
         'validateWebhooks',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateMembership',
         sandbox.stub().resolves([])
       );
       sandbox.replace(
@@ -229,6 +250,11 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(
         UserModel,
         'validateWebhooks',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateMembership',
         sandbox.stub().resolves([])
       );
       sandbox.replace(
@@ -386,8 +412,10 @@ describe('#mongoose/models/user', () => {
       const inputUser = {
         accounts: [],
         sessions: [],
-        createdWorkspace: [],
+        createdWorkspaces: [],
         projects: [],
+        membership: [],
+        invitedMembers: [],
         webhooks: [],
       };
 
@@ -398,8 +426,10 @@ describe('#mongoose/models/user', () => {
       const inputUser = {
         accounts: [new mongoose.Types.ObjectId()],
         sessions: [],
-        createdWorkspace: [],
+        createdWorkspaces: [],
         projects: [],
+        membership: [],
+        invitedMembers: [],
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
@@ -412,8 +442,10 @@ describe('#mongoose/models/user', () => {
       const inputUser = {
         accounts: [],
         sessions: [new mongoose.Types.ObjectId()],
-        createdWorkspace: [],
+        createdWorkspaces: [],
         projects: [],
+        membership: [],
+        invitedMembers: [],
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
@@ -422,11 +454,13 @@ describe('#mongoose/models/user', () => {
       }, error.InvalidOperationError);
     });
 
-    it('will fail when trying to update createdWorkspace', () => {
+    it('will fail when trying to update createdWorkspaces', () => {
       const inputUser = {
         accounts: [],
         sessions: [],
-        createdWorkspace: [new mongoose.Types.ObjectId()],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [new mongoose.Types.ObjectId()],
         projects: [],
         webhooks: [],
       } as unknown as databaseTypes.IUser;
@@ -440,7 +474,9 @@ describe('#mongoose/models/user', () => {
       const inputUser = {
         accounts: [],
         sessions: [],
-        createdWorkspace: [],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [],
         projects: [new mongoose.Types.ObjectId()],
         webhooks: [],
       } as unknown as databaseTypes.IUser;
@@ -454,9 +490,43 @@ describe('#mongoose/models/user', () => {
       const inputUser = {
         accounts: [],
         sessions: [],
-        createdWorkspace: [],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [],
         projects: [],
         webhooks: [new mongoose.Types.ObjectId()],
+      } as unknown as databaseTypes.IUser;
+
+      assert.throws(() => {
+        UserModel.validateUpdateObject(inputUser);
+      }, error.InvalidOperationError);
+    });
+
+    it('will fail when trying to update membership', () => {
+      const inputUser = {
+        accounts: [],
+        sessions: [],
+        membership: [new mongoose.Types.ObjectId()],
+        invitedMembers: [],
+        createdWorkspaces: [],
+        projects: [],
+        webhooks: [],
+      } as unknown as databaseTypes.IUser;
+
+      assert.throws(() => {
+        UserModel.validateUpdateObject(inputUser);
+      }, error.InvalidOperationError);
+    });
+
+    it('will fail when trying to update invitedMembers', () => {
+      const inputUser = {
+        accounts: [],
+        sessions: [],
+        membership: [],
+        invitedMembers: [new mongoose.Types.ObjectId()],
+        createdWorkspaces: [],
+        projects: [],
+        webhooks: [],
       } as unknown as databaseTypes.IUser;
 
       assert.throws(() => {
@@ -468,7 +538,9 @@ describe('#mongoose/models/user', () => {
       const inputUser = {
         accounts: [],
         sessions: [],
-        createdWorkspace: [],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [],
         projects: [],
         webhooks: [],
         _id: new mongoose.Types.ObjectId(),
@@ -1310,7 +1382,7 @@ describe('#mongoose/models/user', () => {
       } as unknown as databaseTypes.IWorkspace,
       apiKey: 'testApiKey',
       role: databaseTypes.constants.ROLE.MEMBER,
-      createdWorkspace: [
+      createdWorkspaces: [
         {
           _id: new mongoose.Types.ObjectId(),
           name: 'ownedWorkspace',
@@ -1347,7 +1419,7 @@ describe('#mongoose/models/user', () => {
       doc.accounts.forEach(a => assert.isUndefined((a as any)['__v']));
       doc.sessions.forEach(s => assert.isUndefined((s as any)['__v']));
       doc.webhooks.forEach(w => assert.isUndefined((w as any)['__v']));
-      doc.createdWorkspace.forEach(o => assert.isUndefined((o as any)['__v']));
+      doc.createdWorkspaces.forEach(o => assert.isUndefined((o as any)['__v']));
       doc.projects.forEach(p => assert.isUndefined((p as any)['__v']));
 
       assert.strictEqual(doc._id, mockUser._id);
@@ -2892,7 +2964,7 @@ describe('#mongoose/models/user', () => {
     });
   });
 
-  context('addcreatedWorkspace', () => {
+  context('addcreatedWorkspaces', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -2928,7 +3000,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspace[0].toString(), orgId.toString());
+      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspaceStub.calledOnce);
@@ -2941,7 +3013,7 @@ describe('#mongoose/models/user', () => {
       const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
-      localMockUser.createdWorkspace.push(orgId);
+      localMockUser.createdWorkspaces.push(orgId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockUser);
@@ -2966,7 +3038,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspace[0].toString(), orgId.toString());
+      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspacesStub.calledOnce);
@@ -3129,7 +3201,7 @@ describe('#mongoose/models/user', () => {
     });
   });
 
-  context('removecreatedWorkspace', () => {
+  context('removecreatedWorkspaces', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -3141,7 +3213,7 @@ describe('#mongoose/models/user', () => {
       const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const workspaceId = new mongoose.Types.ObjectId();
-      localMockUser.createdWorkspace.push(workspaceId);
+      localMockUser.createdWorkspaces.push(workspaceId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockUser);
@@ -3160,19 +3232,19 @@ describe('#mongoose/models/user', () => {
       ]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspace.length, 0);
+      assert.strictEqual(updatedUser.createdWorkspaces.length, 0);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
       assert.isTrue(getUserByIdStub.calledOnce);
     });
 
-    it('will not modify the createdWorkspace if the workspaceId is not on the user createdWorkspace', async () => {
+    it('will not modify the createdWorkspaces if the workspaceId is not on the user createdWorkspaces', async () => {
       const userId = new mongoose.Types.ObjectId();
       const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
-      localMockUser.createdWorkspace.push(orgId);
+      localMockUser.createdWorkspaces.push(orgId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockUser);
@@ -3191,7 +3263,7 @@ describe('#mongoose/models/user', () => {
       ]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspace.length, 1);
+      assert.strictEqual(updatedUser.createdWorkspaces.length, 1);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isFalse(saveStub.calledOnce);
@@ -3203,7 +3275,7 @@ describe('#mongoose/models/user', () => {
       const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
-      localMockUser.createdWorkspace.push(orgId);
+      localMockUser.createdWorkspaces.push(orgId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
@@ -3233,7 +3305,7 @@ describe('#mongoose/models/user', () => {
       const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
-      localMockUser.createdWorkspace.push(orgId);
+      localMockUser.createdWorkspaces.push(orgId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(localMockUser);
@@ -3263,7 +3335,7 @@ describe('#mongoose/models/user', () => {
       const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
       localMockUser._id = userId;
       const orgId = new mongoose.Types.ObjectId();
-      localMockUser.createdWorkspace.push(orgId);
+      localMockUser.createdWorkspaces.push(orgId);
 
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);

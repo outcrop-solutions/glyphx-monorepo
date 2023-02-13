@@ -12,8 +12,7 @@ export interface IUserDocument
     | 'sessions'
     | 'membership'
     | 'invitedMembers'
-    | 'createdWorkspace'
-    | 'customerPayment'
+    | 'createdWorkspaces'
     | 'webhooks'
     | 'projects'
   > {
@@ -21,8 +20,7 @@ export interface IUserDocument
   sessions: mongooseTypes.ObjectId[];
   membership: mongooseTypes.ObjectId[];
   invitedMembers: mongooseTypes.ObjectId[];
-  createdWorkspace: mongooseTypes.ObjectId[];
-  customerPayment: mongooseTypes.ObjectId;
+  createdWorkspaces: mongooseTypes.ObjectId[];
   webhooks: mongooseTypes.ObjectId[];
   projects: mongooseTypes.ObjectId[];
 }
