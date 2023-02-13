@@ -15,11 +15,13 @@ const SCHEMA = new Schema<
   IWorkspaceStaticMethods,
   IWorkspaceMethods
 >({
-  createdAt: {type: Date, required: true, default: new Date()},
-  updatedAt: {type: Date, required: true, default: new Date()},
-  deletedAt: {type: Date, required: true, default: new Date()},
+  workspaceCode: {type: String, required: true},
+  inviteCode: {type: String, required: true},
   name: {type: String, required: true},
   slug: {type: String, required: true},
+  createdAt: {type: Date, required: true, default: new Date()},
+  updatedAt: {type: Date, required: true, default: new Date()},
+  deletedAt: {type: Date, required: false},
   description: {type: String, required: false},
   creator: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   members: {
@@ -155,23 +157,25 @@ SCHEMA.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const users = Array.from(input.members) as (
-        | databaseTypes.IUser
+        | databaseTypes.IMember
         | mongooseTypes.ObjectId
       )[];
-      users.unshift(input.owner);
       const [members, projects] = await Promise.all([
         WORKSPACE_MODEL.validateMembers(users),
         WORKSPACE_MODEL.validateProjects(input.projects),
       ]);
       const createDate = new Date();
 
-      const owner = members.shift() as mongooseTypes.ObjectId;
+      const creator = members.shift() as mongooseTypes.ObjectId;
       const resolvedInput: IWorkspaceDocument = {
         createdAt: createDate,
         updatedAt: createDate,
+        workspaceCode: input.workspaceCode,
+        inviteCode: input.inviteCode,
         name: input.name,
+        slug: input.slug,
         description: input.description,
-        owner: owner,
+        creator: creator,
         members: members,
         projects: projects,
       };
@@ -245,10 +249,13 @@ SCHEMA.static(
         {updatedAt: input.updatedAt}
       );
 
-    if (input.owner?._id && !(await UserModel.userIdExists(input.owner._id)))
+    if (
+      input.creator?._id &&
+      !(await UserModel.userIdExists(input.creator._id))
+    )
       throw new error.InvalidOperationError(
-        'The owner does not appear to exist in the database',
-        {ownerId: input.owner._id}
+        'The creator does not appear to exist in the database',
+        {creatorId: input.creator._id}
       );
 
     return true;
@@ -268,8 +275,8 @@ SCHEMA.static(
       const updateDate = new Date();
       for (const key in input) {
         const value = (input as Record<string, any>)[key];
-        if (key === 'owner') {
-          transformedDocument.owner = value._id;
+        if (key === 'creator') {
+          transformedDocument.creator = value._id;
         } else {
           transformedDocument[key] = value;
         }
@@ -322,7 +329,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     try {
       const workspaceDocument = (await WORKSPACE_MODEL.findById(workspaceId)
-        .populate('owner')
+        .populate('creator')
         .populate('members')
         .populate('projects')
         .lean()) as databaseTypes.IWorkspace;
@@ -333,9 +340,9 @@ SCHEMA.static(
           workspaceId
         );
       delete (workspaceDocument as any)['__v'];
-      delete (workspaceDocument as any).owner['__v'];
-      workspaceDocument.members.forEach(m => delete (m as any)['__v']);
-      workspaceDocument.projects.forEach(p => delete (p as any)['__v']);
+      delete (workspaceDocument as any).creator['__v'];
+      workspaceDocument.members.forEach((m: any) => delete (m as any)['__v']);
+      workspaceDocument.projects.forEach((p: any) => delete (p as any)['__v']);
 
       return workspaceDocument;
     } catch (err) {
@@ -402,7 +409,7 @@ SCHEMA.static(
       reconciledIds.forEach(p => {
         if (
           !workspaceDocument.projects.find(
-            progId => progId.toString() === p.toString()
+            (progId: any) => progId.toString() === p.toString()
           )
         ) {
           dirty = true;
@@ -529,7 +536,7 @@ SCHEMA.static(
       reconciledIds.forEach(m => {
         if (
           !workspaceDocument.members.find(
-            memberId => memberId.toString() === m.toString()
+            (memberId: any) => memberId.toString() === m.toString()
           )
         ) {
           dirty = true;

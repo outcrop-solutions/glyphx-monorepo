@@ -16,7 +16,7 @@ const MOCK_MEMBER: databaseTypes.IMember = {
   joinedAt: new Date(),
   invitedAt: new Date(),
   status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamTole: databaseTypes.constants.ROLE.MEMBER,
+  teamRole: databaseTypes.constants.ROLE.MEMBER,
   member: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
   invitedBy: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
   workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,

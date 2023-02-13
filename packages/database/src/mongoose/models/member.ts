@@ -139,8 +139,8 @@ SCHEMA.static(
     );
     if (!newMemberExists)
       throw new error.InvalidArgumentError(
-        `A new member with _id : ${input.user._id} cannot be found`,
-        'user._id',
+        `A new member with _id : ${input.member._id} cannot be found`,
+        'member._id',
         input.member._id
       );
     const inviterExists = await UserModel.userIdExists(
@@ -148,7 +148,7 @@ SCHEMA.static(
     );
     if (!inviterExists)
       throw new error.InvalidArgumentError(
-        `A inviter with _id : ${input.user._id} cannot be found`,
+        `A inviter with _id : ${input.member._id} cannot be found`,
         'user._id',
         input.invitedBy._id
       );
@@ -160,7 +160,7 @@ SCHEMA.static(
       throw new error.InvalidArgumentError(
         `A workspace with _id : ${input.workspace._id} cannot be found`,
         'workspace._id',
-        input.workpace._id
+        input.workspace._id
       );
 
     const createDate = new Date();
@@ -227,7 +227,7 @@ SCHEMA.static(
       !(await UserModel.userIdExists(member.invitedBy?._id))
     )
       throw new error.InvalidOperationError(
-        `A inviter with the _id: ${member.member._id} cannot be found`,
+        `A inviter with the _id: ${member.invitedBy._id} cannot be found`,
         {invitedById: member.invitedBy._id}
       );
     if (

@@ -7,12 +7,11 @@ export interface IWorkspace {
   _id?: mongooseTypes.ObjectId;
   workspaceCode: string;
   inviteCode: string;
-  creatorId: mongooseTypes.ObjectId;
   name: string;
   slug: string;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt: Date;
+  deletedAt?: Date;
   description?: string;
   creator: IUser;
   members: IMember[];
