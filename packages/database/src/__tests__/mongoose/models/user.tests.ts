@@ -1345,6 +1345,7 @@ describe('#mongoose/models/user', () => {
 
     const mockUser: databaseTypes.IUser = {
       _id: new mongoose.Types.ObjectId(),
+      userCode: 'testUserCode',
       createdAt: new Date(),
       updatedAt: new Date(),
       name: 'testUser',
@@ -1368,6 +1369,20 @@ describe('#mongoose/models/user', () => {
           sessionToken: 'testsessionToken',
         } as unknown as databaseTypes.ISession,
       ],
+      membership: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+          sessionToken: 'testMembership',
+        } as unknown as databaseTypes.IMember,
+      ],
+      invitedMembers: [
+        {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+          sessionToken: 'invitedMembers',
+        } as unknown as databaseTypes.IMember,
+      ],
       webhooks: [
         {
           _id: new mongoose.Types.ObjectId(),
@@ -1375,24 +1390,18 @@ describe('#mongoose/models/user', () => {
           __v: 1,
         } as unknown as databaseTypes.IWebhook,
       ],
-      workspace: {
-        _id: new mongoose.Types.ObjectId(),
-        name: 'testWorkspace',
-        __v: 1,
-      } as unknown as databaseTypes.IWorkspace,
       apiKey: 'testApiKey',
-      role: databaseTypes.constants.ROLE.MEMBER,
       createdWorkspaces: [
         {
           _id: new mongoose.Types.ObjectId(),
-          name: 'ownedWorkspace',
+          name: 'createdWorkspace',
           __v: 1,
         } as unknown as databaseTypes.IWorkspace,
       ],
       projects: [
         {
           _id: new mongoose.Types.ObjectId(),
-          name: 'ownedWorkspace',
+          name: 'createdProject',
           __v: 1,
         } as unknown as databaseTypes.IProject,
       ],
@@ -1415,12 +1424,13 @@ describe('#mongoose/models/user', () => {
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.workspace as any).__v);
-      doc.accounts.forEach(a => assert.isUndefined((a as any)['__v']));
-      doc.sessions.forEach(s => assert.isUndefined((s as any)['__v']));
-      doc.webhooks.forEach(w => assert.isUndefined((w as any)['__v']));
-      doc.createdWorkspaces.forEach(o => assert.isUndefined((o as any)['__v']));
-      doc.projects.forEach(p => assert.isUndefined((p as any)['__v']));
+      doc.accounts.forEach((a: any) => assert.isUndefined((a as any)['__v']));
+      doc.sessions.forEach((s: any) => assert.isUndefined((s as any)['__v']));
+      doc.membership.forEach((m: any) => assert.isUndefined((m as any)['__v']));
+      doc.invitedMembers.forEach((m: any) => assert.isUndefined((m as any)['__v']));
+      doc.webhooks.forEach((w: any) => assert.isUndefined((w as any)['__v']));
+      doc.createdWorkspaces.forEach((o: any) => assert.isUndefined((o as any)['__v']));
+      doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
 
       assert.strictEqual(doc._id, mockUser._id);
     });

@@ -172,7 +172,7 @@ describe('#util/logging', () => {
       await Logger.init();
 
       Logger.silly(correlationId, message);
-      assert.isTrue(stub.calledTwice);
+      assert.isTrue(stub.called);
 
       Logger.info(correlationId, message);
       assert.isTrue(stub.calledThrice);

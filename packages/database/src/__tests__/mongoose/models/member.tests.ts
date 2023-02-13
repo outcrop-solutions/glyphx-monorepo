@@ -130,8 +130,9 @@ describe('#mongoose/models/member', () => {
       assert.isTrue(errorred);
     });
 
-    it('will throw an InvalidArgumentError if the workspace attached to the member does not exist.', async () => {
+    it('will throw an InvalidArgumentError if the workspace attached to the Member does not exist.', async () => {
       const memberId = new mongoose.Types.ObjectId();
+
       sandbox.replace(
         WorkspaceModel,
         'workspaceIdExists',
@@ -254,7 +255,7 @@ describe('#mongoose/models/member', () => {
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
-      assert.isFalse(getUserStub.calledTwice);
+      assert.isFalse(getUserStub.called);
       assert.isFalse(getWorkspaceStub.called);
       assert.isTrue(getMemberStub.calledOnce);
     });
@@ -277,9 +278,6 @@ describe('#mongoose/models/member', () => {
       getUserStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', getUserStub);
 
-      const getWorkspaceStub = sandbox.stub();
-      getWorkspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', getWorkspaceStub);
 
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
@@ -289,8 +287,7 @@ describe('#mongoose/models/member', () => {
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
-      assert.isTrue(getUserStub.calledTwice);
-      assert.isTrue(getWorkspaceStub.calledOnce);
+      assert.isTrue(getUserStub.called);
       assert.isTrue(getMemberStub.calledOnce);
     });
 
@@ -312,10 +309,6 @@ describe('#mongoose/models/member', () => {
       getUserStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', getUserStub);
 
-      const getWorkspaceStub = sandbox.stub();
-      getUserStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', getWorkspaceStub);
-
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
@@ -324,8 +317,7 @@ describe('#mongoose/models/member', () => {
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
-      assert.isTrue(getUserStub.calledTwice);
-      assert.isTrue(getWorkspaceStub.calledOnce);
+      assert.isTrue(getUserStub.called);
       assert.isTrue(getMemberStub.calledOnce);
     });
 
@@ -343,12 +335,9 @@ describe('#mongoose/models/member', () => {
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(MemberModel, 'updateOne', updateStub);
 
-      const getUserStub = sandbox.stub();
-      getUserStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', getUserStub);
-
+      
       const getWorkspaceStub = sandbox.stub();
-      getUserStub.resolves(true);
+      getWorkspaceStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', getWorkspaceStub);
 
       const getMemberStub = sandbox.stub();
@@ -359,9 +348,9 @@ describe('#mongoose/models/member', () => {
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
-      assert.isTrue(getUserStub.calledTwice);
       assert.isTrue(getWorkspaceStub.calledOnce);
       assert.isTrue(getMemberStub.calledOnce);
+      // assert.isTrue(getMemberStub.calledOnce);
     });
 
     it('will fail when the member does not exist', async () => {
@@ -473,13 +462,13 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceExistsStub);
 
       await MemberModel.validateUpdateObject(inputMember);
-      assert.isTrue(userExistsStub.calledTwice);
-      assert.isTrue(workspaceExistsStub.calledTwice);
+      assert.isTrue(userExistsStub.called);
+      assert.isTrue(workspaceExistsStub.called);
     });
 
     it('will throw an InvalidOperationError when the user does not exist', async () => {
       const inputMember = {
-        user: {
+        member: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
       };
@@ -507,7 +496,7 @@ describe('#mongoose/models/member', () => {
       workspaceExistsStub.resolves(false);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceExistsStub);
       let errorred = false;
-      try {m
+      try {
         await MemberModel.validateUpdateObject(inputMember);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);

@@ -5,14 +5,18 @@ import {createSandbox} from 'sinon';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
 import {assert} from 'chai';
 import {UserModel} from '../../../mongoose/models/user';
+import {MemberModel} from '../../../mongoose/models/member';
 import {ProjectModel} from '../../../mongoose/models/project';
 
 const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   createdAt: new Date(),
   updatedAt: new Date(),
+  workspaceCode: 'testWorkspaceCode',
+  inviteCode: 'testInviteCode',
   name: 'Test Workspace',
+  slug: 'testSlug',
   description: 'a test workspace',
-  owner: {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
+  creator: {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
   members: [],
   projects: [],
 };
@@ -301,12 +305,12 @@ describe('#mongoose/models/workspace', () => {
       assert.isTrue(validateUpdateObjectStub.calledOnce);
     });
 
-    it('Should update an existing workspace changing the owner', async () => {
-      const ownerId = new mongoose.Types.ObjectId();
+    it('Should update an existing workspace changing the creator', async () => {
+      const creatorId = new mongoose.Types.ObjectId();
       const updateWorkspace = {
         name: 'Camp Crystal Lake',
         description: 'Re-Opening Summer 1980',
-        owner: {_id: ownerId} as unknown as databaseTypes.IUser,
+        creator: {_id: creatorId} as unknown as databaseTypes.IUser,
       };
 
       const workspaceId = new mongoose.Types.ObjectId();
@@ -344,7 +348,7 @@ describe('#mongoose/models/workspace', () => {
       const updateArg = updateStub.args[0];
       assert.isAtLeast(updateArg.length, 2);
       const updateDocument = updateArg[1];
-      assert.strictEqual(updateDocument.owner, ownerId);
+      assert.strictEqual(updateDocument.creator, creatorId);
     });
 
     it('Will fail when the workspace does not exist', async () => {
@@ -572,13 +576,13 @@ describe('#mongoose/models/workspace', () => {
       assert.isTrue(errored);
     });
 
-    it('will fail when trying to update an owner that does not exist', async () => {
-      const ownerId = new mongoose.Types.ObjectId();
+    it('will fail when trying to update an creator that does not exist', async () => {
+      const creatorId = new mongoose.Types.ObjectId();
 
       const inputWorkspace = {
         projects: [],
         members: [],
-        owner: {_id: ownerId} as unknown as databaseTypes.IUser,
+        creator: {_id: creatorId} as unknown as databaseTypes.IUser,
       } as unknown as databaseTypes.IWorkspace;
 
       const userIdExistsStub = sandbox.stub();
@@ -596,13 +600,13 @@ describe('#mongoose/models/workspace', () => {
       assert.isTrue(userIdExistsStub.calledOnce);
     });
 
-    it('will not fail when trying to update an owner that does exist', async () => {
-      const ownerId = new mongoose.Types.ObjectId();
+    it('will not fail when trying to update an creator that does exist', async () => {
+      const creatorId = new mongoose.Types.ObjectId();
 
       const inputWorkspace = {
         projects: [],
         members: [],
-        owner: {_id: ownerId} as unknown as databaseTypes.IUser,
+        creator: {_id: creatorId} as unknown as databaseTypes.IUser,
       } as unknown as databaseTypes.IWorkspace;
 
       const userIdExistsStub = sandbox.stub();
@@ -761,15 +765,15 @@ describe('#mongoose/models/workspace', () => {
       const inputMembers = [
         {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IUser,
+        } as unknown as databaseTypes.IMember,
         {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IUser,
+        } as unknown as databaseTypes.IMember,
       ];
 
-      const allUserIdsExistStub = sandbox.stub();
-      allUserIdsExistStub.resolves(true);
-      sandbox.replace(UserModel, 'allUserIdsExist', allUserIdsExistStub);
+      const allMemberIdsExistStub = sandbox.stub();
+      allMemberIdsExistStub.resolves(true);
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       const results = await WorkspaceModel.validateMembers(inputMembers);
 
@@ -788,9 +792,9 @@ describe('#mongoose/models/workspace', () => {
         new mongoose.Types.ObjectId(),
       ];
 
-      const allUserIdsExistStub = sandbox.stub();
-      allUserIdsExistStub.resolves(true);
-      sandbox.replace(UserModel, 'allUserIdsExist', allUserIdsExistStub);
+      const allMemberIdsExistStub = sandbox.stub();
+      allMemberIdsExistStub.resolves(true);
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       const results = await WorkspaceModel.validateMembers(inputMembers);
 
@@ -809,15 +813,15 @@ describe('#mongoose/models/workspace', () => {
         new mongoose.Types.ObjectId(),
       ];
 
-      const allUserIdsExistStub = sandbox.stub();
-      allUserIdsExistStub.rejects(
+      const allMemberIdsExistStub = sandbox.stub();
+      allMemberIdsExistStub.rejects(
         new error.DataNotFoundError(
           'the user ids cannot be found',
           'userIds',
           inputMembers
         )
       );
-      sandbox.replace(UserModel, 'allUserIdsExist', allUserIdsExistStub);
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       let errored = false;
       try {
@@ -838,9 +842,9 @@ describe('#mongoose/models/workspace', () => {
 
       const errorText = 'something bad has happened';
 
-      const allUserIdsExistStub = sandbox.stub();
-      allUserIdsExistStub.rejects(errorText);
-      sandbox.replace(UserModel, 'allUserIdsExist', allUserIdsExistStub);
+      const allMemberIdsExistStub = sandbox.stub();
+      allMemberIdsExistStub.rejects(errorText);
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       let errored = false;
       try {
@@ -1002,7 +1006,7 @@ describe('#mongoose/models/workspace', () => {
         } as unknown as databaseTypes.IProject,
       ],
       __v: 1,
-      owner: {
+      creator: {
         _id: new mongoose.Types.ObjectId(),
         name: 'test user',
         __v: 1,
@@ -1042,7 +1046,7 @@ describe('#mongoose/models/workspace', () => {
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.owner as any).__v);
+      assert.isUndefined((doc.creator as any).__v);
       doc.members.forEach(m => {
         assert.isUndefined((m as any).__v);
       });
@@ -1942,7 +1946,7 @@ describe('#mongoose/models/workspace', () => {
 
       const updatedWorkspace = await WorkspaceModel.removeMembers(
         workspaceId,
-        [{_id: userId} as unknown as databaseTypes.IUser]
+        [{_id: userId} as unknown as databaseTypes.IMember]
       );
 
       assert.strictEqual(updatedWorkspace._id, workspaceId);

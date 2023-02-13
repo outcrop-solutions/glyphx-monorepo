@@ -148,7 +148,7 @@ SCHEMA.static(
     );
     if (!inviterExists)
       throw new error.InvalidArgumentError(
-        `A inviter with _id : ${input.member._id} cannot be found`,
+        `A inviter with _id : ${input.invitedBy._id} cannot be found`,
         'user._id',
         input.invitedBy._id
       );
