@@ -14,7 +14,7 @@ export interface IMember {
   createdAt: Date;
   status: INVITATION_STATUS;
   teamRole: ROLE;
-  member?: IUser;
-  invitedBy?: IUser;
+  member: IUser;
+  invitedBy: IUser;
   workspace?: IWorkspace;
 }

@@ -16,6 +16,7 @@ const SCHEMA = new Schema<
 >({
   email: {type: String, required: true},
   inviter: {type: String, required: true},
+  invitedAt: {type: Date, required: true},
   joinedAt: {type: Date, required: true},
   deletedAt: {type: Date, required: false},
   updatedAt: {type: Date, required: false},
@@ -98,6 +99,8 @@ SCHEMA.static('getMemberById', async (memberId: mongooseTypes.ObjectId) => {
   try {
     const memberDocument = (await MEMBER_MODEL.findById(memberId)
       .populate('member')
+      .populate('invitedBy')
+      .populate('workspace')
       .lean()) as databaseTypes.IMember;
     if (!memberDocument) {
       throw new error.DataNotFoundError(
@@ -109,7 +112,9 @@ SCHEMA.static('getMemberById', async (memberId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (memberDocument as any)['__v'];
-    delete (memberDocument as any).user['__v'];
+    delete (memberDocument as any).member['__v'];
+    delete (memberDocument as any).invitedBy['__v'];
+    delete (memberDocument as any).workspace['__v'];
 
     return memberDocument;
   } catch (err) {
@@ -129,14 +134,23 @@ SCHEMA.static(
   async (
     input: Omit<databaseTypes.IMember, '_id'>
   ): Promise<databaseTypes.IMember> => {
-    const userExists = await UserModel.userIdExists(
-      input.user._id as mongooseTypes.ObjectId
+    const newMemberExists = await UserModel.userIdExists(
+      input.member._id as mongooseTypes.ObjectId
     );
-    if (!userExists)
+    if (!newMemberExists)
       throw new error.InvalidArgumentError(
-        `A user with _id : ${input.user._id} cannot be found`,
+        `A new member with _id : ${input.user._id} cannot be found`,
         'user._id',
-        input.user._id
+        input.member._id
+      );
+    const inviterExists = await UserModel.userIdExists(
+      input.invitedBy._id as mongooseTypes.ObjectId
+    );
+    if (!inviterExists)
+      throw new error.InvalidArgumentError(
+        `A inviter with _id : ${input.user._id} cannot be found`,
+        'user._id',
+        input.invitedBy._id
       );
 
     const workspaceExists = await WorkspaceModel.workspaceIdExists(
@@ -154,15 +168,14 @@ SCHEMA.static(
     const transformedDocument: IMemberDocument = {
       email: input.email,
       inviter: input.inviter,
-      invitedAt: input.invitedAt,
+      invitedAt: createDate,
       joinedAt: input.joinedAt,
-      deletedAt: input.deletedAt,
       createdAt: createDate,
       updatedAt: createDate,
       status: input.status,
       teamRole: input.teamRole,
-      member: input.user._id as mongooseTypes.ObjectId,
-      invitedBy: input.user._id as mongooseTypes.ObjectId,
+      member: input.member._id as mongooseTypes.ObjectId,
+      invitedBy: input.invitedBy._id as mongooseTypes.ObjectId,
       workspace: input.workspace._id as mongooseTypes.ObjectId,
     };
 
@@ -206,8 +219,24 @@ SCHEMA.static(
       !(await UserModel.userIdExists(member.member?._id))
     )
       throw new error.InvalidOperationError(
-        `A User with the _id: ${member.member._id} cannot be found`,
+        `A new member with the _id: ${member.member._id} cannot be found`,
         {memberId: member.member._id}
+      );
+    if (
+      member.invitedBy?._id &&
+      !(await UserModel.userIdExists(member.invitedBy?._id))
+    )
+      throw new error.InvalidOperationError(
+        `A inviter with the _id: ${member.member._id} cannot be found`,
+        {invitedById: member.invitedBy._id}
+      );
+    if (
+      member.workspace?._id &&
+      !(await WorkspaceModel.workspaceIdExists(member.workspace?._id))
+    )
+      throw new error.InvalidOperationError(
+        `A workspace with the _id: ${member.workspace._id} cannot be found`,
+        {workpaceId: member.workspace._id}
       );
 
     if ((member as unknown as databaseTypes.IMember)._id)
@@ -232,10 +261,11 @@ SCHEMA.static(
         {};
       for (const key in member) {
         const value = (member as Record<string, any>)[key];
-        if (key !== 'user') transformedMember[key] = value;
-        else {
-          //we only store the user id in our account collection
+        if (key === 'member' || key === 'workspace' || key === 'invitedBy')
           transformedMember[key] = value._id;
+        else {
+          //we only store the relation ids in our related collections
+          transformedMember[key] = value;
         }
       }
       const updateResult = await MEMBER_MODEL.updateOne(

@@ -126,7 +126,6 @@ const Settings = ({ user }) => {
             </Card.Footer>
           </form>
         </Card>
-
         <Card>
           <form>
             <Card.Body

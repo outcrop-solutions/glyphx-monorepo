@@ -16,11 +16,11 @@ const DynamicProject = dynamic(() => import("views/project"), {
 
 export default function Project({ user, data }) {
   const router = useRouter();
-  const { orgId, projectId } = router.query;
+  const { workspaceSlug, projectId } = router.query;
   return (
     <ErrorBoundary
       FallbackComponent={ProjectErrorFallback}
-      resetKeys={[projectId, orgId]}
+      resetKeys={[projectId, workspaceSlug]}
       onReset={() => {}}
     >
       {/* <Suspense fallback={<ProjectSuspenseFallback user={user} data={data} />}> */}

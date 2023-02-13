@@ -221,6 +221,7 @@ SCHEMA.static(
       for (const key in webhook) {
         const value = (webhook as Record<string, any>)[key];
         if (key === 'user')
+          // @jp-burford .owner or .user?
           transformedWebhook.owner = value._id as mongooseTypes.ObjectId;
         else transformedWebhook[key] = value;
       }
