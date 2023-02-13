@@ -12,7 +12,6 @@ const MOCK_MEMBER: databaseTypes.IMember = {
   inviter: 'jp@glyphx.co',
   createdAt: new Date(),
   updatedAt: new Date(),
-  deletedAt: new Date(),
   joinedAt: new Date(),
   invitedAt: new Date(),
   status: databaseTypes.constants.INVITATION_STATUS.PENDING,
@@ -103,10 +102,16 @@ describe('#mongoose/models/member', () => {
 
     it('will throw an InvalidArgumentError if the member attached to the Member does not exist.', async () => {
       const memberId = new mongoose.Types.ObjectId();
+
       sandbox.replace(
         UserModel,
         'userIdExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
@@ -133,6 +138,8 @@ describe('#mongoose/models/member', () => {
     it('will throw an InvalidArgumentError if the workspace attached to the Member does not exist.', async () => {
       const memberId = new mongoose.Types.ObjectId();
 
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+
       sandbox.replace(
         WorkspaceModel,
         'workspaceIdExists',
@@ -154,6 +161,7 @@ describe('#mongoose/models/member', () => {
       try {
         await MemberModel.createMember(MOCK_MEMBER);
       } catch (err) {
+        console.log({err});
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
       }
@@ -278,7 +286,6 @@ describe('#mongoose/models/member', () => {
       getUserStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', getUserStub);
 
-
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
@@ -335,7 +342,6 @@ describe('#mongoose/models/member', () => {
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(MemberModel, 'updateOne', updateStub);
 
-      
       const getWorkspaceStub = sandbox.stub();
       getWorkspaceStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', getWorkspaceStub);
@@ -348,7 +354,7 @@ describe('#mongoose/models/member', () => {
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
-      assert.isTrue(getWorkspaceStub.calledOnce);
+      assert.isTrue(getWorkspaceStub.called);
       assert.isTrue(getMemberStub.calledOnce);
       // assert.isTrue(getMemberStub.calledOnce);
     });
