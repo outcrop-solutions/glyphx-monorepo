@@ -6,9 +6,11 @@ import {ProjectModel} from './project';
 import {AccountModel} from './account';
 import {SessionModel} from './session';
 import {WebhookModel} from './webhook';
+import {MemberModel} from './member';
 import {WorkspaceModel} from './workspace';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
+  userCode: {type: String, required: true},
   name: {type: String, required: true},
   username: {type: String, required: true, unique: true},
   gh_username: {type: String, required: false},
@@ -18,23 +20,24 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   image: {type: String, required: false},
   createdAt: {type: Date, required: true, default: Date.now()},
   updatedAt: {type: Date, required: true, default: Date.now()},
+  deletedAt: {type: Date, required: false},
   accounts: {type: [Schema.Types.ObjectId], ref: 'account', default: []},
   sessions: {type: [Schema.Types.ObjectId], ref: 'session', default: []},
   webhooks: {type: [Schema.Types.ObjectId], ref: 'webhook', default: []},
-  workspace: {
+  membership: {type: [Schema.Types.ObjectId], ref: 'member', default: []},
+  invitedMembers: {type: [Schema.Types.ObjectId], ref: 'member', default: []},
+  customerPayment: {
     type: Schema.Types.ObjectId,
-    ref: 'workspace',
     required: false,
+    ref: 'customerPayment',
   },
-  apiKey: {type: String, required: false},
-  role: {
-    type: Number,
-    required: true,
-    enum: databaseTypes.constants.ROLE,
-    default: databaseTypes.constants.ROLE.MEMBER,
+  createdWorkspace: {
+    type: [Schema.Types.ObjectId],
+    default: [],
+    ref: 'workspace',
   },
-  createdWorkspace: {type: [Schema.Types.ObjectId], default: [], ref: 'workspace'},
   projects: {type: [Schema.Types.ObjectId], default: [], ref: 'project'},
+  apiKey: {type: String, required: false},
 });
 
 SCHEMA.static(
@@ -109,6 +112,18 @@ SCHEMA.static(
         {sessions: user.sessions}
       );
 
+    if (user.membership?.length)
+      throw new error.InvalidOperationError(
+        "This method cannot be used to alter the users' sessions.  Use the add/remove session functions to complete this operation",
+        {sessions: user.sessions}
+      );
+
+    if (user.invitedMembers?.length)
+      throw new error.InvalidOperationError(
+        "This method cannot be used to alter the users' sessions.  Use the add/remove session functions to complete this operation",
+        {sessions: user.sessions}
+      );
+
     if (user.createdWorkspace?.length)
       throw new error.InvalidOperationError(
         "This method cannot be used to alter the users' ownedWorkspaces.  Use the add/remove workspace functions to complete this operation",
@@ -127,7 +142,7 @@ SCHEMA.static(
         {webhooks: user.webhooks}
       );
     //this is one of the issues with TypeScript isn't it.  Even though we have set the type on
-    //the function parameter, we still can't be sure that someone throgh javascript won't
+    //the function parameter, we still can't be sure that someone through javascript won't
     //sneak in something unexpected.  So we still need to test for those things
     if ((user as unknown as databaseTypes.IUser)._id)
       throw new error.InvalidOperationError(
@@ -297,6 +312,33 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'validateMembers',
+  async (
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const memberIds: mongooseTypes.ObjectId[] = [];
+    members.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) memberIds.push(p);
+      else memberIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await MemberModel.allMemberIdsExist(memberIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more member ids do not exisit in the database.  See the inner error for additional information',
+          'member',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return memberIds;
+  }
+);
+
 //give our user some flexibily to pass object ids instead of a full project.
 //TODO: look into our interfaces to allow passing either a full projecty or objectIds.
 SCHEMA.static(
@@ -330,11 +372,13 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
     const userDocument = (await USER_MODEL.findById(userId)
       .populate('accounts')
-      .populate('workspace')
       .populate('sessions')
-      .populate('webhooks')
+      .populate('membership')
+      .populate('invitedMembers')
       .populate('createdWorkspace')
+      .populate('customerPayment')
       .populate('projects')
+      .populate('webhooks')
       .lean()) as databaseTypes.IUser;
     if (!userDocument) {
       throw new error.DataNotFoundError(
@@ -346,12 +390,14 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (userDocument as any)['__v'];
-    delete (userDocument as any).workspace?.['__v'];
-    userDocument.accounts.forEach(a => delete (a as any)['__v']);
-    userDocument.sessions.forEach(s => delete (s as any)['__v']);
-    userDocument.webhooks.forEach(w => delete (w as any)['__v']);
-    userDocument.createdWorkspace.forEach(o => delete (o as any)['__v']);
-    userDocument.projects.forEach(p => delete (p as any)['__v']);
+    delete (userDocument as any).customerPayment?.['__v'];
+    userDocument.accounts.forEach((a: any) => delete (a as any)['__v']);
+    userDocument.sessions.forEach((s: any) => delete (s as any)['__v']);
+    userDocument.membership.forEach((m: any) => delete (m as any)['__v']);
+    userDocument.invitedMembers.forEach((i: any) => delete (i as any)['__v']);
+    userDocument.webhooks.forEach((w: any) => delete (w as any)['__v']);
+    userDocument.createdWorkspace.forEach((c: any) => delete (c as any)['__v']);
+    userDocument.projects.forEach((p: any) => delete (p as any)['__v']);
 
     return userDocument;
   } catch (err) {
@@ -371,12 +417,12 @@ SCHEMA.static(
   async (
     input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
   ) => {
-    const orgs = Array.from(
+    const workspaces = Array.from(
       //istanbul ignore next
       input.createdWorkspace ?? []
     ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
     //istanbul ignore else
-    if (input.workspace) orgs.unshift(input.workspace);
+    if (input.createdWorkspace) workspaces.unshift(input.workspace);
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const [accounts, sessions, webhooks, workspaces, projects] =
@@ -395,11 +441,15 @@ SCHEMA.static(
           ),
           USER_MODEL.validateWorkspaces(
             //istanbul ignore next
-            orgs ?? []
+            workspaces ?? []
           ),
           USER_MODEL.validateProjects(
             //istanbul ignore next
             input.projects ?? []
+          ),
+          USER_MODEL.validateMembership(
+            //istanbul ignore next
+            input.membership ?? []
           ),
         ]);
       const createDate = new Date();
@@ -862,6 +912,132 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'addMembership',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one userId',
+          'members',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateMembers(members);
+      let dirty = false;
+      reconciledIds.forEach(s => {
+        if (
+          !userDocument.members.find(
+            memId => memId.toString() === s.toString()
+          )
+        ) {
+          dirty = true;
+          userDocument.members.push(s as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the sessions. See the innner error for additional information',
+          'mongoDb',
+          'user.addMembership',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeMembership',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one sessionId',
+          'members',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = members.map(i =>
+        //istanbul ignore next
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedMembers = userDocument.members.filter(s => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (s as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        userDocument.members =
+          updatedMembers as unknown as databaseTypes.IMember[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the members. See the innner error for additional information',
+          'mongoDb',
+          'user.removeMembership',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
   'addWebhooks',
   async (
     userId: mongooseTypes.ObjectId,
@@ -1006,9 +1182,7 @@ SCHEMA.static(
           userId
         );
 
-      const reconciledIds = await USER_MODEL.validateWorkspaces(
-        workspaces
-      );
+      const reconciledIds = await USER_MODEL.validateWorkspaces(workspaces);
       let dirty = false;
       reconciledIds.forEach(o => {
         if (

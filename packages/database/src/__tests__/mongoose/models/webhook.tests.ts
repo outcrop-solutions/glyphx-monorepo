@@ -89,7 +89,7 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will throw an InvalidArgumentError if the user attached to the webhook does not exist.', async () => {
-      const sessionId = new mongoose.Types.ObjectId();
+      const webhookId = new mongoose.Types.ObjectId();
       sandbox.replace(
         UserModel,
         'userIdExists',
@@ -99,11 +99,11 @@ describe('#mongoose/models/webhook', () => {
       sandbox.replace(
         WebhookModel,
         'create',
-        sandbox.stub().resolves([{_id: sessionId}])
+        sandbox.stub().resolves([{_id: webhookId}])
       );
 
       const getWebhookByIdStub = sandbox.stub();
-      getWebhookByIdStub.resolves({_id: sessionId});
+      getWebhookByIdStub.resolves({_id: webhookId});
 
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookByIdStub);
       let errorred = false;

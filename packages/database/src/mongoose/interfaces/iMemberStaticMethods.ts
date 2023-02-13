@@ -20,6 +20,6 @@ export interface IMemberStaticMethods
     member: Partial<databaseTypes.IMember>
   ): Promise<databaseTypes.IMember>;
   validateUpdateObject(
-    input: Omit<Partial<databaseTypes.IMember>, '_id'>
+    member: Omit<Partial<databaseTypes.IMember>, '_id'>
   ): boolean;
 }
