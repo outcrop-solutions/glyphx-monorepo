@@ -46,14 +46,6 @@ export interface IUserStaticMethods
     userId: mongooseTypes.ObjectId,
     accounts: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
-  addMembership(
-    userId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser>;
-  removeMembership(
-    userId: mongooseTypes.ObjectId,
-    accounts: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser>;
   addAccounts(
     userId: mongooseTypes.ObjectId,
     accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]

@@ -143,12 +143,12 @@ SCHEMA.static(
         'member._id',
         input.member._id
       );
-    const inviterExists = await UserModel.userIdExists(
+    const userExists = await UserModel.userIdExists(
       input.invitedBy._id as mongooseTypes.ObjectId
     );
-    if (!inviterExists)
+    if (!userExists)
       throw new error.InvalidArgumentError(
-        `A inviter with _id : ${input.invitedBy._id} cannot be found`,
+        `A user with _id : ${input.invitedBy._id} cannot be found`,
         'user._id',
         input.invitedBy._id
       );

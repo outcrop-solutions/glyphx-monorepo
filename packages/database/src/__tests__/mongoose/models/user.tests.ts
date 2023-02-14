@@ -3,6 +3,7 @@ import {UserModel} from '../../../mongoose/models/user';
 import {ProjectModel} from '../../../mongoose/models/project';
 import {AccountModel} from '../../../mongoose/models/account';
 import {SessionModel} from '../../../mongoose/models/session';
+import {MemberModel} from '../../../mongoose/models/member';
 import {WebhookModel} from '../../../mongoose/models/webhook';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
 import {database as databaseTypes} from '@glyphx/types';
@@ -1003,6 +1004,125 @@ describe('#mongoose/models/user', () => {
       let errored = false;
       try {
         await UserModel.validateSessions(inputSessions);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validate membership', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the memberships can be validated', async () => {
+      const inputMembers = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IMember,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IMember,
+      ];
+
+      const allMemberIdsExistStub = sandbox.stub();
+      allMemberIdsExistStub.resolves(true);
+      sandbox.replace(
+        MemberModel,
+        'allMemberIdsExist',
+        allMemberIdsExistStub
+      );
+
+      const results = await UserModel.validateMembership(inputMembers);
+
+      assert.strictEqual(results.length, inputMembers.length);
+      results.forEach(r => {
+        const foundId = inputMembers.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the MemberIds can be validated ', async () => {
+      const inputMembers = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allMembersIdsExistStub = sandbox.stub();
+      allMembersIdsExistStub.resolves(true);
+      sandbox.replace(
+        MemberModel,
+        'allMemberIdsExist',
+        allMembersIdsExistStub
+      );
+
+      const results = await UserModel.validateMembership(inputMembers);
+
+      assert.strictEqual(results.length, inputMembers.length);
+      results.forEach(r => {
+        const foundId = inputMembers.find(
+          p => p._id?.toString() === r.toString()
+        );
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputMembers = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allMemberIdsExistStub = sandbox.stub();
+      allMemberIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the Member ids cannot be found',
+          'MemberIds',
+          inputMembers
+        )
+      );
+      sandbox.replace(
+        MemberModel,
+        'allMemberIdsExist',
+        allMemberIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateMembership(inputMembers);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputMembers = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allMemberIdsExistStub = sandbox.stub();
+      allMemberIdsExistStub.rejects(errorText);
+      sandbox.replace(
+        MemberModel,
+        'allMemberIdsExist',
+        allMemberIdsExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateMembership(inputMembers);
       } catch (err: any) {
         assert.strictEqual(err.name, errorText);
         errored = true;
