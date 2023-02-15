@@ -11,22 +11,32 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_WORKSPACE = {
-  name: 'testWorkspace' + UNIQUE_KEY,
-  description: 'testworkspace' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {}
 };
 
 const INPUT_USER = {
+  userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
 };
 
 const INPUT_STATE = {

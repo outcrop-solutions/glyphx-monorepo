@@ -26,44 +26,60 @@ const INPUT_PROJECT2 = {
 };
 
 const INPUT_MEMBER = {
-  name: 'testMember' + UNIQUE_KEY,
-  username: 'testMemberName' + UNIQUE_KEY,
-  gh_username: 'testGhMemberName' + UNIQUE_KEY,
-  email: 'testMember' + UNIQUE_KEY + '@email.com',
-  emailVerified: new Date(),
-  isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  email: 'testMember1' + UNIQUE_KEY,
+  inviter: 'testMember1',
+  invitedAt: new Date(),
+  joinedAt: new Date(),
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  member: {},
+  invitedBy: {},
+  workspace: {},
 };
 
 const INPUT_MEMBER2 = {
-  name: 'testMember2' + UNIQUE_KEY,
-  username: 'testMemberName2' + UNIQUE_KEY,
-  gh_username: 'testGhMemberName2' + UNIQUE_KEY,
-  email: 'testMember2' + UNIQUE_KEY + '@email.com',
-  emailVerified: new Date(),
-  isVerified: true,
-  apiKey: 'testApiKey2' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  email: 'testMember2' + UNIQUE_KEY,
+  inviter: 'testMember2',
+  invitedAt: new Date(),
+  joinedAt: new Date(),
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  member: {},
+  invitedBy: {},
+  workspace: {},
 };
 
 const INPUT_USER = {
+  userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
 };
 
 const INPUT_DATA = {
-  name: 'testWorkspace' + UNIQUE_KEY,
-  description: 'testworkspace' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {}
 };
 
 describe('#WorkspaceModel', () => {
@@ -82,6 +98,7 @@ describe('#WorkspaceModel', () => {
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
+      const memberModel = mongoConnection.models.MemberModel;
       const projectModel = mongoConnection.models.ProjectModel;
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
@@ -95,10 +112,10 @@ describe('#WorkspaceModel', () => {
 
       assert.isOk(userId);
 
-      await userModel.createUser(INPUT_MEMBER as databaseTypes.IUser);
+      await memberModel.createMember(INPUT_MEMBER as databaseTypes.IMember);
 
       const savedMemberDocument = await userModel
-        .findOne({name: INPUT_MEMBER.name})
+        .findOne({email: INPUT_MEMBER.email})
         .lean();
       memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
 
@@ -106,10 +123,10 @@ describe('#WorkspaceModel', () => {
 
       assert.isOk(memberId);
 
-      await userModel.createUser(INPUT_MEMBER2 as databaseTypes.IUser);
+      await memberModel.createMember(INPUT_MEMBER2 as databaseTypes.IMember);
 
       const savedMemberDocument2 = await userModel
-        .findOne({name: INPUT_MEMBER2.name})
+        .findOne({email: INPUT_MEMBER2.email})
         .lean();
 
       memberId2 = savedMemberDocument2?._id as mongooseTypes.ObjectId;
@@ -151,7 +168,7 @@ describe('#WorkspaceModel', () => {
 
     it('add a new workspace ', async () => {
       const workspaceInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      workspaceInput.owner = userDocument;
+      workspaceInput.creator = userDocument;
       workspaceInput.members.push(memberDocument);
       workspaceInput.projects.push(projectDocument);
       const workspaceDocument = await workspaceModel.createWorkspace(
@@ -161,13 +178,13 @@ describe('#WorkspaceModel', () => {
       assert.isOk(workspaceDocument);
       assert.strictEqual(workspaceDocument.name, workspaceInput.name);
       assert.strictEqual(
-        workspaceDocument.owner._id?.toString(),
+        workspaceDocument.creator._id?.toString(),
         userId.toString()
       );
 
       assert.strictEqual(
-        workspaceDocument.members[0].name,
-        memberDocument.name
+        workspaceDocument.members[0].email,
+        memberDocument.email
       );
       assert.strictEqual(
         workspaceDocument.projects[0].name,

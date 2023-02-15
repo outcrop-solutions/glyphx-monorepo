@@ -11,28 +11,32 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_USER = {
+  userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
-  deletedAt: new Date(),
-  updatedAt: new Date(),
-  createdAt: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
 };
 
 const INPUT_WORKSPACE = {
   workspaceCode: 'testWorkspace' + UNIQUE_KEY,
   inviteCode: 'testWorkspace' + UNIQUE_KEY,
-  creatorId: 'testCreator' + UNIQUE_KEY,
   name: 'testName' + UNIQUE_KEY,
   slug: 'testSlug' + UNIQUE_KEY,
-  deletedAt: new Date(),
   updatedAt: new Date(),
   createdAt: new Date(),
   description: 'testDescription',
+  creator: {}
 };
 
 const INPUT_DATA = {
@@ -40,7 +44,6 @@ const INPUT_DATA = {
   inviter: 'jp@glyphx.co',
   invitedAt: new Date(),
   joinedAt: new Date(),
-  deletedAt: new Date(),
   updatedAt: new Date(),
   createdAt: new Date(),
   status: databaseTypes.constants.INVITATION_STATUS.PENDING,

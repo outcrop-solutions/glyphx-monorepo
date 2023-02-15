@@ -8,7 +8,7 @@ export interface ICustomerPayment {
   email?: string;
   subscriptionType: SUBSCRIPTION_TYPE;
   createdAt: Date;
-  deletedAt: Date;
+  deletedAt?: Date;
   updatedAt: Date;
   customer: IUser;
 }
