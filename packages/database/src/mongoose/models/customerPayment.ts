@@ -16,7 +16,7 @@ const SCHEMA = new Schema<
   paymentId: {type: String, required: true},
   customerId: {type: String, required: true},
   email: {type: String, required: true},
-  subscriptionType: {type: databaseTypes.constants.SUBSCRIPTION_TYPE, required: true},
+  subscriptionType: {type: Number, required: true, enum: databaseTypes.constants.SUBSCRIPTION_TYPE, default: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE},
   createdAt: {type: Date, required: true},
   updatedAt: {type: Date, required: true},
   customer: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
