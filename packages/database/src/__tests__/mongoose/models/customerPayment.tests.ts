@@ -71,7 +71,7 @@ describe('#customerPaymentModel', () => {
 
     it('add a new customerPayment', async () => {
       const customerPaymentInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      customerPaymentInput.user = userDocument;
+      customerPaymentInput.customer = userDocument;
       const customerPaymentDocument =
         await customerPaymentModel.createCustomerPayment(customerPaymentInput);
 
