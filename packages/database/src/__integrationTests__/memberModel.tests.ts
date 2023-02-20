@@ -33,10 +33,12 @@ const INPUT_WORKSPACE = {
   inviteCode: 'testWorkspace' + UNIQUE_KEY,
   name: 'testName' + UNIQUE_KEY,
   slug: 'testSlug' + UNIQUE_KEY,
-  updatedAt: new Date(),
   createdAt: new Date(),
+  updatedAt: new Date(),
   description: 'testDescription',
-  creator: {}
+  creator: {},
+  members: [] as mongooseTypes.ObjectId[],
+  projects: [] as mongooseTypes.ObjectId[],
 };
 
 const INPUT_DATA = {
@@ -80,7 +82,7 @@ describe('#memberModel', () => {
       assert.isOk(userId);
 
       const savedWorkspaceDocument = await workspaceModel
-        .findOne({email: INPUT_WORKSPACE.slug})
+        .findOne({slug: INPUT_WORKSPACE.slug})
         .lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
