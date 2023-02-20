@@ -20,8 +20,9 @@ const INPUT_USER = {
   createdAt: new Date(),
   updatedAt: new Date(),
   accounts: [],
-  sessions: [],
+  customerPayments: [],
   membership: [],
+  sessions: [],
   invitedMembers: [],
   createdWorkspaces: [],
   projects: [],
@@ -38,11 +39,11 @@ const INPUT_DATA = {
   customer: {},
 };
 
-describe('#sessionModel', () => {
-  context('test the crud functions of the session model', () => {
+describe('#customerPaymentModel', () => {
+  context('test the crud functions of the customerPayment model', () => {
     const mongoConnection = new MongoDbConnection();
-    const sessionModel = mongoConnection.models.SessionModel;
-    let sessionId: ObjectId;
+    const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
+    let customerPaymentId: ObjectId;
     let userId: ObjectId;
     let userDocument: any;
     before(async () => {
@@ -64,60 +65,67 @@ describe('#sessionModel', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
 
-      if (sessionId) {
-        await sessionModel.findByIdAndDelete(sessionId);
+      if (customerPaymentId) {
+        await customerPaymentModel.findByIdAndDelete(customerPaymentId);
       }
     });
 
-    it('add a new session', async () => {
-      const sessionInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      sessionInput.user = userDocument;
-      const sessionDocument = await sessionModel.createSession(sessionInput);
+    it('add a new customerPayment', async () => {
+      const customerPaymentInput = JSON.parse(JSON.stringify(INPUT_DATA));
+      customerPaymentInput.customer = userDocument;
+      const customerPaymentDocument =
+        await customerPaymentModel.createCustomerPayment(customerPaymentInput);
 
-      assert.isOk(sessionDocument);
+      assert.isOk(customerPaymentDocument);
       assert.strictEqual(
-        sessionDocument.sessionToken,
-        sessionInput.sessionToken
+        customerPaymentDocument.paymentId,
+        customerPaymentInput.paymentId
       );
       assert.strictEqual(
-        sessionDocument.user._id?.toString(),
+        customerPaymentDocument.customer._id?.toString(),
         userId.toString()
       );
 
-      sessionId = sessionDocument._id as mongooseTypes.ObjectId;
+      customerPaymentId = customerPaymentDocument._id as mongooseTypes.ObjectId;
     });
 
-    it('retreive a session', async () => {
-      assert.isOk(sessionId);
-      const session = await sessionModel.getSessionById(sessionId);
-
-      assert.isOk(session);
-      assert.strictEqual(session._id?.toString(), sessionId.toString());
-    });
-
-    it('modify a Session', async () => {
-      assert.isOk(sessionId);
-      const input = {sessionToken: 'a modified Session Token'};
-      const updatedDocument = await sessionModel.updateSessionById(
-        sessionId,
-        input
+    it('retreive a customerPayment', async () => {
+      assert.isOk(customerPaymentId);
+      const customerPayment = await customerPaymentModel.getCustomerPaymentById(
+        customerPaymentId
       );
-      assert.strictEqual(updatedDocument.sessionToken, input.sessionToken);
+
+      assert.isOk(customerPayment);
+      assert.strictEqual(
+        customerPayment._id?.toString(),
+        customerPaymentId.toString()
+      );
     });
 
-    it('remove a session', async () => {
-      assert.isOk(sessionId);
-      await sessionModel.deleteSessionById(sessionId);
+    it('modify a CustomerPayment', async () => {
+      assert.isOk(customerPaymentId);
+      const input = {paymentId: 'a modified CustomerPayment Token'};
+      const updatedDocument =
+        await customerPaymentModel.updateCustomerPaymentById(
+          customerPaymentId,
+          input
+        );
+      assert.strictEqual(updatedDocument.paymentId, input.paymentId);
+    });
+
+    it('remove a customerPayment', async () => {
+      assert.isOk(customerPaymentId);
+      await customerPaymentModel.deleteCustomerPaymentById(customerPaymentId);
       let errored = false;
       try {
-        await sessionModel.getSessionById(sessionId);
+        await customerPaymentModel.getCustomerPaymentById(customerPaymentId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      sessionId = null as unknown as ObjectId;
+      customerPaymentId = null as unknown as ObjectId;
     });
   });
 });
