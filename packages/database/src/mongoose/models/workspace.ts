@@ -6,7 +6,7 @@ import {
   IWorkspaceDocument,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {UserModel} from './user';
+import {UserModel} from './workspace';
 import {MemberModel} from './member';
 import {ProjectModel} from './project';
 
@@ -358,6 +358,40 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static('getWorkspaces', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const workspaceDocuments = (await WORKSPACE_MODEL.find(filter)
+      .populate('creator')
+      .populate('members')
+      .populate('projects')
+      .lean()) as databaseTypes.IWorkspace[];
+    if (!workspaceDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find workspaces with the filter: ${filter}`,
+        'workspaces',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the workspace.
+    return workspaceDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).creator['__v'];
+      (doc as any).members.forEach((p: any) => delete (p as any)['__v']);
+      (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the workspaces.  See the inner error for additional information',
+        'mongoDb',
+        'getWorkspaces',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
   'deleteWorkspaceById',
   async (workspaceId: mongooseTypes.ObjectId): Promise<void> => {
@@ -519,7 +553,7 @@ SCHEMA.static(
     try {
       if (!members.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one userId',
+          'You must supply at least one workspaceId',
           'members',
           members
         );
@@ -575,7 +609,7 @@ SCHEMA.static(
     try {
       if (!members.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one userId',
+          'You must supply at least one workspaceId',
           'members',
           members
         );

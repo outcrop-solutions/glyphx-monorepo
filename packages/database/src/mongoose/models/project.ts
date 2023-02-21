@@ -439,6 +439,38 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
   }
 });
 
+SCHEMA.static('getProjects', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const projectDocuments = (await PROJECT_MODEL.find(filter)
+      .populate('workspace')
+      .populate('owner')
+      .lean()) as databaseTypes.IProject[];
+    if (!projectDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find projects with the filter: ${filter}`,
+        'projects',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    return projectDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).workspace['__v'];
+      delete (doc as any).owner['__v'];
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the projects.  See the inner error for additional information',
+        'mongoDb',
+        'getProjects',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
   'deleteProjectById',
   async (projectId: mongooseTypes.ObjectId): Promise<void> => {

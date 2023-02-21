@@ -129,6 +129,36 @@ SCHEMA.static('getMemberById', async (memberId: mongooseTypes.ObjectId) => {
   }
 });
 
+SCHEMA.static('getMembers', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const memberDocuments = (await MEMBER_MODEL.find(filter)
+      .populate('customer')
+      .lean()) as databaseTypes.ICustomerPayment[];
+    if (!memberDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find members with the filter: ${filter}`,
+        'members',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    return memberDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).customer['__v'];
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the members.  See the inner error for additional information',
+        'mongoDb',
+        'getMembers',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
   'createMember',
   async (

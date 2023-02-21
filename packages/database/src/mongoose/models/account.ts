@@ -136,6 +136,36 @@ SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
   }
 });
 
+SCHEMA.static('getAccounts', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const accountDocuments = (await ACCOUNT_MODEL.find(filter)
+      .populate('user')
+      .lean()) as databaseTypes.IAccount[];
+    if (!accountDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find accounts with the filter: ${filter}`,
+        'account_filter',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    return accountDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).user['__v'];
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the account.  See the inner error for additional information',
+        'mongoDb',
+        'getAccountById',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
   'validateUpdateObject',
   async (

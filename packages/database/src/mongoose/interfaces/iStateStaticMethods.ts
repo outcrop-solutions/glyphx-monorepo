@@ -8,6 +8,7 @@ export interface IStateStaticMethods
     input: Omit<databaseTypes.IState, '_id'>
   ): Promise<databaseTypes.IState>;
   getStateById(stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState>;
+  getStates(filter: Record<string, unknown>): Promise<databaseTypes.IState[]>;
   updateStateWithFilter(
     filter: Record<string, unknown>,
     state: Omit<Partial<databaseTypes.IState>, '_id'>

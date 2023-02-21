@@ -3,9 +3,7 @@ import {database as databaseTypes} from '@glyphx/types';
 import {IWorkspaceMethods} from './iWorkspaceMethods';
 export interface IWorkspaceStaticMethods
   extends Model<databaseTypes.IWorkspace, {}, IWorkspaceMethods> {
-  workspaceIdExists(
-    workspaceId: mongooseTypes.ObjectId
-  ): Promise<boolean>;
+  workspaceIdExists(workspaceId: mongooseTypes.ObjectId): Promise<boolean>;
   allWorkspaceIdsExist(
     workspaceIds: mongooseTypes.ObjectId[]
   ): Promise<boolean>;
@@ -15,6 +13,9 @@ export interface IWorkspaceStaticMethods
   getWorkspaceById(
     workspaceId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IWorkspace>;
+  getWorkspaces(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.IWorkspace[]>;
   updateWorkspaceByFilter(
     filter: Record<string, unknown>,
     input: Partial<databaseTypes.IWorkspace>

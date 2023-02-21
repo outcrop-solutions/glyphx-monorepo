@@ -16,7 +16,10 @@ const SCHEMA = new Schema<
   paymentId: {type: String, required: true},
   customerId: {type: String, required: true},
   email: {type: String, required: true},
-  subscriptionType: {type: databaseTypes.constants.SUBSCRIPTION_TYPE, required: true},
+  subscriptionType: {
+    type: databaseTypes.constants.SUBSCRIPTION_TYPE,
+    required: true,
+  },
   createdAt: {type: Date, required: true},
   updatedAt: {type: Date, required: true},
   customer: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
@@ -27,7 +30,9 @@ SCHEMA.static(
   async (customerPaymentId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await CUSTOMER_PAYMENT_MODEL.findById(customerPaymentId, ['_id']);
+      const result = await CUSTOMER_PAYMENT_MODEL.findById(customerPaymentId, [
+        '_id',
+      ]);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
@@ -47,9 +52,10 @@ SCHEMA.static(
   async (customerPaymentIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await CUSTOMER_PAYMENT_MODEL.find({_id: {$in: customerPaymentIds}}, [
-        '_id',
-      ])) as {_id: mongooseTypes.ObjectId}[];
+      const foundIds = (await CUSTOMER_PAYMENT_MODEL.find(
+        {_id: {$in: customerPaymentIds}},
+        ['_id']
+      )) as {_id: mongooseTypes.ObjectId}[];
 
       customerPaymentIds.forEach(id => {
         if (!foundIds.find(fid => fid._id.toString() === id.toString()))
@@ -79,35 +85,73 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('getCustomerPaymentById', async (customerPaymentId: mongooseTypes.ObjectId) => {
-  try {
-    const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.findById(customerPaymentId)
-      .populate('customer')
-      .lean()) as databaseTypes.ICustomerPayment;
-    if (!customerPaymentDocument) {
-      throw new error.DataNotFoundError(
-        `Could not find a customerPayment with the _id: ${customerPaymentId}`,
-        'customerPayment_id',
+SCHEMA.static(
+  'getCustomerPaymentById',
+  async (customerPaymentId: mongooseTypes.ObjectId) => {
+    try {
+      const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.findById(
         customerPaymentId
-      );
-    }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (customerPaymentDocument as any)['__v'];
-    delete (customerPaymentDocument as any).customer['__v'];
+      )
+        .populate('customer')
+        .lean()) as databaseTypes.ICustomerPayment;
+      if (!customerPaymentDocument) {
+        throw new error.DataNotFoundError(
+          `Could not find a customerPayment with the _id: ${customerPaymentId}`,
+          'customerPayment_id',
+          customerPaymentId
+        );
+      }
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      delete (customerPaymentDocument as any)['__v'];
+      delete (customerPaymentDocument as any).customer['__v'];
 
-    return customerPaymentDocument;
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the customerPayment.  See the inner error for additional information',
-        'mongoDb',
-        'getCustomerPaymentById',
-        err
-      );
+      return customerPaymentDocument;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the customerPayment.  See the inner error for additional information',
+          'mongoDb',
+          'getCustomerPaymentById',
+          err
+        );
+    }
   }
-});
+);
+
+SCHEMA.static(
+  'getCustomerPayments',
+  async (filter: Record<string, unknown> = {}) => {
+    try {
+      const paymentDocuments = (await CUSTOMER_PAYMENT_MODEL.find(filter)
+        .populate('customer')
+        .lean()) as databaseTypes.ICustomerPayment[];
+      if (!paymentDocuments) {
+        throw new error.DataNotFoundError(
+          `Could not find customerPayments with the filter: ${filter}`,
+          'customerPayments',
+          filter
+        );
+      }
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      return paymentDocuments.map((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).customer['__v'];
+      });
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the customerPayments.  See the inner error for additional information',
+          'mongoDb',
+          'getCustomerPayments',
+          err
+        );
+    }
+  }
+);
 
 SCHEMA.static(
   'createCustomerPayment',
@@ -124,7 +168,7 @@ SCHEMA.static(
         input.customer._id
       );
 
-      const createDate = new Date();
+    const createDate = new Date();
 
     const transformedDocument: ICustomerPaymentDocument = {
       paymentId: input.paymentId,
@@ -153,7 +197,9 @@ SCHEMA.static(
           validateBeforeSave: false,
         })
       )[0];
-      return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentById(createdDocument._id);
+      return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentById(
+        createdDocument._id
+      );
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the customerPayment. See the inner error for additional information',
@@ -171,7 +217,10 @@ SCHEMA.static(
   async (
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<void> => {
-    if (customerPayment.customer?._id && !(await UserModel.userIdExists(customerPayment.customer?._id)))
+    if (
+      customerPayment.customer?._id &&
+      !(await UserModel.userIdExists(customerPayment.customer?._id))
+    )
       throw new error.InvalidOperationError(
         `A customer with the _id: ${customerPayment.customer._id} cannot be found`,
         {customerId: customerPayment.customer._id}
@@ -181,7 +230,8 @@ SCHEMA.static(
       throw new error.InvalidOperationError(
         "A CustomerPayment's _id is imutable and cannot be changed",
         {
-          _id: (customerPayment as unknown as databaseTypes.ICustomerPayment)._id,
+          _id: (customerPayment as unknown as databaseTypes.ICustomerPayment)
+            ._id,
         }
       );
   }
@@ -241,8 +291,13 @@ SCHEMA.static(
     customerPaymentId: mongooseTypes.ObjectId,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<databaseTypes.ICustomerPayment> => {
-    await CUSTOMER_PAYMENT_MODEL.updateCustomerPaymentWithFilter({_id: customerPaymentId}, customerPayment);
-    const retval = await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentById(customerPaymentId);
+    await CUSTOMER_PAYMENT_MODEL.updateCustomerPaymentWithFilter(
+      {_id: customerPaymentId},
+      customerPayment
+    );
+    const retval = await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentById(
+      customerPaymentId
+    );
     return retval;
   }
 );
@@ -251,7 +306,9 @@ SCHEMA.static(
   'deleteCustomerPaymentById',
   async (customerPaymentId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await CUSTOMER_PAYMENT_MODEL.deleteOne({_id: customerPaymentId});
+      const results = await CUSTOMER_PAYMENT_MODEL.deleteOne({
+        _id: customerPaymentId,
+      });
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
           `An customerPayment with a _id: ${customerPaymentId} was not found in the database`,
@@ -272,9 +329,9 @@ SCHEMA.static(
   }
 );
 
-const CUSTOMER_PAYMENT_MODEL = model<ICustomerPaymentDocument, ICustomerPaymentStaticMethods>(
-  'customerPayment',
-  SCHEMA
-);
+const CUSTOMER_PAYMENT_MODEL = model<
+  ICustomerPaymentDocument,
+  ICustomerPaymentStaticMethods
+>('customerPayment', SCHEMA);
 
 export {CUSTOMER_PAYMENT_MODEL as CustomerPaymentModel};
