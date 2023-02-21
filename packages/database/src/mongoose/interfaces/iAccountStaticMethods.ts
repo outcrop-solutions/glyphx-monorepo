@@ -11,6 +11,9 @@ export interface IAccountStaticMethods
   getAccountById(
     accountId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IAccount>;
+  getAccounts(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.IAccount[]>;
   updateAccountWithFilter(
     filter: Record<string, unknown>,
     account: Omit<Partial<databaseTypes.IAccount>, '_id'>

@@ -1,29 +1,34 @@
 import {database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
-  IOrganizationMethods,
-  IOrganizationStaticMethods,
-  IOrganizationDocument,
+  IWorkspaceMethods,
+  IWorkspaceStaticMethods,
+  IWorkspaceDocument,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {UserModel} from './user';
+import {UserModel} from './workspace';
+import {MemberModel} from './member';
 import {ProjectModel} from './project';
 
 const SCHEMA = new Schema<
-  IOrganizationDocument,
-  IOrganizationStaticMethods,
-  IOrganizationMethods
+  IWorkspaceDocument,
+  IWorkspaceStaticMethods,
+  IWorkspaceMethods
 >({
+  workspaceCode: {type: String, required: true},
+  inviteCode: {type: String, required: true},
+  name: {type: String, required: true},
+  slug: {type: String, required: true},
   createdAt: {type: Date, required: true, default: new Date()},
   updatedAt: {type: Date, required: true, default: new Date()},
-  name: {type: String, required: true},
+  deletedAt: {type: Date, required: false},
   description: {type: String, required: false},
-  owner: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
+  creator: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   members: {
     type: [Schema.Types.ObjectId],
     required: true,
     default: [],
-    ref: 'user',
+    ref: 'member',
   },
   projects: {
     type: [Schema.Types.ObjectId],
@@ -34,18 +39,18 @@ const SCHEMA = new Schema<
 });
 
 SCHEMA.static(
-  'organizationIdExists',
-  async (organizationId: mongooseTypes.ObjectId): Promise<boolean> => {
+  'workspaceIdExists',
+  async (workspaceId: mongooseTypes.ObjectId): Promise<boolean> => {
     let retval = false;
     try {
-      const result = await ORGANIZATION_MODEL.findById(organizationId, ['_id']);
+      const result = await WORKSPACE_MODEL.findById(workspaceId, ['_id']);
       if (result) retval = true;
     } catch (err) {
       throw new error.DatabaseOperationError(
-        'an unexpected error occurred while trying to find the organization.  See the inner error for additional information',
+        'an unexpected error occurred while trying to find the workspace.  See the inner error for additional information',
         'mongoDb',
-        'organizationIdExists',
-        {_id: organizationId},
+        'workspaceIdExists',
+        {_id: workspaceId},
         err
       );
     }
@@ -54,24 +59,23 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'allOrganizationIdsExist',
-  async (organizationIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+  'allWorkspaceIdsExist',
+  async (workspaceIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await ORGANIZATION_MODEL.find(
-        {_id: {$in: organizationIds}},
-        ['_id']
-      )) as {_id: mongooseTypes.ObjectId}[];
+      const foundIds = (await WORKSPACE_MODEL.find({_id: {$in: workspaceIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
 
-      organizationIds.forEach(id => {
+      workspaceIds.forEach(id => {
         if (!foundIds.find(fid => fid._id.toString() === id.toString()))
           notFoundIds.push(id);
       });
 
       if (notFoundIds.length) {
         throw new error.DataNotFoundError(
-          'One or more organizationIds cannot be found in the database.',
-          'organization._id',
+          'One or more workspaceIds cannot be found in the database.',
+          'workspace._id',
           notFoundIds
         );
       }
@@ -79,10 +83,10 @@ SCHEMA.static(
       if (err instanceof error.DataNotFoundError) throw err;
       else {
         throw new error.DatabaseOperationError(
-          'an unexpected error occurred while trying to find the organizationIds.  See the inner error for additional information',
+          'an unexpected error occurred while trying to find the workspaceIds.  See the inner error for additional information',
           'mongoDb',
-          'allOrganizationIdsExists',
-          {organizationIds: organizationIds},
+          'allWorkspaceIdsExists',
+          {workspaceIds: workspaceIds},
           err
         );
       }
@@ -121,15 +125,15 @@ SCHEMA.static(
 SCHEMA.static(
   'validateMembers',
   async (
-    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    const userIds: mongooseTypes.ObjectId[] = [];
+    const memberIds: mongooseTypes.ObjectId[] = [];
     members.forEach(p => {
-      if (p instanceof mongooseTypes.ObjectId) userIds.push(p);
-      else userIds.push(p._id as mongooseTypes.ObjectId);
+      if (p instanceof mongooseTypes.ObjectId) memberIds.push(p);
+      else memberIds.push(p._id as mongooseTypes.ObjectId);
     });
     try {
-      await UserModel.allUserIdsExist(userIds);
+      await MemberModel.allMemberIdsExist(memberIds);
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(
@@ -141,55 +145,57 @@ SCHEMA.static(
       else throw err;
     }
 
-    return userIds;
+    return memberIds;
   }
 );
 
 SCHEMA.static(
-  'createOrganization',
+  'createWorkspace',
   async (
-    input: Omit<databaseTypes.IOrganization, '_id' | 'createdAt' | 'updatedAt'>
-  ): Promise<databaseTypes.IOrganization> => {
+    input: Omit<databaseTypes.IWorkspace, '_id' | 'createdAt' | 'updatedAt'>
+  ): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const users = Array.from(input.members) as (
-        | databaseTypes.IUser
+        | databaseTypes.IMember
         | mongooseTypes.ObjectId
       )[];
-      users.unshift(input.owner);
       const [members, projects] = await Promise.all([
-        ORGANIZATION_MODEL.validateMembers(users),
-        ORGANIZATION_MODEL.validateProjects(input.projects),
+        WORKSPACE_MODEL.validateMembers(users),
+        WORKSPACE_MODEL.validateProjects(input.projects),
       ]);
       const createDate = new Date();
 
-      const owner = members.shift() as mongooseTypes.ObjectId;
-      const resolvedInput: IOrganizationDocument = {
+      const creator = members.shift() as mongooseTypes.ObjectId;
+      const resolvedInput: IWorkspaceDocument = {
         createdAt: createDate,
         updatedAt: createDate,
+        workspaceCode: input.workspaceCode,
+        inviteCode: input.inviteCode,
         name: input.name,
+        slug: input.slug,
         description: input.description,
-        owner: owner,
+        creator: creator,
         members: members,
         projects: projects,
       };
       try {
-        await ORGANIZATION_MODEL.validate(resolvedInput);
+        await WORKSPACE_MODEL.validate(resolvedInput);
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
-          'IOrganizationDocument',
+          'IWorkspaceDocument',
           resolvedInput,
           err
         );
       }
 
-      const organizationDocument = (
-        await ORGANIZATION_MODEL.create([resolvedInput], {
+      const workspaceDocument = (
+        await WORKSPACE_MODEL.create([resolvedInput], {
           validateBeforeSave: false,
         })
       )[0];
-      id = organizationDocument._id;
+      id = workspaceDocument._id;
     } catch (err) {
       if (err instanceof error.DataValidationError) throw err;
       else {
@@ -203,20 +209,20 @@ SCHEMA.static(
       }
     }
 
-    if (id) return await ORGANIZATION_MODEL.getOrganizationById(id);
+    if (id) return await WORKSPACE_MODEL.getWorkspaceById(id);
     else
       throw new error.UnexpectedError(
-        'An unexpected error has occurred and the organization may not have been created.  I have no other information to provide.'
+        'An unexpected error has occurred and the workspace may not have been created.  I have no other information to provide.'
       );
   }
 );
 
 SCHEMA.static(
   'validateUpdateObject',
-  async (input: Partial<databaseTypes.IOrganization>): Promise<boolean> => {
+  async (input: Partial<databaseTypes.IWorkspace>): Promise<boolean> => {
     if (input.projects?.length)
       throw new error.InvalidOperationError(
-        "This method cannot be used to alter the organizations' projects.  Use the add/remove project functions to complete this operation",
+        "This method cannot be used to alter the workspaces' projects.  Use the add/remove project functions to complete this operation",
         {projects: input.projects}
       );
 
@@ -227,26 +233,29 @@ SCHEMA.static(
       );
     if (input._id)
       throw new error.InvalidOperationError(
-        "An Organization's _id is imutable and cannot be changed",
+        "An Workspace's _id is imutable and cannot be changed",
         {
           _id: input._id,
         }
       );
     if (input.createdAt)
       throw new error.InvalidOperationError(
-        "An organization's createdAt date is immutable and cannot be changed",
+        "An workspace's createdAt date is immutable and cannot be changed",
         {createdAt: input.createdAt}
       );
     if (input.updatedAt)
       throw new error.InvalidOperationError(
-        "An organization's updatedAt date is set internally and cannot be changed externally",
+        "An workspace's updatedAt date is set internally and cannot be changed externally",
         {updatedAt: input.updatedAt}
       );
 
-    if (input.owner?._id && !(await UserModel.userIdExists(input.owner._id)))
+    if (
+      input.creator?._id &&
+      !(await UserModel.userIdExists(input.creator._id))
+    )
       throw new error.InvalidOperationError(
-        'The owner does not appear to exist in the database',
-        {ownerId: input.owner._id}
+        'The creator does not appear to exist in the database',
+        {creatorId: input.creator._id}
       );
 
     return true;
@@ -254,32 +263,32 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'updateOrganizationByFilter',
+  'updateWorkspaceByFilter',
   async (
     filter: Record<string, unknown>,
-    input: Partial<databaseTypes.IOrganization>
+    input: Partial<databaseTypes.IWorkspace>
   ): Promise<void> => {
     try {
-      await ORGANIZATION_MODEL.validateUpdateObject(input);
-      const transformedDocument: Partial<databaseTypes.IOrganization> &
+      await WORKSPACE_MODEL.validateUpdateObject(input);
+      const transformedDocument: Partial<databaseTypes.IWorkspace> &
         Record<string, any> = {};
       const updateDate = new Date();
       for (const key in input) {
         const value = (input as Record<string, any>)[key];
-        if (key === 'owner') {
-          transformedDocument.owner = value._id;
+        if (key === 'creator') {
+          transformedDocument.creator = value._id;
         } else {
           transformedDocument[key] = value;
         }
       }
       transformedDocument.updatedAt = updateDate;
-      const updateResult = await ORGANIZATION_MODEL.updateOne(
+      const updateResult = await WORKSPACE_MODEL.updateOne(
         filter,
         transformedDocument
       );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
-          `No organization document with filter: ${filter} was found`,
+          `No workspace document with filter: ${filter} was found`,
           'filter',
           filter
         );
@@ -292,10 +301,10 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while updating the organization with filter :${filter}.  See the inner error for additional information`,
+          `An unexpected error occurred while updating the workspace with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
           'update user',
-          {filter: filter, organization: input},
+          {filter: filter, workspace: input},
           err
         );
     }
@@ -303,73 +312,105 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'updateOrganizationById',
+  'updateWorkspaceById',
   async (
     id: mongooseTypes.ObjectId,
-    input: Partial<databaseTypes.IOrganization>
-  ): Promise<databaseTypes.IOrganization> => {
-    await ORGANIZATION_MODEL.updateOrganizationByFilter({_id: id}, input);
-    return await ORGANIZATION_MODEL.getOrganizationById(id);
+    input: Partial<databaseTypes.IWorkspace>
+  ): Promise<databaseTypes.IWorkspace> => {
+    await WORKSPACE_MODEL.updateWorkspaceByFilter({_id: id}, input);
+    return await WORKSPACE_MODEL.getWorkspaceById(id);
   }
 );
 
 SCHEMA.static(
-  'getOrganizationById',
+  'getWorkspaceById',
   async (
-    organizationId: mongooseTypes.ObjectId
-  ): Promise<databaseTypes.IOrganization> => {
+    workspaceId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
-      const organizationDocument = (await ORGANIZATION_MODEL.findById(
-        organizationId
-      )
-        .populate('owner')
+      const workspaceDocument = (await WORKSPACE_MODEL.findById(workspaceId)
+        .populate('creator')
         .populate('members')
         .populate('projects')
-        .lean()) as databaseTypes.IOrganization;
-      if (!organizationDocument)
+        .lean()) as databaseTypes.IWorkspace;
+      if (!workspaceDocument)
         throw new error.DataNotFoundError(
-          `Could not find an Organization with the _id: ${organizationId}`,
-          'organization._id',
-          organizationId
+          `Could not find an Workspace with the _id: ${workspaceId}`,
+          'workspace._id',
+          workspaceId
         );
-      delete (organizationDocument as any)['__v'];
-      delete (organizationDocument as any).owner['__v'];
-      organizationDocument.members.forEach(m => delete (m as any)['__v']);
-      organizationDocument.projects.forEach(p => delete (p as any)['__v']);
+      delete (workspaceDocument as any)['__v'];
+      delete (workspaceDocument as any).creator['__v'];
+      workspaceDocument.members.forEach((m: any) => delete (m as any)['__v']);
+      workspaceDocument.projects.forEach((p: any) => delete (p as any)['__v']);
 
-      return organizationDocument;
+      return workspaceDocument;
     } catch (err) {
       if (err instanceof error.DataNotFoundError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while retreiving the organization from the database.  See the inner error for additional information',
+          'An unexpected error occurred while retreiving the workspace from the database.  See the inner error for additional information',
           'mongoDb',
-          'getOrganizationById',
+          'getWorkspaceById',
           err
         );
     }
   }
 );
 
+SCHEMA.static('getWorkspaces', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const workspaceDocuments = (await WORKSPACE_MODEL.find(filter)
+      .populate('creator')
+      .populate('members')
+      .populate('projects')
+      .lean()) as databaseTypes.IWorkspace[];
+    if (!workspaceDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find workspaces with the filter: ${filter}`,
+        'workspaces',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the workspace.
+    return workspaceDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).creator['__v'];
+      (doc as any).members.forEach((p: any) => delete (p as any)['__v']);
+      (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the workspaces.  See the inner error for additional information',
+        'mongoDb',
+        'getWorkspaces',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
-  'deleteOrganizationById',
-  async (organizationId: mongooseTypes.ObjectId): Promise<void> => {
+  'deleteWorkspaceById',
+  async (workspaceId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await ORGANIZATION_MODEL.deleteOne({_id: organizationId});
+      const results = await WORKSPACE_MODEL.deleteOne({_id: workspaceId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
-          `An organization with a _id: ${organizationId} was not found in the database`,
+          `An workspace with a _id: ${workspaceId} was not found in the database`,
           '_id',
-          organizationId
+          workspaceId
         );
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the organization from the database. The organization may still exist.  See the inner error for additional information',
+          'An unexpected error occurred while deleteing the workspace from the database. The workspace may still exist.  See the inner error for additional information',
           'mongoDb',
-          'delete organization',
-          {_id: organizationId},
+          'delete workspace',
+          {_id: workspaceId},
           err
         );
     }
@@ -379,9 +420,9 @@ SCHEMA.static(
 SCHEMA.static(
   'addProjects',
   async (
-    organizationId: mongooseTypes.ObjectId,
+    workspaceId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError(
@@ -389,34 +430,32 @@ SCHEMA.static(
           'projects',
           projects
         );
-      const organizationDocument = await ORGANIZATION_MODEL.findById(
-        organizationId
-      );
-      if (!organizationDocument)
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
         throw new error.DataNotFoundError(
-          `A Organization Document with _id : ${organizationId} cannot be found`,
-          'organization._id',
-          organizationId
+          `A Workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
         );
 
-      const reconciledIds = await ORGANIZATION_MODEL.validateProjects(projects);
+      const reconciledIds = await WORKSPACE_MODEL.validateProjects(projects);
       let dirty = false;
       reconciledIds.forEach(p => {
         if (
-          !organizationDocument.projects.find(
-            progId => progId.toString() === p.toString()
+          !workspaceDocument.projects.find(
+            (progId: any) => progId.toString() === p.toString()
           )
         ) {
           dirty = true;
-          organizationDocument.projects.push(
+          workspaceDocument.projects.push(
             p as unknown as databaseTypes.IProject
           );
         }
       });
 
-      if (dirty) await organizationDocument.save();
+      if (dirty) await workspaceDocument.save();
 
-      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -428,7 +467,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurrred while adding the projects. See the innner error for additional information',
           'mongoDb',
-          'organization.addProjects',
+          'workspace.addProjects',
           err
         );
       }
@@ -439,9 +478,9 @@ SCHEMA.static(
 SCHEMA.static(
   'removeProjects',
   async (
-    organizationId: mongooseTypes.ObjectId,
+    workspaceId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError(
@@ -449,14 +488,12 @@ SCHEMA.static(
           'projects',
           projects
         );
-      const organizationDocument = await ORGANIZATION_MODEL.findById(
-        organizationId
-      );
-      if (!organizationDocument)
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
         throw new error.DataNotFoundError(
-          `An Organization Document with _id : ${organizationId} cannot be found`,
-          'organization._id',
-          organizationId
+          `An Workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
         );
 
       const reconciledIds = projects.map(i =>
@@ -465,7 +502,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedProjects = organizationDocument.projects.filter(p => {
+      const updatedProjects = workspaceDocument.projects.filter(p => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -482,12 +519,12 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        organizationDocument.projects =
+        workspaceDocument.projects =
           updatedProjects as unknown as databaseTypes.IProject[];
-        await organizationDocument.save();
+        await workspaceDocument.save();
       }
 
-      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -499,7 +536,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurrred while removing the projects. See the innner error for additional information',
           'mongoDb',
-          'organization.removeProjects',
+          'workspace.removeProjects',
           err
         );
       }
@@ -510,44 +547,40 @@ SCHEMA.static(
 SCHEMA.static(
   'addMembers',
   async (
-    organizationId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+    workspaceId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!members.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one userId',
+          'You must supply at least one workspaceId',
           'members',
           members
         );
-      const organizationDocument = await ORGANIZATION_MODEL.findById(
-        organizationId
-      );
-      if (!organizationDocument)
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
         throw new error.DataNotFoundError(
-          `A Organization Document with _id : ${organizationId} cannot be found`,
-          'organization._id',
-          organizationId
+          `A Workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
         );
 
-      const reconciledIds = await ORGANIZATION_MODEL.validateMembers(members);
+      const reconciledIds = await WORKSPACE_MODEL.validateMembers(members);
       let dirty = false;
       reconciledIds.forEach(m => {
         if (
-          !organizationDocument.members.find(
-            userId => userId.toString() === m.toString()
+          !workspaceDocument.members.find(
+            (memberId: any) => memberId.toString() === m.toString()
           )
         ) {
           dirty = true;
-          organizationDocument.members.push(
-            m as unknown as databaseTypes.IUser
-          );
+          workspaceDocument.members.push(m as unknown as databaseTypes.IMember);
         }
       });
 
-      if (dirty) await organizationDocument.save();
+      if (dirty) await workspaceDocument.save();
 
-      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -559,7 +592,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurrred while adding the members. See the innner error for additional information',
           'mongoDb',
-          'organization.addMembers',
+          'workspace.addMembers',
           err
         );
       }
@@ -570,24 +603,22 @@ SCHEMA.static(
 SCHEMA.static(
   'removeMembers',
   async (
-    organizationId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IUser | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IOrganization> => {
+    workspaceId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!members.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one userId',
+          'You must supply at least one workspaceId',
           'members',
           members
         );
-      const organizationDocument = await ORGANIZATION_MODEL.findById(
-        organizationId
-      );
-      if (!organizationDocument)
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
         throw new error.DataNotFoundError(
-          `An Organization Document with _id : ${organizationId} cannot be found`,
-          'organization._id',
-          organizationId
+          `An Workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
         );
 
       const reconciledIds = members.map(i =>
@@ -596,7 +627,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedMembers = organizationDocument.members.filter(m => {
+      const updatedMembers = workspaceDocument.members.filter(m => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -613,12 +644,12 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        organizationDocument.members =
-          updatedMembers as unknown as databaseTypes.IUser[];
-        await organizationDocument.save();
+        workspaceDocument.members =
+          updatedMembers as unknown as databaseTypes.IMember[];
+        await workspaceDocument.save();
       }
 
-      return await ORGANIZATION_MODEL.getOrganizationById(organizationId);
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -630,16 +661,16 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurrred while removing the members. See the innner error for additional information',
           'mongoDb',
-          'organization.removeMembers',
+          'workspace.removeMembers',
           err
         );
       }
     }
   }
 );
-const ORGANIZATION_MODEL = model<
-  IOrganizationDocument,
-  IOrganizationStaticMethods
->('organization', SCHEMA);
+const WORKSPACE_MODEL = model<IWorkspaceDocument, IWorkspaceStaticMethods>(
+  'workspace',
+  SCHEMA
+);
 
-export {ORGANIZATION_MODEL as OrganizationModel};
+export {WORKSPACE_MODEL as WorkspaceModel};

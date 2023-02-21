@@ -11,6 +11,9 @@ export interface IProjectStaticMethods
   getProjectById(
     projectId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IProject>;
+  getProjects(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.IProject[]>;
   updateProjectWithFilter(
     filter: Record<string, unknown>,
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
@@ -27,8 +30,8 @@ export interface IProjectStaticMethods
   validateType(
     input: databaseTypes.IProjectType | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
-  validateOrganization(
-    input: databaseTypes.IOrganization | mongooseTypes.ObjectId
+  validateWorkspace(
+    input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
   validateOwner(
     input: databaseTypes.IUser | mongooseTypes.ObjectId

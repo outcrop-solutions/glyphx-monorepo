@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import { v4 as uuid } from 'uuid';
-// import { API, graphqlOperation } from "aws-amplify";
-// import { createComment } from "graphql/mutations";
 import { useRecoilValue } from 'recoil';
 import { activeStateAtom } from '@/state/states';
 
@@ -14,13 +11,17 @@ export const CommentInput = ({ setComments }) => {
     setCommentContent(e.target.value);
   };
 
+  const handeSaveComment = () => {
+    
+  }
+
   return (
     <div className="relative flex items-center justify-around">
       <input
         onKeyPress={(ev) => {
           if (ev.key === 'Enter') {
             ev.preventDefault();
-            handleSaveComment();
+            // handleSaveComment();
           }
         }}
         type="text"

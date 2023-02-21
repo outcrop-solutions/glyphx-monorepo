@@ -11,6 +11,9 @@ export interface IWebhookStaticMethods
   getWebhookById(
     webhookId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IWebhook>;
+  getWebhooks(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.IWebhook[]>;
   updateWebhookWithFilter(
     filter: Record<string, unknown>,
     webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>

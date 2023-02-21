@@ -10,23 +10,33 @@ type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const INPUT_ORGANIZATION = {
-  name: 'testOrganization' + UNIQUE_KEY,
-  description: 'testorganization' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+const INPUT_WORKSPACE = {
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {}
 };
 
 const INPUT_USER = {
+  userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
 };
 
 const INPUT_STATE = {
@@ -40,7 +50,7 @@ const INPUT_STATE = {
 const INPUT_DATA = {
   name: 'testProject' + UNIQUE_KEY,
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
-  organization: {},
+  workspace: {},
   slug: 'testSlug' + UNIQUE_KEY,
   isTemplate: false,
   type: {},
@@ -62,10 +72,10 @@ describe('#ProjectModel', () => {
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
     let userId: ObjectId;
-    let organizationId: ObjectId;
+    let workspaceId: ObjectId;
     let stateId: ObjectId;
     let projectTypeId: ObjectId;
-    let organizationDocument: any;
+    let workspaceDocument: any;
     let userDocument: any;
     let stateDocument: any;
     let projectTypeDocument: any;
@@ -73,7 +83,7 @@ describe('#ProjectModel', () => {
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
-      const organizationModel = mongoConnection.models.OrganizationModel;
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
       const stateModel = mongoConnection.models.StateModel;
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
 
@@ -88,17 +98,17 @@ describe('#ProjectModel', () => {
 
       assert.isOk(userId);
 
-      await organizationModel.create([INPUT_ORGANIZATION], {
+      await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedOrganizationDocument = await organizationModel
-        .findOne({name: INPUT_ORGANIZATION.name})
+      const savedWorkspaceDocument = await workspaceModel
+        .findOne({name: INPUT_WORKSPACE.name})
         .lean();
-      organizationId = savedOrganizationDocument?._id as mongooseTypes.ObjectId;
+      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
-      organizationDocument = savedOrganizationDocument;
+      workspaceDocument = savedWorkspaceDocument;
 
-      assert.isOk(organizationId);
+      assert.isOk(workspaceId);
 
       await projectTypeModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
@@ -127,8 +137,8 @@ describe('#ProjectModel', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
 
-      const organizationModel = mongoConnection.models.OrganizationModel;
-      await organizationModel.findByIdAndDelete(organizationId);
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
+      await workspaceModel.findByIdAndDelete(workspaceId);
 
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
       await projectTypeModel.findByIdAndDelete(projectTypeId);
@@ -144,7 +154,7 @@ describe('#ProjectModel', () => {
     it('add a new project ', async () => {
       const projectInput = JSON.parse(JSON.stringify(INPUT_DATA));
       projectInput.owner = userDocument;
-      projectInput.organization = organizationDocument;
+      projectInput.workspace = workspaceDocument;
       projectInput.type = projectTypeDocument;
       projectInput.state = stateDocument;
 
@@ -157,8 +167,8 @@ describe('#ProjectModel', () => {
         userId.toString()
       );
       assert.strictEqual(
-        projectDocument.organization._id?.toString(),
-        organizationId.toString()
+        projectDocument.workspace._id?.toString(),
+        workspaceId.toString()
       );
       assert.strictEqual(
         projectDocument.type._id?.toString(),

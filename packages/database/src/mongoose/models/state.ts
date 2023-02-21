@@ -279,6 +279,36 @@ SCHEMA.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
   }
 });
 
+SCHEMA.static('getStates', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const stateDocuments = (await STATE_MODEL.find(filter)
+      .populate('projects')
+      .lean()) as databaseTypes.IState[];
+    if (!stateDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find states with the filter: ${filter}`,
+        'states',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    return stateDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the states.  See the inner error for additional information',
+        'mongoDb',
+        'getStates',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
   'addProjects',
   async (

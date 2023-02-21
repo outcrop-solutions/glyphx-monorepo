@@ -9,13 +9,16 @@ import {error} from '@glyphx/core';
 type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
-//1. Organization
-const INPUT_ORGANIZATION = {
-  name: 'testOrganization' + UNIQUE_KEY,
-  description: 'testorganization' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+//1. Workspace
+const INPUT_WORKSPACE = {
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {}
 };
 //2. Account
 const INPUT_ACCOUNT = {
@@ -79,27 +82,33 @@ const INPUT_WEBHOOKS2 = {
 };
 
 //5. Owned Orgs
-const INPUT_OWNED_ORGANIZATION = {
-  name: 'testOwnedOrganization' + UNIQUE_KEY,
-  description: 'testOwnedOrganization' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+const INPUT_CREATED_WORKSPACE = {
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {}
 };
 
-const INPUT_OWNED_ORGANIZATION2 = {
-  name: 'testOwnedOrganization2' + UNIQUE_KEY,
-  description: 'testOwnedOrganization2' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+const INPUT_CREATED_WORKSPACE2 = {
+  workspaceCode: 'testWorkspace2' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace2' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {}
 };
 
 //6. Projects
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
-  organization: {},
+  workspace: {},
   slug: 'testSlug' + UNIQUE_KEY,
   isTemplate: false,
   type: {},
@@ -111,7 +120,7 @@ const INPUT_PROJECT = {
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
   sdtPath: 'testsdtPath2' + UNIQUE_KEY,
-  organization: {},
+  workspace: {},
   slug: 'testSlug2' + UNIQUE_KEY,
   isTemplate: false,
   type: {},
@@ -121,21 +130,21 @@ const INPUT_PROJECT2 = {
 };
 
 const INPUT_DATA = {
+  userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  image: 'testimage' + UNIQUE_KEY,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
-  organization: {},
+  createdAt: new Date(),
+  updatedAt: new Date(),
   accounts: [],
   sessions: [],
-  webhooks: [],
-  ownedOrgs: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
   projects: [],
+  webhooks: [],
 };
 
 describe('#UserModel', () => {
@@ -144,8 +153,8 @@ describe('#UserModel', () => {
     const userModel = mongoConnection.models.UserModel;
     let userId: ObjectId;
 
-    let organizationId: ObjectId;
-    let organizationDocument: any;
+    let workspaceId: ObjectId;
+    let workspaceDocument: any;
 
     let accountId: ObjectId;
     let accountDocument: any;
@@ -162,10 +171,10 @@ describe('#UserModel', () => {
 
     let webhookId2: ObjectId;
 
-    let ownedOrganizationId: ObjectId;
-    let ownedOrganizationDocument: any;
+    let createdWorkspaceId: ObjectId;
+    let createdWorkspaceDocument: any;
 
-    let ownedOrganizationId2: ObjectId;
+    let createdWorkspaceId2: ObjectId;
 
     let projectId: ObjectId;
     let projectDocument: any;
@@ -174,18 +183,18 @@ describe('#UserModel', () => {
     before(async () => {
       await mongoConnection.init();
 
-      const organizationModel = mongoConnection.models.OrganizationModel;
-      await organizationModel.create([INPUT_ORGANIZATION], {
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
+      await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedOrganizationDocument = await organizationModel
-        .findOne({name: INPUT_ORGANIZATION.name})
+      const savedWorkspaceDocument = await workspaceModel
+        .findOne({name: INPUT_WORKSPACE.name})
         .lean();
-      organizationId = savedOrganizationDocument?._id as mongooseTypes.ObjectId;
+      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
-      organizationDocument = savedOrganizationDocument;
+      workspaceDocument = savedWorkspaceDocument;
 
-      assert.isOk(organizationId);
+      assert.isOk(workspaceId);
 
       const accountModel = mongoConnection.models.AccountModel;
       await accountModel.create([INPUT_ACCOUNT], {
@@ -256,29 +265,29 @@ describe('#UserModel', () => {
 
       assert.isOk(webhookId2);
 
-      await organizationModel.create([INPUT_OWNED_ORGANIZATION], {
+      await workspaceModel.create([INPUT_CREATED_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedOwnedOrganizationDocument = await organizationModel
-        .findOne({name: INPUT_OWNED_ORGANIZATION.name})
+      const savedOwnedWorkspaceDocument = await workspaceModel
+        .findOne({name: INPUT_CREATED_WORKSPACE.name})
         .lean();
-      ownedOrganizationId =
-        savedOwnedOrganizationDocument?._id as mongooseTypes.ObjectId;
+      createdWorkspaceId =
+        savedOwnedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
-      ownedOrganizationDocument = savedOwnedOrganizationDocument;
+      createdWorkspaceDocument = savedOwnedWorkspaceDocument;
 
-      assert.isOk(ownedOrganizationId);
+      assert.isOk(createdWorkspaceId);
 
-      await organizationModel.create([INPUT_OWNED_ORGANIZATION2], {
+      await workspaceModel.create([INPUT_CREATED_WORKSPACE2], {
         validateBeforeSave: false,
       });
-      const savedOwnedOrganizationDocument2 = await organizationModel
-        .findOne({name: INPUT_OWNED_ORGANIZATION2.name})
+      const savedOwnedWorkspaceDocument2 = await workspaceModel
+        .findOne({name: INPUT_CREATED_WORKSPACE2.name})
         .lean();
-      ownedOrganizationId2 =
-        savedOwnedOrganizationDocument2?._id as mongooseTypes.ObjectId;
+      createdWorkspaceId2 =
+        savedOwnedWorkspaceDocument2?._id as mongooseTypes.ObjectId;
 
-      assert.isOk(ownedOrganizationId2);
+      assert.isOk(createdWorkspaceId2);
 
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.create([INPUT_PROJECT], {
@@ -305,8 +314,8 @@ describe('#UserModel', () => {
     });
 
     after(async () => {
-      const organizationModel = mongoConnection.models.OrganizationModel;
-      await organizationModel.findByIdAndDelete(organizationId);
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
+      await workspaceModel.findByIdAndDelete(workspaceId);
 
       const accountModel = mongoConnection.models.AccountModel;
       await accountModel.findByIdAndDelete(accountId);
@@ -320,8 +329,8 @@ describe('#UserModel', () => {
       await webhookModel.findByIdAndDelete(webhookId);
       await webhookModel.findByIdAndDelete(webhookId2);
 
-      await organizationModel.findByIdAndDelete(ownedOrganizationId);
-      await organizationModel.findByIdAndDelete(ownedOrganizationId2);
+      await workspaceModel.findByIdAndDelete(createdWorkspaceId);
+      await workspaceModel.findByIdAndDelete(createdWorkspaceId2);
 
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.findByIdAndDelete(projectId);
@@ -334,22 +343,16 @@ describe('#UserModel', () => {
 
     it('add a new user ', async () => {
       const userInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      userInput.organization = organizationDocument;
       userInput.accounts.push(accountDocument);
       userInput.sessions.push(sessionDocument);
       userInput.webhooks.push(webhookDocument);
-      userInput.ownedOrgs.push(ownedOrganizationDocument);
+      userInput.createdWorkspaces.push(createdWorkspaceDocument);
       userInput.projects.push(projectDocument);
 
       const userDocument = await userModel.createUser(userInput);
 
       assert.isOk(userDocument);
       assert.strictEqual(userDocument.name, userInput.name);
-
-      assert.strictEqual(
-        userDocument.organization._id?.toString(),
-        organizationId.toString()
-      );
 
       assert.strictEqual(
         userDocument.accounts[0]._id?.toString(),
@@ -367,8 +370,8 @@ describe('#UserModel', () => {
       );
 
       assert.strictEqual(
-        userDocument.ownedOrgs[0]._id?.toString(),
-        ownedOrganizationId.toString()
+        userDocument.createdWorkspaces[0]._id?.toString(),
+        createdWorkspaceId.toString()
       );
 
       assert.strictEqual(
@@ -490,27 +493,27 @@ describe('#UserModel', () => {
       );
     });
 
-    it('add an organization to the user', async () => {
+    it('add an workspace to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addOrganizations(userId, [
-        ownedOrganizationId2,
+      const updatedUserDocument = await userModel.addWorkspaces(userId, [
+        createdWorkspaceId2,
       ]);
-      assert.strictEqual(updatedUserDocument.ownedOrgs.length, 2);
+      assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 2);
       assert.strictEqual(
-        updatedUserDocument.ownedOrgs[1]?._id?.toString(),
-        ownedOrganizationId2.toString()
+        updatedUserDocument.createdWorkspaces[1]?._id?.toString(),
+        createdWorkspaceId2.toString()
       );
     });
 
-    it('remove an organization from the user', async () => {
+    it('remove an workspace from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeOrganizations(userId, [
-        ownedOrganizationId2,
+      const updatedUserDocument = await userModel.removeWorkspaces(userId, [
+        createdWorkspaceId2,
       ]);
-      assert.strictEqual(updatedUserDocument.ownedOrgs.length, 1);
+      assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 1);
       assert.strictEqual(
-        updatedUserDocument.ownedOrgs[0]?._id?.toString(),
-        ownedOrganizationId.toString()
+        updatedUserDocument.createdWorkspaces[0]?._id?.toString(),
+        createdWorkspaceId.toString()
       );
     });
 

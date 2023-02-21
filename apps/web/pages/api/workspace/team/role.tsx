@@ -1,4 +1,4 @@
-import type { Role } from '@prisma/client';
+import {database} from '@glyphx/types'
 
 import { validateSession, getMember, toggleRole } from '@glyphx/business';
 
@@ -12,7 +12,7 @@ const handler = async (req, res) => {
     await toggleRole(
       memberId,
       // @ts-ignore
-      member.teamRole === Role.MEMBER ? Role.OWNER : Role.MEMBER
+      member.teamRole === database.constants.ROLE.MEMBER ?  database.constants.ROLE.OWNER :  database.constants.ROLE.MEMBER
     );
     res.status(200).json({ data: { updatedAt: new Date() } });
   } else {

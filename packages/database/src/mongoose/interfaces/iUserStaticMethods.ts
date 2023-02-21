@@ -26,8 +26,11 @@ export interface IUserStaticMethods
   validateWebhooks(
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
-  validateOrganizations(
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+  validateMembership(
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
+  validateWorkspaces(
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateProjects(
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
@@ -67,12 +70,12 @@ export interface IUserStaticMethods
     userId: mongooseTypes.ObjectId,
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
-  addOrganizations(
+  addWorkspaces(
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
-  removeOrganizations(
+  removeWorkspaces(
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
 }

@@ -26,12 +26,12 @@
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma"
   },
   "dependencies": {
-    "@glyphx/core": "workspace:^1.0.0",
+    "@glyphx/core": "workspace:*",
     "@prisma/client": "^4.5.0",
     "mongoose": "^6.8.1"
   },
   "devDependencies": {
-    "@glyphx/types": "workspace:^0.0.0",
+    "@glyphx/types": "workspace:*",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "@glyphx/tsconfig": "workspace:*",
     "@types/chai": "^4.3.3",
