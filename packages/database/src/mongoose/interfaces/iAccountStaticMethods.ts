@@ -11,7 +11,7 @@ export interface IAccountStaticMethods
   getAccountById(
     accountId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IAccount>;
-  getAccounts(
+  queryAccounts(
     filter?: Record<string, unknown>,
     page?: number,
     itemsPerPage?: number

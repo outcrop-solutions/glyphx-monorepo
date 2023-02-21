@@ -137,7 +137,7 @@ SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
 });
 
 SCHEMA.static(
-  'getAccounts',
+  'queryAccounts',
   async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
     try {
       const count = await ACCOUNT_MODEL.count(filter);

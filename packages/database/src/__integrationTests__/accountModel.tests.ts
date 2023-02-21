@@ -61,7 +61,7 @@ const INPUT_DATA2 = {
   oauth_token: 'oauthToken2' + UNIQUE_KEY,
   user: {},
 };
-describe.only('#accountModel', () => {
+describe('#accountModel', () => {
   context('test the crud functions of the account model', () => {
     const mongoConnection = new MongoDbConnection();
     const accountModel = mongoConnection.models.AccountModel;
@@ -142,7 +142,7 @@ describe.only('#accountModel', () => {
       assert.isOk(accountDocument);
       accountId2 = accountDocument._id as mongooseTypes.ObjectId;
 
-      const accounts = await accountModel.getAccounts();
+      const accounts = await accountModel.queryAccounts();
       assert.isArray(accounts.results);
       assert.isAtLeast(accounts.numberOfItems, 2);
       const expectedDocumentCount =
@@ -154,7 +154,7 @@ describe.only('#accountModel', () => {
 
     it('Get multiple accounts with a filter', async () => {
       assert.isOk(accountId2);
-      const results = await accountModel.getAccounts({
+      const results = await accountModel.queryAccounts({
         providerAccountId: INPUT_DATA.providerAccountId,
       });
       assert.strictEqual(results.results.length, 1);
@@ -166,12 +166,12 @@ describe.only('#accountModel', () => {
 
     it('page accounts', async () => {
       assert.isOk(accountId2);
-      const results = await accountModel.getAccounts({}, 0, 1);
+      const results = await accountModel.queryAccounts({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
       const lastId = results.results[0]?._id;
 
-      const results2 = await accountModel.getAccounts({}, 1, 1);
+      const results2 = await accountModel.queryAccounts({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
       assert.notStrictEqual(

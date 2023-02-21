@@ -711,7 +711,7 @@ describe('#mongoose/models/account', () => {
         sandbox.stub().returns(new MockMongooseQuery(mockAccounts))
       );
 
-      const results = await AccountModel.getAccounts({});
+      const results = await AccountModel.queryAccounts({});
 
       assert.strictEqual(results.numberOfItems, mockAccounts.length);
       assert.strictEqual(results.page, 0);
@@ -734,7 +734,7 @@ describe('#mongoose/models/account', () => {
 
       let errored = false;
       try {
-        await AccountModel.getAccounts();
+        await AccountModel.queryAccounts();
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -758,7 +758,7 @@ describe('#mongoose/models/account', () => {
 
       let errored = false;
       try {
-        await AccountModel.getAccounts({}, 1, 10);
+        await AccountModel.queryAccounts({}, 1, 10);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -784,7 +784,7 @@ describe('#mongoose/models/account', () => {
 
       let errored = false;
       try {
-        await AccountModel.getAccounts({});
+        await AccountModel.queryAccounts({});
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
