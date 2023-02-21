@@ -8,9 +8,9 @@ import {
   inviteHtml,
   inviteText,
 } from '@glyphx/email';
-import {prisma} from '@glyphx/database';
 import {database} from '@glyphx/types';
-
+//eslint-disable-next-line
+const prisma: any = {};
 export async function countWorkspaces(slug) {
   return await prisma.workspace.count({
     where: {slug: {startsWith: slug}},

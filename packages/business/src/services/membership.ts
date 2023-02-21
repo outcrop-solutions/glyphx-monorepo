@@ -1,9 +1,10 @@
-import {database} from '@glyphx/types';
-import {prisma} from '@glyphx/database';
-import {database as databaseTypes} from '@glyphx/types';
+import {database, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
+
+//eslint-disable-next-line
+const prisma: any = {};
 
 export async function getMember(id) {
   return await prisma.member.findFirst({
@@ -92,8 +93,12 @@ export class MembershipService {
     memberId: mongooseTypes.ObjectId | string
   ): Promise<databaseTypes.IMember | null> {
     try {
+      const id =
+        memberId instanceof mongooseTypes.ObjectId
+          ? memberId
+          : new mongooseTypes.ObjectId(memberId);
       const member = await mongoDbConnection.models.MemberModel.getMemberById(
-        memberId
+        id
       );
       return member;
     } catch (err) {
@@ -167,8 +172,12 @@ export class MembershipService {
     memberId: mongooseTypes.ObjectId | string
   ): Promise<databaseTypes.IMember | null> {
     try {
+      const id =
+        memberId instanceof mongooseTypes.ObjectId
+          ? memberId
+          : new mongooseTypes.ObjectId(memberId);
       const member =
-        await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
+        await mongoDbConnection.models.MemberModel.updateMemberById(id, {
           deletedAt: new Date(),
         });
       return member;
@@ -190,8 +199,12 @@ export class MembershipService {
     teamRole: databaseTypes.constants.ROLE
   ): Promise<databaseTypes.IMember | null> {
     try {
+      const id =
+        memberId instanceof mongooseTypes.ObjectId
+          ? memberId
+          : new mongooseTypes.ObjectId(memberId);
       const member =
-        await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
+        await mongoDbConnection.models.MemberModel.updateMemberById(id, {
           teamRole,
         });
       return member;
@@ -213,8 +226,12 @@ export class MembershipService {
     status: databaseTypes.constants.INVITATION_STATUS
   ): Promise<databaseTypes.IMember | null> {
     try {
+      const id =
+        memberId instanceof mongooseTypes.ObjectId
+          ? memberId
+          : new mongooseTypes.ObjectId(memberId);
       const member =
-        await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
+        await mongoDbConnection.models.MemberModel.updateMemberById(id, {
           status,
         });
       return member;

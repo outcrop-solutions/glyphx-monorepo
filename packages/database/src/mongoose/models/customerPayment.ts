@@ -136,7 +136,7 @@ SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
         customerEmail
       );
     }
-     return customerPaymentDocument;
+    return customerPaymentDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -147,7 +147,7 @@ SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
         err
       );
   }
-);
+});
 
 SCHEMA.static(
   'getCustomerPayments',
