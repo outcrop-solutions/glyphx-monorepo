@@ -10,7 +10,9 @@ export interface IMemberStaticMethods
   getMemberById(
     memberId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IMember>;
-  getMembers(filter: Record<string, unknown>): Promise<databaseTypes.IMember[]>;
+  getMembers(
+    filter?: Record<string, unknown>
+  ): Promise<databaseTypes.IMember[]>;
   updateMemberById(
     id: mongooseTypes.ObjectId,
     member: Partial<databaseTypes.IMember>

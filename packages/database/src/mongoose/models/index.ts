@@ -1,6 +1,8 @@
 //istanbul ignore file
 export {UserModel} from './user';
 export {AccountModel} from './account';
+export {CustomerPaymentModel} from './customerPayment';
+export {VerificationTokenModel} from './verificationToken';
 export {WorkspaceModel} from './workspace';
 export {ProjectModel} from './project';
 export {ProjectTypeModel} from './projectType';

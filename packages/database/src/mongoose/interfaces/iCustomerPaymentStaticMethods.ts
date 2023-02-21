@@ -15,6 +15,9 @@ export interface ICustomerPaymentStaticMethods
   getCustomerPaymentById(
     customerPaymentId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.ICustomerPayment>;
+  getCustomerPaymentByEmail(
+    customerEmail: string
+  ): Promise<databaseTypes.ICustomerPayment>;
   getCustomerPayments(
     filter: Record<string, unknown>
   ): Promise<databaseTypes.ICustomerPayment[]>;

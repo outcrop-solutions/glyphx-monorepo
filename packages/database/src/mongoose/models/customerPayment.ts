@@ -17,8 +17,10 @@ const SCHEMA = new Schema<
   customerId: {type: String, required: true},
   email: {type: String, required: true},
   subscriptionType: {
-    type: databaseTypes.constants.SUBSCRIPTION_TYPE,
+    type: Number,
     required: true,
+    enum: databaseTypes.constants.SUBSCRIPTION_TYPE,
+    default: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
   },
   createdAt: {type: Date, required: true},
   updatedAt: {type: Date, required: true},
@@ -117,6 +119,33 @@ SCHEMA.static(
           err
         );
     }
+  }
+);
+
+SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
+  try {
+    const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.find({
+      email: customerEmail,
+    })
+      .populate('customer')
+      .lean()) as databaseTypes.ICustomerPayment;
+    if (!customerPaymentDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a customerPayment with the email: ${customerEmail}`,
+        'customerPayment_id',
+        customerEmail
+      );
+    }
+     return customerPaymentDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the customerPayment.  See the inner error for additional information',
+        'mongoDb',
+        'getCustomerPaymentByEmail',
+        err
+      );
   }
 );
 
