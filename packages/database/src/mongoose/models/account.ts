@@ -110,7 +110,7 @@ SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
   try {
     const accountDocument = (await ACCOUNT_MODEL.findById(accountId)
       .populate('user')
-      .lean()) as databaseTypes.IWebhook;
+      .lean()) as databaseTypes.IAccount;
     if (!accountDocument) {
       throw new error.DataNotFoundError(
         `Could not find a account with the _id: ${accountId}`,

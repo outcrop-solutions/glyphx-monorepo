@@ -252,7 +252,7 @@ SCHEMA.static(
         const value = (webhook as Record<string, any>)[key];
         if (key === 'user')
           // @jp-burford .owner or .user?
-          transformedWebhook.owner = value._id as mongooseTypes.ObjectId;
+          transformedWebhook.user = value._id as mongooseTypes.ObjectId;
         else transformedWebhook[key] = value;
       }
       const updateResult = await WEBHOOK_MODEL.updateOne(
