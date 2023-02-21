@@ -1,6 +1,9 @@
 import {database} from '@glyphx/types';
 import {prisma} from '@glyphx/database';
-// import {database} from '@glyphx/types';
+import {database as databaseTypes} from '@glyphx/types';
+import {Types as mongooseTypes} from 'mongoose';
+import {error, constants} from '@glyphx/core';
+import mongoDbConnection from 'lib/databaseConnection';
 
 export async function getMember(id) {
   return await prisma.member.findFirst({
@@ -82,4 +85,100 @@ export async function updateStatus(id, status) {
     data: {status},
     where: {id},
   });
+}
+
+export class MembershipService {
+  public static async getMember(
+    memberId: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.ICustomerPayment | null> {
+    try {
+      const customerPayment =
+        await mongoDbConnection.models.MemberModel.getMemberById(memberId);
+      return customerPayment;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting the member. See the inner error for additional details',
+          'customerPayment',
+          'getCustomerPayment',
+          {memberId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async getMembers(
+    filter?: Record<string, unknown>,
+  ): Promise<databaseTypes.ICustomerPayment | null> {
+    try {
+      const members = await mongoDbConnection.models.MemberModel.getMembers(
+        filter,
+        select
+      );
+      return members;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting members. See the inner error for additional details',
+          'member',
+          'getMembers',
+          {filter},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async getPendingInvitations(
+    email: string
+  ): Promise<databaseTypes.ICustomerPayment | null> {
+    try {
+      const members = await MembershipService.getMembers({email});
+      return pendingInvites;
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while getting the customerPayment. See the inner error for additional details',
+        'customerPayment',
+        'getCustomerPayment',
+        {email},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
+  }
+
+  public static async remove(
+    memberId: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.ICustomerPayment | null> {
+    try {
+      const customerPayment =
+        await mongoDbConnection.models.CustomerPaymentModel.updateMemberById(
+          memberId,
+          {deletedAt: new Date()}
+        );
+      return customerPayment;
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while updating the member. See the inner error for additional details',
+        'member',
+        'updateMember',
+        {memberId},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
+  }
 }
