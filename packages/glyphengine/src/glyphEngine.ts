@@ -133,5 +133,67 @@ export class GlyphEngine {
     const xDir = data.get('x_dir') ?? '';
     const yDir = data.get('y_dir') ?? '';
     const zDir = data.get('z_dir') ?? '';
+
+    await this.getDataTypes(clientId, modelId, data);
+    const template = this.updateSdt(await this.getTemplateAsString(), data);
+  }
+  updateSdt(template: string, data: Map<string, string>): string {
+    const functionX = this.getFunction(data, 'type_x', 'x_func');
+    const functionY = this.getFunction(data, 'type_y', 'y_func');
+    const functionZ = this.getFunction(data, 'type_z', 'z_func');
+
+    const xMin = (data.get('x_direction') ?? 'ASC') === 'ASC' ? -205 : 205;
+    const xDiff = (data.get('x_direction') ?? 'ASC') === 'ASC' ? 410 : -410;
+    const yMin = (data.get('y_direction') ?? 'ASC') === 'ASC' ? -205 : 205;
+    const yDiff = (data.get('y_direction') ?? 'ASC') === 'ASC' ? 410 : -410;
+    const zMin = (data.get('z_direction') ?? 'ASC') === 'ASC' ? 1 : 70;
+    const zDiff = (data.get('z_direction') ?? 'ASC') === 'ASC' ? 70 : -70;
+    const colorMin =
+      (data.get('z_direction') ?? 'ASC') === 'ASC' ? '0,255,255' : '255,0,0';
+    const colorDiff =
+      (data.get('z_direction') ?? 'ASC') === 'ASC'
+        ? '255,-255,-255'
+        : '-255,255,255';
+
+    const updatedTemplate = template
+      .replace('ROOT_ID', data.get('model_id') ?? '')
+      .replace('_HOST_', '_data.csv')
+      .replace('_NAME_', '_data.csv')
+      .replace('FUNCTION_X', functionX)
+      .replace('FUNCTION_Y', functionY)
+      .replace('FUNCTION_Z', functionZ)
+      .replace('X_MIN', xMin.toString())
+      .replace('X_DIFF', xDiff.toString())
+      .replace('Y_MIN', yMin.toString())
+      .replace('Y_DIFF', yDiff.toString())
+      .replace('Z_MIN', zMin.toString())
+      .replace('Z_DIFF', zDiff.toString())
+      .replace('COLOR_MIN', colorMin)
+      .replace('COLOR_DIFF', colorDiff)
+      .replace('FIELD_X', data.get('x_axis') ?? '')
+      .replace('FIELD_Y', data.get('y_axis') ?? '')
+      .replace('FIELD_Z', data.get('z_axis') ?? '')
+      .replace(
+        'TYPE_X',
+        (data.get('type_x') ?? 'string') === 'string' ? 'Text' : 'Real'
+      )
+      .replace(
+        'TYPE_Y',
+        (data.get('type_y') ?? 'string') === 'string' ? 'Text' : 'Real'
+      )
+      .replace(
+        'TYPE_Z',
+        (data.get('type_z') ?? 'string') === 'string' ? 'Text' : 'Real'
+      );
+
+    return updatedTemplate;
+  }
+  getFunction(data: Map<string, string>, key: string, func: string) {
+    if (data.get(key) !== 'string') {
+      if ((data.get(func) ?? '') === 'LOG') return 'Logarithmic Interpolation';
+      return 'Linear Interpolation';
+    } else {
+      return 'Text Interpolation';
+    }
   }
 }
