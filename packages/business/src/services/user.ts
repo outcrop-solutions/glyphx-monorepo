@@ -1,6 +1,7 @@
 import {sendMail, updateHtml, updateText} from '@glyphx/email';
-import {prisma} from '@glyphx/database';
 
+//eslint-disable-next-line
+const prisma: any = {};
 export async function deactivate(id) {
   return await prisma.user.update({
     data: {deletedAt: new Date()},

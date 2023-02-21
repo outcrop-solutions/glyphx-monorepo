@@ -6,7 +6,7 @@ import {
   IWorkspaceDocument,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {UserModel} from './workspace';
+import {UserModel} from './user';
 import {MemberModel} from './member';
 import {ProjectModel} from './project';
 
