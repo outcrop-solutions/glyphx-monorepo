@@ -105,6 +105,36 @@ SCHEMA.static('getSessionById', async (sessionId: mongooseTypes.ObjectId) => {
   }
 });
 
+SCHEMA.static('getSessions', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const sessionDocuments = (await SESSION_MODEL.find(filter)
+      .populate('user')
+      .lean()) as databaseTypes.ISession[];
+    if (!sessionDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find sessions with the filter: ${filter}`,
+        'sessions',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    return sessionDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).user['__v'];
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the sessions.  See the inner error for additional information',
+        'mongoDb',
+        'getSessions',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
   'createSession',
   async (

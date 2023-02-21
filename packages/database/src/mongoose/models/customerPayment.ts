@@ -136,12 +136,7 @@ SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
         customerEmail
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (customerPaymentDocument as any)['__v'];
-    delete (customerPaymentDocument as any).customer['__v'];
-
-    return customerPaymentDocument;
+     return customerPaymentDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -152,7 +147,40 @@ SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
         err
       );
   }
-});
+);
+
+SCHEMA.static(
+  'getCustomerPayments',
+  async (filter: Record<string, unknown> = {}) => {
+    try {
+      const paymentDocuments = (await CUSTOMER_PAYMENT_MODEL.find(filter)
+        .populate('customer')
+        .lean()) as databaseTypes.ICustomerPayment[];
+      if (!paymentDocuments) {
+        throw new error.DataNotFoundError(
+          `Could not find customerPayments with the filter: ${filter}`,
+          'customerPayments',
+          filter
+        );
+      }
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      return paymentDocuments.map((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).customer['__v'];
+      });
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the customerPayments.  See the inner error for additional information',
+          'mongoDb',
+          'getCustomerPayments',
+          err
+        );
+    }
+  }
+);
 
 SCHEMA.static(
   'createCustomerPayment',

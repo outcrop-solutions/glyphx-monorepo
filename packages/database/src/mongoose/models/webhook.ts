@@ -124,6 +124,36 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static('getWebhooks', async (filter: Record<string, unknown> = {}) => {
+  try {
+    const webhookDocuments = (await WEBHOOK_MODEL.find(filter)
+      .populate('user')
+      .lean()) as databaseTypes.IWebhook[];
+    if (!webhookDocuments) {
+      throw new error.DataNotFoundError(
+        `Could not find webhooks with the filter: ${filter}`,
+        'webhooks',
+        filter
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    return webhookDocuments.map((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).user['__v'];
+    });
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the webhooks.  See the inner error for additional information',
+        'mongoDb',
+        'getWebhooks',
+        err
+      );
+  }
+});
+
 SCHEMA.static(
   'createWebhook',
   async (

@@ -18,6 +18,9 @@ export interface ICustomerPaymentStaticMethods
   getCustomerPaymentByEmail(
     customerEmail: string
   ): Promise<databaseTypes.ICustomerPayment>;
+  getCustomerPayments(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.ICustomerPayment[]>;
   updateCustomerPaymentWithFilter(
     filter: Record<string, unknown>,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>

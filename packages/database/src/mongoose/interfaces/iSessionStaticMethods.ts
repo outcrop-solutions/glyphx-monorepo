@@ -11,6 +11,9 @@ export interface ISessionStaticMethods
   getSessionById(
     sessionId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.ISession>;
+  getSessions(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.ISession[]>;
   updateSessionWithFilter(
     filter: Record<string, unknown>,
     session: Omit<Partial<databaseTypes.ISession>, '_id'>

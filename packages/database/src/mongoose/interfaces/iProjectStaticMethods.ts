@@ -11,6 +11,9 @@ export interface IProjectStaticMethods
   getProjectById(
     projectId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IProject>;
+  getProjects(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.IProject[]>;
   updateProjectWithFilter(
     filter: Record<string, unknown>,
     project: Omit<Partial<databaseTypes.IProject>, '_id'>

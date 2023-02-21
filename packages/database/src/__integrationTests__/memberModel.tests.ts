@@ -37,8 +37,8 @@ const INPUT_WORKSPACE = {
   updatedAt: new Date(),
   description: 'testDescription',
   creator: {},
-  members: [] as mongooseTypes.ObjectId[],
-  projects: [] as mongooseTypes.ObjectId[],
+  members: [] as unknown as mongooseTypes.ObjectId[],
+  projects: [] as unknown as mongooseTypes.ObjectId[],
 };
 
 const INPUT_DATA = {
