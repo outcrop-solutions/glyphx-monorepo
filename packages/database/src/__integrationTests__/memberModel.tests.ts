@@ -70,7 +70,7 @@ describe('#memberModel', () => {
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
       await workspaceModel.createWorkspace(
-        INPUT_WORKSPACE as databaseTypes.IWorkspace
+        INPUT_WORKSPACE as unknown as databaseTypes.IWorkspace
       );
 
       const savedUserDocument = await userModel

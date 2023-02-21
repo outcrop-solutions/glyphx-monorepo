@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {database as databaseTypes, IQueryResult} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IAccountMethods,
@@ -136,35 +136,68 @@ SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
   }
 });
 
-SCHEMA.static('getAccounts', async (filter: Record<string, unknown> = {}) => {
-  try {
-    const accountDocuments = (await ACCOUNT_MODEL.find(filter)
-      .populate('user')
-      .lean()) as databaseTypes.IAccount[];
-    if (!accountDocuments) {
-      throw new error.DataNotFoundError(
-        `Could not find accounts with the filter: ${filter}`,
-        'account_filter',
-        filter
-      );
+SCHEMA.static(
+  'getAccounts',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await ACCOUNT_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find accounts with the filter: ${filter}`,
+          'account_filter',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const accountDocuments = (await ACCOUNT_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('user')
+        .lean()) as databaseTypes.IAccount[];
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      accountDocuments.map((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).user['__v'];
+      });
+
+      const retval: IQueryResult<databaseTypes.IAccount> = {
+        results: accountDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the account.  See the inner error for additional information',
+          'mongoDb',
+          'getAccountById',
+          err
+        );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    return accountDocuments.map((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).user['__v'];
-    });
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the account.  See the inner error for additional information',
-        'mongoDb',
-        'getAccountById',
-        err
-      );
   }
-});
+);
 
 SCHEMA.static(
   'validateUpdateObject',

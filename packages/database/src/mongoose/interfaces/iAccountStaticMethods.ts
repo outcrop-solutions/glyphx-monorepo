@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IAccountMethods} from './iAccountMethods';
 export interface IAccountStaticMethods
   extends Model<databaseTypes.IAccount, {}, IAccountMethods> {
@@ -12,8 +12,10 @@ export interface IAccountStaticMethods
     accountId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IAccount>;
   getAccounts(
-    filter: Record<string, unknown>
-  ): Promise<databaseTypes.IAccount[]>;
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IAccount>>;
   updateAccountWithFilter(
     filter: Record<string, unknown>,
     account: Omit<Partial<databaseTypes.IAccount>, '_id'>
