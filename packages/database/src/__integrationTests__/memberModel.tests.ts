@@ -36,7 +36,7 @@ const INPUT_WORKSPACE = {
   updatedAt: new Date(),
   createdAt: new Date(),
   description: 'testDescription',
-  creator: {}
+  creator: {},
 };
 
 const INPUT_DATA = {
