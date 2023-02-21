@@ -1,24 +1,86 @@
 import {createCustomer} from 'lib/stripe';
-import {prisma} from '@glyphx/database';
+import {database as databaseTypes} from '@glyphx/types';
+import {error, constants} from '@glyphx/core';
+import mongoDbConnection from 'lib/databaseConnection';
 
-export async function createPaymentAccount(email, customerId) {
-  const paymentAccount = await createCustomer(email);
-  return await prisma.customerPayment.create({
-    data: {
-      customerId,
-      email,
-      paymentId: paymentAccount.id,
-    },
-  });
-}
+export class CustomerPaymentService {
+  public static async getPayment(
+    email: string
+  ): Promise<databaseTypes.ICustomerPayment | null> {
+    try {
+      const customerPayment =
+        await mongoDbConnection.models.CustomerPaymentModel.getCustomerPaymentByEmail(
+          email
+        );
+      return customerPayment;
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting the customerPayment. See the inner error for additional details',
+          'customerPayment',
+          'getCustomerPayment',
+          {email},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
 
-export async function getPayment(email) {
-  return await prisma.customerPayment.findUnique({where: {email}});
-}
+  public static async createPaymentAccount(
+    email: string,
+    customerId: string
+  ): Promise<databaseTypes.ICustomerPayment | null> {
+    try {
+      const paymentAccount = await createCustomer(email);
+      const input = {
+        customerId,
+        email,
+        paymentId: paymentAccount.id,
+      } as Omit<databaseTypes.ICustomerPayment, '_id'>;
+      const customerPayment =
+        await mongoDbConnection.models.CustomerPaymentModel.createCustomerPayment(
+          input
+        );
+      return customerPayment;
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while getting the customerPayment. See the inner error for additional details',
+        'customerPayment',
+        'getCustomerPayment',
+        {email},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
+  }
 
-export async function updateSubscription(customerId, subscriptionType) {
-  return await prisma.customerPayment.update({
-    data: {subscriptionType},
-    where: {customerId},
-  });
+  public static async updateSubscription(
+    customerId: string,
+    subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE
+  ): Promise<databaseTypes.ICustomerPayment | null> {
+    try {
+      const customerPayment =
+        await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(
+          {customerId},
+          {subscriptionType}
+        );
+      return customerPayment;
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while updating the customerPayment. See the inner error for additional details',
+        'customerPayment',
+        'updateCustomerPayment',
+        {subscriptionType},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
+  }
 }
