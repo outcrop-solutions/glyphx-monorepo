@@ -136,7 +136,11 @@ export class GlyphEngine {
 
     await this.getDataTypes(clientId, modelId, data);
     const template = this.updateSdt(await this.getTemplateAsString(), data);
+
+    const fileName = `${userId}/${modelId}/model.sdt`;
+    await this.outputBucketField.putObject(fileName, template);
   }
+
   updateSdt(template: string, data: Map<string, string>): string {
     const functionX = this.getFunction(data, 'type_x', 'x_func');
     const functionY = this.getFunction(data, 'type_y', 'y_func');
