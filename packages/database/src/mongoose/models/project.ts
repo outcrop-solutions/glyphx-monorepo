@@ -464,7 +464,10 @@ SCHEMA.static(
         );
       }
 
-      const projectDocuments = (await PROJECT_MODEL.find(filter)
+      const projectDocuments = (await PROJECT_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
         .populate('workspace')
         .populate('owner')
         .populate('type')
