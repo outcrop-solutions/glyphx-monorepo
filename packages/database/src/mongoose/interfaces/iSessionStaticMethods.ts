@@ -1,4 +1,4 @@
-import {Types as mongooseTypes, Model} from 'mongoose';
+import {IQueryResult, Types as mongooseTypes, Model} from 'mongoose';
 import {database as databaseTypes} from '@glyphx/types';
 import {ISessionMethods} from './iSessionMethods';
 export interface ISessionStaticMethods
@@ -11,9 +11,11 @@ export interface ISessionStaticMethods
   getSessionById(
     sessionId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.ISession>;
-  getSessions(
-    filter: Record<string, unknown>
-  ): Promise<databaseTypes.ISession[]>;
+  querySessions(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.ISession>>;
   updateSessionWithFilter(
     filter: Record<string, unknown>,
     session: Omit<Partial<databaseTypes.ISession>, '_id'>
