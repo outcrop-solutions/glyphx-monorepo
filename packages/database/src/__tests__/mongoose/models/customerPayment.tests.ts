@@ -733,7 +733,7 @@ describe('#mongoose/models/customerPayment', () => {
     it('will retreive a customerPayment document with the user populated', async () => {
       const findStub = sandbox.stub();
       findStub.returns(new MockMongooseQuery(mockCustomerPayment));
-      sandbox.replace(CustomerPaymentModel, 'find', findStub);
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
 
       const doc = await CustomerPaymentModel.getCustomerPaymentByEmail(
         mockCustomerPayment.email ?? ''
@@ -749,7 +749,7 @@ describe('#mongoose/models/customerPayment', () => {
     it('will throw a DataNotFoundError when the customerPayment does not exist', async () => {
       const findStub = sandbox.stub();
       findStub.returns(new MockMongooseQuery(null));
-      sandbox.replace(CustomerPaymentModel, 'find', findStub);
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
 
       let errored = false;
       try {
@@ -767,7 +767,7 @@ describe('#mongoose/models/customerPayment', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findStub = sandbox.stub();
       findStub.returns(new MockMongooseQuery('something bad happened', true));
-      sandbox.replace(CustomerPaymentModel, 'find', findStub);
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
 
       let errored = false;
       try {

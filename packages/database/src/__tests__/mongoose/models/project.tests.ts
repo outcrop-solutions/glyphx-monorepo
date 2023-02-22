@@ -1230,4 +1230,199 @@ describe('#mongoose/models/project', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('queryProjects', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockProjects = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testProject',
+        description: 'this is a test project',
+        sdtPath: 'testsdtpath',
+        slug: 'test slug',
+        isTemplate: false,
+        files: [],
+        __v: 1,
+        owner: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        workspace: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace',
+          __v: 1,
+        } as unknown as databaseTypes.IWorkspace,
+        type: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace',
+          __v: 1,
+        } as unknown as databaseTypes.IProjectType,
+
+        state: {
+          _id: new mongoose.Types.ObjectId(),
+          version: 1,
+          __v: 1,
+        } as unknown as databaseTypes.IState,
+        viewName: 'test View name',
+      } as databaseTypes.IProject,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testProject2',
+        description: 'this is a test project2',
+        sdtPath: 'testsdtpath2',
+        slug: 'test slug2',
+        isTemplate: false,
+        files: [],
+        __v: 1,
+        owner: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        workspace: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace2',
+          __v: 1,
+        } as unknown as databaseTypes.IWorkspace,
+        type: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace2',
+          __v: 1,
+        } as unknown as databaseTypes.IProjectType,
+
+        state: {
+          _id: new mongoose.Types.ObjectId(),
+          version: 1,
+          __v: 1,
+        } as unknown as databaseTypes.IState,
+        viewName: 'test View name2',
+      } as databaseTypes.IProject,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered projects', async () => {
+      sandbox.replace(
+        ProjectModel,
+        'count',
+        sandbox.stub().resolves(mockProjects.length)
+      );
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjects))
+      );
+
+      const results = await ProjectModel.queryProjects({});
+
+      assert.strictEqual(results.numberOfItems, mockProjects.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockProjects.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach(doc => {
+        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc.type as any).__v);
+        assert.isUndefined((doc.state as any).__v);
+        assert.isUndefined((doc.workspace as any).__v);
+        assert.isUndefined((doc.owner as any).__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(ProjectModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjects))
+      );
+
+      let errored = false;
+      try {
+        await ProjectModel.queryProjects();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        ProjectModel,
+        'count',
+        sandbox.stub().resolves(mockProjects.length)
+      );
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjects))
+      );
+
+      let errored = false;
+      try {
+        await ProjectModel.queryProjects({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        ProjectModel,
+        'count',
+        sandbox.stub().resolves(mockProjects.length)
+      );
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await ProjectModel.queryProjects({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });
