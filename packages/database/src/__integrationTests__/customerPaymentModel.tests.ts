@@ -39,11 +39,22 @@ const INPUT_DATA = {
   customer: {},
 };
 
+const INPUT_DATA2 = {
+  paymentId: 'testPaymentId2' + UNIQUE_KEY,
+  customerId: 'testCustomerId2' + UNIQUE_KEY,
+  email: 'testemail2@gmail.com',
+  subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  customer: {},
+};
+
 describe('#customerPaymentModel', () => {
   context('test the crud functions of the customerPayment model', () => {
     const mongoConnection = new MongoDbConnection();
     const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
     let customerPaymentId: ObjectId;
+    let customerPaymentId2: ObjectId;
     let userId: ObjectId;
     let userDocument: any;
     before(async () => {
@@ -67,6 +78,10 @@ describe('#customerPaymentModel', () => {
 
       if (customerPaymentId) {
         await customerPaymentModel.findByIdAndDelete(customerPaymentId);
+      }
+
+      if (customerPaymentId2) {
+        await customerPaymentModel.findByIdAndDelete(customerPaymentId2);
       }
     });
 
@@ -111,6 +126,60 @@ describe('#customerPaymentModel', () => {
           input
         );
       assert.strictEqual(updatedDocument.paymentId, input.paymentId);
+    });
+
+    it('Get multiple customerPayments without a filter', async () => {
+      assert.isOk(customerPaymentId);
+      const paymentInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      paymentInput.customer = userDocument;
+      const paymentDocument = await customerPaymentModel.createCustomerPayment(
+        paymentInput
+      );
+
+      assert.isOk(paymentDocument);
+      customerPaymentId2 = paymentDocument._id as mongooseTypes.ObjectId;
+
+      const payments = await customerPaymentModel.queryCustomerPayments();
+      assert.isArray(payments.results);
+      assert.isAtLeast(payments.numberOfItems, 2);
+      const expectedDocumentCount =
+        payments.numberOfItems <= payments.itemsPerPage
+          ? payments.numberOfItems
+          : payments.itemsPerPage;
+      assert.strictEqual(payments.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple customerPayments with a filter', async () => {
+      assert.isOk(customerPaymentId2);
+      const results = await customerPaymentModel.queryCustomerPayments({
+        customerId: INPUT_DATA.customerId,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(results.results[0]?.customerId, INPUT_DATA.customerId);
+    });
+
+    it('page customerPayments', async () => {
+      assert.isOk(customerPaymentId2);
+      const results = await customerPaymentModel.queryCustomerPayments(
+        {},
+        0,
+        1
+      );
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await customerPaymentModel.queryCustomerPayments(
+        {},
+        1,
+        1
+      );
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a customerPayment', async () => {
