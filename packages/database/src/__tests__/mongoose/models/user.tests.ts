@@ -1031,11 +1031,7 @@ describe('#mongoose/models/user', () => {
 
       const allMemberIdsExistStub = sandbox.stub();
       allMemberIdsExistStub.resolves(true);
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMemberIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       const results = await UserModel.validateMembership(inputMembers);
 
@@ -1056,11 +1052,7 @@ describe('#mongoose/models/user', () => {
 
       const allMembersIdsExistStub = sandbox.stub();
       allMembersIdsExistStub.resolves(true);
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMembersIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMembersIdsExistStub);
 
       const results = await UserModel.validateMembership(inputMembers);
 
@@ -1087,11 +1079,7 @@ describe('#mongoose/models/user', () => {
           inputMembers
         )
       );
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMemberIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       let errored = false;
       try {
@@ -1114,11 +1102,7 @@ describe('#mongoose/models/user', () => {
 
       const allMemberIdsExistStub = sandbox.stub();
       allMemberIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMemberIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       let errored = false;
       try {
@@ -1547,9 +1531,13 @@ describe('#mongoose/models/user', () => {
       doc.accounts.forEach((a: any) => assert.isUndefined((a as any)['__v']));
       doc.sessions.forEach((s: any) => assert.isUndefined((s as any)['__v']));
       doc.membership.forEach((m: any) => assert.isUndefined((m as any)['__v']));
-      doc.invitedMembers.forEach((m: any) => assert.isUndefined((m as any)['__v']));
+      doc.invitedMembers.forEach((m: any) =>
+        assert.isUndefined((m as any)['__v'])
+      );
       doc.webhooks.forEach((w: any) => assert.isUndefined((w as any)['__v']));
-      doc.createdWorkspaces.forEach((o: any) => assert.isUndefined((o as any)['__v']));
+      doc.createdWorkspaces.forEach((o: any) =>
+        assert.isUndefined((o as any)['__v'])
+      );
       doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
 
       assert.strictEqual(doc._id, mockUser._id);
@@ -3113,11 +3101,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspaceStub = sandbox.stub();
       validateWorkspaceStub.resolves([orgId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspaceStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspaceStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3130,7 +3114,10 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
+      assert.strictEqual(
+        updatedUser.createdWorkspaces[0].toString(),
+        orgId.toString()
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspaceStub.calledOnce);
@@ -3151,11 +3138,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspacesStub = sandbox.stub();
       validateWorkspacesStub.resolves([orgId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3168,7 +3151,10 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
+      assert.strictEqual(
+        updatedUser.createdWorkspaces[0].toString(),
+        orgId.toString()
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspacesStub.calledOnce);
@@ -3188,11 +3174,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspaceStub = sandbox.stub();
       validateWorkspaceStub.resolves([workspaceId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspaceStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspaceStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3231,11 +3213,7 @@ describe('#mongoose/models/user', () => {
           workspaceId
         )
       );
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3268,11 +3246,7 @@ describe('#mongoose/models/user', () => {
 
       const validatWorkspacesStub = sandbox.stub();
       validatWorkspacesStub.resolves([workspaceId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validatWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validatWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.rejects('Something bad has happened');
@@ -3305,11 +3279,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspacesStub = sandbox.stub();
       validateWorkspacesStub.resolves([workspaceId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3484,6 +3454,277 @@ describe('#mongoose/models/user', () => {
         await UserModel.removeWorkspaces(userId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('queryUsers', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockUsers = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        userCode: 'testUserCode',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testUser',
+        username: 'testUserName',
+        gh_username: 'testGhUserName',
+        email: 'testUser@email.com',
+        emailVerified: new Date(),
+        isVerified: true,
+        image: 'imageString',
+        accounts: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            refresh_token: 'testRefreshToken',
+          } as unknown as databaseTypes.IAccount,
+        ],
+        sessions: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testsessionToken',
+          } as unknown as databaseTypes.ISession,
+        ],
+        membership: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testMembership',
+          } as unknown as databaseTypes.IMember,
+        ],
+        invitedMembers: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'invitedMembers',
+          } as unknown as databaseTypes.IMember,
+        ],
+        webhooks: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'testWebhookName',
+            __v: 1,
+          } as unknown as databaseTypes.IWebhook,
+        ],
+        apiKey: 'testApiKey',
+        createdWorkspaces: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdWorkspace',
+            __v: 1,
+          } as unknown as databaseTypes.IWorkspace,
+        ],
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdProject',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.ICustomerPayment,
+      } as databaseTypes.IUser,
+
+      {
+        _id: new mongoose.Types.ObjectId(),
+        userCode: 'testUserCode2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testUser2',
+        username: 'testUserName2',
+        gh_username: 'testGhUserName2',
+        email: 'testUser2@email.com',
+        emailVerified: new Date(),
+        isVerified: true,
+        image: 'imageString2',
+        accounts: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            refresh_token: 'testRefreshToken2',
+          } as unknown as databaseTypes.IAccount,
+        ],
+        sessions: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testsessionToken2',
+          } as unknown as databaseTypes.ISession,
+        ],
+        membership: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testMembership2',
+          } as unknown as databaseTypes.IMember,
+        ],
+        invitedMembers: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'invitedMembers2',
+          } as unknown as databaseTypes.IMember,
+        ],
+        webhooks: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'testWebhookName2',
+            __v: 1,
+          } as unknown as databaseTypes.IWebhook,
+        ],
+        apiKey: 'testApiKey2',
+        createdWorkspaces: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdWorkspace2',
+            __v: 1,
+          } as unknown as databaseTypes.IWorkspace,
+        ],
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdProject2',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.ICustomerPayment,
+      } as databaseTypes.IUser,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered users', async () => {
+      sandbox.replace(
+        UserModel,
+        'count',
+        sandbox.stub().resolves(mockUsers.length)
+      );
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
+      );
+
+      const results = await UserModel.queryUsers({});
+
+      assert.strictEqual(results.numberOfItems, mockUsers.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockUsers.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach((doc: any) => {
+        assert.isUndefined((doc as any).__v);
+        doc.accounts.forEach((a: any) => assert.isUndefined((a as any)['__v']));
+        doc.sessions.forEach((s: any) => assert.isUndefined((s as any)['__v']));
+        doc.membership.forEach((m: any) =>
+          assert.isUndefined((m as any)['__v'])
+        );
+        doc.invitedMembers.forEach((m: any) =>
+          assert.isUndefined((m as any)['__v'])
+        );
+        doc.webhooks.forEach((w: any) => assert.isUndefined((w as any)['__v']));
+        doc.createdWorkspaces.forEach((o: any) =>
+          assert.isUndefined((o as any)['__v'])
+        );
+        doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(UserModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
+      );
+
+      let errored = false;
+      try {
+        await UserModel.queryUsers();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        UserModel,
+        'count',
+        sandbox.stub().resolves(mockUsers.length)
+      );
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
+      );
+
+      let errored = false;
+      try {
+        await UserModel.queryUsers({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        UserModel,
+        'count',
+        sandbox.stub().resolves(mockUsers.length)
+      );
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await UserModel.queryUsers({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
       }
 

@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
 import {error} from '@glyphx/core';
@@ -60,51 +60,86 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('getUsers', async (filter: Record<string, unknown> = {}) => {
-  try {
-    const userDocuments = (await USER_MODEL.find(filter)
-      .populate('accounts')
-      .populate('sessions')
-      .populate('membership')
-      .populate('invitedMembers')
-      .populate('createdWorkspaces')
-      .populate('projects')
-      .populate('customerPayment')
-      .populate('webhooks')
-      .lean()) as databaseTypes.IUser[];
-    if (!userDocuments) {
-      throw new error.DataNotFoundError(
-        `Could not find users with the filter: ${filter}`,
-        'users',
-        filter
-      );
+SCHEMA.static(
+  'queryUsers',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await USER_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find users with the filter: ${filter}`,
+          'queryUsers',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+      const userDocuments = (await USER_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('accounts')
+        .populate('sessions')
+        .populate('membership')
+        .populate('invitedMembers')
+        .populate('createdWorkspaces')
+        .populate('projects')
+        .populate('customerPayment')
+        .populate('webhooks')
+        .lean()) as databaseTypes.IUser[];
+      //
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      userDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).customerPayment['__v'];
+        (doc as any).accounts.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).sessions.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).membership.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).invitedMembers.forEach(
+          (p: any) => delete (p as any)['__v']
+        );
+        (doc as any).createdWorkspaces.forEach(
+          (p: any) => delete (p as any)['__v']
+        );
+        (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).webhooks.forEach((p: any) => delete (p as any)['__v']);
+      });
+
+      const retval: IQueryResult<databaseTypes.IUser> = {
+        results: userDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the users.  See the inner error for additional information',
+          'mongoDb',
+          'getUsers',
+          err
+        );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    return userDocuments.map((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).customerPayment['__v'];
-      (doc as any).accounts.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).sessions.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).membership.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).invitedMembers.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).createdWorkspaces.forEach(
-        (p: any) => delete (p as any)['__v']
-      );
-      (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).webhooks.forEach((p: any) => delete (p as any)['__v']);
-    });
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the users.  See the inner error for additional information',
-        'mongoDb',
-        'getUsers',
-        err
-      );
   }
-});
+);
 
 SCHEMA.static(
   'allUserIdsExist',
