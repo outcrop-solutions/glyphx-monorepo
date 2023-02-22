@@ -160,7 +160,7 @@ SCHEMA.static(
       if (!count) {
         throw new error.DataNotFoundError(
           `Could not find customerPayments with the filter: ${filter}`,
-          'account_filter',
+          'queryCustomerPayments',
           filter
         );
       }
@@ -188,7 +188,7 @@ SCHEMA.static(
 
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      paymentDocuments.map((doc: any) => {
+      paymentDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any).customer['__v'];
       });

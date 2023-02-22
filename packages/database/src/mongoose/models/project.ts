@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IProjectMethods,
@@ -439,37 +439,72 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
   }
 });
 
-SCHEMA.static('getProjects', async (filter: Record<string, unknown> = {}) => {
-  try {
-    const projectDocuments = (await PROJECT_MODEL.find(filter)
-      .populate('workspace')
-      .populate('owner')
-      .lean()) as databaseTypes.IProject[];
-    if (!projectDocuments) {
-      throw new error.DataNotFoundError(
-        `Could not find projects with the filter: ${filter}`,
-        'projects',
-        filter
-      );
+SCHEMA.static(
+  'queryProjects',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await PROJECT_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find projects with the filter: ${filter}`,
+          'queryProjects',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const projectDocuments = (await PROJECT_MODEL.find(filter)
+        .populate('workspace')
+        .populate('owner')
+        .populate('type')
+        .populate('state')
+        .lean()) as databaseTypes.IProject[];
+
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      projectDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).workspace['__v'];
+        delete (doc as any).owner['__v'];
+        delete (doc as any).type?.['__v'];
+        delete (doc as any).state?.['__v'];
+      });
+
+      const retval: IQueryResult<databaseTypes.IProject> = {
+        results: projectDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the projects.  See the inner error for additional information',
+          'mongoDb',
+          'getProjects',
+          err
+        );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    return projectDocuments.map((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).workspace['__v'];
-      delete (doc as any).owner['__v'];
-    });
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the projects.  See the inner error for additional information',
-        'mongoDb',
-        'getProjects',
-        err
-      );
   }
-});
+);
 
 SCHEMA.static(
   'deleteProjectById',
