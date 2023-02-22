@@ -1,5 +1,4 @@
 import slugify from 'slugify';
-
 import {
   ISendMail,
   sendMail,
@@ -8,7 +7,12 @@ import {
   inviteHtml,
   inviteText,
 } from '@glyphx/email';
-import {database} from '@glyphx/types';
+import {database, database as databaseTypes} from '@glyphx/types';
+import {Types as mongooseTypes} from 'mongoose';
+import {error, constants} from '@glyphx/core';
+import mongoDbConnection from 'lib/databaseConnection';
+import {v4} from 'uuid';
+
 //eslint-disable-next-line
 const prisma: any = {};
 export async function countWorkspaces(slug) {
@@ -338,5 +342,180 @@ export async function updateSlug(id, email, newSlug, pathSlug) {
     return slug;
   } else {
     throw new Error('Unable to find workspace');
+  }
+}
+
+export class WorkspaceService {
+  public static async countWorkspaces(slug: string): Promise<number> {
+    // TODO: return count by filter
+    // @jp: we need a clean way to get the count by filter?
+    console.log({slug});
+    return Promise.resolve(4);
+  }
+
+  public static async createWorkspaces(
+    creatorId: mongooseTypes.ObjectId | string,
+    email: string,
+    name: string,
+    slug: string
+  ): Promise<databaseTypes.IWorkspace | null> {
+    try {
+      const count = await WorkspaceService.countWorkspaces(slug);
+      if (count > 0) {
+        slug = `${slug}-${count}`;
+      }
+      // TODO: add member record to workspace
+      // @jp: do we have a clean way to create related records in one operation - in this case a member record for the workspace
+      const input = {
+        workspaceCode: v4().replaceAll('-', ''),
+        inviteCode: v4().replaceAll('-', ''),
+        creatorId,
+        name,
+        slug,
+      } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
+      const workspace =
+        await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
+
+      await sendMail({
+        html: workspaceCreateHtml({code: workspace.inviteCode, name}),
+        subject: `[Glyphx] Workspace created: ${name}`,
+        text: workspaceCreateText({code: workspace.inviteCode, name}),
+        to: email,
+      } as ISendMail);
+
+      return workspace;
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while creating the workspace. See the inner error for additional details',
+        'workspace',
+        'createWorkspace',
+        {creatorId, name, slug},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
+  }
+
+  /**
+   *
+   * This is used as a utility function in order to get the default user workspace
+   * @param userId
+   * @param email
+   * @param slug
+   * @returns Promise<databaseTypes.IWorkspace | null>
+   */
+
+  static async getOwnWorkspace(
+    userId: mongooseTypes.ObjectId | string,
+    email: string,
+    slug: string
+  ): Promise<databaseTypes.IWorkspace | null> {
+    // TODO: add filter to get workspaces where user is a member
+    // @jp: we need a clean way to implement filter on related records here
+    try {
+      const id =
+        userId instanceof mongooseTypes.ObjectId
+          ? userId
+          : new mongooseTypes.ObjectId(userId);
+
+      const workspaces =
+        await mongoDbConnection.models.WorkspaceModel.getWorkspaces({
+          deletedAt: null,
+          slug,
+        });
+
+      if (Array.isArray(workspaces)) {
+        const filteredWorkspaces = workspaces.filter(space =>
+          space.members.filter(
+            mem =>
+              mem.id === id ||
+              (mem.email === email &&
+                mem.teamRole === databaseTypes.constants.ROLE.OWNER &&
+                mem.deletedAt === null)
+          )
+        );
+        if (filteredWorkspaces.length > 0) {
+          return filteredWorkspaces[0];
+        } else return null;
+      } else {
+        return null;
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting the Workspace. See the inner error for additional details',
+          'workspace',
+          'getWorkspace',
+          {email},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async deleteWorkspace(
+    userId: mongooseTypes.ObjectId | string,
+    email: string,
+    slug: string
+  ): Promise<string | null> {
+    try {
+      const id =
+        userId instanceof mongooseTypes.ObjectId
+          ? userId
+          : new mongooseTypes.ObjectId(userId);
+
+      const workspace = await WorkspaceService.getOwnWorkspace(
+        userId,
+        email,
+        slug
+      );
+
+      if (workspace) {
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(id, {
+          deletedAt: new Date(),
+        });
+        return slug;
+      } else {
+        return null;
+      }
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while updating the member. See the inner error for additional details',
+        'member',
+        'updateMember',
+        {userId, email, slug},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
+  }
+
+  public static async getInvitation(
+    inviteCode: string
+  ): Promise<databaseTypes.IWorkspace | null> {
+    try {
+      const workspace =
+        await mongoDbConnection.models.WorkspaceModel.getWorkspaces({
+          inviteCode,
+        });
+      return workspace;
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while updating the member. See the inner error for additional details',
+        'member',
+        'updateMember',
+        {inviteCode},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
   }
 }
