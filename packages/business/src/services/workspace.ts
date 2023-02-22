@@ -20,53 +20,6 @@ import {v4} from 'uuid';
 //eslint-disable-next-line
 const prisma: any = {};
 
-export async function inviteUsers(id, email, members, slug) {
-  const workspace = await getOwnWorkspace(id, email, slug);
-  const inviter = email;
-
-  if (workspace) {
-    const membersList = members.map(({email, role}) => ({
-      email,
-      inviter,
-      teamRole: role,
-    }));
-    const data = members.map(({email}) => ({
-      createdAt: null,
-      email,
-    }));
-    await Promise.all([
-      prisma.user.createMany({
-        data,
-        // skipDuplicates: true,
-      }),
-      prisma.workspace.update({
-        data: {
-          members: {
-            createMany: {
-              data: membersList,
-              // skipDuplicates: true,
-            },
-          },
-        },
-        where: {id: workspace.id},
-      }),
-      sendMail({
-        html: inviteHtml({code: workspace.inviteCode, name: workspace.name}),
-        subject: `[Glyphx] You have been invited to join ${workspace.name} workspace`,
-        text: inviteText({code: workspace.inviteCode, name: workspace.name}),
-        to: members.map(member => member.email),
-      }),
-    ]);
-    return membersList;
-  } else {
-    throw new Error('Unable to find workspace');
-  }
-}
-
-export async function isWorkspaceCreator(id, creatorId) {
-  return id === creatorId;
-}
-
 export async function isWorkspaceOwner(email, workspace) {
   let isTeamOwner = false;
   const member = workspace.members.find(
@@ -543,5 +496,30 @@ export class WorkspaceService {
     } else {
       throw new Error('Unable to find workspace');
     }
+  }
+
+  static isWorkspaceCreator(
+    id: mongooseTypes.ObjectId | string,
+    creatorId: mongooseTypes.ObjectId | string
+  ): boolean {
+    return id === creatorId;
+  }
+
+  static async isWorkspaceOwner(
+    email: string,
+    workspace: databaseTypes.IWorkspace
+  ): Promise<boolean> {
+    let isTeamOwner = false;
+    const member = workspace.members.find(
+      member =>
+        member.email === email &&
+        member.teamRole === database.constants.ROLE.OWNER
+    );
+
+    if (member) {
+      isTeamOwner = true;
+    }
+
+    return isTeamOwner;
   }
 }
