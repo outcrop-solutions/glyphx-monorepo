@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IProjectTypeMethods} from './iProjectTypeMethods';
 export interface IProjectTypeStaticMethods
   extends Model<databaseTypes.IProjectType, {}, IProjectTypeMethods> {
@@ -10,6 +10,11 @@ export interface IProjectTypeStaticMethods
   getProjectTypeById(
     projectTypeId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IProjectType>;
+  queryProjectTypes(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IProjectType>>;
   updateProjectTypeWithFilter(
     filter: Record<string, unknown>,
     projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>

@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IStateMethods,
@@ -279,35 +279,67 @@ SCHEMA.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
   }
 });
 
-SCHEMA.static('getStates', async (filter: Record<string, unknown> = {}) => {
-  try {
-    const stateDocuments = (await STATE_MODEL.find(filter)
-      .populate('projects')
-      .lean()) as databaseTypes.IState[];
-    if (!stateDocuments) {
-      throw new error.DataNotFoundError(
-        `Could not find states with the filter: ${filter}`,
-        'states',
-        filter
-      );
+SCHEMA.static(
+  'queryStates',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await STATE_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find states with the filter: ${filter}`,
+          'queryStates',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+      const stateDocuments = (await STATE_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('projects')
+        .lean()) as databaseTypes.IState[];
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      stateDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+      });
+
+      const retval: IQueryResult<databaseTypes.IState> = {
+        results: stateDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the states.  See the inner error for additional information',
+          'mongoDb',
+          'queryStates',
+          err
+        );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    return stateDocuments.map((doc: any) => {
-      delete (doc as any)['__v'];
-      (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
-    });
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the states.  See the inner error for additional information',
-        'mongoDb',
-        'getStates',
-        err
-      );
   }
-});
+);
 
 SCHEMA.static(
   'addProjects',

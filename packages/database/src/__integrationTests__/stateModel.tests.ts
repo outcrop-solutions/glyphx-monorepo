@@ -32,11 +32,19 @@ const INPUT_DATA = {
   fileSystem: [],
 };
 
+const INPUT_DATA2 = {
+  version: 1,
+  static: false,
+  fileSystemHash: 'hash2' + UNIQUE_KEY,
+  projects: [],
+  fileSystem: [],
+};
 describe('#StateModel', () => {
   context('test the crud functions of the state model', () => {
     const mongoConnection = new MongoDbConnection();
     const stateModel = mongoConnection.models.StateModel;
     let stateId: ObjectId;
+    let stateId2: ObjectId;
     let projectId: ObjectId;
     let projectDocument: any;
     let projectId2: ObjectId;
@@ -71,6 +79,10 @@ describe('#StateModel', () => {
       if (stateId) {
         await stateModel.findByIdAndDelete(stateId);
       }
+
+      if (stateId2) {
+        await stateModel.findByIdAndDelete(stateId2);
+      }
     });
 
     it('add a new state ', async () => {
@@ -94,6 +106,53 @@ describe('#StateModel', () => {
 
       assert.isOk(state);
       assert.strictEqual(state._id?.toString(), stateId.toString());
+    });
+
+    it('Get multiple states without a filter', async () => {
+      assert.isOk(stateId);
+      const stateInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      stateInput.projects.push(projectDocument);
+      const stateDocument = await stateModel.createState(stateInput);
+
+      assert.isOk(stateDocument);
+      stateId2 = stateDocument._id as mongooseTypes.ObjectId;
+
+      const states = await stateModel.queryStates();
+      assert.isArray(states.results);
+      assert.isAtLeast(states.numberOfItems, 2);
+      const expectedDocumentCount =
+        states.numberOfItems <= states.itemsPerPage
+          ? states.numberOfItems
+          : states.itemsPerPage;
+      assert.strictEqual(states.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple states with a filter', async () => {
+      assert.isOk(stateId2);
+      const results = await stateModel.queryStates({
+        fileSystemHash: INPUT_DATA.fileSystemHash,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(
+        results.results[0]?.fileSystemHash,
+        INPUT_DATA.fileSystemHash
+      );
+    });
+
+    it('page states', async () => {
+      assert.isOk(stateId2);
+      const results = await stateModel.queryStates({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await stateModel.queryStates({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('modify a state', async () => {

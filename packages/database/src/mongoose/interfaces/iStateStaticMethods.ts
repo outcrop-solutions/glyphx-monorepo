@@ -1,4 +1,4 @@
-import {Types as mongooseTypes, Model} from 'mongoose';
+import {IQueryResult, Types as mongooseTypes, Model} from 'mongoose';
 import {database as databaseTypes} from '@glyphx/types';
 import {IStateMethods} from './iStateMethods';
 export interface IStateStaticMethods
@@ -8,7 +8,11 @@ export interface IStateStaticMethods
     input: Omit<databaseTypes.IState, '_id'>
   ): Promise<databaseTypes.IState>;
   getStateById(stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState>;
-  getStates(filter: Record<string, unknown>): Promise<databaseTypes.IState[]>;
+  queryStates(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IState>>;
   updateStateWithFilter(
     filter: Record<string, unknown>,
     state: Omit<Partial<databaseTypes.IState>, '_id'>
