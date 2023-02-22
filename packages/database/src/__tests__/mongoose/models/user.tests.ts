@@ -6,6 +6,7 @@ import {SessionModel} from '../../../mongoose/models/session';
 import {MemberModel} from '../../../mongoose/models/member';
 import {WebhookModel} from '../../../mongoose/models/webhook';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
+import {CustomerPaymentModel} from '../../../mongoose/models/customerPayment';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
@@ -774,6 +775,90 @@ describe('#mongoose/models/user', () => {
     });
   });
 
+  context('validate customerPayment', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an ids when the customerPayment can be validated', async () => {
+      const inputPayment = {
+        _id: new mongoose.Types.ObjectId(),
+      } as unknown as databaseTypes.ICustomerPayment;
+
+      const customerPaymentIdExistStub = sandbox.stub();
+      customerPaymentIdExistStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentIdExistStub
+      );
+
+      const results = await UserModel.validateCustomerPayment(inputPayment);
+
+      assert.strictEqual(results.toString(), inputPayment._id?.toString());
+    });
+
+    it('should return an id when the customerPaymentId can be validated ', async () => {
+      const inputPayment = new mongoose.Types.ObjectId();
+
+      const customerPaymentIdsExistStub = sandbox.stub();
+      customerPaymentIdsExistStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentIdsExistStub
+      );
+
+      const results = await UserModel.validateCustomerPayment(inputPayment);
+
+      assert.strictEqual(results.toString(), inputPayment._id?.toString());
+    });
+
+    it('should throw a Data Validation Error if the id cannot be found ', async () => {
+      const inputPayment = new mongoose.Types.ObjectId();
+      const customerPaymentIdExistStub = sandbox.stub();
+      customerPaymentIdExistStub.resolves(false);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentIdExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateCustomerPayment(inputPayment);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputPayment = new mongoose.Types.ObjectId();
+      const errorText = 'something bad has happened';
+
+      const customerPaymentIdExistStub = sandbox.stub();
+      customerPaymentIdExistStub.rejects(errorText);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+
+        customerPaymentIdExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateCustomerPayment(inputPayment);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
   context('validate accounts', () => {
     const sandbox = createSandbox();
 
