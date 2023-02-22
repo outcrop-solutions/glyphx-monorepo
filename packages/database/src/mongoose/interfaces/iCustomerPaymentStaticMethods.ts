@@ -18,8 +18,10 @@ export interface ICustomerPaymentStaticMethods
   getCustomerPaymentByEmail(
     customerEmail: string
   ): Promise<databaseTypes.ICustomerPayment>;
-  getCustomerPayments(
-    filter: Record<string, unknown>
+  queryCustomerPayments(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
   ): Promise<databaseTypes.ICustomerPayment[]>;
   updateCustomerPaymentWithFilter(
     filter: Record<string, unknown>,
