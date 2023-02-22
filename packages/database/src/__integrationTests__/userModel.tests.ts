@@ -18,7 +18,7 @@ const INPUT_WORKSPACE = {
   updatedAt: new Date(),
   createdAt: new Date(),
   description: 'testDescription',
-  creator: {}
+  creator: {},
 };
 //2. Account
 const INPUT_ACCOUNT = {
@@ -90,18 +90,18 @@ const INPUT_CREATED_WORKSPACE = {
   updatedAt: new Date(),
   createdAt: new Date(),
   description: 'testDescription',
-  creator: {}
+  creator: {},
 };
 
 const INPUT_CREATED_WORKSPACE2 = {
   workspaceCode: 'testWorkspace2' + UNIQUE_KEY,
   inviteCode: 'testWorkspace2' + UNIQUE_KEY,
-  name: 'testName' + UNIQUE_KEY,
-  slug: 'testSlug' + UNIQUE_KEY,
+  name: 'testName2' + UNIQUE_KEY,
+  slug: 'testSlug2' + UNIQUE_KEY,
   updatedAt: new Date(),
   createdAt: new Date(),
-  description: 'testDescription',
-  creator: {}
+  description: 'testDescription2',
+  creator: {},
 };
 
 //6. Projects
@@ -129,6 +129,16 @@ const INPUT_PROJECT2 = {
   files: [],
 };
 
+const INPUT_CUSTOMER_PAYMENT = {
+  paymentId: 'testPaymentId' + UNIQUE_KEY,
+  customerId: 'testCustomerId' + UNIQUE_KEY,
+  email: 'testemail@gmail.com',
+  subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  customer: {},
+};
+
 const INPUT_DATA = {
   userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
@@ -147,7 +157,7 @@ const INPUT_DATA = {
   webhooks: [],
 };
 
-describe('#UserModel', () => {
+describe.only('#UserModel', () => {
   context('test the crud functions of the user model', () => {
     const mongoConnection = new MongoDbConnection();
     const userModel = mongoConnection.models.UserModel;
@@ -179,6 +189,9 @@ describe('#UserModel', () => {
     let projectId: ObjectId;
     let projectDocument: any;
     let projectId2: ObjectId;
+
+    let customerPaymentId: ObjectId;
+    let customerPaymentDocument: any;
 
     before(async () => {
       await mongoConnection.init();
@@ -311,6 +324,20 @@ describe('#UserModel', () => {
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(projectId2);
+
+      const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
+      await customerPaymentModel.create([INPUT_CUSTOMER_PAYMENT], {
+        validateBeforeSave: false,
+      });
+      const savedCustomerPaymentDocument = await customerPaymentModel
+        .findOne({paymentId: INPUT_CUSTOMER_PAYMENT.paymentId})
+        .lean();
+      customerPaymentId =
+        savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
+
+      customerPaymentDocument = savedCustomerPaymentDocument;
+
+      assert.isOk(customerPaymentId);
     });
 
     after(async () => {
@@ -336,6 +363,9 @@ describe('#UserModel', () => {
       await projectModel.findByIdAndDelete(projectId);
       await projectModel.findByIdAndDelete(projectId2);
 
+      const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
+      await customerPaymentModel.findByIdAndDelete(customerPaymentId);
+
       if (userId) {
         await userModel.findByIdAndDelete(userId);
       }
@@ -348,6 +378,7 @@ describe('#UserModel', () => {
       userInput.webhooks.push(webhookDocument);
       userInput.createdWorkspaces.push(createdWorkspaceDocument);
       userInput.projects.push(projectDocument);
+      userInput.customerPayment = customerPaymentDocument;
 
       const userDocument = await userModel.createUser(userInput);
 
@@ -377,6 +408,11 @@ describe('#UserModel', () => {
       assert.strictEqual(
         userDocument.projects[0]._id?.toString(),
         projectId.toString()
+      );
+
+      assert.strictEqual(
+        userDocument.customerPayment?._id?.toString(),
+        customerPaymentId.toString()
       );
 
       userId = userDocument._id as mongooseTypes.ObjectId;

@@ -40,6 +40,9 @@ export interface IUserStaticMethods
   validateProjects(
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
+  validateCustomerPayment(
+    payment?: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId>;
   validateUpdateObject(
     input: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): boolean;

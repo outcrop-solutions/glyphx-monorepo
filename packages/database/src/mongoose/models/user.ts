@@ -1,5 +1,5 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes, Schema, model} from 'mongoose';
+import {Types as mongooseTypes, Schema, model, ObjectId} from 'mongoose';
 import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
@@ -8,6 +8,7 @@ import {SessionModel} from './session';
 import {WebhookModel} from './webhook';
 import {MemberModel} from './member';
 import {WorkspaceModel} from './workspace';
+import {CustomerPaymentModel} from './customerPayment';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   userCode: {type: String, required: true},
@@ -449,6 +450,31 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'validateCustomerPayment',
+  async (
+    payment: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    if (payment) {
+      const paymentId =
+        payment instanceof mongooseTypes.ObjectId
+          ? payment
+          : (payment._id as mongooseTypes.ObjectId);
+      const exists = await CustomerPaymentModel.customerPaymentIdExists(
+        paymentId
+      );
+      if (!exists) {
+        throw new error.DataValidationError(
+          'the customerPayment id does not exisit in the database.',
+          'customerPayment',
+          payment
+        );
+      }
+
+      return paymentId;
+    } else return null as unknown as mongooseTypes.ObjectId;
+  }
+);
 SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
     const userDocument = (await USER_MODEL.findById(userId)
@@ -516,6 +542,7 @@ SCHEMA.static(
         invitedMembers,
         createdWorkspaces,
         projects,
+        customerPaymentId,
       ] = await Promise.all([
         USER_MODEL.validateAccounts(
           //istanbul ignore next
@@ -545,6 +572,7 @@ SCHEMA.static(
           //istanbul ignore next
           input.projects ?? []
         ),
+        USER_MODEL.validateCustomerPayment(input.customerPayment),
       ]);
       const createDate = new Date();
 
@@ -567,6 +595,7 @@ SCHEMA.static(
         apiKey: input.apiKey,
         createdWorkspaces: createdWorkspaces,
         projects: projects,
+        customerPayment: customerPaymentId,
       };
       try {
         await USER_MODEL.validate(resolvedInput);
