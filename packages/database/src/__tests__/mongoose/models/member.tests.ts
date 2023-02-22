@@ -526,7 +526,7 @@ describe('#mongoose/models/member', () => {
       assert.isTrue(errorred);
       assert.isTrue(userExistsStub.calledOnce);
     });
-  
+
     it('will throw an InvalidOperationError when the inviter does not exist', async () => {
       const inputMember = {
         member: {
@@ -825,6 +825,203 @@ describe('#mongoose/models/member', () => {
         await MemberModel.getMemberById(
           mockMember._id as mongoose.Types.ObjectId
         );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('getMembers', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockMembers = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        email: 'email',
+        inviter: 'inviter',
+        invitedAt: new Date().getTime(),
+        joinedAt: new Date().getTime(),
+        status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+        teamRole: databaseTypes.constants.ROLE.MEMBER,
+        __v: 1,
+        member: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test member user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        invitedBy: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test invitedBy user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        workspace: {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          workspaceCode: 'testWorkspaceCode',
+          inviteCode: 'testInviteCode',
+          name: 'Test Workspace',
+          slug: 'testSlug',
+          description: 'a test workspace',
+          creator: {
+            _id: new mongoose.Types.ObjectId(),
+          } as unknown as databaseTypes.IUser,
+          members: [],
+          projects: [],
+          __v: 1,
+        } as unknown as databaseTypes.IWorkspace,
+      },
+      {
+        _id: new mongoose.Types.ObjectId(),
+        email: 'email2',
+        inviter: 'inviter2',
+        invitedAt: new Date().getTime(),
+        joinedAt: new Date().getTime(),
+        status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+        teamRole: databaseTypes.constants.ROLE.MEMBER,
+        __v: 1,
+        member: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test member user2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        invitedBy: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test invitedBy user2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        workspace: {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          workspaceCode: 'testWorkspaceCode',
+          inviteCode: 'testInviteCode',
+          name: 'Test Workspace',
+          slug: 'testSlug',
+          description: 'a test workspace',
+          creator: {
+            _id: new mongoose.Types.ObjectId(),
+          } as unknown as databaseTypes.IUser,
+          members: [],
+          projects: [],
+          __v: 1,
+        } as unknown as databaseTypes.IWorkspace,
+      },
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered members', async () => {
+      sandbox.replace(
+        MemberModel,
+        'count',
+        sandbox.stub().resolves(mockMembers.length)
+      );
+
+      sandbox.replace(
+        MemberModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockMembers))
+      );
+
+      const results = await MemberModel.queryMembers({});
+
+      assert.strictEqual(results.numberOfItems, mockMembers.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockMembers.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach((doc: any) => {
+        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc.member as any).__v);
+        assert.isUndefined((doc.invitedBy as any).__v);
+        assert.isUndefined((doc.workspace as any).__v);
+        assert.isUndefined((doc.workspace as any).creator.__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(MemberModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        MemberModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockMembers))
+      );
+
+      let errored = false;
+      try {
+        await MemberModel.queryMembers();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        MemberModel,
+        'count',
+        sandbox.stub().resolves(mockMembers.length)
+      );
+
+      sandbox.replace(
+        MemberModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockMembers))
+      );
+
+      let errored = false;
+      try {
+        await MemberModel.queryMembers({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        MemberModel,
+        'count',
+        sandbox.stub().resolves(mockMembers.length)
+      );
+
+      sandbox.replace(
+        MemberModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await MemberModel.queryMembers({});
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
