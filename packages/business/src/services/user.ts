@@ -112,6 +112,8 @@ export class UserService {
         userId instanceof mongooseTypes.ObjectId
           ? userId
           : new mongooseTypes.ObjectId(userId);
+
+      // @jp: we need to standardized unsetting properties i.e emailVerified here (Date => null)
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         email,
         emailVerified: null,
