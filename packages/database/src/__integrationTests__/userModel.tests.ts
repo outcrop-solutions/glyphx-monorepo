@@ -157,11 +157,29 @@ const INPUT_DATA = {
   webhooks: [],
 };
 
-describe.only('#UserModel', () => {
+const INPUT_DATA2 = {
+  userCode: 'testUserCode2' + UNIQUE_KEY,
+  name: 'testUser2' + UNIQUE_KEY,
+  username: 'testUserName2' + UNIQUE_KEY,
+  email: 'testEmail2' + UNIQUE_KEY + '@email.com',
+  emailVerified: new Date(),
+  isVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
+};
+describe('#UserModel', () => {
   context('test the crud functions of the user model', () => {
     const mongoConnection = new MongoDbConnection();
     const userModel = mongoConnection.models.UserModel;
     let userId: ObjectId;
+    let userId2: ObjectId;
 
     let workspaceId: ObjectId;
     let workspaceDocument: any;
@@ -369,6 +387,10 @@ describe.only('#UserModel', () => {
       if (userId) {
         await userModel.findByIdAndDelete(userId);
       }
+
+      if (userId2) {
+        await userModel.findByIdAndDelete(userId2);
+      }
     });
 
     it('add a new user ', async () => {
@@ -424,6 +446,55 @@ describe.only('#UserModel', () => {
 
       assert.isOk(user);
       assert.strictEqual(user._id?.toString(), userId.toString());
+    });
+
+    it('Get multiple users without a filter', async () => {
+      assert.isOk(userId);
+      const userInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      userInput.accounts.push(accountDocument);
+      userInput.sessions.push(sessionDocument);
+      userInput.webhooks.push(webhookDocument);
+      userInput.createdWorkspaces.push(createdWorkspaceDocument);
+      userInput.projects.push(projectDocument);
+      userInput.customerPayment = customerPaymentDocument;
+      const userDocument = await userModel.createUser(userInput);
+
+      assert.isOk(userDocument);
+      userId2 = userDocument._id as mongooseTypes.ObjectId;
+
+      const users = await userModel.queryUsers();
+      assert.isArray(users.results);
+      assert.isAtLeast(users.numberOfItems, 2);
+      const expectedDocumentCount =
+        users.numberOfItems <= users.itemsPerPage
+          ? users.numberOfItems
+          : users.itemsPerPage;
+      assert.strictEqual(users.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple users with a filter', async () => {
+      assert.isOk(userId2);
+      const results = await userModel.queryUsers({
+        name: INPUT_DATA.name,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(results.results[0]?.name, INPUT_DATA.name);
+    });
+
+    it('page users', async () => {
+      assert.isOk(accountId2);
+      const results = await userModel.queryUsers({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await userModel.queryUsers({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('modify a user', async () => {
