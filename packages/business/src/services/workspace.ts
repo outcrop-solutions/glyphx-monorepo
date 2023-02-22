@@ -20,21 +20,6 @@ import {v4} from 'uuid';
 //eslint-disable-next-line
 const prisma: any = {};
 
-export async function isWorkspaceOwner(email, workspace) {
-  let isTeamOwner = false;
-  const member = workspace.members.find(
-    member =>
-      member.email === email &&
-      member.teamRole === database.constants.ROLE.OWNER
-  );
-
-  if (member) {
-    isTeamOwner = true;
-  }
-
-  return isTeamOwner;
-}
-
 export async function joinWorkspace(workspaceCode, email: string) {
   const workspace = await prisma.workspace.findFirst({
     select: {
@@ -472,7 +457,10 @@ export class WorkspaceService {
         email,
         inviter,
         teamRole,
+        status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+        invitedAt: new Date()
       }));
+
       const data = members.map(({email}) => ({
         createdAt: null,
         email,
@@ -481,9 +469,9 @@ export class WorkspaceService {
         mongoDbConnection.models.MemberModel.create({
           data,
         }),
-        mongoDbConnection.models.WorkspaceModel.updateAccountByFilter(
-          {id: workspace._id},
-          {members: membersList}
+        mongoDbConnection.models.WorkspaceModel.addMembers(
+          workspace._id,
+          membersList
         ),
         sendMail({
           html: inviteHtml({code: workspace.inviteCode, name: workspace.name}),
@@ -498,10 +486,10 @@ export class WorkspaceService {
     }
   }
 
-  static isWorkspaceCreator(
+  static async isWorkspaceCreator(
     id: mongooseTypes.ObjectId | string,
     creatorId: mongooseTypes.ObjectId | string
-  ): boolean {
+  ): Promise<boolean> {
     return id === creatorId;
   }
 
@@ -521,5 +509,34 @@ export class WorkspaceService {
     }
 
     return isTeamOwner;
+  }
+
+  static async joinWorkspace(
+    workspaceCode: string,
+    email: string
+  ): Promise<Date> {
+    const workspaces =
+      await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
+        deletedAt: null,
+        workspaceCode,
+      });
+
+    if (Array.isArray(workspaces)) {
+
+      await mongoDbConnection.models.WorkspaceModel.addMember
+      await prisma.member.upsert({
+        create: {
+          workspaceId: workspace.id,
+          email,
+          inviter: workspace.creatorId,
+          status: database.constants.INVITATION_STATUS.ACCEPTED,
+        },
+        update: {},
+        where: {email},
+      });
+      return new Date();
+    } else {
+      throw new Error('Unable to find workspace');
+    }
   }
 }
