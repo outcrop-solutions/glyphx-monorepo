@@ -689,4 +689,255 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('getCustomerPaymentByEmail', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockCustomerPayment: databaseTypes.ICustomerPayment = {
+      _id: new mongoose.Types.ObjectId(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      paymentId: 'testPaymentId',
+      customerId: 'tesCustomerId',
+      email: 'testemail@gmail.com',
+      subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+      __v: 1,
+      customer: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+    } as databaseTypes.ICustomerPayment;
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive a customerPayment document with the user populated', async () => {
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery(mockCustomerPayment));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      const doc = await CustomerPaymentModel.getCustomerPaymentByEmail(
+        mockCustomerPayment.email ?? ''
+      );
+
+      assert.isTrue(findStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.customer as any).__v);
+
+      assert.strictEqual(doc._id, mockCustomerPayment._id);
+    });
+
+    it('will throw a DataNotFoundError when the customerPayment does not exist', async () => {
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery(null));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      let errored = false;
+      try {
+        await CustomerPaymentModel.getCustomerPaymentByEmail(
+          mockCustomerPayment.email ?? ''
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery('something bad happened', true));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      let errored = false;
+      try {
+        await CustomerPaymentModel.getCustomerPaymentByEmail(
+          mockCustomerPayment.email ?? ''
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+  context('queryCustomerPayments', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockCustomerPayments = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        paymentId: 'testPaymentId',
+        customerId: 'tesCustomerId',
+        email: 'testemail@gmail.com',
+        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        __v: 1,
+        customer: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.ICustomerPayment,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        paymentId: 'testPaymentId2',
+        customerId: 'tesCustomerId2',
+        email: 'testemail2@gmail.com',
+        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        __v: 1,
+        customer: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.ICustomerPayment,
+    ];
+
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered customerPayments', async () => {
+      sandbox.replace(
+        CustomerPaymentModel,
+        'count',
+        sandbox.stub().resolves(mockCustomerPayments.length)
+      );
+
+      sandbox.replace(
+        CustomerPaymentModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockCustomerPayments))
+      );
+
+      const results = await CustomerPaymentModel.queryCustomerPayments({});
+
+      assert.strictEqual(results.numberOfItems, mockCustomerPayments.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockCustomerPayments.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach(doc => {
+        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc.customer as any).__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(
+        CustomerPaymentModel,
+        'count',
+        sandbox.stub().resolves(0)
+      );
+
+      sandbox.replace(
+        CustomerPaymentModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockCustomerPayments))
+      );
+
+      let errored = false;
+      try {
+        await CustomerPaymentModel.queryCustomerPayments();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        CustomerPaymentModel,
+        'count',
+        sandbox.stub().resolves(mockCustomerPayments.length)
+      );
+
+      sandbox.replace(
+        CustomerPaymentModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockCustomerPayments))
+      );
+
+      let errored = false;
+      try {
+        await CustomerPaymentModel.queryCustomerPayments({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        CustomerPaymentModel,
+        'count',
+        sandbox.stub().resolves(mockCustomerPayments.length)
+      );
+
+      sandbox.replace(
+        CustomerPaymentModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await CustomerPaymentModel.queryCustomerPayments({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

@@ -145,7 +145,7 @@ SCHEMA.static(
       if (!count) {
         throw new error.DataNotFoundError(
           `Could not find accounts with the filter: ${filter}`,
-          'account_filter',
+          'queryAccounts',
           filter
         );
       }
@@ -169,7 +169,7 @@ SCHEMA.static(
         .lean()) as databaseTypes.IAccount[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      accountDocuments.map((doc: any) => {
+      accountDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any).user['__v'];
       });
