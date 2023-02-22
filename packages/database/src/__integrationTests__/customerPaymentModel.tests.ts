@@ -117,6 +117,19 @@ describe('#customerPaymentModel', () => {
       );
     });
 
+    it('retreive a customerPayment by email', async () => {
+      assert.isOk(customerPaymentId);
+      const customerPayment =
+        await customerPaymentModel.getCustomerPaymentByEmail(INPUT_DATA.email);
+
+      assert.isOk(customerPayment);
+      assert.strictEqual(
+        customerPayment._id?.toString(),
+        customerPaymentId.toString()
+      );
+      assert.strictEqual(customerPayment.email, INPUT_DATA.email);
+    });
+
     it('modify a CustomerPayment', async () => {
       assert.isOk(customerPaymentId);
       const input = {paymentId: 'a modified CustomerPayment Token'};

@@ -124,7 +124,7 @@ SCHEMA.static(
 
 SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
   try {
-    const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.find({
+    const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.findOne({
       email: customerEmail,
     })
       .populate('customer')
