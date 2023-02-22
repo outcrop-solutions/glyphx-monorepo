@@ -190,9 +190,9 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the account.  See the inner error for additional information',
+          'An unexpected error occurred while querying the accounts.  See the inner error for additional information',
           'mongoDb',
-          'getAccountById',
+          'queryProjectTypes',
           err
         );
     }

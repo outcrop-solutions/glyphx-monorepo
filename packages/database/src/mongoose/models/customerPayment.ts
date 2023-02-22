@@ -211,7 +211,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while getting the customerPayments.  See the inner error for additional information',
           'mongoDb',
-          'getCustomerPayments',
+          'queryCustomerPayments',
           err
         );
     }

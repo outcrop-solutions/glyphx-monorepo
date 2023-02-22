@@ -502,7 +502,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while getting the projects.  See the inner error for additional information',
           'mongoDb',
-          'getProjects',
+          'queryProjects',
           err
         );
     }
