@@ -364,7 +364,7 @@ describe('#mongoose/models/session', () => {
         user: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
-      } as unknown as databaseTypes.IAccount;
+      } as unknown as databaseTypes.ISession;
       const userExistsStub = sandbox.stub();
       userExistsStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', userExistsStub);
