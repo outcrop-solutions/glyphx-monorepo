@@ -45,7 +45,7 @@ export interface IUserStaticMethods
   ): Promise<mongooseTypes.ObjectId>;
   validateUpdateObject(
     input: Omit<Partial<databaseTypes.IUser>, '_id'>
-  ): boolean;
+  ): Promise<boolean>;
   addProjects(
     userId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]

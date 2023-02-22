@@ -323,6 +323,81 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getUserStub.calledOnce);
     });
+
+    it('Should update an existing user with a customerPayment object', async () => {
+      const updateUser = {
+        name: 'Jason Vorhees',
+        email: 'jason.vorhees@campcrystallake.biz',
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+
+      const userId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(UserModel, 'updateOne', updateStub);
+
+      const getUserStub = sandbox.stub();
+      getUserStub.resolves({_id: userId});
+      sandbox.replace(UserModel, 'getUserById', getUserStub);
+
+      const validateCustomerPaymentStub = sandbox.stub();
+      validateCustomerPaymentStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        validateCustomerPaymentStub
+      );
+
+      const result = await UserModel.updateUserById(userId, updateUser);
+
+      assert.strictEqual(result._id, userId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getUserStub.calledOnce);
+      assert.strictEqual(
+        updateStub.firstCall.args[1].customerPayment.toString(),
+        updateUser.customerPayment._id?.toString()
+      );
+    });
+
+    it('Should update an existing user with a customerPayment objectId', async () => {
+      const updateUser = {
+        name: 'Jason Vorhees',
+        email: 'jason.vorhees@campcrystallake.biz',
+        customerPayment:
+          new mongoose.Types.ObjectId() as unknown as databaseTypes.ICustomerPayment,
+      };
+
+      const userId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(UserModel, 'updateOne', updateStub);
+
+      const getUserStub = sandbox.stub();
+      getUserStub.resolves({_id: userId});
+      sandbox.replace(UserModel, 'getUserById', getUserStub);
+
+      const validateCustomerPaymentStub = sandbox.stub();
+      validateCustomerPaymentStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        validateCustomerPaymentStub
+      );
+
+      const result = await UserModel.updateUserById(userId, updateUser);
+
+      assert.strictEqual(result._id, userId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getUserStub.calledOnce);
+      assert.strictEqual(
+        updateStub.firstCall.args[1].customerPayment.toString(),
+        updateUser.customerPayment.toString()
+      );
+    });
     it('Will fail when the user does not exist', async () => {
       const updateUser = {
         name: 'Jason Vorhees',
@@ -410,7 +485,12 @@ describe('#mongoose/models/user', () => {
   });
 
   context('validateUpdateObject', () => {
-    it('will return true when no restricted fields are present', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('will return true when no restricted fields are present', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -421,10 +501,10 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       };
 
-      assert.isTrue(UserModel.validateUpdateObject(inputUser));
+      assert.isTrue(await UserModel.validateUpdateObject(inputUser));
     });
 
-    it('will fail when trying to update accounts', () => {
+    it('will fail when trying to update accounts', async () => {
       const inputUser = {
         accounts: [new mongoose.Types.ObjectId()],
         sessions: [],
@@ -435,12 +515,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update sessions', () => {
+    it('will fail when trying to update sessions', async () => {
       const inputUser = {
         accounts: [],
         sessions: [new mongoose.Types.ObjectId()],
@@ -451,12 +536,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update createdWorkspaces', () => {
+    it('will fail when trying to update createdWorkspaces', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -467,12 +557,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update projects', () => {
+    it('will fail when trying to update projects', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -483,12 +578,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update webhooks', () => {
+    it('will fail when trying to update webhooks', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -499,12 +599,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [new mongoose.Types.ObjectId()],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update membership', () => {
+    it('will fail when trying to update membership', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -515,12 +620,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update invitedMembers', () => {
+    it('will fail when trying to update invitedMembers', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -531,12 +641,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update _id', () => {
+    it('will fail when trying to update _id', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -548,9 +663,126 @@ describe('#mongoose/models/user', () => {
         _id: new mongoose.Types.ObjectId(),
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update createDate', async () => {
+      const inputUser = {
+        accounts: [],
+        sessions: [],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [],
+        projects: [],
+        webhooks: [],
+        createdAt: new Date(),
+      } as unknown as databaseTypes.IUser;
+
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update updateDate', async () => {
+      const inputUser = {
+        accounts: [],
+        sessions: [],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [],
+        projects: [],
+        webhooks: [],
+        updatedAt: new Date(),
+      } as unknown as databaseTypes.IUser;
+
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will validate a valid customer payment', async () => {
+      const paymentExistsStub = sandbox.stub();
+      paymentExistsStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        paymentExistsStub
+      );
+      const inputUser = {
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+
+      assert.isTrue(await UserModel.validateUpdateObject(inputUser));
+    });
+
+    it('will throw a InvalidOperationError when the customer payment is not valid', async () => {
+      const paymentExistsStub = sandbox.stub();
+      paymentExistsStub.resolves(false);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        paymentExistsStub
+      );
+      const inputUser = {
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+    it('will rethrow a Error when the underlying database connection throws an error', async () => {
+      const paymentExistsStub = sandbox.stub();
+      paymentExistsStub.rejects(
+        new error.DatabaseOperationError(
+          'This is not good',
+          'mongoDb',
+          'validateCustomerPayment'
+        )
+      );
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        paymentExistsStub
+      );
+      const inputUser = {
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
   });
 
@@ -859,6 +1091,7 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(errored);
     });
   });
+
   context('validate accounts', () => {
     const sandbox = createSandbox();
 

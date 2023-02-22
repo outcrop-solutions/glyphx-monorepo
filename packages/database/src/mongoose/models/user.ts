@@ -181,7 +181,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateUpdateObject',
-  (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
+  async (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
     if (user.accounts?.length)
       throw new error.InvalidOperationError(
         'This method cannot be used to alter the users accounts.  Use the add/remove accounts functions to complete this operation',
@@ -233,7 +233,30 @@ SCHEMA.static(
           _id: (user as unknown as databaseTypes.IUser)._id,
         }
       );
+    if (user.createdAt)
+      throw new error.InvalidOperationError(
+        'The createdAt date is set internally and cannot be altered externally',
+        {createdAt: user.createdAt}
+      );
+    if (user.updatedAt)
+      throw new error.InvalidOperationError(
+        'The updatedAt date is set internally and cannot be altered externally',
+        {updatedAt: user.updatedAt}
+      );
 
+    if (user.customerPayment) {
+      try {
+        await USER_MODEL.validateCustomerPayment(user.customerPayment);
+      } catch (err) {
+        if (err instanceof error.DataValidationError) {
+          throw new error.InvalidOperationError(
+            'The customerPayment cannot be validated.  Are you sure that it exists in the database?',
+            {customerPayment: user.customerPayment},
+            err
+          );
+        } else throw err;
+      }
+    }
     return true;
   }
 );
@@ -246,8 +269,25 @@ SCHEMA.static(
     user: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): Promise<boolean> => {
     try {
-      USER_MODEL.validateUpdateObject(user);
-      const updateResult = await USER_MODEL.updateOne(filter, user);
+      const updateDate = new Date();
+      await USER_MODEL.validateUpdateObject(user);
+      const transformedObject: Partial<IUserDocument> &
+        Record<string, unknown> = {updatedAt: updateDate};
+      for (const key in user) {
+        const value = (user as Record<string, any>)[key];
+        if (key === 'customerPayment') {
+          transformedObject.customerPayment =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        } else {
+          transformedObject[key] = value;
+        }
+      }
+      const updateResult = await USER_MODEL.updateOne(
+        filter,
+        transformedObject
+      );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
           `No user document with filter: ${filter} was found`,
