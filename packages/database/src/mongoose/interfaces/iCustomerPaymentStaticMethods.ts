@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {ICustomerPaymentMethods} from './iCustomerPaymentMethods';
 export interface ICustomerPaymentStaticMethods
   extends Model<databaseTypes.ICustomerPayment, {}, ICustomerPaymentMethods> {
@@ -22,7 +22,7 @@ export interface ICustomerPaymentStaticMethods
     filter?: Record<string, unknown>,
     page?: number,
     itemsPerPage?: number
-  ): Promise<databaseTypes.ICustomerPayment[]>;
+  ): Promise<IQueryResult<databaseTypes.ICustomerPayment>>;
   updateCustomerPaymentWithFilter(
     filter: Record<string, unknown>,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>

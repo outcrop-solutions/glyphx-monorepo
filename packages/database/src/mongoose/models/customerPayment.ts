@@ -136,6 +136,8 @@ SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
         customerEmail
       );
     }
+    delete (customerPaymentDocument as any)['__v'];
+    delete (customerPaymentDocument as any).customer['__v'];
     return customerPaymentDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
