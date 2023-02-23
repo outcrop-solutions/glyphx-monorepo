@@ -11,6 +11,7 @@ import {
   IWorkspacePath,
   database,
   database as databaseTypes,
+  IQueryResult,
 } from '@glyphx/types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
@@ -19,20 +20,20 @@ import {v4} from 'uuid';
 
 export class WorkspaceService {
   public static async countWorkspaces(slug: string): Promise<number> {
-   try {
-    const count = await mongoDbConnection.models.WorkspaceModel.count({slug})
-    return count
-   } catch (err) {
-    const e = new error.DataServiceError(
-      'An unexpected error occurred while counting the workspace. See the inner error for additional details',
-      'workspace',
-      'countWorkspaces',
-      {slug},
-      err
-    );
-    e.publish('', constants.ERROR_SEVERITY.ERROR);
-    throw e;
-   }
+    try {
+      const count = await mongoDbConnection.models.WorkspaceModel.count({slug});
+      return count;
+    } catch (err) {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while counting the workspace. See the inner error for additional details',
+        'workspace',
+        'countWorkspaces',
+        {slug},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
   }
 
   public static async createWorkspace(
@@ -67,15 +68,23 @@ export class WorkspaceService {
 
       return workspace;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while creating the workspace. See the inner error for additional details',
-        'workspace',
-        'createWorkspace',
-        {creatorId, name, slug},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while creating the workspace. See the inner error for additional details',
+          'workspace',
+          'createWorkspace',
+          {creatorId, name, slug},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -105,15 +114,23 @@ export class WorkspaceService {
         return null;
       }
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the member. See the inner error for additional details',
-        'member',
-        'updateMember',
-        {userId, email, slug},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the member. See the inner error for additional details',
+          'member',
+          'updateMember',
+          {userId, email, slug},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -145,8 +162,8 @@ export class WorkspaceService {
           slug,
         });
 
-      if (Array.isArray(workspaces)) {
-        const filteredWorkspaces = workspaces.filter(space =>
+      if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
+        const filteredWorkspaces = workspaces.results.filter(space =>
           space.members.filter(
             mem =>
               mem.id === id ||
@@ -188,17 +205,22 @@ export class WorkspaceService {
           inviteCode,
           deletedAt: null,
         });
-      return workspace[0];
+      return workspace.results[0];
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the member. See the inner error for additional details',
-        'member',
-        'updateMember',
-        {inviteCode},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while querying workspaces. See the inner error for additional details',
+          'member',
+          'queryWorkspaces',
+          {inviteCode},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -211,17 +233,22 @@ export class WorkspaceService {
           slug,
           deletedAt: null,
         });
-      return workspace[0];
+      return workspace.results[0];
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
-        'workspace',
-        'queryWorkspace',
-        {slug},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
+          'workspace',
+          'queryWorkspace',
+          {slug},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -253,8 +280,8 @@ export class WorkspaceService {
           slug,
         });
 
-      if (Array.isArray(workspaces)) {
-        const filteredWorkspaces = workspaces.filter(space =>
+      if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
+        const filteredWorkspaces = workspaces.results.filter(space =>
           space.members.filter(
             mem =>
               mem.id === id || (mem.email === email && mem.deletedAt === null)
@@ -306,8 +333,8 @@ export class WorkspaceService {
           deletedAt: null,
         });
 
-      if (Array.isArray(workspaces)) {
-        const filteredWorkspaces = workspaces.filter(space =>
+      if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
+        const filteredWorkspaces = workspaces.results.filter(space =>
           space.members.filter(
             mem =>
               mem.id === id ||
@@ -346,12 +373,12 @@ export class WorkspaceService {
   static async getWorkspacePaths(): Promise<IWorkspacePath[] | null> {
     try {
       const workspaces =
-        await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
+        (await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           deletedAt: null,
-        });
+        })) as IQueryResult<databaseTypes.IWorkspace>;
 
       return [
-        ...workspaces.map(workspace => ({
+        ...workspaces.results.map(workspace => ({
           params: {site: workspace.slug},
         })),
       ];
@@ -443,7 +470,11 @@ export class WorkspaceService {
         throw new Error('Unable to find workspace');
       }
     } catch (err) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
@@ -496,13 +527,13 @@ export class WorkspaceService {
           workspaceCode,
         });
 
-      if (Array.isArray(workspaces)) {
+      if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
         const memberEmailExists =
           mongoDbConnection.models.MemberModel.memberEmailExists(email);
 
         const input = {
-          workspace: workspaces[0],
-          inviter: workspaces[0].creator.email,
+          workspace: workspaces.results[0],
+          inviter: workspaces.results[0].creator.email,
           invitedAt: new Date(),
           joinedAt: new Date(),
           email,
@@ -529,7 +560,11 @@ export class WorkspaceService {
         throw new Error('Unable to find workspace');
       }
     } catch (err) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
@@ -569,7 +604,11 @@ export class WorkspaceService {
         throw new Error('Unable to find workspace');
       }
     } catch (err) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
@@ -593,44 +632,47 @@ export class WorkspaceService {
     pathSlug: string
   ) {
     try {
-      
-    
-    let slug = slugify(newSlug.toLowerCase());
-    const count = await WorkspaceService.countWorkspaces(slug);
+      let slug = slugify(newSlug.toLowerCase());
+      const count = await WorkspaceService.countWorkspaces(slug);
 
-    if (count > 0) {
-      slug = `${slug}-${count}`;
-    }
+      if (count > 0) {
+        slug = `${slug}-${count}`;
+      }
 
-    const workspace = await WorkspaceService.getOwnWorkspace(
-      userId,
-      email,
-      pathSlug
-    );
-
-    if (workspace) {
-      await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-        workspace._id,
-        {slug}
+      const workspace = await WorkspaceService.getOwnWorkspace(
+        userId,
+        email,
+        pathSlug
       );
-      return slug;
-    } else {
-      throw new Error('Unable to find workspace');
-    }
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) {
-      err.publish('', constants.ERROR_SEVERITY.WARNING);
-      return null;
-    } else {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
-        'workspace',
-        'queryWorkspaces',
-        {userId, email, newSlug, pathSlug},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+
+      if (workspace) {
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
+          workspace._id,
+          {slug}
+        );
+        return slug;
+      } else {
+        throw new Error('Unable to find workspace');
+      }
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
+          'workspace',
+          'queryWorkspaces',
+          {userId, email, newSlug, pathSlug},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 }

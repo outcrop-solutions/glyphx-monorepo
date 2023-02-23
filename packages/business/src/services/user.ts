@@ -80,7 +80,7 @@ export class UserService {
       // @jp: we need to standardized unsetting properties i.e emailVerified here (Date => null)
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         email,
-        emailVerified: null,
+        emailVerified: undefined,
       });
 
       await sendMail({
