@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IWorkspaceMethods,
@@ -358,39 +358,72 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('getWorkspaces', async (filter: Record<string, unknown> = {}) => {
-  try {
-    const workspaceDocuments = (await WORKSPACE_MODEL.find(filter)
-      .populate('creator')
-      .populate('members')
-      .populate('projects')
-      .lean()) as databaseTypes.IWorkspace[];
-    if (!workspaceDocuments) {
-      throw new error.DataNotFoundError(
-        `Could not find workspaces with the filter: ${filter}`,
-        'workspaces',
-        filter
-      );
+SCHEMA.static(
+  'queryWorkspaces',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await WORKSPACE_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find workspaces with the filter: ${filter}`,
+          'workspace_filter',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const workspaceDocuments = (await WORKSPACE_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('creator')
+        .populate('members')
+        .populate('projects')
+        .lean()) as databaseTypes.IWorkspace[];
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      workspaceDocuments.map((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).creator['__v'];
+        (doc as any).members.map((mem: any) => delete mem['__v']);
+        (doc as any).projects.map((proj: any) => delete proj['__v']);
+      });
+
+      const retval: IQueryResult<databaseTypes.IWorkspace> = {
+        results: workspaceDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the workspace.  See the inner error for additional information',
+          'mongoDb',
+          'queryWorkspaces',
+          err
+        );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the workspace.
-    return workspaceDocuments.map((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).creator['__v'];
-      (doc as any).members.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
-    });
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the workspaces.  See the inner error for additional information',
-        'mongoDb',
-        'getWorkspaces',
-        err
-      );
   }
-});
+);
 
 SCHEMA.static(
   'deleteWorkspaceById',

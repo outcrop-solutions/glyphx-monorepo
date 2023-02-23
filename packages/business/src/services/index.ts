@@ -1,56 +1,13 @@
 export {ProjectService as projectService} from './project';
 export {TableService as tableService} from './table';
-import {
-  getMember,
-  getMembers,
-  getPendingInvitations,
-  remove,
-  toggleRole,
-  updateStatus,
-} from './membership';
+export {WorkspaceService as workspaceService} from './workspace';
+export {MembershipService as membershipService} from './membership';
+
 import {deactivate, getUser, updateEmail, updateName} from './user';
-import {
-  countWorkspaces,
-  createWorkspace,
-  deleteWorkspace,
-  getInvitation,
-  getOwnWorkspace,
-  getSiteWorkspace,
-  getWorkspace,
-  getWorkspaces,
-  getWorkspacePaths,
-  inviteUsers,
-  isWorkspaceCreator,
-  isWorkspaceOwner,
-  joinWorkspace,
-  updateWorkspaceName,
-  updateSlug,
-} from './workspace';
 
 export {
-  getMember,
-  getMembers,
-  getPendingInvitations,
-  remove,
-  toggleRole,
-  updateStatus,
   deactivate,
   getUser,
   updateEmail,
   updateName,
-  countWorkspaces,
-  createWorkspace,
-  deleteWorkspace,
-  getInvitation,
-  getOwnWorkspace,
-  getSiteWorkspace,
-  getWorkspace,
-  getWorkspaces,
-  getWorkspacePaths,
-  inviteUsers,
-  isWorkspaceCreator,
-  isWorkspaceOwner,
-  joinWorkspace,
-  updateWorkspaceName,
-  updateSlug,
 };
