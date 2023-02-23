@@ -567,4 +567,145 @@ describe('#mongoose/models/verificationToken', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('queryVerificationTokens', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockVerificationTokens = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        identifier: 'test verificationToken token',
+        token: 'tokenunique',
+        expires: new Date(),
+        __v: 1,
+      } as databaseTypes.IVerificationToken,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        identifier: 'test verificationToken token2',
+        token: 'tokenunique2',
+        expires: new Date(),
+        __v: 1,
+      } as databaseTypes.IVerificationToken,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered verification tokens', async () => {
+      sandbox.replace(
+        VerificationTokenModel,
+        'count',
+        sandbox.stub().resolves(mockVerificationTokens.length)
+      );
+
+      sandbox.replace(
+        VerificationTokenModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockVerificationTokens))
+      );
+
+      const results = await VerificationTokenModel.queryVerificationTokens({});
+
+      assert.strictEqual(results.numberOfItems, mockVerificationTokens.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockVerificationTokens.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach(doc => {
+        assert.isUndefined((doc as any).__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(
+        VerificationTokenModel,
+        'count',
+        sandbox.stub().resolves(0)
+      );
+
+      sandbox.replace(
+        VerificationTokenModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockVerificationTokens))
+      );
+
+      let errored = false;
+      try {
+        await VerificationTokenModel.queryVerificationTokens();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        VerificationTokenModel,
+        'count',
+        sandbox.stub().resolves(mockVerificationTokens.length)
+      );
+
+      sandbox.replace(
+        VerificationTokenModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockVerificationTokens))
+      );
+
+      let errored = false;
+      try {
+        await VerificationTokenModel.queryVerificationTokens({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        VerificationTokenModel,
+        'count',
+        sandbox.stub().resolves(mockVerificationTokens.length)
+      );
+
+      sandbox.replace(
+        VerificationTokenModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await VerificationTokenModel.queryVerificationTokens({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

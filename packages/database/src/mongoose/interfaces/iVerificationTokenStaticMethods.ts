@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IVerificationTokenMethods} from './iVerificationTokenMethods';
 export interface IVerificationTokenStaticMethods
   extends Model<
@@ -19,6 +19,11 @@ export interface IVerificationTokenStaticMethods
   getVerificationTokenById(
     verificationTokenId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IVerificationToken>;
+  queryVerificationTokens(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IVerificationToken>>;
   updateVerificationTokenWithFilter(
     filter: Record<string, unknown>,
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
