@@ -150,6 +150,25 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'validateUser',
+  async (
+    user: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const userId: mongooseTypes.ObjectId =
+      user instanceof mongooseTypes.ObjectId
+        ? user
+        : (user._id as mongooseTypes.ObjectId);
+    const idExists = await UserModel.userIdExists(userId);
+    if (idExists) return userId;
+    else
+      throw new error.DataValidationError(
+        `the user id : ${userId} does not exisit in the database.`,
+        'user',
+        userId
+      );
+  }
+);
+SCHEMA.static(
   'createWorkspace',
   async (
     input: Omit<databaseTypes.IWorkspace, '_id' | 'createdAt' | 'updatedAt'>
@@ -160,13 +179,13 @@ SCHEMA.static(
         | databaseTypes.IMember
         | mongooseTypes.ObjectId
       )[];
-      const [members, projects] = await Promise.all([
+      const [members, projects, creator] = await Promise.all([
         WORKSPACE_MODEL.validateMembers(users),
         WORKSPACE_MODEL.validateProjects(input.projects),
+        WORKSPACE_MODEL.validateUser(input.creator),
       ]);
       const createDate = new Date();
 
-      const creator = members.shift() as mongooseTypes.ObjectId;
       const resolvedInput: IWorkspaceDocument = {
         createdAt: createDate,
         updatedAt: createDate,
@@ -393,7 +412,7 @@ SCHEMA.static(
         .lean()) as databaseTypes.IWorkspace[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      workspaceDocuments.map((doc: any) => {
+      workspaceDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any).creator['__v'];
         (doc as any).members.map((mem: any) => delete mem['__v']);

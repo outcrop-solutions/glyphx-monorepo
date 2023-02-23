@@ -1939,7 +1939,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.restore();
     });
 
-    it('will return the filtered accounts', async () => {
+    it('will return the filtered workspaces', async () => {
       sandbox.replace(
         WorkspaceModel,
         'count',
