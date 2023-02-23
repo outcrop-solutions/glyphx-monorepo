@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {Logger} from '../../logging';
+import 'mocha';
 
 describe('#util/logging', () => {
   context('logger', () => {
@@ -172,7 +173,7 @@ describe('#util/logging', () => {
       await Logger.init();
 
       Logger.silly(correlationId, message);
-      assert.isTrue(stub.called);
+      assert.isTrue(stub.calledTwice);
 
       Logger.info(correlationId, message);
       assert.isTrue(stub.calledThrice);
