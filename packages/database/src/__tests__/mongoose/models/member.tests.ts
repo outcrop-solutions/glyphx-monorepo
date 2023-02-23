@@ -21,7 +21,7 @@ const MOCK_MEMBER: databaseTypes.IMember = {
   workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
 };
 
-describe.only('#mongoose/models/member', () => {
+describe('#mongoose/models/member', () => {
   context('memberIdExists', () => {
     const sandbox = createSandbox();
 
@@ -196,11 +196,10 @@ describe.only('#mongoose/models/member', () => {
     it('will throw an InvalidArgumentError if the inviter attached to the Member does not exist.', async () => {
       const memberId = new mongoose.Types.ObjectId();
       // this doesn't cover member.ts line 150 for some reason @jp-burford
-      sandbox.replace(
-        UserModel,
-        'userIdExists',
-        sandbox.stub().onCall(1).resolves(false)
-      );
+      const userIdStub = sandbox.stub();
+      userIdStub.resolves(true);
+      userIdStub.onSecondCall().resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', userIdStub);
       sandbox.replace(
         WorkspaceModel,
         'workspaceIdExists',
@@ -233,6 +232,43 @@ describe.only('#mongoose/models/member', () => {
       assert.isTrue(errorred);
     });
 
+    it('will throw an InvalidArgumentError if the email attached to the Member already exists.', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      // this doesn't cover member.ts line 150 for some reason @jp-burford
+      const userIdStub = sandbox.stub();
+      userIdStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(
+        MemberModel,
+        'create',
+        sandbox.stub().resolves([{_id: memberId}])
+      );
+
+      const getMemberByIdStub = sandbox.stub();
+      getMemberByIdStub.resolves({_id: memberId});
+
+      sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
+      let errorred = false;
+
+      try {
+        await MemberModel.createMember(MOCK_MEMBER);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
     it('will throw an InvalidArgumentError if the workspace attached to the Member does not exist.', async () => {
       const memberId = new mongoose.Types.ObjectId();
 
@@ -610,10 +646,15 @@ describe.only('#mongoose/models/member', () => {
         member: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
+        invitedBy: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IUser,
       };
       // this doesn't cover member.ts line 229 for some reason? @jp-burford
       const userExistsStub = sandbox.stub();
-      userExistsStub.onCall(1).resolves(false);
+      userExistsStub.resolves(true);
+      userExistsStub.onSecondCall().resolves(false);
+
       sandbox.replace(UserModel, 'userIdExists', userExistsStub);
       let errorred = false;
       try {
@@ -623,7 +664,7 @@ describe.only('#mongoose/models/member', () => {
         errorred = true;
       }
       assert.isTrue(errorred);
-      assert.isTrue(userExistsStub.calledOnce);
+      assert.isTrue(userExistsStub.calledTwice);
     });
 
     it('will throw an InvalidOperationError when the workspace does not exist', async () => {
