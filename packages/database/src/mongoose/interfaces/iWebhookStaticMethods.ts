@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IWebhookMethods} from './iWebhookMethods';
 export interface IWebhookStaticMethods
   extends Model<databaseTypes.IWebhook, {}, IWebhookMethods> {
@@ -11,9 +11,11 @@ export interface IWebhookStaticMethods
   getWebhookById(
     webhookId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IWebhook>;
-  getWebhooks(
-    filter: Record<string, unknown>
-  ): Promise<databaseTypes.IWebhook[]>;
+  queryWebhooks(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IWebhook>>;
   updateWebhookWithFilter(
     filter: Record<string, unknown>,
     webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
