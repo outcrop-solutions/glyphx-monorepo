@@ -1,5 +1,6 @@
 export {ProjectService as projectService} from './project';
 export {TableService as tableService} from './table';
+export {UserService as userService} from './user';
 import {
   getMember,
   getMembers,
@@ -8,7 +9,6 @@ import {
   toggleRole,
   updateStatus,
 } from './membership';
-import {deactivate, getUser, updateEmail, updateName} from './user';
 import {
   countWorkspaces,
   createWorkspace,
@@ -34,10 +34,6 @@ export {
   remove,
   toggleRole,
   updateStatus,
-  deactivate,
-  getUser,
-  updateEmail,
-  updateName,
   countWorkspaces,
   createWorkspace,
   deleteWorkspace,
