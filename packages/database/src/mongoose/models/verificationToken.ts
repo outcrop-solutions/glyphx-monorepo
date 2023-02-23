@@ -249,7 +249,7 @@ SCHEMA.static(
         const value = (verificationToken as Record<string, any>)[key];
 
         //we only store the user id in our account collection
-        transformedVerificationToken[key] = value._id;
+        transformedVerificationToken[key] = value;
       }
       const updateResult = await VERIFICATION_TOKEN_MODEL.updateOne(
         filter,
