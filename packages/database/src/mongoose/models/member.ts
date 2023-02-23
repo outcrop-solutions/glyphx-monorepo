@@ -214,13 +214,13 @@ SCHEMA.static(
       );
 
     const memberEmailExists = await MEMBER_MODEL.memberEmailExists(
-      input.invitedBy._id as mongooseTypes.ObjectId
+      input.member.email as string
     );
-    if (!userExists)
+    if (memberEmailExists)
       throw new error.InvalidArgumentError(
-        `A user with _id : ${input.invitedBy._id} cannot be found`,
-        'user._id',
-        input.invitedBy._id
+        `A member with email : ${input.member.email} already exists`,
+        'member.email',
+        input.member.email
       );
 
     const createDate = new Date();

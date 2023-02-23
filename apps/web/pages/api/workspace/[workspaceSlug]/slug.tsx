@@ -1,7 +1,7 @@
 import {
   validateUpdateWorkspaceSlug,
   validateSession,
-  updateSlug
+  updateWorkspaceSlug
 } from '@glyphx/business';
 import { Session } from 'next-auth';
 
@@ -12,7 +12,7 @@ const handler = async (req, res) => {
     const session = await validateSession(req, res) as Session;
     let { slug } = req.body;
     await validateUpdateWorkspaceSlug(req, res);
-    updateSlug(
+    updateWorkspaceSlug(
       session?.user?.userId,
       session?.user?.email,
       slug,

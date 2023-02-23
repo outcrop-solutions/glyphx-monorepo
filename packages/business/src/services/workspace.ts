@@ -20,70 +20,6 @@ import {v4} from 'uuid';
 //eslint-disable-next-line
 const prisma: any = {};
 
-export async function joinWorkspace(workspaceCode, email: string) {
-  const workspace = await prisma.workspace.findFirst({
-    select: {
-      creatorId: true,
-      id: true,
-    },
-    where: {
-      deletedAt: null,
-      workspaceCode,
-    },
-  });
-
-  if (workspace) {
-    await prisma.member.upsert({
-      create: {
-        workspaceId: workspace.id,
-        email,
-        inviter: workspace.creatorId,
-        status: database.constants.INVITATION_STATUS.ACCEPTED,
-      },
-      update: {},
-      where: {email},
-    });
-    return new Date();
-  } else {
-    throw new Error('Unable to find workspace');
-  }
-}
-
-export async function updateWorkspaceName(id, email, name, slug) {
-  const workspace = await getOwnWorkspace(id, email, slug);
-
-  if (workspace) {
-    await prisma.workspace.update({
-      data: {name},
-      where: {id: workspace.id},
-    });
-    return name;
-  } else {
-    throw new Error('Unable to find workspace');
-  }
-}
-
-export async function updateSlug(id, email, newSlug, pathSlug) {
-  let slug = slugify(newSlug.toLowerCase());
-  const count = await countWorkspaces(slug);
-
-  if (count > 0) {
-    slug = `${slug}-${count}`;
-  }
-
-  const workspace = await getOwnWorkspace(id, email, pathSlug);
-
-  if (workspace) {
-    await prisma.workspace.update({
-      data: {slug},
-      where: {id: workspace.id},
-    });
-    return slug;
-  } else {
-    throw new Error('Unable to find workspace');
-  }
-}
-
 export class WorkspaceService {
   public static async countWorkspaces(slug: string): Promise<number> {
     // TODO: return count by filter
@@ -445,44 +381,75 @@ export class WorkspaceService {
     members: databaseTypes.IMember[],
     slug: string
   ): Promise<Partial<databaseTypes.IMember>[] | null> {
-    const workspace = await WorkspaceService.getOwnWorkspace(
-      userId,
-      email,
-      slug
-    );
-    const inviter = email;
-
-    if (workspace) {
-      const membersList = members.map(({email, teamRole}) => ({
+    try {
+      const workspace = await WorkspaceService.getOwnWorkspace(
+        userId,
         email,
-        inviter,
-        teamRole,
-        status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-        invitedAt: new Date()
-      }));
+        slug
+      );
+      const inviter = email;
 
-      const data = members.map(({email}) => ({
-        createdAt: null,
-        email,
-      }));
-      await Promise.all([
-        mongoDbConnection.models.MemberModel.create({
-          data,
-        }),
-        mongoDbConnection.models.WorkspaceModel.addMembers(
-          workspace._id,
-          membersList
-        ),
-        sendMail({
-          html: inviteHtml({code: workspace.inviteCode, name: workspace.name}),
-          subject: `[Glyphx] You have been invited to join ${workspace.name} workspace`,
-          text: inviteText({code: workspace.inviteCode, name: workspace.name}),
-          to: members.map(member => member.email),
-        }),
-      ]);
-      return membersList;
-    } else {
-      throw new Error('Unable to find workspace');
+      if (workspace) {
+        const membersList = members.map(
+          ({
+            email,
+            teamRole,
+          }: {
+            email: string;
+            teamRole: databaseTypes.constants.ROLE;
+          }) => ({
+            email,
+            inviter,
+            teamRole,
+            status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+            invitedAt: new Date(),
+          })
+        );
+
+        const data = members.map(({email}) => ({
+          createdAt: null,
+          email,
+        }));
+        await Promise.all([
+          mongoDbConnection.models.MemberModel.create({
+            data,
+          }),
+          mongoDbConnection.models.WorkspaceModel.addMembers(
+            workspace._id as mongooseTypes.ObjectId,
+            membersList
+          ),
+          sendMail({
+            html: inviteHtml({
+              code: workspace.inviteCode,
+              name: workspace.name,
+            }),
+            subject: `[Glyphx] You have been invited to join ${workspace.name} workspace`,
+            text: inviteText({
+              code: workspace.inviteCode,
+              name: workspace.name,
+            }),
+            to: members.map(member => member.email),
+          }),
+        ]);
+        return membersList;
+      } else {
+        throw new Error('Unable to find workspace');
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
+          'workspace',
+          'queryWorkspaces',
+          {userId, email, members, slug},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -514,29 +481,149 @@ export class WorkspaceService {
   static async joinWorkspace(
     workspaceCode: string,
     email: string
-  ): Promise<Date> {
-    const workspaces =
-      await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-        deletedAt: null,
-        workspaceCode,
-      });
+  ): Promise<Date | null> {
+    try {
+      const workspaces =
+        await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
+          deletedAt: null,
+          workspaceCode,
+        });
 
-    if (Array.isArray(workspaces)) {
+      if (Array.isArray(workspaces)) {
+        const memberEmailExists =
+          mongoDbConnection.models.MemberModel.memberEmailExists(email);
 
-      await mongoDbConnection.models.WorkspaceModel.addMember
-      await prisma.member.upsert({
-        create: {
-          workspaceId: workspace.id,
+        const input = {
+          workspace: workspaces[0],
+          inviter: workspaces[0].creator.email,
+          invitedAt: new Date(),
+          joinedAt: new Date(),
           email,
-          inviter: workspace.creatorId,
           status: database.constants.INVITATION_STATUS.ACCEPTED,
-        },
-        update: {},
-        where: {email},
-      });
-      return new Date();
+        } as Omit<databaseTypes.IMember, '_id'>;
+
+        let member;
+        if (memberEmailExists) {
+          // create member
+          member = await mongoDbConnection.models.MemberModel.createMember(
+            input
+          );
+        } else {
+          // update member
+          member =
+            await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+              {email},
+              input
+            );
+        }
+
+        return new Date();
+      } else {
+        throw new Error('Unable to find workspace');
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
+          'workspace',
+          'queryWorkspaces',
+          {workspaceCode, email},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  static async updateWorkspaceName(
+    userId: mongooseTypes.ObjectId | string,
+    email: string,
+    name: string,
+    slug: string
+  ) {
+    try {
+      const workspace = await WorkspaceService.getOwnWorkspace(
+        userId,
+        email,
+        slug
+      );
+
+      if (workspace) {
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
+          workspace._id,
+          {name}
+        );
+        return name;
+      } else {
+        throw new Error('Unable to find workspace');
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
+          'workspace',
+          'queryWorkspaces',
+          {userId, email, name, slug},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  static async updateWorkspaceSlug(
+    userId: mongooseTypes.ObjectId | string,
+    email: string,
+    newSlug: string,
+    pathSlug: string
+  ) {
+    try {
+      
+    
+    let slug = slugify(newSlug.toLowerCase());
+    const count = await WorkspaceService.countWorkspaces(slug);
+
+    if (count > 0) {
+      slug = `${slug}-${count}`;
+    }
+
+    const workspace = await WorkspaceService.getOwnWorkspace(
+      userId,
+      email,
+      pathSlug
+    );
+
+    if (workspace) {
+      await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
+        workspace._id,
+        {slug}
+      );
+      return slug;
     } else {
       throw new Error('Unable to find workspace');
+    }
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) {
+      err.publish('', constants.ERROR_SEVERITY.WARNING);
+      return null;
+    } else {
+      const e = new error.DataServiceError(
+        'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
+        'workspace',
+        'queryWorkspaces',
+        {userId, email, newSlug, pathSlug},
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
     }
   }
 }

@@ -8,7 +8,7 @@ export interface IMember {
   email: string;
   inviter: string;
   invitedAt: Date;
-  joinedAt: Date;
+  joinedAt?: Date;
   deletedAt?: Date;
   updatedAt: Date;
   createdAt: Date;
