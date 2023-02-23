@@ -15,7 +15,7 @@ export interface IMemberStaticMethods
     filter?: Record<string, unknown>,
     page?: number,
     itemsPerPage?: number
-  ): Promise<IQueryResult<databaseTypes.IMember[]>>;
+  ): Promise<IQueryResult<databaseTypes.IMember>>;
   updateMemberById(
     id: mongooseTypes.ObjectId,
     member: Partial<databaseTypes.IMember>

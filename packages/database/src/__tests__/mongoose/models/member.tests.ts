@@ -21,7 +21,7 @@ const MOCK_MEMBER: databaseTypes.IMember = {
   workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
 };
 
-describe('#mongoose/models/member', () => {
+describe.only('#mongoose/models/member', () => {
   context('memberIdExists', () => {
     const sandbox = createSandbox();
 
@@ -101,7 +101,7 @@ describe('#mongoose/models/member', () => {
       const memberEmail = 'testmember@gmail.com' as string;
       const findByEmailStub = sandbox.stub();
       findByEmailStub.rejects('something unexpected has happend');
-      sandbox.replace(MemberModel, 'findById', findByEmailStub);
+      sandbox.replace(MemberModel, 'findOne', findByEmailStub);
 
       let errorred = false;
       try {
@@ -129,6 +129,13 @@ describe('#mongoose/models/member', () => {
         'workspaceIdExists',
         sandbox.stub().resolves(true)
       );
+
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(false)
+      );
+
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
         MemberModel,
@@ -158,6 +165,11 @@ describe('#mongoose/models/member', () => {
         WorkspaceModel,
         'workspaceIdExists',
         sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(false)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
@@ -194,6 +206,11 @@ describe('#mongoose/models/member', () => {
         'workspaceIdExists',
         sandbox.stub().resolves(true)
       );
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(false)
+      );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
         MemberModel,
@@ -224,6 +241,11 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(
         WorkspaceModel,
         'workspaceIdExists',
+        sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
         sandbox.stub().resolves(false)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -259,6 +281,11 @@ describe('#mongoose/models/member', () => {
       );
       sandbox.replace(
         MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
         'validate',
         sandbox.stub().rejects('Invalid')
       );
@@ -290,6 +317,11 @@ describe('#mongoose/models/member', () => {
         WorkspaceModel,
         'workspaceIdExists',
         sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(false)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(MemberModel, 'create', sandbox.stub().rejects('oops'));
