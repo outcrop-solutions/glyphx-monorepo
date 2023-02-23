@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IWorkspaceMethods} from './iWorkspaceMethods';
 export interface IWorkspaceStaticMethods
   extends Model<databaseTypes.IWorkspace, {}, IWorkspaceMethods> {
@@ -13,9 +13,11 @@ export interface IWorkspaceStaticMethods
   getWorkspaceById(
     workspaceId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IWorkspace>;
-  getWorkspaces(
-    filter: Record<string, unknown>
-  ): Promise<databaseTypes.IWorkspace[]>;
+  queryWorkspaces(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IWorkspace>>;
   updateWorkspaceByFilter(
     filter: Record<string, unknown>,
     input: Partial<databaseTypes.IWorkspace>

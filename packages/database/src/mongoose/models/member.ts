@@ -59,6 +59,26 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'memberEmailExists',
+  async (memberEmail: string): Promise<boolean> => {
+    let retval = false;
+    try {
+      const result = await MEMBER_MODEL.findOne({email: memberEmail});
+      if (result) retval = true;
+    } catch (err) {
+      throw new error.DatabaseOperationError(
+        'an unexpected error occurred while trying to find the member.  See the inner error for additional information',
+        'mongoDb',
+        'memberEmailExists',
+        {email: memberEmail},
+        err
+      );
+    }
+    return retval;
+  }
+);
+
+SCHEMA.static(
   'allMemberIdsExist',
   async (memberIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
     try {
@@ -228,6 +248,16 @@ SCHEMA.static(
         `A workspace with _id : ${input.workspace._id} cannot be found`,
         'workspace._id',
         input.workspace._id
+      );
+
+    const memberEmailExists = await MEMBER_MODEL.memberEmailExists(
+      input.member.email as string
+    );
+    if (memberEmailExists)
+      throw new error.InvalidArgumentError(
+        `A member with email : ${input.member.email} already exists`,
+        'member.email',
+        input.member.email
       );
 
     const createDate = new Date();
