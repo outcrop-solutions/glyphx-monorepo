@@ -423,6 +423,14 @@ export class WorkspaceService {
       );
       const inviter = email;
 
+      const id =
+        userId instanceof mongooseTypes.ObjectId
+          ? userId
+          : new mongooseTypes.ObjectId(userId);
+      const invitedBy = await mongoDbConnection.models.UserModel.getUserById(
+        id
+      );
+
       if (workspace) {
         const membersList = members.map(
           ({
@@ -435,22 +443,30 @@ export class WorkspaceService {
             email,
             inviter,
             teamRole,
+            invitedBy,
+            workspace: workspace,
             status: databaseTypes.constants.INVITATION_STATUS.PENDING,
             invitedAt: new Date(),
           })
         );
 
-        const data = members.map(({email}) => ({
-          createdAt: null,
-          email,
-        }));
+        const createdMembers = mongoDbConnection.models.MemberModel.create({
+          membersList,
+        }) as unknown as databaseTypes.IMember[];
+
+        const memberIds = createdMembers.map(mem => {
+          const id =
+            mem._id instanceof mongooseTypes.ObjectId
+              ? mem._id
+              : new mongooseTypes.ObjectId(mem._id);
+          mem._id;
+          return id;
+        });
+
         await Promise.all([
-          mongoDbConnection.models.MemberModel.create({
-            data,
-          }),
           mongoDbConnection.models.WorkspaceModel.addMembers(
             workspace._id as mongooseTypes.ObjectId,
-            membersList
+            memberIds
           ),
           sendMail({
             html: inviteHtml({
