@@ -48,39 +48,53 @@ export class CustomerPaymentService {
         );
       return customerPayment;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while getting the customerPayment. See the inner error for additional details',
-        'customerPayment',
-        'getCustomerPayment',
-        {email},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting the customerPayment. See the inner error for additional details',
+          'customerPayment',
+          'createCustomerPayment',
+          {email, customerId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
   public static async updateSubscription(
     customerId: string,
     subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE
-  ): Promise<databaseTypes.ICustomerPayment | null> {
+  ): Promise<void> {
     try {
-      const customerPayment =
-        await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(
-          {customerId},
-          {subscriptionType}
-        );
-      return customerPayment;
-    } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the customerPayment. See the inner error for additional details',
-        'customerPayment',
-        'updateCustomerPayment',
-        {subscriptionType},
-        err
+      await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(
+        {customerId},
+        {subscriptionType}
       );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+    } catch (err) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the customerPayment. See the inner error for additional details',
+          'customerPayment',
+          'updateCustomerPayment',
+          {subscriptionType},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 }
