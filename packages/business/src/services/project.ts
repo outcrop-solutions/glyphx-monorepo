@@ -49,6 +49,7 @@ export class ProjectService {
     const project = await ProjectService.getProject(id);
     return project?.viewName ?? '';
   }
+
   public static async updateProjectFileStats(
     projectId: mongooseTypes.ObjectId | string,
     fileStats: fileIngestionTypes.IFileStats[]
@@ -84,6 +85,7 @@ export class ProjectService {
       }
     }
   }
+
   public static async updateProjectView(
     projectId: mongooseTypes.ObjectId | string,
     viewName: string
@@ -119,6 +121,7 @@ export class ProjectService {
       }
     }
   }
+  
   public static async updateProject(
     projectId: mongooseTypes.ObjectId | string,
     update: Omit<

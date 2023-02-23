@@ -1,5 +1,4 @@
-import { validateSession, remove } from '@glyphx/business';
-
+import { validateSession, MembershipService } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;
@@ -7,12 +6,10 @@ const handler = async (req, res) => {
   if (method === 'DELETE') {
     await validateSession(req, res);
     const { memberId } = req.body;
-    await remove(memberId);
+    await MembershipService.remove(memberId);
     res.status(200).json({ data: { deletedAt: new Date() } });
   } else {
-    res
-      .status(405)
-      .json({ errors: { error: { msg: `${method} method unsupported` } } });
+    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
   }
 };
 

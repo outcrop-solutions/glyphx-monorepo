@@ -1,14 +1,14 @@
-import { stripe, validateSession, getPayment } from '@glyphx/business';
+import { stripe, validateSession, CustomerPaymentService } from '@glyphx/business';
 import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
   const { method } = req;
 
   if (method === 'POST') {
-    const session = await validateSession(req, res) as Session;
+    const session = (await validateSession(req, res)) as Session;
     const { priceId } = req.query;
     const [customerPayment, price] = await Promise.all([
-      getPayment(session?.user?.email),
+      CustomerPaymentService.getPayment(session?.user?.email),
       stripe.prices.retrieve(priceId),
     ]);
     const product = await stripe.products.retrieve(price.product);

@@ -1,7 +1,6 @@
 import { buffer } from 'micro';
 
-import { stripe, updateSubscription } from '@glyphx/business';
-import { prisma } from '@glyphx/database';
+import { stripe, CustomerPaymentService } from '@glyphx/business';
 
 export const config = { api: { bodyParser: false } };
 
@@ -22,7 +21,7 @@ const handler = async (req, res) => {
     switch (event.type) {
       case 'charge.succeeded':
         if (metadata?.customerId && metadata?.type) {
-          await updateSubscription(metadata.customerId, metadata.type);
+          await CustomerPaymentService.updateSubscription(metadata.customerId, metadata.type);
         }
         break;
       default:
@@ -32,7 +31,6 @@ const handler = async (req, res) => {
     return res.status(400).send(`Webhook Error: Event not created`);
   }
 
-  await prisma.$disconnect();
   res.status(200).send({ received: true });
 };
 

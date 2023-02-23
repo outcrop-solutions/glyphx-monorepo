@@ -7,7 +7,7 @@ import {
   PlusCircleIcon,
   XIcon,
 } from '@heroicons/react/outline';
-import { InvitationStatus, Role } from '@prisma/client';
+import { database as databaseTypes } from '@glyphx/types';
 import { getSession } from 'next-auth/react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
@@ -22,7 +22,7 @@ import { AccountLayout } from '@/layouts/index';
 import { api } from 'lib';
 import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
 
-const MEMBERS_TEMPLATE = { email: '', role: Role.MEMBER };
+const MEMBERS_TEMPLATE = { email: '', teamRole: databaseTypes.constants.ROLE.MEMBER };
 
 const Team = ({ isTeamOwner, workspace }) => {
   const { data, isLoading } = useMembers(workspace.slug);
@@ -142,9 +142,9 @@ const Team = ({ isTeamOwner, workspace }) => {
                         disabled={isSubmitting}
                         onChange={(event) => handleRoleChange(event, index)}
                       >
-                        {Object.keys(Role).map((key, index) => (
-                          <option key={index} value={Role[`${key}`]}>
-                            {Role[`${key}`].toLowerCase()}
+                        {Object.keys(databaseTypes.constants.ROLE).map((key, index) => (
+                          <option key={index} value={databaseTypes.constants.ROLE[`${key}`]}>
+                            {databaseTypes.constants.ROLE[`${key}`].toLowerCase()}
                           </option>
                         ))}
                       </select>
@@ -216,9 +216,9 @@ const Team = ({ isTeamOwner, workspace }) => {
                           <span
                             className={[
                               'font-mono text-xs px-2 py-0.5 rounded-full capitalize',
-                              member.status === InvitationStatus.ACCEPTED
+                              member.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
                                 ? 'bg-green-200 text-green-600'
-                                : member.status === InvitationStatus.PENDING
+                                : member.status === databaseTypes.constants.INVITATION_STATUS.PENDING
                                 ? 'bg-blue-200 text-blue-600'
                                 : 'bg-red-200 text-red-600',
                             ].join(' ')}
@@ -251,7 +251,9 @@ const Team = ({ isTeamOwner, workspace }) => {
                                       >
                                         <span>
                                           Change role to &quot;
-                                          {member.teamRole === Role.MEMBER ? Role.OWNER : Role.MEMBER}
+                                          {member.teamRole === databaseTypes.constants.ROLE.MEMBER
+                                            ? databaseTypes.constants.ROLE.OWNER
+                                            : databaseTypes.constants.ROLE.MEMBER}
                                           &quot;
                                         </span>
                                       </button>

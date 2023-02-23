@@ -3,9 +3,6 @@ import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 
-//eslint-disable-next-line
-const prisma: any = {};
-
 export class MembershipService {
   public static async getMember(
     memberId: mongooseTypes.ObjectId | string
