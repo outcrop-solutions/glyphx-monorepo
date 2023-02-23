@@ -1,5 +1,7 @@
 import {database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
 
+//this is done this way to support or structure.  token is just amitted and readded so that ts and eslint do not complain
 export interface IVerificationTokenDocument
-  extends databaseTypes.IVerificationToken {}
+  extends Omit<databaseTypes.IVerificationToken, 'token'> {
+  token: string;
+}

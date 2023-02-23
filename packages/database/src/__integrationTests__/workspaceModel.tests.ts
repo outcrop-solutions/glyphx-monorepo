@@ -128,7 +128,6 @@ describe('#WorkspaceModel', () => {
     let projectId2: ObjectId;
     let userDocument: any;
     let userDocument2: any;
-    let memberDocument: any;
     let projectDocument: any;
     before(async () => {
       await mongoConnection.init();
@@ -234,8 +233,6 @@ describe('#WorkspaceModel', () => {
         .findOne({email: inputMember.email})
         .lean();
       memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
-
-      memberDocument = savedMemberDocument;
 
       assert.isOk(memberId);
 

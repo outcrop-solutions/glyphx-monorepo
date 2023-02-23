@@ -1,5 +1,5 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes, Schema, model, ObjectId} from 'mongoose';
+import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';

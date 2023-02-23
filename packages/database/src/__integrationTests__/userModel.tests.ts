@@ -83,13 +83,13 @@ const INPUT_WEBHOOKS2 = {
 
 //5. Owned Orgs
 const INPUT_CREATED_WORKSPACE = {
-  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
-  inviteCode: 'testWorkspace' + UNIQUE_KEY,
-  name: 'testName' + UNIQUE_KEY,
-  slug: 'testSlug' + UNIQUE_KEY,
+  workspaceCode: 'testWorkspace1' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace1' + UNIQUE_KEY,
+  name: 'testName1' + UNIQUE_KEY,
+  slug: 'testSlug1' + UNIQUE_KEY,
   updatedAt: new Date(),
   createdAt: new Date(),
-  description: 'testDescription',
+  description: 'testDescription1',
   creator: {},
 };
 
@@ -182,7 +182,6 @@ describe('#UserModel', () => {
     let userId2: ObjectId;
 
     let workspaceId: ObjectId;
-    let workspaceDocument: any;
 
     let accountId: ObjectId;
     let accountDocument: any;
@@ -222,8 +221,6 @@ describe('#UserModel', () => {
         .findOne({name: INPUT_WORKSPACE.name})
         .lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
-
-      workspaceDocument = savedWorkspaceDocument;
 
       assert.isOk(workspaceId);
 
@@ -361,6 +358,8 @@ describe('#UserModel', () => {
     after(async () => {
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await workspaceModel.findByIdAndDelete(workspaceId);
+      await workspaceModel.findByIdAndDelete(createdWorkspaceId);
+      await workspaceModel.findByIdAndDelete(createdWorkspaceId2);
 
       const accountModel = mongoConnection.models.AccountModel;
       await accountModel.findByIdAndDelete(accountId);
@@ -373,9 +372,6 @@ describe('#UserModel', () => {
       const webhookModel = mongoConnection.models.WebhookModel;
       await webhookModel.findByIdAndDelete(webhookId);
       await webhookModel.findByIdAndDelete(webhookId2);
-
-      await workspaceModel.findByIdAndDelete(createdWorkspaceId);
-      await workspaceModel.findByIdAndDelete(createdWorkspaceId2);
 
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.findByIdAndDelete(projectId);
