@@ -307,7 +307,7 @@ SCHEMA.static(
   async (
     filter: Record<string, unknown>,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
-  ): Promise<boolean> => {
+  ): Promise<void> => {
     await CUSTOMER_PAYMENT_MODEL.validateUpdateObject(customerPayment);
     try {
       const transformedCustomerPayment: Partial<ICustomerPaymentDocument> &
@@ -346,7 +346,6 @@ SCHEMA.static(
           err
         );
     }
-    return true;
   }
 );
 
