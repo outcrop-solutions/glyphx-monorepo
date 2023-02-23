@@ -18,7 +18,7 @@ const INPUT_WORKSPACE = {
   updatedAt: new Date(),
   createdAt: new Date(),
   description: 'testDescription',
-  creator: {}
+  creator: {},
 };
 //2. Account
 const INPUT_ACCOUNT = {
@@ -90,18 +90,18 @@ const INPUT_CREATED_WORKSPACE = {
   updatedAt: new Date(),
   createdAt: new Date(),
   description: 'testDescription',
-  creator: {}
+  creator: {},
 };
 
 const INPUT_CREATED_WORKSPACE2 = {
   workspaceCode: 'testWorkspace2' + UNIQUE_KEY,
   inviteCode: 'testWorkspace2' + UNIQUE_KEY,
-  name: 'testName' + UNIQUE_KEY,
-  slug: 'testSlug' + UNIQUE_KEY,
+  name: 'testName2' + UNIQUE_KEY,
+  slug: 'testSlug2' + UNIQUE_KEY,
   updatedAt: new Date(),
   createdAt: new Date(),
-  description: 'testDescription',
-  creator: {}
+  description: 'testDescription2',
+  creator: {},
 };
 
 //6. Projects
@@ -129,6 +129,16 @@ const INPUT_PROJECT2 = {
   files: [],
 };
 
+const INPUT_CUSTOMER_PAYMENT = {
+  paymentId: 'testPaymentId' + UNIQUE_KEY,
+  customerId: 'testCustomerId' + UNIQUE_KEY,
+  email: 'testemail@gmail.com',
+  subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  customer: {},
+};
+
 const INPUT_DATA = {
   userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
@@ -147,11 +157,29 @@ const INPUT_DATA = {
   webhooks: [],
 };
 
+const INPUT_DATA2 = {
+  userCode: 'testUserCode2' + UNIQUE_KEY,
+  name: 'testUser2' + UNIQUE_KEY,
+  username: 'testUserName2' + UNIQUE_KEY,
+  email: 'testEmail2' + UNIQUE_KEY + '@email.com',
+  emailVerified: new Date(),
+  isVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
+};
 describe('#UserModel', () => {
   context('test the crud functions of the user model', () => {
     const mongoConnection = new MongoDbConnection();
     const userModel = mongoConnection.models.UserModel;
     let userId: ObjectId;
+    let userId2: ObjectId;
 
     let workspaceId: ObjectId;
     let workspaceDocument: any;
@@ -179,6 +207,9 @@ describe('#UserModel', () => {
     let projectId: ObjectId;
     let projectDocument: any;
     let projectId2: ObjectId;
+
+    let customerPaymentId: ObjectId;
+    let customerPaymentDocument: any;
 
     before(async () => {
       await mongoConnection.init();
@@ -311,6 +342,20 @@ describe('#UserModel', () => {
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(projectId2);
+
+      const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
+      await customerPaymentModel.create([INPUT_CUSTOMER_PAYMENT], {
+        validateBeforeSave: false,
+      });
+      const savedCustomerPaymentDocument = await customerPaymentModel
+        .findOne({paymentId: INPUT_CUSTOMER_PAYMENT.paymentId})
+        .lean();
+      customerPaymentId =
+        savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
+
+      customerPaymentDocument = savedCustomerPaymentDocument;
+
+      assert.isOk(customerPaymentId);
     });
 
     after(async () => {
@@ -336,8 +381,15 @@ describe('#UserModel', () => {
       await projectModel.findByIdAndDelete(projectId);
       await projectModel.findByIdAndDelete(projectId2);
 
+      const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
+      await customerPaymentModel.findByIdAndDelete(customerPaymentId);
+
       if (userId) {
         await userModel.findByIdAndDelete(userId);
+      }
+
+      if (userId2) {
+        await userModel.findByIdAndDelete(userId2);
       }
     });
 
@@ -348,6 +400,7 @@ describe('#UserModel', () => {
       userInput.webhooks.push(webhookDocument);
       userInput.createdWorkspaces.push(createdWorkspaceDocument);
       userInput.projects.push(projectDocument);
+      userInput.customerPayment = customerPaymentDocument;
 
       const userDocument = await userModel.createUser(userInput);
 
@@ -379,6 +432,11 @@ describe('#UserModel', () => {
         projectId.toString()
       );
 
+      assert.strictEqual(
+        userDocument.customerPayment?._id?.toString(),
+        customerPaymentId.toString()
+      );
+
       userId = userDocument._id as mongooseTypes.ObjectId;
     });
 
@@ -388,6 +446,55 @@ describe('#UserModel', () => {
 
       assert.isOk(user);
       assert.strictEqual(user._id?.toString(), userId.toString());
+    });
+
+    it('Get multiple users without a filter', async () => {
+      assert.isOk(userId);
+      const userInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      userInput.accounts.push(accountDocument);
+      userInput.sessions.push(sessionDocument);
+      userInput.webhooks.push(webhookDocument);
+      userInput.createdWorkspaces.push(createdWorkspaceDocument);
+      userInput.projects.push(projectDocument);
+      userInput.customerPayment = customerPaymentDocument;
+      const userDocument = await userModel.createUser(userInput);
+
+      assert.isOk(userDocument);
+      userId2 = userDocument._id as mongooseTypes.ObjectId;
+
+      const users = await userModel.queryUsers();
+      assert.isArray(users.results);
+      assert.isAtLeast(users.numberOfItems, 2);
+      const expectedDocumentCount =
+        users.numberOfItems <= users.itemsPerPage
+          ? users.numberOfItems
+          : users.itemsPerPage;
+      assert.strictEqual(users.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple users with a filter', async () => {
+      assert.isOk(userId2);
+      const results = await userModel.queryUsers({
+        name: INPUT_DATA.name,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(results.results[0]?.name, INPUT_DATA.name);
+    });
+
+    it('page users', async () => {
+      assert.isOk(accountId2);
+      const results = await userModel.queryUsers({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await userModel.queryUsers({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('modify a user', async () => {

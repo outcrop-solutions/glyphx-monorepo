@@ -15,6 +15,7 @@ export interface IUserDocument
     | 'createdWorkspaces'
     | 'webhooks'
     | 'projects'
+    | 'customerPayment'
   > {
   accounts: mongooseTypes.ObjectId[];
   sessions: mongooseTypes.ObjectId[];
@@ -23,4 +24,5 @@ export interface IUserDocument
   createdWorkspaces: mongooseTypes.ObjectId[];
   webhooks: mongooseTypes.ObjectId[];
   projects: mongooseTypes.ObjectId[];
+  customerPayment: mongooseTypes.ObjectId;
 }

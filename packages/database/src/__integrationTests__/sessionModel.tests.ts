@@ -40,7 +40,7 @@ const INPUT_DATA2 = {
   user: {},
 };
 
-describe.only('#sessionModel', () => {
+describe('#sessionModel', () => {
   context('test the crud functions of the session model', () => {
     const mongoConnection = new MongoDbConnection();
     const sessionModel = mongoConnection.models.SessionModel;

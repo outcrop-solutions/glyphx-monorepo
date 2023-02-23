@@ -6,6 +6,7 @@ import {SessionModel} from '../../../mongoose/models/session';
 import {MemberModel} from '../../../mongoose/models/member';
 import {WebhookModel} from '../../../mongoose/models/webhook';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
+import {CustomerPaymentModel} from '../../../mongoose/models/customerPayment';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
@@ -322,6 +323,81 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getUserStub.calledOnce);
     });
+
+    it('Should update an existing user with a customerPayment object', async () => {
+      const updateUser = {
+        name: 'Jason Vorhees',
+        email: 'jason.vorhees@campcrystallake.biz',
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+
+      const userId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(UserModel, 'updateOne', updateStub);
+
+      const getUserStub = sandbox.stub();
+      getUserStub.resolves({_id: userId});
+      sandbox.replace(UserModel, 'getUserById', getUserStub);
+
+      const validateCustomerPaymentStub = sandbox.stub();
+      validateCustomerPaymentStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        validateCustomerPaymentStub
+      );
+
+      const result = await UserModel.updateUserById(userId, updateUser);
+
+      assert.strictEqual(result._id, userId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getUserStub.calledOnce);
+      assert.strictEqual(
+        updateStub.firstCall.args[1].customerPayment.toString(),
+        updateUser.customerPayment._id?.toString()
+      );
+    });
+
+    it('Should update an existing user with a customerPayment objectId', async () => {
+      const updateUser = {
+        name: 'Jason Vorhees',
+        email: 'jason.vorhees@campcrystallake.biz',
+        customerPayment:
+          new mongoose.Types.ObjectId() as unknown as databaseTypes.ICustomerPayment,
+      };
+
+      const userId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(UserModel, 'updateOne', updateStub);
+
+      const getUserStub = sandbox.stub();
+      getUserStub.resolves({_id: userId});
+      sandbox.replace(UserModel, 'getUserById', getUserStub);
+
+      const validateCustomerPaymentStub = sandbox.stub();
+      validateCustomerPaymentStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        validateCustomerPaymentStub
+      );
+
+      const result = await UserModel.updateUserById(userId, updateUser);
+
+      assert.strictEqual(result._id, userId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getUserStub.calledOnce);
+      assert.strictEqual(
+        updateStub.firstCall.args[1].customerPayment.toString(),
+        updateUser.customerPayment.toString()
+      );
+    });
     it('Will fail when the user does not exist', async () => {
       const updateUser = {
         name: 'Jason Vorhees',
@@ -409,7 +485,12 @@ describe('#mongoose/models/user', () => {
   });
 
   context('validateUpdateObject', () => {
-    it('will return true when no restricted fields are present', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('will return true when no restricted fields are present', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -420,10 +501,10 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       };
 
-      assert.isTrue(UserModel.validateUpdateObject(inputUser));
+      assert.isTrue(await UserModel.validateUpdateObject(inputUser));
     });
 
-    it('will fail when trying to update accounts', () => {
+    it('will fail when trying to update accounts', async () => {
       const inputUser = {
         accounts: [new mongoose.Types.ObjectId()],
         sessions: [],
@@ -434,12 +515,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update sessions', () => {
+    it('will fail when trying to update sessions', async () => {
       const inputUser = {
         accounts: [],
         sessions: [new mongoose.Types.ObjectId()],
@@ -450,12 +536,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update createdWorkspaces', () => {
+    it('will fail when trying to update createdWorkspaces', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -466,12 +557,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update projects', () => {
+    it('will fail when trying to update projects', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -482,12 +578,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update webhooks', () => {
+    it('will fail when trying to update webhooks', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -498,12 +599,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [new mongoose.Types.ObjectId()],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update membership', () => {
+    it('will fail when trying to update membership', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -514,12 +620,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update invitedMembers', () => {
+    it('will fail when trying to update invitedMembers', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -530,12 +641,17 @@ describe('#mongoose/models/user', () => {
         webhooks: [],
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
 
-    it('will fail when trying to update _id', () => {
+    it('will fail when trying to update _id', async () => {
       const inputUser = {
         accounts: [],
         sessions: [],
@@ -547,9 +663,126 @@ describe('#mongoose/models/user', () => {
         _id: new mongoose.Types.ObjectId(),
       } as unknown as databaseTypes.IUser;
 
-      assert.throws(() => {
-        UserModel.validateUpdateObject(inputUser);
-      }, error.InvalidOperationError);
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update createDate', async () => {
+      const inputUser = {
+        accounts: [],
+        sessions: [],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [],
+        projects: [],
+        webhooks: [],
+        createdAt: new Date(),
+      } as unknown as databaseTypes.IUser;
+
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update updateDate', async () => {
+      const inputUser = {
+        accounts: [],
+        sessions: [],
+        membership: [],
+        invitedMembers: [],
+        createdWorkspaces: [],
+        projects: [],
+        webhooks: [],
+        updatedAt: new Date(),
+      } as unknown as databaseTypes.IUser;
+
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will validate a valid customer payment', async () => {
+      const paymentExistsStub = sandbox.stub();
+      paymentExistsStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        paymentExistsStub
+      );
+      const inputUser = {
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+
+      assert.isTrue(await UserModel.validateUpdateObject(inputUser));
+    });
+
+    it('will throw a InvalidOperationError when the customer payment is not valid', async () => {
+      const paymentExistsStub = sandbox.stub();
+      paymentExistsStub.resolves(false);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        paymentExistsStub
+      );
+      const inputUser = {
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+    it('will rethrow a Error when the underlying database connection throws an error', async () => {
+      const paymentExistsStub = sandbox.stub();
+      paymentExistsStub.rejects(
+        new error.DatabaseOperationError(
+          'This is not good',
+          'mongoDb',
+          'validateCustomerPayment'
+        )
+      );
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        paymentExistsStub
+      );
+      const inputUser = {
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ICustomerPayment,
+      };
+      let errored = false;
+      try {
+        await UserModel.validateUpdateObject(inputUser);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
   });
 
@@ -766,6 +999,91 @@ describe('#mongoose/models/user', () => {
       let errored = false;
       try {
         await UserModel.validateProjects(inputProjects);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validate customerPayment', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an ids when the customerPayment can be validated', async () => {
+      const inputPayment = {
+        _id: new mongoose.Types.ObjectId(),
+      } as unknown as databaseTypes.ICustomerPayment;
+
+      const customerPaymentIdExistStub = sandbox.stub();
+      customerPaymentIdExistStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentIdExistStub
+      );
+
+      const results = await UserModel.validateCustomerPayment(inputPayment);
+
+      assert.strictEqual(results.toString(), inputPayment._id?.toString());
+    });
+
+    it('should return an id when the customerPaymentId can be validated ', async () => {
+      const inputPayment = new mongoose.Types.ObjectId();
+
+      const customerPaymentIdsExistStub = sandbox.stub();
+      customerPaymentIdsExistStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentIdsExistStub
+      );
+
+      const results = await UserModel.validateCustomerPayment(inputPayment);
+
+      assert.strictEqual(results.toString(), inputPayment._id?.toString());
+    });
+
+    it('should throw a Data Validation Error if the id cannot be found ', async () => {
+      const inputPayment = new mongoose.Types.ObjectId();
+      const customerPaymentIdExistStub = sandbox.stub();
+      customerPaymentIdExistStub.resolves(false);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentIdExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateCustomerPayment(inputPayment);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputPayment = new mongoose.Types.ObjectId();
+      const errorText = 'something bad has happened';
+
+      const customerPaymentIdExistStub = sandbox.stub();
+      customerPaymentIdExistStub.rejects(errorText);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+
+        customerPaymentIdExistStub
+      );
+
+      let errored = false;
+      try {
+        await UserModel.validateCustomerPayment(inputPayment);
       } catch (err: any) {
         assert.strictEqual(err.name, errorText);
         errored = true;
@@ -1031,11 +1349,7 @@ describe('#mongoose/models/user', () => {
 
       const allMemberIdsExistStub = sandbox.stub();
       allMemberIdsExistStub.resolves(true);
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMemberIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       const results = await UserModel.validateMembership(inputMembers);
 
@@ -1056,11 +1370,7 @@ describe('#mongoose/models/user', () => {
 
       const allMembersIdsExistStub = sandbox.stub();
       allMembersIdsExistStub.resolves(true);
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMembersIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMembersIdsExistStub);
 
       const results = await UserModel.validateMembership(inputMembers);
 
@@ -1087,11 +1397,7 @@ describe('#mongoose/models/user', () => {
           inputMembers
         )
       );
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMemberIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       let errored = false;
       try {
@@ -1114,11 +1420,7 @@ describe('#mongoose/models/user', () => {
 
       const allMemberIdsExistStub = sandbox.stub();
       allMemberIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        MemberModel,
-        'allMemberIdsExist',
-        allMemberIdsExistStub
-      );
+      sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       let errored = false;
       try {
@@ -1547,9 +1849,13 @@ describe('#mongoose/models/user', () => {
       doc.accounts.forEach((a: any) => assert.isUndefined((a as any)['__v']));
       doc.sessions.forEach((s: any) => assert.isUndefined((s as any)['__v']));
       doc.membership.forEach((m: any) => assert.isUndefined((m as any)['__v']));
-      doc.invitedMembers.forEach((m: any) => assert.isUndefined((m as any)['__v']));
+      doc.invitedMembers.forEach((m: any) =>
+        assert.isUndefined((m as any)['__v'])
+      );
       doc.webhooks.forEach((w: any) => assert.isUndefined((w as any)['__v']));
-      doc.createdWorkspaces.forEach((o: any) => assert.isUndefined((o as any)['__v']));
+      doc.createdWorkspaces.forEach((o: any) =>
+        assert.isUndefined((o as any)['__v'])
+      );
       doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
 
       assert.strictEqual(doc._id, mockUser._id);
@@ -3113,11 +3419,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspaceStub = sandbox.stub();
       validateWorkspaceStub.resolves([orgId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspaceStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspaceStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3130,7 +3432,10 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
+      assert.strictEqual(
+        updatedUser.createdWorkspaces[0].toString(),
+        orgId.toString()
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspaceStub.calledOnce);
@@ -3151,11 +3456,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspacesStub = sandbox.stub();
       validateWorkspacesStub.resolves([orgId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3168,7 +3469,10 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
+      assert.strictEqual(
+        updatedUser.createdWorkspaces[0].toString(),
+        orgId.toString()
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspacesStub.calledOnce);
@@ -3188,11 +3492,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspaceStub = sandbox.stub();
       validateWorkspaceStub.resolves([workspaceId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspaceStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspaceStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3231,11 +3531,7 @@ describe('#mongoose/models/user', () => {
           workspaceId
         )
       );
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3268,11 +3564,7 @@ describe('#mongoose/models/user', () => {
 
       const validatWorkspacesStub = sandbox.stub();
       validatWorkspacesStub.resolves([workspaceId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validatWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validatWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.rejects('Something bad has happened');
@@ -3305,11 +3597,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspacesStub = sandbox.stub();
       validateWorkspacesStub.resolves([workspaceId]);
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        validateWorkspacesStub
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspacesStub);
 
       const saveStub = sandbox.stub();
       saveStub.resolves(localMockUser);
@@ -3484,6 +3772,277 @@ describe('#mongoose/models/user', () => {
         await UserModel.removeWorkspaces(userId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('queryUsers', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockUsers = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        userCode: 'testUserCode',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testUser',
+        username: 'testUserName',
+        gh_username: 'testGhUserName',
+        email: 'testUser@email.com',
+        emailVerified: new Date(),
+        isVerified: true,
+        image: 'imageString',
+        accounts: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            refresh_token: 'testRefreshToken',
+          } as unknown as databaseTypes.IAccount,
+        ],
+        sessions: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testsessionToken',
+          } as unknown as databaseTypes.ISession,
+        ],
+        membership: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testMembership',
+          } as unknown as databaseTypes.IMember,
+        ],
+        invitedMembers: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'invitedMembers',
+          } as unknown as databaseTypes.IMember,
+        ],
+        webhooks: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'testWebhookName',
+            __v: 1,
+          } as unknown as databaseTypes.IWebhook,
+        ],
+        apiKey: 'testApiKey',
+        createdWorkspaces: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdWorkspace',
+            __v: 1,
+          } as unknown as databaseTypes.IWorkspace,
+        ],
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdProject',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.ICustomerPayment,
+      } as databaseTypes.IUser,
+
+      {
+        _id: new mongoose.Types.ObjectId(),
+        userCode: 'testUserCode2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testUser2',
+        username: 'testUserName2',
+        gh_username: 'testGhUserName2',
+        email: 'testUser2@email.com',
+        emailVerified: new Date(),
+        isVerified: true,
+        image: 'imageString2',
+        accounts: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            refresh_token: 'testRefreshToken2',
+          } as unknown as databaseTypes.IAccount,
+        ],
+        sessions: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testsessionToken2',
+          } as unknown as databaseTypes.ISession,
+        ],
+        membership: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'testMembership2',
+          } as unknown as databaseTypes.IMember,
+        ],
+        invitedMembers: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            __v: 1,
+            sessionToken: 'invitedMembers2',
+          } as unknown as databaseTypes.IMember,
+        ],
+        webhooks: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'testWebhookName2',
+            __v: 1,
+          } as unknown as databaseTypes.IWebhook,
+        ],
+        apiKey: 'testApiKey2',
+        createdWorkspaces: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdWorkspace2',
+            __v: 1,
+          } as unknown as databaseTypes.IWorkspace,
+        ],
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'createdProject2',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+        customerPayment: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.ICustomerPayment,
+      } as databaseTypes.IUser,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered users', async () => {
+      sandbox.replace(
+        UserModel,
+        'count',
+        sandbox.stub().resolves(mockUsers.length)
+      );
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
+      );
+
+      const results = await UserModel.queryUsers({});
+
+      assert.strictEqual(results.numberOfItems, mockUsers.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockUsers.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach((doc: any) => {
+        assert.isUndefined((doc as any).__v);
+        doc.accounts.forEach((a: any) => assert.isUndefined((a as any)['__v']));
+        doc.sessions.forEach((s: any) => assert.isUndefined((s as any)['__v']));
+        doc.membership.forEach((m: any) =>
+          assert.isUndefined((m as any)['__v'])
+        );
+        doc.invitedMembers.forEach((m: any) =>
+          assert.isUndefined((m as any)['__v'])
+        );
+        doc.webhooks.forEach((w: any) => assert.isUndefined((w as any)['__v']));
+        doc.createdWorkspaces.forEach((o: any) =>
+          assert.isUndefined((o as any)['__v'])
+        );
+        doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(UserModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
+      );
+
+      let errored = false;
+      try {
+        await UserModel.queryUsers();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        UserModel,
+        'count',
+        sandbox.stub().resolves(mockUsers.length)
+      );
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
+      );
+
+      let errored = false;
+      try {
+        await UserModel.queryUsers({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        UserModel,
+        'count',
+        sandbox.stub().resolves(mockUsers.length)
+      );
+
+      sandbox.replace(
+        UserModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await UserModel.queryUsers({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
       }
 
