@@ -22,10 +22,20 @@ const prisma: any = {};
 
 export class WorkspaceService {
   public static async countWorkspaces(slug: string): Promise<number> {
-    // TODO: return count by filter
-    // @jp: we need a clean way to get the count by filter?
-    console.log({slug});
-    return Promise.resolve(4);
+   try {
+    const count = await mongoDbConnection.models.WorkspaceModel.count({slug})
+    return count
+   } catch (err) {
+    const e = new error.DataServiceError(
+      'An unexpected error occurred while counting the workspace. See the inner error for additional details',
+      'workspace',
+      'countWorkspaces',
+      {slug},
+      err
+    );
+    e.publish('', constants.ERROR_SEVERITY.ERROR);
+    throw e;
+   }
   }
 
   public static async createWorkspace(
