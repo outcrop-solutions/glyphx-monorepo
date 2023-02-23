@@ -1879,4 +1879,159 @@ describe('#mongoose/models/workspace', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('queryWorkspaces', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockWorkspaces = [
+      {
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        workspaceCode: 'testWorkspaceCode',
+        inviteCode: 'testInviteCode',
+        name: 'Test Workspace',
+        slug: 'testSlug',
+        description: 'a test workspace',
+        __v: 1,
+        creator: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        members: [],
+        projects: [],
+      },
+      {
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        workspaceCode: 'testWorkspaceCode2',
+        inviteCode: 'testInviteCode2',
+        name: 'Test Workspace2',
+        slug: 'testSlug2',
+        description: 'a test workspace2',
+        creator: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        members: [],
+        projects: [],
+      },
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered accounts', async () => {
+      sandbox.replace(
+        WorkspaceModel,
+        'count',
+        sandbox.stub().resolves(mockWorkspaces.length)
+      );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWorkspaces))
+      );
+
+      const results = await WorkspaceModel.queryWorkspaces({});
+
+      assert.strictEqual(results.numberOfItems, mockWorkspaces.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockWorkspaces.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach(doc => {
+        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc.creator as any).__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(WorkspaceModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        WorkspaceModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWorkspaces))
+      );
+
+      let errored = false;
+      try {
+        await WorkspaceModel.queryWorkspaces();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        WorkspaceModel,
+        'count',
+        sandbox.stub().resolves(mockWorkspaces.length)
+      );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWorkspaces))
+      );
+
+      let errored = false;
+      try {
+        await WorkspaceModel.queryWorkspaces({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        WorkspaceModel,
+        'count',
+        sandbox.stub().resolves(mockWorkspaces.length)
+      );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await WorkspaceModel.queryWorkspaces({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

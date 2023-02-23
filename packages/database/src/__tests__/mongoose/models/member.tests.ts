@@ -68,6 +68,52 @@ describe('#mongoose/models/member', () => {
     });
   });
 
+  context('memberEmailExists', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true if the member email exists', async () => {
+      const memberEmail = 'testmember@gmail.com' as string;
+      const findByEmailStub = sandbox.stub();
+      findByEmailStub.resolves({email: memberEmail});
+      sandbox.replace(MemberModel, 'findOne', findByEmailStub);
+
+      const result = await MemberModel.memberEmailExists(memberEmail);
+
+      assert.isTrue(result);
+    });
+
+    it('should return false if the member email does not exist', async () => {
+      const memberEmail = 'testmember@gmail.com' as string;
+      const findByEmailStub = sandbox.stub();
+      findByEmailStub.resolves(null);
+      sandbox.replace(MemberModel, 'findOne', findByEmailStub);
+
+      const result = await MemberModel.memberEmailExists(memberEmail);
+
+      assert.isFalse(result);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
+      const memberEmail = 'testmember@gmail.com' as string;
+      const findByEmailStub = sandbox.stub();
+      findByEmailStub.rejects('something unexpected has happend');
+      sandbox.replace(MemberModel, 'findById', findByEmailStub);
+
+      let errorred = false;
+      try {
+        await MemberModel.memberEmailExists(memberEmail);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+  });
+
   context('createMember', () => {
     const sandbox = createSandbox();
 
