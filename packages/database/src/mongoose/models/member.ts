@@ -184,7 +184,7 @@ SCHEMA.static(
         .lean()) as databaseTypes.IMember[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      memberDocuments.map((doc: any) => {
+      memberDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any).member['__v'];
         delete (doc as any).invitedBy['__v'];
@@ -207,7 +207,7 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the account.  See the inner error for additional information',
+          'An unexpected error occurred while querying the members.  See the inner error for additional information',
           'mongoDb',
           'getAccountById',
           err

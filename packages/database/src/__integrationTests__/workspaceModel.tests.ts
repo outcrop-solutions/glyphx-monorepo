@@ -114,7 +114,7 @@ const INPUT_DATA2 = {
   members: [],
 };
 
-describe.only('#WorkspaceModel', () => {
+describe('#WorkspaceModel', () => {
   context('test the crud functions of the workspace model', () => {
     const mongoConnection = new MongoDbConnection();
     const workspaceModel = mongoConnection.models.WorkspaceModel;
