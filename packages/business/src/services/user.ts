@@ -4,9 +4,6 @@ import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 
-//eslint-disable-next-line
-const prisma: any = {};
-
 export class UserService {
   public static async getUser(
     userId: mongooseTypes.ObjectId | string

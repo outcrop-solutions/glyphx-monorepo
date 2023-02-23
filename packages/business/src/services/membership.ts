@@ -3,66 +3,6 @@ import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 
-//eslint-disable-next-line
-const prisma: any = {};
-
-export async function getPendingInvitations(email) {
-  return await prisma.member.findMany({
-    select: {
-      id: true,
-      email: true,
-      joinedAt: true,
-      status: true,
-      teamRole: true,
-      invitedBy: {
-        select: {
-          email: true,
-          name: true,
-        },
-      },
-      workspace: {
-        select: {
-          createdAt: true,
-          inviteCode: true,
-          name: true,
-          slug: true,
-          workspaceCode: true,
-          creator: {
-            select: {
-              email: true,
-              name: true,
-            },
-          },
-        },
-      },
-    },
-    where: {
-      deletedAt: null,
-      email,
-      status: database.constants.INVITATION_STATUS.PENDING,
-      workspace: {deletedAt: null},
-    },
-  });
-}
-export async function remove(id) {
-  return await prisma.member.update({
-    data: {deletedAt: new Date()},
-    where: {id},
-  });
-}
-export async function toggleRole(id, teamRole) {
-  return await prisma.member.update({
-    data: {teamRole},
-    where: {id},
-  });
-}
-export async function updateStatus(id, status) {
-  return await prisma.member.update({
-    data: {status},
-    where: {id},
-  });
-}
-
 export class MembershipService {
   public static async getMember(
     memberId: mongooseTypes.ObjectId | string

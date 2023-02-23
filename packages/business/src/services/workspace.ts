@@ -17,9 +17,6 @@ import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 import {v4} from 'uuid';
 
-//eslint-disable-next-line
-const prisma: any = {};
-
 export class WorkspaceService {
   public static async countWorkspaces(slug: string): Promise<number> {
    try {

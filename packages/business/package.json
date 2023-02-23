@@ -17,7 +17,7 @@
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
     "lint": "gts lint",
     "fix": "gts fix",
-    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma"
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
   },
   "author": "James M. Graham",
   "license": "ISC",
@@ -74,7 +74,6 @@
     "mongoose": "^6.8.1",
     "next-auth": "4.15.0",
     "nodemailer": "^6.7.2",
-    "prisma": "^4.5.0",
     "slugify": "^1.6.5",
     "stripe": "^8.203.0",
     "validator": "^13.7.0"
