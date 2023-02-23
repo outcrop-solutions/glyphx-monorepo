@@ -1,5 +1,5 @@
-import {IQueryResult, Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {Types as mongooseTypes, Model} from 'mongoose';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IStateMethods} from './iStateMethods';
 export interface IStateStaticMethods
   extends Model<databaseTypes.IState, {}, IStateMethods> {
