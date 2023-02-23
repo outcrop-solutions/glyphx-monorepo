@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {database as databaseTypes, IQueryResult} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IMemberMethods,
@@ -149,35 +149,72 @@ SCHEMA.static('getMemberById', async (memberId: mongooseTypes.ObjectId) => {
   }
 });
 
-SCHEMA.static('getMembers', async (filter: Record<string, unknown> = {}) => {
-  try {
-    const memberDocuments = (await MEMBER_MODEL.find(filter)
-      .populate('customer')
-      .lean()) as databaseTypes.ICustomerPayment[];
-    if (!memberDocuments) {
-      throw new error.DataNotFoundError(
-        `Could not find members with the filter: ${filter}`,
-        'members',
-        filter
-      );
+SCHEMA.static(
+  'queryMembers',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await MEMBER_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find accounts with the filter: ${filter}`,
+          'account_filter',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const memberDocuments = (await MEMBER_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('member')
+        .populate('invitedBy')
+        .populate('workspace')
+        .lean()) as databaseTypes.IMember[];
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      memberDocuments.map((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).member['__v'];
+        delete (doc as any).invitedBy['__v'];
+        delete (doc as any).workspace['__v'];
+      });
+
+      const retval: IQueryResult<databaseTypes.IMember> = {
+        results: memberDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the account.  See the inner error for additional information',
+          'mongoDb',
+          'getAccountById',
+          err
+        );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    return memberDocuments.map((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).customer['__v'];
-    });
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the members.  See the inner error for additional information',
-        'mongoDb',
-        'getMembers',
-        err
-      );
   }
-});
+);
 
 SCHEMA.static(
   'createMember',

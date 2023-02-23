@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IProjectMethods} from './iProjectMethods';
 export interface IProjectStaticMethods
   extends Model<databaseTypes.IAccount, {}, IProjectMethods> {
@@ -11,9 +11,11 @@ export interface IProjectStaticMethods
   getProjectById(
     projectId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IProject>;
-  getProjects(
-    filter: Record<string, unknown>
-  ): Promise<databaseTypes.IProject[]>;
+  queryProjects(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IProject>>;
   updateProjectWithFilter(
     filter: Record<string, unknown>,
     project: Omit<Partial<databaseTypes.IProject>, '_id'>

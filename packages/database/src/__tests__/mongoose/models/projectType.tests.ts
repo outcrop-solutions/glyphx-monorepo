@@ -1181,4 +1181,160 @@ describe('#mongoose/models/projectType', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('queryProjectTypes', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockProjectTypes = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'test project type',
+        shape: {foo: {type: 'string', required: true}},
+        __v: 1,
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'test project',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+      } as databaseTypes.IProjectType,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'test project type2',
+        shape: {foo: {type: 'string', required: true}},
+        __v: 1,
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'test project2',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+      } as databaseTypes.IProjectType,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered projectTypes', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'count',
+        sandbox.stub().resolves(mockProjectTypes.length)
+      );
+
+      sandbox.replace(
+        ProjectTypeModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjectTypes))
+      );
+
+      const results = await ProjectTypeModel.queryProjectTypes({});
+
+      assert.strictEqual(results.numberOfItems, mockProjectTypes.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockProjectTypes.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach(doc => {
+        assert.isUndefined((doc as any).__v);
+        doc.projects.forEach((p: any) => {
+          assert.isUndefined((p as any).__v);
+        });
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(ProjectTypeModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        ProjectTypeModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjectTypes))
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.queryProjectTypes();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'count',
+        sandbox.stub().resolves(mockProjectTypes.length)
+      );
+
+      sandbox.replace(
+        ProjectTypeModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjectTypes))
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.queryProjectTypes({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        ProjectTypeModel,
+        'count',
+        sandbox.stub().resolves(mockProjectTypes.length)
+      );
+
+      sandbox.replace(
+        ProjectTypeModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await ProjectTypeModel.queryProjectTypes({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

@@ -626,7 +626,7 @@ describe('#mongoose/models/account', () => {
     });
   });
 
-  context('getAccounts', () => {
+  context('queryAccounts', () => {
     class MockMongooseQuery {
       mockData?: any;
       throwError?: boolean;

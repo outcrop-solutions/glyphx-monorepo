@@ -179,6 +179,7 @@ describe('#accountModel', () => {
         lastId?.toString()
       );
     });
+
     it('remove an account', async () => {
       assert.isOk(accountId);
       await accountModel.deleteAccountById(accountId);
