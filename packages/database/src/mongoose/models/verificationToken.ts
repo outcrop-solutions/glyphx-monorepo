@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IVerificationTokenMethods,
@@ -112,6 +112,70 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'queryVerificationTokens',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await VERIFICATION_TOKEN_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find verification tokens with the filter: ${filter}`,
+          'queryVerificationTokens',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const verificationTokenDocuments = (await VERIFICATION_TOKEN_MODEL.find(
+        filter,
+        null,
+        {
+          skip: skip,
+          limit: itemsPerPage,
+        }
+      ).lean()) as databaseTypes.IVerificationToken[];
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      verificationTokenDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+      });
+
+      const retval: IQueryResult<databaseTypes.IVerificationToken> = {
+        results: verificationTokenDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while querying the verification tokens.  See the inner error for additional information',
+          'mongoDb',
+          'queryProjectTypes',
+          err
+        );
+    }
+  }
+);
+
+SCHEMA.static(
   'createVerificationToken',
   async (
     input: Omit<databaseTypes.IVerificationToken, '_id'>
@@ -185,7 +249,7 @@ SCHEMA.static(
         const value = (verificationToken as Record<string, any>)[key];
 
         //we only store the user id in our account collection
-        transformedVerificationToken[key] = value._id;
+        transformedVerificationToken[key] = value;
       }
       const updateResult = await VERIFICATION_TOKEN_MODEL.updateOne(
         filter,
