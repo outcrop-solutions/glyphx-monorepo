@@ -34,11 +34,18 @@ const INPUT_DATA = {
   user: {},
 };
 
+const INPUT_DATA2 = {
+  name: 'testWebhook2' + UNIQUE_KEY,
+  url: 'testurl2' + UNIQUE_KEY,
+  user: {},
+};
+
 describe('#webhooksModel', () => {
   context('test the crud functions of the webhooks model', () => {
     const mongoConnection = new MongoDbConnection();
     const webhookModel = mongoConnection.models.WebhookModel;
     let webhookId: ObjectId;
+    let webhookId2: ObjectId;
     let userId: ObjectId;
     let userDocument: any;
     before(async () => {
@@ -63,6 +70,9 @@ describe('#webhooksModel', () => {
       if (webhookId) {
         await webhookModel.findByIdAndDelete(webhookId);
       }
+      if (webhookId2) {
+        await webhookModel.findByIdAndDelete(webhookId2);
+      }
     });
 
     it('add a new webhook', async () => {
@@ -86,6 +96,50 @@ describe('#webhooksModel', () => {
 
       assert.isOk(webhook);
       assert.strictEqual(webhook._id?.toString(), webhookId.toString());
+    });
+
+    it('Get multiple webhooks without a filter', async () => {
+      assert.isOk(webhookId);
+      const webhookInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      webhookInput.user = userDocument;
+      const webhookDocument = await webhookModel.createWebhook(webhookInput);
+
+      assert.isOk(webhookDocument);
+      webhookId2 = webhookDocument._id as mongooseTypes.ObjectId;
+
+      const webhooks = await webhookModel.queryWebhooks();
+      assert.isArray(webhooks.results);
+      assert.isAtLeast(webhooks.numberOfItems, 2);
+      const expectedDocumentCount =
+        webhooks.numberOfItems <= webhooks.itemsPerPage
+          ? webhooks.numberOfItems
+          : webhooks.itemsPerPage;
+      assert.strictEqual(webhooks.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple webhooks with a filter', async () => {
+      assert.isOk(webhookId2);
+      const results = await webhookModel.queryWebhooks({
+        name: INPUT_DATA.name,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(results.results[0]?.name, INPUT_DATA.name);
+    });
+
+    it('page webhooks', async () => {
+      assert.isOk(webhookId2);
+      const results = await webhookModel.queryWebhooks({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await webhookModel.queryWebhooks({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('modify a webhook', async () => {
