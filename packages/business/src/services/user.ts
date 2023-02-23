@@ -49,15 +49,23 @@ export class UserService {
       });
       return user;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the User. See the inner error for additional details',
-        'user',
-        'updateUser',
-        {userId},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the User. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {userId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -87,15 +95,23 @@ export class UserService {
 
       return user;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the user. See the inner error for additional details',
-        'user',
-        'updateUser',
-        {userId},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the user. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {userId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -113,15 +129,23 @@ export class UserService {
       });
       return user;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the user. See the inner error for additional details',
-        'user',
-        'updateUser',
-        {userId},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the user. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {userId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 }
