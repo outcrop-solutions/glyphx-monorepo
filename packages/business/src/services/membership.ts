@@ -6,31 +6,6 @@ import mongoDbConnection from 'lib/databaseConnection';
 //eslint-disable-next-line
 const prisma: any = {};
 
-export async function getMember(id) {
-  return await prisma.member.findFirst({
-    select: {teamRole: true},
-    where: {id},
-  });
-}
-export async function getMembers(slug) {
-  return await prisma.member.findMany({
-    select: {
-      id: true,
-      email: true,
-      status: true,
-      teamRole: true,
-      member: {select: {name: true}},
-    },
-    where: {
-      deletedAt: null,
-      workspace: {
-        deletedAt: null,
-        slug,
-      },
-    },
-  });
-}
-
 export async function getPendingInvitations(email) {
   return await prisma.member.findMany({
     select: {
@@ -123,7 +98,7 @@ export class MembershipService {
     filter?: Record<string, unknown>
   ): Promise<databaseTypes.IMember[] | null> {
     try {
-      const members = await mongoDbConnection.models.MemberModel.getMembers(
+      const members = await mongoDbConnection.models.MemberModel.queryMembers(
         filter
       );
       return members;
@@ -156,15 +131,20 @@ export class MembershipService {
       });
       return members;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while getting the member. See the inner error for additional details',
-        'member',
-        'getMembers',
-        {email},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting the member. See the inner error for additional details',
+          'member',
+          'getMembers',
+          {email},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -182,15 +162,23 @@ export class MembershipService {
         });
       return member;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the member. See the inner error for additional details',
-        'member',
-        'updateMember',
-        {memberId},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the member. See the inner error for additional details',
+          'member',
+          'updateMember',
+          {memberId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -209,15 +197,23 @@ export class MembershipService {
         });
       return member;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the member. See the inner error for additional details',
-        'member',
-        'updateMember',
-        {memberId},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the member. See the inner error for additional details',
+          'member',
+          'updateMember',
+          {memberId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 
@@ -236,15 +232,23 @@ export class MembershipService {
         });
       return member;
     } catch (err) {
-      const e = new error.DataServiceError(
-        'An unexpected error occurred while updating the member. See the inner error for additional details',
-        'member',
-        'updateMember',
-        {memberId},
-        err
-      );
-      e.publish('', constants.ERROR_SEVERITY.ERROR);
-      throw e;
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the member. See the inner error for additional details',
+          'member',
+          'updateMember',
+          {memberId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
     }
   }
 }
