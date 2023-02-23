@@ -55,11 +55,25 @@ const INPUT_DATA = {
   workspace: {},
 };
 
+const INPUT_DATA2 = {
+  email: 'james2@glyphx.co' + UNIQUE_KEY,
+  inviter: 'jp@glyphx.co',
+  invitedAt: new Date(),
+  joinedAt: new Date(),
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  member: {},
+  invitedBy: {},
+  workspace: {},
+};
 describe('#memberModel', () => {
   context('test the crud functions of the member model', () => {
     const mongoConnection = new MongoDbConnection();
     const memberModel = mongoConnection.models.MemberModel;
     let memberId: ObjectId;
+    let memberId2: ObjectId;
     let userId: ObjectId;
     let workspaceId: ObjectId;
     let userDocument: any;
@@ -68,10 +82,8 @@ describe('#memberModel', () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
+
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
-      await workspaceModel.createWorkspace(
-        INPUT_WORKSPACE as unknown as databaseTypes.IWorkspace
-      );
 
       const savedUserDocument = await userModel
         .findOne({email: INPUT_USER.email})
@@ -80,6 +92,13 @@ describe('#memberModel', () => {
 
       userDocument = savedUserDocument;
       assert.isOk(userId);
+
+      const inputWorkspace = JSON.parse(JSON.stringify(INPUT_WORKSPACE));
+      inputWorkspace.creator = userDocument;
+
+      await workspaceModel.createWorkspace(
+        inputWorkspace as unknown as databaseTypes.IWorkspace
+      );
 
       const savedWorkspaceDocument = await workspaceModel
         .findOne({slug: INPUT_WORKSPACE.slug})
@@ -99,6 +118,9 @@ describe('#memberModel', () => {
 
       if (memberId) {
         await memberModel.findByIdAndDelete(memberId);
+      }
+      if (memberId2) {
+        await memberModel.findByIdAndDelete(memberId2);
       }
     });
 
@@ -133,6 +155,52 @@ describe('#memberModel', () => {
 
       assert.isOk(member);
       assert.strictEqual(member._id?.toString(), memberId.toString());
+    });
+
+    it('Get multiple members without a filter', async () => {
+      assert.isOk(memberId);
+      const memberInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      memberInput.member = userDocument;
+      memberInput.invitedBy = userDocument;
+      memberInput.workspace = workspaceDocument;
+      const memberDocument = await memberModel.createMember(memberInput);
+
+      assert.isOk(memberDocument);
+      memberId2 = memberDocument._id as mongooseTypes.ObjectId;
+
+      const members = await memberModel.queryMembers();
+      assert.isArray(members.results);
+      assert.isAtLeast(members.numberOfItems, 2);
+      const expectedDocumentCount =
+        members.numberOfItems <= members.itemsPerPage
+          ? members.numberOfItems
+          : members.itemsPerPage;
+      assert.strictEqual(members.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple members with a filter', async () => {
+      assert.isOk(memberId2);
+      const results = await memberModel.queryMembers({
+        email: INPUT_DATA.email,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(results.results[0]?.email, INPUT_DATA.email);
+    });
+
+    it('page members', async () => {
+      assert.isOk(memberId2);
+      const results = await memberModel.queryMembers({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await memberModel.queryMembers({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('modify a Member', async () => {
