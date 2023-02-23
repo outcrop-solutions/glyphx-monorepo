@@ -166,7 +166,7 @@ export class WorkspaceService {
         const filteredWorkspaces = workspaces.results.filter(space =>
           space.members.filter(
             mem =>
-              mem.id === id ||
+              mem._id === id ||
               (mem.email === email &&
                 mem.teamRole === databaseTypes.constants.ROLE.OWNER &&
                 mem.deletedAt === null)
@@ -284,7 +284,7 @@ export class WorkspaceService {
         const filteredWorkspaces = workspaces.results.filter(space =>
           space.members.filter(
             mem =>
-              mem.id === id || (mem.email === email && mem.deletedAt === null)
+              mem._id === id || (mem.email === email && mem.deletedAt === null)
           )
         );
         if (filteredWorkspaces.length > 0) {
@@ -337,7 +337,7 @@ export class WorkspaceService {
         const filteredWorkspaces = workspaces.results.filter(space =>
           space.members.filter(
             mem =>
-              mem.id === id ||
+              mem._id === id ||
               (mem.email === email &&
                 mem.deletedAt === null &&
                 mem.status ===
@@ -529,7 +529,7 @@ export class WorkspaceService {
 
       if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
         const memberEmailExists =
-          mongoDbConnection.models.MemberModel.memberEmailExists(email);
+          await mongoDbConnection.models.MemberModel.memberEmailExists(email);
 
         const input = {
           workspace: workspaces.results[0],
@@ -595,10 +595,14 @@ export class WorkspaceService {
       );
 
       if (workspace) {
-        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-          workspace._id,
-          {name}
-        );
+        const id =
+          workspace._id instanceof mongooseTypes.ObjectId
+            ? workspace._id
+            : new mongooseTypes.ObjectId(workspace._id);
+
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(id, {
+          name,
+        });
         return name;
       } else {
         throw new Error('Unable to find workspace');
@@ -646,10 +650,14 @@ export class WorkspaceService {
       );
 
       if (workspace) {
-        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-          workspace._id,
-          {slug}
-        );
+        const id =
+          workspace._id instanceof mongooseTypes.ObjectId
+            ? workspace._id
+            : new mongooseTypes.ObjectId(workspace._id);
+
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(id, {
+          slug,
+        });
         return slug;
       } else {
         throw new Error('Unable to find workspace');
