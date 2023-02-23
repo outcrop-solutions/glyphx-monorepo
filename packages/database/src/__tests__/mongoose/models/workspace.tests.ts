@@ -86,7 +86,11 @@ describe('#mongoose/models/workspace', () => {
         'validateMembers',
         sandbox.stub().resolves([])
       );
-
+      sandbox.replace(
+        WorkspaceModel,
+        'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
         WorkspaceModel,
@@ -128,6 +132,12 @@ describe('#mongoose/models/workspace', () => {
         sandbox.stub().resolves([])
       );
 
+      sandbox.replace(
+        WorkspaceModel,
+        'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
+
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
         WorkspaceModel,
@@ -161,6 +171,12 @@ describe('#mongoose/models/workspace', () => {
         WorkspaceModel,
         'validateMembers',
         sandbox.stub().resolves([])
+      );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -197,6 +213,11 @@ describe('#mongoose/models/workspace', () => {
         'validateMembers',
         sandbox.stub().resolves([])
       );
+      sandbox.replace(
+        WorkspaceModel,
+        'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
         WorkspaceModel,
@@ -226,6 +247,11 @@ describe('#mongoose/models/workspace', () => {
         WorkspaceModel,
         'validateMembers',
         sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -2031,6 +2057,56 @@ describe('#mongoose/models/workspace', () => {
         errored = true;
       }
 
+      assert.isTrue(errored);
+    });
+  });
+  context('validateUser', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will validate the user', async () => {
+      const userId = new mongoose.Types.ObjectId();
+
+      const idExistsStub = sandbox.stub();
+      idExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', idExistsStub);
+
+      const result = await WorkspaceModel.validateUser(userId);
+
+      assert.strictEqual(result.toString(), userId.toString());
+      assert.isTrue(idExistsStub.calledOnce);
+    });
+
+    it('will validate the user passing the user as an IUser', async () => {
+      const userId = new mongoose.Types.ObjectId();
+
+      const idExistsStub = sandbox.stub();
+      idExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', idExistsStub);
+
+      const result = await WorkspaceModel.validateUser({
+        _id: userId,
+      } as unknown as databaseTypes.IUser);
+
+      assert.strictEqual(result.toString(), userId.toString());
+      assert.isTrue(idExistsStub.calledOnce);
+    });
+    it('will throw an DataValidationError when the user does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+
+      const idExistsStub = sandbox.stub();
+      idExistsStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', idExistsStub);
+      let errored = false;
+      try {
+        await WorkspaceModel.validateUser(userId);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
       assert.isTrue(errored);
     });
   });
