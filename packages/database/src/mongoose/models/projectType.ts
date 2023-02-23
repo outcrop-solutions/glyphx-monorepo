@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IProjectTypeMethods,
@@ -91,6 +91,73 @@ SCHEMA.static(
           'An unexpected error occurred while getting the projectType.  See the inner error for additional information',
           'mongoDb',
           'getProjectTypeById',
+          err
+        );
+    }
+  }
+);
+
+SCHEMA.static(
+  'queryProjectTypes',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await PROJECT_TYPE_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find projectTypes with the filter: ${filter}`,
+          'queryProjectTypes',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const projectTypeDocuments = (await PROJECT_TYPE_MODEL.find(
+        filter,
+        null,
+        {
+          skip: skip,
+          limit: itemsPerPage,
+        }
+      )
+        .populate('projects')
+        .lean()) as databaseTypes.IProjectType[];
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      projectTypeDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        doc.projects.forEach((p: any) => delete (p as any)['__v']);
+      });
+
+      const retval: IQueryResult<databaseTypes.IProjectType> = {
+        results: projectTypeDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the projectTypes.  See the inner error for additional information',
+          'mongoDb',
+          'queryProjectTypes',
           err
         );
     }

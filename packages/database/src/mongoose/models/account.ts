@@ -145,7 +145,7 @@ SCHEMA.static(
       if (!count) {
         throw new error.DataNotFoundError(
           `Could not find accounts with the filter: ${filter}`,
-          'account_filter',
+          'queryAccounts',
           filter
         );
       }
@@ -169,7 +169,7 @@ SCHEMA.static(
         .lean()) as databaseTypes.IAccount[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      accountDocuments.map((doc: any) => {
+      accountDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any).user['__v'];
       });
@@ -190,9 +190,9 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the account.  See the inner error for additional information',
+          'An unexpected error occurred while querying the accounts.  See the inner error for additional information',
           'mongoDb',
-          'getAccountById',
+          'queryProjectTypes',
           err
         );
     }

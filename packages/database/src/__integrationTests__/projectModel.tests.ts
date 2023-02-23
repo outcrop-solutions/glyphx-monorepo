@@ -18,7 +18,7 @@ const INPUT_WORKSPACE = {
   updatedAt: new Date(),
   createdAt: new Date(),
   description: 'testDescription',
-  creator: {}
+  creator: {},
 };
 
 const INPUT_USER = {
@@ -60,6 +60,19 @@ const INPUT_DATA = {
   viewName: 'testViewName' + UNIQUE_KEY,
 };
 
+const INPUT_DATA2 = {
+  name: 'testProject2' + UNIQUE_KEY,
+  sdtPath: 'testsdtPath2' + UNIQUE_KEY,
+  workspace: {},
+  slug: 'testSlug2' + UNIQUE_KEY,
+  isTemplate: false,
+  type: {},
+  owner: {},
+  state: {},
+  files: [],
+  viewName: 'testViewName2' + UNIQUE_KEY,
+};
+
 const INPUT_PROJECT_TYPE = {
   name: 'testProjectType' + UNIQUE_KEY,
   projects: [],
@@ -71,6 +84,7 @@ describe('#ProjectModel', () => {
     const mongoConnection = new MongoDbConnection();
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
+    let projectId2: ObjectId;
     let userId: ObjectId;
     let workspaceId: ObjectId;
     let stateId: ObjectId;
@@ -149,6 +163,10 @@ describe('#ProjectModel', () => {
       if (projectId) {
         await projectModel.findByIdAndDelete(projectId);
       }
+
+      if (projectId2) {
+        await projectModel.findByIdAndDelete(projectId2);
+      }
     });
 
     it('add a new project ', async () => {
@@ -198,6 +216,55 @@ describe('#ProjectModel', () => {
         input
       );
       assert.strictEqual(updatedDocument.description, input.description);
+    });
+
+    it('Get multiple projects without a filter', async () => {
+      assert.isOk(projectId);
+      const projectInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      projectInput.owner = userDocument;
+      projectInput.workspace = workspaceDocument;
+      projectInput.type = projectTypeDocument;
+      projectInput.state = stateDocument;
+
+      const projectDocument = await projectModel.createProject(projectInput);
+
+      assert.isOk(projectDocument);
+
+      projectId2 = projectDocument._id as mongooseTypes.ObjectId;
+
+      const projects = await projectModel.queryProjects();
+      assert.isArray(projects.results);
+      assert.isAtLeast(projects.numberOfItems, 2);
+      const expectedDocumentCount =
+        projects.numberOfItems <= projects.itemsPerPage
+          ? projects.numberOfItems
+          : projects.itemsPerPage;
+      assert.strictEqual(projects.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple projects with a filter', async () => {
+      assert.isOk(projectId2);
+      const results = await projectModel.queryProjects({
+        name: INPUT_DATA.name,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(results.results[0]?.name, INPUT_DATA.name);
+    });
+
+    it('page accounts', async () => {
+      assert.isOk(projectId2);
+      const results = await projectModel.queryProjects({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await projectModel.queryProjects({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a project', async () => {

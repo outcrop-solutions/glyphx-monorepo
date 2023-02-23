@@ -364,7 +364,7 @@ describe('#mongoose/models/session', () => {
         user: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
-      } as unknown as databaseTypes.IAccount;
+      } as unknown as databaseTypes.ISession;
       const userExistsStub = sandbox.stub();
       userExistsStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', userExistsStub);
@@ -596,6 +596,152 @@ describe('#mongoose/models/session', () => {
         await SessionModel.getSessionById(
           mockSession._id as mongoose.Types.ObjectId
         );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('querySessions', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockSessions = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        sessionToken: 'test session token',
+        expires: new Date(),
+        __v: 1,
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.ISession,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        sessionToken: 'test session token2',
+        expires: new Date(),
+        __v: 1,
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.ISession,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered Sessions', async () => {
+      sandbox.replace(
+        SessionModel,
+        'count',
+        sandbox.stub().resolves(mockSessions.length)
+      );
+
+      sandbox.replace(
+        SessionModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
+      );
+
+      const results = await SessionModel.querySessions({});
+
+      assert.strictEqual(results.numberOfItems, mockSessions.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockSessions.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach((doc: any) => {
+        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc.user as any).__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        SessionModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
+      );
+
+      let errored = false;
+      try {
+        await SessionModel.querySessions();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        SessionModel,
+        'count',
+        sandbox.stub().resolves(mockSessions.length)
+      );
+
+      sandbox.replace(
+        SessionModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
+      );
+
+      let errored = false;
+      try {
+        await SessionModel.querySessions({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        SessionModel,
+        'count',
+        sandbox.stub().resolves(mockSessions.length)
+      );
+
+      sandbox.replace(
+        SessionModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await SessionModel.querySessions({});
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;

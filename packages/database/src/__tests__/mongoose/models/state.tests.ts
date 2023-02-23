@@ -1017,4 +1017,164 @@ describe('#mongoose/models/state', () => {
       assert.isTrue(errored);
     });
   });
+
+  context('queryStates', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockStates = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        version: 1,
+        static: true,
+        fileSystemHash: 'I am the hash',
+        fileSystem: [],
+        __v: 1,
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'test user',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+      } as databaseTypes.IState,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        version: 1,
+        static: true,
+        fileSystemHash: 'I am the hash2',
+        fileSystem: [],
+        __v: 1,
+        projects: [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            name: 'test user2',
+            __v: 1,
+          } as unknown as databaseTypes.IProject,
+        ],
+      } as databaseTypes.IState,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered states', async () => {
+      sandbox.replace(
+        StateModel,
+        'count',
+        sandbox.stub().resolves(mockStates.length)
+      );
+
+      sandbox.replace(
+        StateModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockStates))
+      );
+
+      const results = await StateModel.queryStates({});
+
+      assert.strictEqual(results.numberOfItems, mockStates.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockStates.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach((doc: any) => {
+        assert.isUndefined((doc as any).__v);
+        doc.projects.forEach((p: any) => {
+          assert.isUndefined((p as any).__v);
+        });
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(StateModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        StateModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockStates))
+      );
+
+      let errored = false;
+      try {
+        await StateModel.queryStates();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        StateModel,
+        'count',
+        sandbox.stub().resolves(mockStates.length)
+      );
+
+      sandbox.replace(
+        StateModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockStates))
+      );
+
+      let errored = false;
+      try {
+        await StateModel.queryStates({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        StateModel,
+        'count',
+        sandbox.stub().resolves(mockStates.length)
+      );
+
+      sandbox.replace(
+        StateModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await StateModel.queryStates({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
 });

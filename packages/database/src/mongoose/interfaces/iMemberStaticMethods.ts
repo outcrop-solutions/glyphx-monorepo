@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {database as databaseTypes, IQueryResult} from '@glyphx/types';
 import {IMemberMethods} from './iMemberMethods';
 
 export interface IMemberStaticMethods
@@ -10,9 +10,11 @@ export interface IMemberStaticMethods
   getMemberById(
     memberId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IMember>;
-  getMembers(
-    filter?: Record<string, unknown>
-  ): Promise<databaseTypes.IMember[]>;
+  queryMembers(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IMember[]>>;
   updateMemberById(
     id: mongooseTypes.ObjectId,
     member: Partial<databaseTypes.IMember>

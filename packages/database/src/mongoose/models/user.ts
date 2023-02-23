@@ -1,5 +1,5 @@
-import {database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes, Schema, model} from 'mongoose';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {Types as mongooseTypes, Schema, model, ObjectId} from 'mongoose';
 import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
@@ -8,6 +8,7 @@ import {SessionModel} from './session';
 import {WebhookModel} from './webhook';
 import {MemberModel} from './member';
 import {WorkspaceModel} from './workspace';
+import {CustomerPaymentModel} from './customerPayment';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   userCode: {type: String, required: true},
@@ -60,51 +61,86 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('getUsers', async (filter: Record<string, unknown> = {}) => {
-  try {
-    const userDocuments = (await USER_MODEL.find(filter)
-      .populate('accounts')
-      .populate('sessions')
-      .populate('membership')
-      .populate('invitedMembers')
-      .populate('createdWorkspaces')
-      .populate('projects')
-      .populate('customerPayment')
-      .populate('webhooks')
-      .lean()) as databaseTypes.IUser[];
-    if (!userDocuments) {
-      throw new error.DataNotFoundError(
-        `Could not find users with the filter: ${filter}`,
-        'users',
-        filter
-      );
+SCHEMA.static(
+  'queryUsers',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await USER_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find users with the filter: ${filter}`,
+          'queryUsers',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+      const userDocuments = (await USER_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('accounts')
+        .populate('sessions')
+        .populate('membership')
+        .populate('invitedMembers')
+        .populate('createdWorkspaces')
+        .populate('projects')
+        .populate('customerPayment')
+        .populate('webhooks')
+        .lean()) as databaseTypes.IUser[];
+      //
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      userDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).customerPayment['__v'];
+        (doc as any).accounts.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).sessions.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).membership.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).invitedMembers.forEach(
+          (p: any) => delete (p as any)['__v']
+        );
+        (doc as any).createdWorkspaces.forEach(
+          (p: any) => delete (p as any)['__v']
+        );
+        (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).webhooks.forEach((p: any) => delete (p as any)['__v']);
+      });
+
+      const retval: IQueryResult<databaseTypes.IUser> = {
+        results: userDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the users.  See the inner error for additional information',
+          'mongoDb',
+          'getUsers',
+          err
+        );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    return userDocuments.map((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).customerPayment['__v'];
-      (doc as any).accounts.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).sessions.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).membership.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).invitedMembers.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).createdWorkspaces.forEach(
-        (p: any) => delete (p as any)['__v']
-      );
-      (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
-      (doc as any).webhooks.forEach((p: any) => delete (p as any)['__v']);
-    });
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the users.  See the inner error for additional information',
-        'mongoDb',
-        'getUsers',
-        err
-      );
   }
-});
+);
 
 SCHEMA.static(
   'allUserIdsExist',
@@ -145,7 +181,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateUpdateObject',
-  (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
+  async (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
     if (user.accounts?.length)
       throw new error.InvalidOperationError(
         'This method cannot be used to alter the users accounts.  Use the add/remove accounts functions to complete this operation',
@@ -197,7 +233,30 @@ SCHEMA.static(
           _id: (user as unknown as databaseTypes.IUser)._id,
         }
       );
+    if (user.createdAt)
+      throw new error.InvalidOperationError(
+        'The createdAt date is set internally and cannot be altered externally',
+        {createdAt: user.createdAt}
+      );
+    if (user.updatedAt)
+      throw new error.InvalidOperationError(
+        'The updatedAt date is set internally and cannot be altered externally',
+        {updatedAt: user.updatedAt}
+      );
 
+    if (user.customerPayment) {
+      try {
+        await USER_MODEL.validateCustomerPayment(user.customerPayment);
+      } catch (err) {
+        if (err instanceof error.DataValidationError) {
+          throw new error.InvalidOperationError(
+            'The customerPayment cannot be validated.  Are you sure that it exists in the database?',
+            {customerPayment: user.customerPayment},
+            err
+          );
+        } else throw err;
+      }
+    }
     return true;
   }
 );
@@ -210,8 +269,25 @@ SCHEMA.static(
     user: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): Promise<boolean> => {
     try {
-      USER_MODEL.validateUpdateObject(user);
-      const updateResult = await USER_MODEL.updateOne(filter, user);
+      const updateDate = new Date();
+      await USER_MODEL.validateUpdateObject(user);
+      const transformedObject: Partial<IUserDocument> &
+        Record<string, unknown> = {updatedAt: updateDate};
+      for (const key in user) {
+        const value = (user as Record<string, any>)[key];
+        if (key === 'customerPayment') {
+          transformedObject.customerPayment =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        } else {
+          transformedObject[key] = value;
+        }
+      }
+      const updateResult = await USER_MODEL.updateOne(
+        filter,
+        transformedObject
+      );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
           `No user document with filter: ${filter} was found`,
@@ -414,6 +490,31 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'validateCustomerPayment',
+  async (
+    payment: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    if (payment) {
+      const paymentId =
+        payment instanceof mongooseTypes.ObjectId
+          ? payment
+          : (payment._id as mongooseTypes.ObjectId);
+      const exists = await CustomerPaymentModel.customerPaymentIdExists(
+        paymentId
+      );
+      if (!exists) {
+        throw new error.DataValidationError(
+          'the customerPayment id does not exisit in the database.',
+          'customerPayment',
+          payment
+        );
+      }
+
+      return paymentId;
+    } else return null as unknown as mongooseTypes.ObjectId;
+  }
+);
 SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
     const userDocument = (await USER_MODEL.findById(userId)
@@ -481,6 +582,7 @@ SCHEMA.static(
         invitedMembers,
         createdWorkspaces,
         projects,
+        customerPaymentId,
       ] = await Promise.all([
         USER_MODEL.validateAccounts(
           //istanbul ignore next
@@ -510,6 +612,7 @@ SCHEMA.static(
           //istanbul ignore next
           input.projects ?? []
         ),
+        USER_MODEL.validateCustomerPayment(input.customerPayment),
       ]);
       const createDate = new Date();
 
@@ -532,6 +635,7 @@ SCHEMA.static(
         apiKey: input.apiKey,
         createdWorkspaces: createdWorkspaces,
         projects: projects,
+        customerPayment: customerPaymentId,
       };
       try {
         await USER_MODEL.validate(resolvedInput);
