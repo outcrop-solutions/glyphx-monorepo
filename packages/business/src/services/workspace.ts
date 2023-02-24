@@ -459,7 +459,6 @@ export class WorkspaceService {
             mem._id instanceof mongooseTypes.ObjectId
               ? mem._id
               : new mongooseTypes.ObjectId(mem._id);
-          mem._id;
           return id;
         });
 
