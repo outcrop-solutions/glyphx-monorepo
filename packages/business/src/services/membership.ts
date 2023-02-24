@@ -41,7 +41,7 @@ export class MembershipService {
       const members = await mongoDbConnection.models.MemberModel.queryMembers(
         filter
       );
-      return members;
+      return members?.results;
     } catch (err) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
