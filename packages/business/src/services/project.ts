@@ -121,7 +121,7 @@ export class ProjectService {
       }
     }
   }
-  
+
   public static async updateProject(
     projectId: mongooseTypes.ObjectId | string,
     update: Omit<
