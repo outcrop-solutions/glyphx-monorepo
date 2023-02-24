@@ -18,7 +18,7 @@ export interface ISendMail {
   to: string | any[];
 }
 
-export async function sendMail({from, html, subject, text, to}: ISendMail) {
+export async function sendMail({ from, html, subject, text, to }: ISendMail) {
   const data = {
     from: from ?? process.env.EMAIL_FROM,
     to,
@@ -27,9 +27,7 @@ export async function sendMail({from, html, subject, text, to}: ISendMail) {
     html,
   };
 
-  process.env.NODE_ENV === 'production'
-    ? await TRANSPORT.sendMail(data)
-    : console.log(data);
+  process.env.NODE_ENV === 'production' ? await TRANSPORT.sendMail(data) : console.log(data);
 }
 
 export default TRANSPORT;

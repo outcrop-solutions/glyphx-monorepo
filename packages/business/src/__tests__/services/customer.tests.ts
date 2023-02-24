@@ -7,14 +7,15 @@ import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';
 import {customerPaymentService} from '../../services';
 
-describe('#services/user', () => {
+describe('#services/customer', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
   afterEach(() => {
     sandbox.restore();
   });
+
   context('getPayment', () => {
-    it.only('should get a customerPayment by email', async () => {
+    it('should get a customerPayment by email', async () => {
       const customerPaymentId = new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
 
@@ -84,7 +85,7 @@ describe('#services/user', () => {
       getCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.CustomerPaymentModel,
-        'getCustomerPaymentById',
+        'getCustomerPaymentByEmail',
         getCustomerPaymentFromModelStub
       );
       function fakePublish() {
