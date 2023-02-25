@@ -35,7 +35,7 @@ export class UserService {
 
   public static async deactivate(
     userId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IUser | null> {
+  ): Promise<databaseTypes.IUser> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
@@ -70,7 +70,7 @@ export class UserService {
     userId: mongooseTypes.ObjectId | string,
     email: string,
     previousEmail: string
-  ): Promise<databaseTypes.IUser | null> {
+  ): Promise<databaseTypes.IUser> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
@@ -115,7 +115,7 @@ export class UserService {
   public static async updateName(
     userId: mongooseTypes.ObjectId | string,
     name: string
-  ): Promise<databaseTypes.IUser | null> {
+  ): Promise<databaseTypes.IUser> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
