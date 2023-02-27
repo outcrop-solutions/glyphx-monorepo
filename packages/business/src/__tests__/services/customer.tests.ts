@@ -261,4 +261,152 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
+  context('createPaymentAccount', () => {
+    it('will createCustomerPayment', async () => {
+      const customerId = 'testCustomerId'; //comes from stripe
+      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
+      );
+
+      await customerPaymentService.updateSubscription(customerId, subscription);
+      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+    });
+    it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
+      const customerId = 'testCustomerId'; //comes from stripe
+      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const errMessage = 'You have an invalid argument';
+      const err = new error.InvalidArgumentError(
+        errMessage,
+        'emailVerified',
+        true
+      );
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await customerPaymentService.updateSubscription(
+          customerId,
+          subscription
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when customerPayment model throws it ', async () => {
+      const customerId = 'testCustomerId'; //comes from stripe
+      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const errMessage = 'You tried to perform an invalid operation';
+      const err = new error.InvalidOperationError(errMessage, {});
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await customerPaymentService.updateSubscription(
+          customerId,
+          subscription
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when customerPayment model throws a DataOperationError ', async () => {
+      const customerId = 'testCustomerId'; //comes from stripe
+      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'updateCustomerPaymentById'
+      );
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await customerPaymentService.updateSubscription(
+          customerId,
+          subscription
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
 });

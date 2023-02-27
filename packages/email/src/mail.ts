@@ -8,7 +8,9 @@ import nodemailer from 'nodemailer';
 //   service: process.env.EMAIL_SERVICE,
 // };
 
-const TRANSPORT = nodemailer.createTransport(process.env.EMAIL_SERVER);
+const TRANSPORT = nodemailer.createTransport(
+  'smtp://apikey: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@smtp.sendgrid.net:587'
+);
 
 export interface ISendMail {
   from?: string | null | undefined;

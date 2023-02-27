@@ -14,7 +14,6 @@ const SCHEMA = new Schema<
   ICustomerPaymentMethods
 >({
   paymentId: {type: String, required: true},
-  customerId: {type: String, required: true},
   email: {type: String, required: true},
   subscriptionType: {
     type: Number,
@@ -104,7 +103,7 @@ SCHEMA.static('getCustomerPaymentByEmail', async (email: string) => {
 
 SCHEMA.static('getCustomerPaymentByStripeId', async (stripeId: string) => {
   return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByFilter({
-    clientId: stripeId,
+    paymentId: stripeId,
   });
 });
 
@@ -229,7 +228,6 @@ SCHEMA.static(
 
     const transformedDocument: ICustomerPaymentDocument = {
       paymentId: input.paymentId,
-      customerId: input.customerId,
       email: input.email,
       createdAt: createDate,
       updatedAt: createDate,
@@ -317,7 +315,7 @@ SCHEMA.static(
         transformedCustomerPayment
       );
       if (updateResult.modifiedCount !== 1) {
-        throw new error.InvalidArgumentError(
+        throw new error.DataNotFoundError(
           `No customerPayment document with filter: ${filter} was found`,
           'filter',
           filter
@@ -325,7 +323,7 @@ SCHEMA.static(
       }
     } catch (err) {
       if (
-        err instanceof error.InvalidArgumentError ||
+        err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidOperationError
       )
         throw err;
