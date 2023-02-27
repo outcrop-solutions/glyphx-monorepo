@@ -18,6 +18,12 @@ export interface ICustomerPaymentStaticMethods
   getCustomerPaymentByEmail(
     customerEmail: string
   ): Promise<databaseTypes.ICustomerPayment>;
+  getCustomerPaymentByFilter(
+    filter: Record<string, unknown>
+  ): Promise<databaseTypes.ICustomerPayment>;
+  getCustomerPaymentByStripeId(
+    stripeId: string
+  ): Promise<databaseTypes.ICustomerPayment>;
   queryCustomerPayments(
     filter?: Record<string, unknown>,
     page?: number,
@@ -29,6 +35,10 @@ export interface ICustomerPaymentStaticMethods
   ): Promise<void>;
   updateCustomerPaymentById(
     customerPaymentId: mongooseTypes.ObjectId,
+    customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
+  ): Promise<databaseTypes.ICustomerPayment>;
+  updateCustomerPaymentByStripeId(
+    stripeId: string,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<databaseTypes.ICustomerPayment>;
   deleteCustomerPaymentById(sessionId: mongooseTypes.ObjectId): Promise<void>;

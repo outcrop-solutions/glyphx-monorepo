@@ -90,17 +90,38 @@ SCHEMA.static(
 SCHEMA.static(
   'getCustomerPaymentById',
   async (customerPaymentId: mongooseTypes.ObjectId) => {
+    return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByFilter({
+      _id: customerPaymentId,
+    });
+  }
+);
+
+SCHEMA.static('getCustomerPaymentByEmail', async (email: string) => {
+  return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByFilter({
+    email: email,
+  });
+});
+
+SCHEMA.static('getCustomerPaymentByStripeId', async (stripeId: string) => {
+  return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByFilter({
+    clientId: stripeId,
+  });
+});
+
+SCHEMA.static(
+  'getCustomerPaymentByFilter',
+  async (filter: Record<string, unknown>) => {
     try {
-      const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.findById(
-        customerPaymentId
+      const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.findOne(
+        filter
       )
         .populate('customer')
         .lean()) as databaseTypes.ICustomerPayment;
       if (!customerPaymentDocument) {
         throw new error.DataNotFoundError(
-          `Could not find a customerPayment with the _id: ${customerPaymentId}`,
-          'customerPayment_id',
-          customerPaymentId
+          `Could not find a customerPayment with the filter: ${filter}`,
+          'getCustomerPaymentByFilter',
+          filter
         );
       }
       //this is added by mongoose, so we will want to remove it before returning the document
@@ -113,43 +134,14 @@ SCHEMA.static(
       if (err instanceof error.DataNotFoundError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the customerPayment.  See the inner error for additional information',
+          'An unexpected error occurred while getting the customerPayment by filter.  See the inner error for additional information',
           'mongoDb',
-          'getCustomerPaymentById',
+          'getCustomerPaymentByFilter',
           err
         );
     }
   }
 );
-
-SCHEMA.static('getCustomerPaymentByEmail', async (customerEmail: string) => {
-  try {
-    const customerPaymentDocument = (await CUSTOMER_PAYMENT_MODEL.findOne({
-      email: customerEmail,
-    })
-      .populate('customer')
-      .lean()) as databaseTypes.ICustomerPayment;
-    if (!customerPaymentDocument) {
-      throw new error.DataNotFoundError(
-        `Could not find a customerPayment with the email: ${customerEmail}`,
-        'customerPayment_id',
-        customerEmail
-      );
-    }
-    delete (customerPaymentDocument as any)['__v'];
-    delete (customerPaymentDocument as any).customer['__v'];
-    return customerPaymentDocument;
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the customerPayment.  See the inner error for additional information',
-        'mongoDb',
-        'getCustomerPaymentByEmail',
-        err
-      );
-  }
-});
 
 SCHEMA.static(
   'queryCustomerPayments',
@@ -361,6 +353,23 @@ SCHEMA.static(
     );
     const retval = await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentById(
       customerPaymentId
+    );
+    return retval;
+  }
+);
+
+SCHEMA.static(
+  'updateCustomerPaymentByStripeId',
+  async (
+    stripeId: string,
+    customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
+  ): Promise<databaseTypes.ICustomerPayment> => {
+    await CUSTOMER_PAYMENT_MODEL.updateCustomerPaymentWithFilter(
+      {clientId: stripeId},
+      customerPayment
+    );
+    const retval = await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByStripeId(
+      stripeId
     );
     return retval;
   }
