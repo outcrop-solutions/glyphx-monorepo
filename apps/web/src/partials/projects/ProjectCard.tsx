@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
 import { useSetRecoilState } from 'recoil';
-import { projectsAtom } from 'src/state/globals';
-import { projectDetailsAtom } from 'src/state/project';
+import { projectsAtom } from 'state/globals';
+import { projectDetailsAtom } from 'state/project';
 import { deleteProject } from 'lib';
 export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   const router = useRouter();

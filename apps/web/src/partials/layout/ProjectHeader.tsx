@@ -14,7 +14,7 @@ import {
   propertiesAtom,
   sdtValue,
   rowsSelector,
-} from 'src/state';
+} from 'state';
 
 export const ProjectHeader = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);

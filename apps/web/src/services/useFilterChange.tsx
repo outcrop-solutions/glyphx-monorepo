@@ -11,7 +11,6 @@ export const useFilterChange = () => {
   const filterQuery = useRecoilValue(filterQuerySelector);
 
   useEffect(() => {
-    // @ts-ignore
     if (filterQuery) {
       try {
         //attempt to use Update Filter

@@ -4,7 +4,7 @@ import { PermissionsDropDown } from "./PermissionsDropDown";
 
 import {
   selectedProjectSelector,
-} from "src/state";
+} from "state";
 import { useRecoilValue } from "recoil";
 
 export const MemberList = ({size}) => {

@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { projectsAtom, showAddProjectAtom } from 'src/state/globals';
+import { projectsAtom, showAddProjectAtom } from 'state/globals';
 import { LinkDropDown, MemberList } from '../../invite';
 import { PermissionsDropDown } from '../../invite';
-import {createProject} from 'lib'
+import { createProject } from 'lib';
 import { useRouter } from 'next/router';
 import { v4 as uuid } from 'uuid';
-
-import { userAtom, usernameSelector } from 'state/user';
+import { useSession } from 'next-auth/react';
 
 export const NewProject = ({ exit }) => {
   const router = useRouter();
   const { orgId } = router.query;
-  const username = useRecoilValue(usernameSelector);
+  const { data } = useSession();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [members, setMembers] = useState('');
@@ -53,22 +52,21 @@ export const NewProject = ({ exit }) => {
       return;
     }
 
-    let memebers = createMembersArray();
+    let members = createMembersArray();
 
     const createProjectInput = {
       id: uuid(),
       name,
       description,
       expiry: new Date(),
-      author: username,
-      shared: [username, ...memebers],
+      author: data.user.email,
+      shared: [data.user.email, , ...members],
     };
     try {
-      const result = createProject()
+      const result = createProject();
       // setShowAddProject(false);
       // router.push(`/project/${result.data.createProject.id}`);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // const handleSave = async () => {

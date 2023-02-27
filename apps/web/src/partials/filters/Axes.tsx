@@ -7,8 +7,8 @@ import { removeFilter } from 'lib';
 import { ShowHide } from './actions/ShowHide';
 import { DeleteFilter } from './actions/DeleteFilter';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { propertiesAtom } from 'src/state/properties';
-import { filtersAppliedAtom } from 'src/state/filters';
+import { propertiesAtom } from 'state/properties';
+import { filtersAppliedAtom } from 'state/filters';
 import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 
 export const Axes = ({ axis, lastDroppedItem }) => {

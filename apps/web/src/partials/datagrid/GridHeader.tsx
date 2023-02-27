@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { filesOpenSelector } from 'src/state/files';
+import { filesOpenSelector } from 'state/files';
 import { useRecoilValue } from 'recoil';
 import { FileTab } from './FileTab';
 // import { PlusIcon } from "@heroicons/react/solid";

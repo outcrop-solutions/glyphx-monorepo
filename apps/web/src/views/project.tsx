@@ -22,10 +22,10 @@ import { useProject } from 'services';
 import { useSocket } from 'services';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { GridContainer } from 'partials/datagrid/GridContainer';
-import { projectIdAtom } from 'src/state/project';
-import { shareOpenAtom } from 'src/state/share';
-import { showInfoAtom } from 'src/state/info';
-import { showNotificationAtom } from 'src/state/notification';
+import { projectIdAtom } from 'state/project';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
 import { dataGridLoadingAtom, GridModalErrorAtom, modelCreationLoadingAtom } from '../state';
 import dynamic from 'next/dynamic';
 

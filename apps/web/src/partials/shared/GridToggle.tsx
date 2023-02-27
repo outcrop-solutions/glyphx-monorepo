@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { isGridViewAtom } from "src/state/globals";
-import { selectedProjectSelector } from "src/state/project";
+import { isGridViewAtom } from "state/globals";
+import { selectedProjectSelector } from "state/project";
 
 export function GridToggle() {
   const [dropdownOpen, setDropdownOpen] = useState(false);

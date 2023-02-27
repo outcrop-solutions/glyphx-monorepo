@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { activeStateAtom } from 'src/state/states';
+import { activeStateAtom } from 'state/states';
 
 export const CommentInput = ({ setComments }) => {
   const [commentContent, setCommentContent] = useState('');

@@ -4,8 +4,8 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
-import { showSearchModalAtom } from 'src/state';
-import { projectsAtom } from 'src/state/globals';
+import { showSearchModalAtom } from 'state';
+import { projectsAtom } from 'state/globals';
 import Fuse from 'fuse.js'; // importing fuse
 
 export function SearchModal() {

@@ -1,4 +1,4 @@
-import { showAddProjectAtom } from "src/state/globals";
+import { showAddProjectAtom } from "state/globals";
 import { PlusIcon } from "@heroicons/react/solid";
 import { useSetRecoilState } from "recoil";
 

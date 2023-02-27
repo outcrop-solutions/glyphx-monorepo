@@ -12,7 +12,7 @@ import {
   payloadSelector,
   propertiesAtom,
   sdtValue,
-} from 'src/state';
+} from 'state';
 
 export const Header = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);

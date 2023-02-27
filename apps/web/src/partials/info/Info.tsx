@@ -2,7 +2,7 @@ import React from "react";
 import { MemberList } from "../invite/MemberList";
 import {
     selectedProjectSelector,
-} from "src/state";
+} from "state";
 import { useRecoilState } from "recoil";
 
 

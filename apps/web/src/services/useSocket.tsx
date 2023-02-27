@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { QWebChannel } from 'qwebchannel';
 import { glyphViewerDetails, orientationAtom } from '../state';
-import { shareOpenAtom } from 'src/state/share';
-import { showInfoAtom } from 'src/state/info';
-import { showNotificationAtom } from 'src/state/notification';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
 import { useRecoilState, useRecoilValue } from 'recoil';
 /**
  * To handle Socket Connection and Communications with Qt window

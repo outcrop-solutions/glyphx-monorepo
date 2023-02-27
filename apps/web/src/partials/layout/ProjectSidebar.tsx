@@ -4,7 +4,7 @@ import { Files, States, Properties as Axes, Filters, Visualizations, Visualizati
 import { usePosition } from 'services/usePosition';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
-import { glyphViewerDetails } from 'src/state/globals';
+import { glyphViewerDetails } from 'state/globals';
 
 export const ProjectSidebar = ({ handleDrop }) => {
   //utilities

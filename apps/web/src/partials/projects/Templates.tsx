@@ -2,9 +2,8 @@ import { ChevronRightIcon } from '@heroicons/react/solid';
 import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
 import { v4 as uuid } from 'uuid';
 import { useRouter } from 'next/router';
-import { userAtom } from '@/state/user';
 import { createProject } from 'lib';
-import { useRecoilValue } from 'recoil';
+import { useSession } from 'next-auth/react';
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -31,16 +30,14 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
-  const { orgId } = router.query;
-  const user = useRecoilValue(userAtom);
-
+  const { data } = useSession();
   const handleCreate = async () => {
     const createProjectInput = {
       id: uuid(),
       name: 'Template Project',
       description: 'New project from empty template',
-      author: user?.username,
-      shared: [user?.username],
+      author: data.user?.email,
+      shared: [data.user?.email],
       expiry: new Date(),
     };
     try {

@@ -1,12 +1,10 @@
-import { usernameSelector } from 'state/user';
-import { useRecoilValue } from 'recoil';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export function TableListItem({ projectDetails }) {
-  const user = useRecoilValue(usernameSelector);
   const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
   const router = useRouter();
-
+  const { data } = useSession();
   /**
    * Send user to project
    */
@@ -29,7 +27,7 @@ export function TableListItem({ projectDetails }) {
         {/* @ts-ignore */}
         {new Date(projectDetails.updatedAt).toLocaleDateString('en-US', dateOptions)}
       </p>
-      <p title="Owner">{projectDetails.author === user ? 'Me' : projectDetails.author}</p>
+      <p title="Owner">{projectDetails.author === data.user.email ? 'Me' : projectDetails.author}</p>
       <div className="flex shrink-0 -space-x-2 -ml-px mr-2">
         {projectDetails.shared.map((member, idx) => {
           if (idx < 3) {

@@ -3,7 +3,7 @@ import { LinkDropDown } from './LinkDropDown';
 import { MemberList } from './MemberList';
 import { PermissionsDropDown } from './PermissionsDropDown';
 
-import { selectedProjectSelector, sdtValue } from 'src/state';
+import { selectedProjectSelector, sdtValue } from 'state';
 import { useRecoilValue } from 'recoil';
 
 export const ShareModule = ({ setShare }) => {

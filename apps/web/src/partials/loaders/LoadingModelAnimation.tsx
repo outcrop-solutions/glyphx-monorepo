@@ -1,5 +1,5 @@
 import BarLoader from "react-spinners/BarLoader";
-import { modelCreationLoadingAtom, progressDetailSelector } from "src/state/globals";
+import { modelCreationLoadingAtom, progressDetailSelector } from "state/globals";
 import { useRecoilValue } from "recoil";
 
 /**

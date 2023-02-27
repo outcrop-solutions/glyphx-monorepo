@@ -1,4 +1,4 @@
-import { rowsSelector, columnsSelector } from 'src/state/files';
+import { rowsSelector, columnsSelector } from 'state/files';
 import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { MainDropzone } from '../files';
@@ -13,7 +13,7 @@ import {
   showInfoAtom,
   shareOpenAtom,
   showNotificationAtom,
-} from 'src/state';
+} from 'state';
 
 export const GridContainer = ({ isDropped }) => {
   const rows = useRecoilValue(rowsSelector);

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 // import { API, graphqlOperation, Auth } from "aws-amplify";
-import update from "immutability-helper";
+import update from 'immutability-helper';
 import {
   droppedPropertiesSelector,
   isPropsValidSelector,
@@ -11,18 +11,18 @@ import {
   selectedProjectSelector,
   showReorderConfirmAtom,
   toastAtom,
-  userIdSelector,
   modelCreationLoadingAtom,
   AxisInterpolationAtom,
   AxisDirectionAtom,
   GridModalErrorAtom,
   progressDetailAtom,
-  selectedFileAtom
-} from "../state";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+  selectedFileAtom,
+} from '../state';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 // import { updateProject } from "graphql/mutations";
-import { createModelCall } from "./create-model";
-import { formatColumnHeader } from "@/utils/Utils";
+import { createModelCall } from './create-model';
+import { formatColumnHeader } from '@/utils/Utils';
+import { useSession } from 'next-auth/react';
 /**
  * Utility for interfacing with the Project class
  * @returns {Object}
@@ -43,7 +43,7 @@ export const useProject = () => {
 
   const setToast = useSetRecoilState(toastAtom);
 
-  const userId = useRecoilValue(userIdSelector);
+  const userId = useSession().data.user.userId;
   const interpolation = useRecoilValue(AxisInterpolationAtom);
   const direction = useRecoilValue(AxisDirectionAtom);
 
@@ -80,29 +80,29 @@ export const useProject = () => {
     // utilties
     const updateProjectState = async (res) => {
       // if (res?.statusCode === 200) {
-        setIsQtOpen(true);
-        setPayload({ url: res.url, sdt: res.sdt });
-        // update Dynamo Project Item
-        const updateProjectInput = {
-          id: selectedProject.id,
-          filePath: res.sdt,
-          expiry: new Date().toISOString(),
-          properties: properties.map((el) =>
-            el.lastDroppedItem
-              ? el.lastDroppedItem.key
-                ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
-                : ""
-              : ""
-          ),
-          url: res.url,
-        };
-        try {
-          // const result = await API.graphql(
-          //   graphqlOperation(updateProject, { input: updateProjectInput })
-          // );
-        } catch (error) {
-          // TODO: put error handling in toast
-        }
+      setIsQtOpen(true);
+      setPayload({ url: res.url, sdt: res.sdt });
+      // update Dynamo Project Item
+      const updateProjectInput = {
+        id: selectedProject.id,
+        filePath: res.sdt,
+        expiry: new Date().toISOString(),
+        properties: properties.map((el) =>
+          el.lastDroppedItem
+            ? el.lastDroppedItem.key
+              ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
+              : ''
+            : ''
+        ),
+        url: res.url,
+      };
+      try {
+        // const result = await API.graphql(
+        //   graphqlOperation(updateProject, { input: updateProjectInput })
+        // );
+      } catch (error) {
+        // TODO: put error handling in toast
+      }
       // }
     };
     const callETL = async () => {

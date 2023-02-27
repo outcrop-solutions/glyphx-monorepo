@@ -18,7 +18,7 @@ import { ProjectDetails } from 'partials';
 
 // Hooks
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { isGridViewAtom, projectDetailsAtom, projectsAtom, showAddProjectAtom } from 'src/state';
+import { isGridViewAtom, projectDetailsAtom, projectsAtom, showAddProjectAtom } from 'state';
 import { useRouter } from 'next/router';
 import { useProjects } from '../services';
 import { SuspenseFallback } from '@/partials/fallback';

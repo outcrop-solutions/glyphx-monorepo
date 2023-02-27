@@ -2,7 +2,7 @@ import { CheckCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/outline
 import { useState } from 'react';
 // import * as mutations from "graphql/mutations";
 // import { API } from "aws-amplify";
-import { activeStateAtom } from 'src/state/states';
+import { activeStateAtom } from 'state/states';
 import { useRecoilState } from 'recoil';
 
 export const State = ({ item }) => {

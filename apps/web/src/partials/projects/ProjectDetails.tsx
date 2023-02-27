@@ -6,10 +6,9 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { projectDetailsAtom } from 'src/state/project';
-import { userAtom } from '@/state/user';
+import { projectDetailsAtom } from 'state/project';
 import { updateProject } from 'lib';
-
+import { useSession } from 'next-auth/react';
 
 const tabs = [
   { name: 'Info', href: '#', current: true },
@@ -20,7 +19,7 @@ function classNames(...classes) {
 }
 export const ProjectDetails = () => {
   const [projectDetails, setProjectDetails] = useRecoilState(projectDetailsAtom);
-  const user = useRecoilValue(userAtom);
+  const { data } = useSession();
 
   const [open, setOpen] = useState(true);
   const [name, setName] = useState(projectDetails.name);
@@ -42,8 +41,7 @@ export const ProjectDetails = () => {
     });
   };
   const handleDelete = (item) => {
-    //@ts-ignore
-    if (item === user.username) {
+    if (item === data.user.email) {
       setError('Cannot remove project author.');
       setTimeout(() => {
         setError(false);

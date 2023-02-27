@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { MemberList } from '../invite/MemberList';
-import { selectedProjectSelector } from 'src/state';
+import { selectedProjectSelector } from 'state';
 import { useRecoilState } from 'recoil';
 
 export const Notification = ({ setNotif }) => {

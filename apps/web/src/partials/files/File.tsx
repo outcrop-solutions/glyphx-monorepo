@@ -1,5 +1,5 @@
 import React from 'react';
-import { selectedFileAtom } from 'src/state/files';
+import { selectedFileAtom } from 'state/files';
 import { useRecoilValue } from 'recoil';
 import { useFileSystem } from '@/services/useFileSystem';
 

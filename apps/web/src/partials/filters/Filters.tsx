@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Column } from './Column';
 import { Axes } from './Axes';
 import { useFilterChange } from 'services/useFilterChange';
-import { propertiesAtom } from 'src/state/properties';
+import { propertiesAtom } from 'state/properties';
 import { useRecoilValue } from 'recoil';
-import { filterQuerySelector } from 'src/state/filters';
+import { filterQuerySelector } from 'state/filters';
 
 export const Filters = ({ handleDrop }) => {
   const properties = useRecoilValue(propertiesAtom);

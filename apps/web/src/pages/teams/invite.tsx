@@ -4,10 +4,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import toast, { Toaster } from 'react-hot-toast';
 
-import Card from 'src/components/Card/index';
-import Button from 'src/components/Button';
+import Card from 'components/Card/index';
+import Button from 'components/Button';
 import { api } from 'lib';
-import { getInvitation } from '@glyphx/business';
+import { workspaceService } from '@glyphx/business';
 
 const Invite = ({ workspace }) => {
   const { data } = useSession();
@@ -65,7 +65,7 @@ const Invite = ({ workspace }) => {
 
 export const getServerSideProps = async (context) => {
   const { code } = context.query;
-  const workspace = await getInvitation(code);
+  const workspace = await workspaceService.getInvitation(code);
   return { props: { workspace } };
 };
 

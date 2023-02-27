@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
-import { selectedProjectSelector } from 'src/state/project';
+import { selectedProjectSelector } from 'state/project';
 import Image from 'next/image';
 
 export const MainSidebar = () => {

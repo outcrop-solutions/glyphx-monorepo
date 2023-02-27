@@ -2,7 +2,7 @@ import { useDrag, useDrop } from 'react-dnd';
 import { useEffect, useState } from 'react';
 import { SortableHeaderCell } from './SortableHeaderCell';
 import { useCombinedRefs } from 'services/useCombinedRefs';
-import { droppedPropertiesSelector, propertiesAtom } from 'src/state/properties';
+import { droppedPropertiesSelector, propertiesAtom } from 'state/properties';
 import { useRecoilValue } from 'recoil';
 
 export function DraggableHeaderRenderer({

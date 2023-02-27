@@ -3,8 +3,8 @@ import { useDrop } from 'react-dnd';
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { filtersAppliedAtom } from 'src/state/filters';
-import { propertiesAtom } from 'src/state/properties';
+import { filtersAppliedAtom } from 'state/filters';
+import { propertiesAtom } from 'state/properties';
 
 export const Column = ({ axis, accept, lastDroppedItem, onDrop, idx }) => {
   const [filtersApplied, setFiltersApplied] = useRecoilState(filtersAppliedAtom);

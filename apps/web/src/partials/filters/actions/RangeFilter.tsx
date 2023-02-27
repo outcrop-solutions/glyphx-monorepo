@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
-import { filtersAppliedAtom } from "src/state/filters";
+import { filtersAppliedAtom } from "state/filters";
 
 export const RangeFilter = ({ setVisible, lastDroppedItem }) => {
   const [showVisibility, setVisibility] = useState(false); //true means eye with no dash, false means eye with dash

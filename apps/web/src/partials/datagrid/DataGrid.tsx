@@ -1,10 +1,10 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { columnsSelector, rowsSelector } from 'src/state/files';
-import { shareOpenAtom } from 'src/state/share';
-import { showInfoAtom } from 'src/state/info';
-import { showNotificationAtom } from 'src/state/notification';
+import { columnsSelector, rowsSelector } from 'state/files';
+import { shareOpenAtom } from 'state/share';
+import { showInfoAtom } from 'state/info';
+import { showNotificationAtom } from 'state/notification';
 
 import dynamic from 'next/dynamic';
 

@@ -1,17 +1,14 @@
-import React from "react";
-import { useState, useRef, useEffect } from "react";
-import { Transition } from "utils/Transition";
-// import { Auth } from "aws-amplify";
-import { useRouter } from "next/router";
-import {userAtom } from "@/state/user";
-import { useRecoilValue } from "recoil";
+import React from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { Transition } from 'utils/Transition';
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 export const UserMenu = ({ align }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const trigger = useRef(null);
   const dropdown = useRef(null);
-
-  const user = useRecoilValue(userAtom);
+  const { data } = useSession();
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }) => {
@@ -32,7 +29,7 @@ export const UserMenu = ({ align }) => {
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
-  
+
   return (
     <div className="relative">
       <button
@@ -50,8 +47,7 @@ export const UserMenu = ({ align }) => {
         </svg>
         <div className="flex items-center truncate">
           <span className="truncate w-2/3 ml-2 text-sm text-white font-sans font-medium group-hover:text-gray">
-            {/* @ts-ignore */}
-            {user?.attributes?.name || user?.attributes?.email || ''}
+            {data.user?.name || data.user?.email || ''}
           </span>
         </div>
       </button>

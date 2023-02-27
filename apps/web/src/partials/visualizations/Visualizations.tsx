@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 // import { v4 as uuid } from "uuid";
 // import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { selectedProjectSelector } from 'src/state/project';
-import { statesSelector } from 'src/state/states';
+import { selectedProjectSelector } from 'state/project';
+import { statesSelector } from 'state/states';
 
 export const Visualizations = () => {
   const project = useRecoilValue(selectedProjectSelector);

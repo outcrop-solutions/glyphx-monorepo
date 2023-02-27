@@ -13,8 +13,7 @@ import {
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'partials/files/transforms';
 import { useRouter } from 'next/router';
-import produce, { original, current } from 'immer';
-import { Storage } from 'aws-amplify';
+import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 
 const cleanTableName = (fileName) => {

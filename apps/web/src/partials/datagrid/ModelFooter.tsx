@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import * as dayjs from 'dayjs';
 import { useRecoilValue } from 'recoil';
-import { payloadSelector, selectedProjectSelector, sdtValue } from 'src/state/project';
+import { payloadSelector, selectedProjectSelector, sdtValue } from 'state/project';
 // import { PlusIcon } from "@heroicons/react/solid";
 
 export const ModelFooter = () => {

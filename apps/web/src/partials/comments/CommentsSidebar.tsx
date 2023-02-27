@@ -5,7 +5,7 @@ import { CommentsHeader } from "./CommentsHeader";
 import { CommentInput } from "./CommentInput";
 import { History } from "./CommentHistory";
 import { useRecoilState } from "recoil";
-import { commentsOpenAtom, commentsSelector } from "src/state/comments";
+import { commentsOpenAtom, commentsSelector } from "state/comments";
 
 export const CommentsSidebar = ({ setCommentsPosition }) => {
   const [commentsOpen, setCommentsOpen] = useRecoilState(commentsOpenAtom);
