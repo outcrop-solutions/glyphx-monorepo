@@ -1,5 +1,6 @@
 import {createCustomer} from 'lib/stripe';
 import {database as databaseTypes} from '@glyphx/types';
+import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 
@@ -33,20 +34,44 @@ export class CustomerPaymentService {
 
   public static async createPaymentAccount(
     email: string,
-    customerId: string
-  ): Promise<databaseTypes.ICustomerPayment | null> {
+    customerId: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.ICustomerPayment> {
     try {
+      // create customer payment
+      // add to the user
+      // add user to the customerpayment
       const paymentAccount = await createCustomer(email);
       const input = {
-        customerId,
         email,
         paymentId: paymentAccount.id,
       } as Omit<databaseTypes.ICustomerPayment, '_id'>;
+
+      // create customer
       const customerPayment =
         await mongoDbConnection.models.CustomerPaymentModel.createCustomerPayment(
           input
         );
-      return customerPayment;
+
+      const id =
+        customerId instanceof mongooseTypes.ObjectId
+          ? customerId
+          : new mongooseTypes.ObjectId(customerId);
+
+      // connect customer to user
+      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+        customerPayment: {
+          _id: customerPayment._id,
+        } as unknown as databaseTypes.ICustomerPayment,
+      });
+
+      // connect user to customer
+      const payment =
+        await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentById(
+          id,
+          {customer: user}
+        );
+
+      return payment;
     } catch (err) {
       if (
         err instanceof error.InvalidArgumentError ||

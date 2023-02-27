@@ -2,14 +2,18 @@ import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
+import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';
 import {customerPaymentService} from '../../services';
+import {createCustomer} from 'lib';
 
 describe('#services/customer', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
+  const stripe = {
+    createCustomer: createCustomer,
+  };
   afterEach(() => {
     sandbox.restore();
   });
@@ -113,21 +117,64 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('updateSubscription', () => {
-    it('will update a customerPayment subscription', async () => {
-      const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-      const updateCustomerPaymentFromModelStub = sandbox.stub();
-      updateCustomerPaymentFromModelStub.resolves();
+  context('createPaymentAccount', () => {
+    it('will createCustomerPayment with user associated as customer', async () => {
+      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentEmail = 'testemail@gmail.com';
+      const userId = new mongooseTypes.ObjectId();
+      const stripeId = new mongooseTypes.ObjectId();
 
+      const createCustomerStub = sandbox.stub();
+      createCustomerStub.resolves({id: stripeId});
+      sandbox.replace(stripe, 'createCustomer', createCustomerStub);
+
+      const createCustomerPaymentFromModelStub = sandbox.stub();
+      createCustomerPaymentFromModelStub.resolves({
+        _id: customerPaymentId,
+        email: customerPaymentEmail,
+      } as unknown as databaseTypes.ICustomerPayment);
       sandbox.replace(
         dbConnection.models.CustomerPaymentModel,
-        'updateCustomerPaymentWithFilter',
-        updateCustomerPaymentFromModelStub
+        'createCustomerPayment',
+        createCustomerPaymentFromModelStub
       );
 
-      await customerPaymentService.updateSubscription(customerId, subscription);
-      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        customerPayment: {_id: customerPaymentId, email: customerPaymentEmail},
+      } as unknown as databaseTypes.IUser);
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateCustomerPaymentStub = sandbox.stub();
+      updateCustomerPaymentStub.resolves({
+        _id: customerPaymentId,
+        email: customerPaymentEmail,
+        customer: {
+          _id: userId,
+          customerPayment: {_id: customerPaymentId},
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.ICustomerPayment);
+      sandbox.replace(
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentById',
+        updateCustomerPaymentStub
+      );
+
+      const doc = await customerPaymentService.createPaymentAccount(
+        customerPaymentEmail,
+        userId
+      );
+
+      assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(updateCustomerPaymentStub.calledOnce);
+      assert.isOk(doc.customer.customerPayment);
+      assert.strictEqual(doc?.customer._id, userId);
     });
     it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
       const customerId = 'testCustomerId'; //comes from stripe
@@ -261,8 +308,8 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('createPaymentAccount', () => {
-    it('will createCustomerPayment', async () => {
+  context('updateSubscription', () => {
+    it('will update a customerPayment subscription', async () => {
       const customerId = 'testCustomerId'; //comes from stripe
       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
       const updateCustomerPaymentFromModelStub = sandbox.stub();
