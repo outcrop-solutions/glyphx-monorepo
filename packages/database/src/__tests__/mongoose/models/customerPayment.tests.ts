@@ -10,7 +10,6 @@ const MOCK_CUSTOMER_PAYMENT: databaseTypes.ICustomerPayment = {
   createdAt: new Date(),
   updatedAt: new Date(),
   paymentId: 'customerPaymentId',
-  customerId: 'customerPaymentId',
   email: 'customerPaymentId',
   subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
   customer: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
@@ -596,7 +595,7 @@ describe('#mongoose/models/customerPayment', () => {
       sandbox.restore();
     });
 
-    it('will retreive a customerPayment document with the customer populated', async () => {
+    it('will retreive a customerPayment document by filter with the customer populated', async () => {
       const findStub = sandbox.stub();
       findStub.returns(new MockMongooseQuery(mockCustomerPayment));
       sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
@@ -611,7 +610,7 @@ describe('#mongoose/models/customerPayment', () => {
 
       assert.strictEqual(doc._id, mockCustomerPayment._id);
     });
-
+    
     it('will throw a DataNotFoundError when the customerPayment does not exist', async () => {
       const findStub = sandbox.stub();
       findStub.returns(new MockMongooseQuery(null));
