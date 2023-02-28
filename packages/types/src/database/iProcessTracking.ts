@@ -7,8 +7,8 @@ export interface IProcessTracking {
   processName: string;
   processStatus: constants.PROCESS_STATUS;
   processStartTime: Date;
-  processEndTime: Date;
+  processEndTime?: Date;
   processMessages: string[];
   processError: Record<string, unknown>[];
-  processResult: Record<string, unknown>;
+  processResult?: Record<string, unknown>;
 }
