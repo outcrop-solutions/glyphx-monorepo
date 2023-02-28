@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
+import {ProcessTrackingModel} from '../mongoose/models';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -27,6 +28,7 @@ const INPUT_DATA2 = {
   processMessages: [],
   processError: [],
 };
+
 describe('#processTrackingModel', () => {
   context('test the crud functions of the processTracking model', () => {
     const mongoConnection = new MongoDbConnection();
@@ -176,6 +178,68 @@ describe('#processTrackingModel', () => {
       assert.strictEqual(updatedDocument.processName, input.processName);
     });
 
+    it('add an error to the processTracking Document by id', async () => {
+      assert.isOk(processTrackingId);
+      const errorText = 'I am error1';
+      const updatedProcessTrackingDocument =
+        await ProcessTrackingModel.addErrorsById(processTrackingId, [
+          {error: errorText},
+        ]);
+      assert.strictEqual(updatedProcessTrackingDocument.processError.length, 1);
+      assert.strictEqual(
+        updatedProcessTrackingDocument.processError[0].error,
+        errorText
+      );
+    });
+
+    it('add an error to the processTracking Document by processId', async () => {
+      assert.isOk(processTrackingId);
+      const errorText = 'I am error2';
+      const updatedProcessTrackingDocument =
+        await ProcessTrackingModel.addErrorsByProcessId(INPUT_DATA.processId, [
+          {error: errorText},
+        ]);
+      assert.strictEqual(updatedProcessTrackingDocument.processError.length, 2);
+      assert.strictEqual(
+        updatedProcessTrackingDocument.processError[0].error,
+        errorText
+      );
+    });
+
+    it('add a message to the processTracking Document by id', async () => {
+      assert.isOk(processTrackingId);
+      const message = 'I am message1';
+      const updatedProcessTrackingDocument =
+        await ProcessTrackingModel.addMessagesById(processTrackingId, [
+          message,
+        ]);
+      assert.strictEqual(
+        updatedProcessTrackingDocument.processMessages.length,
+        1
+      );
+      assert.strictEqual(
+        updatedProcessTrackingDocument.processMessages[0],
+        message
+      );
+    });
+
+    it('add a message to the processTracking Document by processId', async () => {
+      assert.isOk(processTrackingId);
+      const message = 'I am message2';
+      const updatedProcessTrackingDocument =
+        await ProcessTrackingModel.addMessagesByProcessId(
+          INPUT_DATA.processId,
+          [message]
+        );
+      assert.strictEqual(
+        updatedProcessTrackingDocument.processMessages.length,
+        2
+      );
+      assert.strictEqual(
+        updatedProcessTrackingDocument.processMessages[0],
+        message
+      );
+    });
     it('remove a process tracking document by id', async () => {
       assert.isOk(processTrackingId);
       await processTrackingModel.deleteProcessTrackingDocumentById(
