@@ -1,6 +1,5 @@
 import slugify from 'slugify';
 import {
-  ISendMail,
   EmailClient,
   workspaceCreateHtml,
   workspaceCreateText,
@@ -64,7 +63,7 @@ export class WorkspaceService {
         subject: `[Glyphx] Workspace created: ${name}`,
         text: workspaceCreateText({code: workspace.inviteCode, name}),
         to: email,
-      } as ISendMail);
+      });
 
       return workspace;
     } catch (err: any) {
