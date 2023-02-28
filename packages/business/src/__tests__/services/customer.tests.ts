@@ -116,8 +116,8 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context.only('createPaymentAccount', () => {
-    it.only('will createCustomerPayment with user associated as customer', async () => {
+  context('createPaymentAccount', () => {
+    it('will createCustomerPayment with user associated as customer', async () => {
       const customerPaymentId = new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
       const userId = new mongooseTypes.ObjectId();

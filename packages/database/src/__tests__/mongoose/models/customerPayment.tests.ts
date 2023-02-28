@@ -3,7 +3,7 @@ import {CustomerPaymentModel} from '../../..//mongoose/models/customerPayment';
 import {UserModel} from '../../..//mongoose/models/user';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
-import mongoose from 'mongoose';
+import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 
 const MOCK_CUSTOMER_PAYMENT: databaseTypes.ICustomerPayment = {
@@ -214,7 +214,7 @@ describe('#mongoose/models/customerPayment', () => {
       sandbox.restore();
     });
 
-    it('should update an existing customerPayment', async () => {
+    it('should update an existing customerPaymentByFilter', async () => {
       const updateCustomerPayment = {
         email: 'testmail@gmail.com',
       };
@@ -232,6 +232,132 @@ describe('#mongoose/models/customerPayment', () => {
       );
 
       assert.isTrue(updateStub.calledOnce);
+      // assert.isTrue(getCustomerPaymentStub.calledOnce);
+    });
+
+    it('should update an existing customerPaymentById', async () => {
+      const customerId = new mongooseTypes.ObjectId();
+
+      class MockMongooseQuery {
+        mockData?: any;
+        throwError?: boolean;
+        constructor(input: any, throwError = false) {
+          this.mockData = input;
+          this.throwError = throwError;
+        }
+        populate() {
+          return this;
+        }
+
+        async lean(): Promise<any> {
+          if (this.throwError) throw this.mockData;
+
+          return this.mockData;
+        }
+      }
+
+      const mockCustomerPayment: databaseTypes.ICustomerPayment = {
+        _id: customerId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        paymentId: 'testPaymentId',
+        customerId: 'tesCustomerId',
+        email: 'testemail@gmail.com',
+        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        __v: 1,
+        customer: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.ICustomerPayment;
+
+      const updateCustomerPayment = {
+        paymentId: 'testPaymentStripeId',
+      };
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(CustomerPaymentModel, 'updateOne', updateStub);
+
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery(mockCustomerPayment));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      const doc = await CustomerPaymentModel.updateCustomerPaymentById(
+        customerId,
+        updateCustomerPayment
+      );
+
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(findStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.customer as any).__v);
+
+      assert.strictEqual(doc._id, mockCustomerPayment._id);
+      // assert.isTrue(getCustomerPaymentStub.calledOnce);
+    });
+
+    it('should update an existing customerPaymentByStripeId', async () => {
+      const paymentId = 'testPaymentId';
+
+      class MockMongooseQuery {
+        mockData?: any;
+        throwError?: boolean;
+        constructor(input: any, throwError = false) {
+          this.mockData = input;
+          this.throwError = throwError;
+        }
+        populate() {
+          return this;
+        }
+
+        async lean(): Promise<any> {
+          if (this.throwError) throw this.mockData;
+
+          return this.mockData;
+        }
+      }
+
+      const mockCustomerPayment: databaseTypes.ICustomerPayment = {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        paymentId: 'testPaymentId',
+        customerId: 'tesCustomerId',
+        email: 'testemail@gmail.com',
+        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        __v: 1,
+        customer: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.ICustomerPayment;
+
+      const updateCustomerPayment = {
+        paymentId: 'testPaymentStripeId',
+      };
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(CustomerPaymentModel, 'updateOne', updateStub);
+
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery(mockCustomerPayment));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      const doc = await CustomerPaymentModel.updateCustomerPaymentByStripeId(
+        paymentId,
+        updateCustomerPayment
+      );
+
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(findStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.customer as any).__v);
+
+      assert.strictEqual(doc._id, mockCustomerPayment._id);
       // assert.isTrue(getCustomerPaymentStub.calledOnce);
     });
 
@@ -610,7 +736,55 @@ describe('#mongoose/models/customerPayment', () => {
 
       assert.strictEqual(doc._id, mockCustomerPayment._id);
     });
-    
+
+    it('will retreive a customerPayment document by id with the customer populated', async () => {
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery(mockCustomerPayment));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      const doc = await CustomerPaymentModel.getCustomerPaymentById(
+        mockCustomerPayment._id as mongooseTypes.ObjectId
+      );
+
+      assert.isTrue(findStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.customer as any).__v);
+
+      assert.strictEqual(doc._id, mockCustomerPayment._id);
+    });
+
+    it('will retreive a customerPayment document by email with the customer populated', async () => {
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery(mockCustomerPayment));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      const doc = await CustomerPaymentModel.getCustomerPaymentByEmail(
+        mockCustomerPayment.email as string
+      );
+
+      assert.isTrue(findStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.customer as any).__v);
+
+      assert.strictEqual(doc.email, mockCustomerPayment.email);
+    });
+
+    it('will retreive a customerPayment document by stripeId with the customer populated', async () => {
+      const findStub = sandbox.stub();
+      findStub.returns(new MockMongooseQuery(mockCustomerPayment));
+      sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
+
+      const doc = await CustomerPaymentModel.getCustomerPaymentByStripeId(
+        mockCustomerPayment.paymentId as string
+      );
+
+      assert.isTrue(findStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.customer as any).__v);
+
+      assert.strictEqual(doc.paymentId, mockCustomerPayment.paymentId);
+    });
+
     it('will throw a DataNotFoundError when the customerPayment does not exist', async () => {
       const findStub = sandbox.stub();
       findStub.returns(new MockMongooseQuery(null));
