@@ -284,6 +284,7 @@ SCHEMA.static(
     }
   }
 );
+
 SCHEMA.static(
   'updateProcessTrackingDocumentWithFilter',
   async (
@@ -292,10 +293,46 @@ SCHEMA.static(
       Partial<databaseTypes.IProcessTracking>,
       '_id'
     >
-  ): Promise<void> => {
-    throw 'not implemented';
+  ): Promise<boolean> => {
+    await PROCESS_TRACKING_MODEL.validateUpdateObject(processTrackingDocument);
+    try {
+      const transformedProcessTrackingDocument: Partial<IProcessTrackingDocument> &
+        Record<string, any> = {};
+      for (const key in processTrackingDocument) {
+        const value = (processTrackingDocument as Record<string, any>)[key];
+
+        transformedProcessTrackingDocument[key] = value;
+      }
+      const updateResult = await PROCESS_TRACKING_MODEL.updateOne(
+        filter,
+        transformedProcessTrackingDocument
+      );
+      if (updateResult.modifiedCount !== 1) {
+        throw new error.InvalidArgumentError(
+          `No process tracking document with filter: ${filter} was found`,
+          'filter',
+          filter
+        );
+      }
+    } catch (err) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          `An unexpected error occurred while updating the process tracking document with filter :${filter}.  See the inner error for additional information`,
+          'mongoDb',
+          'updateProcessTrackingDocumentWithFilter',
+          {filter: filter, processTrackingDocument: processTrackingDocument},
+          err
+        );
+    }
+    return true;
   }
 );
+
 SCHEMA.static(
   'updateProcessTrackingDocumentById',
   async (
@@ -305,9 +342,18 @@ SCHEMA.static(
       '_id'
     >
   ): Promise<databaseTypes.IProcessTracking> => {
-    throw 'not implemented';
+    await PROCESS_TRACKING_MODEL.updateProcessTrackingDocumentWithFilter(
+      {_id: processTrackingDocumentId},
+      processTrackingDocument
+    );
+
+    const retval = await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentById(
+      processTrackingDocumentId
+    );
+    return retval;
   }
 );
+
 SCHEMA.static(
   'updateProcessTrackingDocumentByProcessId',
   async (
@@ -317,27 +363,59 @@ SCHEMA.static(
       '_id'
     >
   ): Promise<databaseTypes.IProcessTracking> => {
-    throw 'not implemented';
+    await PROCESS_TRACKING_MODEL.updateProcessTrackingDocumentWithFilter(
+      {processId: processId},
+      processTrackingDocument
+    );
+
+    const retval =
+      await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByProcessId(
+        processId
+      );
+    return retval;
   }
 );
 SCHEMA.static(
   'deleteProcessTrackingDocumentByFilter',
   async (filter: Record<string, unknown>): Promise<void> => {
-    throw 'not implemented';
+    try {
+      const results = await PROCESS_TRACKING_MODEL.deleteOne(filter);
+      if (results.deletedCount !== 1)
+        throw new error.InvalidArgumentError(
+          `A process tracking document with a filter: ${filter} was not found in the database`,
+          'filter',
+          filter
+        );
+    } catch (err) {
+      if (err instanceof error.InvalidArgumentError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while deleteing the process tracking document from the database. The process tracing document may still exist.  See the inner error for additional information',
+          'mongoDb',
+          'deleteProcessTrackingDocumentByFilter',
+          filter,
+          err
+        );
+    }
   }
 );
 SCHEMA.static(
   'deleteProcessTrackingDocumentById',
   async (processTrackingDocumentId: mongooseTypes.ObjectId): Promise<void> => {
-    throw 'not implemented';
+    await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
+      _id: processTrackingDocumentId,
+    });
   }
 );
 SCHEMA.static(
   'deleteProcessTrackingDocumentProcessId',
   async (processId: mongooseTypes.ObjectId): Promise<void> => {
-    throw 'not implemented';
+    await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
+      processId: processId,
+    });
   }
 );
+
 SCHEMA.static(
   'validateUpdateObject',
   async (
@@ -346,7 +424,18 @@ SCHEMA.static(
       '_id'
     >
   ): Promise<void> => {
-    throw 'not implemented';
+    if (
+      (processTrackingDocument as unknown as databaseTypes.IVerificationToken)
+        ._id
+    )
+      throw new error.InvalidOperationError(
+        "A processTracking document's _id is imutable and cannot be changed",
+        {
+          _id: (
+            processTrackingDocument as unknown as databaseTypes.IProcessTracking
+          )._id,
+        }
+      );
   }
 );
 

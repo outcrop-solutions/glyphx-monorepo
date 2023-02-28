@@ -33,7 +33,7 @@ export interface IProcessTrackingStaticMethods
       Partial<databaseTypes.IProcessTracking>,
       '_id'
     >
-  ): Promise<void>;
+  ): Promise<boolean>;
   updateProcessTrackingDocumentById(
     processTrackingDocumentId: mongooseTypes.ObjectId,
     processTrackingDocument: Omit<

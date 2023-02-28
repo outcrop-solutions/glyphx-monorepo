@@ -14,7 +14,7 @@ const MOCK_PROCESS_TRACKING_DOCUMENT = {
   processError: [],
 } as databaseTypes.IProcessTracking;
 
-describe.only('#mongoose/models/processTracking', () => {
+describe('#mongoose/models/processTracking', () => {
   context('processTrackingIdExists', () => {
     const sandbox = createSandbox();
 
@@ -396,6 +396,50 @@ describe.only('#mongoose/models/processTracking', () => {
       assert.isTrue(getProcessTrackingDocumentByIdStub.calledOnce);
     });
 
+    it('will create an processTracking document defaulting process status, processStartTime, processMessages and processError', async () => {
+      const inputObject = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+
+      delete inputObject.processStartTime;
+      delete inputObject.processMessages;
+      delete inputObject.processStatus;
+      delete inputObject.processError;
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProcessTrackingModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+
+      const createStub = sandbox.stub();
+      createStub.resolves([{_id: processTrackingId}]);
+      sandbox.replace(ProcessTrackingModel, 'create', createStub);
+
+      const getProcessTrackingDocumentByIdStub = sandbox.stub();
+      getProcessTrackingDocumentByIdStub.resolves({_id: processTrackingId});
+
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentById',
+        getProcessTrackingDocumentByIdStub
+      );
+
+      const result = await ProcessTrackingModel.createProcessTrackingDocument(
+        inputObject
+      );
+      assert.strictEqual(result._id, processTrackingId);
+      assert.isTrue(getProcessTrackingDocumentByIdStub.calledOnce);
+      const inputArg = createStub.getCall(0).args[0][0];
+      assert.strictEqual(
+        inputArg.processStatus,
+        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
+      );
+      assert.isDefined(inputArg.processStartTime);
+      assert.isDefined(inputArg.processMessages);
+      assert.isDefined(inputArg.processError);
+    });
     it('will throw an DataValidationError if the process tracking document cannot be validated.', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
       sandbox.replace(
@@ -732,6 +776,320 @@ describe.only('#mongoose/models/processTracking', () => {
       }
 
       assert.isTrue(errored);
+    });
+  });
+
+  context('updateProcessTracking document with filter', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should update an existing process tracking document', async () => {
+      const updateProcessTrackingDocument = {
+        processName: 'updated processName',
+      };
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
+
+      const result =
+        await ProcessTrackingModel.updateProcessTrackingDocumentWithFilter(
+          {_id: processTrackingId},
+          updateProcessTrackingDocument
+        );
+
+      assert.isTrue(result);
+      assert.isTrue(updateStub.calledOnce);
+    });
+
+    it('will fail when the process tracking document does not exist', async () => {
+      const updateProcessTrackingDocument = {
+        processName: 'updated processName',
+      };
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 0});
+      sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.updateProcessTrackingDocumentWithFilter(
+          {_id: processTrackingId},
+          updateProcessTrackingDocument
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will fail with an InvalidOperationError when the validateUpdateObject method fails', async () => {
+      const updateProcessTrackingDocument = {
+        processName: 'updated processName',
+      };
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      sandbox.replace(
+        ProcessTrackingModel,
+        'validateUpdateObject',
+        sandbox
+          .stub()
+          .rejects(new error.InvalidOperationError('you cant do that', {}))
+      );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.updateProcessTrackingDocumentWithFilter(
+          {_id: processTrackingId},
+          updateProcessTrackingDocument
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will fail with a DatabaseOperationError when the underlying database connection errors', async () => {
+      const updateProcessTrackingDocument = {
+        processName: 'updated processName',
+      };
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.rejects('something really bad has happened');
+      sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.updateProcessTrackingDocumentWithFilter(
+          {_id: processTrackingId},
+          updateProcessTrackingDocument
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('validateUpdateObject', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will throw an InvalidOperationError when we attempt to supply an _id', async () => {
+      const inputProcessTracking = {
+        _id: new mongoose.Types.ObjectId(),
+      } as unknown as databaseTypes.IProcessTracking;
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.validateUpdateObject(inputProcessTracking);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('updateProcessTrackingDocumentTokenById', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should update an existing process tracking', async () => {
+      const updateProcessTrackingDocument = {
+        processName: 'updated processName',
+      };
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
+
+      const getProcessTrackingByIdStub = sandbox.stub();
+      getProcessTrackingByIdStub.resolves({_id: processTrackingId});
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentById',
+        getProcessTrackingByIdStub
+      );
+
+      const result =
+        await ProcessTrackingModel.updateProcessTrackingDocumentById(
+          processTrackingId,
+          updateProcessTrackingDocument
+        );
+
+      assert.strictEqual(result._id, processTrackingId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getProcessTrackingByIdStub.calledOnce);
+    });
+  });
+
+  context('updateProcessTrackingDocumentTokenProcessId', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should update an existing process tracking', async () => {
+      const updateProcessTrackingDocument = {
+        processName: 'updated processName',
+      };
+
+      const processId = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
+
+      const getProcessTrackingByProcessIdStub = sandbox.stub();
+      getProcessTrackingByProcessIdStub.resolves({processId: processId});
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByProcessId',
+        getProcessTrackingByProcessIdStub
+      );
+
+      const result =
+        await ProcessTrackingModel.updateProcessTrackingDocumentByProcessId(
+          processId,
+          updateProcessTrackingDocument
+        );
+
+      assert.strictEqual(result.processId, processId);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(getProcessTrackingByProcessIdStub.calledOnce);
+    });
+  });
+
+  context('delete a processTracking document by filter', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should remove a process tracking document', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 1});
+      sandbox.replace(ProcessTrackingModel, 'deleteOne', deleteStub);
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      await ProcessTrackingModel.deleteProcessTrackingDocumentByFilter({
+        _id: processTrackingId,
+      });
+
+      assert.isTrue(deleteStub.calledOnce);
+    });
+
+    it('should fail with an InvalidArgumentError when the process tracking document does not exist', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 0});
+      sandbox.replace(ProcessTrackingModel, 'deleteOne', deleteStub);
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.deleteProcessTrackingDocumentByFilter({
+          _id: processTrackingId,
+        });
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+
+      assert.isTrue(errorred);
+    });
+
+    it('should fail with an DatabaseOperationError when the underlying database connection throws an error', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.rejects('something bad has happened');
+      sandbox.replace(ProcessTrackingModel, 'deleteOne', deleteStub);
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.deleteProcessTrackingDocumentByFilter({
+          _id: processTrackingId,
+        });
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('delete a processTracking document by document id', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should remove a process tracking document', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 1});
+      sandbox.replace(ProcessTrackingModel, 'deleteOne', deleteStub);
+
+      const processTrackingId = new mongoose.Types.ObjectId();
+
+      await ProcessTrackingModel.deleteProcessTrackingDocumentById(
+        processTrackingId
+      );
+
+      assert.isTrue(deleteStub.calledOnce);
+    });
+  });
+
+  context('delete a processTracking document by process id', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should remove a process tracking document', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 1});
+      sandbox.replace(ProcessTrackingModel, 'deleteOne', deleteStub);
+
+      const processId = new mongoose.Types.ObjectId();
+
+      await ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(
+        processId
+      );
+
+      assert.isTrue(deleteStub.calledOnce);
     });
   });
 });
