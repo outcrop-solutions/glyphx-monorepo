@@ -1,19 +1,18 @@
 import 'mocha';
 import {assert} from 'chai';
+import Stripe from 'stripe';
+import {StripeClient} from 'lib/stripe';
 import {createSandbox} from 'sinon';
 import {database as databaseTypes} from '@glyphx/types';
-import mongoose, {Types as mongooseTypes} from 'mongoose';
+import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';
 import {customerPaymentService} from '../../services';
-import {createCustomer} from 'lib';
 
 describe('#services/customer', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
-  const stripe = {
-    createCustomer: createCustomer,
-  };
+
   afterEach(() => {
     sandbox.restore();
   });
@@ -117,16 +116,29 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('createPaymentAccount', () => {
-    it('will createCustomerPayment with user associated as customer', async () => {
+  context.only('createPaymentAccount', () => {
+    it.only('will createCustomerPayment with user associated as customer', async () => {
       const customerPaymentId = new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const stripeId = new mongooseTypes.ObjectId();
 
+      const createStub = sandbox.stub();
+      createStub.resolves({id: customerPaymentId});
+
+      StripeClient.stripe = {
+        customers: {
+          create: createStub,
+        },
+      };
+
       const createCustomerStub = sandbox.stub();
       createCustomerStub.resolves({id: stripeId});
-      sandbox.replace(stripe, 'createCustomer', createCustomerStub);
+      sandbox.replace(
+        (Stripe as any).resources.Customers.prototype,
+        'create',
+        createCustomerStub
+      );
 
       const createCustomerPaymentFromModelStub = sandbox.stub();
       createCustomerPaymentFromModelStub.resolves({
