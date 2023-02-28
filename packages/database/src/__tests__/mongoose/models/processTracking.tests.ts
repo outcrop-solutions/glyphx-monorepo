@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
 const MOCK_PROCESS_TRACKING_DOCUMENT = {
-  processId: new mongoose.Types.ObjectId(),
+  processId: new mongoose.Types.ObjectId().toString(),
   processName: 'test process1',
   processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
   processStartTime: new Date(),
@@ -73,7 +73,7 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('should return true if the processId exists', async () => {
-      const processId = new mongoose.Types.ObjectId();
+      const processId = new mongoose.Types.ObjectId().toString();
       const findOneStub = sandbox.stub();
       findOneStub.resolves({_id: processId});
       sandbox.replace(ProcessTrackingModel, 'findOne', findOneStub);
@@ -89,7 +89,9 @@ describe('#mongoose/models/processTracking', () => {
       findOneStub.resolves(null);
       sandbox.replace(ProcessTrackingModel, 'findOne', findOneStub);
 
-      const result = await ProcessTrackingModel.processIdExists(processId);
+      const result = await ProcessTrackingModel.processIdExists(
+        processId.toString()
+      );
 
       assert.isFalse(result);
     });
@@ -102,7 +104,7 @@ describe('#mongoose/models/processTracking', () => {
 
       let errorred = false;
       try {
-        await ProcessTrackingModel.processIdExists(processId);
+        await ProcessTrackingModel.processIdExists(processId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -222,7 +224,7 @@ describe('#mongoose/models/processTracking', () => {
     const mockProcessTrackingDocuments = [
       {
         _id: new mongoose.Types.ObjectId(),
-        processId: new mongoose.Types.ObjectId(),
+        processId: new mongoose.Types.ObjectId().toString(),
         processName: 'test process1',
         processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
         processStartTime: new Date(),
@@ -232,7 +234,7 @@ describe('#mongoose/models/processTracking', () => {
       } as databaseTypes.IProcessTracking,
       {
         _id: new mongoose.Types.ObjectId(),
-        processId: new mongoose.Types.ObjectId(),
+        processId: new mongoose.Types.ObjectId().toString(),
         processName: 'test process2',
         processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
         processStartTime: new Date(),
@@ -434,12 +436,13 @@ describe('#mongoose/models/processTracking', () => {
       const inputArg = createStub.getCall(0).args[0][0];
       assert.strictEqual(
         inputArg.processStatus,
-        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
+        databaseTypes.constants.PROCESS_STATUS.PENDING
       );
       assert.isDefined(inputArg.processStartTime);
       assert.isDefined(inputArg.processMessages);
       assert.isDefined(inputArg.processError);
     });
+
     it('will throw an DataValidationError if the process tracking document cannot be validated.', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
       sandbox.replace(
@@ -530,7 +533,7 @@ describe('#mongoose/models/processTracking', () => {
 
     const mockProcessTrackingDocument = {
       _id: new mongoose.Types.ObjectId(),
-      processId: new mongoose.Types.ObjectId(),
+      processId: new mongoose.Types.ObjectId().toString(),
       processName: 'test process1',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -603,7 +606,7 @@ describe('#mongoose/models/processTracking', () => {
   context('getProcessTrackingDocumentById', () => {
     const mockProcessTrackingDocument = {
       _id: new mongoose.Types.ObjectId(),
-      processId: new mongoose.Types.ObjectId(),
+      processId: new mongoose.Types.ObjectId().toString(),
       processName: 'test process1',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -692,7 +695,7 @@ describe('#mongoose/models/processTracking', () => {
   context('getProcessTrackingDocumentByProcessId', () => {
     const mockProcessTrackingDocument = {
       _id: new mongoose.Types.ObjectId(),
-      processId: new mongoose.Types.ObjectId(),
+      processId: new mongoose.Types.ObjectId().toString(),
       processName: 'test process1',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -909,6 +912,21 @@ describe('#mongoose/models/processTracking', () => {
       }
       assert.isTrue(errorred);
     });
+
+    it('will throw an InvalidOperationError when we attempt to supply a processId', async () => {
+      const inputProcessTracking = {
+        processId: new mongoose.Types.ObjectId().toString(),
+      } as unknown as databaseTypes.IProcessTracking;
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.validateUpdateObject(inputProcessTracking);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
   });
 
   context('updateProcessTrackingDocumentTokenById', () => {
@@ -961,7 +979,7 @@ describe('#mongoose/models/processTracking', () => {
         processName: 'updated processName',
       };
 
-      const processId = new mongoose.Types.ObjectId();
+      const processId = new mongoose.Types.ObjectId().toString();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -1083,7 +1101,7 @@ describe('#mongoose/models/processTracking', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(ProcessTrackingModel, 'deleteOne', deleteStub);
 
-      const processId = new mongoose.Types.ObjectId();
+      const processId = new mongoose.Types.ObjectId().toString();
 
       await ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(
         processId

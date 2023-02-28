@@ -6,7 +6,7 @@ export interface IProcessTrackingStaticMethods
   processTrackingIdExists(
     processTrackingId: mongooseTypes.ObjectId
   ): Promise<boolean>;
-  processIdExists(processId: mongooseTypes.ObjectId): Promise<boolean>;
+  processIdExists(processId: string): Promise<boolean>;
   allProcessTrackingIdsExist(
     processTrackingIds: mongooseTypes.ObjectId[]
   ): Promise<boolean>;
@@ -17,7 +17,7 @@ export interface IProcessTrackingStaticMethods
     processTrackingId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IProcessTracking>;
   getProcessTrackingDocumentByProcessId(
-    processId: mongooseTypes.ObjectId
+    processId: string
   ): Promise<databaseTypes.IProcessTracking>;
   getProcessTrackingDocumentByFilter(
     filter: Record<string, unknown>
@@ -42,7 +42,7 @@ export interface IProcessTrackingStaticMethods
     >
   ): Promise<databaseTypes.IProcessTracking>;
   updateProcessTrackingDocumentByProcessId(
-    processId: mongooseTypes.ObjectId,
+    processId: string,
     processTrackingDocument: Omit<
       Partial<databaseTypes.IProcessTracking>,
       '_id'
@@ -54,9 +54,7 @@ export interface IProcessTrackingStaticMethods
   deleteProcessTrackingDocumentById(
     processTrackingDocumentId: mongooseTypes.ObjectId
   ): Promise<void>;
-  deleteProcessTrackingDocumentProcessId(
-    processId: mongooseTypes.ObjectId
-  ): Promise<void>;
+  deleteProcessTrackingDocumentProcessId(processId: string): Promise<void>;
   validateUpdateObject(
     processTrackingDocument: Omit<
       Partial<databaseTypes.IProcessTracking>,

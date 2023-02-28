@@ -14,7 +14,7 @@ const SCHEMA = new mongoose.Schema<
   IProcessTrackingMethods
 >({
   processId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
     unique: true,
   },
@@ -55,7 +55,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'processIdExists',
-  async (processId: mongooseTypes.ObjectId): Promise<boolean> => {
+  async (processId: string): Promise<boolean> => {
     let retval = false;
     try {
       const result = await PROCESS_TRACKING_MODEL.findOne(
@@ -174,9 +174,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'getProcessTrackingDocumentByProcessId',
-  async (
-    processId: mongooseTypes.ObjectId
-  ): Promise<databaseTypes.IProcessTracking> => {
+  async (processId: string): Promise<databaseTypes.IProcessTracking> => {
     return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter({
       processId: processId,
     });
@@ -357,7 +355,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateProcessTrackingDocumentByProcessId',
   async (
-    processId: mongooseTypes.ObjectId,
+    processId: string,
     processTrackingDocument: Omit<
       Partial<databaseTypes.IProcessTracking>,
       '_id'
@@ -409,7 +407,7 @@ SCHEMA.static(
 );
 SCHEMA.static(
   'deleteProcessTrackingDocumentProcessId',
-  async (processId: mongooseTypes.ObjectId): Promise<void> => {
+  async (processId: string): Promise<void> => {
     await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
       processId: processId,
     });
@@ -424,6 +422,13 @@ SCHEMA.static(
       '_id'
     >
   ): Promise<void> => {
+    if (processTrackingDocument.processId) {
+      throw new error.InvalidOperationError(
+        'The processId is imutable and cannot changed',
+        {processId: processTrackingDocument.processId}
+      );
+    }
+
     if (
       (processTrackingDocument as unknown as databaseTypes.IVerificationToken)
         ._id
