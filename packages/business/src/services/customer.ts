@@ -75,7 +75,7 @@ export class CustomerPaymentService {
     } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
+        err instanceof error.DataValidationError
       ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;

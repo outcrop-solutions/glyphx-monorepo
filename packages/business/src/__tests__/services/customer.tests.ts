@@ -188,21 +188,92 @@ describe('#services/customer', () => {
       assert.isOk(doc.customer.customerPayment);
       assert.strictEqual(doc?.customer._id, userId);
     });
+    it('will createCustomerPayment with user associated as customer when customerId is a string', async () => {
+      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentEmail = 'testemail@gmail.com';
+      const userId = new mongooseTypes.ObjectId();
+      const stripeId = new mongooseTypes.ObjectId();
+
+      const createStub = sandbox.stub();
+      createStub.resolves({id: customerPaymentId});
+
+      StripeClient.stripe = {
+        customers: {
+          create: createStub,
+        },
+      };
+
+      const createCustomerStub = sandbox.stub();
+      createCustomerStub.resolves({id: stripeId});
+      sandbox.replace(
+        (Stripe as any).resources.Customers.prototype,
+        'create',
+        createCustomerStub
+      );
+
+      const createCustomerPaymentFromModelStub = sandbox.stub();
+      createCustomerPaymentFromModelStub.resolves({
+        _id: customerPaymentId,
+        email: customerPaymentEmail,
+      } as unknown as databaseTypes.ICustomerPayment);
+      sandbox.replace(
+        dbConnection.models.CustomerPaymentModel,
+        'createCustomerPayment',
+        createCustomerPaymentFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        customerPayment: {_id: customerPaymentId, email: customerPaymentEmail},
+      } as unknown as databaseTypes.IUser);
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateCustomerPaymentStub = sandbox.stub();
+      updateCustomerPaymentStub.resolves({
+        _id: customerPaymentId,
+        email: customerPaymentEmail,
+        customer: {
+          _id: userId,
+          customerPayment: {_id: customerPaymentId},
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.ICustomerPayment);
+      sandbox.replace(
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentById',
+        updateCustomerPaymentStub
+      );
+
+      const doc = await customerPaymentService.createPaymentAccount(
+        customerPaymentEmail,
+        userId.toString()
+      );
+
+      assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(updateCustomerPaymentStub.calledOnce);
+      assert.isOk(doc.customer.customerPayment);
+      assert.strictEqual(doc?.customer._id, userId);
+    });
     it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
-      const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const customerPaymentId = 'customerPaymentId';
+      const customerPaymentEmail = 'testemail@gmail.com';
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
         errMessage,
         'emailVerified',
         true
       );
-      const updateCustomerPaymentFromModelStub = sandbox.stub();
-      updateCustomerPaymentFromModelStub.rejects(err);
+      const createCustomerPaymentFromModelStub = sandbox.stub();
+      createCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.CustomerPaymentModel,
-        'updateCustomerPaymentWithFilter',
-        updateCustomerPaymentFromModelStub
+        'createCustomerPayment',
+        createCustomerPaymentFromModelStub
       );
 
       function fakePublish() {
@@ -220,9 +291,9 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.updateSubscription(
-          customerId,
-          subscription
+        await customerPaymentService.createPaymentAccount(
+          customerPaymentId,
+          customerPaymentEmail
         );
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
@@ -230,26 +301,26 @@ describe('#services/customer', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an InvalidOperationError when customerPayment model throws it ', async () => {
-      const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-      const errMessage = 'You tried to perform an invalid operation';
-      const err = new error.InvalidOperationError(errMessage, {});
-      const updateCustomerPaymentFromModelStub = sandbox.stub();
-      updateCustomerPaymentFromModelStub.rejects(err);
+    it('will publish and rethrow a DataValidationError when customerPayment model throws it ', async () => {
+      const customerPaymentId = 'customerPaymentId';
+      const customerPaymentEmail = 'testemail@gmail.com';
+      const errMessage = 'You have an invalid argument';
+      const err = new error.DataValidationError(errMessage, '', '');
+      const createCustomerPaymentFromModelStub = sandbox.stub();
+      createCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.CustomerPaymentModel,
-        'updateCustomerPaymentWithFilter',
-        updateCustomerPaymentFromModelStub
+        'createCustomerPayment',
+        createCustomerPaymentFromModelStub
       );
 
       function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
-        assert.instanceOf(this, error.InvalidOperationError);
+        assert.instanceOf(this, error.DataValidationError);
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -261,34 +332,34 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.updateSubscription(
-          customerId,
-          subscription
+        await customerPaymentService.createPaymentAccount(
+          customerPaymentId,
+          customerPaymentEmail
         );
       } catch (e) {
-        assert.instanceOf(e, error.InvalidOperationError);
+        assert.instanceOf(e, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when customerPayment model throws a DataOperationError ', async () => {
-      const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const customerPaymentId = 'customerPaymentId';
+      const customerPaymentEmail = 'testemail@gmail.com';
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongodDb',
         'updateCustomerPaymentById'
       );
-      const updateCustomerPaymentFromModelStub = sandbox.stub();
-      updateCustomerPaymentFromModelStub.rejects(err);
+      const createCustomerPaymentFromModelStub = sandbox.stub();
+      createCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.CustomerPaymentModel,
-        'updateCustomerPaymentWithFilter',
-        updateCustomerPaymentFromModelStub
+        'createCustomerPayment',
+        createCustomerPaymentFromModelStub
       );
 
       function fakePublish() {
@@ -306,9 +377,9 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.updateSubscription(
-          customerId,
-          subscription
+        await customerPaymentService.createPaymentAccount(
+          customerPaymentId,
+          customerPaymentEmail
         );
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
@@ -316,7 +387,7 @@ describe('#services/customer', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
+      assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
