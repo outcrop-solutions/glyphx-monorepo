@@ -1,4 +1,4 @@
-import {sendMail, updateHtml, updateText} from '@glyphx/email';
+import {EmailClient, updateHtml, updateText} from '@glyphx/email';
 import {database as databaseTypes} from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
@@ -83,7 +83,7 @@ export class UserService {
         emailVerified: undefined,
       });
 
-      await sendMail({
+      await EmailClient.sendMail({
         html: updateHtml({email}),
         subject: '[Glyphx] Email address updated',
         text: updateText({email}),

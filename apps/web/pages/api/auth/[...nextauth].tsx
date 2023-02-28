@@ -1,7 +1,7 @@
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
-import { signInHtml, signInText, sendMail } from '@glyphx/email';
+import { signInHtml, signInText, EmailClient } from '@glyphx/email';
 import { dbConnection as connection, customerPaymentService } from '@glyphx/business';
 // import { log } from '@/lib/logsnag';
 
@@ -45,7 +45,7 @@ export default NextAuth({
       server: process.env.EMAIL_SERVER,
       sendVerificationRequest: async ({ identifier: email, url }) => {
         const { host } = new URL(url);
-        await sendMail({
+        await EmailClient.sendMail({
           html: signInHtml({ email, url }),
           subject: `[Glyphx] Sign in to ${host}`,
           text: signInText({ email, url }),
