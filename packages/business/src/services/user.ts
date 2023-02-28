@@ -15,7 +15,7 @@ export class UserService {
           : new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.getUserById(id);
       return user;
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -45,7 +45,7 @@ export class UserService {
         deletedAt: new Date(),
       });
       return user;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -91,7 +91,7 @@ export class UserService {
       });
 
       return user;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -125,7 +125,7 @@ export class UserService {
         name,
       });
       return user;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError

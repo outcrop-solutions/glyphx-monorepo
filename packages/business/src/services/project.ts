@@ -18,7 +18,7 @@ export class ProjectService {
       const project =
         await mongoDbConnection.models.ProjectModel.getProjectById(id);
       return project;
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -65,7 +65,7 @@ export class ProjectService {
         });
 
       return updatedProject;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -101,7 +101,7 @@ export class ProjectService {
         });
 
       return updatedProject;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -141,7 +141,7 @@ export class ProjectService {
         );
 
       return updatedProject;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError

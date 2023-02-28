@@ -67,7 +67,7 @@ export class WorkspaceService {
       } as ISendMail);
 
       return workspace;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -113,7 +113,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -178,7 +178,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -206,7 +206,7 @@ export class WorkspaceService {
           deletedAt: null,
         });
       return workspace.results[0];
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -234,7 +234,7 @@ export class WorkspaceService {
           deletedAt: null,
         });
       return workspace.results[0];
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -293,7 +293,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -348,7 +348,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -382,7 +382,7 @@ export class WorkspaceService {
           params: {site: workspace.slug},
         })),
       ];
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -484,7 +484,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||
@@ -574,7 +574,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||
@@ -622,7 +622,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||
@@ -677,7 +677,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||

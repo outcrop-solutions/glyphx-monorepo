@@ -14,7 +14,7 @@ export class CustomerPaymentService {
           email
         );
       return customerPayment;
-    } catch (err: error) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -72,7 +72,7 @@ export class CustomerPaymentService {
         );
 
       return payment;
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -102,7 +102,7 @@ export class CustomerPaymentService {
         {customerId},
         {subscriptionType}
       );
-    } catch (err: error) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
