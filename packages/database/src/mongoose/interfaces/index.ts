@@ -31,3 +31,6 @@ export type {ISessionStaticMethods} from './iSessionStaticMethods';
 export type {IWebhookDocument} from './iWebhookDocument';
 export type {IWebhookMethods} from './iWebhookMethods';
 export type {IWebhookStaticMethods} from './iWebhookStaticMethods';
+export type {IProcessTrackingDocument} from './iProcessTrackingDocument';
+export type {IProcessTrackingMethods} from './iProcessTrackingMethods';
+export type {IProcessTrackingStaticMethods} from './iProcessTrackingStaticMethods';
