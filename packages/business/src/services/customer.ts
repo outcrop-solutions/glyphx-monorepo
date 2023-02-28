@@ -1,8 +1,8 @@
-import {StripeClient} from 'lib/stripe';
-import {database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
+import {database as databaseTypes} from '@glyphx/types';
+import {StripeClient} from 'lib/stripe';
 import mongoDbConnection from 'lib/databaseConnection';
+import {Types as mongooseTypes} from 'mongoose';
 
 export class CustomerPaymentService {
   public static async getPayment(

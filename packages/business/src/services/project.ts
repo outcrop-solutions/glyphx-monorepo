@@ -2,8 +2,8 @@ import {
   database as databaseTypes,
   fileIngestion as fileIngestionTypes,
 } from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
+import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from 'lib/databaseConnection';
 
 export class ProjectService {

@@ -1,5 +1,14 @@
 {
   "extends": "@glyphx/tsconfig/node18.json",
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "baseUrl": "./src"
+  },
+  "paths": {
+    "@/interfaces/*": ["src/mongoose/interfaces/*"],
+    "@/models/*": ["src/mongoose/models/*"],
+    "@/schemas/*": ["src/mongoose/schemas/*"],
+    "@/validators/*": ["src/mongoose/schemas/*"]
+  }
 }

@@ -2,7 +2,7 @@ import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import { signInHtml, signInText, sendMail } from '@glyphx/email';
-import { dbConnection as connection, CustomerPaymentService } from '@glyphx/business';
+import { dbConnection as connection, customerPaymentService } from '@glyphx/business';
 // import { log } from '@/lib/logsnag';
 
 export default NextAuth({
@@ -10,7 +10,7 @@ export default NextAuth({
   callbacks: {
     session: async ({ session, user }) => {
       if (session?.user) {
-        const customerPayment = await CustomerPaymentService.getPayment(user.email);
+        const customerPayment = await customerPaymentService.getPayment(user.email);
 
         session.user.userId = user.id;
 
@@ -25,11 +25,11 @@ export default NextAuth({
   debug: !(process.env.NODE_ENV === 'production'),
   events: {
     signIn: async ({ user, isNewUser }) => {
-      const customerPayment = await CustomerPaymentService.getPayment(user.email);
+      const customerPayment = await customerPaymentService.getPayment(user.email);
       // @ts-ignore
       if (isNewUser || customerPayment === null || user.createdAt === null) {
         await Promise.all([
-          CustomerPaymentService.createPaymentAccount(user.email, user.id),
+          customerPaymentService.createPaymentAccount(user.email, user.id),
           // log(
           //   'user-registration',
           //   'New User Signup',

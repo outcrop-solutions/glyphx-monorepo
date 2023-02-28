@@ -1,8 +1,8 @@
 import {sendMail, updateHtml, updateText} from '@glyphx/email';
 import {database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
+import {Types as mongooseTypes} from 'mongoose';
 
 export class UserService {
   public static async getUser(

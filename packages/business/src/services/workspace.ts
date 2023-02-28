@@ -13,9 +13,9 @@ import {
   database as databaseTypes,
   IQueryResult,
 } from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
+import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 
 export class WorkspaceService {

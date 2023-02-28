@@ -1,9 +1,5 @@
 import Stripe from 'stripe';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-// eslint-disable-next-line @typescript-eslint/naming-convention
-
 export class StripeClient {
   public static stripe: any;
   public static async init() {
