@@ -61,4 +61,28 @@ export interface IProcessTrackingStaticMethods
       '_id'
     >
   ): Promise<void>;
+  addErrorsByFilter(
+    filter: Record<string, unknown>,
+    errors: Record<string, unknown>[]
+  ): Promise<databaseTypes.IProcessTracking>;
+  addErrorsByProcessId(
+    processId: string,
+    errors: Record<string, unknown>[]
+  ): Promise<databaseTypes.IProcessTracking>;
+  addErrorsById(
+    processTrackingId: mongooseTypes.ObjectId,
+    errors: Record<string, unknown>[]
+  ): Promise<databaseTypes.IProcessTracking>;
+  addMessagesByFilter(
+    filter: Record<string, unknown>,
+    messages: string[]
+  ): Promise<databaseTypes.IProcessTracking>;
+  addMessagesByProcessId(
+    processId: string,
+    messages: string[]
+  ): Promise<databaseTypes.IProcessTracking>;
+  addMessagesById(
+    processTrackingId: mongooseTypes.ObjectId,
+    messages: string[]
+  ): Promise<databaseTypes.IProcessTracking>;
 }

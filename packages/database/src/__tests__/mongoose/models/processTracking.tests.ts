@@ -927,6 +927,36 @@ describe('#mongoose/models/processTracking', () => {
       }
       assert.isTrue(errorred);
     });
+
+    it('will throw an InvalidOperationError when we attempt to supply errors', async () => {
+      const inputProcessTracking = {
+        processError: ['I am an error'],
+      } as unknown as databaseTypes.IProcessTracking;
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.validateUpdateObject(inputProcessTracking);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will throw an InvalidOperationError when we attempt to supply messages', async () => {
+      const inputProcessTracking = {
+        processMessages: ['I have a message for you'],
+      } as unknown as databaseTypes.IProcessTracking;
+
+      let errorred = false;
+      try {
+        await ProcessTrackingModel.validateUpdateObject(inputProcessTracking);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
   });
 
   context('updateProcessTrackingDocumentTokenById', () => {
@@ -1108,6 +1138,505 @@ describe('#mongoose/models/processTracking', () => {
       );
 
       assert.isTrue(deleteStub.calledOnce);
+    });
+  });
+
+  context('addErrorsByFilter', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add an error to a process tracking document', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracker = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracker._id = processTrackingId;
+      const errorObject = {error: 'oops I did it again'};
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracker);
+      localMockProcessTracker.save = saveStub;
+
+      const getProcessTrackerDocumentByFilterStub = sandbox.stub();
+      getProcessTrackerDocumentByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerDocumentByFilterStub
+      );
+
+      const updatedProcessTracker =
+        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [
+          errorObject,
+        ]);
+
+      assert.strictEqual(updatedProcessTracker._id, processTrackingId);
+      assert.strictEqual(
+        updatedProcessTracker.processError[0].error,
+        errorObject.error
+      );
+
+      assert.isTrue(findByFilterStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProcessTrackerDocumentByFilterStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the process tracking document does not exist', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracking = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracking._id = processTrackingId;
+      const errorObject = {error: 'oops I did it again'};
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracking);
+      localMockProcessTracking.save = saveStub;
+
+      const getProcessTrackerByFilterStub = sandbox.stub();
+      getProcessTrackerByFilterStub.resolves(localMockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerByFilterStub
+      );
+
+      let errored = false;
+      try {
+        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [
+          errorObject,
+        ]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracking = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracking._id = processTrackingId;
+      const errorObject = {error: 'oops I did it again'};
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProcessTracking);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockProcessTracking.save = saveStub;
+
+      const getProcessTrackingByIdStub = sandbox.stub();
+      getProcessTrackingByIdStub.resolves(localMockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackingByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [
+          errorObject,
+        ]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the error array is empty', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracking = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracking._id = processTrackingId;
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracking);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracking);
+      localMockProcessTracking.save = saveStub;
+
+      const getProcessTrackingByFileterStub = sandbox.stub();
+      getProcessTrackingByFileterStub.resolves(localMockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackingByFileterStub
+      );
+
+      let errored = false;
+      try {
+        await ProcessTrackingModel.addErrorsByFilter(
+          {_id: processTrackingId},
+          []
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+  context('addErrorsById', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add an error to a process tracking document', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracker = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracker._id = processTrackingId;
+      const errorObject = {error: 'oops I did it again'};
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracker);
+      localMockProcessTracker.save = saveStub;
+
+      const getProcessTrackerDocumentByFilterStub = sandbox.stub();
+      getProcessTrackerDocumentByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerDocumentByFilterStub
+      );
+
+      const updatedProcessTracker = await ProcessTrackingModel.addErrorsById(
+        processTrackingId,
+        [errorObject]
+      );
+
+      assert.strictEqual(updatedProcessTracker._id, processTrackingId);
+      assert.strictEqual(
+        updatedProcessTracker.processError[0].error,
+        errorObject.error
+      );
+
+      assert.isTrue(findByFilterStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProcessTrackerDocumentByFilterStub.calledOnce);
+    });
+  });
+
+  context('addErrorsByProcessId', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add an error to a process tracking document', async () => {
+      const processId = new mongoose.Types.ObjectId().toString();
+      const localMockProcessTracker = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracker.processId = processId;
+      const errorObject = {error: 'oops I did it again'};
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracker);
+      localMockProcessTracker.save = saveStub;
+
+      const getProcessTrackerDocumentByFilterStub = sandbox.stub();
+      getProcessTrackerDocumentByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerDocumentByFilterStub
+      );
+
+      const updatedProcessTracker =
+        await ProcessTrackingModel.addErrorsByProcessId(processId, [
+          errorObject,
+        ]);
+
+      assert.strictEqual(updatedProcessTracker.processId, processId);
+      assert.strictEqual(
+        updatedProcessTracker.processError[0].error,
+        errorObject.error
+      );
+
+      assert.isTrue(findByFilterStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProcessTrackerDocumentByFilterStub.calledOnce);
+    });
+  });
+  context('addMessagesByFilter', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add a message to a process tracking document', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracker = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracker._id = processTrackingId;
+      const message = "you've got mail";
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracker);
+      localMockProcessTracker.save = saveStub;
+
+      const getProcessTrackerDocumentByFilterStub = sandbox.stub();
+      getProcessTrackerDocumentByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerDocumentByFilterStub
+      );
+
+      const updatedProcessTracker =
+        await ProcessTrackingModel.addMessagesByFilter(
+          {_id: processTrackingId},
+          [message]
+        );
+
+      assert.strictEqual(updatedProcessTracker._id, processTrackingId);
+      assert.strictEqual(updatedProcessTracker.processMessages[0], message);
+
+      assert.isTrue(findByFilterStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProcessTrackerDocumentByFilterStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the process tracking document does not exist', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracking = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracking._id = processTrackingId;
+      const message = "you've got mail";
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracking);
+      localMockProcessTracking.save = saveStub;
+
+      const getProcessTrackerByFilterStub = sandbox.stub();
+      getProcessTrackerByFilterStub.resolves(localMockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerByFilterStub
+      );
+
+      let errored = false;
+      try {
+        await ProcessTrackingModel.addMessagesByFilter(
+          {_id: processTrackingId},
+          [message]
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracking = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracking._id = processTrackingId;
+      const message = "you've got mail";
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockProcessTracking);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockProcessTracking.save = saveStub;
+
+      const getProcessTrackingByIdStub = sandbox.stub();
+      getProcessTrackingByIdStub.resolves(localMockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackingByIdStub
+      );
+
+      let errored = false;
+      try {
+        await ProcessTrackingModel.addMessagesByFilter(
+          {_id: processTrackingId},
+          [message]
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the error array is empty', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracking = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracking._id = processTrackingId;
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracking);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracking);
+      localMockProcessTracking.save = saveStub;
+
+      const getProcessTrackingByFileterStub = sandbox.stub();
+      getProcessTrackingByFileterStub.resolves(localMockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackingByFileterStub
+      );
+
+      let errored = false;
+      try {
+        await ProcessTrackingModel.addMessagesByFilter(
+          {_id: processTrackingId},
+          []
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+  context('addMessagesById', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add an message to a process tracking document', async () => {
+      const processTrackingId = new mongoose.Types.ObjectId();
+      const localMockProcessTracker = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracker._id = processTrackingId;
+      const message = "you've got mail";
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracker);
+      localMockProcessTracker.save = saveStub;
+
+      const getProcessTrackerDocumentByFilterStub = sandbox.stub();
+      getProcessTrackerDocumentByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerDocumentByFilterStub
+      );
+
+      const updatedProcessTracker = await ProcessTrackingModel.addMessagesById(
+        processTrackingId,
+        [message]
+      );
+
+      assert.strictEqual(updatedProcessTracker._id, processTrackingId);
+      assert.strictEqual(updatedProcessTracker.processMessages[0], message);
+
+      assert.isTrue(findByFilterStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProcessTrackerDocumentByFilterStub.calledOnce);
+    });
+  });
+
+  context('addMessagesByProcessId', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add an error to a process tracking document', async () => {
+      const processId = new mongoose.Types.ObjectId().toString();
+      const localMockProcessTracker = JSON.parse(
+        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
+      );
+      localMockProcessTracker.processId = processId;
+      const message = "you've got mail";
+
+      const findByFilterStub = sandbox.stub();
+      findByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(ProcessTrackingModel, 'findOne', findByFilterStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockProcessTracker);
+      localMockProcessTracker.save = saveStub;
+
+      const getProcessTrackerDocumentByFilterStub = sandbox.stub();
+      getProcessTrackerDocumentByFilterStub.resolves(localMockProcessTracker);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'getProcessTrackingDocumentByFilter',
+        getProcessTrackerDocumentByFilterStub
+      );
+
+      const updatedProcessTracker =
+        await ProcessTrackingModel.addMessagesByProcessId(processId, [message]);
+
+      assert.strictEqual(updatedProcessTracker.processId, processId);
+      assert.strictEqual(updatedProcessTracker.processMessages[0], message);
+
+      assert.isTrue(findByFilterStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getProcessTrackerDocumentByFilterStub.calledOnce);
     });
   });
 });
