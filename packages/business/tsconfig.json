@@ -7,11 +7,9 @@
     "noImplicitAny": false
   },
   "paths": {
-    "@/constants/*": ["constants/*"],
-    "@/email/*": ["email/*"],
-    "@/hooks/*": ["hooks/*"],
-    "@/lib/*": ["lib/*"],
-    "@/services/*": ["services/*"],
-    "@/validation/*": ["validation/*"]
+    "@/constants/*": ["src/constants/*"],
+    "@/lib/*": ["src/lib/*"],
+    "@/services/*": ["src/services/*"],
+    "@/validation/*": ["src/validation/*"]
   }
 }
