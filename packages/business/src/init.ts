@@ -5,10 +5,10 @@ import athenaConnection from 'lib/athenaConnection';
 import {StripeClient} from 'lib/stripe';
 export class Initializer {
   public static async init() {
-    await EmailClient.init();
     await logging.Logger.init();
     await databaseConnection.init();
     await athenaConnection.init();
+    await EmailClient.init();
     await StripeClient.init();
   }
 }

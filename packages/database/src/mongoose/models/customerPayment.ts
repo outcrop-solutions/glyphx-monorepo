@@ -101,9 +101,9 @@ SCHEMA.static('getCustomerPaymentByEmail', async (email: string) => {
   });
 });
 
-SCHEMA.static('getCustomerPaymentByStripeId', async (stripeId: string) => {
+SCHEMA.static('getCustomerPaymentByPaymentId', async (paymentId: string) => {
   return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByFilter({
-    paymentId: stripeId,
+    paymentId: paymentId,
   });
 });
 
@@ -366,7 +366,7 @@ SCHEMA.static(
       {clientId: stripeId},
       customerPayment
     );
-    const retval = await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByStripeId(
+    const retval = await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByPaymentId(
       stripeId
     );
     return retval;

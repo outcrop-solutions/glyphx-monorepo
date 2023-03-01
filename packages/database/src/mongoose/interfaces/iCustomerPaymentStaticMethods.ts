@@ -18,8 +18,8 @@ export interface ICustomerPaymentStaticMethods
   getCustomerPaymentByEmail(
     customerEmail: string
   ): Promise<databaseTypes.ICustomerPayment>; //new
-  getCustomerPaymentByStripeId(
-    stripeId: string
+  getCustomerPaymentByPaymentId(
+    paymentId: string
   ): Promise<databaseTypes.ICustomerPayment>; //new
   getCustomerPaymentByFilter(
     filter: Record<string, unknown>

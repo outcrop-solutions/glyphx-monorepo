@@ -774,7 +774,7 @@ describe('#mongoose/models/customerPayment', () => {
       findStub.returns(new MockMongooseQuery(mockCustomerPayment));
       sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
 
-      const doc = await CustomerPaymentModel.getCustomerPaymentByStripeId(
+      const doc = await CustomerPaymentModel.getCustomerPaymentByPaymentId(
         mockCustomerPayment.paymentId as string
       );
 

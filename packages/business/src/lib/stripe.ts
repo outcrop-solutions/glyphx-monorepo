@@ -1,11 +1,21 @@
+import {error, constants} from '@glyphx/core';
 import Stripe from 'stripe';
 
 export class StripeClient {
   public static stripe: any;
   public static async init() {
-    StripeClient.stripe = new Stripe(process.env.PAYMENTS_SECRET_KEY ?? '', {
-      apiVersion: '2020-08-27',
-    });
+    try {
+      StripeClient.stripe = new Stripe(process.env.PAYMENTS_SECRET_KEY ?? '', {
+        apiVersion: '2020-08-27',
+      });
+    } catch (err) {
+      const e = new error.UnexpectedError(
+        'An unexpected error occurred while initializing the stripe client. See the inner error for additional details',
+        err
+      );
+      e.publish('', constants.ERROR_SEVERITY.ERROR);
+      throw e;
+    }
   }
   static async createCustomer(email) {
     return await StripeClient.stripe?.customers.create({
