@@ -74,7 +74,7 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context.only('getOwnWorkspace', () => {
+  context('getOwnWorkspace', () => {
     it('should get default user workspace by filter if all condiitons match happy case', async () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
