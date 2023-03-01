@@ -162,14 +162,14 @@ export class WorkspaceService {
         });
 
       if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
-        const filteredWorkspaces = workspaces.results.filter(space =>
-          space.members.filter(
-            mem =>
-              mem._id === id ||
-              (mem.email === email &&
+        const filteredWorkspaces = workspaces.results.filter(
+          space =>
+            space.members.filter(
+              mem =>
+                mem.email === email &&
                 mem.teamRole === databaseTypes.constants.ROLE.OWNER &&
-                mem.deletedAt === null)
-          )
+                mem.deletedAt === null
+            ).length > 0
         );
         if (filteredWorkspaces.length > 0) {
           return filteredWorkspaces[0];

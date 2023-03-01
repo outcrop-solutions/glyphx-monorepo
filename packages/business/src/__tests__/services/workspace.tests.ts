@@ -75,7 +75,7 @@ describe('#services/customer', () => {
     });
   });
   context.only('getOwnWorkspace', () => {
-    it.only('should get default user workspace by filter if all condiitons match happy case', async () => {
+    it('should get default user workspace by filter if all condiitons match happy case', async () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
@@ -114,6 +114,126 @@ describe('#services/customer', () => {
       assert.isOk(workspace);
       assert.strictEqual(workspace?.slug?.toString(), workspaceSlug.toString());
 
+      assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
+    });
+    it('should return null if no workspaces contain a member email match', async () => {
+      const userId = new mongooseTypes.ObjectId();
+      const differentUserId = new mongooseTypes.ObjectId();
+      const userEmail = 'testemail@gmail.com';
+      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceSlug = 'testSlug';
+
+      const queryWorkspacesFromModelStub = sandbox.stub();
+      queryWorkspacesFromModelStub.resolves({
+        results: [
+          {
+            _id: workspaceId,
+            slug: workspaceSlug,
+            members: [
+              {
+                _id: differentUserId,
+                email: 'differentemail@gmail.com',
+                teamRole: databaseTypes.constants.ROLE.OWNER,
+                deletedAt: null,
+              } as unknown as databaseTypes.IUser,
+            ],
+          },
+        ],
+        numberOfItems: 1,
+      } as unknown as databaseTypes.IWorkspace[]);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'queryWorkspaces',
+        queryWorkspacesFromModelStub
+      );
+
+      const workspace = await workspaceService.getOwnWorkspace(
+        userId,
+        userEmail,
+        workspaceSlug
+      );
+      assert.isNotOk(workspace);
+      assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
+    });
+    it('should return null if no workspaces contain a member role match', async () => {
+      const userId = new mongooseTypes.ObjectId();
+      const differentUserId = new mongooseTypes.ObjectId();
+      const userEmail = 'testemail@gmail.com';
+      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceSlug = 'testSlug';
+
+      const queryWorkspacesFromModelStub = sandbox.stub();
+      queryWorkspacesFromModelStub.resolves({
+        results: [
+          {
+            _id: workspaceId,
+            slug: workspaceSlug,
+            members: [
+              {
+                _id: differentUserId,
+                email: userEmail,
+                teamRole: databaseTypes.constants.ROLE.MEMBER,
+                deletedAt: null,
+              } as unknown as databaseTypes.IUser,
+            ],
+          },
+        ],
+        numberOfItems: 1,
+      } as unknown as databaseTypes.IWorkspace[]);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'queryWorkspaces',
+        queryWorkspacesFromModelStub
+      );
+
+      const workspace = await workspaceService.getOwnWorkspace(
+        userId,
+        userEmail,
+        workspaceSlug
+      );
+      assert.isNotOk(workspace);
+      assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
+    });
+    it('should return null if no workspaces contain a member match that has not been deleted', async () => {
+      const userId = new mongooseTypes.ObjectId();
+      const differentUserId = new mongooseTypes.ObjectId();
+      const userEmail = 'testemail@gmail.com';
+      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceSlug = 'testSlug';
+
+      const queryWorkspacesFromModelStub = sandbox.stub();
+      queryWorkspacesFromModelStub.resolves({
+        results: [
+          {
+            _id: workspaceId,
+            slug: workspaceSlug,
+            members: [
+              {
+                _id: differentUserId,
+                email: userEmail,
+                teamRole: databaseTypes.constants.ROLE.OWNER,
+                deletedAt: new Date(),
+              } as unknown as databaseTypes.IUser,
+            ],
+          },
+        ],
+        numberOfItems: 1,
+      } as unknown as databaseTypes.IWorkspace[]);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'queryWorkspaces',
+        queryWorkspacesFromModelStub
+      );
+
+      const workspace = await workspaceService.getOwnWorkspace(
+        userId,
+        userEmail,
+        workspaceSlug
+      );
+      assert.isNotOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     // it('will log the failure and return null if the workspace cannot be found', async () => {
