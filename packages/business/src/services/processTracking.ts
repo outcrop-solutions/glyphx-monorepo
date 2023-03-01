@@ -61,18 +61,20 @@ export class ProcessTrackingService {
       let processTrackingDocument: databaseTypes.IProcessTracking | null = null;
       if (processId instanceof mongooseTypes.ObjectId) {
         processTrackingDocument =
-          await processTrackingModel.getProcessTrackingDocumentById(processId);
+          (await processTrackingModel.getProcessTrackingDocumentById(
+            processId
+          )) as databaseTypes.IProcessTracking;
       } else {
         processTrackingDocument =
-          await processTrackingModel.getProcessTrackingDocumentByProcessId(
+          (await processTrackingModel.getProcessTrackingDocumentByProcessId(
             processId
-          );
+          )) as databaseTypes.IProcessTracking;
       }
-      const processMessages = processTrackingDocument?.processMessages.slice(
+      const processMessages = processTrackingDocument.processMessages.slice(
         0,
         10
       );
-      const processError = processTrackingDocument?.processError.slice(0, 10);
+      const processError = processTrackingDocument.processError.slice(0, 10);
 
       return {
         processStatus: processTrackingDocument?.processStatus,

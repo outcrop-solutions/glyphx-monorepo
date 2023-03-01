@@ -1348,6 +1348,20 @@ describe('ProcessTrackingService', () => {
         mockProcessTracking.processError[0].message
       );
     });
+
+    it('should return null when processId is not found', async () => {
+      const getStub = sandbox.stub();
+      getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'getProcessTrackingDocumentByProcessId',
+        getStub
+      );
+
+      const processId = mockProcessTracking.processId;
+      const result = await ProcessTrackingService.getProcessError(processId);
+      assert.isNotOk(result);
+    });
   });
 
   context('getProcessMessages', () => {
@@ -1426,6 +1440,19 @@ describe('ProcessTrackingService', () => {
         mockProcessTracking.processMessages[0]
       );
     });
+    it('should return null when processId is not found', async () => {
+      const getStub = sandbox.stub();
+      getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'getProcessTrackingDocumentByProcessId',
+        getStub
+      );
+
+      const processId = mockProcessTracking.processId;
+      const result = await ProcessTrackingService.getProcessMessages(processId);
+      assert.isNotOk(result);
+    });
   });
 
   context('getProcessResult', () => {
@@ -1480,6 +1507,19 @@ describe('ProcessTrackingService', () => {
         result?.processResult?.result,
         mockProcessTracking.processResult?.result
       );
+    });
+    it('should return null when processId is not found', async () => {
+      const getStub = sandbox.stub();
+      getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'getProcessTrackingDocumentByProcessId',
+        getStub
+      );
+
+      const processId = mockProcessTracking.processId;
+      const result = await ProcessTrackingService.getProcessResult(processId);
+      assert.isNotOk(result);
     });
   });
 });
