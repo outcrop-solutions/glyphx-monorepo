@@ -38,6 +38,28 @@ describe('#services/customer', () => {
 
       assert.isTrue(getMembershipFromModelStub.calledOnce);
     });
+    it('should get a member by id when id is a string', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const memberEmail = 'testemail@gmail.com';
+
+      const getMembershipFromModelStub = sandbox.stub();
+      getMembershipFromModelStub.resolves({
+        _id: memberId,
+        email: memberEmail,
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'getMemberById',
+        getMembershipFromModelStub
+      );
+
+      const member = await membershipService.getMember(memberId.toString());
+      assert.isOk(member);
+      assert.strictEqual(member?._id?.toString(), memberId.toString());
+
+      assert.isTrue(getMembershipFromModelStub.calledOnce);
+    });
     it('will log the failure and return null if the member cannot be found', async () => {
       const memberId = new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the member';
@@ -326,6 +348,25 @@ describe('#services/customer', () => {
       await membershipService.remove(memberId);
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
+    it('will delete a member by updating the deletedAt property when memberId is a string', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const deletedAt = new Date();
+
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.resolves({
+        _id: memberId,
+        deletedAt: deletedAt,
+      });
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
+
+      await membershipService.remove(memberId.toString());
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+    });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
       const memberId = new mongooseTypes.ObjectId();
       // const deletedAt = new Date();
@@ -443,282 +484,320 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  //   context('toggleRole', () => {
-  //     it('will update a member subscription', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.resolves();
+  context('toggleRole', () => {
+    it('will update a member teamRole', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const teamRole = databaseTypes.constants.ROLE.MEMBER;
 
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.resolves({
+        _id: memberId,
+        teamRole: teamRole,
+      });
 
-  //       await membershipService.updateSubscription(customerId, subscription);
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //     });
-  //     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const errMessage = 'You have an invalid argument';
-  //       const err = new error.InvalidArgumentError(
-  //         errMessage,
-  //         'emailVerified',
-  //         true
-  //       );
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.rejects(err);
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       function fakePublish() {
-  //         /*eslint-disable  @typescript-eslint/ban-ts-comment */
-  //         //@ts-ignore
-  //         assert.instanceOf(this, error.InvalidArgumentError);
-  //         //@ts-ignore
-  //         assert.strictEqual(this.message, errMessage);
-  //       }
+      await membershipService.toggleRole(memberId, teamRole);
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+    });
+    it('will update a member teamRole when memberId is a string', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const teamRole = databaseTypes.constants.ROLE.MEMBER;
 
-  //       const boundPublish = fakePublish.bind(err);
-  //       const publishOverride = sandbox.stub();
-  //       publishOverride.callsFake(boundPublish);
-  //       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.resolves({
+        _id: memberId,
+        teamRole: teamRole,
+      });
 
-  //       let errored = false;
-  //       try {
-  //         await membershipService.updateSubscription(customerId, subscription);
-  //       } catch (e) {
-  //         assert.instanceOf(e, error.InvalidArgumentError);
-  //         errored = true;
-  //       }
-  //       assert.isTrue(errored);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //       assert.isTrue(publishOverride.calledOnce);
-  //     });
-  //     it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const errMessage = 'You tried to perform an invalid operation';
-  //       const err = new error.InvalidOperationError(errMessage, {});
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.rejects(err);
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      await membershipService.toggleRole(memberId.toString(), teamRole);
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+    });
+    it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const errMessage = 'You have an invalid argument';
+      const err = new error.InvalidArgumentError(errMessage, 'memberId', true);
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       function fakePublish() {
-  //         /*eslint-disable  @typescript-eslint/ban-ts-comment */
-  //         //@ts-ignore
-  //         assert.instanceOf(this, error.InvalidOperationError);
-  //         //@ts-ignore
-  //         assert.strictEqual(this.message, errMessage);
-  //       }
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
 
-  //       const boundPublish = fakePublish.bind(err);
-  //       const publishOverride = sandbox.stub();
-  //       publishOverride.callsFake(boundPublish);
-  //       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-  //       let errored = false;
-  //       try {
-  //         await membershipService.updateSubscription(customerId, subscription);
-  //       } catch (e) {
-  //         assert.instanceOf(e, error.InvalidOperationError);
-  //         errored = true;
-  //       }
-  //       assert.isTrue(errored);
+      let errored = false;
+      try {
+        await membershipService.toggleRole(memberId, teamRole);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
 
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //       assert.isTrue(publishOverride.calledOnce);
-  //     });
-  //     it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const errMessage = 'A DataOperationError has occurred';
-  //       const err = new error.DatabaseOperationError(
-  //         errMessage,
-  //         'mongodDb',
-  //         'updateMembershipById'
-  //       );
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.rejects(err);
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const errMessage = 'You tried to perform an invalid operation';
+      const err = new error.InvalidOperationError(errMessage, {});
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       function fakePublish() {
-  //         /*eslint-disable  @typescript-eslint/ban-ts-comment */
-  //         //@ts-ignore
-  //         assert.instanceOf(this, error.DatabaseOperationError);
-  //         //@ts-ignore
-  //         assert.strictEqual(this.message, errMessage);
-  //       }
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
 
-  //       const boundPublish = fakePublish.bind(err);
-  //       const publishOverride = sandbox.stub();
-  //       publishOverride.callsFake(boundPublish);
-  //       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-  //       let errored = false;
-  //       try {
-  //         await membershipService.updateSubscription(customerId, subscription);
-  //       } catch (e) {
-  //         assert.instanceOf(e, error.DataServiceError);
-  //         errored = true;
-  //       }
-  //       assert.isTrue(errored);
+      let errored = false;
+      try {
+        await membershipService.toggleRole(memberId, teamRole);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
 
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //       assert.isTrue(publishOverride.calledOnce);
-  //     });
-  //   });
-  //   context('updateStatus', () => {
-  //     it('will update a member subscription', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.resolves();
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'updateMembershipById'
+      );
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
 
-  //       await membershipService.updateSubscription(customerId, subscription);
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //     });
-  //     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const errMessage = 'You have an invalid argument';
-  //       const err = new error.InvalidArgumentError(
-  //         errMessage,
-  //         'emailVerified',
-  //         true
-  //       );
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.rejects(err);
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-  //       function fakePublish() {
-  //         /*eslint-disable  @typescript-eslint/ban-ts-comment */
-  //         //@ts-ignore
-  //         assert.instanceOf(this, error.InvalidArgumentError);
-  //         //@ts-ignore
-  //         assert.strictEqual(this.message, errMessage);
-  //       }
+      let errored = false;
+      try {
+        await membershipService.toggleRole(memberId, teamRole);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
 
-  //       const boundPublish = fakePublish.bind(err);
-  //       const publishOverride = sandbox.stub();
-  //       publishOverride.callsFake(boundPublish);
-  //       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+  context('updateStatus', () => {
+    it('will update a member status', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
 
-  //       let errored = false;
-  //       try {
-  //         await membershipService.updateSubscription(customerId, subscription);
-  //       } catch (e) {
-  //         assert.instanceOf(e, error.InvalidArgumentError);
-  //         errored = true;
-  //       }
-  //       assert.isTrue(errored);
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.resolves({
+        _id: memberId,
+        status: status,
+      });
 
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //       assert.isTrue(publishOverride.calledOnce);
-  //     });
-  //     it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const errMessage = 'You tried to perform an invalid operation';
-  //       const err = new error.InvalidOperationError(errMessage, {});
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.rejects(err);
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       function fakePublish() {
-  //         /*eslint-disable  @typescript-eslint/ban-ts-comment */
-  //         //@ts-ignore
-  //         assert.instanceOf(this, error.InvalidOperationError);
-  //         //@ts-ignore
-  //         assert.strictEqual(this.message, errMessage);
-  //       }
+      await membershipService.updateStatus(memberId, status);
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+    });
+    it('will update a member status when memberId is a string', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
 
-  //       const boundPublish = fakePublish.bind(err);
-  //       const publishOverride = sandbox.stub();
-  //       publishOverride.callsFake(boundPublish);
-  //       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.resolves({
+        _id: memberId,
+        status: status,
+      });
 
-  //       let errored = false;
-  //       try {
-  //         await membershipService.updateSubscription(customerId, subscription);
-  //       } catch (e) {
-  //         assert.instanceOf(e, error.InvalidOperationError);
-  //         errored = true;
-  //       }
-  //       assert.isTrue(errored);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //       assert.isTrue(publishOverride.calledOnce);
-  //     });
-  //     it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
-  //       const customerId = 'testCustomerId'; //comes from stripe
-  //       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
-  //       const errMessage = 'A DataOperationError has occurred';
-  //       const err = new error.DatabaseOperationError(
-  //         errMessage,
-  //         'mongodDb',
-  //         'updateMembershipById'
-  //       );
-  //       const updateMembershipFromModelStub = sandbox.stub();
-  //       updateMembershipFromModelStub.rejects(err);
-  //       sandbox.replace(
-  //         dbConnection.models.MemberModel,
-  //         'updateMembershipWithFilter',
-  //         updateMembershipFromModelStub
-  //       );
+      await membershipService.updateStatus(memberId.toString(), status);
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+    });
+    it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const errMessage = 'You have an invalid argument';
+      const err = new error.InvalidArgumentError(errMessage, 'memberId', true);
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
 
-  //       function fakePublish() {
-  //         /*eslint-disable  @typescript-eslint/ban-ts-comment */
-  //         //@ts-ignore
-  //         assert.instanceOf(this, error.DatabaseOperationError);
-  //         //@ts-ignore
-  //         assert.strictEqual(this.message, errMessage);
-  //       }
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
 
-  //       const boundPublish = fakePublish.bind(err);
-  //       const publishOverride = sandbox.stub();
-  //       publishOverride.callsFake(boundPublish);
-  //       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-  //       let errored = false;
-  //       try {
-  //         await membershipService.updateSubscription(customerId, subscription);
-  //       } catch (e) {
-  //         assert.instanceOf(e, error.DataServiceError);
-  //         errored = true;
-  //       }
-  //       assert.isTrue(errored);
+      let errored = false;
+      try {
+        await membershipService.updateStatus(memberId, status);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
 
-  //       assert.isTrue(updateMembershipFromModelStub.calledOnce);
-  //       assert.isTrue(publishOverride.calledOnce);
-  //     });
-  //   });
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const errMessage = 'You tried to perform an invalid operation';
+      const err = new error.InvalidOperationError(errMessage, {});
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await membershipService.updateStatus(memberId, status);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
+      const memberId = new mongooseTypes.ObjectId();
+      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'updateMembershipById'
+      );
+      const updateMembershipFromModelStub = sandbox.stub();
+      updateMembershipFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberById',
+        updateMembershipFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await membershipService.updateStatus(memberId, status);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(updateMembershipFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
 });
