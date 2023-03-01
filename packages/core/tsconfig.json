@@ -1,5 +1,17 @@
 {
   "extends": "@glyphx/tsconfig/node18.json",
   "include": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts"],
+  "compilerOptions": {
+    "baseUrl": "./src",
+  },
+  "paths": {
+    "@/aws/*": ["src/aws/*"],
+    "@/constants/*": ["src/constants/*"],
+    "@/error/*": ["src/error/*"],
+    "@/generalPurposeFunctions/*": ["src/generalPurposeFunctions/*"],
+    "@/logging/*": ["src/logging/*"],
+    "@/secrets/*": ["src/secrets/*"],
+    "@/streams/*": ["src/streams/*"]
+  },
   "exclude": ["src/__tests__/**", "src/__integrationTests__/**"]
 }

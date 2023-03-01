@@ -13,14 +13,13 @@
     "build": "tsup",
     "clean": "rimraf .turbo node_modules dist",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
-    "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
+    "test": "TS_NODE_FILES=true EMAIL_SERVER=smtp://apikey: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@smtp.sendgrid.net:587 mocha -r ts-node/register -r dotenv/config -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
     "lint": "gts lint",
     "fix": "gts fix",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
   },
   "author": "James M. Graham",
-  "license": "ISC",
   "devDependencies": {
     "@aws-sdk/types": "3.222.0",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",

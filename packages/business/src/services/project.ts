@@ -2,8 +2,8 @@ import {
   database as databaseTypes,
   fileIngestion as fileIngestionTypes,
 } from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
+import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from 'lib/databaseConnection';
 
 export class ProjectService {
@@ -18,7 +18,7 @@ export class ProjectService {
       const project =
         await mongoDbConnection.models.ProjectModel.getProjectById(id);
       return project;
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -65,7 +65,7 @@ export class ProjectService {
         });
 
       return updatedProject;
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -101,7 +101,7 @@ export class ProjectService {
         });
 
       return updatedProject;
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -141,7 +141,7 @@ export class ProjectService {
         );
 
       return updatedProject;
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError

@@ -1,4 +1,4 @@
-import { createTransport } from 'nodemailer';
+import { EmailClient } from './EmailClient';
 
 /**
  * Sends an email via nodemailer smtp connection
@@ -7,9 +7,8 @@ import { createTransport } from 'nodemailer';
 export async function sendVerificationRequest(params: any) {
   const { identifier, url, provider, theme } = params;
   const { host } = new URL(url);
-  // NOTE: You are not required to use `nodemailer`, use whatever you want.
-  const transport = createTransport(provider.server);
-  const result = await transport.sendMail({
+
+  const result = await EmailClient.sendMail({
     to: identifier,
     from: provider.from,
     subject: `Sign in to glyphx.co`,

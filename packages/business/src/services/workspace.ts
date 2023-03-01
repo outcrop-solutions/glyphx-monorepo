@@ -1,7 +1,6 @@
 import slugify from 'slugify';
 import {
-  ISendMail,
-  sendMail,
+  EmailClient,
   workspaceCreateHtml,
   workspaceCreateText,
   inviteHtml,
@@ -13,9 +12,9 @@ import {
   database as databaseTypes,
   IQueryResult,
 } from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
+import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 
 export class WorkspaceService {
@@ -59,15 +58,15 @@ export class WorkspaceService {
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
 
-      await sendMail({
+      await EmailClient.sendMail({
         html: workspaceCreateHtml({code: workspace.inviteCode, name}),
         subject: `[Glyphx] Workspace created: ${name}`,
         text: workspaceCreateText({code: workspace.inviteCode, name}),
         to: email,
-      } as ISendMail);
+      });
 
       return workspace;
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -113,7 +112,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
@@ -178,7 +177,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -206,7 +205,7 @@ export class WorkspaceService {
           deletedAt: null,
         });
       return workspace.results[0];
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -234,7 +233,7 @@ export class WorkspaceService {
           deletedAt: null,
         });
       return workspace.results[0];
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -293,7 +292,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -348,7 +347,7 @@ export class WorkspaceService {
       } else {
         return null;
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -382,7 +381,7 @@ export class WorkspaceService {
           params: {site: workspace.slug},
         })),
       ];
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -467,7 +466,7 @@ export class WorkspaceService {
             workspace._id as mongooseTypes.ObjectId,
             memberIds
           ),
-          sendMail({
+          EmailClient.sendMail({
             html: inviteHtml({
               code: workspace.inviteCode,
               name: workspace.name,
@@ -484,7 +483,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||
@@ -574,7 +573,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||
@@ -622,7 +621,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||
@@ -677,7 +676,7 @@ export class WorkspaceService {
       } else {
         throw new Error('Unable to find workspace');
       }
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||

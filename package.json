@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "turbo build",
-    "test": "turbo test",
+    "test": "dotenv -- turbo test",
     "integrationTest": "turbo integrationTest",
     "format": "turbo format",
     "format:write": "turbo format",
