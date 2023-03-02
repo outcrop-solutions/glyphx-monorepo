@@ -150,11 +150,6 @@ export class WorkspaceService {
     // TODO: add filter to get workspaces where user is a member
     // @jp: we need a clean way to implement filter on related records here
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : new mongooseTypes.ObjectId(userId);
-
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           deletedAt: null,
@@ -172,7 +167,13 @@ export class WorkspaceService {
       );
       if (filteredWorkspaces.length > 0) {
         return filteredWorkspaces[0];
-      } else return null;
+      } else {
+        throw new error.DataNotFoundError(
+          'Unable to find workspace',
+          'workspace',
+          {userId, email, slug}
+        );
+      }
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -619,12 +620,20 @@ export class WorkspaceService {
             ? workspace._id
             : new mongooseTypes.ObjectId(workspace._id);
 
-        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(id, {
-          name,
-        });
-        return name;
+        const newWorkspace =
+          await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
+            id,
+            {
+              name,
+            }
+          );
+        return newWorkspace.name;
       } else {
-        throw new Error('Unable to find workspace');
+        throw new error.DataNotFoundError(
+          'Unable to find workspace',
+          'workspace',
+          {userId, email, slug}
+        );
       }
     } catch (err: any) {
       if (
@@ -638,7 +647,7 @@ export class WorkspaceService {
         const e = new error.DataServiceError(
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
-          'queryWorkspaces',
+          'updateWorkspace',
           {userId, email, name, slug},
           err
         );
