@@ -1132,6 +1132,75 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
+  context('isWorkspaceCreator', () => {
+    it('should return true when creatorId and Id are equal', async () => {
+      const creatorId = new mongooseTypes.ObjectId();
+      const result = await workspaceService.isWorkspaceCreator(
+        creatorId,
+        creatorId
+      );
+      assert.isTrue(result);
+    });
+    it('should return false when creatorId and Id are not equal', async () => {
+      const creatorId = new mongooseTypes.ObjectId();
+      const id = new mongooseTypes.ObjectId();
+
+      const result = await workspaceService.isWorkspaceCreator(id, creatorId);
+      assert.isFalse(result);
+    });
+  });
+  context('isWorkspaceOwner', () => {
+    it('should return true when given user is the owner of the workspace', async () => {
+      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceSlug = 'testWorkspaceSlug';
+      const userId = new mongooseTypes.ObjectId();
+      const userEmail = 'testemail@gmail.com';
+
+      const workspace = {
+        _id: workspaceId,
+        slug: workspaceSlug,
+        members: [
+          {
+            _id: userId,
+            email: userEmail,
+            teamRole: databaseTypes.constants.ROLE.OWNER,
+            deletedAt: null,
+          } as unknown as databaseTypes.IUser,
+        ],
+      } as unknown as databaseTypes.IWorkspace;
+
+      const result = await workspaceService.isWorkspaceOwner(
+        userEmail,
+        workspace
+      );
+      assert.isTrue(result);
+    });
+    it('should return false when the user is not the workspace owner', async () => {
+      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceSlug = 'testWorkspaceSlug';
+      const userId = new mongooseTypes.ObjectId();
+      const userEmail = 'testemail@gmail.com';
+
+      const workspace = {
+        _id: workspaceId,
+        slug: workspaceSlug,
+        members: [
+          {
+            _id: userId,
+            email: userEmail,
+            teamRole: databaseTypes.constants.ROLE.MEMBER,
+            deletedAt: null,
+          } as unknown as databaseTypes.IUser,
+        ],
+      } as unknown as databaseTypes.IWorkspace;
+
+      const result = await workspaceService.isWorkspaceOwner(
+        userEmail,
+        workspace
+      );
+      assert.isFalse(result);
+    });
+  });
   //   context('getSiteWorkspace', () => {
   //     it('should get workspaces by filter', async () => {
   //       const workspaceId = new mongooseTypes.ObjectId();
