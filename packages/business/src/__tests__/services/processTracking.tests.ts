@@ -1709,4 +1709,108 @@ describe('ProcessTrackingService', () => {
       assert.isNotOk(result);
     });
   });
+  context.only('removeProcessTrackingDocument', () => {
+    const sandbox = createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should remove the process tracking document by processId as string', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves();
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'deleteProcessTrackingDocumentProcessId',
+        deleteStub
+      );
+
+      const processId = 'testProcessId';
+      await ProcessTrackingService.removeProcessTrackingDocument(processId);
+      assert.isTrue(deleteStub.calledOnce);
+    });
+
+    it('should remove the process tracking document by processId as ObjectId', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves();
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'deleteProcessTrackingDocumentById',
+        deleteStub
+      );
+
+      const processId = new mongooseTypes.ObjectId();
+      await ProcessTrackingService.removeProcessTrackingDocument(processId);
+      assert.isTrue(deleteStub.calledOnce);
+    });
+
+    it('should publish and rethrow an InvalidArgumentError thrown by the model', async () => {
+      const invalidError = new error.InvalidArgumentError(
+        'invalid',
+        'key',
+        'value'
+      );
+      const deleteStub = sandbox.stub();
+      deleteStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'deleteProcessTrackingDocumentById',
+        deleteStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, invalidError.message);
+      }
+
+      const boundPublish = fakePublish.bind(invalidError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.removeProcessTrackingDocument(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(deleteStub.calledOnce);
+      assert.isTrue(errored);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish and throw a DataServiceError when the model throws an error', async () => {
+      const invalidError = new error.DatabaseOperationError(
+        'databaseError',
+        'mongoDb',
+        'deleteProcessTrackingDocumentById'
+      );
+      const deleteStub = sandbox.stub();
+      deleteStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'deleteProcessTrackingDocumentById',
+        deleteStub
+      );
+
+      const publishOverride = sandbox.stub();
+      publishOverride.resolves();
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.removeProcessTrackingDocument(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(deleteStub.calledOnce);
+      assert.isTrue(errored);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
 });

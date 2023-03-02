@@ -31,6 +31,7 @@ describe('#ProcessTrackingService', () => {
         await processTrackingModel.findByIdAndDelete(processTrackingId);
       }
     });
+
     it('will crete a new process tracking document', async () => {
       const {processId: processTrackingProcessId} =
         await processTrackingService.createProcessTracking(
@@ -122,6 +123,18 @@ describe('#ProcessTrackingService', () => {
       );
       assert.isOk(document);
       assert.isOk(document?.processEndTime);
+    });
+
+    it('will remove the process', async () => {
+      assert.isOk(processTrackingId);
+      await processTrackingService.removeProcessTrackingDocument(
+        processTrackingId
+      );
+
+      const document = await processTrackingService.getProcessTracking(
+        processTrackingId
+      );
+      assert.isNotOk(document);
     });
   });
 });
