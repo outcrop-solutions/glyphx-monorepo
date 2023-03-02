@@ -10,3 +10,4 @@ export type {IUser} from './iUser';
 export type {IVerificationToken} from './iVerificationToken';
 export type {IWebhook} from './iWebhook';
 export type {IWorkspace} from './iWorkspace';
+export type {IProcessTracking} from './iProcessTracking';
