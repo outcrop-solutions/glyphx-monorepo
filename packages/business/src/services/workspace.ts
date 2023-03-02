@@ -205,7 +205,10 @@ export class WorkspaceService {
         });
       return workspace.results[0];
     } catch (err: any) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
@@ -233,7 +236,10 @@ export class WorkspaceService {
         });
       return workspace.results[0];
     } catch (err: any) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
@@ -278,11 +284,11 @@ export class WorkspaceService {
           slug,
         });
 
-      const filteredWorkspaces = workspaces.results.filter(space =>
-        space.members.filter(
-          mem =>
-            mem._id === id || (mem.email === email && mem.deletedAt === null)
-        )
+      const filteredWorkspaces = workspaces.results.filter(
+        space =>
+          space.members.filter(
+            mem => mem.email === email && mem.deletedAt === null
+          ).length > 0
       );
       if (filteredWorkspaces.length > 0) {
         return filteredWorkspaces[0];

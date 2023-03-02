@@ -7,7 +7,7 @@ import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';
 import {membershipService} from '../../services';
 
-describe('#services/customer', () => {
+describe('#services/membership', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
 
