@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
-import {error, aws} from '@glyphx/core';
+import {error, aws, generalPurposeFunctions} from '@glyphx/core';
 import {BasicAthenaProcessor} from '@fileProcessing';
 import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
@@ -19,14 +19,18 @@ import {
 } from '@util/constants';
 import * as businessLogic from '@glyphx/business';
 import * as sharedFunctions from '../util/generalPurposeFunctions';
-
+import {config} from '../config';
+const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
 describe('fileIngestor', () => {
+  beforeEach(() => {
+    (config as any).inited = false;
+  });
   context('constructor', () => {
     it('Should build a FileIngestor object', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
 
       assert.isOk(fileIngestor);
 
@@ -81,7 +85,7 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
 
       assert.isTrue(fileIngestor.inited);
@@ -117,7 +121,7 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
       await fileIngestor.init();
 
@@ -156,7 +160,7 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
 
       let hasError = false;
       try {
@@ -212,7 +216,7 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -251,6 +255,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -302,6 +311,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -359,6 +373,11 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -412,6 +431,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -467,6 +491,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -524,7 +553,7 @@ describe('fileIngestor', () => {
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
         fileIngestion.constants.FILE_OPERATION.APPEND;
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -566,6 +595,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -629,6 +663,11 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -673,6 +712,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -722,6 +766,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -786,6 +835,11 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -844,7 +898,7 @@ describe('fileIngestor', () => {
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
         fileIngestion.constants.FILE_OPERATION.REPLACE;
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -898,6 +952,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
@@ -962,6 +1021,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
@@ -1031,6 +1095,11 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
+      );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1091,7 +1160,7 @@ describe('fileIngestor', () => {
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
         fileIngestion.constants.FILE_OPERATION.DELETE;
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1145,6 +1214,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
@@ -1209,6 +1283,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
@@ -1278,6 +1357,11 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
+      );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1335,7 +1419,7 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1373,6 +1457,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 
@@ -1420,7 +1509,7 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1461,6 +1550,11 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        sandbox.stub().resolves()
       );
       const results = await fileIngestor.process();
 

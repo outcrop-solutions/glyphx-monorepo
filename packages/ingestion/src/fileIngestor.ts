@@ -1,4 +1,4 @@
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {error, aws} from '@glyphx/core';
 import {Readable} from 'node:stream';
 import {
@@ -8,6 +8,7 @@ import {
 } from './fileProcessing';
 import {
   projectService,
+  processTrackingService,
   Initializer as businessLogicInit,
 } from '@glyphx/business';
 
@@ -23,6 +24,7 @@ import {
   FILE_PROCESSING_ERROR_TYPES,
   FILE_PROCESSING_STATUS,
 } from '@util/constants';
+import {config} from './config';
 
 export class FileIngestor {
   private readonly clientIdField: string;
@@ -76,7 +78,11 @@ export class FileIngestor {
   public get inited() {
     return this.initedField;
   }
-  constructor(payload: fileIngestion.IPayload, databaseName: string) {
+  constructor(
+    payload: fileIngestion.IPayload,
+    databaseName: string,
+    processId: string
+  ) {
     this.clientIdField = payload.clientId;
     this.modelIdField = payload.modelId;
     this.bucketNameField = payload.bucketName;
@@ -101,6 +107,8 @@ export class FileIngestor {
     );
 
     this.fileStatisticsField = [];
+
+    config.init({processId});
   }
 
   public async init() {
@@ -404,6 +412,11 @@ export class FileIngestor {
   }
 
   public async process(): Promise<IFileProcessingResult> {
+    await processTrackingService.updateProcessStatus(
+      config.processId,
+      databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      `File Ingestion has started : ${new Date()}`
+    );
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
