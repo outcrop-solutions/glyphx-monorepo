@@ -647,7 +647,7 @@ export class WorkspaceService {
         const e = new error.DataServiceError(
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
-          'updateWorkspace',
+          'updateWorkspaces',
           {userId, email, name, slug},
           err
         );
@@ -664,13 +664,6 @@ export class WorkspaceService {
     pathSlug: string
   ) {
     try {
-      let slug = slugify(newSlug.toLowerCase());
-      const count = await WorkspaceService.countWorkspaces(slug);
-
-      if (count > 0) {
-        slug = `${slug}-${count}`;
-      }
-
       const workspace = await WorkspaceService.getOwnWorkspace(
         userId,
         email,
@@ -684,11 +677,15 @@ export class WorkspaceService {
             : new mongooseTypes.ObjectId(workspace._id);
 
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(id, {
-          slug,
+          slug: newSlug.toLowerCase(),
         });
-        return slug;
+        return newSlug.toLowerCase();
       } else {
-        throw new Error('Unable to find workspace');
+        throw new error.DataNotFoundError(
+          'Unable to find workspace',
+          'workspace',
+          {userId, email, slug: newSlug.toLowerCase()}
+        );
       }
     } catch (err: any) {
       if (
