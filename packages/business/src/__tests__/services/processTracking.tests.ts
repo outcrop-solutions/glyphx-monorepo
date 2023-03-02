@@ -7,7 +7,7 @@ import {database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error} from '@glyphx/core';
 import {dbConnection} from '../../../dist';
-describe.only('ProcessTrackingService', () => {
+describe('ProcessTrackingService', () => {
   context('createProcessTracking', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
       _id: new mongooseTypes.ObjectId(),
