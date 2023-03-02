@@ -417,6 +417,7 @@ export class FileIngestor {
       databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       `File Ingestion has started : ${new Date()}`
     );
+
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
@@ -426,6 +427,11 @@ export class FileIngestor {
       this.processedFileErrorInformation.push(...errors);
       fileInfoForReturn = this.fileStatistics;
       processingResults = FILE_PROCESSING_STATUS.ERROR;
+      const err = new error.InvalidOperationError(
+        'There were errors processing the files',
+        {errors}
+      );
+      processTrackingService.addProcessError(config.processId, err);
     } else {
       try {
         const needsViewUpdates = await this.processFiles();
@@ -466,19 +472,40 @@ export class FileIngestor {
         });
         if (err instanceof error.GlyphxError) {
           err.publish();
+          processTrackingService.addProcessError(config.processId, err);
         } else {
-          new error.GlyphxError(message, 999, err, 'UnexpectedError').publish();
+          const gError = new error.GlyphxError(
+            message,
+            999,
+            err,
+            'UnexpectedError'
+          );
+          gError.publish();
+          processTrackingService.addProcessError(config.processId, gError);
         }
         processingResults = FILE_PROCESSING_STATUS.ERROR;
       }
     }
 
-    return {
+    const retval = {
       fileInformation: fileInfoForReturn,
       fileProcessingErrors: this.processedFileErrorInformation,
       joinInformation: joinInformation,
       status: processingResults,
       viewName: viewName,
     };
+
+    const status =
+      processingResults === FILE_PROCESSING_STATUS.ERROR
+        ? databaseTypes.constants.PROCESS_STATUS.FAILED
+        : databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+
+    await processTrackingService.completeProcess(
+      config.processId,
+      retval,
+      status
+    );
+
+    return retval;
   }
 }
