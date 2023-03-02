@@ -7,8 +7,7 @@ import {database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error} from '@glyphx/core';
 import {dbConnection} from '../../../dist';
-
-describe('ProcessTrackingService', () => {
+describe.only('ProcessTrackingService', () => {
   context('createProcessTracking', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
       _id: new mongooseTypes.ObjectId(),
@@ -521,8 +520,8 @@ describe('ProcessTrackingService', () => {
       assert.isTrue(addMessageStub.called);
     });
 
-    it('should publish a DataNotFound error that is thrown by the model', async () => {
-      const notFoundError = new error.DataNotFoundError(
+    it('should publish an InvalidArgumentError that is thrown by the model', async () => {
+      const notFoundError = new error.InvalidArgumentError(
         'the data is not found',
         'key',
         'value'
@@ -546,7 +545,7 @@ describe('ProcessTrackingService', () => {
       function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
-        assert.instanceOf(this, error.DataNotFoundError);
+        assert.instanceOf(this, error.InvalidArgumentError);
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.strictEqual(this.message, notFoundError.message);
@@ -568,7 +567,60 @@ describe('ProcessTrackingService', () => {
           message
         );
       } catch (err) {
-        assert.instanceOf(err, error.DataNotFoundError);
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+
+      assert.isFalse(addMessageStub.called);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish an InvalidOperationError that is thrown by the model', async () => {
+      const operationError = new error.InvalidOperationError('bad op', {});
+      const updateStub = sandbox.stub();
+      updateStub.rejects(operationError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      const addMessageStub = sandbox.stub();
+      addMessageStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'addMessagesById',
+        addMessageStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, operationError.message);
+      }
+
+      const boundPublish = fakePublish.bind(operationError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const processId = new mongooseTypes.ObjectId();
+      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const message = 'test message';
+      let errored = false;
+      try {
+        await ProcessTrackingService.updateProcessStatus(
+          processId,
+          processStatus,
+          message
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -700,8 +752,8 @@ describe('ProcessTrackingService', () => {
       assert.strictEqual(updateArgs[1].processResult.text, result.text);
     });
 
-    it('should publish a DataNotFound error that is thrown by the model', async () => {
-      const notFoundError = new error.DataNotFoundError(
+    it('should publish an InvalidArgumentError that is thrown by the model', async () => {
+      const notFoundError = new error.InvalidArgumentError(
         'the data is not found',
         'key',
         'value'
@@ -717,7 +769,7 @@ describe('ProcessTrackingService', () => {
       function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
-        assert.instanceOf(this, error.DataNotFoundError);
+        assert.instanceOf(this, error.InvalidArgumentError);
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.strictEqual(this.message, notFoundError.message);
@@ -739,7 +791,54 @@ describe('ProcessTrackingService', () => {
           processStatus
         );
       } catch (err) {
-        assert.instanceOf(err, error.DataNotFoundError);
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish an InvalidOperationError that is thrown by the model', async () => {
+      const notFoundError = new error.InvalidOperationError(
+        'the data is not found',
+        {}
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(notFoundError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, notFoundError.message);
+      }
+
+      const boundPublish = fakePublish.bind(notFoundError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const processId = new mongooseTypes.ObjectId();
+      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const result = {text: 'I am finished'};
+      let errored = false;
+      try {
+        await ProcessTrackingService.completeProcess(
+          processId,
+          result,
+          processStatus
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -892,6 +991,50 @@ describe('ProcessTrackingService', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
 
+    it('should publish and throw an InvalidArgumentError when it is thrown by the model', async () => {
+      const notFoundError = new error.InvalidArgumentError(
+        'The argument is invalid',
+        'key',
+        'value'
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(notFoundError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'addErrorsById',
+        updateStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, notFoundError.message);
+      }
+
+      const boundPublish = fakePublish.bind(notFoundError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
+      const processError = new error.GlyphxError('I am an error', 999);
+
+      let errored = false;
+      try {
+        await ProcessTrackingService.addProcessError(processId, processError);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errored);
+
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
     it('should publish and throw a DataServiceError when the model throws a DatabaseOperationError', async () => {
       const databaseError = new error.DatabaseOperationError(
         'something bad happened',
@@ -1024,6 +1167,50 @@ describe('ProcessTrackingService', () => {
         await ProcessTrackingService.addProcessMessage(processId, message);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errored);
+
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish and throw an InvalidArgumentError when one is thrown by the model', async () => {
+      const notFoundError = new error.InvalidArgumentError(
+        'the argument is invalid',
+        'key',
+        'value'
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(notFoundError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'addMessagesById',
+        updateStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, notFoundError.message);
+      }
+
+      const boundPublish = fakePublish.bind(notFoundError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
+      const message = 'I am a message';
+
+      let errored = false;
+      try {
+        await ProcessTrackingService.addProcessMessage(processId, message);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
       }
       assert.isTrue(updateStub.calledOnce);

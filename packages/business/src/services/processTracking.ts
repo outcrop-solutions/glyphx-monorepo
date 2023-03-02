@@ -146,7 +146,10 @@ export class ProcessTrackingService {
         );
       }
     } catch (err) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -194,7 +197,10 @@ export class ProcessTrackingService {
         );
       }
     } catch (err) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
