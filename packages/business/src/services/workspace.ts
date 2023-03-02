@@ -340,23 +340,27 @@ export class WorkspaceService {
           deletedAt: null,
         });
 
-      if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
-        const filteredWorkspaces = workspaces.results.filter(space =>
+      const filteredWorkspaces = workspaces.results.filter(
+        space =>
           space.members.filter(
             mem =>
-              mem._id === id ||
-              (mem.email === email &&
-                mem.deletedAt === null &&
-                mem.status ===
-                  databaseTypes.constants.INVITATION_STATUS.ACCEPTED)
-          )
-        );
+              mem.email === email &&
+              mem.deletedAt === null &&
+              mem.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
+          ).length > 0
+      );
+      if (filteredWorkspaces.length > 0) {
         return filteredWorkspaces;
       } else {
-        return null;
+        const errMsg = 'No workspaces contain the user as a member';
+        const e = new error.DataNotFoundError(errMsg, 'getWorkspaces', {email});
+        throw e;
       }
     } catch (err: any) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
