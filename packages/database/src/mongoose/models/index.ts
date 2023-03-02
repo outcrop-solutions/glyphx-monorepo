@@ -10,3 +10,4 @@ export {SessionModel} from './session';
 export {MemberModel} from './member';
 export {StateModel} from './state';
 export {WebhookModel} from './webhook';
+export {ProcessTrackingModel} from './processTracking';
