@@ -542,6 +542,7 @@ export class WorkspaceService {
     return isTeamOwner;
   }
 
+  // untested
   static async joinWorkspace(
     workspaceCode: string,
     email: string
@@ -553,38 +554,30 @@ export class WorkspaceService {
           workspaceCode,
         });
 
-      if (Array.isArray(workspaces.results) && workspaces.numberOfItems > 0) {
-        const memberEmailExists =
-          await mongoDbConnection.models.MemberModel.memberEmailExists(email);
+      const memberEmailExists =
+        await mongoDbConnection.models.MemberModel.memberEmailExists(email);
 
-        const input = {
-          workspace: workspaces.results[0],
-          inviter: workspaces.results[0].creator.email,
-          invitedAt: new Date(),
-          joinedAt: new Date(),
-          email,
-          status: database.constants.INVITATION_STATUS.ACCEPTED,
-        } as Omit<databaseTypes.IMember, '_id'>;
+      const input = {
+        workspace: workspaces.results[0],
+        inviter: workspaces.results[0].creator.email,
+        invitedAt: new Date(),
+        joinedAt: new Date(),
+        email,
+        status: database.constants.INVITATION_STATUS.ACCEPTED,
+      } as Omit<databaseTypes.IMember, '_id'>;
 
-        let member;
-        if (memberEmailExists) {
-          // create member
-          member = await mongoDbConnection.models.MemberModel.createMember(
-            input
-          );
-        } else {
-          // update member
-          member =
-            await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-              {email},
-              input
-            );
-        }
-
-        return new Date();
+      if (memberEmailExists) {
+        // create member
+        await mongoDbConnection.models.MemberModel.createMember(input);
       } else {
-        throw new Error('Unable to find workspace');
+        // update member
+
+        await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+          {email},
+          input
+        );
       }
+      return new Date();
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -612,7 +605,7 @@ export class WorkspaceService {
     email: string,
     name: string,
     slug: string
-  ) {
+  ): Promise<string | null> {
     try {
       const workspace = await WorkspaceService.getOwnWorkspace(
         userId,
