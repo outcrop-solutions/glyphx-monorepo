@@ -3,7 +3,7 @@ import {aws, generalPurposeFunctions} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 import {
   Initializer,
@@ -119,6 +119,7 @@ describe('#fileProcessing', () => {
         fileInformation,
         joinInformation,
         viewName: savedViewName,
+        status,
       } = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(
         joinInformation,
@@ -142,6 +143,16 @@ describe('#fileProcessing', () => {
         payload.modelId
       );
       assert.strictEqual(documentViewName, viewName);
+
+      const processStatus = await processTrackingService.getProcessStatus(
+        PROCESS_ID
+      );
+      assert.strictEqual(
+        processStatus?.processStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
+      );
+
+      assert.strictEqual(processStatus?.processResult?.status, status);
       console.log('I am done');
     });
   });
