@@ -490,7 +490,7 @@ export class FileIngestor {
     const retval = {
       fileInformation: fileInfoForReturn,
       fileProcessingErrors: this.processedFileErrorInformation,
-      joinInformation: joinInformation,
+      joinInformation: this.cleanJoinInformation(joinInformation),
       status: processingResults,
       viewName: viewName,
     };
@@ -507,5 +507,16 @@ export class FileIngestor {
     );
 
     return retval;
+  }
+
+  private cleanJoinInformation(
+    joinInformation: IJoinTableDefinition[]
+  ): IJoinTableDefinition[] {
+    joinInformation.forEach(join => {
+      join.columns.forEach(joinColumn => {
+        delete (joinColumn as any).tableDefinition;
+      });
+    });
+    return joinInformation;
   }
 }

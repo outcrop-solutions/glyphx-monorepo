@@ -4,13 +4,17 @@ import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
 import {error, aws, generalPurposeFunctions} from '@glyphx/core';
-import {BasicAthenaProcessor} from '@fileProcessing';
+import {
+  BasicAthenaProcessor,
+  BasicJoinProcessor as JoinProcessor,
+} from '@fileProcessing';
 import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
 import {
   IFileInformation,
   IFileProcessingError,
   IJoinTableDefinition,
+  IJoinTableColumnDefinition,
 } from '@interfaces/fileProcessing';
 import {FileReconciliator} from '../fileProcessing/fileReconciliator';
 import {
@@ -2030,6 +2034,81 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
+    });
+  });
+  context('cleanJointInformation', () => {
+    const table1 = {
+      tableName: 'table1',
+      backingFileName: 'table1.parquet',
+      fields: [
+        {
+          name: 'GLYPHX_ID_COLUMN_NAME',
+          origionalName: 'GLYPHX_ID_COLUMN_NAME',
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
+        {
+          name: 'field1',
+          origionalName: 'field1',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+        {
+          name: 'field2',
+          origionalName: 'field2',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+      ],
+    };
+
+    const table2 = {
+      tableName: 'table2',
+      backingFileName: 'table2.parquet',
+      fields: [
+        {
+          name: 'GLYPHX_ID_COLUMN_NAME',
+          origionalName: 'GLYPHX_ID_COLUMN_NAME',
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
+        {
+          name: 'field1',
+          origionalName: 'field1',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+        {
+          name: 'field3',
+          origionalName: 'field3',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+      ],
+    };
+
+    it('will remove the table definition from the joinTableInformation.columns', () => {
+      const joinProcessor = new JoinProcessor();
+      joinProcessor.processColumns(
+        table1.tableName,
+        table1.backingFileName,
+        table1.fields
+      );
+      joinProcessor.processColumns(
+        table2.tableName,
+        table2.backingFileName,
+        table2.fields
+      );
+
+      const joinInformation = joinProcessor.joinData;
+      const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
+      const databaseName = 'testDatabaseName';
+
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+
+      const updatedJoinInformation = (fileIngestor as any).cleanJoinInformation(
+        joinInformation
+      );
+
+      updatedJoinInformation.forEach((joinTable: IJoinTableDefinition) => {
+        joinTable.columns.forEach((column: IJoinTableColumnDefinition) => {
+          assert.isUndefined(column.tableDefinition);
+        });
+      });
     });
   });
 });
