@@ -11,4 +11,5 @@ export interface IProcessTracking {
   processMessages: string[];
   processError: Record<string, unknown>[];
   processResult?: Record<string, unknown>;
+  processHeartbeat?: Date;
 }
