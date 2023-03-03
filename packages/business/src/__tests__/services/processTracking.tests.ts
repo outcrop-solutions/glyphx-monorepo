@@ -1709,7 +1709,7 @@ describe('ProcessTrackingService', () => {
       assert.isNotOk(result);
     });
   });
-  context.only('removeProcessTrackingDocument', () => {
+  context('removeProcessTrackingDocument', () => {
     const sandbox = createSandbox();
     afterEach(() => {
       sandbox.restore();
