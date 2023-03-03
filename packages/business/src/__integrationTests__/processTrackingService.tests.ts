@@ -15,7 +15,7 @@ const PROCESS_ID = UNIQUE_KEY;
 const PROCESS_NAME = 'processName' + UNIQUE_KEY;
 
 describe('#ProcessTrackingService', () => {
-  context('test the functions of the  ProcessTrackingService', () => {
+  context.only('test the functions of the  ProcessTrackingService', () => {
     const mongoConnection = new MongoDbConnection();
     const processTrackingModel = mongoConnection.models.ProcessTrackingModel;
     let processTrackingId: ObjectId;
@@ -65,6 +65,18 @@ describe('#ProcessTrackingService', () => {
       assert.strictEqual(status?.processMessages[0], message);
     });
 
+    it('will set a heartbeat', async () => {
+      assert.isOk(processTrackingId);
+      await processTrackingService.setHeartbeat(processTrackingId);
+      const processTracking = await processTrackingService.getProcessTracking(
+        processTrackingId
+      );
+      assert.isOk(processTracking?.processHeartbeat);
+      assert.isAbove(
+        processTracking?.processHeartbeat?.getTime() ?? 0,
+        processTracking?.processStartTime.getTime() ?? 999
+      );
+    });
     it('will add a message', async () => {
       assert.isOk(processTrackingId);
       const message = 'continuing the process';
