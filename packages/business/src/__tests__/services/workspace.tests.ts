@@ -6,6 +6,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';
 import {workspaceService} from '../../services';
+import {v4} from 'uuid';
 
 describe('#services/workspace', () => {
   const sandbox = createSandbox();
@@ -71,6 +72,276 @@ describe('#services/workspace', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(countWorkspacesFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+  context('createWorkspace', () => {
+    it('will create a Workspace with user associated as creator', async () => {
+      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceName = 'testWorkspaceName';
+      const workspaceSlug = 'testWorkspaceSlug';
+      const creatorId = new mongooseTypes.ObjectId();
+      const creatorEmail = 'testUserEmail';
+      const inviteCode = v4().replaceAll('-', '');
+      const workspaceCode = v4().replaceAll('-', '');
+
+      const createWorkspaceFromModelStub = sandbox.stub();
+      createWorkspaceFromModelStub.resolves({
+        _id: workspaceId,
+        inviteCode,
+        workspaceCode,
+        creator: {
+          _id: creatorId,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'createWorkspace',
+        createWorkspaceFromModelStub
+      );
+
+      const doc = await workspaceService.createWorkspace(
+        creatorId,
+        creatorEmail,
+        workspaceName,
+        workspaceSlug
+      );
+
+      assert.isTrue(createWorkspaceFromModelStub.calledOnce);
+      assert.isOk(doc!.creator.email, creatorEmail);
+      assert.strictEqual(doc?.creator._id, creatorId);
+    });
+    it('will create Workspace with user associated as creator when creatorId is a string', async () => {
+      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceName = 'testWorkspaceName';
+      const workspaceSlug = 'testWorkspaceSlug';
+      const creatorId = new mongooseTypes.ObjectId();
+      const creatorEmail = 'testUserEmail';
+      const inviteCode = v4().replaceAll('-', '');
+      const workspaceCode = v4().replaceAll('-', '');
+
+      const createWorkspaceFromModelStub = sandbox.stub();
+      createWorkspaceFromModelStub.resolves({
+        _id: workspaceId,
+        inviteCode,
+        workspaceCode,
+        creator: {
+          _id: creatorId,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'createWorkspace',
+        createWorkspaceFromModelStub
+      );
+
+      const doc = await workspaceService.createWorkspace(
+        creatorId.toString(),
+        creatorEmail,
+        workspaceName,
+        workspaceSlug
+      );
+
+      assert.isTrue(createWorkspaceFromModelStub.calledOnce);
+      assert.isOk(doc!.creator.email, creatorEmail);
+      assert.strictEqual(doc?.creator._id, creatorId);
+    });
+    it('will publish and rethrow an InvalidArgumentError when workspace model throws it ', async () => {
+      const workspaceName = 'testWorkspaceName';
+      const workspaceSlug = 'testWorkspaceSlug';
+      const creatorId = new mongooseTypes.ObjectId();
+      const creatorEmail = 'testUserEmail';
+      const errMessage = 'You have an invalid argument';
+      const err = new error.InvalidArgumentError(
+        errMessage,
+        'emailVerified',
+        true
+      );
+      const createWorkspaceFromModelStub = sandbox.stub();
+      createWorkspaceFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'createWorkspace',
+        createWorkspaceFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await workspaceService.createWorkspace(
+          creatorId,
+          creatorEmail,
+          workspaceName,
+          workspaceSlug
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(createWorkspaceFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when workspace model throws it ', async () => {
+      const workspaceName = 'testWorkspaceName';
+      const workspaceSlug = 'testWorkspaceSlug';
+      const creatorId = new mongooseTypes.ObjectId();
+      const creatorEmail = 'testUserEmail';
+      const errMessage = 'You have an invalid argument';
+      const err = new error.InvalidArgumentError(
+        errMessage,
+        'emailVerified',
+        true
+      );
+      const createWorkspaceFromModelStub = sandbox.stub();
+      createWorkspaceFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'createWorkspace',
+        createWorkspaceFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await workspaceService.createWorkspace(
+          creatorId,
+          creatorEmail,
+          workspaceName,
+          workspaceSlug
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(createWorkspaceFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow a DataValidationError when workspace model throws it ', async () => {
+      const workspaceName = 'testWorkspaceName';
+      const workspaceSlug = 'testWorkspaceSlug';
+      const creatorId = new mongooseTypes.ObjectId();
+      const creatorEmail = 'testUserEmail';
+      const errMessage = 'You have an invalid argument';
+      const err = new error.DataValidationError(
+        errMessage,
+        'emailVerified',
+        true
+      );
+      const createWorkspaceFromModelStub = sandbox.stub();
+      createWorkspaceFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'createWorkspace',
+        createWorkspaceFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DataValidationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await workspaceService.createWorkspace(
+          creatorId,
+          creatorEmail,
+          workspaceName,
+          workspaceSlug
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(createWorkspaceFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when workspace model throws a DataOperationError ', async () => {
+      const workspaceName = 'testWorkspaceName';
+      const workspaceSlug = 'testWorkspaceSlug';
+      const creatorId = new mongooseTypes.ObjectId();
+      const creatorEmail = 'testUserEmail';
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'updateWorkspaceById'
+      );
+      const createWorkspaceFromModelStub = sandbox.stub();
+      createWorkspaceFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'createWorkspace',
+        createWorkspaceFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await workspaceService.createWorkspace(
+          creatorId,
+          creatorEmail,
+          workspaceName,
+          workspaceSlug
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(createWorkspaceFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
@@ -1813,8 +2084,8 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context.only('updateWorkspaceSlug', () => {
-    it.only('should update a workspace slug', async () => {
+  context('updateWorkspaceSlug', () => {
+    it('should update a workspace slug', async () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
@@ -1885,7 +2156,7 @@ describe('#services/workspace', () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.DataNotFoundError(errMessage, 'slug', {
@@ -1914,10 +2185,10 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaceName = await workspaceService.updateWorkspaceName(
+      const workspaceName = await workspaceService.updateWorkspaceSlug(
         userId,
         userEmail,
-        newWorkspaceName,
+        newWorkspaceSlug,
         workspaceSlug
       );
 
@@ -1930,7 +2201,7 @@ describe('#services/workspace', () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'tnewTstSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.DataNotFoundError(errMessage, 'slug', {
@@ -1959,10 +2230,10 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaceName = await workspaceService.updateWorkspaceName(
+      const workspaceName = await workspaceService.updateWorkspaceSlug(
         userId,
         userEmail,
-        newWorkspaceName,
+        newWorkspaceSlug,
         workspaceSlug
       );
 
@@ -1975,7 +2246,7 @@ describe('#services/workspace', () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.InvalidArgumentError(errMessage, 'slug', {
@@ -2004,10 +2275,10 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaceName = await workspaceService.updateWorkspaceName(
+      const workspaceName = await workspaceService.updateWorkspaceSlug(
         userId,
         userEmail,
-        newWorkspaceName,
+        newWorkspaceSlug,
         workspaceSlug
       );
 
@@ -2020,7 +2291,7 @@ describe('#services/workspace', () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.DataServiceError(
@@ -2054,10 +2325,10 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceName(
+        await workspaceService.updateWorkspaceSlug(
           userId,
           userEmail,
-          newWorkspaceName,
+          newWorkspaceSlug,
           workspaceSlug
         );
       } catch (e) {
@@ -2074,7 +2345,7 @@ describe('#services/workspace', () => {
       const workspaceId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.InvalidArgumentError(errMessage, 'slug', {
@@ -2124,10 +2395,10 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaceName = await workspaceService.updateWorkspaceName(
+      const workspaceName = await workspaceService.updateWorkspaceSlug(
         userId,
         userEmail,
-        newWorkspaceName,
+        newWorkspaceSlug,
         workspaceSlug
       );
 
@@ -2142,7 +2413,7 @@ describe('#services/workspace', () => {
       const workspaceId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.InvalidOperationError(errMessage, {
@@ -2192,10 +2463,10 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaceName = await workspaceService.updateWorkspaceName(
+      const workspaceName = await workspaceService.updateWorkspaceSlug(
         userId,
         userEmail,
-        newWorkspaceName,
+        newWorkspaceSlug,
         workspaceSlug
       );
 
@@ -2210,7 +2481,7 @@ describe('#services/workspace', () => {
       const workspaceId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.DatabaseOperationError(
@@ -2257,10 +2528,10 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceName(
+        await workspaceService.updateWorkspaceSlug(
           userId,
           userEmail,
-          newWorkspaceName,
+          newWorkspaceSlug,
           workspaceSlug
         );
       } catch (e) {
@@ -2277,7 +2548,7 @@ describe('#services/workspace', () => {
       const workspaceId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.DataNotFoundError(errMessage, 'slug', {
@@ -2336,10 +2607,10 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaceName = await workspaceService.updateWorkspaceName(
+      const workspaceName = await workspaceService.updateWorkspaceSlug(
         userId,
         userEmail,
-        newWorkspaceName,
+        newWorkspaceSlug,
         workspaceSlug
       );
 
@@ -2355,7 +2626,7 @@ describe('#services/workspace', () => {
       const workspaceId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
+      const newWorkspaceSlug = 'newTestSlug';
       const errMessage = 'Cannot find the workspace';
 
       const err = new error.DatabaseOperationError(
@@ -2410,10 +2681,10 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceName(
+        await workspaceService.updateWorkspaceSlug(
           userId,
           userEmail,
-          newWorkspaceName,
+          newWorkspaceSlug,
           workspaceSlug
         );
       } catch (e) {

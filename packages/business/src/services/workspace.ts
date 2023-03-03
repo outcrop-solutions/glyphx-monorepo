@@ -58,6 +58,8 @@ export class WorkspaceService {
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
 
+      // TODO: add workspace to user model
+
       await EmailClient.sendMail({
         html: workspaceCreateHtml({code: workspace.inviteCode, name}),
         subject: `[Glyphx] Workspace created: ${name}`,
@@ -69,7 +71,7 @@ export class WorkspaceService {
     } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
+        err instanceof error.DataValidationError
       ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
