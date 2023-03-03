@@ -512,8 +512,8 @@ export class FileIngestor {
   private cleanJoinInformation(
     joinInformation: IJoinTableDefinition[]
   ): IJoinTableDefinition[] {
-    joinInformation.forEach(join => {
-      join.columns.forEach(joinColumn => {
+    joinInformation?.forEach(join => {
+      join.columns?.forEach(joinColumn => {
         delete (joinColumn as any).tableDefinition;
       });
     });
