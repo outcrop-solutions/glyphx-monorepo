@@ -1813,4 +1813,148 @@ describe('ProcessTrackingService', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
+
+  context.only('setHeartbeat', () => {
+    const sandbox = createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should set the heartbeat with processId as string', async () => {
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentByProcessId',
+        updateStub
+      );
+
+      const processId = 'testProcessId';
+      await ProcessTrackingService.setHeartbeat(processId);
+      assert.isTrue(updateStub.calledOnce);
+    });
+
+    it('should set the heartbeat with processId as ObjectId', async () => {
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      const processId = new mongooseTypes.ObjectId();
+      await ProcessTrackingService.setHeartbeat(processId);
+      assert.isTrue(updateStub.calledOnce);
+    });
+
+    it('should publish and rethrow an InvalidArgument error when it is thrown by the model.', async () => {
+      const invalidError = new error.InvalidArgumentError(
+        'invalid',
+        'key',
+        'value'
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, invalidError.message);
+      }
+
+      const boundPublish = fakePublish.bind(invalidError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.setHeartbeat(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish and rethrow an InvalidOperationError when it is thrown by the model.', async () => {
+      const invalidError = new error.InvalidOperationError(
+        'invalid operation',
+        {}
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, invalidError.message);
+      }
+
+      const boundPublish = fakePublish.bind(invalidError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.setHeartbeat(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish and throw an DataServiceError when any other error is thrown by the model', async () => {
+      const invalidError = new error.DatabaseOperationError(
+        'invalid operation',
+        'mongoDb',
+        'updateProcessTrackingDocumentByFilter'
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      const publishOverride = sandbox.stub();
+      publishOverride.resolves();
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.setHeartbeat(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
 });

@@ -387,4 +387,41 @@ export class ProcessTrackingService {
       }
     }
   }
+
+  public static async setHeartbeat(processId: string | mongooseTypes.ObjectId) {
+    try {
+      const hearbeat = new Date();
+      if (processId instanceof mongooseTypes.ObjectId) {
+        await mongoDbConnection.models.ProcessTrackingModel.updateProcessTrackingDocumentById(
+          processId,
+          {processHeartbeat: hearbeat}
+        );
+      } else {
+        await mongoDbConnection.models.ProcessTrackingModel.updateProcessTrackingDocumentByProcessId(
+          processId,
+          {processHeartbeat: hearbeat}
+        );
+      }
+    } catch (err) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          `An unexpected error occurred while updating the heartbeat for the processId: ${processId}. See the inner error for additional information`,
+          'processTracking',
+          'setHeartbeat',
+          {
+            processId: processId,
+          },
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
 }
