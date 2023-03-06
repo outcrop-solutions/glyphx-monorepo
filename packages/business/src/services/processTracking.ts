@@ -3,6 +3,8 @@ import {Types as mongooseTypes} from 'mongoose';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 
+const TIMEOUT = 900000; // 15 minutes
+
 export class ProcessTrackingService {
   public static async createProcessTracking(
     processId: string,
@@ -49,11 +51,51 @@ export class ProcessTrackingService {
     }
   }
 
+  private static async reconcileStatus(
+    processTracking: databaseTypes.IProcessTracking
+  ): Promise<databaseTypes.IProcessTracking> {
+    if (
+      processTracking.processStatus ===
+        databaseTypes.constants.PROCESS_STATUS.PENDING ||
+      processTracking.processStatus ===
+        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
+    ) {
+      const now = new Date().getTime();
+      const startDate = (
+        processTracking.processHeartbeat ?? processTracking.processStartTime
+      ).getTime();
+
+      //The process appears to be hung
+      if (now - startDate > TIMEOUT) {
+        ProcessTrackingService.completeProcess(
+          processTracking.processId,
+          {},
+          databaseTypes.constants.PROCESS_STATUS.HUNG
+        );
+        ProcessTrackingService.addProcessMessage(
+          processTracking.processId,
+          'The process has timed out without updating the heart beat or completing'
+        );
+        return (await ProcessTrackingService.getProcessTracking(
+          processTracking.processId
+        )) as databaseTypes.IProcessTracking;
+      } else {
+        return processTracking;
+      }
+    } else {
+      return processTracking;
+    }
+  }
+
   public static async getProcessStatus(
     processId: string | mongooseTypes.ObjectId
   ): Promise<Pick<
     databaseTypes.IProcessTracking,
-    'processStatus' | 'processMessages' | 'processError' | 'processResult'
+    | 'processStatus'
+    | 'processMessages'
+    | 'processError'
+    | 'processResult'
+    | 'processHeartbeat'
   > | null> {
     try {
       const processTrackingModel =
@@ -70,17 +112,18 @@ export class ProcessTrackingService {
             processId
           )) as databaseTypes.IProcessTracking;
       }
-      const processMessages = processTrackingDocument.processMessages.slice(
-        0,
-        10
+      const updatedStatus = await ProcessTrackingService.reconcileStatus(
+        processTrackingDocument
       );
-      const processError = processTrackingDocument.processError.slice(0, 10);
+      const processMessages = updatedStatus.processMessages.slice(0, 10);
+      const processError = updatedStatus.processError.slice(0, 10);
 
       return {
-        processStatus: processTrackingDocument?.processStatus,
+        processStatus: updatedStatus.processStatus,
         processMessages: processMessages,
         processError: processError,
-        processResult: processTrackingDocument?.processResult,
+        processResult: updatedStatus.processResult,
+        processHeartbeat: updatedStatus.processHeartbeat,
       };
     } catch (err) {
       if (err instanceof error.DataNotFoundError) {
@@ -300,17 +343,21 @@ export class ProcessTrackingService {
     try {
       const processTrackingModel =
         mongoDbConnection.models.ProcessTrackingModel;
+      let processTrackingDocument: databaseTypes.IProcessTracking | null = null;
       if (processId instanceof mongooseTypes.ObjectId) {
-        const processTrackingDocument =
+        processTrackingDocument =
           await processTrackingModel.getProcessTrackingDocumentById(processId);
-        return processTrackingDocument;
       } else {
-        const processTrackingDocument =
+        processTrackingDocument =
           await processTrackingModel.getProcessTrackingDocumentByProcessId(
             processId
           );
-        return processTrackingDocument;
       }
+      const updatedDocument = await ProcessTrackingService.reconcileStatus(
+        processTrackingDocument
+      );
+
+      return updatedDocument;
     } catch (err) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
