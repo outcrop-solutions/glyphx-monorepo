@@ -10,7 +10,7 @@ function removeDoubleSpaces(input: string): string {
   return retval;
 }
 const REG_EX =
-  /CREATE\s+EXTERNAL\s+TABLE\s+(\w+)\s+\(\s+((?:\w+\s+(?:varchar\(\d+\)|double),\s+)+)(\w+\s+(?:varchar\(\d+\)|double)\s+)\)\s+STORED\s+AS\s+(PARQUET)\s+LOCATION\s+'(.+)'\s+TBLPROPERTIES\s+\('parquet\.compression'='(\w+)'\);/gim;
+  /CREATE\s+EXTERNAL\s+TABLE\s+(\w+)\s+\(\s+((?:\w+\s+(?:varchar\(\d+\)|double|bigint),\s+)+)(\w+\s+(?:varchar\(\d+\)|double)\s+)\)\s+STORED\s+AS\s+(PARQUET)\s+LOCATION\s+'(.+)'\s+TBLPROPERTIES\s+\('parquet\.compression'='(\w+)'\);/gim;
 
 describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
   beforeEach(() => {
