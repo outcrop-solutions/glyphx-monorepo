@@ -1,4 +1,3 @@
-import slugify from 'slugify';
 import {
   EmailClient,
   workspaceCreateHtml,
@@ -42,9 +41,10 @@ export class WorkspaceService {
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
+      let newSlug = slug;
       const count = await WorkspaceService.countWorkspaces(slug);
       if (count > 0) {
-        slug = `${slug}-${count}`;
+        newSlug = `${slug}-${count}`;
       }
       // TODO: add member record to workspace
       // @jp: do we have a clean way to create related records in one operation - in this case a member record for the workspace
@@ -53,7 +53,7 @@ export class WorkspaceService {
         inviteCode: v4().replaceAll('-', ''),
         creatorId,
         name,
-        slug,
+        slug: newSlug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
@@ -70,7 +70,7 @@ export class WorkspaceService {
       return workspace;
     } catch (err: any) {
       if (
-        err instanceof error.InvalidArgumentError ||
+        err instanceof error.UnexpectedError ||
         err instanceof error.DataValidationError
       ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -112,20 +112,25 @@ export class WorkspaceService {
         });
         return slug;
       } else {
-        return null;
+        throw new error.DataNotFoundError(
+          'Unable to find workspace',
+          'workspace',
+          {userId, email}
+        );
       }
     } catch (err: any) {
       if (
+        err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
       ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
-        throw err;
+        return null;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while updating the member. See the inner error for additional details',
-          'member',
-          'updateMember',
+          'An unexpected error occurred while updating the workspace. See the inner error for additional details',
+          'workspace',
+          'updateWorkspace',
           {userId, email, slug},
           err
         );
@@ -397,7 +402,10 @@ export class WorkspaceService {
         })),
       ];
     } catch (err: any) {
-      if (err instanceof error.DataNotFoundError) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
@@ -496,7 +504,13 @@ export class WorkspaceService {
         ]);
         return membersList;
       } else {
-        throw new Error('Unable to find workspace');
+        const errMsg = 'No workspace found';
+        const e = new error.DataNotFoundError(errMsg, 'getOwnWorkspace', {
+          userId,
+          email,
+          slug,
+        });
+        throw e;
       }
     } catch (err: any) {
       if (
