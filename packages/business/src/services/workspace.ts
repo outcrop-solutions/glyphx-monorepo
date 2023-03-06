@@ -434,7 +434,10 @@ export class WorkspaceService {
   static async inviteUsers(
     userId: mongooseTypes.ObjectId | string,
     email: string,
-    members: databaseTypes.IMember[],
+    members: {
+      email: string;
+      teamRole: databaseTypes.constants.ROLE;
+    }[],
     slug: string
   ): Promise<Partial<databaseTypes.IMember>[] | null> {
     try {
@@ -472,9 +475,10 @@ export class WorkspaceService {
           })
         );
 
-        const createdMembers = mongoDbConnection.models.MemberModel.create({
-          membersList,
-        }) as unknown as databaseTypes.IMember[];
+        const createdMembers =
+          (await mongoDbConnection.models.MemberModel.create({
+            membersList,
+          })) as unknown as databaseTypes.IMember[];
 
         const memberIds = createdMembers.map(mem => {
           const id =
@@ -502,7 +506,7 @@ export class WorkspaceService {
             to: members.map(member => member.email),
           }),
         ]);
-        return membersList;
+        return createdMembers;
       } else {
         const errMsg = 'No workspace found';
         const e = new error.DataNotFoundError(errMsg, 'getOwnWorkspace', {
@@ -515,6 +519,7 @@ export class WorkspaceService {
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
       ) {
