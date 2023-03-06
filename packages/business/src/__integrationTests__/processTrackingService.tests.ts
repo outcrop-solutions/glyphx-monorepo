@@ -77,6 +77,7 @@ describe('#ProcessTrackingService', () => {
         processTracking?.processStartTime.getTime() ?? 999
       );
     });
+
     it('will add a message', async () => {
       assert.isOk(processTrackingId);
       const message = 'continuing the process';
