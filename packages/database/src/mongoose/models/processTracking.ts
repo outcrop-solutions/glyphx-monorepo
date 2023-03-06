@@ -29,6 +29,7 @@ const SCHEMA = new mongoose.Schema<
   processMessages: {type: [String], required: true},
   processError: {type: [Object], required: true},
   processResult: {type: Object, required: false},
+  processHeartbeat: {type: Date, required: false},
 });
 
 SCHEMA.static(

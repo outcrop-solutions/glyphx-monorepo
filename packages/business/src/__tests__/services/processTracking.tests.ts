@@ -150,6 +150,7 @@ describe('ProcessTrackingService', () => {
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
+      processHeartbeat: new Date(),
       processMessages: [
         'message1',
         'message2',
@@ -189,6 +190,7 @@ describe('ProcessTrackingService', () => {
     afterEach(() => {
       sandbox.restore();
     });
+
     it('should return the process status processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
@@ -196,6 +198,14 @@ describe('ProcessTrackingService', () => {
         dbConnection.models.ProcessTrackingModel,
         'getProcessTrackingDocumentByProcessId',
         getStub
+      );
+
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
       );
 
       const processId = mockProcessTracking.processId;
@@ -219,6 +229,8 @@ describe('ProcessTrackingService', () => {
         result?.processResult?.result,
         mockProcessTracking.processResult?.result
       );
+      assert.isOk(result?.processHeartbeat);
+      assert.isTrue(reconcileStatusStub.calledOnce);
     });
 
     it('should return the process status processId is an ObjectId', async () => {
@@ -228,6 +240,14 @@ describe('ProcessTrackingService', () => {
         dbConnection.models.ProcessTrackingModel,
         'getProcessTrackingDocumentById',
         getStub
+      );
+
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
       );
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
@@ -251,7 +271,10 @@ describe('ProcessTrackingService', () => {
         result?.processResult?.result,
         mockProcessTracking.processResult?.result
       );
+      assert.isOk(result?.processHeartbeat);
+      assert.isTrue(reconcileStatusStub.calledOnce);
     });
+
     it('will return null when the processId does not exist', async () => {
       const notFoundError = new error.DataNotFoundError(
         'the data is not found',
@@ -266,6 +289,13 @@ describe('ProcessTrackingService', () => {
         getStub
       );
 
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
+      );
       function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
@@ -297,6 +327,13 @@ describe('ProcessTrackingService', () => {
         dbConnection.models.ProcessTrackingModel,
         'getProcessTrackingDocumentById',
         getStub
+      );
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
       );
 
       const publishOverride = sandbox.stub();
@@ -1310,6 +1347,13 @@ describe('ProcessTrackingService', () => {
         getStub
       );
 
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
+      );
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessTracking(processId);
       assert.isOk(result);
@@ -1346,6 +1390,8 @@ describe('ProcessTrackingService', () => {
       assert.strictEqual(result?.processId, mockProcessTracking.processId);
       assert.strictEqual(result?.processName, mockProcessTracking.processName);
       assert.strictEqual(result?._id, mockProcessTracking._id);
+
+      assert.isTrue(reconcileStatusStub.calledOnce);
     });
 
     it('should return the processTracking document when processId is an ObjectId', async () => {
@@ -1355,6 +1401,14 @@ describe('ProcessTrackingService', () => {
         dbConnection.models.ProcessTrackingModel,
         'getProcessTrackingDocumentById',
         getStub
+      );
+
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
       );
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
@@ -1393,6 +1447,7 @@ describe('ProcessTrackingService', () => {
       assert.strictEqual(result?.processId, mockProcessTracking.processId);
       assert.strictEqual(result?.processName, mockProcessTracking.processName);
       assert.strictEqual(result?._id, mockProcessTracking._id);
+      assert.isTrue(reconcileStatusStub.calledOnce);
     });
 
     it('will return null when the processId does not exist', async () => {
@@ -1407,6 +1462,14 @@ describe('ProcessTrackingService', () => {
         dbConnection.models.ProcessTrackingModel,
         'getProcessTrackingDocumentById',
         getStub
+      );
+
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
       );
 
       function fakePublish() {
@@ -1441,6 +1504,14 @@ describe('ProcessTrackingService', () => {
         dbConnection.models.ProcessTrackingModel,
         'getProcessTrackingDocumentById',
         getStub
+      );
+
+      const reconcileStatusStub = sandbox.stub();
+      reconcileStatusStub.resolves(mockProcessTracking);
+      sandbox.replace(
+        ProcessTrackingService as any,
+        'reconcileStatus',
+        reconcileStatusStub
       );
 
       const publishOverride = sandbox.stub();
@@ -1709,6 +1780,7 @@ describe('ProcessTrackingService', () => {
       assert.isNotOk(result);
     });
   });
+
   context('removeProcessTrackingDocument', () => {
     const sandbox = createSandbox();
     afterEach(() => {
@@ -1811,6 +1883,401 @@ describe('ProcessTrackingService', () => {
       assert.isTrue(deleteStub.calledOnce);
       assert.isTrue(errored);
       assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+
+  context('setHeartbeat', () => {
+    const sandbox = createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should set the heartbeat with processId as string', async () => {
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentByProcessId',
+        updateStub
+      );
+
+      const processId = 'testProcessId';
+      await ProcessTrackingService.setHeartbeat(processId);
+      assert.isTrue(updateStub.calledOnce);
+    });
+
+    it('should set the heartbeat with processId as ObjectId', async () => {
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      const processId = new mongooseTypes.ObjectId();
+      await ProcessTrackingService.setHeartbeat(processId);
+      assert.isTrue(updateStub.calledOnce);
+    });
+
+    it('should publish and rethrow an InvalidArgument error when it is thrown by the model.', async () => {
+      const invalidError = new error.InvalidArgumentError(
+        'invalid',
+        'key',
+        'value'
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, invalidError.message);
+      }
+
+      const boundPublish = fakePublish.bind(invalidError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.setHeartbeat(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish and rethrow an InvalidOperationError when it is thrown by the model.', async () => {
+      const invalidError = new error.InvalidOperationError(
+        'invalid operation',
+        {}
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, invalidError.message);
+      }
+
+      const boundPublish = fakePublish.bind(invalidError);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.setHeartbeat(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('should publish and throw an DataServiceError when any other error is thrown by the model', async () => {
+      const invalidError = new error.DatabaseOperationError(
+        'invalid operation',
+        'mongoDb',
+        'updateProcessTrackingDocumentByFilter'
+      );
+      const updateStub = sandbox.stub();
+      updateStub.rejects(invalidError);
+      sandbox.replace(
+        dbConnection.models.ProcessTrackingModel,
+        'updateProcessTrackingDocumentById',
+        updateStub
+      );
+
+      const publishOverride = sandbox.stub();
+      publishOverride.resolves();
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+      const processId = new mongooseTypes.ObjectId();
+      let errored = false;
+      try {
+        await ProcessTrackingService.setHeartbeat(processId);
+      } catch (err) {
+        assert.instanceOf(err, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+
+  context('reconcileStatus', () => {
+    const sandbox = createSandbox();
+    const mockProcessTracking: databaseTypes.IProcessTracking = {
+      processId: 'testProcessId',
+      processName: 'testProcessName',
+      processStatus: databaseTypes.constants.PROCESS_STATUS.PENDING,
+      processStartTime: new Date(),
+      processMessages: [],
+      processError: [],
+    };
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will pass through a processTracking document whoes status === "COMPLETED"', async () => {
+      const mockDocument = JSON.parse(
+        JSON.stringify(mockProcessTracking)
+      ) as databaseTypes.IProcessTracking;
+      mockDocument.processStatus =
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+
+      const completeProcessStub = sandbox.stub();
+      completeProcessStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'completeProcess',
+        completeProcessStub
+      );
+
+      const addMessageStub = sandbox.stub();
+      addMessageStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'addProcessMessage',
+        addMessageStub
+      );
+
+      const getProcessStub = sandbox.stub();
+      getProcessStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'getProcessTracking',
+        getProcessStub
+      );
+
+      const result = await (ProcessTrackingService as any).reconcileStatus(
+        mockDocument
+      );
+
+      assert.strictEqual(result.processStatus, mockDocument.processStatus);
+      assert.isUndefined(result.processEndTime);
+
+      assert.isFalse(completeProcessStub.called);
+      assert.isFalse(addMessageStub.called);
+      assert.isFalse(getProcessStub.called);
+    });
+
+    it('will pass through a processTracking document whoes status === "In Progress" and it has a recent heartbeat', async () => {
+      const mockDocument = JSON.parse(
+        JSON.stringify(mockProcessTracking)
+      ) as databaseTypes.IProcessTracking;
+      mockDocument.processStatus =
+        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      mockDocument.processHeartbeat = new Date();
+
+      const completeProcessStub = sandbox.stub();
+      completeProcessStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'completeProcess',
+        completeProcessStub
+      );
+
+      const addMessageStub = sandbox.stub();
+      addMessageStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'addProcessMessage',
+        addMessageStub
+      );
+
+      const getProcessStub = sandbox.stub();
+      getProcessStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'getProcessTracking',
+        getProcessStub
+      );
+
+      const result = await (ProcessTrackingService as any).reconcileStatus(
+        mockDocument
+      );
+
+      assert.strictEqual(result.processStatus, mockDocument.processStatus);
+      assert.isUndefined(result.processEndTime);
+
+      assert.isFalse(completeProcessStub.called);
+      assert.isFalse(addMessageStub.called);
+      assert.isFalse(getProcessStub.called);
+    });
+    it('will pass through a processTracking document whoes status === "Pendig" and it has a recent start date', async () => {
+      const mockDocument = JSON.parse(
+        JSON.stringify(mockProcessTracking)
+      ) as databaseTypes.IProcessTracking;
+      mockDocument.processStatus =
+        databaseTypes.constants.PROCESS_STATUS.PENDING;
+      mockDocument.processStartTime = new Date(mockDocument.processStartTime);
+
+      const completeProcessStub = sandbox.stub();
+      completeProcessStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'completeProcess',
+        completeProcessStub
+      );
+
+      const addMessageStub = sandbox.stub();
+      addMessageStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'addProcessMessage',
+        addMessageStub
+      );
+
+      const getProcessStub = sandbox.stub();
+      getProcessStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'getProcessTracking',
+        getProcessStub
+      );
+
+      const result = await (ProcessTrackingService as any).reconcileStatus(
+        mockDocument
+      );
+
+      assert.strictEqual(result.processStatus, mockDocument.processStatus);
+      assert.isUndefined(result.processEndTime);
+
+      assert.isFalse(completeProcessStub.called);
+      assert.isFalse(addMessageStub.called);
+      assert.isFalse(getProcessStub.called);
+    });
+
+    it('will set a processTracking document to hung if the heartbeat is > 15 minutes old', async () => {
+      const mockDocument = JSON.parse(
+        JSON.stringify(mockProcessTracking)
+      ) as databaseTypes.IProcessTracking;
+      mockDocument.processStatus =
+        databaseTypes.constants.PROCESS_STATUS.PENDING;
+      mockDocument.processStartTime = new Date(mockDocument.processStartTime);
+
+      mockDocument.processHeartbeat = new Date(new Date().getTime() - 900001);
+      const completeProcessStub = sandbox.stub();
+      const completeRetval = JSON.parse(JSON.stringify(mockDocument));
+      completeRetval.processStatus =
+        databaseTypes.constants.PROCESS_STATUS.HUNG;
+      completeProcessStub.resolves(completeRetval);
+      sandbox.replace(
+        ProcessTrackingService,
+        'completeProcess',
+        completeProcessStub
+      );
+
+      const addMessageStub = sandbox.stub();
+      addMessageStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'addProcessMessage',
+        addMessageStub
+      );
+
+      const getProcessStub = sandbox.stub();
+      getProcessStub.resolves(completeRetval);
+      sandbox.replace(
+        ProcessTrackingService,
+        'getProcessTracking',
+        getProcessStub
+      );
+
+      const result = await (ProcessTrackingService as any).reconcileStatus(
+        mockDocument
+      );
+
+      assert.strictEqual(result.processStatus, completeRetval.processStatus);
+
+      assert.isTrue(completeProcessStub.called);
+      assert.isTrue(addMessageStub.called);
+      assert.isTrue(getProcessStub.called);
+
+      const completedArgs = completeProcessStub.getCall(0).args;
+      assert.strictEqual(
+        completedArgs[2],
+        databaseTypes.constants.PROCESS_STATUS.HUNG
+      );
+    });
+
+    it('will set a processTracking document to hung if the heartbeat is not set and start date is > 15 min', async () => {
+      const mockDocument = JSON.parse(
+        JSON.stringify(mockProcessTracking)
+      ) as databaseTypes.IProcessTracking;
+      mockDocument.processStatus =
+        databaseTypes.constants.PROCESS_STATUS.PENDING;
+
+      mockDocument.processStartTime = new Date(new Date().getTime() - 900001);
+      const completeProcessStub = sandbox.stub();
+      const completeRetval = JSON.parse(JSON.stringify(mockDocument));
+      completeRetval.processStatus =
+        databaseTypes.constants.PROCESS_STATUS.HUNG;
+      completeProcessStub.resolves(completeRetval);
+      sandbox.replace(
+        ProcessTrackingService,
+        'completeProcess',
+        completeProcessStub
+      );
+
+      const addMessageStub = sandbox.stub();
+      addMessageStub.resolves();
+      sandbox.replace(
+        ProcessTrackingService,
+        'addProcessMessage',
+        addMessageStub
+      );
+
+      const getProcessStub = sandbox.stub();
+      getProcessStub.resolves(completeRetval);
+      sandbox.replace(
+        ProcessTrackingService,
+        'getProcessTracking',
+        getProcessStub
+      );
+
+      const result = await (ProcessTrackingService as any).reconcileStatus(
+        mockDocument
+      );
+
+      assert.strictEqual(result.processStatus, completeRetval.processStatus);
+
+      assert.isTrue(completeProcessStub.called);
+      assert.isTrue(addMessageStub.called);
+      assert.isTrue(getProcessStub.called);
+
+      const completedArgs = completeProcessStub.getCall(0).args;
+      assert.strictEqual(
+        completedArgs[2],
+        databaseTypes.constants.PROCESS_STATUS.HUNG
+      );
     });
   });
 });
