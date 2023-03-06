@@ -354,4 +354,37 @@ export class ProcessTrackingService {
     if (document) return {processResult: document.processResult};
     else return null;
   }
+
+  public static async removeProcessTrackingDocument(
+    processId: string | mongooseTypes.ObjectId
+  ) {
+    try {
+      if (processId instanceof mongooseTypes.ObjectId) {
+        await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentById(
+          processId
+        );
+      } else {
+        await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(
+          processId
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.InvalidArgumentError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          `An unexpected error occurred while deleting  a database entry for the processId: ${processId}  See the inner error for additional information`,
+          'processTracking',
+          'removeProcessTrackingDocument',
+          {
+            processId: processId,
+          },
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
 }

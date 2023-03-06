@@ -41,7 +41,10 @@ export class ResultSetConverter {
       mappedConverters.push({
         index: index,
         name: c.Name as string,
-        converter: c.Type === 'double' ? STRING_TO_NUMBER : PASS_THROUGH,
+        converter:
+          c.Type === 'double' || c.Type === 'bigint'
+            ? STRING_TO_NUMBER
+            : PASS_THROUGH,
       });
     });
 

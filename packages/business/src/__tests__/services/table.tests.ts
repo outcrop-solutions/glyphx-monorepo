@@ -14,7 +14,7 @@ class MockAthenaConnection {
     this.throwValue = throwValue;
   }
 
-  async runQuery(query: string): Promise<Record<string, any>[]> {
+  async runQuery(): Promise<Record<string, any>[]> {
     if (this.throwValue) throw this.retrunedValue;
     else return this.retrunedValue as unknown as Record<string, any>[];
   }
