@@ -281,11 +281,6 @@ export class WorkspaceService {
     // TODO: add filter to get workspaces where user is a member
     // @jp: we need a clean way to implement filter on related records here
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : new mongooseTypes.ObjectId(userId);
-
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           deletedAt: null,
@@ -338,11 +333,6 @@ export class WorkspaceService {
     email: string
   ): Promise<databaseTypes.IWorkspace[] | null> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : new mongooseTypes.ObjectId(userId);
-
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           deletedAt: null,
@@ -481,17 +471,12 @@ export class WorkspaceService {
           })) as unknown as databaseTypes.IMember[];
 
         const memberIds = createdMembers.map(mem => {
-          const id =
-            mem._id instanceof mongooseTypes.ObjectId
-              ? mem._id
-              : new mongooseTypes.ObjectId(mem._id);
-          return id;
+          return mem._id;
         });
-
         await Promise.all([
           mongoDbConnection.models.WorkspaceModel.addMembers(
             workspace._id as mongooseTypes.ObjectId,
-            memberIds
+            memberIds as unknown as mongooseTypes.ObjectId[]
           ),
           EmailClient.sendMail({
             html: inviteHtml({
@@ -588,21 +573,29 @@ export class WorkspaceService {
         status: database.constants.INVITATION_STATUS.ACCEPTED,
       } as Omit<databaseTypes.IMember, '_id'>;
 
+      let member;
       if (memberEmailExists) {
         // create member
-        await mongoDbConnection.models.MemberModel.createMember(input);
+        member = await mongoDbConnection.models.MemberModel.createMember(input);
       } else {
         // update member
-
-        await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-          {email},
-          input
-        );
+        member =
+          await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+            {email},
+            input
+          );
       }
+
+      await mongoDbConnection.models.WorkspaceModel.addMembers(
+        workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
+        [member]
+      );
+
       return new Date();
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError
       ) {
@@ -636,14 +629,9 @@ export class WorkspaceService {
       );
 
       if (workspace) {
-        const id =
-          workspace._id instanceof mongooseTypes.ObjectId
-            ? workspace._id
-            : new mongooseTypes.ObjectId(workspace._id);
-
         const newWorkspace =
           await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-            id,
+            workspace._id as unknown as mongooseTypes.ObjectId,
             {
               name,
             }
@@ -692,14 +680,12 @@ export class WorkspaceService {
       );
 
       if (workspace) {
-        const id =
-          workspace._id instanceof mongooseTypes.ObjectId
-            ? workspace._id
-            : new mongooseTypes.ObjectId(workspace._id);
-
-        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(id, {
-          slug: newSlug.toLowerCase(),
-        });
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
+          workspace._id as unknown as mongooseTypes.ObjectId,
+          {
+            slug: newSlug.toLowerCase(),
+          }
+        );
         return newSlug.toLowerCase();
       } else {
         throw new error.DataNotFoundError(
