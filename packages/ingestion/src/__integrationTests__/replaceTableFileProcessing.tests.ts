@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {aws} from '@glyphx/core';
+import {aws, generalPurposeFunctions} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 import replaceFilesJson from './assets/replaceTables.json';
@@ -7,10 +7,18 @@ import replaceFilesJson from './assets/replaceTables.json';
 import {fileIngestion} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
-import {Initializer, dbConnection} from '@glyphx/business';
+import {config} from '../config';
+import {
+  Initializer,
+  processTrackingService,
+  dbConnection,
+} from '@glyphx/business';
 import {v4} from 'uuid';
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
+const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
+const PROCESS_ID2 = generalPurposeFunctions.processTracking.getProcessId();
+const PROCESS_NAME = 'addFileProcessing' + UNIQUE_KEY;
 
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
@@ -29,7 +37,12 @@ async function setupExistingAssets() {
     addFilesJson.testDataDirectory,
     payload
   );
-  const fileIngestor = new FileIngestor(payload, addFilesJson.databaseName);
+  await processTrackingService.createProcessTracking(PROCESS_ID2, PROCESS_NAME);
+  const fileIngestor = new FileIngestor(
+    payload,
+    addFilesJson.databaseName,
+    PROCESS_ID2
+  );
   await fileIngestor.init();
   await fileIngestor.process();
 }
@@ -49,6 +62,7 @@ describe('#fileProcessing', () => {
     let projectId: any;
 
     before(async () => {
+      (config as any).inited = false;
       await Initializer.init();
       const projectDocument = (
         await dbConnection.models.ProjectModel.create([INPUT_PROJECT], {
@@ -92,7 +106,12 @@ describe('#fileProcessing', () => {
         athenaManager
       );
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
+      await processTrackingService.createProcessTracking(
+        PROCESS_ID,
+        PROCESS_NAME
+      );
       await setupExistingAssets();
+      (config as any).inited = false;
     });
 
     after(async () => {
@@ -104,9 +123,11 @@ describe('#fileProcessing', () => {
         athenaManager
       );
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
+      await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
+      await processTrackingService.removeProcessTrackingDocument(PROCESS_ID2);
     });
     it('Basic pipeline test', async () => {
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
       const {joinInformation} = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(

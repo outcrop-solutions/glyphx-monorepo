@@ -25,23 +25,34 @@ const INPUT_FILE_STATS: fileIngestionTypes.IFileStats[] = [
     fileSize: 1000,
   },
 ];
-const INPUT_ORGANIZATION = {
-  name: 'testOrganization' + UNIQUE_KEY,
-  description: 'testorganization' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+
+const INPUT_WORKSPACE = {
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {},
 };
 
 const INPUT_USER = {
   name: 'testUser' + UNIQUE_KEY,
+  userCode: 'testUserCode' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
 };
 
 const INPUT_STATE = {
@@ -63,6 +74,7 @@ const INPUT_DATA = {
   state: {},
   files: [],
   viewName: 'testProjectView' + UNIQUE_KEY,
+  workspace: {},
 };
 
 const INPUT_PROJECT_TYPE = {
@@ -77,20 +89,20 @@ describe('#ProjectService', () => {
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
     let userId: ObjectId;
-    let organizationId: ObjectId;
     let stateId: ObjectId;
     let projectTypeId: ObjectId;
-    let organizationDocument: any;
+    let workspaceId: ObjectId;
     let userDocument: any;
     let stateDocument: any;
     let projectTypeDocument: any;
+    let workspaceDocument: any;
 
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
-      const organizationModel = mongoConnection.models.OrganizationModel;
       const stateModel = mongoConnection.models.StateModel;
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
@@ -102,18 +114,6 @@ describe('#ProjectService', () => {
       userDocument = savedUserDocument;
 
       assert.isOk(userId);
-
-      await organizationModel.create([INPUT_ORGANIZATION], {
-        validateBeforeSave: false,
-      });
-      const savedOrganizationDocument = await organizationModel
-        .findOne({name: INPUT_ORGANIZATION.name})
-        .lean();
-      organizationId = savedOrganizationDocument?._id as mongooseTypes.ObjectId;
-
-      organizationDocument = savedOrganizationDocument;
-
-      assert.isOk(organizationId);
 
       await projectTypeModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
@@ -137,10 +137,21 @@ describe('#ProjectService', () => {
 
       assert.isOk(stateId);
 
+      await workspaceModel.create([INPUT_WORKSPACE], {
+        validateBeforeSave: false,
+      });
+      const savedWorkspaceDocument = await workspaceModel
+        .findOne({name: INPUT_WORKSPACE.name})
+        .lean();
+      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
+
+      workspaceDocument = savedWorkspaceDocument;
+
+      assert.isOk(workspaceId);
       INPUT_DATA.owner = userDocument;
-      INPUT_DATA.organization = organizationDocument;
       INPUT_DATA.type = projectTypeDocument;
       INPUT_DATA.state = stateDocument;
+      INPUT_DATA.workspace = workspaceDocument;
 
       const projectDocument = await projectModel.createProject(
         INPUT_DATA as unknown as databaseTypes.IProject
@@ -153,19 +164,20 @@ describe('#ProjectService', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
 
-      const organizationModel = mongoConnection.models.OrganizationModel;
-      await organizationModel.findByIdAndDelete(organizationId);
-
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
       await projectTypeModel.findByIdAndDelete(projectTypeId);
 
       const stateModel = mongoConnection.models.StateModel;
       await stateModel.findByIdAndDelete(stateId);
 
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
+      await workspaceModel.findByIdAndDelete(workspaceId);
+
       if (projectId) {
         await projectModel.findByIdAndDelete(projectId);
       }
     });
+
     it('will retreive our project from the database', async () => {
       const project = await projectService.getProject(projectId);
       assert.isOk(project);

@@ -1,10 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {
-  database as databaseTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
+import {database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';

@@ -31,7 +31,6 @@ const INPUT_USER = {
 
 const INPUT_DATA = {
   paymentId: 'testPaymentId' + UNIQUE_KEY,
-  customerId: 'testCustomerId' + UNIQUE_KEY,
   email: 'testemail@gmail.com',
   subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
   createdAt: new Date(),
@@ -41,7 +40,6 @@ const INPUT_DATA = {
 
 const INPUT_DATA2 = {
   paymentId: 'testPaymentId2' + UNIQUE_KEY,
-  customerId: 'testCustomerId2' + UNIQUE_KEY,
   email: 'testemail2@gmail.com',
   subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
   createdAt: new Date(),
@@ -165,10 +163,13 @@ describe('#customerPaymentModel', () => {
     it('Get multiple customerPayments with a filter', async () => {
       assert.isOk(customerPaymentId2);
       const results = await customerPaymentModel.queryCustomerPayments({
-        customerId: INPUT_DATA.customerId,
+        customer: userId,
       });
-      assert.strictEqual(results.results.length, 1);
-      assert.strictEqual(results.results[0]?.customerId, INPUT_DATA.customerId);
+      assert.strictEqual(results.results.length, 2);
+      assert.strictEqual(
+        results.results[0]?.customer?._id?.toString(),
+        userId.toString()
+      );
     });
 
     it('page customerPayments', async () => {
