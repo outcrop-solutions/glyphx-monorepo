@@ -51,6 +51,15 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         isJoinColumn: false,
         isSelectedColumn: true,
       });
+
+      tableDef.columns.push({
+        tableDefinition: tableDef,
+        columnIndex: 2,
+        columnName: 'column3',
+        columnType: fileIngestion.constants.FIELD_TYPE.INTEGER,
+        isJoinColumn: false,
+        isSelectedColumn: true,
+      });
       const tableQueryBuilder = new BasicHiveTableQueryPlanner(
         bucketName,
         fileStoregeType,
@@ -93,7 +102,9 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
             splitColumn[1],
             c.columnType === fileIngestion.constants.FIELD_TYPE.STRING
               ? 'varchar(100)'
-              : 'double'
+              : c.columnType === fileIngestion.constants.FIELD_TYPE.NUMBER
+              ? 'double'
+              : 'bigint'
           );
         });
       }

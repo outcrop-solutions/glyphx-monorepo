@@ -554,19 +554,16 @@ export class WorkspaceService {
           status: database.constants.INVITATION_STATUS.ACCEPTED,
         } as Omit<databaseTypes.IMember, '_id'>;
 
-        let member;
         if (memberEmailExists) {
           // create member
-          member = await mongoDbConnection.models.MemberModel.createMember(
-            input
-          );
+          await mongoDbConnection.models.MemberModel.createMember(input);
         } else {
           // update member
-          member =
-            await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-              {email},
-              input
-            );
+
+          await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+            {email},
+            input
+          );
         }
 
         return new Date();

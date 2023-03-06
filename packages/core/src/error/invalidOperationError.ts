@@ -4,7 +4,7 @@ import {ErrorCodes} from '../constants';
 /**
  * An {@link error/glyphxError!GlyphxError} for handling invalid operations.
  */
-export class UnexpectedError extends GlyphxError {
+export class InvalidOperationError extends GlyphxError {
   /**
    * @param message - the message to be displayed.
    * @param data -- additional data related to the error.
@@ -22,4 +22,4 @@ export class UnexpectedError extends GlyphxError {
   }
 }
 
-export default UnexpectedError;
+export default InvalidOperationError;

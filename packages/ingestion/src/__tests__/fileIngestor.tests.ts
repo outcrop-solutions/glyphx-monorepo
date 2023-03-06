@@ -3,14 +3,18 @@ import {assert} from 'chai';
 import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
-import {error, aws} from '@glyphx/core';
-import {BasicAthenaProcessor} from '@fileProcessing';
+import {error, aws, generalPurposeFunctions} from '@glyphx/core';
+import {
+  BasicAthenaProcessor,
+  BasicJoinProcessor as JoinProcessor,
+} from '@fileProcessing';
 import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
 import {
   IFileInformation,
   IFileProcessingError,
   IJoinTableDefinition,
+  IJoinTableColumnDefinition,
 } from '@interfaces/fileProcessing';
 import {FileReconciliator} from '../fileProcessing/fileReconciliator';
 import {
@@ -19,14 +23,18 @@ import {
 } from '@util/constants';
 import * as businessLogic from '@glyphx/business';
 import * as sharedFunctions from '../util/generalPurposeFunctions';
-
+import {config} from '../config';
+const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
 describe('fileIngestor', () => {
+  beforeEach(() => {
+    (config as any).inited = false;
+  });
   context('constructor', () => {
     it('Should build a FileIngestor object', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
 
       assert.isOk(fileIngestor);
 
@@ -81,7 +89,7 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
 
       assert.isTrue(fileIngestor.inited);
@@ -117,7 +125,7 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
       await fileIngestor.init();
 
@@ -156,7 +164,7 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
 
       let hasError = false;
       try {
@@ -212,7 +220,7 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -252,6 +260,27 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
       const results = await fileIngestor.process();
 
       assert.isTrue(dropViewFake.calledOnce);
@@ -265,6 +294,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.viewName,
         sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.notCalled);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
     });
 
@@ -303,6 +341,27 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -321,6 +380,15 @@ describe('fileIngestor', () => {
           FILE_PROCESSING_ERROR_TYPES.TABLE_ALREADY_EXISTS
         );
       }
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
+      );
     });
 
     it('should fail because we are adding the same table twice', async () => {
@@ -359,6 +427,27 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -374,6 +463,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         fileError.errorType,
         FILE_PROCESSING_ERROR_TYPES.INVALID_TABLE_SET
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
 
@@ -413,6 +511,27 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -428,7 +547,17 @@ describe('fileIngestor', () => {
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.UNEXPECTED_ERROR
       );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
+      );
     });
+
     it('should fail because an underlying function throws an GlyphxError', async () => {
       const glyphxError = new error.GlyphxError(
         'something bad has happend',
@@ -468,6 +597,28 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -480,8 +631,19 @@ describe('fileIngestor', () => {
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.UNEXPECTED_ERROR
       );
+
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
+      );
     });
   });
+
   context('Append a File to a table', () => {
     const databaseName = 'testDatabaseName';
     const sandbox = createSandbox();
@@ -524,7 +686,7 @@ describe('fileIngestor', () => {
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
         fileIngestion.constants.FILE_OPERATION.APPEND;
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -567,6 +729,27 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -578,6 +761,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.viewName,
         sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.notCalled);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
     });
 
@@ -629,6 +821,27 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -637,6 +850,15 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 1);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.notCalled);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
+      );
     });
 
     it('should fail when the table does not exist', async () => {
@@ -674,6 +896,30 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -685,6 +931,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
 
@@ -723,6 +978,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -734,6 +1012,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.FILE_ALREADY_EXISTS
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
 
@@ -786,6 +1073,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -797,6 +1107,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.INVALID_TABLE_SET
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
   });
@@ -844,7 +1163,7 @@ describe('fileIngestor', () => {
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
         fileIngestion.constants.FILE_OPERATION.REPLACE;
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -899,6 +1218,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
       assert.isTrue(dropViewFake.calledOnce);
@@ -913,6 +1255,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.viewName,
         sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.notCalled);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
     });
 
@@ -963,6 +1314,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -977,6 +1351,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
 
@@ -1031,6 +1414,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1045,6 +1451,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
   });
@@ -1091,7 +1506,7 @@ describe('fileIngestor', () => {
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
         fileIngestion.constants.FILE_OPERATION.DELETE;
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1146,6 +1561,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
       assert.isTrue(dropViewFake.calledOnce);
@@ -1160,6 +1598,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.viewName,
         sharedFunctions.getViewName(payload.clientId, payload.modelId)
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.notCalled);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
     });
 
@@ -1210,6 +1657,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1224,6 +1694,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
 
@@ -1278,6 +1757,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1292,6 +1794,15 @@ describe('fileIngestor', () => {
       assert.strictEqual(
         results.fileProcessingErrors[0].errorType,
         FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
+      );
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.calledOnce);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.FAILED
       );
     });
   });
@@ -1335,13 +1846,14 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
     afterEach(() => {
       sandbox.restore();
     });
+
     it('Should only try to drop the view once even if multiple view affecting operations are present', async () => {
       const dropViewFake = sandbox.fake.resolves(true as unknown);
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
@@ -1373,6 +1885,27 @@ describe('fileIngestor', () => {
         fileIngestor['basicAthenaProcessor'],
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
+      );
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
       );
       const results = await fileIngestor.process();
 
@@ -1420,7 +1953,7 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName);
+      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1462,6 +1995,29 @@ describe('fileIngestor', () => {
         'processTables',
         sandbox.fake.resolves([{tableName: 'fooTable'} as IJoinTableDefinition])
       );
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'updateProcessStatus',
+        updateStub
+      );
+      const errorStub = sandbox.stub();
+      errorStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'addProcessError',
+        errorStub
+      );
+      const completeStub = sandbox.stub();
+      completeStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'completeProcess',
+        completeStub
+      );
+
       const results = await fileIngestor.process();
 
       assert.strictEqual(results.fileProcessingErrors.length, 2);
@@ -1469,6 +2025,90 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.joinInformation.length, 1);
       assert.strictEqual(results.joinInformation[0].tableName, 'fooTable');
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.WARNING);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(errorStub.notCalled);
+      assert.isTrue(completeStub.calledOnce);
+      const completedArgs = completeStub.getCall(0).args;
+      const completedStatus = completedArgs[2];
+      assert.strictEqual(
+        completedStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
+      );
+    });
+  });
+  context('cleanJointInformation', () => {
+    const table1 = {
+      tableName: 'table1',
+      backingFileName: 'table1.parquet',
+      fields: [
+        {
+          name: 'GLYPHX_ID_COLUMN_NAME',
+          origionalName: 'GLYPHX_ID_COLUMN_NAME',
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
+        {
+          name: 'field1',
+          origionalName: 'field1',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+        {
+          name: 'field2',
+          origionalName: 'field2',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+      ],
+    };
+
+    const table2 = {
+      tableName: 'table2',
+      backingFileName: 'table2.parquet',
+      fields: [
+        {
+          name: 'GLYPHX_ID_COLUMN_NAME',
+          origionalName: 'GLYPHX_ID_COLUMN_NAME',
+          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
+        {
+          name: 'field1',
+          origionalName: 'field1',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+        {
+          name: 'field3',
+          origionalName: 'field3',
+          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+      ],
+    };
+
+    it('will remove the table definition from the joinTableInformation.columns', () => {
+      const joinProcessor = new JoinProcessor();
+      joinProcessor.processColumns(
+        table1.tableName,
+        table1.backingFileName,
+        table1.fields
+      );
+      joinProcessor.processColumns(
+        table2.tableName,
+        table2.backingFileName,
+        table2.fields
+      );
+
+      const joinInformation = joinProcessor.joinData;
+      const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
+      const databaseName = 'testDatabaseName';
+
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+
+      const updatedJoinInformation = (fileIngestor as any).cleanJoinInformation(
+        joinInformation
+      );
+
+      updatedJoinInformation.forEach((joinTable: IJoinTableDefinition) => {
+        joinTable.columns.forEach((column: IJoinTableColumnDefinition) => {
+          assert.isUndefined(column.tableDefinition);
+        });
+      });
     });
   });
 });

@@ -1,4 +1,4 @@
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {error, aws} from '@glyphx/core';
 import {Readable} from 'node:stream';
 import {
@@ -8,6 +8,7 @@ import {
 } from './fileProcessing';
 import {
   projectService,
+  processTrackingService,
   Initializer as businessLogicInit,
 } from '@glyphx/business';
 
@@ -23,6 +24,7 @@ import {
   FILE_PROCESSING_ERROR_TYPES,
   FILE_PROCESSING_STATUS,
 } from '@util/constants';
+import {config} from './config';
 
 export class FileIngestor {
   private readonly clientIdField: string;
@@ -76,7 +78,11 @@ export class FileIngestor {
   public get inited() {
     return this.initedField;
   }
-  constructor(payload: fileIngestion.IPayload, databaseName: string) {
+  constructor(
+    payload: fileIngestion.IPayload,
+    databaseName: string,
+    processId: string
+  ) {
     this.clientIdField = payload.clientId;
     this.modelIdField = payload.modelId;
     this.bucketNameField = payload.bucketName;
@@ -101,6 +107,8 @@ export class FileIngestor {
     );
 
     this.fileStatisticsField = [];
+
+    config.init({processId});
   }
 
   public async init() {
@@ -404,6 +412,12 @@ export class FileIngestor {
   }
 
   public async process(): Promise<IFileProcessingResult> {
+    await processTrackingService.updateProcessStatus(
+      config.processId,
+      databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      `File Ingestion has started : ${new Date()}`
+    );
+
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
@@ -413,6 +427,11 @@ export class FileIngestor {
       this.processedFileErrorInformation.push(...errors);
       fileInfoForReturn = this.fileStatistics;
       processingResults = FILE_PROCESSING_STATUS.ERROR;
+      const err = new error.InvalidOperationError(
+        'There were errors processing the files',
+        {errors}
+      );
+      processTrackingService.addProcessError(config.processId, err);
     } else {
       try {
         const needsViewUpdates = await this.processFiles();
@@ -453,19 +472,51 @@ export class FileIngestor {
         });
         if (err instanceof error.GlyphxError) {
           err.publish();
+          processTrackingService.addProcessError(config.processId, err);
         } else {
-          new error.GlyphxError(message, 999, err, 'UnexpectedError').publish();
+          const gError = new error.GlyphxError(
+            message,
+            999,
+            err,
+            'UnexpectedError'
+          );
+          gError.publish();
+          processTrackingService.addProcessError(config.processId, gError);
         }
         processingResults = FILE_PROCESSING_STATUS.ERROR;
       }
     }
 
-    return {
+    const retval = {
       fileInformation: fileInfoForReturn,
       fileProcessingErrors: this.processedFileErrorInformation,
-      joinInformation: joinInformation,
+      joinInformation: this.cleanJoinInformation(joinInformation),
       status: processingResults,
       viewName: viewName,
     };
+
+    const status =
+      processingResults === FILE_PROCESSING_STATUS.ERROR
+        ? databaseTypes.constants.PROCESS_STATUS.FAILED
+        : databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+
+    await processTrackingService.completeProcess(
+      config.processId,
+      retval,
+      status
+    );
+
+    return retval;
+  }
+
+  private cleanJoinInformation(
+    joinInformation: IJoinTableDefinition[]
+  ): IJoinTableDefinition[] {
+    joinInformation?.forEach(join => {
+      join.columns?.forEach(joinColumn => {
+        delete (joinColumn as any).tableDefinition;
+      });
+    });
+    return joinInformation;
   }
 }
