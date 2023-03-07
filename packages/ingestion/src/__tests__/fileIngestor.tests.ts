@@ -22,7 +22,6 @@ import {
   FILE_PROCESSING_ERROR_TYPES,
 } from '@util/constants';
 import * as businessLogic from '@glyphx/business';
-import * as sharedFunctions from '../util/generalPurposeFunctions';
 import {config} from '../config';
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
 describe('fileIngestor', () => {
