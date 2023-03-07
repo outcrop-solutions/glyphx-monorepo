@@ -281,6 +281,15 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
+
       const results = await fileIngestor.process();
 
       assert.isTrue(dropViewFake.calledOnce);
@@ -304,6 +313,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because the table already exists', async () => {
@@ -362,6 +372,13 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -389,6 +406,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because we are adding the same table twice', async () => {
@@ -448,6 +466,15 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
+
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -473,6 +500,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because an underlying function throws an exception', async () => {
@@ -532,6 +560,13 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -556,6 +591,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because an underlying function throws an GlyphxError', async () => {
@@ -619,6 +655,13 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -641,6 +684,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
   });
 
@@ -750,6 +794,13 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -771,6 +822,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should not fail when the table is added and appended in the same fileInfo set', async () => {
@@ -842,6 +894,13 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -859,6 +918,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail when the table does not exist', async () => {
@@ -920,6 +980,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -941,6 +1008,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail when the file already exists', async () => {
@@ -1001,6 +1069,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -1022,6 +1097,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail when we have the same file/table combination more than once', async () => {
@@ -1096,6 +1172,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -1117,6 +1200,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
   });
 
@@ -1241,6 +1325,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
       assert.isTrue(dropViewFake.calledOnce);
@@ -1265,6 +1356,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail if the table does not exist', async () => {
@@ -1337,6 +1429,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1361,6 +1460,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail if we try to replace a table being added in this set', async () => {
@@ -1437,6 +1537,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1461,6 +1568,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
   });
 
@@ -1584,6 +1692,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
       assert.isTrue(dropViewFake.calledOnce);
@@ -1608,6 +1723,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail if the table does not exist', async () => {
@@ -1680,6 +1796,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1704,6 +1827,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail if the table is added and deleted in the same set', async () => {
@@ -1780,6 +1904,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1804,6 +1935,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.FAILED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
   });
 
@@ -1907,10 +2039,18 @@ describe('fileIngestor', () => {
         'completeProcess',
         completeStub
       );
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.isTrue(dropViewFake.calledOnce);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
+      assert.isTrue(setHeartBeatStub.called);
     });
   });
 
@@ -2018,6 +2158,13 @@ describe('fileIngestor', () => {
         completeStub
       );
 
+      const setHeartBeatStub = sandbox.stub();
+      setHeartBeatStub.resolves();
+      sandbox.replace(
+        businessLogic.processTrackingService,
+        'setHeartbeat',
+        setHeartBeatStub
+      );
       const results = await fileIngestor.process();
 
       assert.strictEqual(results.fileProcessingErrors.length, 2);
@@ -2034,6 +2181,7 @@ describe('fileIngestor', () => {
         completedStatus,
         databaseTypes.constants.PROCESS_STATUS.COMPLETED
       );
+      assert.isTrue(setHeartBeatStub.called);
     });
   });
   context('cleanJointInformation', () => {
