@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
 import {error} from '@glyphx/core';
@@ -6,9 +6,12 @@ import {ProjectModel} from './project';
 import {AccountModel} from './account';
 import {SessionModel} from './session';
 import {WebhookModel} from './webhook';
-import {OrganizationModel} from './organization';
+import {MemberModel} from './member';
+import {WorkspaceModel} from './workspace';
+import {CustomerPaymentModel} from './customerPayment';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
+  userCode: {type: String, required: true},
   name: {type: String, required: true},
   username: {type: String, required: true, unique: true},
   gh_username: {type: String, required: false},
@@ -18,23 +21,24 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   image: {type: String, required: false},
   createdAt: {type: Date, required: true, default: Date.now()},
   updatedAt: {type: Date, required: true, default: Date.now()},
+  deletedAt: {type: Date, required: false},
   accounts: {type: [Schema.Types.ObjectId], ref: 'account', default: []},
   sessions: {type: [Schema.Types.ObjectId], ref: 'session', default: []},
   webhooks: {type: [Schema.Types.ObjectId], ref: 'webhook', default: []},
-  organization: {
+  membership: {type: [Schema.Types.ObjectId], ref: 'member', default: []},
+  invitedMembers: {type: [Schema.Types.ObjectId], ref: 'member', default: []},
+  customerPayment: {
     type: Schema.Types.ObjectId,
-    ref: 'organization',
     required: false,
+    ref: 'customerPayment',
   },
-  apiKey: {type: String, required: false},
-  role: {
-    type: Number,
-    required: true,
-    enum: databaseTypes.constants.ROLE,
-    default: databaseTypes.constants.ROLE.MEMBER,
+  createdWorkspaces: {
+    type: [Schema.Types.ObjectId],
+    default: [],
+    ref: 'workspace',
   },
-  ownedOrgs: {type: [Schema.Types.ObjectId], default: [], ref: 'organization'},
   projects: {type: [Schema.Types.ObjectId], default: [], ref: 'project'},
+  apiKey: {type: String, required: false},
 });
 
 SCHEMA.static(
@@ -54,6 +58,87 @@ SCHEMA.static(
       );
     }
     return retval;
+  }
+);
+
+SCHEMA.static(
+  'queryUsers',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await USER_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find users with the filter: ${filter}`,
+          'queryUsers',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+      const userDocuments = (await USER_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('accounts')
+        .populate('sessions')
+        .populate('membership')
+        .populate('invitedMembers')
+        .populate('createdWorkspaces')
+        .populate('projects')
+        .populate('customerPayment')
+        .populate('webhooks')
+        .lean()) as databaseTypes.IUser[];
+      //
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      userDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).customerPayment['__v'];
+        (doc as any).accounts.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).sessions.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).membership.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).invitedMembers.forEach(
+          (p: any) => delete (p as any)['__v']
+        );
+        (doc as any).createdWorkspaces.forEach(
+          (p: any) => delete (p as any)['__v']
+        );
+        (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).webhooks.forEach((p: any) => delete (p as any)['__v']);
+      });
+
+      const retval: IQueryResult<databaseTypes.IUser> = {
+        results: userDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the users.  See the inner error for additional information',
+          'mongoDb',
+          'getUsers',
+          err
+        );
+    }
   }
 );
 
@@ -96,7 +181,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateUpdateObject',
-  (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
+  async (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
     if (user.accounts?.length)
       throw new error.InvalidOperationError(
         'This method cannot be used to alter the users accounts.  Use the add/remove accounts functions to complete this operation',
@@ -109,10 +194,22 @@ SCHEMA.static(
         {sessions: user.sessions}
       );
 
-    if (user.ownedOrgs?.length)
+    if (user.membership?.length)
       throw new error.InvalidOperationError(
-        "This method cannot be used to alter the users' ownedOrganizations.  Use the add/remove organization functions to complete this operation",
-        {organizations: user.ownedOrgs}
+        "This method cannot be used to alter the users' membership.  Use the add/remove session functions to complete this operation",
+        {sessions: user.sessions}
+      );
+
+    if (user.invitedMembers?.length)
+      throw new error.InvalidOperationError(
+        "This method cannot be used to alter the users' invites.  Use the add/remove invitedMember functions to complete this operation",
+        {sessions: user.sessions}
+      );
+
+    if (user.createdWorkspaces?.length)
+      throw new error.InvalidOperationError(
+        "This method cannot be used to alter the users' createdWorkspaces.  Use the add/remove workspace functions to complete this operation",
+        {workspaces: user.createdWorkspaces}
       );
 
     if (user.projects?.length)
@@ -127,7 +224,7 @@ SCHEMA.static(
         {webhooks: user.webhooks}
       );
     //this is one of the issues with TypeScript isn't it.  Even though we have set the type on
-    //the function parameter, we still can't be sure that someone throgh javascript won't
+    //the function parameter, we still can't be sure that someone through javascript won't
     //sneak in something unexpected.  So we still need to test for those things
     if ((user as unknown as databaseTypes.IUser)._id)
       throw new error.InvalidOperationError(
@@ -136,7 +233,30 @@ SCHEMA.static(
           _id: (user as unknown as databaseTypes.IUser)._id,
         }
       );
+    if (user.createdAt)
+      throw new error.InvalidOperationError(
+        'The createdAt date is set internally and cannot be altered externally',
+        {createdAt: user.createdAt}
+      );
+    if (user.updatedAt)
+      throw new error.InvalidOperationError(
+        'The updatedAt date is set internally and cannot be altered externally',
+        {updatedAt: user.updatedAt}
+      );
 
+    if (user.customerPayment) {
+      try {
+        await USER_MODEL.validateCustomerPayment(user.customerPayment);
+      } catch (err) {
+        if (err instanceof error.DataValidationError) {
+          throw new error.InvalidOperationError(
+            'The customerPayment cannot be validated.  Are you sure that it exists in the database?',
+            {customerPayment: user.customerPayment},
+            err
+          );
+        } else throw err;
+      }
+    }
     return true;
   }
 );
@@ -149,8 +269,25 @@ SCHEMA.static(
     user: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): Promise<boolean> => {
     try {
-      USER_MODEL.validateUpdateObject(user);
-      const updateResult = await USER_MODEL.updateOne(filter, user);
+      const updateDate = new Date();
+      await USER_MODEL.validateUpdateObject(user);
+      const transformedObject: Partial<IUserDocument> &
+        Record<string, unknown> = {updatedAt: updateDate};
+      for (const key in user) {
+        const value = (user as Record<string, any>)[key];
+        if (key === 'customerPayment') {
+          transformedObject.customerPayment =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        } else {
+          transformedObject[key] = value;
+        }
+      }
+      const updateResult = await USER_MODEL.updateOne(
+        filter,
+        transformedObject
+      );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
           `No user document with filter: ${filter} was found`,
@@ -271,29 +408,56 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validateOrganizations',
+  'validateWorkspaces',
   async (
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    const organizationIds: mongooseTypes.ObjectId[] = [];
-    organizations.forEach(p => {
-      if (p instanceof mongooseTypes.ObjectId) organizationIds.push(p);
-      else organizationIds.push(p._id as mongooseTypes.ObjectId);
+    const workspaceIds: mongooseTypes.ObjectId[] = [];
+    workspaces.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) workspaceIds.push(p);
+      else workspaceIds.push(p._id as mongooseTypes.ObjectId);
     });
     try {
-      await OrganizationModel.allOrganizationIdsExist(organizationIds);
+      await WorkspaceModel.allWorkspaceIdsExist(workspaceIds);
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(
-          'One or more organization ids do not exisit in the database.  See the inner error for additional information',
-          'organization',
-          organizations,
+          'One or more workspace ids do not exisit in the database.  See the inner error for additional information',
+          'workspace',
+          workspaces,
           err
         );
       else throw err;
     }
 
-    return organizationIds;
+    return workspaceIds;
+  }
+);
+
+SCHEMA.static(
+  'validateMembership',
+  async (
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const memberIds: mongooseTypes.ObjectId[] = [];
+    members.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) memberIds.push(p);
+      else memberIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await MemberModel.allMemberIdsExist(memberIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more member ids do not exisit in the database.  See the inner error for additional information',
+          'member',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return memberIds;
   }
 );
 
@@ -326,15 +490,42 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'validateCustomerPayment',
+  async (
+    payment: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    if (payment) {
+      const paymentId =
+        payment instanceof mongooseTypes.ObjectId
+          ? payment
+          : (payment._id as mongooseTypes.ObjectId);
+      const exists = await CustomerPaymentModel.customerPaymentIdExists(
+        paymentId
+      );
+      if (!exists) {
+        throw new error.DataValidationError(
+          'the customerPayment id does not exisit in the database.',
+          'customerPayment',
+          payment
+        );
+      }
+
+      return paymentId;
+    } else return null as unknown as mongooseTypes.ObjectId;
+  }
+);
 SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
     const userDocument = (await USER_MODEL.findById(userId)
       .populate('accounts')
-      .populate('organization')
       .populate('sessions')
-      .populate('webhooks')
-      .populate('ownedOrgs')
+      .populate('membership')
+      .populate('invitedMembers')
+      .populate('createdWorkspaces')
+      .populate('customerPayment')
       .populate('projects')
+      .populate('webhooks')
       .lean()) as databaseTypes.IUser;
     if (!userDocument) {
       throw new error.DataNotFoundError(
@@ -346,12 +537,16 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (userDocument as any)['__v'];
-    delete (userDocument as any).organization?.['__v'];
-    userDocument.accounts.forEach(a => delete (a as any)['__v']);
-    userDocument.sessions.forEach(s => delete (s as any)['__v']);
-    userDocument.webhooks.forEach(w => delete (w as any)['__v']);
-    userDocument.ownedOrgs.forEach(o => delete (o as any)['__v']);
-    userDocument.projects.forEach(p => delete (p as any)['__v']);
+    delete (userDocument as any).customerPayment?.['__v'];
+    userDocument.accounts.forEach((a: any) => delete (a as any)['__v']);
+    userDocument.sessions.forEach((s: any) => delete (s as any)['__v']);
+    userDocument.membership.forEach((m: any) => delete (m as any)['__v']);
+    userDocument.invitedMembers.forEach((i: any) => delete (i as any)['__v']);
+    userDocument.webhooks.forEach((w: any) => delete (w as any)['__v']);
+    userDocument.createdWorkspaces.forEach(
+      (c: any) => delete (c as any)['__v']
+    );
+    userDocument.projects.forEach((p: any) => delete (p as any)['__v']);
 
     return userDocument;
   } catch (err) {
@@ -371,41 +566,58 @@ SCHEMA.static(
   async (
     input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
   ) => {
-    const orgs = Array.from(
-      //istanbul ignore next
-      input.ownedOrgs ?? []
-    ) as (databaseTypes.IOrganization | mongooseTypes.ObjectId)[];
+    // const workspaces = Array.from(
+    //   //istanbul ignore next
+    //   input.createdWorkspaces ?? []
+    // ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
     //istanbul ignore else
-    if (input.organization) orgs.unshift(input.organization);
+    // if (input.createdWorkspaces) workspaces.unshift(input.createdWorkspaces);
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const [accounts, sessions, webhooks, organizations, projects] =
-        await Promise.all([
-          USER_MODEL.validateAccounts(
-            //istanbul ignore next
-            input.accounts ?? []
-          ),
-          USER_MODEL.validateSessions(
-            //istanbul ignore next
-            input.sessions ?? []
-          ),
-          USER_MODEL.validateWebhooks(
-            //istanbul ignore next
-            input.webhooks ?? []
-          ),
-          USER_MODEL.validateOrganizations(
-            //istanbul ignore next
-            orgs ?? []
-          ),
-          USER_MODEL.validateProjects(
-            //istanbul ignore next
-            input.projects ?? []
-          ),
-        ]);
+      const [
+        accounts,
+        sessions,
+        webhooks,
+        membership,
+        invitedMembers,
+        createdWorkspaces,
+        projects,
+        customerPaymentId,
+      ] = await Promise.all([
+        USER_MODEL.validateAccounts(
+          //istanbul ignore next
+          input.accounts ?? []
+        ),
+        USER_MODEL.validateSessions(
+          //istanbul ignore next
+          input.sessions ?? []
+        ),
+        USER_MODEL.validateWebhooks(
+          //istanbul ignore next
+          input.webhooks ?? []
+        ),
+        USER_MODEL.validateMembership(
+          //istanbul ignore next
+          input.membership ?? []
+        ),
+        USER_MODEL.validateMembership(
+          //istanbul ignore next
+          input.invitedMembers ?? []
+        ),
+        USER_MODEL.validateWorkspaces(
+          //istanbul ignore next
+          input.createdWorkspaces ?? []
+        ),
+        USER_MODEL.validateProjects(
+          //istanbul ignore next
+          input.projects ?? []
+        ),
+        USER_MODEL.validateCustomerPayment(input.customerPayment),
+      ]);
       const createDate = new Date();
-      const org = organizations.shift() as mongooseTypes.ObjectId;
 
       const resolvedInput: IUserDocument = {
+        userCode: input.userCode,
         name: input.name,
         username: input.username,
         gh_username: input.gh_username,
@@ -417,12 +629,13 @@ SCHEMA.static(
         updatedAt: createDate,
         accounts: accounts,
         sessions: sessions,
+        membership: membership,
+        invitedMembers: invitedMembers,
         webhooks: webhooks,
-        organization: org,
         apiKey: input.apiKey,
-        role: input.role,
-        ownedOrgs: organizations,
+        createdWorkspaces: createdWorkspaces,
         projects: projects,
+        customerPayment: customerPaymentId,
       };
       try {
         await USER_MODEL.validate(resolvedInput);
@@ -986,17 +1199,17 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'addOrganizations',
+  'addWorkspaces',
   async (
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser> => {
     try {
-      if (!organizations.length)
+      if (!workspaces.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one organizationId',
-          'organizations',
-          organizations
+          'You must supply at least one workspaceId',
+          'workspaces',
+          workspaces
         );
       const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
@@ -1006,19 +1219,17 @@ SCHEMA.static(
           userId
         );
 
-      const reconciledIds = await USER_MODEL.validateOrganizations(
-        organizations
-      );
+      const reconciledIds = await USER_MODEL.validateWorkspaces(workspaces);
       let dirty = false;
       reconciledIds.forEach(o => {
         if (
-          !userDocument.ownedOrgs.find(
+          !userDocument.createdWorkspaces.find(
             orgId => orgId.toString() === o.toString()
           )
         ) {
           dirty = true;
-          userDocument.ownedOrgs.push(
-            o as unknown as databaseTypes.IOrganization
+          userDocument.createdWorkspaces.push(
+            o as unknown as databaseTypes.IWorkspace
           );
         }
       });
@@ -1035,9 +1246,9 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the organizations. See the innner error for additional information',
+          'An unexpected error occurrred while adding the workspaces. See the innner error for additional information',
           'mongoDb',
-          'user.addOrganizations',
+          'user.addWorkspaces',
           err
         );
       }
@@ -1046,17 +1257,17 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'removeOrganizations',
+  'removeWorkspaces',
   async (
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser> => {
     try {
-      if (!organizations.length)
+      if (!workspaces.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one organizationId',
-          'organizations',
-          organizations
+          'You must supply at least one workspaceId',
+          'workspaces',
+          workspaces
         );
       const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
@@ -1066,14 +1277,14 @@ SCHEMA.static(
           userId
         );
 
-      const reconciledIds = organizations.map(i =>
+      const reconciledIds = workspaces.map(i =>
         //istanbul ignore next
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedOrganizations = userDocument.ownedOrgs.filter(o => {
+      const updatedWorkspaces = userDocument.createdWorkspaces.filter(o => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -1090,8 +1301,8 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        userDocument.ownedOrgs =
-          updatedOrganizations as unknown as databaseTypes.IOrganization[];
+        userDocument.createdWorkspaces =
+          updatedWorkspaces as unknown as databaseTypes.IWorkspace[];
         await userDocument.save();
       }
 
@@ -1105,9 +1316,9 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the organizations. See the innner error for additional information',
+          'An unexpected error occurrred while removing the workspaces. See the innner error for additional information',
           'mongoDb',
-          'user.removeOrganizations',
+          'user.removeWorkspaces',
           err
         );
       }

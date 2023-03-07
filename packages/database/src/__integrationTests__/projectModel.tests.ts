@@ -10,23 +10,33 @@ type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const INPUT_ORGANIZATION = {
-  name: 'testOrganization' + UNIQUE_KEY,
-  description: 'testorganization' + UNIQUE_KEY,
-  owner: {},
-  members: [],
-  projects: [],
+const INPUT_WORKSPACE = {
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {},
 };
 
 const INPUT_USER = {
+  userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
 };
 
 const INPUT_STATE = {
@@ -40,7 +50,7 @@ const INPUT_STATE = {
 const INPUT_DATA = {
   name: 'testProject' + UNIQUE_KEY,
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
-  organization: {},
+  workspace: {},
   slug: 'testSlug' + UNIQUE_KEY,
   isTemplate: false,
   type: {},
@@ -48,6 +58,19 @@ const INPUT_DATA = {
   state: {},
   files: [],
   viewName: 'testViewName' + UNIQUE_KEY,
+};
+
+const INPUT_DATA2 = {
+  name: 'testProject2' + UNIQUE_KEY,
+  sdtPath: 'testsdtPath2' + UNIQUE_KEY,
+  workspace: {},
+  slug: 'testSlug2' + UNIQUE_KEY,
+  isTemplate: false,
+  type: {},
+  owner: {},
+  state: {},
+  files: [],
+  viewName: 'testViewName2' + UNIQUE_KEY,
 };
 
 const INPUT_PROJECT_TYPE = {
@@ -61,11 +84,12 @@ describe('#ProjectModel', () => {
     const mongoConnection = new MongoDbConnection();
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
+    let projectId2: ObjectId;
     let userId: ObjectId;
-    let organizationId: ObjectId;
+    let workspaceId: ObjectId;
     let stateId: ObjectId;
     let projectTypeId: ObjectId;
-    let organizationDocument: any;
+    let workspaceDocument: any;
     let userDocument: any;
     let stateDocument: any;
     let projectTypeDocument: any;
@@ -73,7 +97,7 @@ describe('#ProjectModel', () => {
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
-      const organizationModel = mongoConnection.models.OrganizationModel;
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
       const stateModel = mongoConnection.models.StateModel;
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
 
@@ -88,17 +112,17 @@ describe('#ProjectModel', () => {
 
       assert.isOk(userId);
 
-      await organizationModel.create([INPUT_ORGANIZATION], {
+      await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedOrganizationDocument = await organizationModel
-        .findOne({name: INPUT_ORGANIZATION.name})
+      const savedWorkspaceDocument = await workspaceModel
+        .findOne({name: INPUT_WORKSPACE.name})
         .lean();
-      organizationId = savedOrganizationDocument?._id as mongooseTypes.ObjectId;
+      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
-      organizationDocument = savedOrganizationDocument;
+      workspaceDocument = savedWorkspaceDocument;
 
-      assert.isOk(organizationId);
+      assert.isOk(workspaceId);
 
       await projectTypeModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
@@ -127,8 +151,8 @@ describe('#ProjectModel', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
 
-      const organizationModel = mongoConnection.models.OrganizationModel;
-      await organizationModel.findByIdAndDelete(organizationId);
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
+      await workspaceModel.findByIdAndDelete(workspaceId);
 
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
       await projectTypeModel.findByIdAndDelete(projectTypeId);
@@ -139,12 +163,16 @@ describe('#ProjectModel', () => {
       if (projectId) {
         await projectModel.findByIdAndDelete(projectId);
       }
+
+      if (projectId2) {
+        await projectModel.findByIdAndDelete(projectId2);
+      }
     });
 
     it('add a new project ', async () => {
       const projectInput = JSON.parse(JSON.stringify(INPUT_DATA));
       projectInput.owner = userDocument;
-      projectInput.organization = organizationDocument;
+      projectInput.workspace = workspaceDocument;
       projectInput.type = projectTypeDocument;
       projectInput.state = stateDocument;
 
@@ -157,8 +185,8 @@ describe('#ProjectModel', () => {
         userId.toString()
       );
       assert.strictEqual(
-        projectDocument.organization._id?.toString(),
-        organizationId.toString()
+        projectDocument.workspace._id?.toString(),
+        workspaceId.toString()
       );
       assert.strictEqual(
         projectDocument.type._id?.toString(),
@@ -188,6 +216,55 @@ describe('#ProjectModel', () => {
         input
       );
       assert.strictEqual(updatedDocument.description, input.description);
+    });
+
+    it('Get multiple projects without a filter', async () => {
+      assert.isOk(projectId);
+      const projectInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      projectInput.owner = userDocument;
+      projectInput.workspace = workspaceDocument;
+      projectInput.type = projectTypeDocument;
+      projectInput.state = stateDocument;
+
+      const projectDocument = await projectModel.createProject(projectInput);
+
+      assert.isOk(projectDocument);
+
+      projectId2 = projectDocument._id as mongooseTypes.ObjectId;
+
+      const projects = await projectModel.queryProjects();
+      assert.isArray(projects.results);
+      assert.isAtLeast(projects.numberOfItems, 2);
+      const expectedDocumentCount =
+        projects.numberOfItems <= projects.itemsPerPage
+          ? projects.numberOfItems
+          : projects.itemsPerPage;
+      assert.strictEqual(projects.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple projects with a filter', async () => {
+      assert.isOk(projectId2);
+      const results = await projectModel.queryProjects({
+        name: INPUT_DATA.name,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(results.results[0]?.name, INPUT_DATA.name);
+    });
+
+    it('page accounts', async () => {
+      assert.isOk(projectId2);
+      const results = await projectModel.queryProjects({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await projectModel.queryProjects({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a project', async () => {

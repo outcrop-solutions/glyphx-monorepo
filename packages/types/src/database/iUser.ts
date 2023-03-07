@@ -1,13 +1,15 @@
 import {Types as mongooseTypes} from 'mongoose';
-import {IOrganization} from './iOrganization';
+import {IWorkspace} from './iWorkspace';
+import {IMember} from './iMember';
 import {IProject} from './iProject';
 import {IAccount} from './iAccount';
 import {ISession} from './iSession';
-import {ROLE} from './constants';
 import {IWebhook} from './iWebhook';
+import {ICustomerPayment} from './iCustomerPayment';
 
 export interface IUser {
   _id?: mongooseTypes.ObjectId;
+  userCode: string;
   name: string;
   username: string;
   gh_username?: string;
@@ -17,12 +19,14 @@ export interface IUser {
   image?: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
   accounts: IAccount[];
   sessions: ISession[];
-  webhooks: IWebhook[];
-  organization: IOrganization | mongooseTypes.ObjectId;
-  apiKey?: string;
-  role: ROLE;
-  ownedOrgs: IOrganization[];
+  membership: IMember[];
+  invitedMembers: IMember[];
+  createdWorkspaces: IWorkspace[];
   projects: IProject[];
+  customerPayment?: ICustomerPayment;
+  webhooks: IWebhook[];
+  apiKey?: string;
 }

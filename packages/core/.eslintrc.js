@@ -9,7 +9,7 @@ module.exports = {
     'node/no-unpublished-import': [
       'error',
       {
-        allowModules: ['mocha', 'chai', 'sinon'],
+        allowModules: ['chai', 'sinon', 'mocha'],
       },
     ],
   },

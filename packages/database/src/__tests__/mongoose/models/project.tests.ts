@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {ProjectModel} from '../../..//mongoose/models/project';
-import {OrganizationModel} from '../../../mongoose/models/organization';
+import {WorkspaceModel} from '../../../mongoose/models/workspace';
 import {UserModel} from '../../../mongoose/models/user';
 import {ProjectTypeModel} from '../../../mongoose/models/projectType';
 import {StateModel} from '../../../mongoose/models/state';
@@ -16,9 +16,9 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   name: 'test project',
   description: 'this is a test description',
   sdtPath: 'sdtPath',
-  organization: {
+  workspace: {
     _id: new mongoose.Types.ObjectId(),
-  } as unknown as databaseTypes.IOrganization,
+  } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
   isTemplate: false,
   type: {
@@ -94,8 +94,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOrganization',
-        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
+        'validateWorkspace',
+        sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -142,8 +142,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOrganization',
-        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
+        'validateWorkspace',
+        sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -186,8 +186,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOrganization',
-        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
+        'validateWorkspace',
+        sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -230,8 +230,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOrganization',
-        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
+        'validateWorkspace',
+        sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -270,8 +270,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOrganization',
-        sandbox.stub().resolves(MOCK_PROJECT.organization._id)
+        'validateWorkspace',
+        sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -322,9 +322,9 @@ describe('#mongoose/models/project', () => {
       const updateProject = {
         name: 'Test Project',
         description: 'This is a test project',
-        organization: {
+        workspace: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -365,7 +365,7 @@ describe('#mongoose/models/project', () => {
       const updateProject = {
         name: 'Test Project',
         description: 'This is a test project',
-        organization: new mongoose.Types.ObjectId(),
+        workspace: new mongoose.Types.ObjectId(),
         type: new mongoose.Types.ObjectId(),
         owner: new mongoose.Types.ObjectId(),
         state: new mongoose.Types.ObjectId(),
@@ -511,9 +511,9 @@ describe('#mongoose/models/project', () => {
       const inputProject = {
         name: 'Test Project',
         description: 'This is a test project',
-        organization: {
+        workspace: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -526,7 +526,7 @@ describe('#mongoose/models/project', () => {
       };
       const orgStub = sandbox.stub();
       orgStub.resolves(true);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', orgStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
 
       const ownerStub = sandbox.stub();
       ownerStub.resolves(true);
@@ -554,13 +554,13 @@ describe('#mongoose/models/project', () => {
       assert.isTrue(typeStub.calledOnce);
     });
 
-    it('will fail when the organization does not exist.', async () => {
+    it('will fail when the workspace does not exist.', async () => {
       const inputProject = {
         name: 'Test Project',
         description: 'This is a test project',
-        organization: {
+        workspace: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -573,7 +573,7 @@ describe('#mongoose/models/project', () => {
       };
       const orgStub = sandbox.stub();
       orgStub.resolves(false);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', orgStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
 
       const ownerStub = sandbox.stub();
       ownerStub.resolves(true);
@@ -602,9 +602,9 @@ describe('#mongoose/models/project', () => {
       const inputProject = {
         name: 'Test Project',
         description: 'This is a test project',
-        organization: {
+        workspace: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -617,7 +617,7 @@ describe('#mongoose/models/project', () => {
       };
       const orgStub = sandbox.stub();
       orgStub.resolves(true);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', orgStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
 
       const ownerStub = sandbox.stub();
       ownerStub.resolves(false);
@@ -646,9 +646,9 @@ describe('#mongoose/models/project', () => {
         _id: new mongoose.Types.ObjectId(),
         name: 'Test Project',
         description: 'This is a test project',
-        organization: {
+        workspace: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -661,7 +661,7 @@ describe('#mongoose/models/project', () => {
       };
       const orgStub = sandbox.stub();
       orgStub.resolves(true);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', orgStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
 
       const ownerStub = sandbox.stub();
       ownerStub.resolves(true);
@@ -689,9 +689,9 @@ describe('#mongoose/models/project', () => {
       const inputProject = {
         name: 'Test Project',
         description: 'This is a test project',
-        organization: {
+        workspace: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -705,7 +705,7 @@ describe('#mongoose/models/project', () => {
       };
       const orgStub = sandbox.stub();
       orgStub.resolves(true);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', orgStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
 
       const ownerStub = sandbox.stub();
       ownerStub.resolves(true);
@@ -733,9 +733,9 @@ describe('#mongoose/models/project', () => {
       const inputProject = {
         name: 'Test Project',
         description: 'This is a test project',
-        organization: {
+        workspace: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IOrganization,
+        } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IProjectType,
@@ -749,7 +749,7 @@ describe('#mongoose/models/project', () => {
       };
       const orgStub = sandbox.stub();
       orgStub.resolves(true);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', orgStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
 
       const ownerStub = sandbox.stub();
       ownerStub.resolves(true);
@@ -943,14 +943,14 @@ describe('#mongoose/models/project', () => {
         name: 'test user',
         __v: 1,
       } as unknown as databaseTypes.IUser,
-      organization: {
+      workspace: {
         _id: new mongoose.Types.ObjectId(),
-        name: 'test organization',
+        name: 'test workspace',
         __v: 1,
-      } as unknown as databaseTypes.IOrganization,
+      } as unknown as databaseTypes.IWorkspace,
       type: {
         _id: new mongoose.Types.ObjectId(),
-        name: 'test organization',
+        name: 'test workspace',
         __v: 1,
       } as unknown as databaseTypes.IProjectType,
 
@@ -982,7 +982,7 @@ describe('#mongoose/models/project', () => {
       assert.isUndefined((doc.owner as any).__v);
       assert.isUndefined((doc.type as any).__v);
       assert.isUndefined((doc.state as any).__v);
-      assert.isUndefined((doc.organization as any).__v);
+      assert.isUndefined((doc.workspace as any).__v);
 
       assert.strictEqual(doc._id, mockProject._id);
     });
@@ -1179,54 +1179,249 @@ describe('#mongoose/models/project', () => {
     });
   });
 
-  context('validateOrganization', () => {
+  context('validateWorkspace', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
       sandbox.restore();
     });
 
-    it('will validate the organization', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
+    it('will validate the workspace', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const idExistsStub = sandbox.stub();
       idExistsStub.resolves(true);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', idExistsStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', idExistsStub);
 
-      const result = await ProjectModel.validateOrganization(organizationId);
+      const result = await ProjectModel.validateWorkspace(workspaceId);
 
-      assert.strictEqual(result.toString(), organizationId.toString());
+      assert.strictEqual(result.toString(), workspaceId.toString());
       assert.isTrue(idExistsStub.calledOnce);
     });
 
-    it('will validate the organization passing the organization as an IOrganization', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
+    it('will validate the workspace passing the workspace as an IWorkspace', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const idExistsStub = sandbox.stub();
       idExistsStub.resolves(true);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', idExistsStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', idExistsStub);
 
-      const result = await ProjectModel.validateOrganization({
-        _id: organizationId,
-      } as unknown as databaseTypes.IOrganization);
+      const result = await ProjectModel.validateWorkspace({
+        _id: workspaceId,
+      } as unknown as databaseTypes.IWorkspace);
 
-      assert.strictEqual(result.toString(), organizationId.toString());
+      assert.strictEqual(result.toString(), workspaceId.toString());
       assert.isTrue(idExistsStub.calledOnce);
     });
 
-    it('will throw an invalidArgumentError when the organization does not exist', async () => {
-      const organizationId = new mongoose.Types.ObjectId();
+    it('will throw an invalidArgumentError when the workspace does not exist', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
 
       const idExistsStub = sandbox.stub();
       idExistsStub.resolves(false);
-      sandbox.replace(OrganizationModel, 'organizationIdExists', idExistsStub);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', idExistsStub);
       let errored = false;
       try {
-        await ProjectModel.validateOrganization(organizationId);
+        await ProjectModel.validateWorkspace(workspaceId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
       }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('queryProjects', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockProjects = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testProject',
+        description: 'this is a test project',
+        sdtPath: 'testsdtpath',
+        slug: 'test slug',
+        isTemplate: false,
+        files: [],
+        __v: 1,
+        owner: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        workspace: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace',
+          __v: 1,
+        } as unknown as databaseTypes.IWorkspace,
+        type: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace',
+          __v: 1,
+        } as unknown as databaseTypes.IProjectType,
+
+        state: {
+          _id: new mongoose.Types.ObjectId(),
+          version: 1,
+          __v: 1,
+        } as unknown as databaseTypes.IState,
+        viewName: 'test View name',
+      } as databaseTypes.IProject,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testProject2',
+        description: 'this is a test project2',
+        sdtPath: 'testsdtpath2',
+        slug: 'test slug2',
+        isTemplate: false,
+        files: [],
+        __v: 1,
+        owner: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        workspace: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace2',
+          __v: 1,
+        } as unknown as databaseTypes.IWorkspace,
+        type: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test workspace2',
+          __v: 1,
+        } as unknown as databaseTypes.IProjectType,
+
+        state: {
+          _id: new mongoose.Types.ObjectId(),
+          version: 1,
+          __v: 1,
+        } as unknown as databaseTypes.IState,
+        viewName: 'test View name2',
+      } as databaseTypes.IProject,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered projects', async () => {
+      sandbox.replace(
+        ProjectModel,
+        'count',
+        sandbox.stub().resolves(mockProjects.length)
+      );
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjects))
+      );
+
+      const results = await ProjectModel.queryProjects({});
+
+      assert.strictEqual(results.numberOfItems, mockProjects.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockProjects.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach(doc => {
+        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc.type as any).__v);
+        assert.isUndefined((doc.state as any).__v);
+        assert.isUndefined((doc.workspace as any).__v);
+        assert.isUndefined((doc.owner as any).__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(ProjectModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjects))
+      );
+
+      let errored = false;
+      try {
+        await ProjectModel.queryProjects();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        ProjectModel,
+        'count',
+        sandbox.stub().resolves(mockProjects.length)
+      );
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockProjects))
+      );
+
+      let errored = false;
+      try {
+        await ProjectModel.queryProjects({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        ProjectModel,
+        'count',
+        sandbox.stub().resolves(mockProjects.length)
+      );
+
+      sandbox.replace(
+        ProjectModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await ProjectModel.queryProjects({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
       assert.isTrue(errored);
     });
   });

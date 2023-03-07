@@ -1,5 +1,5 @@
-import {fileIngestion} from '@glyphx/types';
-import {error, aws, generalPurposeFunctions} from '@glyphx/core';
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
+import {error, aws} from '@glyphx/core';
 import {Readable} from 'node:stream';
 import {
   BasicAthenaProcessor,
@@ -8,6 +8,7 @@ import {
 } from './fileProcessing';
 import {
   projectService,
+  processTrackingService,
   Initializer as businessLogicInit,
 } from '@glyphx/business';
 
@@ -17,11 +18,13 @@ import {
   IJoinTableDefinition,
   IFileProcessingResult,
 } from '@interfaces/fileProcessing';
+import {generalPurposeFunctions as sharedFunctions} from '@util';
 import {TableArchiver} from './fileProcessing/tableArchiver';
 import {
   FILE_PROCESSING_ERROR_TYPES,
   FILE_PROCESSING_STATUS,
 } from '@util/constants';
+import {config} from './config';
 
 export class FileIngestor {
   private readonly clientIdField: string;
@@ -75,7 +78,11 @@ export class FileIngestor {
   public get inited() {
     return this.initedField;
   }
-  constructor(payload: fileIngestion.IPayload, databaseName: string) {
+  constructor(
+    payload: fileIngestion.IPayload,
+    databaseName: string,
+    processId: string
+  ) {
     this.clientIdField = payload.clientId;
     this.modelIdField = payload.modelId;
     this.bucketNameField = payload.bucketName;
@@ -100,6 +107,8 @@ export class FileIngestor {
     );
 
     this.fileStatisticsField = [];
+
+    config.init({processId});
   }
 
   public async init() {
@@ -128,22 +137,18 @@ export class FileIngestor {
   }
 
   async removeTableFromAthena(tableName: string) {
-    const fullTableName =
-      generalPurposeFunctions.fileIngestion.getFullTableName(
-        this.clientId,
-        this.modelId,
-        tableName
-      );
+    const fullTableName = sharedFunctions.getFullTableName(
+      this.clientId,
+      this.modelId,
+      tableName
+    );
 
     await this.athenaManager.dropTable(fullTableName);
   }
 
   async removeViewFromAthena() {
     if (!this.viewRemoved) {
-      const viewName = generalPurposeFunctions.fileIngestion.getViewName(
-        this.clientId,
-        this.modelId
-      );
+      const viewName = sharedFunctions.getViewName(this.clientId, this.modelId);
 
       await this.athenaManager.dropView(viewName);
 
@@ -254,7 +259,7 @@ export class FileIngestor {
       ) {
         if (
           await this.athenaManager.tableExists(
-            generalPurposeFunctions.fileIngestion.getFullTableName(
+            sharedFunctions.getFullTableName(
               this.clientId,
               this.modelId,
               fileInfo.tableName
@@ -285,7 +290,7 @@ export class FileIngestor {
       ) {
         if (
           !(await this.athenaManager.tableExists(
-            generalPurposeFunctions.fileIngestion.getFullTableName(
+            sharedFunctions.getFullTableName(
               this.clientId,
               this.modelId,
               fileInfo.tableName
@@ -302,7 +307,7 @@ export class FileIngestor {
           });
         } else {
           const fileName =
-            generalPurposeFunctions.fileIngestion.getTableParquetPath(
+            sharedFunctions.getTableParquetPath(
               this.clientId,
               this.modelId,
               fileInfo.tableName
@@ -320,7 +325,7 @@ export class FileIngestor {
       } else if (
         fileInfo.operation === fileIngestion.constants.FILE_OPERATION.REPLACE &&
         !(await this.athenaManager.tableExists(
-          generalPurposeFunctions.fileIngestion.getFullTableName(
+          sharedFunctions.getFullTableName(
             this.clientId,
             this.modelId,
             fileInfo.tableName
@@ -337,7 +342,7 @@ export class FileIngestor {
       } else if (
         fileInfo.operation === fileIngestion.constants.FILE_OPERATION.DELETE &&
         !(await this.athenaManager.tableExists(
-          generalPurposeFunctions.fileIngestion.getFullTableName(
+          sharedFunctions.getFullTableName(
             this.clientId,
             this.modelId,
             fileInfo.tableName
@@ -407,18 +412,26 @@ export class FileIngestor {
   }
 
   public async process(): Promise<IFileProcessingResult> {
+    await processTrackingService.updateProcessStatus(
+      config.processId,
+      databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      `File Ingestion has started : ${new Date()}`
+    );
+
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
-    const viewName = generalPurposeFunctions.fileIngestion.getViewName(
-      this.clientId,
-      this.modelId
-    );
+    const viewName = sharedFunctions.getViewName(this.clientId, this.modelId);
     const errors: IFileProcessingError[] = await this.reconcileFileInfo();
     if (errors.length) {
       this.processedFileErrorInformation.push(...errors);
       fileInfoForReturn = this.fileStatistics;
       processingResults = FILE_PROCESSING_STATUS.ERROR;
+      const err = new error.InvalidOperationError(
+        'There were errors processing the files',
+        {errors}
+      );
+      processTrackingService.addProcessError(config.processId, err);
     } else {
       try {
         const needsViewUpdates = await this.processFiles();
@@ -436,10 +449,7 @@ export class FileIngestor {
           if (fileInfoForReturn.length) {
             //5. We will need to update the view so that we selct the row id as the rowid from the left most column.
             joinInformation = (await this.basicAthenaProcessor?.processTables(
-              generalPurposeFunctions.fileIngestion.getViewName(
-                this.clientId,
-                this.modelId
-              ),
+              sharedFunctions.getViewName(this.clientId, this.modelId),
               reconFileInformation.accumFiles
             )) as IJoinTableDefinition[];
           }
@@ -462,19 +472,51 @@ export class FileIngestor {
         });
         if (err instanceof error.GlyphxError) {
           err.publish();
+          processTrackingService.addProcessError(config.processId, err);
         } else {
-          new error.GlyphxError(message, 999, err, 'UnexpectedError').publish();
+          const gError = new error.GlyphxError(
+            message,
+            999,
+            err,
+            'UnexpectedError'
+          );
+          gError.publish();
+          processTrackingService.addProcessError(config.processId, gError);
         }
         processingResults = FILE_PROCESSING_STATUS.ERROR;
       }
     }
 
-    return {
+    const retval = {
       fileInformation: fileInfoForReturn,
       fileProcessingErrors: this.processedFileErrorInformation,
-      joinInformation: joinInformation,
+      joinInformation: this.cleanJoinInformation(joinInformation),
       status: processingResults,
       viewName: viewName,
     };
+
+    const status =
+      processingResults === FILE_PROCESSING_STATUS.ERROR
+        ? databaseTypes.constants.PROCESS_STATUS.FAILED
+        : databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+
+    await processTrackingService.completeProcess(
+      config.processId,
+      retval,
+      status
+    );
+
+    return retval;
+  }
+
+  private cleanJoinInformation(
+    joinInformation: IJoinTableDefinition[]
+  ): IJoinTableDefinition[] {
+    joinInformation?.forEach(join => {
+      join.columns?.forEach(joinColumn => {
+        delete (joinColumn as any).tableDefinition;
+      });
+    });
+    return joinInformation;
   }
 }

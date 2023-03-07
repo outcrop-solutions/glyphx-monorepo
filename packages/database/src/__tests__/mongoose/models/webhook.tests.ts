@@ -89,7 +89,7 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will throw an InvalidArgumentError if the user attached to the webhook does not exist.', async () => {
-      const sessionId = new mongoose.Types.ObjectId();
+      const webhookId = new mongoose.Types.ObjectId();
       sandbox.replace(
         UserModel,
         'userIdExists',
@@ -99,11 +99,11 @@ describe('#mongoose/models/webhook', () => {
       sandbox.replace(
         WebhookModel,
         'create',
-        sandbox.stub().resolves([{_id: sessionId}])
+        sandbox.stub().resolves([{_id: webhookId}])
       );
 
       const getWebhookByIdStub = sandbox.stub();
-      getWebhookByIdStub.resolves({_id: sessionId});
+      getWebhookByIdStub.resolves({_id: webhookId});
 
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookByIdStub);
       let errorred = false;
@@ -643,6 +643,156 @@ describe('#mongoose/models/webhook', () => {
         await WebhookModel.getWebhookById(
           mockWebHook._id as mongoose.Types.ObjectId
         );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('queryWebhooks', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mockWebhooks = [
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testWebHook',
+        url: 'http://test.web.hook',
+        __v: 1,
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.IWebhook,
+      {
+        _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'testWebHook2',
+        url: 'http://test2.web.hook',
+        __v: 1,
+        user: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user2',
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as databaseTypes.IWebhook,
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered webhooks', async () => {
+      sandbox.replace(
+        WebhookModel,
+        'count',
+        sandbox.stub().resolves(mockWebhooks.length)
+      );
+
+      sandbox.replace(
+        WebhookModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWebhooks))
+      );
+
+      const results = await WebhookModel.queryWebhooks({});
+
+      assert.strictEqual(results.numberOfItems, mockWebhooks.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mockWebhooks.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach(doc => {
+        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc.user as any).__v);
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace(WebhookModel, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        WebhookModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWebhooks))
+      );
+
+      let errored = false;
+      try {
+        await WebhookModel.queryWebhooks();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        WebhookModel,
+        'count',
+        sandbox.stub().resolves(mockWebhooks.length)
+      );
+
+      sandbox.replace(
+        WebhookModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWebhooks))
+      );
+
+      let errored = false;
+      try {
+        await WebhookModel.queryWebhooks({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        WebhookModel,
+        'count',
+        sandbox.stub().resolves(mockWebhooks.length)
+      );
+
+      sandbox.replace(
+        WebhookModel,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await WebhookModel.queryWebhooks({});
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;

@@ -6,13 +6,10 @@
     "apps/**",
     "packages/**"
   ],
-  "prisma": {
-    "schema": "packages/database/prisma/schema.prisma",
-    "seed": "tsx packages/database/src/seed.ts"
-  },
   "scripts": {
     "build": "turbo build",
-    "test": "turbo test",
+    "test": "dotenv -- turbo test",
+    "integrationTest": "turbo integrationTest",
     "format": "turbo format",
     "format:write": "turbo format",
     "dev": "dotenv -- turbo dev",

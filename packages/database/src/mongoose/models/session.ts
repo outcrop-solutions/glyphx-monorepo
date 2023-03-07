@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   ISessionMethods,
@@ -104,6 +104,69 @@ SCHEMA.static('getSessionById', async (sessionId: mongooseTypes.ObjectId) => {
       );
   }
 });
+
+SCHEMA.static(
+  'querySessions',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await SESSION_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find sessions with the filter: ${filter}`,
+          'querySessions',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+      const sessionDocuments = (await SESSION_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('user')
+        .lean()) as databaseTypes.ISession[];
+
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      sessionDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).user['__v'];
+      });
+
+      const retval: IQueryResult<databaseTypes.ISession> = {
+        results: sessionDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the sessions.  See the inner error for additional information',
+          'mongoDb',
+          'querySessions',
+          err
+        );
+    }
+  }
+);
 
 SCHEMA.static(
   'createSession',

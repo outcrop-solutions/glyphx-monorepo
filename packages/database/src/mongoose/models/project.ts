@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IProjectMethods,
@@ -7,7 +7,7 @@ import {
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
-import {OrganizationModel} from './organization';
+import {WorkspaceModel} from './workspace';
 import {ProjectTypeModel} from './projectType';
 import {StateModel} from './state';
 import {fileStatsSchema} from '../schemas';
@@ -36,10 +36,10 @@ const SCHEMA = new Schema<
   name: {type: String, required: true},
   description: {type: String, required: false},
   sdtPath: {type: String, required: false},
-  organization: {
+  workspace: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'organization',
+    ref: 'workspace',
   },
   slug: {type: String, required: false},
   isTemplate: {type: Boolean, required: true, default: false},
@@ -137,12 +137,12 @@ SCHEMA.static(
         )
       );
 
-    if (project.organization)
+    if (project.workspace)
       tasks.push(
         idValidator(
-          project.organization._id as mongooseTypes.ObjectId,
-          'Organization',
-          OrganizationModel.organizationIdExists
+          project.workspace._id as mongooseTypes.ObjectId,
+          'Workspace',
+          WorkspaceModel.workspaceIdExists
         )
       );
 
@@ -197,8 +197,8 @@ SCHEMA.static(
         Record<string, unknown> = {updatedAt: updateDate};
       for (const key in project) {
         const value = (project as Record<string, any>)[key];
-        if (key === 'organization')
-          transformedObject.organization =
+        if (key === 'workspace')
+          transformedObject.workspace =
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
@@ -280,22 +280,22 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validateOrganization',
+  'validateWorkspace',
   async (
-    input: databaseTypes.IOrganization | mongooseTypes.ObjectId
+    input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId> => {
-    const organizationId =
+    const workspaceId =
       input instanceof mongooseTypes.ObjectId
         ? input
         : (input._id as mongooseTypes.ObjectId);
-    if (!(await OrganizationModel.organizationIdExists(organizationId))) {
+    if (!(await WorkspaceModel.workspaceIdExists(workspaceId))) {
       throw new error.InvalidArgumentError(
-        `The organization : ${organizationId} does not exist`,
-        'organizationId',
-        organizationId
+        `The workspace : ${workspaceId} does not exist`,
+        'workspaceId',
+        workspaceId
       );
     }
-    return organizationId;
+    return workspaceId;
   }
 );
 
@@ -346,8 +346,8 @@ SCHEMA.static(
   ): Promise<databaseTypes.IProject> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const [organization, type, owner, state] = await Promise.all([
-        PROJECT_MODEL.validateOrganization(input.organization),
+      const [workspace, type, owner, state] = await Promise.all([
+        PROJECT_MODEL.validateWorkspace(input.workspace),
         PROJECT_MODEL.validateType(input.type),
         PROJECT_MODEL.validateOwner(input.owner),
         PROJECT_MODEL.validateState(input.state as databaseTypes.IState),
@@ -360,7 +360,7 @@ SCHEMA.static(
         name: input.name,
         description: input.description,
         sdtPath: input.sdtPath,
-        organization: organization,
+        workspace: workspace,
         slug: input.slug,
         isTemplate: input.isTemplate,
         type: type,
@@ -407,7 +407,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
   try {
     const projectDocument = (await PROJECT_MODEL.findById(projectId)
       .populate('owner')
-      .populate('organization')
+      .populate('workspace')
       .populate('type')
       .populate('state')
       .lean()) as databaseTypes.IProject;
@@ -424,7 +424,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     delete (projectDocument as any).owner?.['__v'];
     delete (projectDocument as any).type?.['__v'];
     delete (projectDocument as any).state?.['__v'];
-    delete (projectDocument as any).organization?.['__v'];
+    delete (projectDocument as any).workspace?.['__v'];
 
     return projectDocument;
   } catch (err) {
@@ -438,6 +438,76 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
       );
   }
 });
+
+SCHEMA.static(
+  'queryProjects',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await PROJECT_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find projects with the filter: ${filter}`,
+          'queryProjects',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const projectDocuments = (await PROJECT_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('workspace')
+        .populate('owner')
+        .populate('type')
+        .populate('state')
+        .lean()) as databaseTypes.IProject[];
+
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      projectDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).workspace['__v'];
+        delete (doc as any).owner['__v'];
+        delete (doc as any).type?.['__v'];
+        delete (doc as any).state?.['__v'];
+      });
+
+      const retval: IQueryResult<databaseTypes.IProject> = {
+        results: projectDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the projects.  See the inner error for additional information',
+          'mongoDb',
+          'queryProjects',
+          err
+        );
+    }
+  }
+);
 
 SCHEMA.static(
   'deleteProjectById',

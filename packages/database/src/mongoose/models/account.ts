@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {database as databaseTypes, IQueryResult} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   IAccountMethods,
@@ -110,7 +110,7 @@ SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
   try {
     const accountDocument = (await ACCOUNT_MODEL.findById(accountId)
       .populate('user')
-      .lean()) as databaseTypes.IWebhook;
+      .lean()) as databaseTypes.IAccount;
     if (!accountDocument) {
       throw new error.DataNotFoundError(
         `Could not find a account with the _id: ${accountId}`,
@@ -135,6 +135,69 @@ SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
       );
   }
 });
+
+SCHEMA.static(
+  'queryAccounts',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await ACCOUNT_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find accounts with the filter: ${filter}`,
+          'queryAccounts',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const accountDocuments = (await ACCOUNT_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+        .populate('user')
+        .lean()) as databaseTypes.IAccount[];
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      accountDocuments.forEach((doc: any) => {
+        delete (doc as any)['__v'];
+        delete (doc as any).user['__v'];
+      });
+
+      const retval: IQueryResult<databaseTypes.IAccount> = {
+        results: accountDocuments,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while querying the accounts.  See the inner error for additional information',
+          'mongoDb',
+          'queryProjectTypes',
+          err
+        );
+    }
+  }
+);
 
 SCHEMA.static(
   'validateUpdateObject',

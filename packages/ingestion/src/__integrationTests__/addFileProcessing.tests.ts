@@ -3,11 +3,21 @@ import {aws, generalPurposeFunctions} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
-import {Initializer, projectService, dbConnection} from '@glyphx/business';
+import {
+  Initializer,
+  processTrackingService,
+  projectService,
+  dbConnection,
+} from '@glyphx/business';
 import {v4} from 'uuid';
+import * as sharedFunctions from '../util/generalPurposeFunctions';
+import {config} from '../config';
 const UNIQUE_KEY = v4().replaceAll('-', '');
+
+const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
+const PROCESS_NAME = 'addFileProcessing' + UNIQUE_KEY;
 
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
@@ -20,8 +30,9 @@ const INPUT_PROJECT = {
   state: {},
   files: [],
 };
+
 describe('#fileProcessing', () => {
-  context.only('Inbound s3 file to parquet to S3', () => {
+  context('Inbound s3 file to parquet to S3', () => {
     let s3Bucket: aws.S3Manager;
     let athenaManager: aws.AthenaManager;
 
@@ -36,6 +47,7 @@ describe('#fileProcessing', () => {
     let viewName: any;
 
     before(async () => {
+      (config as any).inited = false;
       await Initializer.init();
       const projectDocument = (
         await dbConnection.models.ProjectModel.create([INPUT_PROJECT], {
@@ -83,6 +95,10 @@ describe('#fileProcessing', () => {
         athenaManager
       );
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
+      await processTrackingService.createProcessTracking(
+        PROCESS_ID,
+        PROCESS_NAME
+      );
     });
 
     after(async () => {
@@ -95,15 +111,18 @@ describe('#fileProcessing', () => {
       );
 
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
+      await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
     });
+
     it('Basic pipeline test', async () => {
       console.log('stuff spun up ok');
-      const fileIngestor = new FileIngestor(payload, databaseName);
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
       const {
         fileInformation,
         joinInformation,
         viewName: savedViewName,
+        status,
       } = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(
         joinInformation,
@@ -127,6 +146,16 @@ describe('#fileProcessing', () => {
         payload.modelId
       );
       assert.strictEqual(documentViewName, viewName);
+
+      const processStatus = await processTrackingService.getProcessStatus(
+        PROCESS_ID
+      );
+      assert.strictEqual(
+        processStatus?.processStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
+      );
+
+      assert.strictEqual(processStatus?.processResult?.status, status);
       console.log('I am done');
     });
   });

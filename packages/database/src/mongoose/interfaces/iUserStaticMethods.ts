@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IUserMethods} from './iUserMethods';
 
 export interface IUserStaticMethods
@@ -8,6 +8,11 @@ export interface IUserStaticMethods
   allUserIdsExist(userIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createUser(input: databaseTypes.IUser): Promise<databaseTypes.IUser>;
   getUserById(userId: mongooseTypes.ObjectId): Promise<databaseTypes.IUser>;
+  queryUsers(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.IUser>>;
   updateUserById(
     id: mongooseTypes.ObjectId,
     user: Partial<databaseTypes.IUser>
@@ -26,15 +31,21 @@ export interface IUserStaticMethods
   validateWebhooks(
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
-  validateOrganizations(
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+  validateMembership(
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
+  validateWorkspaces(
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateProjects(
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
+  validateCustomerPayment(
+    payment?: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId>;
   validateUpdateObject(
     input: Omit<Partial<databaseTypes.IUser>, '_id'>
-  ): boolean;
+  ): Promise<boolean>;
   addProjects(
     userId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
@@ -67,12 +78,12 @@ export interface IUserStaticMethods
     userId: mongooseTypes.ObjectId,
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
-  addOrganizations(
+  addWorkspaces(
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
-  removeOrganizations(
+  removeWorkspaces(
     userId: mongooseTypes.ObjectId,
-    organizations: (databaseTypes.IOrganization | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
 }

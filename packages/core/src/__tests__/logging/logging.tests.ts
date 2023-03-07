@@ -1,6 +1,7 @@
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {Logger} from '../../logging';
+import 'mocha';
 
 describe('#util/logging', () => {
   context('logger', () => {

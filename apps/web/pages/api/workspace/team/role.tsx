@@ -1,6 +1,6 @@
-import type { Role } from '@prisma/client';
+import { database as databaseTypes } from '@glyphx/types';
 
-import { validateSession, getMember, toggleRole } from '@glyphx/business';
+import { validateSession, MembershipService } from '@glyphx/business';
 
 const handler = async (req, res) => {
   const { method } = req;
@@ -8,11 +8,13 @@ const handler = async (req, res) => {
   if (method === 'PUT') {
     await validateSession(req, res);
     const { memberId } = req.body;
-    const member = getMember(memberId);
-    await toggleRole(
+    const member = MembershipService.getMember(memberId);
+    await MembershipService.toggleRole(
       memberId,
       // @ts-ignore
-      member.teamRole === Role.MEMBER ? Role.OWNER : Role.MEMBER
+      member.teamRole === database.constants.ROLE.MEMBER
+        ? databaseTypes.constants.ROLE.OWNER
+        : databaseTypes.constants.ROLE.MEMBER
     );
     res.status(200).json({ data: { updatedAt: new Date() } });
   } else {

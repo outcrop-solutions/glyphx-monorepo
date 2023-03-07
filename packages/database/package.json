@@ -10,28 +10,20 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf .turbo node_modules dist",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev",
-    "db:studio": "prisma studio",
-    "db:push": "prisma db push",
-    "db:seed": "tsx src/seed.ts",
-    "db:generate": "prisma generate",
     "dev": "tsup --watch",
-    "format": "prisma format",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
     "lint": "gts lint",
     "fix": "gts fix",
-    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma"
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
   },
   "dependencies": {
-    "@glyphx/core": "workspace:^1.0.0",
-    "@prisma/client": "^4.5.0",
+    "@glyphx/core": "workspace:*",
     "mongoose": "^6.8.1"
   },
   "devDependencies": {
-    "@glyphx/types": "workspace:^0.0.0",
+    "@glyphx/types": "workspace:*",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "@glyphx/tsconfig": "workspace:*",
     "@types/chai": "^4.3.3",
@@ -53,7 +45,6 @@
     "gts": "^3.1.0",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
-    "prisma": "^4.5.0",
     "rewire": "^6.0.0",
     "rimraf": "^3.0.2",
     "sinon": "^14.0.1",

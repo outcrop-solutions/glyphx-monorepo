@@ -11,17 +11,31 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_USER = {
+  userCode: 'testUserCode' + UNIQUE_KEY,
   name: 'testUser' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
-  gh_username: 'testGhUserName' + UNIQUE_KEY,
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   emailVerified: new Date(),
   isVerified: true,
-  apiKey: 'testApiKey' + UNIQUE_KEY,
-  role: databaseTypes.constants.ROLE.MEMBER,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
 };
+
 const INPUT_DATA = {
   sessionToken: 'testSessionToken' + UNIQUE_KEY,
+  expires: new Date(),
+  user: {},
+};
+
+const INPUT_DATA2 = {
+  sessionToken: 'testSessionToken2' + UNIQUE_KEY,
   expires: new Date(),
   user: {},
 };
@@ -31,6 +45,7 @@ describe('#sessionModel', () => {
     const mongoConnection = new MongoDbConnection();
     const sessionModel = mongoConnection.models.SessionModel;
     let sessionId: ObjectId;
+    let sessionId2: ObjectId;
     let userId: ObjectId;
     let userDocument: any;
     before(async () => {
@@ -54,6 +69,10 @@ describe('#sessionModel', () => {
 
       if (sessionId) {
         await sessionModel.findByIdAndDelete(sessionId);
+      }
+
+      if (sessionId2) {
+        await sessionModel.findByIdAndDelete(sessionId2);
       }
     });
 
@@ -81,6 +100,53 @@ describe('#sessionModel', () => {
 
       assert.isOk(session);
       assert.strictEqual(session._id?.toString(), sessionId.toString());
+    });
+
+    it('Get multiple sessions without a filter', async () => {
+      assert.isOk(sessionId);
+      const sessionInput = JSON.parse(JSON.stringify(INPUT_DATA2));
+      sessionInput.user = userDocument;
+      const sessionDocument = await sessionModel.createSession(sessionInput);
+
+      assert.isOk(sessionDocument);
+      sessionId2 = sessionDocument._id as mongooseTypes.ObjectId;
+
+      const sessions = await sessionModel.querySessions();
+      assert.isArray(sessions.results);
+      assert.isAtLeast(sessions.numberOfItems, 2);
+      const expectedDocumentCount =
+        sessions.numberOfItems <= sessions.itemsPerPage
+          ? sessions.numberOfItems
+          : sessions.itemsPerPage;
+      assert.strictEqual(sessions.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple sessions with a filter', async () => {
+      assert.isOk(sessionId2);
+      const results = await sessionModel.querySessions({
+        sessionToken: INPUT_DATA.sessionToken,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.strictEqual(
+        results.results[0]?.sessionToken,
+        INPUT_DATA.sessionToken
+      );
+    });
+
+    it('pagesessions', async () => {
+      assert.isOk(sessionId2);
+      const results = await sessionModel.querySessions({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await sessionModel.querySessions({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('modify a Session', async () => {
