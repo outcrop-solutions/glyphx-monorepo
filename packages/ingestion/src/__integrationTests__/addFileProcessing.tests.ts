@@ -12,7 +12,6 @@ import {
   dbConnection,
 } from '@glyphx/business';
 import {v4} from 'uuid';
-import * as sharedFunctions from '../util/generalPurposeFunctions';
 import {config} from '../config';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
