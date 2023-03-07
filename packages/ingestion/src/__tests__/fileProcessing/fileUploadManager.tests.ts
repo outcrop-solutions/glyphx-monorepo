@@ -7,6 +7,7 @@ import {fileIngestion} from '@glyphx/types';
 import {mockClient} from 'aws-sdk-client-mock';
 import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
 import {tableService} from '@glyphx/business';
+import {Upload} from '@aws-sdk/lib-storage';
 
 import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 
@@ -91,6 +92,10 @@ describe('#fileProcessing/fileUploadManager', () => {
     it('will throw an error when uploading a file fails', async () => {
       s3Mock.on(PutObjectCommand).rejects('an error has occurrred');
       s3Mock.on(HeadBucketCommand).resolves(true);
+
+      const doneStub = sandbox.stub();
+      doneStub.rejects('an error has occurred');
+      sandbox.replace(Upload.prototype, 'done', doneStub);
 
       const tableServiceStub = sandbox.stub();
       tableServiceStub.rejects(
