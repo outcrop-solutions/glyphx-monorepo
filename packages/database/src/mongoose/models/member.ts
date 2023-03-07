@@ -352,8 +352,8 @@ SCHEMA.static(
     filter: Record<string, unknown>,
     member: Omit<Partial<databaseTypes.IMember>, '_id'>
   ): Promise<boolean> => {
-    await MEMBER_MODEL.validateUpdateObject(member);
     try {
+      await MEMBER_MODEL.validateUpdateObject(member);
       const transformedMember: Partial<IMemberDocument> & Record<string, any> =
         {};
       for (const key in member) {
