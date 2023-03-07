@@ -1,5 +1,9 @@
 import {fileIngestion, database as databaseTypes} from '@glyphx/types';
-import {error, aws} from '@glyphx/core';
+import {
+  error,
+  aws,
+  generalPurposeFunctions as sharedFunctions,
+} from '@glyphx/core';
 import {Readable} from 'node:stream';
 import {
   BasicAthenaProcessor,
@@ -18,7 +22,6 @@ import {
   IJoinTableDefinition,
   IFileProcessingResult,
 } from '@interfaces/fileProcessing';
-import {generalPurposeFunctions as sharedFunctions} from '@util';
 import {TableArchiver} from './fileProcessing/tableArchiver';
 import {
   FILE_PROCESSING_ERROR_TYPES,
@@ -137,7 +140,7 @@ export class FileIngestor {
   }
 
   async removeTableFromAthena(tableName: string) {
-    const fullTableName = sharedFunctions.getFullTableName(
+    const fullTableName = sharedFunctions.fileIngestion.getFullTableName(
       this.clientId,
       this.modelId,
       tableName
@@ -148,7 +151,10 @@ export class FileIngestor {
 
   async removeViewFromAthena() {
     if (!this.viewRemoved) {
-      const viewName = sharedFunctions.getViewName(this.clientId, this.modelId);
+      const viewName = sharedFunctions.fileIngestion.getViewName(
+        this.clientId,
+        this.modelId
+      );
 
       await this.athenaManager.dropView(viewName);
 
@@ -259,7 +265,7 @@ export class FileIngestor {
       ) {
         if (
           await this.athenaManager.tableExists(
-            sharedFunctions.getFullTableName(
+            sharedFunctions.fileIngestion.getFullTableName(
               this.clientId,
               this.modelId,
               fileInfo.tableName
@@ -290,7 +296,7 @@ export class FileIngestor {
       ) {
         if (
           !(await this.athenaManager.tableExists(
-            sharedFunctions.getFullTableName(
+            sharedFunctions.fileIngestion.getFullTableName(
               this.clientId,
               this.modelId,
               fileInfo.tableName
@@ -307,7 +313,7 @@ export class FileIngestor {
           });
         } else {
           const fileName =
-            sharedFunctions.getTableParquetPath(
+            sharedFunctions.fileIngestion.getTableParquetPath(
               this.clientId,
               this.modelId,
               fileInfo.tableName
@@ -325,7 +331,7 @@ export class FileIngestor {
       } else if (
         fileInfo.operation === fileIngestion.constants.FILE_OPERATION.REPLACE &&
         !(await this.athenaManager.tableExists(
-          sharedFunctions.getFullTableName(
+          sharedFunctions.fileIngestion.getFullTableName(
             this.clientId,
             this.modelId,
             fileInfo.tableName
@@ -342,7 +348,7 @@ export class FileIngestor {
       } else if (
         fileInfo.operation === fileIngestion.constants.FILE_OPERATION.DELETE &&
         !(await this.athenaManager.tableExists(
-          sharedFunctions.getFullTableName(
+          sharedFunctions.fileIngestion.getFullTableName(
             this.clientId,
             this.modelId,
             fileInfo.tableName
@@ -421,7 +427,10 @@ export class FileIngestor {
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
-    const viewName = sharedFunctions.getViewName(this.clientId, this.modelId);
+    const viewName = sharedFunctions.fileIngestion.getViewName(
+      this.clientId,
+      this.modelId
+    );
     const errors: IFileProcessingError[] = await this.reconcileFileInfo();
     if (errors.length) {
       this.processedFileErrorInformation.push(...errors);
@@ -449,7 +458,10 @@ export class FileIngestor {
           if (fileInfoForReturn.length) {
             //5. We will need to update the view so that we selct the row id as the rowid from the left most column.
             joinInformation = (await this.basicAthenaProcessor?.processTables(
-              sharedFunctions.getViewName(this.clientId, this.modelId),
+              sharedFunctions.fileIngestion.getViewName(
+                this.clientId,
+                this.modelId
+              ),
               reconFileInformation.accumFiles
             )) as IJoinTableDefinition[];
           }
