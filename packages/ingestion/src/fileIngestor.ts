@@ -14,6 +14,7 @@ import {
   projectService,
   processTrackingService,
   Initializer as businessLogicInit,
+  Heartbeat,
 } from '@glyphx/business';
 
 import {
@@ -423,6 +424,11 @@ export class FileIngestor {
       databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       `File Ingestion has started : ${new Date()}`
     );
+    //Use the default of 1 minute.
+    //we can change it later if we want.
+    //this is set as the second parameter on the constructor.
+    const heartBeat = new Heartbeat(config.processId);
+    await heartBeat.start();
 
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
@@ -512,6 +518,7 @@ export class FileIngestor {
         ? databaseTypes.constants.PROCESS_STATUS.FAILED
         : databaseTypes.constants.PROCESS_STATUS.COMPLETED;
 
+    heartBeat.stop();
     await processTrackingService.completeProcess(
       config.processId,
       retval,
