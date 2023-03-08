@@ -1,11 +1,11 @@
 {
-  "src/services/*.ts": {
+  "src/*.ts": {
     "type": "source",
-    "alternate": "src/__tests__/services/{}.tests.ts"
+    "alternate": "src/__tests__/{}.tests.ts"
   },
-  "src/__tests__/services/*.tests.ts" : {
+  "src/__tests__/*.tests.ts" : {
     "type" : "test",
-    "alternate":  "src/services/{}.ts"
+    "alternate":  "src/{}.ts"
   }
 
 }

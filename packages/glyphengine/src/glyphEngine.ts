@@ -3,7 +3,7 @@ import {fileIngestion} from '@glyphx/types';
 import {Readable} from 'node:stream';
 
 export class GlyphEngine {
-  private readonly template_key = 'public/templates/template_new.sdt';
+  private readonly templateKey: string;
   private readonly inputBucketNameField: string;
   private readonly outputBucketNameField: string;
 
@@ -20,6 +20,8 @@ export class GlyphEngine {
     outputBucketName: string,
     databaseName: string
   ) {
+    this.templateKey = 'public/templates/template_new.sdt';
+
     this.inputBucketNameField = inputBucketName;
     this.outputBucketNameField = outputBucketName;
 
@@ -34,11 +36,20 @@ export class GlyphEngine {
 
   public async init(): Promise<void> {
     if (!this.initedField) {
-      await this.inputBucketField.init();
-      await this.outputBucketField.init();
-      await this.athenaManager.init();
-      await logging.Logger.init();
-      this.initedField = true;
+      try {
+        await this.inputBucketField.init();
+        await this.outputBucketField.init();
+        await this.athenaManager.init();
+        await logging.Logger.init();
+        this.initedField = true;
+      } catch (err) {
+        const e = new error.UnexpectedError(
+          'An unexpected error occurred while initiliazing the GlyphEngine. See the inner error for additional information',
+          err
+        );
+        e.publish();
+        throw e;
+      }
     }
   }
 
@@ -72,18 +83,26 @@ export class GlyphEngine {
     modelId: string,
     data: Map<string, string>
   ): Promise<void> {
-    const viewName = generalPurposeFunctions.fileIngestion.getViewName(
-      clientId,
-      modelId
-    );
+    try {
+      const viewName = generalPurposeFunctions.fileIngestion.getViewName(
+        clientId,
+        modelId
+      );
 
-    data.set('view_name', viewName);
+      data.set('view_name', viewName);
 
-    const tableDef = await this.athenaManager.getTableDescription(viewName);
-    setColType('x', tableDef, data);
-    setColType('y', tableDef, data);
-    setColType('z', tableDef, data);
-
+      const tableDef = await this.athenaManager.getTableDescription(viewName);
+      setColType('x', tableDef, data);
+      setColType('y', tableDef, data);
+      setColType('z', tableDef, data);
+    } catch (err) {
+      const e = new error.UnexpectedError(
+        'An unexpected error occurred while getting data types. See the inner error for additional information',
+        err
+      );
+      e.publish();
+      throw e;
+    }
     function setColType(
       prefix: string,
       tableDef: {
@@ -106,17 +125,26 @@ export class GlyphEngine {
   }
 
   private async getTemplateAsString(): Promise<string> {
-    const rStream = await this.inputBucketField.getObjectStream(
-      this.template_key
-    );
+    try {
+      const rStream = await this.inputBucketField.getObjectStream(
+        this.templateKey
+      );
 
-    const chunks: Array<any> = [];
-    for await (const chunk of rStream) {
-      chunks.push(chunk);
+      const chunks: Array<any> = [];
+      for await (const chunk of rStream) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+      const str = buffer.toString('utf-8');
+      return str;
+    } catch (err) {
+      const e = new error.UnexpectedError(
+        'An unexpected error occurred while getting the template. See the inner error for additional information',
+        err
+      );
+      e.publish();
+      throw e;
     }
-    const buffer = Buffer.concat(chunks);
-    const str = buffer.toString('utf-8');
-    return str;
   }
 
   public async process(data: Map<string, string>): Promise<void> {
