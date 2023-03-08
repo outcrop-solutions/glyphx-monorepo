@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { getSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 
-import Button from 'src/components/Button/index';
-import Card from 'src/components/Card/index';
-import Content from 'src/components/Content/index';
-import Meta from 'src/components/Meta/index';
-import Modal from 'src/components/Modal/index';
-import { AccountLayout } from '@/layouts/index';
+import Button from 'components/Button/index';
+import Card from 'components/Card/index';
+import Content from 'components/Content/index';
+import Meta from 'components/Meta/index';
+import Modal from 'components/Modal/index';
+import { AccountLayout } from 'layouts/index';
 import { api, redirectToCheckout } from 'lib';
 import { getInvoices, getProducts, getPayment } from '@glyphx/business';
 

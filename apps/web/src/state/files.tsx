@@ -6,7 +6,7 @@ import {
   OpenFile,
   RenderableDataGrid,
   SelectedIndex,
-} from '@/lib/file-ingest/types';
+} from 'lib/file-ingest/types';
 import { IFileStats } from '@glyphx/types/src/fileIngestion';
 
 /**

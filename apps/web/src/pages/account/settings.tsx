@@ -5,12 +5,12 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 
-import Button from 'src/components/Button/index';
-import Card from 'src/components/Card/index';
-import Content from 'src/components/Content/index';
-import Meta from 'src/components/Meta';
-import Modal from 'src/components/Modal/index';
-import { AccountLayout } from '@/layouts/index';
+import Button from 'components/Button/index';
+import Card from 'components/Card/index';
+import Content from 'components/Content/index';
+import Meta from 'components/Meta';
+import Modal from 'components/Modal/index';
+import { AccountLayout } from 'layouts/index';
 import { api } from 'lib';
 import { getUser } from '@glyphx/business';
 

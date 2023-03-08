@@ -1,8 +1,8 @@
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { AdminErrorFallback } from "@/partials/fallback/admin.error";
-import { AdminSuspenseFallback } from "@/partials/fallback/admin.suspense";
+import { AdminErrorFallback } from "partials/fallback/admin.error";
+import { AdminSuspenseFallback } from "partials/fallback/admin.suspense";
 
 import dynamic from "next/dynamic";
 

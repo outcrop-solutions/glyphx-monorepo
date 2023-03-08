@@ -18,7 +18,7 @@ import { ErrorFallback } from 'partials/fallback';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Suspense } from 'react';
 
-import { SuspenseFallback } from '@/partials/fallback';
+import { SuspenseFallback } from 'partials/fallback';
 
 declare global {
   interface Window {

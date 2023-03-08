@@ -3,7 +3,7 @@ import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import { signInHtml, signInText, EmailClient } from '@glyphx/email';
 import { dbConnection as connection, customerPaymentService } from '@glyphx/business';
-// import { log } from '@/lib/logsnag';
+// import { log } from 'lib/logsnag';
 
 export default NextAuth({
   adapter: MongoDBAdapter(connection),

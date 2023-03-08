@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import {
   ProjectErrorFallback,
   ProjectSuspenseFallback,
-} from "@/partials/fallback";
+} from "partials/fallback";
 import { ErrorBoundary } from "react-error-boundary";
 
 import dynamic from "next/dynamic";

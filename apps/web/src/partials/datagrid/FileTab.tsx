@@ -1,7 +1,7 @@
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { selectedFileAtom } from 'state/files';
 import { XIcon } from '@heroicons/react/solid';
-import { useFileSystem } from '@/services/useFileSystem';
+import { useFileSystem } from 'services/useFileSystem';
 
 export const FileTab = ({ tableName, fileIndex }) => {
   const { closeFile, selectFile } = useFileSystem();

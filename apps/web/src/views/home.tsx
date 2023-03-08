@@ -6,7 +6,7 @@ import sortArray from 'sort-array';
 // Layout
 import { Header } from 'partials';
 import { MainSidebar } from 'partials';
-import { Info } from '@/partials/info';
+import { Info } from 'partials/info';
 import { PinnedProjects } from 'partials';
 
 // Project Overiew
@@ -21,7 +21,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { isGridViewAtom, projectDetailsAtom, projectsAtom, showAddProjectAtom } from 'state';
 import { useRouter } from 'next/router';
 import { useProjects } from '../services';
-import { SuspenseFallback } from '@/partials/fallback';
+import { SuspenseFallback } from 'partials/fallback';
 
 export default function Home() {
   const router = useRouter();

@@ -1,8 +1,8 @@
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { SettingsErrorFallback } from "@/partials/fallback/settings.error";
-import { SettingsSuspenseFallback } from "@/partials/fallback/settings.suspense";
+import { SettingsErrorFallback } from "partials/fallback/settings.error";
+import { SettingsSuspenseFallback } from "partials/fallback/settings.suspense";
 
 import dynamic from "next/dynamic";
 

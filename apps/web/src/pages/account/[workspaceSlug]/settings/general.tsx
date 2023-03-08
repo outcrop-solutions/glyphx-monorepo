@@ -7,14 +7,14 @@ import toast from 'react-hot-toast';
 import isAlphanumeric from 'validator/lib/isAlphanumeric';
 import isSlug from 'validator/lib/isSlug';
 
-import Button from 'src/components/Button/index';
-import Card from 'src/components/Card/index';
-import Content from 'src/components/Content/index';
-import Meta from 'src/components/Meta/index';
-import { AccountLayout } from '@/layouts/index';
+import Button from 'components/Button/index';
+import Card from 'components/Card/index';
+import Content from 'components/Content/index';
+import Meta from 'components/Meta/index';
+import { AccountLayout } from 'layouts/index';
 import { api } from 'lib';
 import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
-import { useWorkspace } from '@/providers/workspace';
+import { useWorkspace } from 'providers/workspace';
 
 const General = ({ isTeamOwner, workspace }) => {
   const router = useRouter();

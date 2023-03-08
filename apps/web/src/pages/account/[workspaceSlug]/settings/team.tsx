@@ -13,12 +13,12 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 
-import Button from 'src/components/Button/index';
-import Card from 'src/components/Card/index';
-import Content from 'src/components/Content/index';
-import Meta from 'src/components/Meta/index';
-import { useMembers } from 'hooks/data';
-import { AccountLayout } from '@/layouts/index';
+import Button from 'components/Button/index';
+import Card from 'components/Card/index';
+import Content from 'components/Content/index';
+import Meta from 'components/Meta/index';
+import { useMembers } from 'data';
+import { AccountLayout } from 'layouts/index';
 import { api } from 'lib';
 import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
 

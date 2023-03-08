@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
-import Button from 'src/components/Button/index';
-import Card from 'src/components/Card/index';
-import Content from 'src/components/Content/index';
-import Meta from 'src/components/Meta/index';
-import { useInvitations, useWorkspaces } from 'hooks/data/index';
-import { AccountLayout } from '@/layouts/index';
+import Button from 'components/Button/index';
+import Card from 'components/Card/index';
+import Content from 'components/Content/index';
+import Meta from 'components/Meta/index';
+import { useInvitations, useWorkspaces } from 'data/index';
+import { AccountLayout } from 'layouts/index';
 import { api } from 'lib';
-import { useWorkspace } from '@/providers/workspace';
+import { useWorkspace } from 'providers/workspace';
 
 const Welcome = () => {
   const router = useRouter();

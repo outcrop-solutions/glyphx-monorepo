@@ -1,7 +1,7 @@
 import React from 'react';
 import { selectedFileAtom } from 'state/files';
 import { useRecoilValue } from 'recoil';
-import { useFileSystem } from '@/services/useFileSystem';
+import { useFileSystem } from 'services/useFileSystem';
 
 export const File = ({ fileName, idx }) => {
   const { openFile } = useFileSystem();
