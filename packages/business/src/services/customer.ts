@@ -1,7 +1,8 @@
-import {createCustomer} from 'lib/stripe';
-import {database as databaseTypes} from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
+import {database as databaseTypes} from '@glyphx/types';
+import {StripeClient} from 'lib/stripe';
 import mongoDbConnection from 'lib/databaseConnection';
+import {Types as mongooseTypes} from 'mongoose';
 
 export class CustomerPaymentService {
   public static async getPayment(
@@ -13,7 +14,7 @@ export class CustomerPaymentService {
           email
         );
       return customerPayment;
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
@@ -33,24 +34,48 @@ export class CustomerPaymentService {
 
   public static async createPaymentAccount(
     email: string,
-    customerId: string
-  ): Promise<databaseTypes.ICustomerPayment | null> {
+    customerId: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.ICustomerPayment> {
     try {
-      const paymentAccount = await createCustomer(email);
+      // create customer payment
+      // add to the user
+      // add user to the customerpayment
+      const paymentAccount = await StripeClient.createCustomer(email);
       const input = {
-        customerId,
         email,
         paymentId: paymentAccount.id,
       } as Omit<databaseTypes.ICustomerPayment, '_id'>;
+
+      // create customer
       const customerPayment =
         await mongoDbConnection.models.CustomerPaymentModel.createCustomerPayment(
           input
         );
-      return customerPayment;
-    } catch (err) {
+
+      const id =
+        customerId instanceof mongooseTypes.ObjectId
+          ? customerId
+          : new mongooseTypes.ObjectId(customerId);
+
+      // connect customer to user
+      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+        customerPayment: {
+          _id: customerPayment._id,
+        } as unknown as databaseTypes.ICustomerPayment,
+      });
+
+      // connect user to customer
+      const payment =
+        await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentById(
+          id,
+          {customer: user}
+        );
+
+      return payment;
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
+        err instanceof error.DataValidationError
       ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
@@ -77,7 +102,7 @@ export class CustomerPaymentService {
         {customerId},
         {subscriptionType}
       );
-    } catch (err) {
+    } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||
         err instanceof error.InvalidOperationError

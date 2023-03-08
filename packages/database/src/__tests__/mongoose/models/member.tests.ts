@@ -300,7 +300,6 @@ describe('#mongoose/models/member', () => {
       try {
         await MemberModel.createMember(MOCK_MEMBER);
       } catch (err) {
-        console.log({err});
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
       }
