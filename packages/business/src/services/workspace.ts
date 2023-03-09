@@ -382,7 +382,6 @@ export class WorkspaceService {
               mem.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
           ).length > 0
       );
-      console.log({filteredWorkspaces});
       if (filteredWorkspaces.length > 0) {
         return filteredWorkspaces;
       } else {

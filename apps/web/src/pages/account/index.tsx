@@ -59,7 +59,7 @@ const Welcome = () => {
   return (
     <AccountLayout>
       <Meta title="Glyphx - Dashboard" />
-      <Content.Title title="Glyphx Dashboard" subtitle="Start building SaaS platforms in a day" />
+      <Content.Title title="Glyphx Dashboard" subtitle="Explore data anywhere" />
       <Content.Divider />
       <Content.Container>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -106,7 +106,7 @@ const Welcome = () => {
                 />
                 <Card.Footer>
                   <Button
-                    className="text-white bg-blue-600 hover:bg-blue-500"
+                    className=""
                     disabled={isSubmitting}
                     onClick={() => accept(invitation.id)}
                   >

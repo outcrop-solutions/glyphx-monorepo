@@ -49,7 +49,7 @@ const Billing = ({ invoices, products }) => {
           </Card.Body>
           <Card.Footer>
             <small>You will be redirected to the payment page</small>
-            <Button className="text-white bg-blue-600 hover:bg-blue-500" disabled={isSubmitting} onClick={toggleModal}>
+            <Button className="" disabled={isSubmitting} onClick={toggleModal}>
               Upgrade
             </Button>
           </Card.Footer>
@@ -66,7 +66,7 @@ const Billing = ({ invoices, products }) => {
                 </Card.Body>
                 <Card.Footer>
                   <Button
-                    className="w-full text-white bg-blue-600 hover:bg-blue-500"
+                    className="w-full"
                     disabled={isSubmitting}
                     onClick={() => subscribe(product.prices.id)}
                   >

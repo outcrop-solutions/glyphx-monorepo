@@ -107,7 +107,7 @@ const Settings = ({ user }) => {
               subtitle="Please enter your full name, or a display name you are comfortable with"
             >
               <input
-                className="px-3 py-2 border rounded md:w-1/2"
+                className="px-3 py-2 border border-gray rounded md:w-1/2 bg-transparent"
                 disabled={isSubmitting}
                 onChange={handleNameChange}
                 type="text"
@@ -117,7 +117,7 @@ const Settings = ({ user }) => {
             <Card.Footer>
               <small>Please use 32 characters at maximum</small>
               <Button
-                className="text-white bg-blue-600 hover:bg-blue-500"
+                className=""
                 disabled={!validName || isSubmitting}
                 onClick={changeName}
               >
@@ -134,7 +134,7 @@ const Settings = ({ user }) => {
               Glyphx"
             >
               <input
-                className="px-3 py-2 border rounded md:w-1/2"
+                className="px-3 py-2 border border-gray rounded md:w-1/2 bg-transparent"
                 disabled={isSubmitting}
                 onChange={handleEmailChange}
                 type="email"
@@ -144,7 +144,7 @@ const Settings = ({ user }) => {
             <Card.Footer>
               <small>We will email you to verify the change</small>
               <Button
-                className="text-white bg-blue-600 hover:bg-blue-500"
+                className=""
                 disabled={!validEmail || isSubmitting}
                 onClick={changeEmail}
               >
@@ -156,7 +156,7 @@ const Settings = ({ user }) => {
 
         <Card>
           <Card.Body title="Personal Account ID" subtitle="Used when interacting with APIs">
-            <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
+            <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border text-white rounded md:w-1/2">
               <span className="overflow-x-auto">{userCode}</span>
               <CopyToClipboard onCopy={copyToClipboard} text={userCode}>
                 <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
@@ -186,7 +186,7 @@ const Settings = ({ user }) => {
                 Enter <strong>{user.email}</strong> to continue:
               </label>
               <input
-                className="px-3 py-2 border rounded"
+                className="px-3 py-2 border rounded bg-transparent"
                 disabled={isSubmitting}
                 onChange={handleVerifyEmailChange}
                 type="email"
@@ -220,7 +220,7 @@ export const getServerSideProps = async (context) => {
         user: {
           email: email ? email : null,
           name: name ? name : null,
-          userCode: userCode ? userCode : null,
+          userCode: userCode ? userCode : session?.user?.userId,
         },
       })
     ),

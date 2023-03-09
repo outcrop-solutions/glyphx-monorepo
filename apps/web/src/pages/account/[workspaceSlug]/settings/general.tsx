@@ -84,7 +84,7 @@ const General = ({ isTeamOwner, workspace }) => {
         <Card>
           <Card.Body title="Workspace Name" subtitle="Used to identify your Workspace on the Dashboard">
             <input
-              className="px-3 py-2 border rounded md:w-1/2"
+              className="px-3 py-2 border rounded md:w-1/2 bg-transparent"
               disabled={isSubmitting || !isTeamOwner}
               onChange={handleNameChange}
               type="text"
@@ -95,7 +95,7 @@ const General = ({ isTeamOwner, workspace }) => {
             <small>Please use 16 characters at maximum</small>
             {isTeamOwner && (
               <Button
-                className="text-white bg-blue-600 hover:bg-blue-500"
+                className="bg-primary-yellow"
                 disabled={!validName || isSubmitting}
                 onClick={changeName}
               >
@@ -108,7 +108,7 @@ const General = ({ isTeamOwner, workspace }) => {
           <Card.Body title="Workspace Slug" subtitle="Used to identify your Workspace on the Dashboard">
             <div className="flex items-center space-x-3">
               <input
-                className="px-3 py-2 border rounded md:w-1/2"
+                className="px-3 py-2 border rounded md:w-1/2 bg-transparent"
                 disabled={isSubmitting || !isTeamOwner}
                 onChange={handleSlugChange}
                 type="text"
@@ -121,7 +121,7 @@ const General = ({ isTeamOwner, workspace }) => {
             <small>Please use 16 characters at maximum. Hyphenated alphanumeric characters only.</small>
             {isTeamOwner && (
               <Button
-                className="text-white bg-blue-600 hover:bg-blue-500"
+                className=""
                 disabled={!validSlug || isSubmitting}
                 onClick={changeSlug}
               >

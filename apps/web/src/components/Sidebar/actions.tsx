@@ -50,9 +50,9 @@ const Actions = () => {
 
   return (
     <div className="flex flex-col items-stretch justify-center px-5 space-y-3">
-      <Button className="text-white bg-blue-600 hover:bg-blue-500" onClick={toggleModal}>
+      <Button className="text-white bg-secondary-deep-blue hover:bg-blue-500" onClick={toggleModal}>
         <PlusIcon className="w-5 h-5 text-white" aria-hidden="true" />
-        <span>Create Workspace</span>
+        <span className='whitespace-nowrap'>Create Workspace</span>
       </Button>
       <Modal show={showModal} title="Create a Workspace" toggle={toggleModal}>
         <div className="space-y-0 text-sm text-gray-600">
@@ -72,7 +72,7 @@ const Actions = () => {
         </div>
         <div className="flex flex-col items-stretch">
           <Button
-            className="text-white bg-blue-600 hover:bg-blue-500"
+            className=""
             disabled={!validName || isSubmitting}
             onClick={createWorkspace}
           >
@@ -82,8 +82,8 @@ const Actions = () => {
       </Modal>
       <Listbox value={workspace} onChange={handleWorkspaceChange}>
         <div className="relative">
-          <Listbox.Button className="relative w-full py-2 pl-3 pr-10 text-left bg-primary-dark-blue rounded-lg shadow-md cursor-default">
-            <span className="block text-gray-600 truncate">
+          <Listbox.Button className="relative w-full py-2 pl-3 pr-10 text-left bg-secondary-midnight rounded-lg shadow-md cursor-default">
+            <span className="block text-white truncate">
               {isLoading
                 ? 'Fetching workspaces...'
                 : data?.workspaces?.length === 0
@@ -108,14 +108,14 @@ const Actions = () => {
                   <Listbox.Option
                     key={index}
                     className={({ active }) =>
-                      `${active ? 'text-blue-800 bg-blue-200' : 'text-gray-800'}
+                      `${active ? 'bg-secondary-midnight' : 'bg-secondary-midnight'}
                           cursor-pointer select-none relative py-2 pl-10 pr-4`
                     }
                     value={workspace}
                   >
                     {({ selected, active }) => (
                       <>
-                        <span className={`${selected ? 'font-bold' : 'font-normal'} block truncate`}>
+                        <span className={`${selected ? 'font-bold' : 'font-normal'} bg-secondary-midnight block truncate`}>
                           {workspace.name}
                         </span>
                         {selected ? (

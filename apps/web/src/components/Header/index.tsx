@@ -25,16 +25,11 @@ const Header = () => {
 
   return (
     <div className="flex flex-row items-center justify-between">
-      <div>
-        <h5 className="font-bold text-gray-800">
-          {data && data.user && <span>{data.user.name || data.user.email}</span>}
-        </h5>
-      </div>
+      <div></div>
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <Menu.Button className="flex items-center justify-center px-5 py-2 space-x-3 border rounded hover:bg-secondary-midnight">
+          <Menu.Button className="flex items-center justify-center p-1 space-x-3 border rounded hover:bg-secondary-midnight">
             <CogIcon aria-hidden="true" className="w-5 h-5" />
-            <span>Settings</span>
           </Menu.Button>
         </div>
         <Transition
@@ -46,7 +41,7 @@ const Header = () => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 w-40 mt-2 origin-top-right border divide-y divide-gray-100 rounded">
+          <Menu.Items className="absolute right-0 w-40 mt-2 origin-top-right border divide-y divide-gray-100 bg-secondary-space-blue rounded">
             <div className="p-2">
               <Menu.Item>
                 <Link href="/account/settings">
@@ -67,10 +62,10 @@ const Header = () => {
             </div>
             <div className="p-2">
               <Menu.Item>
-                <Link href="/">
+                <Link href="https://glyphx.co">
                   <a className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group">
                     <DesktopComputerIcon aria-hidden="true" className="w-5 h-5" />
-                    <span>Landing Page</span>
+                    <span>Resources</span>
                   </a>
                 </Link>
               </Menu.Item>

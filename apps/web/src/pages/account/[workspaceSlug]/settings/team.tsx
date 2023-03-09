@@ -129,16 +129,16 @@ const Team = ({ isTeamOwner, workspace }) => {
                 {members.map((member, index) => (
                   <div key={index} className="flex flex-row space-x-5">
                     <input
-                      className="w-1/2 px-3 py-2 border rounded"
+                      className="w-1/2 px-3 py-2 border border-gray rounded bg-transparent"
                       disabled={isSubmitting}
                       onChange={(event) => handleEmailChange(event, index)}
                       placeholder="name@email.com"
                       type="text"
                       value={member.email}
                     />
-                    <div className="relative inline-block w-1/2 border rounded md:w-1/4 ">
+                    <div className="relative inline-block w-1/2 border border-gray rounded md:w-1/4 ">
                       <select
-                        className="w-full px-3 py-2 capitalize rounded appearance-none"
+                        className="w-full px-3 py-2 capitalize rounded appearance-none bg-transparent"
                         disabled={isSubmitting}
                         onChange={(event) => handleRoleChange(event, index)}
                       >
@@ -178,7 +178,7 @@ const Team = ({ isTeamOwner, workspace }) => {
                 All invited team members will be set to <strong>Pending</strong>
               </small>
               <Button
-                className="text-white bg-blue-600 hover:bg-blue-500"
+                className=""
                 disabled={validateEmails || isSubmitting}
                 onClick={invite}
               >

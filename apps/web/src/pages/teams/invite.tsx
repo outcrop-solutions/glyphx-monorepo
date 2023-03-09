@@ -44,7 +44,7 @@ const Invite = ({ workspace }) => {
               <Card.Body title={workspace.name} subtitle="You are invited to join this workspace." />
               <Card.Footer>
                 {data ? (
-                  <Button className="text-white bg-blue-600 hover:bg-blue-500" disabled={isSubmitting} onClick={join}>
+                  <Button className="" disabled={isSubmitting} onClick={join}>
                     Join Workspace
                   </Button>
                 ) : (
