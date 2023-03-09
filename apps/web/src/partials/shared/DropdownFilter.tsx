@@ -53,7 +53,7 @@ export function DropdownFilter({ align }) {
       appear={null}
         show={dropdownOpen}
         tag="div"
-        className={`origin-top-right z-10 absolute top-full min-w-56 bg-white border border-gray pt-1.5 rounded shadow-lg overflow-hidden mt-1 ${
+        className={`origin-top-right z-10 absolute top-full min-w-56 border border-gray pt-1.5 rounded shadow-lg overflow-hidden mt-1 ${
           align === "right" ? "right-0" : "left-0"
         }`}
         enter="transition ease-out duration-200 transform"
@@ -114,7 +114,7 @@ export function DropdownFilter({ align }) {
           <div className="py-2 px-3 border-t border-gray bg-gray">
             <ul className="flex items-center justify-between">
               <li>
-                <button className="btn-xs bg-white border-gray hover:border-slate-300 text-gray hover:text-gray">
+                <button className="btn-xs border-gray hover:border-slate-300 text-gray hover:text-gray">
                   Clear
                 </button>
               </li>

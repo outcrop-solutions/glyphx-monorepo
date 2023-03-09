@@ -63,7 +63,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
       >
         <div
           ref={modalContent}
-          className="z-60 bg-white overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg"
+          className="z-60 overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg"
         >
           {/* Search form */}
           <form className="border-b border-gray">

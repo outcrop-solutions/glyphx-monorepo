@@ -156,7 +156,7 @@ export const PinnedProjects = () => {
               {/* <div className="shrink-0 pr-2">
                 <button
                   type="button"
-                  className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray rounded-full bg-transparent hover:text-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="w-8 h-8 inline-flex items-center justify-center text-gray rounded-full bg-transparent hover:text-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <span className="sr-only">Open options</span>
                   <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />

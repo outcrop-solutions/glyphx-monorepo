@@ -9,7 +9,7 @@ export const GridHeader = () => {
 
   return (
     <div className="w-full h-8 bg-secondary-space-blue border-b border-gray text-white text-xs flex flex-shrink-0 items-center">
-      {filesOpen && filesOpen.length > 0 && (
+      {filesOpen && filesOpen?.length > 0 && (
         <>
           {filesOpen.map(({tableName, fileIndex}, idx) => (
             <FileTab key={`${tableName}-${idx}`} tableName={tableName} fileIndex={fileIndex} />

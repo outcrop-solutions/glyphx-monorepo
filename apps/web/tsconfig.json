@@ -32,6 +32,6 @@
     "isolatedModules": true,
     "jsx": "preserve"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/utils/scrollbar.js", "src/utils/scrollbar.js"],
   "exclude": ["node_modules"]
 }

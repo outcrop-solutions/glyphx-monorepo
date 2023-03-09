@@ -19,7 +19,7 @@ const Pricing = () => {
           </p>
         </div>
         <div className="flex flex-col p-10 space-x-0 space-y-5 bg-gray-200 rounded-lg md:space-y-0 md:space-x-5 md:flex-row">
-          <div className="flex flex-col items-start overflow-hidden bg-white border rounded-lg md:w-1/2">
+          <div className="flex flex-col items-start overflow-hidden border rounded-lg md:w-1/2">
             <div className="w-full p-10 space-y-5">
               <span className="px-5 py-1 text-sm text-blue-600 uppercase bg-blue-100 rounded-full">
                 Hobby
@@ -29,9 +29,9 @@ const Pricing = () => {
                 <small className="text-lg text-gray-400">for life!</small>
               </h2>
             </div>
-            <div className="flex flex-col w-full h-full p-10 space-y-5 bg-gray-100 border-t">
+            <div className="flex flex-col w-full h-full p-10 space-y-5 bg-secondary-midnight border-t">
               <a
-                className="px-10 py-3 text-lg text-center text-blue-600 bg-white rounded shadow hover:bg-blue-50"
+                className="px-10 py-3 text-lg text-center text-blue-600 rounded shadow hover:bg-blue-50"
                 href="#!"
               >
                 Get Started with Hobby
@@ -59,7 +59,7 @@ const Pricing = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col items-start overflow-hidden bg-white border rounded-lg md:w-1/2">
+          <div className="flex flex-col items-start overflow-hidden border rounded-lg md:w-1/2">
             <div className="w-full p-10 space-y-5">
               <span className="px-5 py-1 text-sm text-blue-600 uppercase bg-blue-100 rounded-full">
                 Premium
@@ -69,9 +69,9 @@ const Pricing = () => {
                 <small className="text-lg text-gray-400">per month</small>
               </h2>
             </div>
-            <div className="flex flex-col w-full h-full p-10 space-y-5 bg-gray-100 border-t">
+            <div className="flex flex-col w-full h-full p-10 space-y-5 bg-secondary-midnight border-t">
               <a
-                className="px-10 py-3 text-lg text-center text-blue-600 bg-white rounded shadow hover:bg-blue-50"
+                className="px-10 py-3 text-lg text-center text-blue-600 rounded shadow hover:bg-blue-50"
                 href="#!"
               >
                 Get Started with Premium

@@ -158,11 +158,13 @@ SCHEMA.static(
       user instanceof mongooseTypes.ObjectId
         ? user
         : (user._id as mongooseTypes.ObjectId);
+
+    console.log({user});
     const idExists = await UserModel.userIdExists(userId);
     if (idExists) return userId;
     else
       throw new error.DataValidationError(
-        `the user id : ${userId} does not exisit in the database.`,
+        `the user id : ${userId} does not exist in the database.`,
         'user',
         userId
       );
@@ -179,8 +181,8 @@ SCHEMA.static(
         | databaseTypes.IMember
         | mongooseTypes.ObjectId
       )[];
-      const [members, projects, creator] = await Promise.all([
-        WORKSPACE_MODEL.validateMembers(users),
+
+      const [projects, creator] = await Promise.all([
         WORKSPACE_MODEL.validateProjects(input.projects),
         WORKSPACE_MODEL.validateUser(input.creator),
       ]);
@@ -195,7 +197,7 @@ SCHEMA.static(
         slug: input.slug,
         description: input.description,
         creator: creator,
-        members: members,
+        members: [creator],
         projects: projects,
       };
       try {

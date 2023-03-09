@@ -6,7 +6,7 @@ const Modal = ({ children, show, title, toggle }) => {
   return (
     <Transition appear as={Fragment} show={show}>
       <Dialog
-        className="fixed inset-0 z-50 overflow-y-auto text-gray-800"
+        className="fixed inset-0 z-50 overflow-y-auto text-white"
         onClose={toggle}
       >
         <div className="flex items-center justify-center h-screen p-5">
@@ -19,7 +19,7 @@ const Modal = ({ children, show, title, toggle }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-30" />
+            <Dialog.Overlay className="fixed inset-0 bg-secondary-midnight bg-opacity-30" />
           </Transition.Child>
           <span aria-hidden="true" className="inline-block align-middle">
             &#8203;
@@ -33,7 +33,7 @@ const Modal = ({ children, show, title, toggle }) => {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="relative inline-block p-10 my-10 space-y-5 overflow-hidden text-left align-middle transition-all transform bg-white rounded shadow-xl">
+            <div className="relative inline-block p-10 my-10 space-y-5 overflow-hidden text-left align-middle transition-all transform bg-secondary-space-blue rounded shadow-xl">
               <Dialog.Title as="h2" className="text-2xl font-bold leading-5">
                 {title}
               </Dialog.Title>

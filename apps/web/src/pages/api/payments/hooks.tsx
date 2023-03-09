@@ -1,16 +1,18 @@
 import { buffer } from 'micro';
 
-import { stripe, CustomerPaymentService } from '@glyphx/business';
+import { StripeClient, customerPaymentService, Initializer } from '@glyphx/business';
 
 export const config = { api: { bodyParser: false } };
 
 const handler = async (req, res) => {
+  await Initializer.init()
+
   const reqBuffer = await buffer(req);
   const signature = req.headers['stripe-signature'];
   let event = null;
 
   try {
-    event = stripe.webhooks.constructEvent(reqBuffer, signature, process.env.PAYMENTS_SIGNING_SECRET);
+    event = StripeClient.stripe.webhooks.constructEvent(reqBuffer, signature, process.env.PAYMENTS_SIGNING_SECRET);
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
@@ -21,7 +23,7 @@ const handler = async (req, res) => {
     switch (event.type) {
       case 'charge.succeeded':
         if (metadata?.customerId && metadata?.type) {
-          await CustomerPaymentService.updateSubscription(metadata.customerId, metadata.type);
+          await customerPaymentService.updateSubscription(metadata.customerId, metadata.type);
         }
         break;
       default:

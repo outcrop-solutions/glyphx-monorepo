@@ -1,24 +1,25 @@
-import { stripe, validateSession, CustomerPaymentService } from '@glyphx/business';
+import { StripeClient, validateSession, customerPaymentService, Initializer } from '@glyphx/business';
 import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
+  await Initializer.init()
+  
   const { method } = req;
-
   if (method === 'POST') {
     const session = (await validateSession(req, res)) as Session;
     const { priceId } = req.query;
     const [customerPayment, price] = await Promise.all([
-      CustomerPaymentService.getPayment(session?.user?.email),
-      stripe.prices.retrieve(priceId),
+      customerPaymentService.getPayment(session?.user?.email),
+      StripeClient.stripe.prices.retrieve(priceId),
     ]);
-    const product = await stripe.products.retrieve(price.product);
+    const product = await StripeClient.stripe.products.retrieve(price.product);
     const lineItems = [
       {
         price: price.id,
         quantity: 1,
       },
     ];
-    const paymentSession = await stripe.checkout.sessions.create({
+    const paymentSession = await StripeClient.stripe.checkout.sessions.create({
       customer: customerPayment.paymentId,
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -26,7 +27,7 @@ const handler = async (req, res) => {
       success_url: `${process.env.APP_URL}/account/payment?status=success`,
       cancel_url: `${process.env.APP_URL}/account/payment?status=cancelled`,
       metadata: {
-        customerId: customerPayment.customerId,
+        customerId: customerPayment.customer._id,
         type: product.metadata.type,
       },
     });

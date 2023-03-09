@@ -4,7 +4,6 @@ import type { AppProps } from 'next/app';
 import { Session } from 'next-auth';
 import Router, { useRouter } from 'next/router';
 import { SessionProvider } from 'next-auth/react';
-import { ThemeProvider } from 'next-themes';
 import ReactGA from 'react-ga';
 import TopBarProgress from 'react-topbar-progress-indicator';
 import { SWRConfig } from 'swr';
@@ -88,7 +87,6 @@ export default function App({
   return (
     <SessionProvider session={pageProps.session}>
       <SWRConfig value={swrOptions}>
-        <ThemeProvider attribute="class">
           <WorkspaceProvider>
             <RecoilRoot>
               {/* Root Fallback for when error is throws */}
@@ -107,7 +105,6 @@ export default function App({
               </ErrorBoundary>
             </RecoilRoot>
           </WorkspaceProvider>
-        </ThemeProvider>
       </SWRConfig>
     </SessionProvider>
     // </SessionProvider>

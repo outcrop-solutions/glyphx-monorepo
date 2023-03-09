@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { getSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 
-import Button from 'components/Button/index';
-import Card from 'components/Card/index';
-import Content from 'components/Content/index';
-import Meta from 'components/Meta/index';
-import Modal from 'components/Modal/index';
-import { AccountLayout } from 'layouts/index';
+import Button from 'components/Button';
+import Card from 'components/Card';
+import Content from 'components/Content';
+import Meta from 'components/Meta';
+import Modal from 'components/Modal';
+import { AccountLayout } from 'layouts';
 import { api, redirectToCheckout } from 'lib';
-import { getInvoices, getProducts, getPayment } from '@glyphx/business';
+import { StripeClient, customerPaymentService, Initializer } from '@glyphx/business';
 
 const Billing = ({ invoices, products }) => {
   const [isSubmitting, setSubmittingState] = useState(false);
@@ -82,7 +82,7 @@ const Billing = ({ invoices, products }) => {
       <Content.Title title="Invoices" subtitle="View and download invoices you may need" />
 
       <Content.Divider />
-      {invoices.length > 0 ? (
+      {invoices?.length > 0 ? (
         <Content.Container>
           <table className="table-auto">
             <thead>
@@ -95,7 +95,7 @@ const Billing = ({ invoices, products }) => {
             </thead>
             <tbody>
               {invoices.map((invoice, index) => (
-                <tr key={index} className="text-sm hover:bg-gray-100">
+                <tr key={index} className="text-sm hover:bg-secondary-midnight">
                   <td className="px-3 py-5">
                     <Link href={invoice.hosted_invoice_url}>
                       <a className="text-blue-600" target="_blank">
@@ -129,16 +129,22 @@ const Billing = ({ invoices, products }) => {
 };
 
 export const getServerSideProps = async (context) => {
+  await Initializer.init();
   const session = await getSession(context);
 
-  const customerPayment = await getPayment(session?.user?.email);
+  const customerPayment = await customerPaymentService.getPayment(session?.user?.email);
 
-  const [invoices, products] = await Promise.all([getInvoices(customerPayment?.paymentId), getProducts()]);
+  const [invoices, products] = await Promise.all([
+    StripeClient.getInvoices(customerPayment?.paymentId),
+    StripeClient.getProducts(),
+  ]);
   return {
-    props: {
-      invoices,
-      products,
-    },
+    props: JSON.parse(
+      JSON.stringify({
+        invoices,
+        products,
+      })
+    ),
   };
 };
 

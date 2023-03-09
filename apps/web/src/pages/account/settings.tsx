@@ -5,14 +5,14 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 
-import Button from 'components/Button/index';
-import Card from 'components/Card/index';
-import Content from 'components/Content/index';
+import Button from 'components/Button';
+import Card from 'components/Card';
+import Content from 'components/Content';
 import Meta from 'components/Meta';
-import Modal from 'components/Modal/index';
-import { AccountLayout } from 'layouts/index';
+import Modal from 'components/Modal';
+import { AccountLayout } from 'layouts';
 import { api } from 'lib';
-import { getUser } from '@glyphx/business';
+import { userService, Initializer } from '@glyphx/business';
 
 const Settings = ({ user }) => {
   const [email, setEmail] = useState(user.email || '');
@@ -21,7 +21,7 @@ const Settings = ({ user }) => {
   const [showModal, setModalState] = useState(false);
   const [userCode] = useState(user.userCode);
   const [verifyEmail, setVerifyEmail] = useState('');
-  const validName = name.length > 0 && name.length <= 32;
+  const validName = name?.length > 0 && name?.length <= 32;
   const validEmail = isEmail(email);
   const verifiedEmail = verifyEmail === email;
 
@@ -210,16 +210,20 @@ const Settings = ({ user }) => {
 };
 
 export const getServerSideProps = async (context) => {
+  await Initializer.init();
   const session = await getSession(context);
-  const { email, name, userCode } = await getUser(session?.user?.userId);
+  const { email, name, userCode } = await userService.getUser(session?.user?.userId);
+
   return {
-    props: {
-      user: {
-        email,
-        name,
-        userCode,
-      },
-    },
+    props: JSON.parse(
+      JSON.stringify({
+        user: {
+          email: email ? email : null,
+          name: name ? name : null,
+          userCode: userCode ? userCode : null,
+        },
+      })
+    ),
   };
 };
 

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
-import Button from 'components/Button/index';
-import Card from 'components/Card/index';
-import Content from 'components/Content/index';
-import Meta from 'components/Meta/index';
-import { useInvitations, useWorkspaces } from 'data/index';
-import { AccountLayout } from 'layouts/index';
+import Button from 'components/Button';
+import Card from 'components/Card';
+import Content from 'components/Content';
+import Meta from 'components/Meta';
+import { useInvitations, useWorkspaces } from 'data';
+import { AccountLayout } from 'layouts';
 import { api } from 'lib';
 import { useWorkspace } from 'providers/workspace';
 
@@ -68,7 +68,7 @@ const Welcome = () => {
               <Card.Body />
               <Card.Footer />
             </Card>
-          ) : workspacesData?.workspaces.length > 0 ? (
+          ) : workspacesData?.workspaces?.length > 0 ? (
             workspacesData.workspaces.map((workspace, index) => (
               <Card key={index}>
                 <Card.Body title={workspace.name} />
@@ -97,7 +97,7 @@ const Welcome = () => {
               <Card.Body />
               <Card.Footer />
             </Card>
-          ) : invitationsData?.invitations.length > 0 ? (
+          ) : invitationsData?.invitations?.length > 0 ? (
             invitationsData.invitations.map((invitation, index) => (
               <Card key={index}>
                 <Card.Body

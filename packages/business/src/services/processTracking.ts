@@ -184,7 +184,7 @@ export class ProcessTrackingService {
       }
       if (message) {
         await processTrackingModel.addMessagesById(
-          updatedProcessTrackingDocument._id as mongooseTypes.ObjectId,
+          updatedProcessTrackingDocument!._id as mongooseTypes.ObjectId,
           [message]
         );
       }
@@ -354,7 +354,7 @@ export class ProcessTrackingService {
           );
       }
       const updatedDocument = await ProcessTrackingService.reconcileStatus(
-        processTrackingDocument
+        processTrackingDocument!
       );
 
       return updatedDocument;

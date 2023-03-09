@@ -27,14 +27,14 @@ const Hero = () => {
             className={[
               'items-center justify-center md:flex-row md:flex md:relative md:bg-transparent md:shadow-none md:top-0 md:backdrop-blur-none md:space-x-3',
               showMenu
-                ? 'absolute z-50 flex flex-col py-5 space-x-0 rounded shadow-xl md:py-0 left-8 right-8 bg-white top-24 space-y-3 md:space-y-0 px-5'
+                ? 'absolute z-50 flex flex-col py-5 space-x-0 rounded shadow-xl md:py-0 left-8 right-8 top-24 space-y-3 md:space-y-0 px-5'
                 : 'hidden',
             ].join(' ')}
           >
             <nav className="flex flex-col w-full space-x-0 space-y-3 text-center md:space-y-0 md:space-x-3 md:flex-row">
-              <a className="px-5 py-2 rounded hover:bg-gray-100">Guides</a>
-              <a className="px-5 py-2 rounded hover:bg-gray-100">Pricing</a>
-              <a className="px-5 py-2 rounded hover:bg-gray-100">Blog</a>
+              <a className="px-5 py-2 rounded hover:bg-secondary-midnight">Guides</a>
+              <a className="px-5 py-2 rounded hover:bg-secondary-midnight">Pricing</a>
+              <a className="px-5 py-2 rounded hover:bg-secondary-midnight">Blog</a>
             </nav>
             <Link
               href={

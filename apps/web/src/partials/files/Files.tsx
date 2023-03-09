@@ -71,7 +71,7 @@ export const Files = () => {
         {!isCollapsed ? (
           <div className={`lg:block py-1 border-b border-gray`}>
             <div>
-              {files && files.length > 0 ? (
+              {files && files?.length > 0 ? (
                 files?.map((file, idx) => <File key={`${file}-${idx}`} fileName={file} idx={idx} />)
               ) : (
                 <SidebarDropzone />

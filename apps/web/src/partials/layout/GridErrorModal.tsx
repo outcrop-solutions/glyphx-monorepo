@@ -22,7 +22,7 @@ export const GridErrorModal = ({ title, message, devErrorMessage }) => {
                 {
                     // TODO: CHECK ENVIRONMENT TO KNOW IF YOU ARE DEV OR PRODUCTION
                     process.env.NODE_ENV === 'development' ?
-                        <div className=" mt-3 mb-3 p-1 bg-white rounded shadow-xl border border-gray">
+                        <div className=" mt-3 mb-3 p-1 rounded shadow-xl border border-gray">
                             <p className="text-xl font-bold">DEV ERROR:</p>
                             <>
                                 <p> {devErrorMessage}</p>

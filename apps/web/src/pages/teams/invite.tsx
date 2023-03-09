@@ -7,7 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import Card from 'components/Card/index';
 import Button from 'components/Button';
 import { api } from 'lib';
-import { workspaceService } from '@glyphx/business';
+import { workspaceService, Initializer } from '@glyphx/business';
 
 const Invite = ({ workspace }) => {
   const { data } = useSession();
@@ -35,7 +35,7 @@ const Invite = ({ workspace }) => {
   };
 
   return (
-    <main className="relative flex flex-col items-center justify-center h-screen space-y-10">
+    <main className="relative flex flex-col items-center justify-center h-screen space-y-10 bg-secondary-midnight">
       <Toaster position="bottom-center" toastOptions={{ duration: 10000 }} />
       <div className="w-full py-5">
         <div className="relative flex flex-col mx-auto space-y-5">
@@ -64,9 +64,10 @@ const Invite = ({ workspace }) => {
 };
 
 export const getServerSideProps = async (context) => {
+  Initializer.init();
   const { code } = context.query;
   const workspace = await workspaceService.getInvitation(code);
-  return { props: { workspace } };
+  return { props: JSON.parse(JSON.stringify({ workspace })) };
 };
 
 export default Invite;

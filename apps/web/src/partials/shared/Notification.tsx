@@ -44,7 +44,7 @@ export function Notification({ children, className, type, open, setOpen }) {
     <>
       {open && (
         <div className={className}>
-          <div className="inline-flex flex-col max-w-lg px-4 py-2 rounded-sm text-sm bg-white shadow-lg border border-gray text-gray">
+          <div className="inline-flex flex-col max-w-lg px-4 py-2 rounded-sm text-sm shadow-lg border border-gray text-gray">
             <div className="flex w-full justify-between items-start">
               <div className="flex">
                 {typeIcon(type)}

@@ -29,7 +29,7 @@ export const Datagrid = ({ isDropped }) => {
     function HeaderRenderer(props) {
       return (
         <>
-          {columns && columns.length > 0 && (
+          {columns && columns?.length > 0 && (
             <DraggableHeaderRenderer {...props} isDropped={isDropped} onColumnsReorder={handleColumnsReorder} />
           )}
         </>
@@ -54,7 +54,7 @@ export const Datagrid = ({ isDropped }) => {
 
   // data grid row handling
   const sortedRows = useMemo(() => {
-    if (sortColumns.length === 0) return rows;
+    if (sortColumns?.length === 0) return rows;
     const { columnKey, direction } = sortColumns[0];
 
     let sortedRows = [...rows];

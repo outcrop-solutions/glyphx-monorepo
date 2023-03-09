@@ -25,7 +25,7 @@ export const ReorderConfirmModal = () => {
       <ClickAwayListener onClickAway={handleClickAway}>
         <div className="inline-block align-bottom bg-primary-dark-blue rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
           <div>
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-white">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full">
               <CheckIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
             </div>
             <div className="mt-3 text-center sm:mt-5">

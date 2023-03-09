@@ -105,7 +105,7 @@ export const GridContainer = ({ isDropped }) => {
     r.style.setProperty('--screen', `${window.innerHeight}px`);
     if (cols?.length > 0) {
       //@ts-ignore
-      r.style.setProperty('--col', cols.length); //set the column length to column length of csv for globals.css
+      r.style.setProperty('--col', cols?.length); //set the column length to column length of csv for globals.css
     }
 
     // Resize grid if right sidebar is open

@@ -63,7 +63,7 @@ const Actions = () => {
           <h3 className="text-xl font-bold">Workspace Name</h3>
           <p className="text-sm text-gray-400">Name your workspace. Keep it simple.</p>
           <input
-            className="w-full px-3 py-2 border rounded"
+            className="w-full px-3 py-2 border rounded bg-transparent"
             disabled={isSubmitting}
             onChange={handleNameChange}
             type="text"
@@ -82,11 +82,11 @@ const Actions = () => {
       </Modal>
       <Listbox value={workspace} onChange={handleWorkspaceChange}>
         <div className="relative">
-          <Listbox.Button className="relative w-full py-2 pl-3 pr-10 text-left bg-white rounded-lg shadow-md cursor-default">
+          <Listbox.Button className="relative w-full py-2 pl-3 pr-10 text-left bg-primary-dark-blue rounded-lg shadow-md cursor-default">
             <span className="block text-gray-600 truncate">
               {isLoading
                 ? 'Fetching workspaces...'
-                : data?.workspaces.length === 0
+                : data?.workspaces?.length === 0
                 ? 'No workspaces found'
                 : workspace === null
                 ? 'Select a workspace...'
@@ -96,14 +96,14 @@ const Actions = () => {
               <SelectorIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
             </span>
           </Listbox.Button>
-          {data?.workspaces.length > 0 && (
+          {data?.workspaces?.length > 0 && (
             <Transition
               as={Fragment}
               leave="transition ease-in duration-100"
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60">
+              <Listbox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base rounded-md shadow-lg max-h-60">
                 {data?.workspaces.map((workspace, index) => (
                   <Listbox.Option
                     key={index}

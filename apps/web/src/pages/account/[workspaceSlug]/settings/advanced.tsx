@@ -9,7 +9,7 @@ import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { AccountLayout } from 'layouts/index';
 import { api } from 'lib';
-import { getWorkspace, isWorkspaceCreator } from '@glyphx/business';
+import { workspaceService, Initializer } from '@glyphx/business';
 import { useWorkspace } from 'providers/workspace';
 import { getSession } from 'next-auth/react';
 
@@ -107,15 +107,20 @@ const Advanced = ({ isCreator }) => {
 };
 
 export const getServerSideProps = async (context) => {
+  await Initializer.init();
   const session = await getSession(context);
   let isCreator = false;
 
   if (session) {
-    const workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
-    isCreator = await isWorkspaceCreator(session?.user?.userId, workspace.creatorId);
+    const workspace = await workspaceService.getWorkspace(
+      session?.user?.userId,
+      session?.user?.email,
+      context.params.workspaceSlug
+    );
+    isCreator = await workspaceService.isWorkspaceCreator(session?.user?.userId, workspace.creator._id);
   }
 
-  return { props: { isCreator } };
+  return { props: JSON.parse(JSON.stringify({ isCreator })) };
 };
 
 export default Advanced;

@@ -45,7 +45,7 @@ export function DraggableHeaderRenderer({
    */
   function isColumnDropped() {
     if (droppedProps?.length > 0) {
-      for (let index = 0; index < droppedProps.length; index++) {
+      for (let index = 0; index < droppedProps?.length; index++) {
         if (droppedProps[index].lastDroppedItem.key === column.key) {
           setAxis(droppedProps[index].axis);
         }

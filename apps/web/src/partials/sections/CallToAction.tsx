@@ -11,7 +11,7 @@ const CallToAction = () => {
           </h2>
         </div>
         <div className="flex items-center justify-center">
-          <a className="px-10 py-3 text-xl text-center text-blue-600 bg-white rounded shadow hover:bg-blue-50">
+          <a className="px-10 py-3 text-xl text-center text-blue-600 rounded shadow hover:bg-blue-50">
             Subscribe Now
           </a>
         </div>

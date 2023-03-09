@@ -13,7 +13,7 @@ import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
 import { AccountLayout } from 'layouts/index';
 import { api } from 'lib';
-import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
+import { workspaceService, Initializer } from '@glyphx/business';
 import { useWorkspace } from 'providers/workspace';
 
 const General = ({ isTeamOwner, workspace }) => {
@@ -22,9 +22,9 @@ const General = ({ isTeamOwner, workspace }) => {
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(workspace.name || '');
   const [slug, setSlug] = useState(workspace.slug || '');
-  const validName = name.length > 0 && name.length <= 16;
+  const validName = name?.length > 0 && name?.length <= 16;
   const validSlug =
-    slug.length > 0 && slug.length <= 16 && isSlug(slug) && isAlphanumeric(slug, undefined, { ignore: '-' });
+    slug?.length > 0 && slug?.length <= 16 && isSlug(slug) && isAlphanumeric(slug, undefined, { ignore: '-' });
 
   const changeName = (event) => {
     event.preventDefault();
@@ -114,7 +114,7 @@ const General = ({ isTeamOwner, workspace }) => {
                 type="text"
                 value={slug}
               />
-              <span className={`text-sm ${slug.length > 16 && 'text-red-600'}`}>{slug.length} / 16</span>
+              <span className={`text-sm ${slug?.length > 16 && 'text-red-600'}`}>{slug?.length} / 16</span>
             </div>
           </Card.Body>
           <Card.Footer>
@@ -146,22 +146,29 @@ const General = ({ isTeamOwner, workspace }) => {
 };
 
 export const getServerSideProps = async (context) => {
+  await Initializer.init();
   const session = await getSession(context);
   let isTeamOwner = false;
   let workspace = null;
 
   if (session) {
-    workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
+    workspace = await workspaceService.getWorkspace(
+      session?.user?.userId,
+      session?.user?.email,
+      context.params.workspaceSlug
+    );
     if (workspace) {
-      isTeamOwner = await isWorkspaceOwner(session?.user?.email, workspace);
+      isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email, workspace);
     }
   }
 
   return {
-    props: {
-      isTeamOwner,
-      workspace,
-    },
+    props: JSON.parse(
+      JSON.stringify({
+        isTeamOwner,
+        workspace,
+      })
+    ),
   };
 };
 

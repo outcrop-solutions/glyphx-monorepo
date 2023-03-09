@@ -111,7 +111,7 @@ export const MainSidebar = () => {
                 </div>
               </li>
               {/* Analytics */}
-              <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('shared') && 'bg-gray-800'}`}>
+              <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('shared') && 'bg-primary-dark-blue'}`}>
                 <div
                   className={`block text-gray truncate transition duration-150 ${
                     pathname.includes('shared') && 'hover:text-gray'

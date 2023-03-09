@@ -12,7 +12,7 @@ import { IFileSystemItem, S3ProviderListOutput, RenderableDataGrid, IMatchingFil
  */
 export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | null): IFileSystemItem[] | any[] => {
   let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
-    id: idx + fileSystem.length + 1,
+    id: idx + fileSystem?.length + 1,
     parent: 0,
     droppable: false,
     text: name,
@@ -41,7 +41,7 @@ export const createFileSystemFromS3 = (
     const element = elements.shift();
     if (!element) return; // blank
     target[element] = target[element] || { __data: item }; // element;
-    if (elements.length) {
+    if (elements?.length) {
       target[element] = typeof target[element] === 'object' ? target[element] : {};
       add(elements.join('/'), target[element], item);
     }
@@ -52,7 +52,7 @@ export const createFileSystemFromS3 = (
   }
 
   // TODO: this needs to change to orgLevel
-  if (Object.keys(files).length !== 0) {
+  if (Object.keys(files)?.length !== 0) {
     // if empty then return empty array
     const fileList = Object.keys(files[`${projectId}`].input);
     return createFileSystem(fileList, null);
@@ -108,8 +108,8 @@ export const parseFileStats = async (acceptedFiles): Promise<IFileStats[]> => {
     return {
       fileName: file.name,
       tableName: file.name.split('.')[0].trim().toLowerCase(),
-      numberOfRows: data.length,
-      numberOfColumns: Object.keys(data[0]).length,
+      numberOfRows: data?.length,
+      numberOfColumns: Object.keys(data[0])?.length,
       columns: Object.keys(data[0]).map((item) => ({
         name: item,
         fieldType: isNaN(Number(data[0][item])) ? FIELD_TYPE.STRING : FIELD_TYPE.NUMBER,
@@ -160,11 +160,11 @@ export const hexToRGB = (h) => {
   let r = '';
   let g = '';
   let b = '';
-  if (h.length === 4) {
+  if (h?.length === 4) {
     r = `0x${h[1]}${h[1]}`;
     g = `0x${h[2]}${h[2]}`;
     b = `0x${h[3]}${h[3]}`;
-  } else if (h.length === 7) {
+  } else if (h?.length === 7) {
     r = `0x${h[1]}${h[2]}`;
     g = `0x${h[3]}${h[4]}`;
     b = `0x${h[5]}${h[6]}`;

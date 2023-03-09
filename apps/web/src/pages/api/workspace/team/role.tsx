@@ -1,15 +1,16 @@
 import { database as databaseTypes } from '@glyphx/types';
 
-import { validateSession, MembershipService } from '@glyphx/business';
+import { validateSession, membershipService, Initializer } from '@glyphx/business';
 
 const handler = async (req, res) => {
+  await Initializer.init()
   const { method } = req;
 
   if (method === 'PUT') {
     await validateSession(req, res);
     const { memberId } = req.body;
-    const member = MembershipService.getMember(memberId);
-    await MembershipService.toggleRole(
+    const member = membershipService.getMember(memberId);
+    await membershipService.toggleRole(
       memberId,
       // @ts-ignore
       member.teamRole === database.constants.ROLE.MEMBER

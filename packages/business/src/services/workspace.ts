@@ -48,15 +48,52 @@ export class WorkspaceService {
       }
       // TODO: add member record to workspace
       // @jp: do we have a clean way to create related records in one operation - in this case a member record for the workspace
+      const castCreatorId =
+        typeof creatorId === 'string'
+          ? new mongooseTypes.ObjectId(creatorId)
+          : creatorId;
+
       const input = {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
-        creatorId,
+        creator: castCreatorId,
+        members: [{}],
+        projects: [],
         name,
         slug: newSlug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
+
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
+
+      const member = await mongoDbConnection.models.MemberModel.createMember({
+        inviter: email,
+        email: email,
+        joinedAt: new Date(),
+        status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
+        teamRole: databaseTypes.constants.ROLE.OWNER,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        member: {_id: castCreatorId},
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        invitedBy: {_id: castCreatorId},
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        workspace: {_id: workspace._id},
+      });
+
+      const newWorkspace =
+        await mongoDbConnection.models.WorkspaceModel.addMembers(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          workspace?._id,
+          [member]
+        );
+// @ts-ignore
+      await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [
+        newWorkspace,
+      ]);
 
       // TODO: add workspace to user model
 
@@ -67,7 +104,7 @@ export class WorkspaceService {
         to: email,
       });
 
-      return workspace;
+      return newWorkspace;
     } catch (err: any) {
       if (
         err instanceof error.UnexpectedError ||
@@ -169,7 +206,7 @@ export class WorkspaceService {
             mem =>
               mem.email === email &&
               mem.teamRole === databaseTypes.constants.ROLE.OWNER &&
-              mem.deletedAt === null
+              mem.deletedAt === undefined
           ).length > 0
       );
       if (filteredWorkspaces.length > 0) {
@@ -209,7 +246,7 @@ export class WorkspaceService {
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           inviteCode,
-          deletedAt: null,
+          deletedAt: undefined,
         });
       return workspace.results[0];
     } catch (err: any) {
@@ -240,7 +277,7 @@ export class WorkspaceService {
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           slug,
-          deletedAt: null,
+          deletedAt: undefined,
         });
       return workspace.results[0];
     } catch (err: any) {
@@ -286,11 +323,10 @@ export class WorkspaceService {
           deletedAt: null,
           slug,
         });
-
       const filteredWorkspaces = workspaces.results.filter(
         space =>
           space.members.filter(
-            mem => mem.email === email && mem.deletedAt === null
+            mem => mem.email === email && mem.deletedAt === undefined
           ).length > 0
       );
       if (filteredWorkspaces.length > 0) {
@@ -337,16 +373,16 @@ export class WorkspaceService {
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           deletedAt: null,
         });
-
       const filteredWorkspaces = workspaces.results.filter(
         space =>
           space.members.filter(
             mem =>
               mem.email === email &&
-              mem.deletedAt === null &&
+              mem.deletedAt === undefined &&
               mem.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
           ).length > 0
       );
+      console.log({filteredWorkspaces});
       if (filteredWorkspaces.length > 0) {
         return filteredWorkspaces;
       } else {
@@ -359,7 +395,7 @@ export class WorkspaceService {
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError
       ) {
-        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        // err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
         const e = new error.DataServiceError(
@@ -549,7 +585,6 @@ export class WorkspaceService {
     return isTeamOwner;
   }
 
-  // untested
   static async joinWorkspace(
     workspaceCode: string,
     email: string
@@ -557,7 +592,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
           workspaceCode,
         });
 
@@ -586,6 +621,7 @@ export class WorkspaceService {
           );
       }
 
+      console.log({workspaces});
       await mongoDbConnection.models.WorkspaceModel.addMembers(
         workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
         [member]

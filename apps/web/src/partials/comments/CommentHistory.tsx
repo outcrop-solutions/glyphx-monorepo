@@ -1,7 +1,7 @@
 export const History = ({ comments }) => {
   return (
     <ul className="mb-4">
-      {comments.length > 0 ? (
+      {comments?.length > 0 ? (
         <>
           {comments.map((item, idx) => (
             <li key={item.id}>

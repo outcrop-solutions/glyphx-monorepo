@@ -13,14 +13,14 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 
-import Button from 'components/Button/index';
-import Card from 'components/Card/index';
-import Content from 'components/Content/index';
-import Meta from 'components/Meta/index';
+import Button from 'components/Button';
+import Card from 'components/Card';
+import Content from 'components/Content';
+import Meta from 'components/Meta';
 import { useMembers } from 'data';
-import { AccountLayout } from 'layouts/index';
+import { AccountLayout } from 'layouts';
 import { api } from 'lib';
-import { getWorkspace, isWorkspaceOwner } from '@glyphx/business';
+import { workspaceService, Initializer } from '@glyphx/business';
 
 const MEMBERS_TEMPLATE = { email: '', teamRole: databaseTypes.constants.ROLE.MEMBER };
 
@@ -28,7 +28,7 @@ const Team = ({ isTeamOwner, workspace }) => {
   const { data, isLoading } = useMembers(workspace.slug);
   const [isSubmitting, setSubmittingState] = useState(false);
   const [members, setMembers] = useState([{ ...MEMBERS_TEMPLATE }]);
-  const validateEmails = members.filter((member) => !isEmail(member.email)).length !== 0;
+  const validateEmails = members.filter((member) => !isEmail(member.email))?.length !== 0;
 
   const addEmail = () => {
     members.push({ ...MEMBERS_TEMPLATE });
@@ -58,7 +58,7 @@ const Team = ({ isTeamOwner, workspace }) => {
 
   const handleRoleChange = (event, index) => {
     const member = members[index];
-    member.role = event.target.value;
+    member.teamRole = event.target.value;
     setMembers([...members]);
   };
 
@@ -142,11 +142,13 @@ const Team = ({ isTeamOwner, workspace }) => {
                         disabled={isSubmitting}
                         onChange={(event) => handleRoleChange(event, index)}
                       >
-                        {Object.keys(databaseTypes.constants.ROLE).map((key, index) => (
-                          <option key={index} value={databaseTypes.constants.ROLE[`${key}`]}>
-                            {databaseTypes.constants.ROLE[`${key}`].toLowerCase()}
-                          </option>
-                        ))}
+                        {Object.keys(databaseTypes.constants.ROLE)
+                          .filter((key, index) => typeof key === 'number')
+                          .map((key, idx) => (
+                            <option key={index} value={databaseTypes.constants.ROLE[`${key}`]}>
+                              {databaseTypes.constants.ROLE[`${idx}`].toLowerCase()}
+                            </option>
+                          ))}
                       </select>
                       <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                         <ChevronDownIcon className="w-5 h-5" />
@@ -162,7 +164,7 @@ const Team = ({ isTeamOwner, workspace }) => {
                 <div>
                   <Button
                     className="text-sm border hover:border-black disabled:opacity-75"
-                    disabled={members.length === 3 || isSubmitting}
+                    disabled={members?.length === 3 || isSubmitting}
                     onClick={addEmail}
                   >
                     <PlusCircleIcon className="w-5 h-5" />
@@ -216,20 +218,22 @@ const Team = ({ isTeamOwner, workspace }) => {
                           <span
                             className={[
                               'font-mono text-xs px-2 py-0.5 rounded-full capitalize',
-                              member.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
+                              member.status === 0
                                 ? 'bg-green-200 text-green-600'
-                                : member.status === databaseTypes.constants.INVITATION_STATUS.PENDING
+                                : member.status === 1
                                 ? 'bg-blue-200 text-blue-600'
                                 : 'bg-red-200 text-red-600',
                             ].join(' ')}
                           >
-                            {member.status.toLowerCase()}
+                            {databaseTypes.constants.INVITATION_STATUS[`${member.status}`].toLowerCase()}
                           </span>
-                          <h4 className="capitalize">{member.teamRole.toLowerCase()}</h4>
+                          <h4 className="capitalize">
+                            {databaseTypes.constants.ROLE[`${member.teamRole}`].toLowerCase()}
+                          </h4>
                           {workspace?.creator.email !== member.email && isTeamOwner && (
                             <Menu as="div" className="relative inline-block text-left">
                               <div>
-                                <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-gray-100">
+                                <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-secondary-midnight">
                                   <DotsVerticalIcon className="w-5 h-5" />
                                 </Menu.Button>
                               </div>
@@ -242,7 +246,7 @@ const Team = ({ isTeamOwner, workspace }) => {
                                 leaveFrom="transform opacity-100 scale-100"
                                 leaveTo="transform opacity-0 scale-95"
                               >
-                                <Menu.Items className="absolute right-0 z-20 mt-2 origin-top-right bg-white border divide-y divide-gray-100 rounded w-60">
+                                <Menu.Items className="absolute right-0 z-20 mt-2 origin-top-right border divide-y divide-gray-100 rounded w-60">
                                   <div className="p-2">
                                     <Menu.Item>
                                       <button
@@ -251,9 +255,9 @@ const Team = ({ isTeamOwner, workspace }) => {
                                       >
                                         <span>
                                           Change role to &quot;
-                                          {member.teamRole === databaseTypes.constants.ROLE.MEMBER
-                                            ? databaseTypes.constants.ROLE.OWNER
-                                            : databaseTypes.constants.ROLE.MEMBER}
+                                          {member.teamRole === 0
+                                            ? databaseTypes.constants.ROLE[`${1}`]
+                                            : databaseTypes.constants.ROLE[`${0}`]}
                                           &quot;
                                         </span>
                                       </button>
@@ -292,23 +296,37 @@ const Team = ({ isTeamOwner, workspace }) => {
 };
 
 export const getServerSideProps = async (context) => {
+  await Initializer.init();
   const session = await getSession(context);
   let isTeamOwner = false;
   let workspace = null;
 
   if (session) {
-    workspace = await getWorkspace(session?.user?.userId, session?.user?.email, context.params.workspaceSlug);
+    workspace = await workspaceService.getWorkspace(
+      session?.user?.userId,
+      session?.user?.email,
+      context.params.workspaceSlug
+    );
     if (workspace) {
-      isTeamOwner = await isWorkspaceOwner(session?.user?.email, workspace);
+      isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email, workspace);
       workspace.inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace.inviteCode)}`;
     }
   }
 
-  return {
-    props: {
+  console.log({
+    stringified: JSON.stringify({
       isTeamOwner,
       workspace,
-    },
+    }),
+  });
+
+  return {
+    props: JSON.parse(
+      JSON.stringify({
+        isTeamOwner,
+        workspace,
+      })
+    ),
   };
 };
 

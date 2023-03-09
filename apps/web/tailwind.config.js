@@ -3,11 +3,11 @@ const plugin = require('tailwindcss/plugin');
 
 module.exports = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-    './partials/**/*.{js,ts,jsx,tsx}',
-    './lib/**/*.{js,ts,jsx,tsx}',
-    './utils/**/*.{js,ts,jsx,tsx}',
+    './src/pages/**/*.{js,ts,jsx,tsx}',
+    './src/components/**/*.{js,ts,jsx,tsx}',
+    './src/partials/**/*.{js,ts,jsx,tsx}',
+    './src/lib/**/*.{js,ts,jsx,tsx}',
+    './src/utils/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     gradientColorStops: (theme) => ({
@@ -102,7 +102,7 @@ module.exports = {
       groups: ['props', 'filters', 'states'],
     }),
     require('@tailwindcss/aspect-ratio'),
-    require('./utils/scrollbar.js'),
+    require('./src/utils/scrollbar.js'),
     // add custom variant for expanding sidebar
     plugin(({ addVariant, e }) => {
       addVariant('main-sidebar-expanded', ({ modifySelectors, separator }) => {

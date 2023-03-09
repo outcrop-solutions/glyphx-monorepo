@@ -20,13 +20,13 @@ import { ProjectDetails } from 'partials';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { isGridViewAtom, projectDetailsAtom, projectsAtom, showAddProjectAtom } from 'state';
 import { useRouter } from 'next/router';
-import { useProjects } from '../services';
+import { useProjects } from 'data';
 import { SuspenseFallback } from 'partials/fallback';
 
 export default function Home() {
   const router = useRouter();
   // useUser(); //gets user
-  useProjects(); //gets projects assigned to user
+  // useProjects(); //gets projects assigned to user
 
   const projects = useRecoilValue(projectsAtom);
   const isGridView = useRecoilValue(isGridViewAtom);

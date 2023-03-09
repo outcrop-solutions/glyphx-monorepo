@@ -538,15 +538,15 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     //to the user.
     delete (userDocument as any)['__v'];
     delete (userDocument as any).customerPayment?.['__v'];
-    userDocument.accounts.forEach((a: any) => delete (a as any)['__v']);
-    userDocument.sessions.forEach((s: any) => delete (s as any)['__v']);
-    userDocument.membership.forEach((m: any) => delete (m as any)['__v']);
-    userDocument.invitedMembers.forEach((i: any) => delete (i as any)['__v']);
-    userDocument.webhooks.forEach((w: any) => delete (w as any)['__v']);
-    userDocument.createdWorkspaces.forEach(
+    userDocument.accounts?.forEach((a: any) => delete (a as any)['__v']);
+    userDocument.sessions?.forEach((s: any) => delete (s as any)['__v']);
+    userDocument.membership?.forEach((m: any) => delete (m as any)['__v']);
+    userDocument.invitedMembers?.forEach((i: any) => delete (i as any)['__v']);
+    userDocument.webhooks?.forEach((w: any) => delete (w as any)['__v']);
+    userDocument.createdWorkspaces?.forEach(
       (c: any) => delete (c as any)['__v']
     );
-    userDocument.projects.forEach((p: any) => delete (p as any)['__v']);
+    userDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
 
     return userDocument;
   } catch (err) {

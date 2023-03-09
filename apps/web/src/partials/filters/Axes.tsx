@@ -54,7 +54,7 @@ export const Axes = ({ axis, lastDroppedItem }) => {
       }
       return newProps;
     });
-    removeFilter();
+    removeFilter(lastDroppedItem.id);
   };
 
   function deleteFilter() {

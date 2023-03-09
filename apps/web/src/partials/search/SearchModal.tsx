@@ -119,7 +119,7 @@ export function SearchModal() {
 
           <div>
             {!query && showSearchModalOpen && (
-              <div className="absolute top-8 w-full bg-white p-2 rounded-b-2xl z-60">
+              <div className="absolute top-8 w-full p-2 rounded-b-2xl z-60">
                 <p className="font-roboto font-normal text-[12px] text-secondary-midnight leading-[14px] uppercase px-2 mb-2 mt-2">
                   Recent Projects
                 </p>
@@ -146,7 +146,7 @@ export function SearchModal() {
             )}
 
             {query && showSearchModalOpen && (
-              <div className="absolute top-8 w-full bg-white p-2 rounded-b-2xl z-60">
+              <div className="absolute top-8 w-full p-2 rounded-b-2xl z-60">
                 <p className="text-xs font-roboto font-semibold text-gray uppercase px-2 mb-2 mt-2">Search Results</p>
                 <ul>
                   {queryResult.slice(0, 10).map((value, index) => {

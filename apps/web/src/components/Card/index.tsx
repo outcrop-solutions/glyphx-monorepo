@@ -2,7 +2,7 @@ const Card = ({ children, danger }: { children?: any; danger?: any }) => {
   return danger ? (
     <div className="flex flex-col justify-between border-2 border-red-600 rounded">{children}</div>
   ) : (
-    <div className="flex flex-col justify-between border rounded dark:border-gray-600">{children}</div>
+    <div className="flex flex-col justify-between border border-white text-white rounded">{children}</div>
   );
 };
 
@@ -10,11 +10,11 @@ Card.Body = ({ children, subtitle, title }: { children?: any; subtitle?: string;
   return (
     <div className="flex flex-col p-5 space-y-3 overflow-auto">
       {title ? (
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <h2 className="text-2xl font-bold text-white">{title}</h2>
       ) : (
-        <div className="w-full h-8 bg-gray-400 rounded animate-pulse" />
+        <div className="w-full h-8 rounded animate-pulse" />
       )}
-      {subtitle && <h3 className="text-gray-400">{subtitle}</h3>}
+      {subtitle && <h3 className="text-gray">{subtitle}</h3>}
       <div className="flex flex-col">{children}</div>
     </div>
   );
@@ -23,7 +23,7 @@ Card.Body = ({ children, subtitle, title }: { children?: any; subtitle?: string;
 Card.Empty = ({ children }: { children?: any }) => {
   return (
     <div>
-      <div className="flex items-center justify-center p-5 bg-gray-100 border-4 border-dashed rounded dark:bg-transparent dark:border-gray-600">
+      <div className="flex items-center justify-center p-5 bg-primary-blue border-4 border-white border-dashed rounded">
         <p>{children}</p>
       </div>
     </div>
@@ -32,7 +32,7 @@ Card.Empty = ({ children }: { children?: any }) => {
 
 Card.Footer = ({ children }: { children?: any }) => {
   return (
-    <div className="flex flex-row items-center justify-between px-5 py-3 space-x-5 bg-gray-100 border-t rounded-b dark:border-t-gray-600 dark:bg-gray-900">
+    <div className="flex flex-row items-center justify-between px-5 py-3 space-x-5 bg-secondary-midnight border-t border-white rounded-b">
       {children}
     </div>
   );
