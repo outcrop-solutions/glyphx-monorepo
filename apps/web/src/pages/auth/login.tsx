@@ -76,7 +76,7 @@ const Login = () => {
             value={email}
           />
           <button
-            className="py-2 text-white bg-secondary-space-blue rounded hover:bg-secondary-midnight disabled:opacity-75"
+            className="py-2 bg-yellow rounded hover:bg-primary-yellow disabled:opacity-75"
             disabled={status === 'loading' || !validate || isSubmitting}
             onClick={signInWithEmail}
           >

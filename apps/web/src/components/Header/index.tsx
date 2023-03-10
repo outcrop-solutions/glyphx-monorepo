@@ -12,7 +12,7 @@ import {
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 
-const Header = () => {
+const Header = ({ breadcrumbs }) => {
   const { data } = useSession();
 
   const logOut = () => {
@@ -24,8 +24,12 @@ const Header = () => {
   };
 
   return (
-    <div className="flex flex-row items-center justify-between">
-      <div></div>
+    <div className="flex flex-row h-14 items-center justify-between">
+      <div className="text-left">
+        <p className="font-rubik font-normal text-white text-[22px] leading-[26px] tracking-[0.01em]">
+          {breadcrumbs.map((crumb) => crumb)}
+        </p>
+      </div>
       <Menu as="div" className="relative inline-block text-left">
         <div>
           <Menu.Button className="flex items-center justify-center p-1 space-x-3 border rounded hover:bg-secondary-midnight">

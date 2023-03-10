@@ -177,11 +177,6 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const users = Array.from(input.members) as (
-        | databaseTypes.IMember
-        | mongooseTypes.ObjectId
-      )[];
-
       const [projects, creator] = await Promise.all([
         WORKSPACE_MODEL.validateProjects(input.projects),
         WORKSPACE_MODEL.validateUser(input.creator),
@@ -197,7 +192,7 @@ SCHEMA.static(
         slug: input.slug,
         description: input.description,
         creator: creator,
-        members: [creator],
+        members: [],
         projects: projects,
       };
       try {

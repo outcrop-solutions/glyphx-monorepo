@@ -219,7 +219,10 @@ SCHEMA.static(
 SCHEMA.static(
   'createMember',
   async (
-    input: Omit<databaseTypes.IMember, '_id'>
+    input: Omit<
+      databaseTypes.IMember,
+      '_id' | 'createdAt' | 'invitedAt' | 'updatedAt'
+    >
   ): Promise<databaseTypes.IMember> => {
     const newMemberExists = await UserModel.userIdExists(
       input.member._id as mongooseTypes.ObjectId

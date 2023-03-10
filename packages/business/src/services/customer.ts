@@ -51,6 +51,7 @@ export class CustomerPaymentService {
         await mongoDbConnection.models.CustomerPaymentModel.createCustomerPayment(
           input
         );
+      console.log({customerPayment});
 
       const id =
         customerId instanceof mongooseTypes.ObjectId

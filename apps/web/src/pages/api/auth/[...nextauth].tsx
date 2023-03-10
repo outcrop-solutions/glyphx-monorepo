@@ -30,6 +30,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     events: {
       signIn: async ({ user, isNewUser }) => {
         const customerPayment = await customerPaymentService.getPayment(user.email);
+
         // @ts-ignore
         if (isNewUser || customerPayment === null || user.createdAt === null) {
           await Promise.all([

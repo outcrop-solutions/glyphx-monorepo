@@ -1,19 +1,24 @@
 import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
-import { AccountLayout } from 'layouts/index';
+import ProjectLayout from 'layouts/ProjectLayout';
 import { useWorkspace } from 'providers/workspace';
+import dynamic from 'next/dynamic';
+const DynamicHome = dynamic(() => import('views/home'), {
+  ssr: false,
+  // suspense: true,
+});
 
 const Workspace = () => {
   const { workspace } = useWorkspace();
 
   return (
     workspace && (
-      <AccountLayout>
+      <ProjectLayout>
         <Meta title={`Glyphx - ${workspace.name} | Dashboard`} />
-        <Content.Title title={workspace.name} subtitle="This is your project's workspace" />
-        <Content.Divider />
-        <Content.Container />
-      </AccountLayout>
+        <Content.Container>
+          <DynamicHome workspace={workspace} />
+        </Content.Container>
+      </ProjectLayout>
     )
   );
 };

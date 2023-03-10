@@ -41,12 +41,12 @@ export const Templates = () => {
       expiry: new Date(),
     };
     try {
-      createProject(createProjectInput);
+      // createProject(createProjectInput);
       // router.push(`/project/${result.data.createProject.id}`);
     } catch (error) {}
   };
   return (
-    <div className="max-w-lg mx-auto my-auto h-full flex flex-col grow justify-center">
+    <div className="max-w-lg mx-auto h-full flex flex-col pt-40 grow justify-center items-center">
       <div className="text-lg font-medium text-white">Create your first project</div>
       <div className="mt-1 text-sm text-gray">Get started by selecting a template or start from an empty project.</div>
       <ul className="mt-6 border-t border-b border-gray divide-y divide-gray">

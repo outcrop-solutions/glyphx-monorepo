@@ -15,7 +15,9 @@ export const forkProject = () => {};
  * @param name
  * @returns
  */
-export const createProject = (id: string | mongooseTypes.ObjectId, input: Partial<databaseTypes.IProject>) => {};
+export const createProject = (id: string | mongooseTypes.ObjectId, input: Partial<databaseTypes.IProject>) => {
+    
+};
 
 /**
  * Updates Project Name

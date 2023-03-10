@@ -19,6 +19,7 @@
     "titleBar.inactiveForeground": "#e7e7e799",
     "commandCenter.border": "#e7e7e799"
   },
+  "debug.javascript.unmapMissingSources": true,
   "peacock.color": "#007fff",
   "git.ignoreLimitWarning": true
 }
