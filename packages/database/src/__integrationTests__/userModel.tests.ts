@@ -174,8 +174,8 @@ const INPUT_DATA2 = {
   projects: [],
   webhooks: [],
 };
-describe('#UserModel', () => {
-  context('test the crud functions of the user model', () => {
+describe.only('#UserModel', () => {
+  context.only('test the crud functions of the user model', () => {
     const mongoConnection = new MongoDbConnection();
     const userModel = mongoConnection.models.UserModel;
     let userId: ObjectId;
