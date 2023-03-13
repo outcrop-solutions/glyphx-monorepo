@@ -1,6 +1,6 @@
-import {ISdtGlyphFieldScale} from './iSdtGlyphFieldScale';
+import {IBoundMinProperty} from './iBoundMinProperty';
 export interface ISdtGlyphScale {
-  X: ISdtGlyphFieldScale;
-  Y: ISdtGlyphFieldScale;
-  Z: ISdtGlyphFieldScale;
+  X: IBoundMinProperty;
+  Y: IBoundMinProperty;
+  Z: IBoundMinProperty;
 }

@@ -1,7 +1,6 @@
-import {ISdtGlyphFieldRotation} from './iSdtGlyphFieldRotation';
-
+import {IBoundMinProperty} from './iBoundMinProperty';
 export interface ISdtGlyphRotation {
-  X: ISdtGlyphFieldRotation;
-  Y: ISdtGlyphFieldRotation;
-  Z: ISdtGlyphFieldRotation;
+  X: IBoundMinProperty;
+  Y: IBoundMinProperty;
+  Z: IBoundMinProperty;
 }

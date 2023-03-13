@@ -1,6 +1,6 @@
-import {ISdtGlyphFieldPosition} from './iSdtGlyphFiedlPosition';
+import {IBoundMinProperty} from './iBoundMinProperty';
 export interface ISdtGlyphPosition {
-  X: ISdtGlyphFieldPosition;
-  Y: ISdtGlyphFieldPosition;
-  Z: ISdtGlyphFieldPosition;
+  X: IBoundMinProperty;
+  Y: IBoundMinProperty;
+  Z: IBoundMinProperty;
 }

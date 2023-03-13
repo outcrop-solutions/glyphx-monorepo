@@ -1,7 +1,5 @@
-import {ISdtGlyphColorRgb} from './iSdtGlyphColorRgb';
-import {ISdtGlyphColorTransparency} from './iSdtGlyphColorTransparancy';
-
+import {IBoundMinProperty} from './iBoundMinProperty';
 export interface ISdtGlyphColor {
-  RGB: ISdtGlyphColorRgb;
-  Transparency: ISdtGlyphColorTransparency;
+  RGB: IBoundMinProperty;
+  Transparency: IBoundMinProperty;
 }
