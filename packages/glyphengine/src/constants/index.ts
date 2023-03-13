@@ -1,0 +1,1 @@
+export {FUNCTION} from './function';

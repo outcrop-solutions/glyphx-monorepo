@@ -1,5 +1,5 @@
 import {XMLParser} from 'fast-xml-parser';
-import {ISdtDocument} from '../interfaces';
+import {sdt} from '../interfaces';
 
 enum SHAPE {
   CUBE,
@@ -10,11 +10,13 @@ enum SHAPE {
 
 export class SdtParser {
   private readonly sdtAsJson: ISdtDocument;
-  private constructor(parsedDocument: any) {
+  private readonly viewName: string;
+  private constructor(parsedDocument: any, viewName: string) {
     this.sdtAsJson = parsedDocument;
+    this.viewName = viewName;
   }
 
-  public static parseSdtString(sdtString: string): SdtParser {
+  public static parseSdtString(sdtString: string, viewName: string): SdtParser {
     const options = {
       ignoreAttributes: false,
     };
@@ -25,4 +27,6 @@ export class SdtParser {
     const sdtParser = new SdtParser(parsedDocument);
     return sdtParser;
   }
+
+  public get;
 }
