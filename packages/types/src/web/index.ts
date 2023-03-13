@@ -10,7 +10,6 @@ export interface IFrontendApiReq {
   setLoading: (loading?: boolean) => void;
   onError: (status: number) => void | null;
   onSuccess: (data: any) => void | null;
-  errorMsg?: string;
   successMsg?: string;
 }
 

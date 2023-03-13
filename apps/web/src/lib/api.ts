@@ -1,14 +1,5 @@
 import toast from 'react-hot-toast';
-
-interface api {
-  url: string;
-  options: any;
-  setLoading: (loading?: boolean) => void;
-  onError: (status) => void | null;
-  onSuccess: (data) => void | null;
-  errorMsg?: string;
-  successMsg?: string;
-}
+import { web as webTypes } from '@glyphx/types';
 
 export async function api({
   url,
@@ -16,9 +7,8 @@ export async function api({
   setLoading = () => {},
   onError = () => {},
   onSuccess = () => {},
-  errorMsg,
   successMsg,
-}: api) {
+}: webTypes.IFrontendApiReq) {
   setLoading(true);
   const { body, headers, ...opts } = options;
   const requestBody = JSON.stringify(body);

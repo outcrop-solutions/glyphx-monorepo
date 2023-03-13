@@ -33,6 +33,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
 
         // @ts-ignore
         if (isNewUser || customerPayment === null || user.createdAt === null) {
+          console.dir(user, { depth: null });
           await Promise.all([
             customerPaymentService.createPaymentAccount(user.email, user.id),
             // log(

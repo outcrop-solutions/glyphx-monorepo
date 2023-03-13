@@ -315,6 +315,7 @@ SCHEMA.static(
         transformedCustomerPayment
       );
       if (updateResult.modifiedCount !== 1) {
+        console.dir({filter}, {depth: null});
         throw new error.DataNotFoundError(
           `No customerPayment document with filter: ${filter} was found`,
           'filter',
