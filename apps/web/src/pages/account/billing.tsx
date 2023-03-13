@@ -10,29 +10,25 @@ import Content from 'components/Content';
 import Meta from 'components/Meta';
 import Modal from 'components/Modal';
 import { AccountLayout } from 'layouts';
-import { api, redirectToCheckout } from 'lib';
+import { api, _createSubscription, redirectToCheckout } from 'lib';
 import { StripeClient, customerPaymentService, Initializer } from '@glyphx/business';
 
 const Billing = ({ invoices, products }) => {
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalVisibility] = useState(false);
 
-  const subscribe = (priceId) => {
-    setSubmittingState(true);
-    api(`/api/payments/subscription/${priceId}`, {
-      method: 'POST',
-    }).then((response) => {
-      setSubmittingState(false);
+  const toggleModal = () => setModalVisibility(!showModal);
 
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        (async () => redirectToCheckout(response.data.sessionId))();
-      }
+  const subscribe = (priceId) => {
+    api({
+      ..._createSubscription(priceId),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: (data) => {
+        return (async () => redirectToCheckout(data.sessionId))();
+      },
     });
   };
-
-  const toggleModal = () => setModalVisibility(!showModal);
 
   return (
     <AccountLayout>
@@ -65,11 +61,7 @@ const Billing = ({ invoices, products }) => {
                   <h3 className="text-4xl font-bold">${Number(product.prices.unit_amount / 100).toFixed(2)}</h3>
                 </Card.Body>
                 <Card.Footer>
-                  <Button
-                    className="w-full"
-                    disabled={isSubmitting}
-                    onClick={() => subscribe(product.prices.id)}
-                  >
+                  <Button className="w-full" disabled={isSubmitting} onClick={() => subscribe(product.prices.id)}>
                     {isSubmitting ? 'Redirecting...' : `Upgrade to ${product.name}`}
                   </Button>
                 </Card.Footer>

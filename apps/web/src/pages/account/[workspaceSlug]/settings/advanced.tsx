@@ -8,7 +8,7 @@ import Modal from 'components/Modal/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { AccountLayout } from 'layouts/index';
-import { api } from 'lib';
+import { _deleteWorkspace, api } from 'lib';
 import { workspaceService, Initializer } from '@glyphx/business';
 import { useWorkspace } from 'providers/workspace';
 import { getSession } from 'next-auth/react';
@@ -21,30 +21,25 @@ const Advanced = ({ isCreator }) => {
   const [verifyWorkspace, setVerifyWorkspace] = useState('');
   const verifiedWorkspace = verifyWorkspace === workspace?.slug;
 
+  // local state
   const handleVerifyWorkspaceChange = (event) => setVerifyWorkspace(event.target.value);
-
-  const deleteWorkspace = () => {
-    setSubmittingState(true);
-    api(`/api/workspace/${workspace.slug}`, {
-      method: 'DELETE',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toggleModal();
-        // @ts-ignore
-        setWorkspace(null);
-        router.replace('/account');
-        toast.success('Workspace has been deleted!');
-      }
-    });
-  };
-
   const toggleModal = () => {
     setVerifyWorkspace('');
     setModalState(!showModal);
+  };
+
+  // mutations
+  const deleteWorkspace = () => {
+    api({
+      ..._deleteWorkspace(workspace.slug),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: () => {
+        toggleModal();
+        setWorkspace(null);
+        router.replace('/account');
+      },
+    });
   };
 
   return (

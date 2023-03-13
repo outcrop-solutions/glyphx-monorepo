@@ -2,12 +2,11 @@ import { Fragment, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, PlusIcon, SelectorIcon } from '@heroicons/react/solid';
 import { useRouter } from 'next/router';
-import toast from 'react-hot-toast';
 
 import Button from 'components/Button/index';
 import Modal from 'components/Modal/index';
-import { useWorkspaces } from 'data';
-import {api} from 'lib'
+import { useWorkspaces } from 'lib/data';
+import { api, _createWorkspace } from 'lib';
 import { useWorkspace } from 'providers/workspace';
 
 const Actions = () => {
@@ -19,40 +18,33 @@ const Actions = () => {
   const [showModal, setModalState] = useState(false);
   const validName = name.length > 0 && name.length <= 16;
 
-  const createWorkspace = (event) => {
-    event.preventDefault();
-    setSubmittingState(true);
-    api('/api/workspace', {
-      body: { name },
-      method: 'POST',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toggleModal();
-        setName('');
-        toast.success('Workspace successfully created!');
-      }
-    });
-  };
-
+  // local state
   const handleNameChange = (event) => setName(event.target.value);
-
   const handleWorkspaceChange = (workspace) => {
-    // @ts-ignore
     setWorkspace(workspace);
     router.replace(`/account/${workspace?.slug}`);
   };
-
   const toggleModal = () => setModalState(!showModal);
+
+  // mutations
+  const createWorkspace = (event) => {
+    event.preventDefault();
+    api({
+      ..._createWorkspace(name),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: () => {
+        toggleModal();
+        setName('');
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col items-stretch justify-center px-5 space-y-3">
       <Button className="text-white bg-secondary-deep-blue hover:bg-blue-500" onClick={toggleModal}>
         <PlusIcon className="w-5 h-5 text-white" aria-hidden="true" />
-        <span className='whitespace-nowrap'>Create Workspace</span>
+        <span className="whitespace-nowrap">Create Workspace</span>
       </Button>
       <Modal show={showModal} title="Create a Workspace" toggle={toggleModal}>
         <div className="space-y-0 text-sm text-gray-600">
@@ -71,11 +63,7 @@ const Actions = () => {
           />
         </div>
         <div className="flex flex-col items-stretch">
-          <Button
-            className=""
-            disabled={!validName || isSubmitting}
-            onClick={createWorkspace}
-          >
+          <Button className="" disabled={!validName || isSubmitting} onClick={createWorkspace}>
             <span>Create Workspace</span>
           </Button>
         </div>
@@ -115,7 +103,9 @@ const Actions = () => {
                   >
                     {({ selected, active }) => (
                       <>
-                        <span className={`${selected ? 'font-bold' : 'font-normal'} bg-secondary-midnight block truncate`}>
+                        <span
+                          className={`${selected ? 'font-bold' : 'font-normal'} bg-secondary-midnight block truncate`}
+                        >
                           {workspace.name}
                         </span>
                         {selected ? (

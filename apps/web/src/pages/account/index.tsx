@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import toast from 'react-hot-toast';
 
 import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
 import Meta from 'components/Meta';
-import { useInvitations, useWorkspaces } from 'data';
 import { AccountLayout } from 'layouts';
-import { api } from 'lib';
 import { useWorkspace } from 'providers/workspace';
+
+import { _acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces } from 'lib';
 
 const Welcome = () => {
   const router = useRouter();
@@ -18,40 +17,25 @@ const Welcome = () => {
   const { setWorkspace } = useWorkspace();
   const [isSubmitting, setSubmittingState] = useState(false);
 
+  // mutatations
   const accept = (memberId) => {
-    setSubmittingState(true);
-    api(`/api/workspace/team/accept`, {
-      body: { memberId },
-      method: 'PUT',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Accepted invitation!');
-      }
+    api({
+      ..._acceptInvitation(memberId),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: null,
     });
   };
-
   const decline = (memberId) => {
-    setSubmittingState(true);
-    api(`/api/workspace/team/decline`, {
-      body: { memberId },
-      method: 'PUT',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Declined invitation!');
-      }
+    api({
+      ..._declineInvitation(memberId),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: null,
     });
   };
 
   const navigate = (workspace) => {
-    // @ts-ignore
     setWorkspace(workspace);
     router.replace(`/account/${workspace.slug}`);
   };
@@ -105,11 +89,7 @@ const Welcome = () => {
                   subtitle={`You have been invited by ${invitation.invitedBy.name || invitation.invitedBy.email}`}
                 />
                 <Card.Footer>
-                  <Button
-                    className=""
-                    disabled={isSubmitting}
-                    onClick={() => accept(invitation.id)}
-                  >
+                  <Button className="" disabled={isSubmitting} onClick={() => accept(invitation.id)}>
                     Accept
                   </Button>
                   <Button

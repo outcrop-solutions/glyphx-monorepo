@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import Card from 'components/Card/index';
 import Button from 'components/Button';
-import { api } from 'lib';
+import { _joinWorkspace, api } from 'lib';
 import { workspaceService, Initializer } from '@glyphx/business';
 
 const Invite = ({ workspace }) => {
@@ -15,22 +15,15 @@ const Invite = ({ workspace }) => {
   const [isSubmitting, setSubmittingState] = useState(false);
 
   const join = () => {
-    setSubmittingState(true);
-    api(`/api/workspace/team/join`, {
-      body: { workspaceCode: workspace.workspaceCode },
-      method: 'POST',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        if (response.status === 422) {
+    api({
+      ..._joinWorkspace(workspace.workspaceCode),
+      setLoading: setSubmittingState,
+      onError: (status) => {
+        if (status === 422) {
           router.replace('/account');
         }
-
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Accepted invitation!');
-      }
+      },
+      onSuccess: null,
     });
   };
 

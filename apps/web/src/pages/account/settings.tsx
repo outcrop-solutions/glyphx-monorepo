@@ -11,7 +11,7 @@ import Content from 'components/Content';
 import Meta from 'components/Meta';
 import Modal from 'components/Modal';
 import { AccountLayout } from 'layouts';
-import { api } from 'lib';
+import { _deactivateAccount, _updateUserName, api } from 'lib';
 import { userService, Initializer } from '@glyphx/business';
 
 const Settings = ({ user }) => {
@@ -25,73 +25,41 @@ const Settings = ({ user }) => {
   const validEmail = isEmail(email);
   const verifiedEmail = verifyEmail === email;
 
-  const copyToClipboard = () => toast.success('Copied to clipboard!');
-
-  const changeName = (event) => {
-    event.preventDefault();
-    setSubmittingState(true);
-    api('/api/user/name', {
-      body: { name },
-      method: 'PUT',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Name successfully updated!');
-      }
-    });
-  };
-
-  const changeEmail = (event) => {
-    event.preventDefault();
-    const result = confirm('Are you sure you want to update your email address?');
-
-    if (result) {
-      setSubmittingState(true);
-      api('/api/user/email', {
-        body: { email },
-        method: 'PUT',
-      }).then((response) => {
-        setSubmittingState(false);
-
-        if (response.errors) {
-          Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-        } else {
-          toast.success('Email successfully updated and signing you out!');
-          setTimeout(() => signOut({ callbackUrl: '/auth/login' }), 2000);
-        }
-      });
-    }
-  };
-
-  const deactivateAccount = (event) => {
-    event.preventDefault();
-    setSubmittingState(true);
-    api('/api/user', {
-      method: 'DELETE',
-    }).then((response) => {
-      setSubmittingState(false);
-      toggleModal();
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Account has been deactivated!');
-      }
-    });
-  };
-
+  // local state
   const handleEmailChange = (event) => setEmail(event.target.value);
-
   const handleNameChange = (event) => setName(event.target.value);
-
   const handleVerifyEmailChange = (event) => setVerifyEmail(event.target.value);
-
   const toggleModal = () => {
     setVerifyEmail('');
     setModalState(!showModal);
+  };
+  const copyToClipboard = () => toast.success('Copied to clipboard!');
+
+  // mutations
+  const changeName = (event) => {
+    event.preventDefault();
+    api({ ..._updateUserName(name), setLoading: setSubmittingState, onError: null, onSuccess: null });
+  };
+  const changeEmail = (event) => {
+    event.preventDefault();
+    const result = confirm('Are you sure you want to update your email address?');
+    if (result) {
+      api({
+        ..._updateUserName(name),
+        setLoading: setSubmittingState,
+        onError: null,
+        onSuccess: () => setTimeout(() => signOut({ callbackUrl: '/auth/login' }), 2000),
+      });
+    }
+  };
+  const deactivateAccount = (event) => {
+    event.preventDefault();
+    api({
+      ..._deactivateAccount(),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: () => toggleModal(),
+    });
   };
 
   return (
@@ -116,11 +84,7 @@ const Settings = ({ user }) => {
             </Card.Body>
             <Card.Footer>
               <small>Please use 32 characters at maximum</small>
-              <Button
-                className=""
-                disabled={!validName || isSubmitting}
-                onClick={changeName}
-              >
+              <Button className="" disabled={!validName || isSubmitting} onClick={changeName}>
                 Save
               </Button>
             </Card.Footer>
@@ -143,11 +107,7 @@ const Settings = ({ user }) => {
             </Card.Body>
             <Card.Footer>
               <small>We will email you to verify the change</small>
-              <Button
-                className=""
-                disabled={!validEmail || isSubmitting}
-                onClick={changeEmail}
-              >
+              <Button className="" disabled={!validEmail || isSubmitting} onClick={changeEmail}>
                 Save
               </Button>
             </Card.Footer>

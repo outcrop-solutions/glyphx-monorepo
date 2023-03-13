@@ -17,9 +17,9 @@ import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
 import Meta from 'components/Meta';
-import { useMembers } from 'data';
+import { useMembers } from 'lib/data';
 import { AccountLayout } from 'layouts';
-import { api } from 'lib';
+import { _createMember, _removeMember, _updateRole, api } from 'lib';
 import { workspaceService, Initializer } from '@glyphx/business';
 
 const MEMBERS_TEMPLATE = { email: '', teamRole: databaseTypes.constants.ROLE.MEMBER };
@@ -30,72 +30,44 @@ const Team = ({ isTeamOwner, workspace }) => {
   const [members, setMembers] = useState([{ ...MEMBERS_TEMPLATE }]);
   const validateEmails = members.filter((member) => !isEmail(member.email))?.length !== 0;
 
+  // local state
   const addEmail = () => {
     members.push({ ...MEMBERS_TEMPLATE });
     setMembers([...members]);
   };
-
-  const changeRole = (memberId) => {
-    api(`/api/workspace/team/role`, {
-      body: { memberId },
-      method: 'PUT',
-    }).then((response) => {
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Updated team member role!');
-      }
-    });
-  };
-
   const copyToClipboard = () => toast.success('Copied to clipboard!');
-
   const handleEmailChange = (event, index) => {
     const member = members[index];
     member.email = event.target.value;
     setMembers([...members]);
   };
-
   const handleRoleChange = (event, index) => {
     const member = members[index];
     member.teamRole = event.target.value;
     setMembers([...members]);
   };
-
-  const invite = () => {
-    setSubmittingState(true);
-    api(`/api/workspace/${workspace.slug}/invite`, {
-      body: { members },
-      method: 'POST',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        const members = [{ ...MEMBERS_TEMPLATE }];
-        setMembers([...members]);
-        toast.success('Invited team members!');
-      }
-    });
-  };
-
   const remove = (index) => {
     members.splice(index, 1);
     setMembers([...members]);
   };
 
-  const removeMember = (memberId) => {
-    api(`/api/workspace/team/member`, {
-      body: { memberId },
-      method: 'DELETE',
-    }).then((response) => {
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Removed team member from workspace!');
-      }
+  // mutations
+  const changeRole = (memberId) => {
+    api({ ..._updateRole(memberId), setLoading: null, onError: null, onSuccess: null });
+  };
+  const invite = () => {
+    api({
+      ..._createMember({ slug: workspace.slug, members }),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: () => {
+        const members = [{ ...MEMBERS_TEMPLATE }];
+        setMembers([...members]);
+      },
     });
+  };
+  const removeMember = (memberId) => {
+    api({ ..._removeMember(memberId), setLoading: null, onError: null, onSuccess: null });
   };
 
   return (
@@ -177,11 +149,7 @@ const Team = ({ isTeamOwner, workspace }) => {
               <small>
                 All invited team members will be set to <strong>Pending</strong>
               </small>
-              <Button
-                className=""
-                disabled={validateEmails || isSubmitting}
-                onClick={invite}
-              >
+              <Button className="" disabled={validateEmails || isSubmitting} onClick={invite}>
                 Invite
               </Button>
             </Card.Footer>

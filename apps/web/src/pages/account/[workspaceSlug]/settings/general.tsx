@@ -12,7 +12,7 @@ import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
 import { AccountLayout } from 'layouts/index';
-import { api } from 'lib';
+import { _updateWorkspaceName, _updateWorkspaceSlug, api } from 'lib';
 import { workspaceService, Initializer } from '@glyphx/business';
 import { useWorkspace } from 'providers/workspace';
 
@@ -26,52 +26,36 @@ const General = ({ isTeamOwner, workspace }) => {
   const validSlug =
     slug?.length > 0 && slug?.length <= 16 && isSlug(slug) && isAlphanumeric(slug, undefined, { ignore: '-' });
 
+  // local state
+  const copyToClipboard = () => toast.success('Copied to clipboard!');
+  const handleNameChange = (event) => setName(event.target.value);
+  const handleSlugChange = (event) => setSlug(event.target.value);
+
+  // mutations
   const changeName = (event) => {
     event.preventDefault();
-    setSubmittingState(true);
-    api(`/api/workspace/${workspace.slug}/name`, {
-      body: { name },
-      method: 'PUT',
-    }).then((response) => {
-      setSubmittingState(false);
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Workspace name successfully updated!');
-      }
+    api({
+      ..._updateWorkspaceName({ slug: workspace.slug, name }),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: null,
     });
   };
-
   const changeSlug = (event) => {
     event.preventDefault();
-    setSubmittingState(true);
-    api(`/api/workspace/${workspace.slug}/slug`, {
-      body: { slug },
-      method: 'PUT',
-    }).then((response) => {
-      setSubmittingState(false);
-      const slug = response?.data?.slug;
-
-      if (response.errors) {
-        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-      } else {
-        toast.success('Workspace slug successfully updated!');
-        router.replace(`/account/${slug}/settings/general`);
-      }
+    api({
+      ..._updateWorkspaceSlug({ slug: workspace.slug, newSlug: slug }),
+      setLoading: setSubmittingState,
+      onError: null,
+      onSuccess: (data) => {
+        router.replace(`/account/${data?.slug}/settings/general`);
+      },
     });
   };
-
-  const copyToClipboard = () => toast.success('Copied to clipboard!');
-
-  const handleNameChange = (event) => setName(event.target.value);
-
-  const handleSlugChange = (event) => setSlug(event.target.value);
 
   useEffect(() => {
     setName(workspace.name);
     setSlug(workspace.slug);
-    // @ts-ignore
     setWorkspace(workspace);
   }, [workspace, setWorkspace]);
 
@@ -94,11 +78,7 @@ const General = ({ isTeamOwner, workspace }) => {
           <Card.Footer>
             <small>Please use 16 characters at maximum</small>
             {isTeamOwner && (
-              <Button
-                className="bg-primary-yellow"
-                disabled={!validName || isSubmitting}
-                onClick={changeName}
-              >
+              <Button className="bg-primary-yellow" disabled={!validName || isSubmitting} onClick={changeName}>
                 Save
               </Button>
             )}
@@ -120,11 +100,7 @@ const General = ({ isTeamOwner, workspace }) => {
           <Card.Footer>
             <small>Please use 16 characters at maximum. Hyphenated alphanumeric characters only.</small>
             {isTeamOwner && (
-              <Button
-                className=""
-                disabled={!validSlug || isSubmitting}
-                onClick={changeSlug}
-              >
+              <Button className="" disabled={!validSlug || isSubmitting} onClick={changeSlug}>
                 Save
               </Button>
             )}
