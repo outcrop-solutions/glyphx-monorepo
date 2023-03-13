@@ -34,7 +34,7 @@ const Welcome = () => {
       onSuccess: null,
     });
   };
-
+  
   const navigate = (workspace) => {
     setWorkspace(workspace);
     router.replace(`/account/${workspace.slug}`);

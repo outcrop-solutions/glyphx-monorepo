@@ -19,15 +19,11 @@ export async function api({
   errorMsg,
   successMsg,
 }: api) {
-  // toggle loading state
   setLoading(true);
-
-  // serialize input
   const { body, headers, ...opts } = options;
   const requestBody = JSON.stringify(body);
 
   try {
-    // execute api req
     const res = await fetch(url, {
       body: requestBody,
       headers: {
@@ -38,11 +34,8 @@ export async function api({
     });
     const data = await res.json();
     const response = { status: res.status, ...data, url };
-
-    // toggle loading state
     setLoading(false);
 
-    // give user feedback, execute callbacks
     if (response.errors) {
       onError(response.status);
       Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
