@@ -46,8 +46,7 @@ export class WorkspaceService {
       if (count > 0) {
         newSlug = `${slug}-${count}`;
       }
-      // TODO: add member record to workspace
-      // @jp: do we have a clean way to create related records in one operation - in this case a member record for the workspace
+
       const castCreatorId =
         typeof creatorId === 'string'
           ? new mongooseTypes.ObjectId(creatorId)
@@ -57,8 +56,6 @@ export class WorkspaceService {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
         creator: castCreatorId,
-        members: [],
-        projects: [],
         name,
         slug: newSlug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
@@ -72,26 +69,18 @@ export class WorkspaceService {
         joinedAt: new Date(),
         status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
         teamRole: databaseTypes.constants.ROLE.OWNER,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        member: {_id: castCreatorId},
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        invitedBy: {_id: castCreatorId},
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        workspace: {_id: workspace._id},
-      });
+        member: {_id: castCreatorId} as unknown as databaseTypes.IUser,
+        invitedBy: {_id: castCreatorId} as unknown as databaseTypes.IUser,
+        workspace: {_id: workspace._id} as unknown as databaseTypes.IWorkspace,
+      } as unknown as databaseTypes.IMember);
 
       const newWorkspace =
         await mongoDbConnection.models.WorkspaceModel.addMembers(
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          workspace?._id,
+          workspace?._id as unknown as mongooseTypes.ObjectId,
           [member]
         );
-      // @ts-ignore
-      await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [
+
+      await mongoDbConnection.models.UserModel.addWorkspaces(castCreatorId, [
         newWorkspace,
       ]);
 
@@ -620,7 +609,6 @@ export class WorkspaceService {
           );
       }
 
-      console.log({workspaces});
       await mongoDbConnection.models.WorkspaceModel.addMembers(
         workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
         [member]
