@@ -18,7 +18,6 @@ import {
   selectedFileAtom,
 } from '../state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-// import { updateProject } from "graphql/mutations";
 import { createModelCall } from './create-model';
 import { formatColumnHeader } from 'utils/Utils';
 import { useSession } from 'next-auth/react';

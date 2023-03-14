@@ -193,7 +193,7 @@ SCHEMA.static(
         description: input.description,
         creator: creator,
         members: [],
-        projects: projects,
+        projects: projects ?? [],
       };
       try {
         await WORKSPACE_MODEL.validate(resolvedInput);

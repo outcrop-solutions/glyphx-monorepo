@@ -57,7 +57,7 @@ export class WorkspaceService {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
         creator: castCreatorId,
-        members: [{}],
+        members: [],
         projects: [],
         name,
         slug: newSlug,
@@ -90,7 +90,7 @@ export class WorkspaceService {
           workspace?._id,
           [member]
         );
-// @ts-ignore
+      // @ts-ignore
       await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [
         newWorkspace,
       ]);
@@ -196,7 +196,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
           slug,
         });
 
@@ -320,7 +320,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
           slug,
         });
       const filteredWorkspaces = workspaces.results.filter(
@@ -371,7 +371,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
         });
       const filteredWorkspaces = workspaces.results.filter(
         space =>
@@ -418,7 +418,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         (await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
         })) as IQueryResult<databaseTypes.IWorkspace>;
 
       return [

@@ -22,16 +22,12 @@ const Welcome = () => {
     api({
       ..._acceptInvitation(memberId),
       setLoading: setSubmittingState,
-      onError: null,
-      onSuccess: null,
     });
   };
   const decline = (memberId) => {
     api({
       ..._declineInvitation(memberId),
       setLoading: setSubmittingState,
-      onError: null,
-      onSuccess: null,
     });
   };
   

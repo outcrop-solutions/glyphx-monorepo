@@ -23,7 +23,7 @@ const Billing = ({ invoices, products }) => {
     api({
       ..._createSubscription(priceId),
       setLoading: setSubmittingState,
-      onError: null,
+     
       onSuccess: (data) => {
         return (async () => redirectToCheckout(data.sessionId))();
       },

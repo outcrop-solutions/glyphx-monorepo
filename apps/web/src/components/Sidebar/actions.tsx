@@ -32,7 +32,7 @@ const Actions = () => {
     api({
       ..._createWorkspace(name),
       setLoading: setSubmittingState,
-      onError: null,
+     
       onSuccess: () => {
         toggleModal();
         setName('');

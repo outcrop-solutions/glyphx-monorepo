@@ -53,13 +53,13 @@ const Team = ({ isTeamOwner, workspace }) => {
 
   // mutations
   const changeRole = (memberId) => {
-    api({ ..._updateRole(memberId), setLoading: null, onError: null, onSuccess: null });
+    api({ ..._updateRole(memberId) });
   };
   const invite = () => {
     api({
       ..._createMember({ slug: workspace.slug, members }),
       setLoading: setSubmittingState,
-      onError: null,
+
       onSuccess: () => {
         const members = [{ ...MEMBERS_TEMPLATE }];
         setMembers([...members]);
@@ -67,7 +67,7 @@ const Team = ({ isTeamOwner, workspace }) => {
     });
   };
   const removeMember = (memberId) => {
-    api({ ..._removeMember(memberId), setLoading: null, onError: null, onSuccess: null });
+    api({ ..._removeMember(memberId) });
   };
 
   return (

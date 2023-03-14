@@ -33,7 +33,7 @@ const Advanced = ({ isCreator }) => {
     api({
       ..._deleteWorkspace(workspace.slug),
       setLoading: setSubmittingState,
-      onError: null,
+     
       onSuccess: () => {
         toggleModal();
         setWorkspace(null);

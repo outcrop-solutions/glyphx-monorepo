@@ -38,7 +38,7 @@ const Settings = ({ user }) => {
   // mutations
   const changeName = (event) => {
     event.preventDefault();
-    api({ ..._updateUserName(name), setLoading: setSubmittingState, onError: null, onSuccess: null });
+    api({ ..._updateUserName(name), setLoading: setSubmittingState });
   };
   const changeEmail = (event) => {
     event.preventDefault();
@@ -47,7 +47,7 @@ const Settings = ({ user }) => {
       api({
         ..._updateUserName(name),
         setLoading: setSubmittingState,
-        onError: null,
+       
         onSuccess: () => setTimeout(() => signOut({ callbackUrl: '/auth/login' }), 2000),
       });
     }
@@ -57,7 +57,7 @@ const Settings = ({ user }) => {
     api({
       ..._deactivateAccount(),
       setLoading: setSubmittingState,
-      onError: null,
+     
       onSuccess: () => toggleModal(),
     });
   };

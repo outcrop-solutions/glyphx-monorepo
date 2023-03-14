@@ -23,7 +23,6 @@ const Invite = ({ workspace }) => {
           router.replace('/account');
         }
       },
-      onSuccess: null,
     });
   };
 

@@ -37,16 +37,15 @@ const General = ({ isTeamOwner, workspace }) => {
     api({
       ..._updateWorkspaceName({ slug: workspace.slug, name }),
       setLoading: setSubmittingState,
-      onError: null,
-      onSuccess: null,
     });
   };
+
   const changeSlug = (event) => {
     event.preventDefault();
     api({
       ..._updateWorkspaceSlug({ slug: workspace.slug, newSlug: slug }),
       setLoading: setSubmittingState,
-      onError: null,
+     
       onSuccess: (data) => {
         router.replace(`/account/${data?.slug}/settings/general`);
       },
