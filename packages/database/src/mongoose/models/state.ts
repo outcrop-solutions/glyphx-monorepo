@@ -312,8 +312,8 @@ SCHEMA.static(
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
       stateDocuments.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-        (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
+        delete (doc as any)?.__v;
+        (doc as any)?.projects?.forEach((p: any) => delete (p as any)?.__v);
       });
 
       const retval: IQueryResult<databaseTypes.IState> = {

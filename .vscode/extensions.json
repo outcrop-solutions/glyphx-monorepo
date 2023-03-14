@@ -31,6 +31,7 @@
     "christian-kohler.path-intellisense",
     "johnpapa.vscode-peacock",
     "csstools.postcss",
+    "prisma.prisma",
     "ban.spellright",
     "stripe.vscode-stripe",
     "bradlc.vscode-tailwindcss",
