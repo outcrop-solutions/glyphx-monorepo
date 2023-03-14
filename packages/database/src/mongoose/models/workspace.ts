@@ -177,8 +177,9 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const [projects, creator] = await Promise.all([
-        WORKSPACE_MODEL.validateProjects(input.projects),
+      const [members, projects, creator] = await Promise.all([
+        WORKSPACE_MODEL.validateMembers(input.members ?? []),
+        WORKSPACE_MODEL.validateProjects(input.projects ?? []),
         WORKSPACE_MODEL.validateUser(input.creator),
       ]);
       const createDate = new Date();
@@ -192,7 +193,7 @@ SCHEMA.static(
         slug: input.slug,
         description: input.description,
         creator: creator,
-        members: [],
+        members: members ?? [],
         projects: projects ?? [],
       };
       try {
