@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-// import { API, graphqlOperation, Auth } from "aws-amplify";
 import update from 'immutability-helper';
 import {
   droppedPropertiesSelector,
