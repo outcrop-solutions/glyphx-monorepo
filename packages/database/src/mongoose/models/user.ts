@@ -11,9 +11,9 @@ import {WorkspaceModel} from './workspace';
 import {CustomerPaymentModel} from './customerPayment';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
-  userCode: {type: String, required: true},
-  name: {type: String, required: true},
-  username: {type: String, required: true, unique: true},
+  userCode: {type: String, required: false},
+  name: {type: String, required: false},
+  username: {type: String, required: false, unique: true},
   gh_username: {type: String, required: false},
   email: {type: String, required: true, unique: true},
   emailVerified: {type: Date, required: false},

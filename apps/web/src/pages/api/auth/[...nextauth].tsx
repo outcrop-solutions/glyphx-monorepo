@@ -2,7 +2,7 @@ import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import { signInHtml, signInText, EmailClient } from '@glyphx/email';
-import { Initializer, dbConnection as connection, customerPaymentService } from '@glyphx/business';
+import { Initializer, dbConnection as connection, customerPaymentService, userService } from '@glyphx/business';
 import clientPromise from 'lib/mongodb';
 // import mongoose from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -30,10 +30,11 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     events: {
       signIn: async ({ user, isNewUser }) => {
         const customerPayment = await customerPaymentService.getPayment(user.email);
-
+        if (isNewUser) {
+          await userService.updateUserCode(user.id);
+        }
         // @ts-ignore
         if (isNewUser || customerPayment === null || user.createdAt === null) {
-          console.dir(user, { depth: null });
           await Promise.all([
             customerPaymentService.createPaymentAccount(user.email, user.id),
             // log(
