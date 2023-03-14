@@ -17,7 +17,7 @@ const SCHEMA = new Schema<
   email: {type: String, required: true},
   inviter: {type: String, required: true},
   invitedAt: {type: Date, required: true},
-  joinedAt: {type: Date, required: true},
+  joinedAt: {type: Date, required: false},
   deletedAt: {type: Date, required: false},
   updatedAt: {type: Date, required: false},
   createdAt: {type: Date, required: false},
@@ -221,7 +221,7 @@ SCHEMA.static(
   async (
     input: Omit<
       databaseTypes.IMember,
-      '_id' | 'createdAt' | 'invitedAt' | 'updatedAt'
+      '_id' | 'createdAt' | 'invitedAt' | 'updatedAt' | 'joinedAt'
     >
   ): Promise<databaseTypes.IMember> => {
     const newMemberExists = await UserModel.userIdExists(
@@ -269,11 +269,10 @@ SCHEMA.static(
       email: input.email,
       inviter: input.inviter,
       invitedAt: createDate,
-      joinedAt: input.joinedAt,
       createdAt: createDate,
       updatedAt: createDate,
-      status: input.status,
-      teamRole: input.teamRole,
+      status: input.status || databaseTypes.constants.INVITATION_STATUS.PENDING,
+      teamRole: input.teamRole || databaseTypes.constants.ROLE.MEMBER,
       member: input.member._id as mongooseTypes.ObjectId,
       invitedBy: input.invitedBy._id as mongooseTypes.ObjectId,
       workspace: input.workspace._id as mongooseTypes.ObjectId,
