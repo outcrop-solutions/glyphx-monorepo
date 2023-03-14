@@ -6,7 +6,7 @@ import {v4} from 'uuid';
 const uniqueKey = v4().replaceAll('-', '');
 const bucketName = 'jps-test-bucket';
 
-describe.only('#integrationTests/s3Manager', () => {
+describe('#integrationTests/s3Manager', () => {
   const s3Manager = new S3Manager(bucketName);
   const body = 'I am the body';
   const fileName = 'testFileName' + uniqueKey;

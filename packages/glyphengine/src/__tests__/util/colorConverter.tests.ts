@@ -21,7 +21,7 @@ const COLOR_TABLE = [
   {color: 'Navy', rgb: '0,0,128', hsv: '240,100,50'},
 ];
 
-describe.only('colorConverter', () => {
+describe('colorConverter', () => {
   context('convertRgbToHsv', () => {
     it('will convert rgb colors to hsv', () => {
       for (const color of COLOR_TABLE) {

@@ -2,7 +2,7 @@ import 'mocha';
 import {assert} from 'chai';
 import {AthenaManager} from '../../aws';
 
-describe.only('#integrationTests/AthenaManager', () => {
+describe('#integrationTests/AthenaManager', () => {
   context('getTableDescription', () => {
     it('Will get a table description', async () => {
       const athenaManager = new AthenaManager('glyphx-etl-db');
