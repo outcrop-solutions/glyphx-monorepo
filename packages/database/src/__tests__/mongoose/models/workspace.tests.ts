@@ -23,6 +23,21 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   projects: [],
 };
 
+const MOCK_NULLISH_WORKSPACE = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  workspaceCode: 'testWorkspaceCode',
+  inviteCode: 'testInviteCode',
+  name: 'Test Workspace',
+  slug: 'testSlug',
+  description: 'a test workspace',
+  creator: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IUser,
+  members: undefined,
+  projects: undefined,
+} as unknown as databaseTypes.IWorkspace;
+
 describe('#mongoose/models/workspace', () => {
   context('workspaceIdExists', () => {
     const sandbox = createSandbox();
@@ -107,6 +122,43 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
       const workspaceDocument = await WorkspaceModel.createWorkspace(
         MOCK_WORKSPACE
+      );
+
+      assert.strictEqual(workspaceDocument._id, objectId);
+      assert.isTrue(stub.calledOnce);
+    });
+    it('will create an workspace document with nullish coallesce', async () => {
+      sandbox.replace(
+        WorkspaceModel,
+        'validateProjects',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'validateMembers',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        WorkspaceModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
+      const workspaceDocument = await WorkspaceModel.createWorkspace(
+        MOCK_NULLISH_WORKSPACE
       );
 
       assert.strictEqual(workspaceDocument._id, objectId);

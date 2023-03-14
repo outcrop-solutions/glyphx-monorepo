@@ -21,6 +21,20 @@ const MOCK_MEMBER: databaseTypes.IMember = {
   workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
 };
 
+const MOCK_NULLISH_MEMBER = {
+  email: 'jamesmurdockgraham@gmail.com',
+  inviter: 'jp@glyphx.co',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  joinedAt: new Date(),
+  invitedAt: new Date(),
+  status: undefined,
+  teamRole: undefined,
+  member: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
+  invitedBy: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
+  workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
+} as unknown as databaseTypes.IMember;
+
 describe('#mongoose/models/member', () => {
   context('memberIdExists', () => {
     const sandbox = createSandbox();
@@ -150,6 +164,53 @@ describe('#mongoose/models/member', () => {
 
       const result = await MemberModel.createMember(MOCK_MEMBER);
       assert.strictEqual(result._id, memberId);
+      assert.isTrue(getMemberByIdStub.calledOnce);
+    });
+
+    it('will create an member document with nullish coallesce', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
+      );
+
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(false)
+      );
+
+      sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(
+        MemberModel,
+        'create',
+        sandbox.stub().resolves([
+          {
+            _id: memberId,
+            status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+            teamRole: databaseTypes.constants.ROLE.MEMBER,
+          },
+        ])
+      );
+
+      const getMemberByIdStub = sandbox.stub();
+      getMemberByIdStub.resolves({
+        _id: memberId,
+        status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+        teamRole: databaseTypes.constants.ROLE.MEMBER,
+      });
+
+      sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
+
+      const result = await MemberModel.createMember(MOCK_NULLISH_MEMBER);
+      assert.strictEqual(result._id, memberId);
+      assert.strictEqual(
+        result.status,
+        databaseTypes.constants.INVITATION_STATUS.PENDING
+      );
+      assert.strictEqual(result.teamRole, databaseTypes.constants.ROLE.MEMBER);
       assert.isTrue(getMemberByIdStub.calledOnce);
     });
 

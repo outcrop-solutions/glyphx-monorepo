@@ -193,8 +193,8 @@ SCHEMA.static(
         slug: input.slug,
         description: input.description,
         creator: creator,
-        members: members ?? [],
-        projects: projects ?? [],
+        members: members,
+        projects: projects,
       };
       try {
         await WORKSPACE_MODEL.validate(resolvedInput);

@@ -584,34 +584,13 @@ SCHEMA.static(
         projects,
         customerPaymentId,
       ] = await Promise.all([
-        USER_MODEL.validateAccounts(
-          //istanbul ignore next
-          input.accounts ?? []
-        ),
-        USER_MODEL.validateSessions(
-          //istanbul ignore next
-          input.sessions ?? []
-        ),
-        USER_MODEL.validateWebhooks(
-          //istanbul ignore next
-          input.webhooks ?? []
-        ),
-        USER_MODEL.validateMembership(
-          //istanbul ignore next
-          input.membership ?? []
-        ),
-        USER_MODEL.validateMembership(
-          //istanbul ignore next
-          input.invitedMembers ?? []
-        ),
-        USER_MODEL.validateWorkspaces(
-          //istanbul ignore next
-          input.createdWorkspaces ?? []
-        ),
-        USER_MODEL.validateProjects(
-          //istanbul ignore next
-          input.projects ?? []
-        ),
+        USER_MODEL.validateAccounts(input.accounts ?? []),
+        USER_MODEL.validateSessions(input.sessions ?? []),
+        USER_MODEL.validateWebhooks(input.webhooks ?? []),
+        USER_MODEL.validateMembership(input.membership ?? []),
+        USER_MODEL.validateMembership(input.invitedMembers ?? []),
+        USER_MODEL.validateWorkspaces(input.createdWorkspaces ?? []),
+        USER_MODEL.validateProjects(input.projects ?? []),
         USER_MODEL.validateCustomerPayment(input.customerPayment),
       ]);
       const createDate = new Date();
@@ -627,14 +606,14 @@ SCHEMA.static(
         image: input.image,
         createdAt: createDate,
         updatedAt: createDate,
-        accounts: accounts ?? [],
-        sessions: sessions ?? [],
-        membership: membership ?? [],
-        invitedMembers: invitedMembers ?? [],
-        webhooks: webhooks ?? [],
+        accounts: accounts,
+        sessions: sessions,
+        membership: membership,
+        invitedMembers: invitedMembers,
+        webhooks: webhooks,
         apiKey: input.apiKey,
-        createdWorkspaces: createdWorkspaces ?? [],
-        projects: projects ?? [],
+        createdWorkspaces: createdWorkspaces,
+        projects: projects,
         customerPayment: customerPaymentId,
       };
       try {
