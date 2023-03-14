@@ -212,7 +212,10 @@ SCHEMA.static(
 SCHEMA.static(
   'createCustomerPayment',
   async (
-    input: Omit<databaseTypes.ICustomerPayment, '_id'>
+    input: Omit<
+      databaseTypes.ICustomerPayment,
+      '_id' | 'createdAt' | 'updatedAt'
+    >
   ): Promise<databaseTypes.ICustomerPayment> => {
     const userExists = await UserModel.userIdExists(
       input.customer._id as mongooseTypes.ObjectId
@@ -231,7 +234,9 @@ SCHEMA.static(
       email: input.email,
       createdAt: createDate,
       updatedAt: createDate,
-      subscriptionType: input.subscriptionType,
+      subscriptionType:
+        input.subscriptionType ||
+        databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
       customer: input.customer._id as mongooseTypes.ObjectId,
     };
 
