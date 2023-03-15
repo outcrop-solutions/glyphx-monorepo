@@ -35,6 +35,20 @@ const MOCK_NULLISH_MEMBER = {
   workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
 } as unknown as databaseTypes.IMember;
 
+const MOCK_MEMBER_IDS = {
+  email: 'jamesmurdockgraham@gmail.com',
+  inviter: 'jp@glyphx.co',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  joinedAt: new Date(),
+  invitedAt: new Date(),
+  status: undefined,
+  teamRole: undefined,
+  member: new mongoose.Types.ObjectId(),
+  invitedBy: new mongoose.Types.ObjectId(),
+  workspace: new mongoose.Types.ObjectId(),
+} as unknown as databaseTypes.IMember;
+
 describe('#mongoose/models/member', () => {
   context('memberIdExists', () => {
     const sandbox = createSandbox();
@@ -135,7 +149,7 @@ describe('#mongoose/models/member', () => {
       sandbox.restore();
     });
 
-    it('will create an member document', async () => {
+    it('will create a member document', async () => {
       const memberId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(
@@ -167,7 +181,7 @@ describe('#mongoose/models/member', () => {
       assert.isTrue(getMemberByIdStub.calledOnce);
     });
 
-    it('will create an member document with nullish coallesce', async () => {
+    it('will create a member document with nullish coallesce', async () => {
       const memberId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(
@@ -211,6 +225,44 @@ describe('#mongoose/models/member', () => {
         databaseTypes.constants.INVITATION_STATUS.PENDING
       );
       assert.strictEqual(result.teamRole, databaseTypes.constants.ROLE.MEMBER);
+      assert.isTrue(getMemberByIdStub.calledOnce);
+    });
+
+    it('will create a member document with member as ID', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
+      );
+
+      sandbox.replace(
+        MemberModel,
+        'memberEmailExists',
+        sandbox.stub().resolves(false)
+      );
+
+      sandbox.replace(
+        UserModel,
+        'getUserById',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
+      );
+
+      sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(
+        MemberModel,
+        'create',
+        sandbox.stub().resolves([{_id: memberId}])
+      );
+
+      const getMemberByIdStub = sandbox.stub();
+      getMemberByIdStub.resolves({_id: memberId});
+
+      sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
+
+      const result = await MemberModel.createMember(MOCK_MEMBER_IDS);
+      assert.strictEqual(result._id, memberId);
       assert.isTrue(getMemberByIdStub.calledOnce);
     });
 

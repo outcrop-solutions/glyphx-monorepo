@@ -15,6 +15,15 @@ const MOCK_CUSTOMER_PAYMENT: databaseTypes.ICustomerPayment = {
   customer: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
 };
 
+const MOCK_CUSTOMER_PAYMENT_ID = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  paymentId: 'customerPaymentId',
+  email: 'customerPaymentId',
+  subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+  customer: new mongoose.Types.ObjectId(),
+} as unknown as databaseTypes.ICustomerPayment;
+
 describe('#mongoose/models/customerPayment', () => {
   context('customerPaymentIdExists', () => {
     const sandbox = createSandbox();
@@ -98,6 +107,36 @@ describe('#mongoose/models/customerPayment', () => {
 
       const result = await CustomerPaymentModel.createCustomerPayment(
         MOCK_CUSTOMER_PAYMENT
+      );
+      assert.strictEqual(result._id, customerPaymentId);
+      assert.isTrue(getCustomerPaymentByIdStub.calledOnce);
+    });
+
+    it('will create an customerPayment document when customer is ID', async () => {
+      const customerPaymentId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(
+        CustomerPaymentModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        CustomerPaymentModel,
+        'create',
+        sandbox.stub().resolves([{_id: customerPaymentId}])
+      );
+
+      const getCustomerPaymentByIdStub = sandbox.stub();
+      getCustomerPaymentByIdStub.resolves({_id: customerPaymentId});
+
+      sandbox.replace(
+        CustomerPaymentModel,
+        'getCustomerPaymentById',
+        getCustomerPaymentByIdStub
+      );
+
+      const result = await CustomerPaymentModel.createCustomerPayment(
+        MOCK_CUSTOMER_PAYMENT_ID
       );
       assert.strictEqual(result._id, customerPaymentId);
       assert.isTrue(getCustomerPaymentByIdStub.calledOnce);

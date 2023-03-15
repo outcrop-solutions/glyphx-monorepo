@@ -522,7 +522,7 @@ SCHEMA.static(
 );
 SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
-    const userDocument = (await USER_MODEL.findById(userId)
+    const userDocument = await USER_MODEL.findById(userId)
       .populate('accounts')
       .populate('sessions')
       .populate('membership')
@@ -531,7 +531,7 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
       .populate('customerPayment')
       .populate('projects')
       .populate('webhooks')
-      .lean()) as databaseTypes.IUser;
+      .lean();
     if (!userDocument) {
       throw new error.DataNotFoundError(
         `Could not find a user with the _id: ${userId}`,
@@ -542,7 +542,7 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (userDocument as any)['__v'];
-    delete (userDocument as any).customerPayment?.['__v'];
+    delete (userDocument as any).customerPayment?.__v;
     userDocument.accounts?.forEach((a: any) => delete (a as any)['__v']);
     userDocument.sessions?.forEach((s: any) => delete (s as any)['__v']);
     userDocument.membership?.forEach((m: any) => delete (m as any)['__v']);
