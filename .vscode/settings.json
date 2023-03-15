@@ -24,7 +24,6 @@
   "git.ignoreLimitWarning": true,
   "spellright.language": ["en"],
   "spellright.documentTypes": ["markdown", "latex", "plaintext"],
-  "editor.formatOnType": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
