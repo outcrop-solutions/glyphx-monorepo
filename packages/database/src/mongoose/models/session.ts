@@ -16,6 +16,7 @@ const SCHEMA = new Schema<
 >({
   sessionToken: {type: String, required: true},
   expires: {type: Date, required: true},
+  userId: {type: String, required: false},
   user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });
 

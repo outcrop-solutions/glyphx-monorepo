@@ -10,6 +10,7 @@ import {
 export interface IAccount {
   _id?: mongooseTypes.ObjectId;
   type: ACCOUNT_TYPE;
+  userId?: string;
   provider: ACCOUNT_PROVIDER;
   providerAccountId: string;
   refresh_token: string;

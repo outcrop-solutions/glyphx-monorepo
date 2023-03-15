@@ -26,6 +26,7 @@ const SCHEMA = new Schema<
     enum: databaseTypes.constants.ACCOUNT_PROVIDER,
     default: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
   },
+  userId: {type: String, required: false},
   providerAccountId: {type: String, required: true},
   refresh_token: {type: String, required: false},
   refresh_token_expires_in: {type: Number, required: false},
