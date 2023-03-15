@@ -1,6 +1,6 @@
 import {aws, error, logging, generalPurposeFunctions} from '@glyphx/core';
 import {fileIngestion} from '@glyphx/types';
-import {Readable} from 'node:stream';
+import {SdtParser} from './io';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -79,18 +79,10 @@ export class GlyphEngine {
   }
 
   private async getDataTypes(
-    clientId: string,
-    modelId: string,
+    viewName: string,
     data: Map<string, string>
   ): Promise<void> {
     try {
-      const viewName = generalPurposeFunctions.fileIngestion.getViewName(
-        clientId,
-        modelId
-      );
-
-      data.set('view_name', viewName);
-
       const tableDef = await this.athenaManager.getTableDescription(viewName);
       setColType('x', tableDef, data);
       setColType('y', tableDef, data);
@@ -154,6 +146,13 @@ export class GlyphEngine {
     const modelId = data.get('model_id') ?? '';
     const clientId = data.get('client_id') ?? '';
 
+    const viewName = generalPurposeFunctions.fileIngestion.getViewName(
+      clientId,
+      modelId
+    );
+
+    data.set('view_name', viewName);
+
     const xFunc = data.get('x_func') ?? '';
     const yFunc = data.get('y_func') ?? '';
     const zFunc = data.get('z_func') ?? '';
@@ -162,11 +161,13 @@ export class GlyphEngine {
     const yDir = data.get('y_dir') ?? '';
     const zDir = data.get('z_dir') ?? '';
 
-    await this.getDataTypes(clientId, modelId, data);
+    await this.getDataTypes(viewName, data);
     const template = this.updateSdt(await this.getTemplateAsString(), data);
 
     const fileName = `${userId}/${modelId}/model.sdt`;
     await this.outputBucketField.putObject(fileName, template);
+
+    const sdtParser = await SdtParser.parseSdtString(template, viewName);
   }
 
   updateSdt(template: string, data: Map<string, string>): string {
