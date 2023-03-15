@@ -1,10 +1,7 @@
 import {database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes} from 'mongoose';
 
-export interface IWebhookCreateInput
-  extends Omit<
-    databaseTypes.IWebhook,
-    '_id' | 'user' | 'createdAt' | 'updatedAt'
-  > {
+export interface ISessionCreateInput
+  extends Omit<databaseTypes.ISession, 'user' | '_id'> {
   user: mongooseTypes.ObjectId | databaseTypes.IUser;
 }
