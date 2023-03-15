@@ -4,6 +4,7 @@ import {
   IWorkspaceMethods,
   IWorkspaceStaticMethods,
   IWorkspaceDocument,
+  IWorkspaceCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -170,11 +171,10 @@ SCHEMA.static(
       );
   }
 );
+
 SCHEMA.static(
   'createWorkspace',
-  async (
-    input: Omit<databaseTypes.IWorkspace, '_id' | 'createdAt' | 'updatedAt'>
-  ): Promise<databaseTypes.IWorkspace> => {
+  async (input: IWorkspaceCreateInput): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const [members, projects, creator] = await Promise.all([

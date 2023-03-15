@@ -4,6 +4,7 @@ import {
   ICustomerPaymentMethods,
   ICustomerPaymentStaticMethods,
   ICustomerPaymentDocument,
+  ICustomerPaymentCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -212,10 +213,7 @@ SCHEMA.static(
 SCHEMA.static(
   'createCustomerPayment',
   async (
-    input: Omit<
-      databaseTypes.ICustomerPayment,
-      '_id' | 'createdAt' | 'updatedAt'
-    >
+    input: ICustomerPaymentCreateInput
   ): Promise<databaseTypes.ICustomerPayment> => {
     const userExists = await UserModel.userIdExists(
       input.customer._id as mongooseTypes.ObjectId

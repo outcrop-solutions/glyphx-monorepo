@@ -4,6 +4,7 @@ import {
   IMemberMethods,
   IMemberStaticMethods,
   IMemberDocument,
+  IMemberCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -218,16 +219,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'createMember',
-  async (
-    input: Omit<
-      databaseTypes.IMember,
-      '_id' | 'createdAt' | 'invitedAt' | 'updatedAt' | 'joinedAt' | 'member'
-    > & {
-      member: mongooseTypes.ObjectId | databaseTypes.IMember;
-      invitedBy: mongooseTypes.ObjectId | databaseTypes.IUser;
-      workspace: mongooseTypes.ObjectId | databaseTypes.IWorkspace;
-    }
-  ): Promise<databaseTypes.IMember> => {
+  async (input: IMemberCreateInput): Promise<databaseTypes.IMember> => {
     const newMemberExists = await UserModel.userIdExists(
       input.member._id as mongooseTypes.ObjectId
     );

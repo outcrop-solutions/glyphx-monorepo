@@ -1,6 +1,11 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
-import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
+import {
+  IUserMethods,
+  IUserStaticMethods,
+  IUserDocument,
+  IUserCreateInput,
+} from '../interfaces';
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
 import {AccountModel} from './account';
@@ -561,94 +566,89 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   }
 });
 
-SCHEMA.static(
-  'createUser',
-  async (
-    input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
-  ) => {
-    // const workspaces = Array.from(
-    //   //istanbul ignore next
-    //   input.createdWorkspaces ?? []
-    // ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
-    //istanbul ignore else
-    // if (input.createdWorkspaces) workspaces.unshift(input.createdWorkspaces);
-    let id: undefined | mongooseTypes.ObjectId = undefined;
-    try {
-      const [
-        accounts,
-        sessions,
-        webhooks,
-        membership,
-        invitedMembers,
-        createdWorkspaces,
-        projects,
-        customerPaymentId,
-      ] = await Promise.all([
-        USER_MODEL.validateAccounts(input.accounts ?? []),
-        USER_MODEL.validateSessions(input.sessions ?? []),
-        USER_MODEL.validateWebhooks(input.webhooks ?? []),
-        USER_MODEL.validateMembership(input.membership ?? []),
-        USER_MODEL.validateMembership(input.invitedMembers ?? []),
-        USER_MODEL.validateWorkspaces(input.createdWorkspaces ?? []),
-        USER_MODEL.validateProjects(input.projects ?? []),
-        USER_MODEL.validateCustomerPayment(input.customerPayment),
-      ]);
-      const createDate = new Date();
+SCHEMA.static('createUser', async (input: IUserCreateInput) => {
+  // const workspaces = Array.from(
+  //   //istanbul ignore next
+  //   input.createdWorkspaces ?? []
+  // ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
+  //istanbul ignore else
+  // if (input.createdWorkspaces) workspaces.unshift(input.createdWorkspaces);
+  let id: undefined | mongooseTypes.ObjectId = undefined;
+  try {
+    const [
+      accounts,
+      sessions,
+      webhooks,
+      membership,
+      invitedMembers,
+      createdWorkspaces,
+      projects,
+      customerPaymentId,
+    ] = await Promise.all([
+      USER_MODEL.validateAccounts(input.accounts ?? []),
+      USER_MODEL.validateSessions(input.sessions ?? []),
+      USER_MODEL.validateWebhooks(input.webhooks ?? []),
+      USER_MODEL.validateMembership(input.membership ?? []),
+      USER_MODEL.validateMembership(input.invitedMembers ?? []),
+      USER_MODEL.validateWorkspaces(input.createdWorkspaces ?? []),
+      USER_MODEL.validateProjects(input.projects ?? []),
+      USER_MODEL.validateCustomerPayment(input.customerPayment),
+    ]);
+    const createDate = new Date();
 
-      const resolvedInput: IUserDocument = {
-        userCode: input.userCode,
-        name: input.name,
-        username: input.username,
-        gh_username: input.gh_username,
-        email: input.email,
-        emailVerified: input.emailVerified,
-        isVerified: input.isVerified,
-        image: input.image,
-        createdAt: createDate,
-        updatedAt: createDate,
-        accounts: accounts,
-        sessions: sessions,
-        membership: membership,
-        invitedMembers: invitedMembers,
-        webhooks: webhooks,
-        apiKey: input.apiKey,
-        createdWorkspaces: createdWorkspaces,
-        projects: projects,
-        customerPayment: customerPaymentId,
-      };
-      try {
-        await USER_MODEL.validate(resolvedInput);
-      } catch (err) {
-        throw new error.DataValidationError(
-          'An error occurred while validating the document before creating it.  See the inner error for additional information',
-          'IUserDocument',
-          resolvedInput,
-          err
-        );
-      }
-      const userDocument = (
-        await USER_MODEL.create([resolvedInput], {validateBeforeSave: false})
-      )[0];
-      id = userDocument._id;
+    const resolvedInput: IUserDocument = {
+      userCode: input.userCode,
+      name: input.name,
+      username: input.username,
+      gh_username: input.gh_username,
+      email: input.email,
+      emailVerified: input.emailVerified,
+      isVerified: input.isVerified,
+      image: input.image,
+      createdAt: createDate,
+      updatedAt: createDate,
+      accounts: accounts,
+      sessions: sessions,
+      membership: membership,
+      invitedMembers: invitedMembers,
+      webhooks: webhooks,
+      apiKey: input.apiKey,
+      createdWorkspaces: createdWorkspaces,
+      projects: projects,
+      customerPayment: customerPaymentId,
+    };
+    try {
+      await USER_MODEL.validate(resolvedInput);
     } catch (err) {
-      if (err instanceof error.DataValidationError) throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while adding the user.  See the inner error for additional details',
-          'mongoDb',
-          'add User',
-          {},
-          err
-        );
-      }
-    }
-    if (id) return await USER_MODEL.getUserById(id);
-    else
-      throw new error.UnexpectedError(
-        'An unexpected error has occurred and the user may not have been created.  I have no other information to provide.'
+      throw new error.DataValidationError(
+        'An error occurred while validating the document before creating it.  See the inner error for additional information',
+        'IUserDocument',
+        resolvedInput,
+        err
       );
+    }
+    const userDocument = (
+      await USER_MODEL.create([resolvedInput], {validateBeforeSave: false})
+    )[0];
+    id = userDocument._id;
+  } catch (err) {
+    if (err instanceof error.DataValidationError) throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An Unexpected Error occurred while adding the user.  See the inner error for additional details',
+        'mongoDb',
+        'add User',
+        {},
+        err
+      );
+    }
   }
-);
+  if (id) return await USER_MODEL.getUserById(id);
+  else
+    throw new error.UnexpectedError(
+      'An unexpected error has occurred and the user may not have been created.  I have no other information to provide.'
+    );
+});
 
 SCHEMA.static(
   'deleteUserById',
