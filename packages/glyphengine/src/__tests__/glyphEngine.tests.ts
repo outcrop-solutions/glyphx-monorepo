@@ -8,7 +8,7 @@ import {Readable} from 'node:stream';
 import * as helperFunctions from './glyphEnginHelpers';
 import {XMLParser} from 'fast-xml-parser';
 
-describe.only('GlyphEngine', () => {
+describe('GlyphEngine', () => {
   context('constructor', () => {
     it('will construct a new GlyphEngineObject', () => {
       const inputBucketName = 'testInputBucketName';

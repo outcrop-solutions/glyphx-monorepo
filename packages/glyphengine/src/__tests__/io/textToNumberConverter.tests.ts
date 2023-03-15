@@ -154,4 +154,29 @@ describe('TextToNumberConverter', () => {
       assert.isTrue(errored);
     });
   });
+  context('get size', () => {
+    const sandbox = createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will get the size of our converted data', async () => {
+      sandbox.replaceGetter(
+        athenaClient,
+        'connection',
+        () => new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager
+      );
+
+      const tableName = 'testTableName';
+      const columnName = 'colA';
+      const converter = new TextColumnToNumberConverter(
+        tableName,
+        columnName
+      ) as any;
+
+      await converter.load();
+
+      assert.strictEqual(converter.size, MOCK_DATA.length);
+    });
+  });
 });

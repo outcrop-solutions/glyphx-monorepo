@@ -6,6 +6,10 @@ export class TextColumnToNumberConverter {
   private readonly columnName: string;
   private readonly convertedFields: Map<string, number>;
 
+  public get size(): number {
+    return this.convertedFields.size;
+  }
+
   constructor(tableName: string, columnName: string) {
     this.tableName = tableName;
     this.columnName = columnName;

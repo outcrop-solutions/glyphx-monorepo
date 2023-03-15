@@ -1,1 +1,1 @@
-export {SdtReader} from './sdtReader';
+export {SdtParser} from './sdtParser';

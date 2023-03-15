@@ -15,7 +15,7 @@ export interface ISdtTransform {
   Defaults: ISdtDefaults;
   SceneProperties: ISdtSceneProperties;
   FieldGroups: string;
-  InputFields: ISdtInputField[];
+  InputFields: {InputField: ISdtInputField[]};
   ElasticList: ISdtElasticField[];
   FieldPropertiesList: string;
   '@_id': string;
