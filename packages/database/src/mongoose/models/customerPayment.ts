@@ -215,14 +215,18 @@ SCHEMA.static(
   async (
     input: ICustomerPaymentCreateInput
   ): Promise<databaseTypes.ICustomerPayment> => {
-    const userExists = await UserModel.userIdExists(
-      input.customer._id as mongooseTypes.ObjectId
-    );
+    const customerId =
+      input.customer instanceof mongooseTypes.ObjectId
+        ? input.customer
+        : new mongooseTypes.ObjectId(input.customer._id);
+
+    const userExists = await UserModel.userIdExists(customerId);
+
     if (!userExists)
       throw new error.InvalidArgumentError(
-        `A customer with _id : ${input.customer._id} cannot be found`,
+        `A customer with _id : ${customerId} cannot be found`,
         'customer._id',
-        input.customer._id
+        customerId
       );
 
     const createDate = new Date();
@@ -235,7 +239,7 @@ SCHEMA.static(
       subscriptionType:
         input.subscriptionType ||
         databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
-      customer: input.customer._id as mongooseTypes.ObjectId,
+      customer: customerId,
     };
 
     try {

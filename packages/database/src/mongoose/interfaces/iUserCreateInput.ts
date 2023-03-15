@@ -27,5 +27,5 @@ export interface IUserCreateInput
   createdWorkspaces: (mongooseTypes.ObjectId | databaseTypes.IWorkspace)[];
   webhooks: (mongooseTypes.ObjectId | databaseTypes.IWebhook)[];
   projects: (mongooseTypes.ObjectId | databaseTypes.IProject)[];
-  customerPayment: mongooseTypes.ObjectId | databaseTypes.ICustomerPayment;
+  customerPayment?: mongooseTypes.ObjectId | databaseTypes.ICustomerPayment;
 }

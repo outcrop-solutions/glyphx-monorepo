@@ -13,7 +13,7 @@ export interface IMemberCreateInput
     | 'invitedBy'
     | 'workspace'
   > {
-  member: mongooseTypes.ObjectId | databaseTypes.IMember;
+  member: mongooseTypes.ObjectId | databaseTypes.IUser;
   invitedBy: mongooseTypes.ObjectId | databaseTypes.IUser;
   workspace: mongooseTypes.ObjectId | databaseTypes.IWorkspace;
 }

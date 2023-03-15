@@ -220,43 +220,59 @@ SCHEMA.static(
 SCHEMA.static(
   'createMember',
   async (input: IMemberCreateInput): Promise<databaseTypes.IMember> => {
-    const newMemberExists = await UserModel.userIdExists(
-      input.member._id as mongooseTypes.ObjectId
-    );
+    const memberId =
+      input.member instanceof mongooseTypes.ObjectId
+        ? input.member
+        : new mongooseTypes.ObjectId(input.member._id);
+
+    const invitedById =
+      input.invitedBy instanceof mongooseTypes.ObjectId
+        ? input.invitedBy
+        : new mongooseTypes.ObjectId(input.invitedBy._id);
+
+    const workspaceId =
+      input.workspace instanceof mongooseTypes.ObjectId
+        ? input.workspace
+        : new mongooseTypes.ObjectId(input.workspace._id);
+
+    const newMemberExists = await UserModel.userIdExists(memberId);
     if (!newMemberExists)
       throw new error.InvalidArgumentError(
-        `A new member with _id : ${input.member._id} cannot be found`,
+        `A new member with _id : ${memberId} cannot be found`,
         'member._id',
-        input.member._id
+        memberId
       );
-    const userExists = await UserModel.userIdExists(
-      input.invitedBy._id as mongooseTypes.ObjectId
-    );
+    const userExists = await UserModel.userIdExists(invitedById);
     if (!userExists)
       throw new error.InvalidArgumentError(
-        `A user with _id : ${input.invitedBy._id} cannot be found`,
+        `A user with _id : ${invitedById} cannot be found`,
         'user._id',
-        input.invitedBy._id
+        invitedById
       );
 
-    const workspaceExists = await WorkspaceModel.workspaceIdExists(
-      input.workspace._id as mongooseTypes.ObjectId
-    );
+    const workspaceExists = await WorkspaceModel.workspaceIdExists(workspaceId);
     if (!workspaceExists)
       throw new error.InvalidArgumentError(
-        `A workspace with _id : ${input.workspace._id} cannot be found`,
+        `A workspace with _id : ${workspaceId} cannot be found`,
         'workspace._id',
-        input.workspace._id
+        workspaceId
       );
 
+    let member;
+    if (input.member instanceof mongooseTypes.ObjectId) {
+      member = await UserModel.getUserById(input.member);
+    }
     const memberEmailExists = await MEMBER_MODEL.memberEmailExists(
-      input.member.email as string
+      member?.email as string
     );
+
     if (memberEmailExists)
       throw new error.InvalidArgumentError(
-        `A member with email : ${input.member.email} already exists`,
+        `A member with email : ${
+          (input.member as databaseTypes.IUser).email
+        } already exists`,
         'member.email',
-        input.member.email
+        (input.member as databaseTypes.IUser).email
       );
 
     const createDate = new Date();
@@ -269,9 +285,9 @@ SCHEMA.static(
       updatedAt: createDate,
       status: input.status ?? databaseTypes.constants.INVITATION_STATUS.PENDING,
       teamRole: input.teamRole ?? databaseTypes.constants.ROLE.MEMBER,
-      member: input.member._id as mongooseTypes.ObjectId,
-      invitedBy: input.invitedBy._id as mongooseTypes.ObjectId,
-      workspace: input.workspace._id as mongooseTypes.ObjectId,
+      member: memberId,
+      invitedBy: invitedById,
+      workspace: workspaceId,
     };
 
     try {

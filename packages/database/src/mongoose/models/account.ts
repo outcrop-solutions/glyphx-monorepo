@@ -285,12 +285,15 @@ SCHEMA.static(
 SCHEMA.static(
   'createAccount',
   async (input: IAccountCreateInput): Promise<databaseTypes.IAccount> => {
-    const userExists = await UserModel.userIdExists(
-      input.user._id as mongooseTypes.ObjectId
-    );
+    const userId =
+      input.user instanceof mongooseTypes.ObjectId
+        ? input.user
+        : new mongooseTypes.ObjectId(input.user._id);
+
+    const userExists = await UserModel.userIdExists(userId);
     if (!userExists)
       throw new error.InvalidArgumentError(
-        `A user with _id : ${input.user._id} cannot be found`,
+        `A user with _id : ${userId} cannot be found`,
         'user._id',
         input.user._id
       );
@@ -309,7 +312,7 @@ SCHEMA.static(
       session_state: input.session_state,
       oauth_token: input.oauth_token,
       oauth_token_secret: input.oauth_token_secret,
-      user: input.user._id as mongooseTypes.ObjectId,
+      user: userId,
     };
 
     try {
