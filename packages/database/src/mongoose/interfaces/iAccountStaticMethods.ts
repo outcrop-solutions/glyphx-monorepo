@@ -1,13 +1,12 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IAccountMethods} from './iAccountMethods';
+import {IAccountCreateInput} from './iAccountCreateInput';
 export interface IAccountStaticMethods
   extends Model<databaseTypes.IAccount, {}, IAccountMethods> {
   accountIdExists(accountId: mongooseTypes.ObjectId): Promise<boolean>;
   allAccountIdsExist(accountIds: mongooseTypes.ObjectId[]): Promise<boolean>;
-  createAccount(
-    input: Omit<databaseTypes.IAccount, '_id'>
-  ): Promise<databaseTypes.IAccount>;
+  createAccount(input: IAccountCreateInput): Promise<databaseTypes.IAccount>;
   getAccountById(
     accountId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IAccount>;

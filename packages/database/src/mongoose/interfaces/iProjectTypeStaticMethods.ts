@@ -1,11 +1,12 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IProjectTypeMethods} from './iProjectTypeMethods';
+import {IProjectCreateInput} from './iProjectCreateInput';
 export interface IProjectTypeStaticMethods
   extends Model<databaseTypes.IProjectType, {}, IProjectTypeMethods> {
   projectTypeIdExists(projectTypeId: mongooseTypes.ObjectId): Promise<boolean>;
   createProjectType(
-    input: Omit<databaseTypes.IProjectType, '_id'>
+    input: IProjectCreateInput
   ): Promise<databaseTypes.IProjectType>;
   getProjectTypeById(
     projectTypeId: mongooseTypes.ObjectId

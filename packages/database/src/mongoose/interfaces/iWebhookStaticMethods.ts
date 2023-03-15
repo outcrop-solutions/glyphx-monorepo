@@ -1,13 +1,12 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IWebhookMethods} from './iWebhookMethods';
+import {IWebhookCreateInput} from './iWebhookCreateInput';
 export interface IWebhookStaticMethods
   extends Model<databaseTypes.IWebhook, {}, IWebhookMethods> {
   webhookIdExists(webhookId: mongooseTypes.ObjectId): Promise<boolean>;
   allWebhookIdsExist(webhookIds: mongooseTypes.ObjectId[]): Promise<boolean>;
-  createWebhook(
-    input: Omit<databaseTypes.IWebhook, '_id'>
-  ): Promise<databaseTypes.IWebhook>;
+  createWebhook(input: IWebhookCreateInput): Promise<databaseTypes.IWebhook>;
   getWebhookById(
     webhookId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IWebhook>;

@@ -1,6 +1,7 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {ICustomerPaymentMethods} from './iCustomerPaymentMethods';
+import {ICustomerPaymentCreateInput} from './iCustomerPaymentCreateInput';
 export interface ICustomerPaymentStaticMethods
   extends Model<databaseTypes.ICustomerPayment, {}, ICustomerPaymentMethods> {
   customerPaymentIdExists(
@@ -10,7 +11,7 @@ export interface ICustomerPaymentStaticMethods
     customerPaymentIds: mongooseTypes.ObjectId[]
   ): Promise<boolean>;
   createCustomerPayment(
-    input: Omit<databaseTypes.ICustomerPayment, '_id'>
+    input: ICustomerPaymentCreateInput
   ): Promise<databaseTypes.ICustomerPayment>;
   getCustomerPaymentById(
     customerPaymentId: mongooseTypes.ObjectId
