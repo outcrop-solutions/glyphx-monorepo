@@ -78,11 +78,12 @@ export class UserService {
           ? userId
           : new mongooseTypes.ObjectId(userId);
 
-      // @jp: we need to standardized unsetting properties i.e emailVerified here (Date => null)
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         email,
         emailVerified: undefined,
       });
+
+      // TODO: update member.inviter and member.email on corresponding member models
 
       await EmailClient.sendMail({
         html: updateHtml({email}),

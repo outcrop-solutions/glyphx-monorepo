@@ -478,10 +478,10 @@ SCHEMA.static(
       //to the user.
       projectDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
-        delete (doc as any).workspace['__v'];
-        delete (doc as any).owner['__v'];
-        delete (doc as any).type?.['__v'];
-        delete (doc as any).state?.['__v'];
+        delete (doc as any)?.workspace?.__v;
+        delete (doc as any)?.owner?.__v;
+        delete (doc as any)?.type?.__v;
+        delete (doc as any)?.state?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.IProject> = {

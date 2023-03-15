@@ -181,7 +181,7 @@ SCHEMA.static(
       //to the user.
       paymentDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
-        delete (doc as any).customer['__v'];
+        delete (doc as any)?.customer?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.ICustomerPayment> = {

@@ -115,7 +115,7 @@ const Team = ({ isTeamOwner, workspace }) => {
                         onChange={(event) => handleRoleChange(event, index)}
                       >
                         {Object.keys(databaseTypes.constants.ROLE)
-                          .filter((key, index) => typeof key === 'number')
+                          .filter((key, idx) => idx > 1)
                           .map((key, idx) => (
                             <option key={index} value={databaseTypes.constants.ROLE[`${key}`]}>
                               {databaseTypes.constants.ROLE[`${idx}`].toLowerCase()}
@@ -176,8 +176,8 @@ const Team = ({ isTeamOwner, workspace }) => {
                       <td className="py-5">
                         <div className="flex flex-row items-center justify-start space-x-3">
                           <div className="flex flex-col">
-                            <h3 className="font-bold">{member.member.name}</h3>
-                            <h4 className="text-gray-400">{member.email}</h4>
+                            <h3 className="font-bold">{member?.member?.name}</h3>
+                            <h4 className="text-gray-400">{member?.email}</h4>
                           </div>
                         </div>
                       </td>
@@ -193,12 +193,12 @@ const Team = ({ isTeamOwner, workspace }) => {
                                 : 'bg-red-200 text-red-600',
                             ].join(' ')}
                           >
-                            {databaseTypes.constants.INVITATION_STATUS[`${member.status}`].toLowerCase()}
+                            {databaseTypes.constants.INVITATION_STATUS[`${member?.status}`].toLowerCase()}
                           </span>
                           <h4 className="capitalize">
-                            {databaseTypes.constants.ROLE[`${member.teamRole}`].toLowerCase()}
+                            {databaseTypes.constants.ROLE[`${member?.teamRole}`].toLowerCase()}
                           </h4>
-                          {workspace?.creator.email !== member.email && isTeamOwner && (
+                          {workspace?.creator?.email !== member?.email && isTeamOwner && (
                             <Menu as="div" className="relative inline-block text-left">
                               <div>
                                 <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-secondary-midnight">
@@ -223,7 +223,7 @@ const Team = ({ isTeamOwner, workspace }) => {
                                       >
                                         <span>
                                           Change role to &quot;
-                                          {member.teamRole === 0
+                                          {member?.teamRole === 0
                                             ? databaseTypes.constants.ROLE[`${1}`]
                                             : databaseTypes.constants.ROLE[`${0}`]}
                                           &quot;
@@ -233,7 +233,7 @@ const Team = ({ isTeamOwner, workspace }) => {
                                     <Menu.Item>
                                       <button
                                         className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
-                                        onClick={() => removeMember(member.id)}
+                                        onClick={() => removeMember(member?.id)}
                                       >
                                         <span>Remove Team Member</span>
                                       </button>

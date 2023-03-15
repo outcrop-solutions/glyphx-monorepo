@@ -11,7 +11,7 @@ import Content from 'components/Content';
 import Meta from 'components/Meta';
 import Modal from 'components/Modal';
 import { AccountLayout } from 'layouts';
-import { _deactivateAccount, _updateUserName, api } from 'lib';
+import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib';
 import { userService, Initializer } from '@glyphx/business';
 
 const Settings = ({ user }) => {
@@ -45,7 +45,7 @@ const Settings = ({ user }) => {
     const result = confirm('Are you sure you want to update your email address?');
     if (result) {
       api({
-        ..._updateUserName(name),
+        ..._updateUserEmail(email),
         setLoading: setSubmittingState,
        
         onSuccess: () => setTimeout(() => signOut({ callbackUrl: '/auth/login' }), 2000),

@@ -9,7 +9,7 @@ import {workspaceService} from '../../services';
 import {v4} from 'uuid';
 import {EmailClient} from '@glyphx/email';
 
-describe.only('#services/workspace', () => {
+describe('#services/workspace', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
 
@@ -76,7 +76,7 @@ describe.only('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context.only('createWorkspace', () => {
+  context('createWorkspace', () => {
     it('will create a Workspace with user associated as creator', async () => {
       const workspaceId = new mongooseTypes.ObjectId();
       const workspaceName = 'testWorkspaceName';
@@ -216,6 +216,56 @@ describe.only('#services/workspace', () => {
         createWorkspaceFromModelStub
       );
 
+      const createMemberFromModelStub = sandbox.stub();
+      createMemberFromModelStub.resolves({
+        _id: workspaceId,
+        email: creatorEmail,
+        inviter: creatorEmail,
+        workspace: {
+          _id: workspaceId,
+        } as unknown as databaseTypes.IWorkspace,
+        invitedBy: {
+          _id: creatorId,
+          email: creatorEmail,
+        } as unknown as databaseTypes.IUser,
+        member: {
+          _id: creatorId,
+          email: creatorEmail,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createMember',
+        createMemberFromModelStub
+      );
+
+      const addMembersFromWorkspaceModel = sandbox.stub();
+      addMembersFromWorkspaceModel.resolves({
+        _id: workspaceId,
+        inviteCode,
+        workspaceCode,
+        slug: `${workspaceSlug}-${count}`,
+        creator: {
+          _id: creatorId,
+          email: creatorEmail,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'addMembers',
+        addMembersFromWorkspaceModel
+      );
+
+      const addWorkspacesFromUserModel = sandbox.stub();
+      addWorkspacesFromUserModel.resolves();
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'addWorkspaces',
+        addWorkspacesFromUserModel
+      );
+
       const sendStub = sandbox.stub();
       sendStub.resolves();
       sandbox.replace(EmailClient, 'sendMail', sendStub);
@@ -268,6 +318,57 @@ describe.only('#services/workspace', () => {
         'createWorkspace',
         createWorkspaceFromModelStub
       );
+
+      const createMemberFromModelStub = sandbox.stub();
+      createMemberFromModelStub.resolves({
+        _id: workspaceId,
+        email: creatorEmail,
+        inviter: creatorEmail,
+        workspace: {
+          _id: workspaceId,
+        } as unknown as databaseTypes.IWorkspace,
+        invitedBy: {
+          _id: creatorId,
+          email: creatorEmail,
+        } as unknown as databaseTypes.IUser,
+        member: {
+          _id: creatorId,
+          email: creatorEmail,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createMember',
+        createMemberFromModelStub
+      );
+
+      const addMembersFromWorkspaceModel = sandbox.stub();
+      addMembersFromWorkspaceModel.resolves({
+        _id: workspaceId,
+        inviteCode,
+        workspaceCode,
+        slug: `${workspaceSlug}-${count}`,
+        creator: {
+          _id: creatorId,
+          email: creatorEmail,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'addMembers',
+        addMembersFromWorkspaceModel
+      );
+
+      const addWorkspacesFromUserModel = sandbox.stub();
+      addWorkspacesFromUserModel.resolves();
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'addWorkspaces',
+        addWorkspacesFromUserModel
+      );
+
 
       const sendStub = sandbox.stub();
       sendStub.resolves();

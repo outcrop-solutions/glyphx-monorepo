@@ -169,9 +169,9 @@ SCHEMA.static(
         .lean()) as databaseTypes.IAccount[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      accountDocuments.forEach((doc: any) => {
+      accountDocuments?.forEach((doc: any) => {
         delete (doc as any)['__v'];
-        delete (doc as any).user['__v'];
+        delete (doc as any)?.user?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.IAccount> = {

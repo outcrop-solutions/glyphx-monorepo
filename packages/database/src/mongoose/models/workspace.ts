@@ -357,9 +357,9 @@ SCHEMA.static(
           workspaceId
         );
       delete (workspaceDocument as any)['__v'];
-      delete (workspaceDocument as any).creator['__v'];
-      workspaceDocument.members.forEach((m: any) => delete (m as any)['__v']);
-      workspaceDocument.projects.forEach((p: any) => delete (p as any)['__v']);
+      delete (workspaceDocument as any).creator?.__v;
+      workspaceDocument.members?.forEach((m: any) => delete (m as any)['__v']);
+      workspaceDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
 
       return workspaceDocument;
     } catch (err) {

@@ -186,9 +186,9 @@ SCHEMA.static(
       //to the user.
       memberDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
-        delete (doc as any).member['__v'];
-        delete (doc as any).invitedBy['__v'];
-        delete (doc as any).workspace['__v'];
+        delete (doc as any)?.member?.__v;
+        delete (doc as any)?.invitedBy?.__v;
+        delete (doc as any)?.workspace?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.IMember> = {

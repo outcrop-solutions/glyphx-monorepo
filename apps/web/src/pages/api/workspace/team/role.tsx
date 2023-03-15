@@ -3,7 +3,7 @@ import { database as databaseTypes } from '@glyphx/types';
 import { validateSession, membershipService, Initializer } from '@glyphx/business';
 
 const handler = async (req, res) => {
-  await Initializer.init()
+  await Initializer.init();
   const { method } = req;
 
   if (method === 'PUT') {
@@ -12,8 +12,7 @@ const handler = async (req, res) => {
     const member = membershipService.getMember(memberId);
     await membershipService.toggleRole(
       memberId,
-      // @ts-ignore
-      member.teamRole === database.constants.ROLE.MEMBER
+      member.teamRole === databaseTypes.constants.ROLE.MEMBER
         ? databaseTypes.constants.ROLE.OWNER
         : databaseTypes.constants.ROLE.MEMBER
     );
