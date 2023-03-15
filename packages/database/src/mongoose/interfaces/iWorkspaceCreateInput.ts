@@ -8,5 +8,5 @@ export interface IWorkspaceCreateInput
   > {
   creator: mongooseTypes.ObjectId | databaseTypes.IUser;
   members: (mongooseTypes.ObjectId | databaseTypes.IMember)[];
-  projects: (mongooseTypes.ObjectId | databaseTypes.IWorkspace)[];
+  projects: (mongooseTypes.ObjectId | databaseTypes.IProject)[];
 }
