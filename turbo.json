@@ -4,6 +4,9 @@
     "lint": {
       "outputs": []
     },
+    "fix": {
+      "outputs": []
+    },
     "format": {
       "outputs": []
     },

@@ -21,5 +21,13 @@
   },
   "debug.javascript.unmapMissingSources": true,
   "peacock.color": "#007fff",
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "spellright.language": [
+    "en"
+  ],
+  "spellright.documentTypes": [
+    "markdown",
+    "latex",
+    "plaintext"
+  ]
 }
