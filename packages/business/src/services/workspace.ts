@@ -383,7 +383,7 @@ export class WorkspaceService {
         err instanceof error.DataNotFoundError ||
         err instanceof error.InvalidArgumentError
       ) {
-        // err.publish('', constants.ERROR_SEVERITY.WARNING);
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
         const e = new error.DataServiceError(

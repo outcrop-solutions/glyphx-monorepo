@@ -306,7 +306,7 @@ describe('#services/workspace', () => {
         _id: workspaceId,
         inviteCode,
         workspaceCode,
-        slug: workspaceSlug,
+        slug: `${workspaceSlug}-${count}`,
         creator: {
           _id: creatorId,
           email: creatorEmail,
@@ -369,7 +369,6 @@ describe('#services/workspace', () => {
         addWorkspacesFromUserModel
       );
 
-
       const sendStub = sandbox.stub();
       sendStub.resolves();
       sandbox.replace(EmailClient, 'sendMail', sendStub);
@@ -384,7 +383,7 @@ describe('#services/workspace', () => {
       assert.isTrue(createWorkspaceFromModelStub.calledOnce);
       assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
       assert.isTrue(sendStub.calledOnce);
-      assert.strictEqual(workspaceSlug, doc?.slug);
+      assert.strictEqual(`${workspaceSlug}-${count}`, doc?.slug);
       assert.strictEqual(doc?.creator._id, creatorId);
     });
     it('will publish and rethrow a DataServiceError when workspace service throws it ', async () => {
@@ -1286,7 +1285,7 @@ describe('#services/workspace', () => {
                 _id: userId,
                 email: userEmail,
                 teamRole: databaseTypes.constants.ROLE.OWNER,
-                deletedAt: null,
+                deletedAt: undefined,
               } as unknown as databaseTypes.IUser,
             ],
           },
@@ -1861,7 +1860,7 @@ describe('#services/workspace', () => {
                 _id: userId,
                 email: userEmail,
                 teamRole: databaseTypes.constants.ROLE.MEMBER,
-                deletedAt: null,
+                deletedAt: undefined,
               } as unknown as databaseTypes.IUser,
             ],
           },
@@ -2105,7 +2104,7 @@ describe('#services/workspace', () => {
                 _id: userId,
                 email: userEmail,
                 status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-                deletedAt: null,
+                deletedAt: undefined,
               } as unknown as databaseTypes.IUser,
             ],
           },

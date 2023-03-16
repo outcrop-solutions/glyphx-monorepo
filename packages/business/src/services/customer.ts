@@ -16,7 +16,7 @@ export class CustomerPaymentService {
       return customerPayment;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
-        // err.publish('', constants.ERROR_SEVERITY.WARNING);
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
         const e = new error.DataServiceError(
@@ -45,7 +45,7 @@ export class CustomerPaymentService {
       // add to the user
       // add user to the customerpayment
       const paymentAccount = await StripeClient.createCustomer(email);
-      console.dir({paymentAccount}, {depth: null});
+
       const input = {
         email,
         paymentId: paymentAccount.id,
