@@ -444,6 +444,8 @@ describe('#/secrets/secretClassDecorator', () => {
     let secretsManagerMock: any;
 
     beforeEach(() => {
+      /* eslint-disable-next-line */
+      //@ts-ignore
       secretsManagerMock = mockClient(SecretsManager);
     });
 
