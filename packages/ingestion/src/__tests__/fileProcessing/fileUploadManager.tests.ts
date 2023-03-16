@@ -9,6 +9,7 @@ import {mockClient} from 'aws-sdk-client-mock';
 import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {tableService} from '@glyphx/business';
+import {Upload} from '@aws-sdk/lib-storage';
 
 import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 
@@ -40,6 +41,8 @@ describe('#fileProcessing/fileUploadManager', () => {
     beforeEach(() => {
       // eslint-disable-next-line
       inputStream = Readable.from(INPUT_DATA);
+      /* eslint-disable-next-line */
+      //@ts-ignore
       s3Mock = mockClient(S3);
     });
     afterEach(() => {
@@ -98,6 +101,10 @@ describe('#fileProcessing/fileUploadManager', () => {
       s3Mock.on(PutObjectCommand).rejects('an error has occurrred');
       s3Mock.on(HeadBucketCommand).resolves(true);
 
+      const doneStub = sandbox.stub();
+      doneStub.rejects('an error has occurred');
+      sandbox.replace(Upload.prototype, 'done', doneStub);
+
       const tableServiceStub = sandbox.stub();
       tableServiceStub.rejects(
         'getMaxRowId shouild not be getting called for an add'
@@ -140,6 +147,8 @@ describe('#fileProcessing/fileUploadManager', () => {
     beforeEach(() => {
       // eslint-disable-next-line
       inputStream = Readable.from(INPUT_DATA);
+      /* eslint-disable-next-line */
+      //@ts-ignore
       s3Mock = mockClient(S3);
     });
     afterEach(() => {

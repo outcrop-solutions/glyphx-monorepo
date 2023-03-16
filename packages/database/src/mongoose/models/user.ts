@@ -101,20 +101,20 @@ SCHEMA.static(
       //
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      userDocuments.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-        delete (doc as any).customerPayment['__v'];
-        (doc as any).accounts.forEach((p: any) => delete (p as any)['__v']);
-        (doc as any).sessions.forEach((p: any) => delete (p as any)['__v']);
-        (doc as any).membership.forEach((p: any) => delete (p as any)['__v']);
-        (doc as any).invitedMembers.forEach(
-          (p: any) => delete (p as any)['__v']
+      userDocuments?.forEach((doc: any) => {
+        delete (doc as any)?.__v;
+        delete (doc as any).customerPayment?.__v;
+        (doc as any).accounts?.forEach((p: any) => delete (p as any)?.__v);
+        (doc as any).sessions?.forEach((p: any) => delete (p as any)?.__v);
+        (doc as any).membership?.forEach((p: any) => delete (p as any)?.__v);
+        (doc as any).invitedMembers?.forEach(
+          (p: any) => delete (p as any)?.__v
         );
-        (doc as any).createdWorkspaces.forEach(
-          (p: any) => delete (p as any)['__v']
+        (doc as any).createdWorkspaces?.forEach(
+          (p: any) => delete (p as any)?.__v
         );
-        (doc as any).projects.forEach((p: any) => delete (p as any)['__v']);
-        (doc as any).webhooks.forEach((p: any) => delete (p as any)['__v']);
+        (doc as any).projects?.forEach((p: any) => delete (p as any)?.__v);
+        (doc as any).webhooks?.forEach((p: any) => delete (p as any)?.__v);
       });
 
       const retval: IQueryResult<databaseTypes.IUser> = {

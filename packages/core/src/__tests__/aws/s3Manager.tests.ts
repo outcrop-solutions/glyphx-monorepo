@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {
-  S3,
+  S3Client,
   GetObjectCommand,
   HeadBucketCommand,
   HeadObjectCommand,
@@ -39,7 +39,9 @@ describe('#aws/s3Manager', () => {
     let s3Mock: any;
 
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {
@@ -80,7 +82,9 @@ describe('#aws/s3Manager', () => {
     let s3Mock: any;
 
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {
@@ -171,7 +175,9 @@ describe('#aws/s3Manager', () => {
   context('getFileInformation', () => {
     let s3Mock: any;
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {
@@ -217,7 +223,9 @@ describe('#aws/s3Manager', () => {
   context('getObjectStream', () => {
     let s3Mock: any;
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {
@@ -262,7 +270,9 @@ describe('#aws/s3Manager', () => {
   context('getUploadStream', () => {
     let s3Mock: any;
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {
@@ -291,7 +301,9 @@ describe('#aws/s3Manager', () => {
   context('removeObject', () => {
     let s3Mock: any;
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {
@@ -333,7 +345,9 @@ describe('#aws/s3Manager', () => {
   context('fileExists', () => {
     let s3Mock: any;
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {
