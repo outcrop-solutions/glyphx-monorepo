@@ -39,6 +39,8 @@ describe('#fileProcessing/fileUploadManager', () => {
     beforeEach(() => {
       // eslint-disable-next-line
       inputStream = Readable.from(INPUT_DATA);
+      /* eslint-disable-next-line */
+      //@ts-ignore
       s3Mock = mockClient(S3);
     });
     afterEach(() => {
@@ -139,6 +141,8 @@ describe('#fileProcessing/fileUploadManager', () => {
     beforeEach(() => {
       // eslint-disable-next-line
       inputStream = Readable.from(INPUT_DATA);
+      /* eslint-disable-next-line */
+      //@ts-ignore
       s3Mock = mockClient(S3);
     });
     afterEach(() => {
