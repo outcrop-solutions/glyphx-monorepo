@@ -17,6 +17,9 @@
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
   },
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "author": "JP Burford",
   "license": "ISC",
   "lint-staged": {

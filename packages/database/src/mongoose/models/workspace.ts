@@ -160,7 +160,6 @@ SCHEMA.static(
         ? user
         : (user._id as mongooseTypes.ObjectId);
 
-    console.log({user});
     const idExists = await UserModel.userIdExists(userId);
     if (idExists) return userId;
     else
@@ -552,7 +551,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedProjects = workspaceDocument.projects.filter(p => {
+      const updatedProjects = workspaceDocument.projects.filter((p: any) => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -677,7 +676,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedMembers = workspaceDocument.members.filter(m => {
+      const updatedMembers = workspaceDocument.members.filter((m: any) => {
         let retval = true;
         if (
           reconciledIds.find(

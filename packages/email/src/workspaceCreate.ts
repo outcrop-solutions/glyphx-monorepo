@@ -1,7 +1,7 @@
-type code = string | null;
-type name = string | null;
+type Codee = string | null;
+type Name = string | null;
 
-function html({ code, name }: { code: code; name: name }): string {
+function html({ code, name }: { code: Codee; name: Name }): string {
   const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code || '')}`;
 
   return `
@@ -16,7 +16,7 @@ function html({ code, name }: { code: code; name: name }): string {
 `;
 }
 
-function text({ code, name }: { code: code; name: name }): string {
+function text({ code, name }: { code: Codee; name: Name }): string {
   const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code || '')}`;
 
   return `

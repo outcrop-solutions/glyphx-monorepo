@@ -1,6 +1,6 @@
-type email = string | null;
-type url = string | null;
-function html({ email, url }: { email: email; url: url }): string {
+type Email = string | null;
+type Url = string | null;
+function html({ email, url }: { email: Email; url: Url }): string {
   return `
 <body>
     <p>Welcome! You are logging in with ${email}</p>
@@ -13,7 +13,7 @@ function html({ email, url }: { email: email; url: url }): string {
 `;
 }
 
-function text({ email, url }: { email: email; url: url }): string {
+function text({ email, url }: { email: Email; url: Url }): string {
   return `
 Welcome! You are logging in with ${email}
 
