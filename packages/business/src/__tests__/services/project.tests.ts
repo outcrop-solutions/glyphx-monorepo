@@ -132,6 +132,110 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
+  context('getProjects', () => {
+    it('should get projects by filter', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'project1';
+      const projectFilter = {name: projectName};
+
+      const queryProjectsFromModelStub = sandbox.stub();
+      queryProjectsFromModelStub.resolves({
+        results: [
+          {
+            _id: projectId,
+            name: projectName,
+          },
+        ],
+      } as unknown as databaseTypes.IProject[]);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'queryProjects',
+        queryProjectsFromModelStub
+      );
+
+      const projects = await projectService.getProjects(projectFilter);
+      assert.isOk(projects![0]);
+      assert.strictEqual(projects![0].name?.toString(), projectName.toString());
+      assert.isTrue(queryProjectsFromModelStub.calledOnce);
+    });
+    it('will log the failure and return null if the projects cannot be found', async () => {
+      const projectName = 'projectName1';
+      const projectFilter = {name: projectName};
+      const errMessage = 'Cannot find the project';
+      const err = new error.DataNotFoundError(
+        errMessage,
+        'name',
+        projectFilter
+      );
+      const getProjectFromModelStub = sandbox.stub();
+      getProjectFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'queryProjects',
+        getProjectFromModelStub
+      );
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DataNotFoundError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const project = await projectService.getProjects(projectFilter);
+      assert.notOk(project);
+
+      assert.isTrue(getProjectFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
+      const projectName = 'projectName1';
+      const projectFilter = {name: projectName};
+      const errMessage = 'Something Bad has happened';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongoDb',
+        'getProjectByEmail'
+      );
+      const getProjectFromModelStub = sandbox.stub();
+      getProjectFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'queryProjects',
+        getProjectFromModelStub
+      );
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.getProjects(projectFilter);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(getProjectFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
   context('getProjectFileStats', () => {
     it("should get a project's file stats by id", async () => {
       const projectId = new mongooseTypes.ObjectId();

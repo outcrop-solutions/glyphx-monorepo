@@ -36,6 +36,31 @@ export class ProjectService {
     }
   }
 
+  public static async getProjects(
+    filter?: Record<string, unknown>
+  ): Promise<databaseTypes.IProject[] | null> {
+    try {
+      const projects =
+        await mongoDbConnection.models.ProjectModel.queryProjects(filter);
+      return projects?.results;
+    } catch (err: any) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting projects. See the inner error for additional details',
+          'project',
+          'getProjects',
+          {filter},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
   public static async getProjectFileStats(
     id: mongooseTypes.ObjectId | string
   ): Promise<fileIngestionTypes.IFileStats[]> {
