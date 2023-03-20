@@ -14,6 +14,7 @@ import ResultSetMock from './resultSetMocks.json';
 import * as error from '../../error';
 import {createSandbox} from 'sinon';
 import {fileIngestion} from '@glyphx/types';
+import {ResultSetConverter} from '../../aws/util/resultsetConverter';
 
 describe('#aws/AthenaManager', () => {
   context('init', () => {
@@ -61,6 +62,7 @@ describe('#aws/AthenaManager', () => {
 
   context('Run Query', () => {
     let athenaMock: any;
+    const sandbox = createSandbox();
 
     beforeEach(() => {
       athenaMock = mockClient(AthenaClient as any);
@@ -68,6 +70,7 @@ describe('#aws/AthenaManager', () => {
 
     afterEach(() => {
       athenaMock.restore();
+      sandbox.restore();
     });
     it('Should run a command with no results', async () => {
       athenaMock.on(GetDatabaseCommand).resolves(true as any);
@@ -140,7 +143,7 @@ describe('#aws/AthenaManager', () => {
       try {
         await athenaManager.runQuery('SELECT * FROM someTable LIMIT 100');
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.QueryExecutionError);
         hasErrored = true;
       }
 
@@ -170,6 +173,39 @@ describe('#aws/AthenaManager', () => {
         await athenaManager.runQuery('SELECT * FROM someTable LIMIT 100', 0.1);
       } catch (err) {
         assert.instanceOf(err, error.QueryTimeoutError);
+        hasErrored = true;
+      }
+
+      assert.isTrue(hasErrored);
+    });
+
+    it('Should throw an invalidOperationError when an unexpected eror is thrown', async () => {
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+      athenaMock.on(StartQueryExecutionCommand).resolves({
+        QueryExecutionId: 'some random id',
+      });
+
+      athenaMock.on(GetQueryExecutionCommand).resolves({
+        QueryExecution: {
+          Status: {
+            State: 'SUCCEEDED',
+          },
+        },
+      });
+
+      sandbox.replace(
+        ResultSetConverter,
+        'fromResultset',
+        sandbox.stub().throws('oops I did it again')
+      );
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+
+      let hasErrored = false;
+      try {
+        await athenaManager.runQuery('SELECT * FROM someTable LIMIT 100');
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
         hasErrored = true;
       }
 
@@ -474,6 +510,103 @@ describe('#aws/AthenaManager', () => {
         );
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+  context('StartQuery', () => {
+    let athenaMock: any;
+
+    beforeEach(() => {
+      athenaMock = mockClient(AthenaClient as any);
+    });
+
+    afterEach(() => {
+      athenaMock.restore();
+    });
+    it('Should successfully start a query', async () => {
+      const queryId = 'testQueryId';
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+      athenaMock.on(StartQueryExecutionCommand).resolves({
+        QueryExecutionId: queryId,
+      });
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const startedQueryId = await athenaManager.startQuery(
+        "Select * from  a table syntax doesn't matter"
+      );
+
+      assert.strictEqual(startedQueryId, queryId);
+    });
+
+    it('Should throw a QueryExecutionError when the underlying connection fails', async () => {
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+      athenaMock
+        .on(StartQueryExecutionCommand)
+        .rejects('something bad happened');
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.startQuery(
+          "Select * from  a table syntax doesn't matter"
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.QueryExecutionError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('getQueryStatus', () => {
+    let athenaMock: any;
+
+    beforeEach(() => {
+      athenaMock = mockClient(AthenaClient as any);
+    });
+
+    afterEach(() => {
+      athenaMock.restore();
+    });
+
+    it('Should report that the query has succeeded ', async () => {
+      const queryId = 'testQueryId';
+      const queryState = 'SUCCEEDED';
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+
+      athenaMock.on(GetQueryExecutionCommand).resolves({
+        QueryExecution: {
+          Status: {
+            State: queryState,
+          },
+        },
+      });
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const queryStatus = await athenaManager.getQueryStatus(queryId);
+
+      assert.strictEqual(queryStatus.QueryExecution?.Status?.State, queryState);
+    });
+
+    it('Should throw a QueryExecutionError if the underlying connection throws an error ', async () => {
+      const queryId = 'testQueryId';
+      const queryState = 'SUCCEEDED';
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+
+      athenaMock.on(GetQueryExecutionCommand).rejects('something bad happened');
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.getQueryStatus(queryId);
+      } catch (err) {
+        assert.instanceOf(err, error.QueryExecutionError);
         errored = true;
       }
       assert.isTrue(errored);

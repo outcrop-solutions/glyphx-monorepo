@@ -387,7 +387,9 @@ describe('#aws/s3Manager', () => {
   context('putObject', () => {
     let s3Mock: any;
     beforeEach(() => {
-      s3Mock = mockClient(S3);
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
     });
 
     afterEach(() => {

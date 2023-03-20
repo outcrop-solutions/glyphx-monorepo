@@ -329,6 +329,7 @@ importers:
       '@aws-sdk/client-secrets-manager': 3.292.0
       '@aws-sdk/lib-storage': 3.292.0
       '@aws-sdk/types': 3.292.0
+      '@aws-sdk/util-dynamodb': 3.292.0
       '@glyphx/eslint-config-glyphx-backend': workspace:*
       '@glyphx/tsconfig': workspace:*
       '@glyphx/types': workspace:*
@@ -371,6 +372,7 @@ importers:
       '@aws-sdk/client-s3': 3.292.0
       '@aws-sdk/client-secrets-manager': 3.292.0
       '@aws-sdk/lib-storage': 3.292.0_wrxvupnv7327y3ydfhkd3hvufa
+      '@aws-sdk/util-dynamodb': 3.292.0
       '@glyphx/types': link:../types
       reflect-metadata: 0.1.13
       uuid: 8.3.2
@@ -3085,7 +3087,7 @@ packages:
       '@aws-sdk/client-s3': ^3.0.0
     dependencies:
       '@aws-sdk/abort-controller': 3.292.0
-      '@aws-sdk/client-s3': 3.292.0_ocflixildv6nodmf32mklldbr4
+      '@aws-sdk/client-s3': 3.292.0
       '@aws-sdk/middleware-endpoint': 3.292.0
       '@aws-sdk/smithy-client': 3.292.0
       buffer: 5.6.0
@@ -4091,6 +4093,13 @@ packages:
       '@aws-sdk/property-provider': 3.292.0
       '@aws-sdk/types': 3.292.0
       tslib: 2.5.0
+
+  /@aws-sdk/util-dynamodb/3.292.0:
+    resolution: {integrity: sha512-RTd/LWI0KC3x1Ae8w9XmMCm39RcPZAHOqKoBzk8WFzYKmfF/wc/5kST4WOSGuCmJ6zVeesdcToARuHxiaaEEfQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      tslib: 2.5.0
+    dev: false
 
   /@aws-sdk/util-endpoints/3.292.0:
     resolution: {integrity: sha512-CvNES1YaickVE8Iu2EP4ywdiCNy8thRnyXdx7v1d39NLeTQuMWJyM/cazWQIBv0WPYOrAnjsWb5Nw05GwpwSdA==}
