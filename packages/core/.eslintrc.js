@@ -9,7 +9,7 @@ module.exports = {
     'node/no-unpublished-import': [
       'error',
       {
-        allowModules: ['chai', 'sinon', 'mocha'],
+        allowModules: ['chai', 'sinon', 'mocha', '@aws-sdk/types'],
       },
     ],
   },

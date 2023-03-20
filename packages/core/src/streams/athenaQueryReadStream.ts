@@ -9,10 +9,9 @@ export class AthenaQueryReadStream extends Readable {
   private readonly queryId: string;
   private readonly athenaManager: AthenaManager;
   private paginator?: Paginator<GetQueryResultsCommandOutput>;
-  private includeHeader = false;
-  private dataIterator?: AsyncGenerator<any, any, any>;
+  private readonly dataIterator: AsyncGenerator<any, any, any>;
   private pageSize: number;
-  constructor(athenaManager: AthenaManager, queryId: string, pageSize = 10) {
+  constructor(athenaManager: AthenaManager, queryId: string, pageSize = 1000) {
     super({objectMode: true});
     this.queryId = queryId;
     this.athenaManager = athenaManager;
@@ -22,23 +21,24 @@ export class AthenaQueryReadStream extends Readable {
 
   private async *fetchData() {
     let nextToken: string;
+    let includeHeader = false;
     try {
       const paginator = await this.athenaManager.getPagedQueryResults(
         this.queryId,
-        10
+        this.pageSize
       );
       do {
         const page = (await paginator.next()) as any;
         nextToken = page.value.NextToken;
         const convertedPage = ResultSetConverter.fromResultset(
           page.value.ResultSet as Required<ResultSet>,
-          this.includeHeader
+          includeHeader
         );
         for (let i = 0; i < convertedPage.length; i++) {
           const row = convertedPage[i];
           yield row;
         }
-        this.includeHeader = true;
+        includeHeader = true;
       } while (nextToken);
     } catch (err: any) {
       const e = new error.DatabaseOperationError(
@@ -54,9 +54,6 @@ export class AthenaQueryReadStream extends Readable {
     }
   }
   override async _read(): Promise<void> {
-    if (!this.dataIterator) {
-      this.dataIterator = this.fetchData();
-    }
     const data = await this.dataIterator.next();
     this.push(data.value);
   }
