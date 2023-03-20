@@ -56,7 +56,7 @@ export class Winston {
 
     config = {
       level: level,
-      format: format.combine(format.json(), format.colorize(), prettyPrint()),
+      format: format.combine(format.json(), format.colorize()),
       transports: definedTransports,
     };
     return config;
