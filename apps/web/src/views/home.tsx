@@ -27,7 +27,7 @@ export default function Home({ workspace }) {
   const router = useRouter();
   // useUser(); //gets user
   // useProjects(); //gets projects assigned to user
-
+  console.log({ workspace });
   // const projects = useRecoilValue(projectsAtom);
   const isGridView = useRecoilValue(isGridViewAtom);
   const projectDetails = useRecoilValue(projectDetailsAtom);

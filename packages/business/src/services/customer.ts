@@ -50,10 +50,8 @@ export class CustomerPaymentService {
         email,
         paymentId: paymentAccount.id,
         subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
-        customer: {
-          _id: id,
-        },
-      } as Omit<databaseTypes.ICustomerPayment, '_id'>;
+        customer: id,
+      };
 
       // create customer
       const customerPayment =

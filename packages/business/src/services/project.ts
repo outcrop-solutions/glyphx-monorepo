@@ -61,6 +61,71 @@ export class ProjectService {
     }
   }
 
+  public static async createProject(
+    name: string,
+    ownerId: mongooseTypes.ObjectId | string,
+    workspaceId: mongooseTypes.ObjectId | string,
+    description?: string
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const ownerCastId =
+        ownerId instanceof mongooseTypes.ObjectId
+          ? ownerId
+          : new mongooseTypes.ObjectId(ownerId);
+
+      const workspaceCastId =
+        workspaceId instanceof mongooseTypes.ObjectId
+          ? workspaceId
+          : new mongooseTypes.ObjectId(workspaceId);
+
+      const input = {
+        name,
+        description: description ?? '',
+        workspace: workspaceCastId,
+        owner: ownerCastId,
+        isTemplate: false,
+      };
+
+      // create project
+      const project = await mongoDbConnection.models.ProjectModel.createProject(
+        input
+      );
+
+      // connect project to user
+      await mongoDbConnection.models.UserModel.updateUserById(ownerCastId, {
+        projects: [project] as unknown as databaseTypes.IProject[],
+      });
+
+      // connect project to workspace
+      await mongoDbConnection.models.UserModel.updateWorkspaceById(
+        workspaceCastId,
+        {
+          projects: [project] as unknown as databaseTypes.IProject[],
+        }
+      );
+
+      return project;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.DataValidationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting the customerPayment. See the inner error for additional details',
+          'customerPayment',
+          'createCustomerPayment',
+          {email, customerId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
   public static async getProjectFileStats(
     id: mongooseTypes.ObjectId | string
   ): Promise<fileIngestionTypes.IFileStats[]> {
