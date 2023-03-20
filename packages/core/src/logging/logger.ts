@@ -9,7 +9,7 @@ export interface ILogObject {
    */
   correlationId: string;
   /**
-   * the information actaully being logged
+   * the information actually being logged
    */
   body: unknown;
   /**

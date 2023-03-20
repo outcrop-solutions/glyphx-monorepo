@@ -4,6 +4,7 @@ import {
   IAccountMethods,
   IAccountStaticMethods,
   IAccountDocument,
+  IAccountCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -25,6 +26,7 @@ const SCHEMA = new Schema<
     enum: databaseTypes.constants.ACCOUNT_PROVIDER,
     default: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
   },
+  userId: {type: String, required: false},
   providerAccountId: {type: String, required: true},
   refresh_token: {type: String, required: false},
   refresh_token_expires_in: {type: Number, required: false},
@@ -169,9 +171,9 @@ SCHEMA.static(
         .lean()) as databaseTypes.IAccount[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      accountDocuments.forEach((doc: any) => {
+      accountDocuments?.forEach((doc: any) => {
         delete (doc as any)['__v'];
-        delete (doc as any).user['__v'];
+        delete (doc as any)?.user?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.IAccount> = {
@@ -283,15 +285,16 @@ SCHEMA.static(
 
 SCHEMA.static(
   'createAccount',
-  async (
-    input: Omit<databaseTypes.IAccount, '_id'>
-  ): Promise<databaseTypes.IAccount> => {
-    const userExists = await UserModel.userIdExists(
-      input.user._id as mongooseTypes.ObjectId
-    );
+  async (input: IAccountCreateInput): Promise<databaseTypes.IAccount> => {
+    const userId =
+      input.user instanceof mongooseTypes.ObjectId
+        ? input.user
+        : new mongooseTypes.ObjectId(input.user._id);
+
+    const userExists = await UserModel.userIdExists(userId);
     if (!userExists)
       throw new error.InvalidArgumentError(
-        `A user with _id : ${input.user._id} cannot be found`,
+        `A user with _id : ${userId} cannot be found`,
         'user._id',
         input.user._id
       );
@@ -310,7 +313,7 @@ SCHEMA.static(
       session_state: input.session_state,
       oauth_token: input.oauth_token,
       oauth_token_secret: input.oauth_token_secret,
-      user: input.user._id as mongooseTypes.ObjectId,
+      user: userId,
     };
 
     try {

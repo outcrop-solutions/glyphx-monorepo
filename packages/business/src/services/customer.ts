@@ -37,13 +37,22 @@ export class CustomerPaymentService {
     customerId: mongooseTypes.ObjectId | string
   ): Promise<databaseTypes.ICustomerPayment> {
     try {
+      const id =
+        customerId instanceof mongooseTypes.ObjectId
+          ? customerId
+          : new mongooseTypes.ObjectId(customerId);
       // create customer payment
       // add to the user
       // add user to the customerpayment
       const paymentAccount = await StripeClient.createCustomer(email);
+
       const input = {
         email,
         paymentId: paymentAccount.id,
+        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        customer: {
+          _id: id,
+        },
       } as Omit<databaseTypes.ICustomerPayment, '_id'>;
 
       // create customer
@@ -52,26 +61,14 @@ export class CustomerPaymentService {
           input
         );
 
-      const id =
-        customerId instanceof mongooseTypes.ObjectId
-          ? customerId
-          : new mongooseTypes.ObjectId(customerId);
-
       // connect customer to user
-      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+      await mongoDbConnection.models.UserModel.updateUserById(id, {
         customerPayment: {
           _id: customerPayment._id,
         } as unknown as databaseTypes.ICustomerPayment,
       });
 
-      // connect user to customer
-      const payment =
-        await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentById(
-          id,
-          {customer: user}
-        );
-
-      return payment;
+      return customerPayment;
     } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||

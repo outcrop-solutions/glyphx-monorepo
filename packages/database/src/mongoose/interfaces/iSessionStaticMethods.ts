@@ -1,13 +1,12 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {ISessionMethods} from './iSessionMethods';
+import {ISessionCreateInput} from './iSessionCreateInput';
 export interface ISessionStaticMethods
   extends Model<databaseTypes.ISession, {}, ISessionMethods> {
   sessionIdExists(sessionId: mongooseTypes.ObjectId): Promise<boolean>;
   allSessionIdsExist(sessionIds: mongooseTypes.ObjectId[]): Promise<boolean>;
-  createSession(
-    input: Omit<databaseTypes.ISession, '_id'>
-  ): Promise<databaseTypes.ISession>;
+  createSession(input: ISessionCreateInput): Promise<databaseTypes.ISession>;
   getSessionById(
     sessionId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.ISession>;

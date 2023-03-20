@@ -4,6 +4,7 @@ import {
   IProjectMethods,
   IProjectStaticMethods,
   IProjectDocument,
+  IProjectCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -341,9 +342,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'createProject',
-  async (
-    input: Omit<databaseTypes.IProject, '_id'>
-  ): Promise<databaseTypes.IProject> => {
+  async (input: IProjectCreateInput): Promise<databaseTypes.IProject> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const [workspace, type, owner, state] = await Promise.all([
@@ -478,10 +477,10 @@ SCHEMA.static(
       //to the user.
       projectDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
-        delete (doc as any).workspace['__v'];
-        delete (doc as any).owner['__v'];
-        delete (doc as any).type?.['__v'];
-        delete (doc as any).state?.['__v'];
+        delete (doc as any)?.workspace?.__v;
+        delete (doc as any)?.owner?.__v;
+        delete (doc as any)?.type?.__v;
+        delete (doc as any)?.state?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.IProject> = {

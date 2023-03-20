@@ -4,6 +4,7 @@ import {
   IStateMethods,
   IStateStaticMethods,
   IStateDocument,
+  IStateCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {fileStatsSchema} from '../schemas';
@@ -85,9 +86,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'createState',
-  async (
-    input: Omit<databaseTypes.IState, '_id'>
-  ): Promise<databaseTypes.IState> => {
+  async (input: IStateCreateInput): Promise<databaseTypes.IState> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const projects = await STATE_MODEL.validateProjects(input.projects);

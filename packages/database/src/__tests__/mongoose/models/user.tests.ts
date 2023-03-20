@@ -29,6 +29,23 @@ const MOCK_USER: databaseTypes.IUser = {
   projects: [],
   webhooks: [],
 };
+const MOCK_NULLISH_USER = {
+  userCode: 'dfkadfkljafdkalsjskldf',
+  name: 'testUser',
+  username: 'test@user.com',
+  email: 'test@user.com',
+  emailVerified: new Date(),
+  isVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: undefined,
+  sessions: undefined,
+  membership: undefined,
+  invitedMembers: undefined,
+  createdWorkspaces: undefined,
+  projects: undefined,
+  webhooks: undefined,
+} as unknown as databaseTypes.IUser;
 
 describe('#mongoose/models/user', () => {
   context('createUser', () => {
@@ -81,6 +98,53 @@ describe('#mongoose/models/user', () => {
       stub.resolves({_id: objectId});
       sandbox.replace(UserModel, 'getUserById', stub);
       const userDocument = await UserModel.createUser(MOCK_USER);
+
+      assert.strictEqual(userDocument._id, objectId);
+      assert.isTrue(stub.calledOnce);
+    });
+    it('will create a user document with nullish coallesce', async () => {
+      sandbox.replace(
+        UserModel,
+        'validateProjects',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateWorkspaces',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateMembership',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateWebhooks',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateSessions',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        UserModel,
+        'validateAccounts',
+        sandbox.stub().resolves([])
+      );
+
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        UserModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+      sandbox.replace(UserModel, 'validate', sandbox.stub().resolves(true));
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+      sandbox.replace(UserModel, 'getUserById', stub);
+      const userDocument = await UserModel.createUser(MOCK_NULLISH_USER);
 
       assert.strictEqual(userDocument._id, objectId);
       assert.isTrue(stub.calledOnce);

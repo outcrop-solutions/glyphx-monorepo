@@ -4,6 +4,7 @@ import {
   IWebhookMethods,
   IWebhookStaticMethods,
   IWebhookDocument,
+  IWebhookCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -189,9 +190,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'createWebhook',
-  async (
-    input: Omit<databaseTypes.IWebhook, '_id'>
-  ): Promise<databaseTypes.IWebhook> => {
+  async (input: IWebhookCreateInput): Promise<databaseTypes.IWebhook> => {
     const userExists = await UserModel.userIdExists(
       input.user._id as mongooseTypes.ObjectId
     );

@@ -3,6 +3,7 @@ import {database as databaseTypes} from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
+import {v4} from 'uuid';
 
 export class UserService {
   public static async getUser(
@@ -77,11 +78,12 @@ export class UserService {
           ? userId
           : new mongooseTypes.ObjectId(userId);
 
-      // @jp: we need to standardized unsetting properties i.e emailVerified here (Date => null)
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         email,
         emailVerified: undefined,
       });
+
+      // TODO: update member.inviter and member.email on corresponding member models
 
       await EmailClient.sendMail({
         html: updateHtml({email}),
@@ -123,6 +125,39 @@ export class UserService {
           : new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         name,
+      });
+      return user;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the user. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {userId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async updateUserCode(
+    userId: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.IUser> {
+    try {
+      const id =
+        userId instanceof mongooseTypes.ObjectId
+          ? userId
+          : new mongooseTypes.ObjectId(userId);
+      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+        userCode: v4().replaceAll('-', ''),
       });
       return user;
     } catch (err: any) {

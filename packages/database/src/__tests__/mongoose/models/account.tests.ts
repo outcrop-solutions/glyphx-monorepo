@@ -23,6 +23,23 @@ const MOCK_ACCOUNT: databaseTypes.IAccount = {
   user: {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
 };
 
+const MOCK_ACCOUNT_USER_ID = {
+  type: databaseTypes.constants.ACCOUNT_TYPE.CUSTOMER,
+  provider: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
+  providerAccountId: 'accountId',
+  refresh_token: 'refreshToken',
+  refresh_token_expires_in: new Date().getTime(),
+  access_token: 'accessToken',
+  expires_at: new Date().getTime(),
+  token_type: databaseTypes.constants.TOKEN_TYPE.ACCESS,
+  scope: 'scope',
+  id_token: 'idtoken',
+  session_state: databaseTypes.constants.SESSION_STATE.NEW,
+  oauth_token_secret: 'tokensecret',
+  oauth_token: 'oauthToken',
+  user: new mongoose.Types.ObjectId(),
+};
+
 describe('#mongoose/models/account', () => {
   context('createAccount', () => {
     const sandbox = createSandbox();
@@ -47,6 +64,26 @@ describe('#mongoose/models/account', () => {
       sandbox.replace(AccountModel, 'getAccountById', getAccountByIdStub);
 
       const result = await AccountModel.createAccount(MOCK_ACCOUNT);
+      assert.strictEqual(result._id, accountId);
+      assert.isTrue(getAccountByIdStub.calledOnce);
+    });
+
+    it('will create an account document when user is an objectId', async () => {
+      const accountId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(AccountModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(
+        AccountModel,
+        'create',
+        sandbox.stub().resolves([{_id: accountId}])
+      );
+
+      const getAccountByIdStub = sandbox.stub();
+      getAccountByIdStub.resolves({_id: accountId});
+
+      sandbox.replace(AccountModel, 'getAccountById', getAccountByIdStub);
+
+      const result = await AccountModel.createAccount(MOCK_ACCOUNT_USER_ID);
       assert.strictEqual(result._id, accountId);
       assert.isTrue(getAccountByIdStub.calledOnce);
     });

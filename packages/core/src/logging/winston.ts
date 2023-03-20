@@ -1,4 +1,6 @@
 import winston, {transports, format, createLogger} from 'winston';
+// eslint-disable-next-line
+const {prettyPrint} = format;
 
 //TODO: we need to spike on logging
 
@@ -54,7 +56,7 @@ export class Winston {
 
     config = {
       level: level,
-      format: format.combine(format.json(), format.colorize()),
+      format: format.combine(format.json(), format.colorize(), prettyPrint()),
       transports: definedTransports,
     };
     return config;

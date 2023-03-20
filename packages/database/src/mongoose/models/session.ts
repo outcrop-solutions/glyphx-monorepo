@@ -4,6 +4,7 @@ import {
   ISessionMethods,
   ISessionStaticMethods,
   ISessionDocument,
+  ISessionCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -15,6 +16,7 @@ const SCHEMA = new Schema<
 >({
   sessionToken: {type: String, required: true},
   expires: {type: Date, required: true},
+  userId: {type: String, required: false},
   user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });
 
@@ -170,9 +172,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'createSession',
-  async (
-    input: Omit<databaseTypes.ISession, '_id'>
-  ): Promise<databaseTypes.ISession> => {
+  async (input: ISessionCreateInput): Promise<databaseTypes.ISession> => {
     const userExists = await UserModel.userIdExists(
       input.user._id as mongooseTypes.ObjectId
     );

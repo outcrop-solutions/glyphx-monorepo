@@ -1,6 +1,7 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IWorkspaceMethods} from './iWorkspaceMethods';
+import {IWorkspaceCreateInput} from './iWorkspaceCreateInput';
 export interface IWorkspaceStaticMethods
   extends Model<databaseTypes.IWorkspace, {}, IWorkspaceMethods> {
   workspaceIdExists(workspaceId: mongooseTypes.ObjectId): Promise<boolean>;
@@ -8,7 +9,7 @@ export interface IWorkspaceStaticMethods
     workspaceIds: mongooseTypes.ObjectId[]
   ): Promise<boolean>;
   createWorkspace(
-    input: Omit<databaseTypes.IWorkspace, '_id' | 'createdAt' | 'updatedAt'>
+    input: IWorkspaceCreateInput
   ): Promise<databaseTypes.IWorkspace>;
   getWorkspaceById(
     workspaceId: mongooseTypes.ObjectId
