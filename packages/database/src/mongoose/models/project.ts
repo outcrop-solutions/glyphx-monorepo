@@ -364,7 +364,7 @@ SCHEMA.static(
         isTemplate: input.isTemplate,
         owner: owner,
         files: input.files ?? [],
-        viewName: input.viewName ?? 'viewName',
+        viewName: input.viewName ?? ' ',
       };
       try {
         await PROJECT_MODEL.validate(resolvedInput);
