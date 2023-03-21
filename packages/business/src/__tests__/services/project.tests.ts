@@ -132,6 +132,739 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
+  context('createProject', () => {
+    it('will create a Project and attach to user and workspace models', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IUser);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateWorkspaceStub = sandbox.stub();
+      updateWorkspaceStub.resolves({
+        _id: workspaceId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'updateWorkspaceById',
+        updateWorkspaceStub
+      );
+
+      const doc = await projectService.createProject(
+        projectName,
+        userId,
+        workspaceId
+      );
+
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(updateWorkspaceStub.calledOnce);
+      assert.isOk(doc.owner.projects);
+      assert.isOk(doc.workspace.projects);
+    });
+    it('will create a Project and attach to user and workspace models when ownerId is a string', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IUser);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateWorkspaceStub = sandbox.stub();
+      updateWorkspaceStub.resolves({
+        _id: workspaceId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'updateWorkspaceById',
+        updateWorkspaceStub
+      );
+
+      const doc = await projectService.createProject(
+        projectName,
+        userId.toString(),
+        workspaceId
+      );
+
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(updateWorkspaceStub.calledOnce);
+      assert.isOk(doc.owner.projects);
+      assert.isOk(doc.workspace.projects);
+    });
+    it('will create a Project and attach to user and workspace models when workspaceId is a string', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IUser);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateWorkspaceStub = sandbox.stub();
+      updateWorkspaceStub.resolves({
+        _id: workspaceId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'updateWorkspaceById',
+        updateWorkspaceStub
+      );
+
+      const doc = await projectService.createProject(
+        projectName,
+        userId,
+        workspaceId.toString()
+      );
+
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(updateWorkspaceStub.calledOnce);
+      assert.isOk(doc.owner.projects);
+      assert.isOk(doc.workspace.projects);
+    });
+
+    // project model fails
+    it('will publish and rethrow an DataValidationError when project model throws it', async () => {
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+
+      const createProjectFromModelStub = sandbox.stub();
+      const errMessage = 'Data validation error';
+      const err = new error.DataValidationError(errMessage, '', '');
+
+      createProjectFromModelStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DataValidationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when project model throws a DataOperationError', async () => {
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+
+      const createProjectFromModelStub = sandbox.stub();
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'updateCustomerPaymentById'
+      );
+
+      createProjectFromModelStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when project model throws a UnexpectedError', async () => {
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+
+      const createProjectFromModelStub = sandbox.stub();
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'updateCustomerPaymentById'
+      );
+
+      createProjectFromModelStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    // user update fails
+    it('will publish and rethrow an InvalidArgumentError when user model throws it', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidArgumentError(errMessage, '', '');
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when user model throws it', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidOperationError(errMessage, '', '');
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when usermodel throws a DataOperationError', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.DatabaseOperationError(errMessage, '', '');
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    // workspace update fails
+    it('will publish and rethrow an InvalidArgumentError when workspace model throws it', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidArgumentError(errMessage, '', '');
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IUser);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateWorkspaceStub = sandbox.stub();
+      updateWorkspaceStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'updateWorkspaceById',
+        updateWorkspaceStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when workspace model throws it', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidOperationError(errMessage, '', '');
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IUser);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateWorkspaceStub = sandbox.stub();
+      updateWorkspaceStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'updateWorkspaceById',
+        updateWorkspaceStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when workspace model throws a DataOperationError', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.DatabaseOperationError(errMessage, '', '');
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        owner: {
+          _id: userId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IUser);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'updateUserById',
+        updateUserStub
+      );
+
+      const updateWorkspaceStub = sandbox.stub();
+      updateWorkspaceStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'updateWorkspaceById',
+        updateWorkspaceStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(projectName, userId, workspaceId);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
   context('getProjects', () => {
     it('should get projects by filter', async () => {
       const projectId = new mongooseTypes.ObjectId();

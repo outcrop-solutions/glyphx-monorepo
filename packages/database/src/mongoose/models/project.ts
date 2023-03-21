@@ -344,6 +344,7 @@ SCHEMA.static(
   'createProject',
   async (input: IProjectCreateInput): Promise<databaseTypes.IProject> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
+
     try {
       const [workspace, type, owner, state] = await Promise.all([
         PROJECT_MODEL.validateWorkspace(input.workspace),
@@ -351,13 +352,14 @@ SCHEMA.static(
         PROJECT_MODEL.validateOwner(input.owner),
         PROJECT_MODEL.validateState(input.state as databaseTypes.IState),
       ]);
+
       const createDate = new Date();
 
       const resolvedInput: IProjectDocument = {
         createdAt: createDate,
         updatedAt: createDate,
         name: input.name,
-        description: input.description,
+        description: input.description ?? '',
         sdtPath: input.sdtPath,
         workspace: workspace,
         slug: input.slug,
@@ -365,8 +367,8 @@ SCHEMA.static(
         type: type,
         owner: owner,
         state: state,
-        files: input.files && [],
-        viewName: input.viewName,
+        files: input.files ?? [],
+        viewName: input.viewName ?? '',
       };
       try {
         await PROJECT_MODEL.validate(resolvedInput);

@@ -65,6 +65,7 @@ export class ProjectService {
     name: string,
     ownerId: mongooseTypes.ObjectId | string,
     workspaceId: mongooseTypes.ObjectId | string,
+    type?: mongooseTypes.ObjectId | string,
     description?: string
   ): Promise<databaseTypes.IProject> {
     try {
@@ -78,12 +79,26 @@ export class ProjectService {
           ? workspaceId
           : new mongooseTypes.ObjectId(workspaceId);
 
+      const projectTypeCastId =
+        type instanceof mongooseTypes.ObjectId
+          ? type
+          : new mongooseTypes.ObjectId(type);
+
+      const defaultType = {
+        name: `${name}-type`,
+        projects: [],
+        shape: {},
+      };
+
+      // TODO: requires getProjectType service
       const input = {
         name,
         description: description ?? '',
         workspace: workspaceCastId,
         owner: ownerCastId,
         isTemplate: false,
+        type: projectTypeCastId ?? defaultType,
+        files: [],
       };
 
       // create project
@@ -97,7 +112,7 @@ export class ProjectService {
       });
 
       // connect project to workspace
-      await mongoDbConnection.models.UserModel.updateWorkspaceById(
+      await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
         workspaceCastId,
         {
           projects: [project] as unknown as databaseTypes.IProject[],
@@ -114,10 +129,10 @@ export class ProjectService {
         throw err;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while getting the customerPayment. See the inner error for additional details',
-          'customerPayment',
-          'createCustomerPayment',
-          {email, customerId},
+          'An unexpected error occurred while creating the project. See the inner error for additional details',
+          'project',
+          'createProject',
+          {name, ownerId, workspaceId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

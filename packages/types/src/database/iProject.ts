@@ -18,6 +18,6 @@ export interface IProject {
   type?: IProjectType;
   owner: IUser;
   state?: IState;
-  files?: IFileStats[];
+  files: IFileStats[];
   viewName?: string;
 }
