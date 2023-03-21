@@ -2,8 +2,9 @@ import { ChevronRightIcon } from '@heroicons/react/solid';
 import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
 import { v4 as uuid } from 'uuid';
 import { useRouter } from 'next/router';
-import { createProject } from 'lib';
+import { _createDefaultProject, api } from 'lib';
 import { useSession } from 'next-auth/react';
+import { useWorkspace } from 'providers/workspace';
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -31,19 +32,16 @@ const items = [
 export const Templates = () => {
   const router = useRouter();
   const { data } = useSession();
+  const { workspace, setWorkspace } = useWorkspace();
+
+  // mutations
   const handleCreate = async () => {
-    const createProjectInput = {
-      id: uuid(),
-      name: 'Template Project',
-      description: 'New project from empty template',
-      author: data.user?.email,
-      shared: [data.user?.email],
-      expiry: new Date(),
-    };
-    try {
-      // createProject(createProjectInput);
-      // router.push(`/project/${result.data.createProject.id}`);
-    } catch (error) {}
+    api({
+      ..._createDefaultProject(workspace._id),
+      onSuccess: (data) => {
+        router.push(`/project/${data.id}`);
+      },
+    });
   };
   return (
     <div className="max-w-lg mx-auto h-full flex flex-col pt-40 grow justify-center items-center">

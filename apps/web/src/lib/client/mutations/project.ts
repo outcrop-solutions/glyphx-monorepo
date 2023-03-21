@@ -1,4 +1,4 @@
-import { database as databaseTypes } from '@glyphx/types';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 import { Types as mongooseTypes } from 'mongoose';
 // PROJECT MUTATIONS
 
@@ -17,7 +17,18 @@ export const forkProject = () => {};
  * @param name
  * @returns
  */
-export const createProject = (id: string | mongooseTypes.ObjectId, input: Partial<databaseTypes.IProject>) => {};
+export const _createDefaultProject = (
+  workspaceId: string | mongooseTypes.ObjectId
+): webTypes.IFetchConfig => {
+  return {
+    url: '/api/project',
+    options: {
+      body: { name: 'Untitled', workspaceId },
+      method: 'POST',
+    },
+    successMsg: 'New project successfully created',
+  };
+};
 
 /**
  * Updates Project Name
