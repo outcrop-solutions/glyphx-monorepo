@@ -11,6 +11,7 @@ export class AthenaQueryReadStream extends Readable {
   private paginator?: Paginator<GetQueryResultsCommandOutput>;
   private readonly dataIterator: AsyncGenerator<any, any, any>;
   private pageSize: number;
+
   constructor(athenaManager: AthenaManager, queryId: string, pageSize = 1000) {
     super({objectMode: true});
     this.queryId = queryId;

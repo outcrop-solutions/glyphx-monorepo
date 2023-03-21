@@ -1,5 +1,5 @@
 export enum SHAPE {
-  CUBE,
+  CUBE = 1,
   SPHERE,
   CYLINDER,
   PIN,

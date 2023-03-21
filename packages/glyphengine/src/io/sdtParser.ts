@@ -153,22 +153,20 @@ export class SdtParser {
 
     if (axis === 'RGB') {
       const minRgb = this.parseRgb(subProperty.Min);
-      const minHsv = this.convertRgbToHsv(minRgb);
 
       const diffRgb = this.parseRgb(subProperty.Difference);
 
       const maxRgb = minRgb.map(
         (n: number, index: number) => n + diffRgb[index]
       );
-      const maxHsv = this.convertRgbToHsv(maxRgb);
 
       retval = {
         binding: '',
         function: propFunction,
         min: 0,
         max: 0,
-        minRgb: minHsv,
-        maxRgb: maxHsv,
+        minRgb: minRgb,
+        maxRgb: maxRgb,
       };
     } else {
       const min = this.parseNumber(subProperty.Min);
@@ -199,10 +197,6 @@ export class SdtParser {
     });
 
     return retval;
-  }
-
-  private convertRgbToHsv(rgb: number[]): number[] {
-    return convertRgbToHsv(rgb[0], rgb[1], rgb[2]);
   }
 
   public getInputFields(): IInputFields {

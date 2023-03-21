@@ -229,7 +229,7 @@ describe('GlyphEngine', () => {
         databaseName
       );
 
-      await (glyphEngine as any).getDataTypes(clientName, modelName, localData);
+      await (glyphEngine as any).getDataTypes('testViewname', localData);
       assert.strictEqual(localData.get('type_x'), 'string');
       assert.strictEqual(localData.get('type_y'), 'number');
       assert.strictEqual(localData.get('type_z'), 'number');
