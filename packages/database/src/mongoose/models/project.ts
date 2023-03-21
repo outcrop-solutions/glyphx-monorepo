@@ -44,7 +44,7 @@ const SCHEMA = new Schema<
   },
   slug: {type: String, required: false},
   isTemplate: {type: Boolean, required: true, default: false},
-  type: {type: Schema.Types.ObjectId, required: true, ref: 'projecttype'},
+  type: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
   owner: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   state: {type: Schema.Types.ObjectId, required: false, ref: 'state'},
   files: {type: [fileStatsSchema], required: true, default: []},
@@ -346,11 +346,9 @@ SCHEMA.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
 
     try {
-      const [workspace, type, owner, state] = await Promise.all([
+      const [workspace, owner] = await Promise.all([
         PROJECT_MODEL.validateWorkspace(input.workspace),
-        PROJECT_MODEL.validateType(input.type),
         PROJECT_MODEL.validateOwner(input.owner),
-        PROJECT_MODEL.validateState(input.state as databaseTypes.IState),
       ]);
 
       const createDate = new Date();
@@ -364,11 +362,9 @@ SCHEMA.static(
         workspace: workspace,
         slug: input.slug,
         isTemplate: input.isTemplate,
-        type: type,
         owner: owner,
-        state: state,
         files: input.files ?? [],
-        viewName: input.viewName ?? '',
+        viewName: input.viewName ?? 'viewName',
       };
       try {
         await PROJECT_MODEL.validate(resolvedInput);

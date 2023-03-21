@@ -15,7 +15,7 @@ const PROCESS_ID = UNIQUE_KEY;
 const PROCESS_NAME = 'processName' + UNIQUE_KEY;
 
 describe('#ProcessTrackingService', () => {
-  context.only('test the functions of the  ProcessTrackingService', () => {
+  context('test the functions of the  ProcessTrackingService', () => {
     const mongoConnection = new MongoDbConnection();
     const processTrackingModel = mongoConnection.models.ProcessTrackingModel;
     let processTrackingId: ObjectId;

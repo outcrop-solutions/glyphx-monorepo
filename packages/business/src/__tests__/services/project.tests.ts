@@ -132,7 +132,7 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context.only('createProject', () => {
+  context('createProject', () => {
     it('will create a Project and attach to user and workspace models', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';

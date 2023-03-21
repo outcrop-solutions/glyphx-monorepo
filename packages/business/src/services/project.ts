@@ -66,6 +66,7 @@ export class ProjectService {
     ownerId: mongooseTypes.ObjectId | string,
     workspaceId: mongooseTypes.ObjectId | string,
     type?: mongooseTypes.ObjectId | string,
+    state?: mongooseTypes.ObjectId | string,
     description?: string
   ): Promise<databaseTypes.IProject> {
     try {
@@ -84,10 +85,24 @@ export class ProjectService {
           ? type
           : new mongooseTypes.ObjectId(type);
 
+      const stateCastId =
+        state instanceof mongooseTypes.ObjectId
+          ? state
+          : new mongooseTypes.ObjectId(state);
+
       const defaultType = {
         name: `${name}-type`,
         projects: [],
         shape: {},
+      };
+
+      const defaultState = {
+        name: `${name}-state`,
+        version: 0,
+        static: true,
+        fileSystemHash: 'hash',
+        projects: [],
+        fileSystem: [],
       };
 
       // TODO: requires getProjectType service
@@ -99,6 +114,7 @@ export class ProjectService {
         isTemplate: false,
         type: projectTypeCastId ?? defaultType,
         files: [],
+        state: stateCastId ?? defaultState,
       };
 
       // create project
