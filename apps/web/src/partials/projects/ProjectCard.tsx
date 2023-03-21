@@ -6,6 +6,8 @@ import { useSetRecoilState } from 'recoil';
 import { projectsAtom } from 'state/globals';
 import { projectDetailsAtom } from 'state/project';
 import { deleteProject } from 'lib';
+import Image from 'next/image';
+
 export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   const router = useRouter();
   const { orgId, projectId } = router.query;
@@ -13,6 +15,8 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   dayjs.extend(relativeTime);
   const setProjects = useSetRecoilState(projectsAtom);
   const setProjectDetails = useSetRecoilState(projectDetailsAtom);
+
+  const deleteProject = () => {};
 
   return (
     <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue hover:cursor-pointer">
@@ -97,7 +101,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
         </svg>
       </div>
       <div onClick={() => router.push(`/${orgId}/${project.id}`)} className="flex flex-col h-full">
-        <img className="w-full h-full rounded-t-md" src="/images/project.png" />
+        <Image className="w-full h-full rounded-t-md" src="/images/project.png" alt="" />
         <footer className="mt-2 px-5 pb-5 pt-1">
           <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{name}</p>
           <div className="flex justify-between items-center">

@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -17,25 +16,27 @@ export function SearchModal() {
   const [query, setQuery] = useState('');
   const [queryResult, setQueryResult] = useState([]);
 
-  const options = {
-    isCaseSensitive: false,
-    // includeScore: false,
-    shouldSort: true,
-    // includeMatches: false,
-    // findAllMatches: false,
-    // minMatchCharLength: 1,
-    // location: 0,
-    // threshold: 0.6,
-    // distance: 100,
-    // useExtendedSearch: false,
-    // ignoreLocation: false,
-    // ignoreFieldNorm: false,
-    // fieldNormWeight: 1,
-    keys: ['name'],
-  };
-
   // configure fuse
-  const fuse = new Fuse(projects, options);
+  const fuse = useMemo(
+    () =>
+      new Fuse(projects, {
+        isCaseSensitive: false,
+        // includeScore: false,
+        shouldSort: true,
+        // includeMatches: false,
+        // findAllMatches: false,
+        // minMatchCharLength: 1,
+        // location: 0,
+        // threshold: 0.6,
+        // distance: 100,
+        // useExtendedSearch: false,
+        // ignoreLocation: false,
+        // ignoreFieldNorm: false,
+        // fieldNormWeight: 1,
+        keys: ['name'],
+      }),
+    [projects]
+  );
 
   // TODO: Fix this use effect and stop it from constantly running
   useEffect(() => {
@@ -44,7 +45,7 @@ export function SearchModal() {
         return fuse.search(query);
       });
     }
-  }, [query]);
+  }, [fuse, query]);
 
   // close if the esc key is pressed
   useEffect(() => {

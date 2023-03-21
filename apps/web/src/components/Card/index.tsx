@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 const Card = ({ children, danger }: { children?: any; danger?: any }) => {
   return danger ? (
     <div className="flex flex-col justify-between border-2 border-red-600 rounded">{children}</div>

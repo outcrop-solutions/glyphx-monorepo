@@ -30,9 +30,9 @@ export const MainSidebar = () => {
           {/* TODO: fix this style wise in UI cleanup */}
           <div className="flex pb-1 justify-center">
             {selectedProject ? (
-              <Image src="/images/MainSidebar_G_Logo.svg" height={150} width={300} />
+              <Image src="/images/MainSidebar_G_Logo.svg" height={150} width={300} alt="" />
             ) : (
-              <Image src="/images/MainSidebar_Full_Logo.svg" height={150} width={300} />
+              <Image src="/images/MainSidebar_Full_Logo.svg" height={150} width={300} alt="" />
             )}
           </div>
           {!selectedProject && (
@@ -111,7 +111,11 @@ export const MainSidebar = () => {
                 </div>
               </li>
               {/* Analytics */}
-              <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('shared') && 'bg-primary-dark-blue'}`}>
+              <li
+                className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${
+                  pathname.includes('shared') && 'bg-primary-dark-blue'
+                }`}
+              >
                 <div
                   className={`block text-gray truncate transition duration-150 ${
                     pathname.includes('shared') && 'hover:text-gray'

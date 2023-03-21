@@ -4,6 +4,7 @@ import {
     selectedProjectSelector,
 } from "state";
 import { useRecoilState } from "recoil";
+import Image from 'next/image'
 
 
 export const Info = ({ setInfo,setShare }) => {
@@ -42,7 +43,7 @@ export const Info = ({ setInfo,setShare }) => {
 
 
             </div>
-            <img className="w-full h-auto" src="../images/project.png" alt="Sample Project" />
+            <Image className="w-full h-auto" src="/images/project.png" alt="Sample Project" />
             <div className="mt-2 pl-4 pr-4">
                 <p className="text-light-gray font-roboto font-medium text-[14px] leading-[16.41px]">Owner</p>
                 <div className="flex flex-row justify-between items-center mt-2 ">

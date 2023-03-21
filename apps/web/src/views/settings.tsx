@@ -1,3 +1,5 @@
+import React from 'react';
+import Image from 'next/image';
 import {
   BellIcon,
   CashIcon,
@@ -8,7 +10,6 @@ import {
   ViewGridAddIcon,
 } from '@heroicons/react/outline';
 import { ChevronLeftIcon } from '@heroicons/react/solid';
-import React from 'react';
 
 const subNavigation = [
   {
@@ -170,7 +171,7 @@ export default function Settings() {
                       Photo
                     </label>
                     <div className="mt-1 flex items-center">
-                      <img
+                      <Image
                         className="inline-block h-12 w-12 rounded-full"
                         src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80"
                         alt=""

@@ -16,7 +16,7 @@ export const SearchFilter = ({ lastDroppedItem }) => {
         draft[lastDroppedItem.index].keywords = [...(Array.isArray(chips) ? chips : [])];
       })
     );
-  }, [chips]);
+  }, [chips, lastDroppedItem.index, setFiltersApplied]);
 
   const handleAddKeyword = useCallback(
     (value, idx, prop) => {
@@ -29,7 +29,7 @@ export const SearchFilter = ({ lastDroppedItem }) => {
         );
       }
     },
-    [chips]
+    [chips, lastDroppedItem.index, setFiltersApplied]
   );
 
   const handleAddKey = () => {

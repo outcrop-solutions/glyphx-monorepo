@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import {
   selectedFileAtom,
@@ -136,37 +136,40 @@ export const useFileSystem = () => {
       //   }
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
-    [setFileSystem, project, fileSystem]
+    [setDataGridLoading, existingFileStats, setMatchingStats]
   );
 
   /**
    * MANAGE FILESYSTEM USER VIEW
    */
-  const openFile = useCallback((idx: number) => {
-    // open file
-    setFileSystem(
-      produce((draft) => {
-        draft[idx].open = true;
-      })
-    );
-    // select file
-    setSelectedFile(
-      produce((draft) => {
-        draft.index = idx;
-      })
-    );
-  }, []);
+  const openFile = useCallback(
+    (idx: number) => {
+      // open file
+      setFileSystem(
+        produce((draft) => {
+          draft[idx].open = true;
+        })
+      );
+      // select file
+      setSelectedFile(
+        produce((draft: any) => {
+          draft.index = idx;
+        })
+      );
+    },
+    [setFileSystem, setSelectedFile]
+  );
 
   const selectFile = useCallback(
     (idx: number) => {
       // select file
       setSelectedFile(
-        produce((draft) => {
+        produce((draft: any) => {
           draft.index = idx;
         })
       );
     },
-    [setFileSystem]
+    [setSelectedFile]
   );
 
   const closeFile = useCallback(
@@ -179,13 +182,13 @@ export const useFileSystem = () => {
       );
       // update selection
       setSelectedFile(
-        produce((draft) => {
+        produce((draft: any) => {
           // if closed file is selected, go to next closest file, else select none (via -1)
           draft.index = draft.index == idx ? idx - 1 : -1;
         })
       );
     },
-    [setFileSystem]
+    [setFileSystem, setSelectedFile]
   );
 
   /**

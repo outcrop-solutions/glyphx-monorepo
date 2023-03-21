@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { QWebChannel } from 'qwebchannel';
 import { glyphViewerDetails, orientationAtom } from '../state';
 import { shareOpenAtom } from 'state/share';
@@ -28,58 +28,52 @@ export const useSocket = () => {
   const orientation = useRecoilValue(orientationAtom);
 
   //   Create Socket
-  const openSocket = (baseUrl) => {
-    let socket = new WebSocket(baseUrl);
-    socket.onclose = function () {
-      console.error('web channel closed');
-    };
-    socket.onerror = function (error) {
-      console.error('web channel error: ' + error);
-    };
-    socket.onopen = function () {
+  const openSocket = useCallback(
+    (baseUrl) => {
+      let socket = new WebSocket(baseUrl);
+      socket.onclose = function () {
+        console.error('web channel closed');
+      };
+      socket.onerror = function (error) {
+        console.error('web channel error: ' + error);
+      };
+      socket.onopen = function () {
+        new QWebChannel(socket, function (channel) {
+          window.core = channel.objects.core; // making it global
+          try {
+            window.core.KeepAlive.connect(function (message) {});
+            window.core.GetDrawerPosition.connect(function (message) {});
+            window.core.SendDrawerStatus.connect(function (message) {});
+            window.core.SendSdtName.connect(function (message) {});
+            window.core.SendCameraPosition.connect(function (message) {});
 
-      new QWebChannel(socket, function (channel) {
-
-        window.core = channel.objects.core; // making it global
-        try {
-                
-          window.core.KeepAlive.connect(function (message) {
-          });
-          window.core.GetDrawerPosition.connect(function (message) {
-          });
-          window.core.SendDrawerStatus.connect(function (message) {
-          });
-          window.core.SendSdtName.connect(function (message) {
-          });
-          window.core.SendCameraPosition.connect(function (message) {
-          });
-
-          setGlyphViewer({
-            // set to true to signify we are ready to go
-            ...glyphViewer,
-            sendDrawerPositionApp: true,
-          });
-        } catch (error) {
-        }
-        //   try {
-        //     // make core object accessible globally
-        //     //window.core = channel.objects.core;
-        //     //window.core.KeepAlive.connect(function (message) {
-        //       //Issued every 30 seconds from Qt to prevent websocket timeout
-        //     });
-        //     //window.core.GetDrawerPosition.connect(function (message) {
-        //     });
-        //     //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
-        //     //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
-        //     //core.UpdateFilter("Update Filter");	// Takes a SQL query based on current filters
-        //     //core.ChangeState("Change State");		// Takes the Json information for the selected state
-        //     //core.ReloadDrawer("Reload Drawer");	// Triggers a reload of the visualization currently in the drawer. This does not need to be called after a filter update.
-        //   } catch (e) {
-        //     console.error(e.message);
-        //   }
-      });
-    };
-  };
+            setGlyphViewer({
+              // set to true to signify we are ready to go
+              ...glyphViewer,
+              sendDrawerPositionApp: true,
+            });
+          } catch (error) {}
+          //   try {
+          //     // make core object accessible globally
+          //     //window.core = channel.objects.core;
+          //     //window.core.KeepAlive.connect(function (message) {
+          //       //Issued every 30 seconds from Qt to prevent websocket timeout
+          //     });
+          //     //window.core.GetDrawerPosition.connect(function (message) {
+          //     });
+          //     //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
+          //     //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
+          //     //core.UpdateFilter("Update Filter");	// Takes a SQL query based on current filters
+          //     //core.ChangeState("Change State");		// Takes the Json information for the selected state
+          //     //core.ReloadDrawer("Reload Drawer");	// Triggers a reload of the visualization currently in the drawer. This does not need to be called after a filter update.
+          //   } catch (e) {
+          //     console.error(e.message);
+          //   }
+        });
+      };
+    },
+    [glyphViewer, setGlyphViewer]
+  );
 
   useEffect(() => {
     if (!isSet) {
@@ -88,7 +82,7 @@ export const useSocket = () => {
       var baseUrl = 'ws://localhost:12345';
       openSocket(baseUrl);
     }
-  }, []);
+  }, [isSet, openSocket]);
 
   //   Send Drawer position
   //   TODO: make our lives much easier by just setting fixed width header and sidebars
@@ -121,5 +115,5 @@ export const useSocket = () => {
         });
       } catch (error) {}
     }
-  }, [glyphViewer]); //commentsPosition, filterSidebarPosition, sendDrawerPositionApp
+  }, [glyphViewer, isInfoOpen, isNotifOpen, isShareOpen, setGlyphViewer]); //commentsPosition, filterSidebarPosition, sendDrawerPositionApp
 };
