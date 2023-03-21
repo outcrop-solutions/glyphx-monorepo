@@ -17,7 +17,7 @@ import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
 import Meta from 'components/Meta';
-import { useMembers } from 'lib/data';
+import { useMembers } from 'lib/client';
 import { AccountLayout } from 'layouts';
 import { _createMember, _removeMember, _updateRole, api } from 'lib';
 import { workspaceService, Initializer } from '@glyphx/business';

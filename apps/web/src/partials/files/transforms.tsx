@@ -2,7 +2,7 @@ import { IColumn, IFileStats } from '@glyphx/types/src/fileIngestion';
 import MD5 from 'crypto-js/md5';
 import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 import { parse } from 'papaparse';
-import { IFileSystemItem, S3ProviderListOutput, RenderableDataGrid, IMatchingFileStats } from 'lib/file-ingest/types';
+import { IFileSystemItem, S3ProviderListOutput, RenderableDataGrid, IMatchingFileStats } from 'lib/types';
 
 /**
  * Takes array of file Blobs and merges them with the existing filesystem

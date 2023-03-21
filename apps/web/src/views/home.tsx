@@ -20,7 +20,7 @@ import { ProjectDetails } from 'partials';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { isGridViewAtom, projectDetailsAtom, projectsAtom, showAddProjectAtom } from 'state';
 import { useRouter } from 'next/router';
-import { useProjects } from 'lib/data';
+import { useProjects } from 'lib/client';
 import { SuspenseFallback } from 'partials/fallback';
 
 export default function Home({ workspace }) {
