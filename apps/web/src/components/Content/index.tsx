@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 const Content = ({ children }) => {
   return (
     <div className="flex flex-col h-full px-5 space-y-5 overflow-y-auto md:px-10 md:w-3/4 bg-transparent">

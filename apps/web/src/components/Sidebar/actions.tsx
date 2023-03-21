@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 
 import Button from 'components/Button/index';
 import Modal from 'components/Modal/index';
-import { useWorkspaces } from 'lib/data';
+import { useWorkspaces } from 'lib/client';
 import { api, _createWorkspace } from 'lib';
 import { useWorkspace } from 'providers/workspace';
 

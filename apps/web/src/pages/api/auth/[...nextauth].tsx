@@ -3,7 +3,7 @@ import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import { signInHtml, signInText, EmailClient } from '@glyphx/email';
 import { Initializer, dbConnection as connection, customerPaymentService, userService } from '@glyphx/business';
-import clientPromise from 'lib/mongodb';
+import clientPromise from 'lib/server/mongodb';
 // import mongoose from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
 // import { log } from 'lib/logsnag';

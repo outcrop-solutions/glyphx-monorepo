@@ -19,7 +19,7 @@ export default function Share() {
         <div className="relative flex flex-row justify-left my-2">
           {/* Logo */}
           <div className="flex pl-2">
-            <Image src="/images/share-logo.svg" />
+            <Image alt="" src="/images/share-logo.svg" />
           </div>
         </div>
         <hr />
@@ -40,7 +40,7 @@ export default function Share() {
               className="mt-6 text-decoration-line: underline tracking-wider text-center"
               onClick={onClickDownloadGlyph}
             >
-              Don't have Glyphx? Download Glyphx here
+              Don&apos;t have Glyphx? Download Glyphx here
             </button>
           </div>
         </div>

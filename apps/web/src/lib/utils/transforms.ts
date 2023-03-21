@@ -1,16 +1,14 @@
-import { IColumn, IFileStats } from '@glyphx/types/src/fileIngestion';
 import MD5 from 'crypto-js/md5';
-import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 import { parse } from 'papaparse';
-import { IFileSystemItem, S3ProviderListOutput, RenderableDataGrid, IMatchingFileStats } from 'lib/file-ingest/types';
+import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 
 /**
  * Takes array of file Blobs and merges them with the existing filesystem
  * @param acceptedFiles
- * @param {IFileSystemItem[]}
- * @returns {IFileSystemItem[] | any[]}
+ * @param {webTypes.IFileSystemItem[]}
+ * @returns {webTypes.IFileSystemItem[] | any[]}
  */
-export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | null): IFileSystemItem[] | any[] => {
+export const createFileSystem = (acceptedFiles, fileSystem: webTypes.IFileSystemItem[] | null): webTypes.IFileSystemItem[] | any[] => {
   let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
     id: idx + fileSystem?.length + 1,
     parent: 0,
@@ -27,13 +25,13 @@ export const createFileSystem = (acceptedFiles, fileSystem: IFileSystemItem[] | 
 
 /**
  * Takes S3 bucket contents and reshapes them into renderable filesystem state
- * @param {S3ProviderListOutput}
+ * @param {webTypes.S3ProviderListOutput}
  * @returns {[]}
  */
 export const createFileSystemFromS3 = (
-  s3Directory: S3ProviderListOutput,
+  s3Directory: webTypes.IS3ProviderListOutput,
   projectId: string
-): IFileSystemItem[] | any[] => {
+): webTypes.IFileSystemItem[] | any[] => {
   const files = {};
 
   const add = (source, target, item) => {
@@ -62,27 +60,27 @@ export const createFileSystemFromS3 = (
 };
 
 /** Creates a Table list from S3 directory
- * @param {S3ProviderListOutput}
+ * @param {webTypes.S3ProviderListOutput}
  * @returns {string[]}
  */
 
-export const createTableList = (s3Directory: S3ProviderListOutput): string[] => {
+export const createTableList = (s3Directory: webTypes.IS3ProviderListOutput): string[] => {
   return;
 };
 
 /**
  * Takes in papaparsed file data and returns the rendarable grid state
  * @param {File}
- * @returns {RenderableDataGrid}
+ * @returns {webTypes.RenderableDataGrid}
  */
-export const formatGridData = (data): RenderableDataGrid => {
+export const formatGridData = (data): webTypes.IRenderableDataGrid => {
   const colNames = Object.keys(data[0]);
 
   let cols = colNames.map((item, idx) => {
     const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {
       key: item,
-      dataType: isNaN(Number(data[0][item])) ? FIELD_TYPE.STRING : FIELD_TYPE.NUMBER,
+      dataType: isNaN(Number(data[0][item])) ? fileIngestionTypes.constants.FIELD_TYPE.STRING : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
       name: capitalized,
       width: 120,
       resizable: true,
@@ -90,18 +88,18 @@ export const formatGridData = (data): RenderableDataGrid => {
     };
   });
   // Generates first column
-  cols.unshift({ key: 'id', dataType: FIELD_TYPE.NUMBER, name: '', width: 40, resizable: true, sortable: true });
+  cols.unshift({ key: 'id', dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, name: '', width: 40, resizable: true, sortable: true });
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
 
   return { columns: cols, rows };
 };
 
 /**
- * Takes in an array of file Blobs and returns the IFileStats
+ * Takes in an array of file Blobs and returns the fileIngestionTypes.IFileStats
  * @param {File[]}
- * @returns {IFileStats[]}
+ * @returns {fileIngestionTypes.IFileStats[]}
  */
-export const parseFileStats = async (acceptedFiles): Promise<IFileStats[]> => {
+export const parseFileStats = async (acceptedFiles): Promise<fileIngestionTypes.IFileStats[]> => {
   const stats = await acceptedFiles.map(async (file: File) => {
     const text = await file.text();
     const { data } = parse(text, { header: true });
@@ -112,7 +110,7 @@ export const parseFileStats = async (acceptedFiles): Promise<IFileStats[]> => {
       numberOfColumns: Object.keys(data[0])?.length,
       columns: Object.keys(data[0]).map((item) => ({
         name: item,
-        fieldType: isNaN(Number(data[0][item])) ? FIELD_TYPE.STRING : FIELD_TYPE.NUMBER,
+        fieldType: isNaN(Number(data[0][item])) ? fileIngestionTypes.constants.FIELD_TYPE.STRING : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         longestString: undefined,
       })),
       fileSize: file.size,
@@ -122,12 +120,12 @@ export const parseFileStats = async (acceptedFiles): Promise<IFileStats[]> => {
 };
 
 /**
- * Compares IFileStats across hashes of IFileStats to determine matching file name/colum/type combos using MD5 to allow user to make a decision
- * @param {IFileStats[]}
- * @param {IFileStats[]}
- * @returns {IMatchingFileStats[]}
+ * Compares fileIngestionTypes.IFileStats across hashes of fileIngestionTypes.IFileStats to determine matching file name/colum/type combos using MD5 to allow user to make a decision
+ * @param {fileIngestionTypes.IFileStats[]}
+ * @param {fileIngestionTypes.IFileStats[]}
+ * @returns {webTypes.IMatchingFileStats[]}
  */
-export const compareStats = (newFileStats, existingFileStats): IMatchingFileStats[] => {
+export const compareStats = (newFileStats, existingFileStats): webTypes.IMatchingFileStats[] => {
   // TODO: file name collisions
   // select and hash relevant values
   const newHashes = newFileStats.map(({ fileName, tableName, columns }) => MD5({ fileName, tableName, columns }));

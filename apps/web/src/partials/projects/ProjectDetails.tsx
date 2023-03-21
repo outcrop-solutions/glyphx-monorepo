@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import Image from 'next/image';
 import { Dialog, Transition } from '@headlessui/react';
 import { FolderIcon, UserCircleIcon, XIcon } from '@heroicons/react/outline';
 import { CheckIcon, PencilIcon, PlusSmIcon } from '@heroicons/react/solid';
@@ -7,7 +8,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { projectDetailsAtom } from 'state/project';
-import { updateProject } from 'lib';
+// import { updateProject } from 'lib';
 import { useSession } from 'next-auth/react';
 
 const tabs = [
@@ -64,7 +65,6 @@ export const ProjectDetails = () => {
     setEditDesc(false);
     setEditTitle(false);
     setEditShare(false);
-    updateProject({ name, description, shared });
   };
 
   return (
@@ -192,14 +192,14 @@ export const ProjectDetails = () => {
                         </div>
                       </div>
                       <div className="block w-full aspect-w-10 aspect-h-7 rounded-lg overflow-hidden">
-                        <img src="/images/project.png" alt="" className="object-cover" />
+                        <Image src="/images/project.png" alt="" className="object-cover" />
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between items-center">
                         <h3 className="font-medium text-white">Information</h3>
                         <div
-                          onClick={updateProject}
+                          // onClick={updateProject}
                           className="cursor-pointer text-center bg-yellow rounded-lg text-black font-bold px-2 py-1 w-20 hover:text-gray"
                         >
                           Save

@@ -70,7 +70,7 @@ export const useProject = () => {
         })
       );
     },
-    [properties, selectedProject]
+    [properties, setProperties]
   );
 
   // handle ETL
@@ -174,7 +174,20 @@ export const useProject = () => {
       }
     };
     callETL();
-  }, [properties, selectedProject, interpolation, direction]);
+  }, [
+    properties,
+    selectedProject,
+    interpolation,
+    direction,
+    setIsQtOpen,
+    setPayload,
+    droppedProps,
+    isZnumber,
+    isPropsValid,
+    setModelCreationLoadingState,
+    userId,
+    setGridErrorModal,
+  ]);
 
   return {
     isDropped,

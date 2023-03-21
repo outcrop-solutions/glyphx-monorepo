@@ -1,12 +1,5 @@
 import { atom, selector } from 'recoil';
-import {
-  GridColumn,
-  IFileSystem,
-  IMatchingFileStats,
-  OpenFile,
-  RenderableDataGrid,
-  SelectedIndex,
-} from 'lib/file-ingest/types';
+import { web as webTypes } from '@glyphx/types';
 import { IFileStats } from '@glyphx/types/src/fileIngestion';
 
 /**
@@ -39,7 +32,7 @@ import { IFileStats } from '@glyphx/types/src/fileIngestion';
  **/
 
 // WRITEABLE STATE HERE
-export const fileSystemAtom = atom<IFileSystem>({
+export const fileSystemAtom = atom<webTypes.FileSystem>({
   key: 'fileSystemAtom',
   default: null,
 });
@@ -47,7 +40,7 @@ export const fileSystemAtom = atom<IFileSystem>({
 /**
  * Holds the index of the currently selected file relative to filesystem. This is important for index based array update patterns to work performantly, -1 denotes non selected
  * */
-export const selectedFileAtom = atom<SelectedIndex>({
+export const selectedFileAtom = atom<webTypes.SelectedIndex>({
   key: 'selectedFileSelector',
   default: { index: -1 },
 });
@@ -56,7 +49,7 @@ export const selectedFileAtom = atom<SelectedIndex>({
  * Holds the matches found upon file ingestion between existing and new file statistics.
  * If !== null, modal will display asking user to make a ADD | APPEND choice
  * */
-export const matchingFilesAtom = atom<IMatchingFileStats[]>({
+export const matchingFilesAtom = atom<webTypes.IMatchingFileStats[]>({
   key: 'matchingFilesSelector',
   default: null,
 });
@@ -101,7 +94,7 @@ export const fileStatsSelector = selector<IFileStats[]>({
  * List of files currently "open" from the user's perspective
  * The index is included to make index based immutable array updates easier / work performantly
  */
-export const filesOpenSelector = selector<OpenFile[]>({
+export const filesOpenSelector = selector<webTypes.OpenFile[]>({
   key: 'filesOpenAtom',
   get: ({ get }) => {
     const fileSystem = get(fileSystemAtom);
@@ -116,7 +109,7 @@ export const filesOpenSelector = selector<OpenFile[]>({
 /**
  * Peels the pre-calculated datagrid off the filesystem to render in react-data-grid
  */
-export const dataGridSelector = selector<RenderableDataGrid>({
+export const dataGridSelector = selector<webTypes.IRenderableDataGrid>({
   key: 'dataGridSelector',
   get: async ({ get }) => {
     const selectedFile = get(selectedFileAtom);
@@ -132,7 +125,7 @@ export const dataGridSelector = selector<RenderableDataGrid>({
 /**
  * Holds the renderable columns of the grid, providing dataType for CSS selectors to override colours
  */
-export const columnsSelector = selector<GridColumn[]>({
+export const columnsSelector = selector<webTypes.GridColumn[]>({
   key: 'columnsSelector',
   get: ({ get }) => {
     let dataGrid = get(dataGridSelector);

@@ -39,7 +39,7 @@ export default function Project() {
   const setProjectId = useSetRecoilState(projectIdAtom);
   useEffect(() => {
     if (projectId) setProjectId(projectId);
-  }, [projectId]);
+  }, [projectId, setProjectId]);
 
   const dataGridLoading = useRecoilValue(dataGridLoadingAtom);
   const gridModalError = useRecoilValue(GridModalErrorAtom);

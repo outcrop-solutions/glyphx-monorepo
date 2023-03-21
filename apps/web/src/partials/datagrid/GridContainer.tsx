@@ -1,5 +1,5 @@
 import { rowsSelector, columnsSelector } from 'state/files';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 import { MainDropzone } from '../files';
 import { Datagrid } from './DataGrid';
@@ -49,49 +49,52 @@ export const GridContainer = ({ isDropped }) => {
     setSize(size);
   }
 
-  function doResize(size) {
-    try {
-      // window?.core.ToggleDrawer(true);
-      if (orientation === 'horizontal') {
-        var yValue = size + Math.abs(Math.round(window.innerHeight * 0.882) - 700);
-        var heightValue = Math.abs(size - Math.abs(Math.round(window.innerHeight * 0.157) + 700));
-        var leftSide = window.innerWidth;
-        if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
-          leftSide = leftSide - 250;
+  const doResize = useCallback(
+    (size: number) => {
+      try {
+        // window?.core.ToggleDrawer(true);
+        if (orientation === 'horizontal') {
+          var yValue = size + Math.abs(Math.round(window.innerHeight * 0.882) - 700);
+          var heightValue = Math.abs(size - Math.abs(Math.round(window.innerHeight * 0.157) + 700));
+          var leftSide = window.innerWidth;
+          if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
+            leftSide = leftSide - 250;
+          }
+          window?.core.ResizeEvent(
+            JSON.stringify({
+              filterSidebar: {
+                y: yValue, //843
+                right: 335,
+                height: heightValue,
+              },
+              commentsSidebar: {
+                left: leftSide,
+              },
+            })
+          );
+        } else {
+          var rightValue = size + 335;
+          var leftSide = window.innerWidth;
+          if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
+            leftSide = leftSide - 250;
+          }
+          window?.core.ResizeEvent(
+            JSON.stringify({
+              filterSidebar: {
+                right: rightValue,
+                height: window.innerWidth,
+                y: 150,
+              },
+              commentsSidebar: {
+                left: leftSide,
+              },
+            })
+          );
         }
-        window?.core.ResizeEvent(
-          JSON.stringify({
-            filterSidebar: {
-              y: yValue, //843
-              right: 335,
-              height: heightValue,
-            },
-            commentsSidebar: {
-              left: leftSide,
-            },
-          })
-        );
-      } else {
-        var rightValue = size + 335;
-        var leftSide = window.innerWidth;
-        if (isShareOpen || isInfoOpen || isNotificationOpen || true) {
-          leftSide = leftSide - 250;
-        }
-        window?.core.ResizeEvent(
-          JSON.stringify({
-            filterSidebar: {
-              right: rightValue,
-              height: window.innerWidth,
-              y: 150,
-            },
-            commentsSidebar: {
-              left: leftSide,
-            },
-          })
-        );
-      }
-    } catch (error) {}
-  }
+      } catch (error) {}
+    },
+    [isInfoOpen, isNotificationOpen, isShareOpen, orientation]
+  );
 
   // TODO: LOOK AT IMMUTABLE UPDATE
 
@@ -126,7 +129,7 @@ export const GridContainer = ({ isDropped }) => {
         r.style.setProperty('--width', `${Math.round(window.innerWidth - 40 - 300)}px`); //set width of grid to size between right sidebar and left content
       }
     }
-  }, [orientation, isInfoOpen, isShareOpen, isNotificationOpen, localSize, cols]);
+  }, [orientation, isInfoOpen, isShareOpen, isNotificationOpen, localSize, cols, localOrientation, r, doResize]);
 
   return (
     <>

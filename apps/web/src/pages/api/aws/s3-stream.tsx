@@ -1,7 +1,7 @@
 import { HttpMethod } from 'types';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { streamS3 } from 'lib/file-ingest';
+import { streamS3 } from 'lib/server/files';
 
 export default async function stream(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {

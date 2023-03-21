@@ -1,85 +1,85 @@
 // CONSULTANT DASHBOARD
-import React, { Fragment } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
-
+import React, { Fragment } from 'react';
+import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline';
+import Image from 'next/image';
 // DUMMY DATA
 const user = {
-  name: "Bryan Holster",
-  email: "bryan@synglyphx.com",
-  imageUrl: "/bryan.jpg",
+  name: 'Bryan Holster',
+  email: 'bryan@synglyphx.com',
+  imageUrl: '/bryan.jpg',
 };
 const navigation = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "Billing", href: "#", current: false },
-  { name: "Team", href: "#", current: false },
+  { name: 'Dashboard', href: '#', current: true },
+  { name: 'Billing', href: '#', current: false },
+  { name: 'Team', href: '#', current: false },
 ];
 const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
+  { name: 'Your Profile', href: '#' },
+  { name: 'Settings', href: '#' },
+  { name: 'Sign out', href: '#' },
 ];
 
 const people = [
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
   {
-    name: "Jane Cooper",
-    city: "Indianapolis",
-    invoice: "Sept 20th, 2021",
-    models: "6",
-    received: "$20,000",
+    name: 'Jane Cooper',
+    city: 'Indianapolis',
+    invoice: 'Sept 20th, 2021',
+    models: '6',
+    received: '$20,000',
   },
 ];
 function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(' ');
 }
 
 export default function Dashboard() {
@@ -94,11 +94,7 @@ export default function Dashboard() {
                   <div className="flex justify-between h-16">
                     <div className="flex">
                       <div className="shrink-0 flex items-center">
-                        <img
-                          className="block w-auto"
-                          src="/logo-large.svg"
-                          alt="Workflow"
-                        />
+                        <Image className="block w-auto" src="/logo-large.svg" alt="Workflow" />
                       </div>
                       <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
                         {navigation.map((item) => (
@@ -107,11 +103,11 @@ export default function Dashboard() {
                             href={item.href}
                             className={classNames(
                               item.current
-                                ? "border-indigo-500 text-white"
-                                : "border-transparent text-gray hover:text-gray hover:border-slate-300",
-                              "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                                ? 'border-indigo-500 text-white'
+                                : 'border-transparent text-gray hover:text-gray hover:border-slate-300',
+                              'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
                             )}
-                            aria-current={item.current ? "page" : undefined}
+                            aria-current={item.current ? 'page' : undefined}
                           >
                             {item.name}
                           </a>
@@ -132,11 +128,7 @@ export default function Dashboard() {
                         <div>
                           <Menu.Button className="bg-white flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <span className="sr-only">Open user menu</span>
-                            <img
-                              className="h-8 w-8 rounded-full"
-                              src={user.imageUrl}
-                              alt=""
-                            />
+                            <Image className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" />
                           </Menu.Button>
                         </div>
                         <Transition
@@ -154,10 +146,7 @@ export default function Dashboard() {
                                 {({ active }) => (
                                   <a
                                     href={item.href}
-                                    className={classNames(
-                                      active ? "bg-gray" : "",
-                                      "block px-4 py-2 text-sm text-gray"
-                                    )}
+                                    className={classNames(active ? 'bg-gray' : '', 'block px-4 py-2 text-sm text-gray')}
                                   >
                                     {item.name}
                                   </a>
@@ -175,10 +164,7 @@ export default function Dashboard() {
                         {open ? (
                           <XIcon className="block h-6 w-6" aria-hidden="true" />
                         ) : (
-                          <MenuIcon
-                            className="block h-6 w-6"
-                            aria-hidden="true"
-                          />
+                          <MenuIcon className="block h-6 w-6" aria-hidden="true" />
                         )}
                       </Disclosure.Button>
                     </div>
@@ -194,11 +180,11 @@ export default function Dashboard() {
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? "bg-indigo-50 border-indigo-500 text-indigo-700"
-                            : "border-transparent text-gray hover:bg-gray hover:border-slate-300 hover:text-gray",
-                          "block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                            ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
+                            : 'border-transparent text-gray hover:bg-gray hover:border-slate-300 hover:text-gray',
+                          'block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
                         )}
-                        aria-current={item.current ? "page" : undefined}
+                        aria-current={item.current ? 'page' : undefined}
                       >
                         {item.name}
                       </Disclosure.Button>
@@ -207,19 +193,11 @@ export default function Dashboard() {
                   <div className="pt-4 pb-3 border-t border-gray">
                     <div className="flex items-center px-4">
                       <div className="shrink-0">
-                        <img
-                          className="h-10 w-10 rounded-full"
-                          src={user.imageUrl}
-                          alt=""
-                        />
+                        <Image className="h-10 w-10 rounded-full" src={user.imageUrl} alt="" />
                       </div>
                       <div className="ml-3">
-                        <div className="text-base font-medium text-gray">
-                          {user.name}
-                        </div>
-                        <div className="text-sm font-medium text-gray">
-                          {user.email}
-                        </div>
+                        <div className="text-base font-medium text-gray">{user.name}</div>
+                        <div className="text-sm font-medium text-gray">{user.email}</div>
                       </div>
                       <button
                         type="button"
@@ -250,9 +228,7 @@ export default function Dashboard() {
           <div className="py-10">
             <header className="mb-6">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h1 className="text-3xl font-bold leading-tight text-white">
-                  Dashboard
-                </h1>
+                <h1 className="text-3xl font-bold leading-tight text-white">Dashboard</h1>
               </div>
             </header>
             <main>
@@ -307,22 +283,12 @@ export default function Dashboard() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray">
                                   {person.name}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
-                                  {person.city}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
-                                  {person.invoice}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
-                                  {person.models}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">
-                                  {person.received}
-                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">{person.city}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">{person.invoice}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">{person.models}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray">{person.received}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                  <button className="text-indigo-600 hover:text-indigo-900">
-                                    Edit
-                                  </button>
+                                  <button className="text-indigo-600 hover:text-indigo-900">Edit</button>
                                 </td>
                               </tr>
                             ))}

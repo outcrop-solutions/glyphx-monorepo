@@ -1,5 +1,5 @@
+import { useEffect, useState, useCallback } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { useEffect, useState } from 'react';
 import { SortableHeaderCell } from './SortableHeaderCell';
 import { useCombinedRefs } from 'services/useCombinedRefs';
 import { droppedPropertiesSelector, propertiesAtom } from 'state/properties';
@@ -43,7 +43,7 @@ export function DraggableHeaderRenderer({
   /**
    * Checks if column has been dropped using droppedPropsSelector
    */
-  function isColumnDropped() {
+  const isColumnDropped = useCallback(() => {
     if (droppedProps?.length > 0) {
       for (let index = 0; index < droppedProps?.length; index++) {
         if (droppedProps[index].lastDroppedItem.key === column.key) {
@@ -51,7 +51,7 @@ export function DraggableHeaderRenderer({
         }
       }
     }
-  }
+  }, [droppedProps, column.key]);
 
   /**
    * Renders column name with title
@@ -186,7 +186,7 @@ export function DraggableHeaderRenderer({
 
   useEffect(() => {
     isColumnDropped();
-  }, [droppedProps]);
+  }, [droppedProps, isColumnDropped]);
 
   return (
     <div
