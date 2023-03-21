@@ -1,25 +1,24 @@
-import { database as databaseTypes } from '@glyphx/types';
+import { web as webTypes } from '@glyphx/types';
+import { Session } from 'next-auth';
+import { validateSession, Initializer } from '@glyphx/business';
+import { updateRole } from 'lib/server';
 
-import { validateSession, membershipService, Initializer } from '@glyphx/business';
-
-const handler = async (req, res) => {
+const role = async (req, res) => {
+  // initialize the business layer
   await Initializer.init();
-  const { method } = req;
 
-  if (method === 'PUT') {
-    await validateSession(req, res);
-    const { memberId } = req.body;
-    const member = membershipService.getMember(memberId);
-    await membershipService.toggleRole(
-      memberId,
-      member.teamRole === databaseTypes.constants.ROLE.MEMBER
-        ? databaseTypes.constants.ROLE.OWNER
-        : databaseTypes.constants.ROLE.MEMBER
-    );
-    res.status(200).json({ data: { updatedAt: new Date() } });
-  } else {
-    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
+  // check for valid session
+  const session = (await validateSession(req, res)) as Session;
+  if (!session.user.userId) return res.status(401).end();
+
+  // execute the appropriate handler
+  switch (req.method) {
+    case webTypes.HTTP_METHOD.PUT:
+      return updateRole(req, res, session);
+    default:
+      res.setHeader('Allow', [webTypes.HTTP_METHOD.PUT]);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
 
-export default handler;
+export default role;

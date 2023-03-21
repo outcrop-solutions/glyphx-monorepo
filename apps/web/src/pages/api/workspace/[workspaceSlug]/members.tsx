@@ -1,16 +1,24 @@
-import { validateSession, membershipService, Initializer } from '@glyphx/business';
+import { web as webTypes } from '@glyphx/types';
+import { Session } from 'next-auth';
+import { validateSession, Initializer } from '@glyphx/business';
+import { getMembers } from 'lib/server';
 
-const handler = async (req, res) => {
+const members = async (req, res) => {
+  // initialize the business layer
   await Initializer.init();
-  const { method } = req;
 
-  if (method === 'GET') {
-    await validateSession(req, res);
-    const members = await membershipService.getMembers({ slug: req.query.workspaceSlug });
-    res.status(200).json({ data: { members } });
-  } else {
-    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
+  // check for valid session
+  const session = (await validateSession(req, res)) as Session;
+  if (!session.user.userId) return res.status(401).end();
+
+  // execute the appropriate handler
+  switch (req.method) {
+    case webTypes.HTTP_METHOD.GET:
+      return getMembers(req, res);
+    default:
+      res.setHeader('Allow', [webTypes.HTTP_METHOD.GET]);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
 
-export default handler;
+export default members;
