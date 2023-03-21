@@ -11,7 +11,7 @@ import {
   matchingFilesAtom,
 } from '../state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'partials/files/transforms';
+import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'lib/utils/transforms';
 import { useRouter } from 'next/router';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';

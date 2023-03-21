@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/eslint-config-custom",
+  "name": "eslint-config-custom",
   "main": "index.js",
   "dependencies": {
     "eslint": "latest",

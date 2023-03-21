@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil';
 import { filesSelector } from 'state/files';
 import { useFileSystem } from 'services/useFileSystem';
 import { File } from './File';
-import { SidebarDropzone } from './ingest/SidebarDropzone';
+import { SidebarDropzone } from './SidebarDropzone';
 
 export const Files = () => {
   const { onDrop } = useFileSystem();
