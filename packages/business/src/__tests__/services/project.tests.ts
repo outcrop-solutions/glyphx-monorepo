@@ -132,7 +132,7 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('createProject', () => {
+  context.only('createProject', () => {
     it('will create a Project and attach to user and workspace models', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
@@ -522,7 +522,7 @@ describe('#services/project', () => {
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
-      const err = new error.InvalidOperationError(errMessage, '', '');
+      const err = new error.InvalidOperationError(errMessage, {}, '');
 
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
@@ -578,7 +578,7 @@ describe('#services/project', () => {
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when usermodel throws a DataOperationError', async () => {
+    it('will publish and throw an DataServiceError when user model throws a DataOperationError', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userId = new mongooseTypes.ObjectId();
@@ -722,7 +722,7 @@ describe('#services/project', () => {
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
-      const err = new error.InvalidOperationError(errMessage, '', '');
+      const err = new error.InvalidOperationError(errMessage, {}, '');
 
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({

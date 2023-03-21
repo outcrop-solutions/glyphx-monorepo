@@ -122,6 +122,7 @@ export class ProjectService {
       return project;
     } catch (err: any) {
       if (
+        err instanceof error.InvalidOperationError ||
         err instanceof error.InvalidArgumentError ||
         err instanceof error.DataValidationError
       ) {
