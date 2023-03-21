@@ -9,6 +9,8 @@
       "@/config/*": ["src/config/*"],
       "@/layouts/*": ["src/layouts/*"],
       "@/lib/*": ["src/lib/*"],
+      "@/lib/server": ["src/lib/server/*"],
+      "@/lib/client": ["src/lib/client/*"],
       "@/pages/*": ["src/pages/*"],
       "@/hooks/*": ["src/hooks/*"],
       "@/partials/*": ["src/partials/*"],

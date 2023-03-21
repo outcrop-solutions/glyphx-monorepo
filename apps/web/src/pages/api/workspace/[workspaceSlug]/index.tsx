@@ -1,19 +1,24 @@
-import { validateSession, workspaceService, Initializer } from '@glyphx/business';
+import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
+import { validateSession, Initializer } from '@glyphx/business';
+import { deleteWorkspace } from 'lib/server';
 
-const handler = async (req, res) => {
+const workspace = async (req, res) => {
+  // initialize the business layer
   await Initializer.init();
-  const { method } = req;
 
-  if (method === 'DELETE') {
-    const session = (await validateSession(req, res)) as Session;
-    workspaceService
-      .deleteWorkspace(session?.user?.userId, session?.user?.email, req.query.workspaceSlug)
-      .then((slug) => res.status(200).json({ data: { slug } }))
-      .catch((error) => res.status(404).json({ errors: { error: { msg: error.message } } }));
-  } else {
-    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
+  // check for valid session
+  const session = (await validateSession(req, res)) as Session;
+  if (!session.user.userId) return res.status(401).end();
+
+  // execute the appropriate handler
+  switch (req.method) {
+    case webTypes.HTTP_METHOD.DELETE:
+      return deleteWorkspace(req, res, session);
+    default:
+      res.setHeader('Allow', [webTypes.HTTP_METHOD.DELETE]);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
 
-export default handler;
+export default workspace;

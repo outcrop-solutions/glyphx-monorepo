@@ -1,18 +1,24 @@
-import { Initializer, validateSession, workspaceService } from '@glyphx/business';
+import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
-const handler = async (req, res) => {
-  await Initializer.init()
-  const { method } = req;
+import { validateSession, Initializer } from '@glyphx/business';
+import { joinWorkspace } from 'lib/server';
 
-  if (method === 'POST') {
-    const session = (await validateSession(req, res)) as Session;
-    const { workspaceCode } = req.body;
-    workspaceService.joinWorkspace(workspaceCode, session?.user?.email)
-      .then((joinedAt) => res.status(200).json({ data: { joinedAt } }))
-      .catch((error) => res.status(404).json({ errors: { error: { msg: error.message } } }));
-  } else {
-    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
+const join = async (req, res) => {
+  // initialize the business layer
+  await Initializer.init();
+
+  // check for valid session
+  const session = (await validateSession(req, res)) as Session;
+  if (!session.user.userId) return res.status(401).end();
+
+  // execute the appropriate handler
+  switch (req.method) {
+    case webTypes.HTTP_METHOD.POST:
+      return joinWorkspace(req, res, session);
+    default:
+      res.setHeader('Allow', [webTypes.HTTP_METHOD.POST]);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
 
-export default handler;
+export default join;

@@ -1,27 +1,25 @@
-import { validateSession, userService, Initializer } from '@glyphx/business';
-import {  } from '@glyphx/business';
+import { web as webTypes } from '@glyphx/types';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
+import { validateSession, Initializer } from '@glyphx/business';
+import { deactivateUser } from 'lib/server';
 
-const ALLOW_DEACTIVATION = false;
+const deactivate = async (req: NextApiRequest, res: NextApiResponse) => {
+  // initialize the business layer
+  await Initializer.init();
 
-const handler = async (req, res) => {
-  await Initializer.init()
-  
-  const { method } = req;
+  // check for valid session
+  const session = (await validateSession(req, res)) as Session;
+  if (!session.user.userId) return res.status(401).end();
 
-  if (method === 'DELETE') {
-    const session = await validateSession(req, res) as Session;
-    if (ALLOW_DEACTIVATION) {
-      
-      await userService.deactivate(session?.user?.userId);
-    }
-
-    res.status(200).json({ data: { email: session?.user?.email } });
-  } else {
-    res
-      .status(405)
-      .json({ errors: { error: { msg: `${method} method unsupported` } } });
+  // execute the appropriate handler
+  switch (req.method) {
+    case webTypes.HTTP_METHOD.PUT:
+      return deactivateUser(req, res, session);
+    default:
+      res.setHeader('Allow', [webTypes.HTTP_METHOD.PUT]);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
 
-export default handler;
+export default deactivate;
