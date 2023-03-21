@@ -15,9 +15,9 @@ export interface IProject {
   workspace: IWorkspace;
   slug?: string;
   isTemplate: Boolean;
-  type: IProjectType;
+  type?: IProjectType;
   owner: IUser;
   state?: IState;
   files: IFileStats[];
-  viewName: string;
+  viewName?: string;
 }
