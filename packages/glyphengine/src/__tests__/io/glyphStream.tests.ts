@@ -10,9 +10,9 @@ import {TextColumnToNumberConverter} from '../../io/textToNumberConverter';
 import {MinMaxCalculator} from '../../io/minMaxCalulator';
 import {Readable, Writable} from 'stream';
 import {pipeline} from 'stream/promises';
-import {convertHsvToRgb} from '../../util';
+import {IGlyph} from '../../interfaces/iGlyph';
 
-describe('describe', () => {
+describe('#io/GlyphStream', () => {
   const mockInputData = new Map<string, string>([
     ['type_x', 'string'],
     ['type_y', 'number'],
@@ -183,13 +183,13 @@ describe('describe', () => {
       let lastPosz = 0;
       let lastScalez = -1;
       let rowId = 0;
-      let lastRed = -1;
-      let lastGreen = 256;
-      let lastBlue = 256;
+      let lastColor = '';
+      let written = false;
       //for this test the data is ordered so we can check our interpolation math
       const wStream = new Writable({
         objectMode: true,
-        write: (chunk, encoding, callback) => {
+        write: (chunk: IGlyph, encoding, callback) => {
+          written = true;
           assert.isAbove(chunk.positionX, lastPosx);
           lastPosx = chunk.positionX;
           assert.isAbove(chunk.positionY, lastPosy);
@@ -198,17 +198,9 @@ describe('describe', () => {
           lastPosz = chunk.positionZ;
           assert.isAbove(chunk.scaleZ, lastScalez);
           lastScalez = chunk.scaleZ;
-          const [r, g, b] = convertHsvToRgb(
-            chunk.colorR,
-            chunk.colorG,
-            chunk.colorB
-          );
-          assert.isAbove(r, lastRed);
-          lastRed = r;
-          assert.isBelow(g, lastGreen);
-          lastGreen = g;
-          assert.isBelow(b, lastBlue);
-          lastBlue = b;
+          const color = `${chunk.colorR}, ${chunk.colorG}, ${chunk.colorB}`;
+          assert.notStrictEqual(color, lastColor);
+          lastColor = color;
 
           const expectedRowId = mockData[rowId].rowId;
           const expectedX = mockData[rowId].columnx;
@@ -222,15 +214,17 @@ describe('describe', () => {
           assert.strictEqual(desc.y.columny, expectedY);
           assert.strictEqual(desc.z.columnz, expectedZ);
 
-          assert.strictEqual(chunk.tag, `columnz: ${expectedZ}`);
+          assert.strictEqual(chunk.tag, `columnx: ${expectedX}`);
 
           rowId++;
           callback();
         },
       });
+
       const glyphStream = new GlyphStream(sdtParser);
 
       await pipeline(rStream, glyphStream, wStream);
+      assert.isTrue(written);
     });
   });
 });

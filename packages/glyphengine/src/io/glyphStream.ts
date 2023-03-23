@@ -5,6 +5,7 @@ import {
   linearInterpolation,
   logaritmicInterpolation,
   convertRgbToHsv,
+  convertHsvToRgb,
 } from '../util';
 import {FUNCTION, SHAPE} from '../constants';
 
@@ -26,7 +27,7 @@ export class GlyphStream extends Transform {
 
     const scaleZ = this.getInterpolatedValue('Scale', 'Z', chunk);
 
-    const {h, s, v, a} = this.getColorInterpolatedValue(chunk);
+    const {r: h, g: s, b: v, a} = this.getColorInterpolatedValue(chunk);
 
     const tag = this.getTag(chunk);
     const desc = this.getDesc(chunk);
@@ -85,7 +86,7 @@ export class GlyphStream extends Transform {
   }
 
   private getTag(chunk: Record<string, unknown>): string {
-    const filedName = this.sdtParser.getInputFields().z.field;
+    const filedName = this.sdtParser.getInputFields().x.field;
     const value = chunk[filedName];
     const tag = `${filedName}: ${value}`;
     return tag;
@@ -104,9 +105,9 @@ export class GlyphStream extends Transform {
     return value;
   }
   private getColorInterpolatedValue(values: Record<string, unknown>): {
-    h: number;
-    s: number;
-    v: number;
+    r: number;
+    g: number;
+    b: number;
     a: number;
   } {
     const inputField = this.sdtParser.getInputFields().z;
@@ -117,42 +118,52 @@ export class GlyphStream extends Transform {
     ) as IProperty;
 
     const rawMinColor = propertyField.minRgb;
+    const rawMinAsHsv = convertRgbToHsv(
+      rawMinColor[0],
+      rawMinColor[1],
+      rawMinColor[2]
+    );
     const rawMaxColor = propertyField.maxRgb;
+    const rawMaxAsHsv = convertRgbToHsv(
+      rawMaxColor[0],
+      rawMaxColor[1],
+      rawMaxColor[2]
+    );
     //this is harcoded in the template. Should we ever change it, we will need to update this.
 
-    const r = Math.trunc(
+    const h = Math.trunc(
       linearInterpolation(
         value as number,
         inputField.min,
         inputField.max,
-        rawMinColor[0],
-        rawMaxColor[0]
+        rawMinAsHsv[0],
+        rawMaxAsHsv[0]
       )
     );
 
-    const g = Math.trunc(
+    const s = Math.trunc(
       linearInterpolation(
         value as number,
         inputField.min,
         inputField.max,
-        rawMinColor[1],
-        rawMaxColor[1]
+        rawMinAsHsv[1],
+        rawMaxAsHsv[1]
       )
     );
 
-    const b = Math.trunc(
+    const v = Math.trunc(
       linearInterpolation(
         value as number,
         inputField.min,
         inputField.max,
-        rawMinColor[2],
-        rawMaxColor[2]
+        rawMinAsHsv[2],
+        rawMaxAsHsv[2]
       )
     );
-    const [h, s, v] = convertRgbToHsv(r, g, b);
+    const [r, g, b] = convertHsvToRgb(h, s, v);
 
     const a = 255;
-    return {h, s, v, a};
+    return {r: r, g: g, b: b, a};
   }
 
   private getInterpolatedValue(
