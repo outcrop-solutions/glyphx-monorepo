@@ -20,11 +20,10 @@ export function convertUtfForBufferToText(
 ): string {
   // buffer is the ArrayBuffer containing the encoded string
   const length = input.readUInt16BE(offset); // length of the encoded string
-  const encodedString = new Uint8Array(input, offset + 2, length);
+  const data = input.subarray(offset + 2, offset + 2 + length); // the encoded string
+  const encodedString = new Uint8Array(data);
   const decoder = new TextDecoder();
   const decodedString = decoder.decode(encodedString);
 
-  //The encoder adds the utf marks, we will just remove them here.
-  const cleanString = decodedString.slice(2);
-  return cleanString;
+  return decodedString;
 }

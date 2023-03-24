@@ -1,10 +1,13 @@
 import {Transform} from 'stream';
 import {Buffer} from 'buffer';
 import {IGlyph} from '../interfaces';
-const FORMAT_VERSION = 2;
-const OFFSET = 6;
 import {convertTextToUtfForBuffer} from '../util/textConversion';
 import {convertNumberTo32bIeee754Float} from '../util/numberConversion';
+
+export const MAGIC_NUMBER = 0xa042bc3f;
+export const FORMAT_VERSION = 2;
+export const OFFSET = 6;
+
 export class SgcStream extends Transform {
   private offset: number;
   constructor() {
@@ -17,7 +20,7 @@ export class SgcStream extends Transform {
   pushBaseImage() {
     let offset = 0;
     const buffer = Buffer.alloc(52);
-    buffer.writeUInt32BE(0xa042bc3f); // magic number
+    buffer.writeUInt32BE(MAGIC_NUMBER); // magic number
     offset += 4;
     buffer.writeUInt32BE(FORMAT_VERSION, offset); // version
     offset += 4;
