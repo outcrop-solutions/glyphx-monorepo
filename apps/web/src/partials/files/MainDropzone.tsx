@@ -11,7 +11,7 @@ export const MainDropzone = () => {
   });
 
   return (
-    <div {...getRootProps()} className="text-center h-full flex flex-col justify-center">
+    <div {...getRootProps()} className="text-center h-[600px] flex flex-col justify-center items-center">
       <svg
         className="mx-auto h-12 w-12 text-gray"
         fill="none"

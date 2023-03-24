@@ -4,7 +4,7 @@ import { GetServerSideProps } from 'next';
 import sortArray from 'sort-array';
 
 // Layout
-import { Header } from 'partials';
+import { Header, MainDropzone } from 'partials';
 import { MainSidebar } from 'partials';
 import { Info } from 'partials/info';
 import { PinnedProjects } from 'partials';
@@ -58,7 +58,8 @@ export default function Home({ workspace }) {
           </div>
         </div>
       ) : (
-        <Templates />
+        <MainDropzone />
+        // <Templates />
       )}
       <div id="right-side-bars" className="">
         {projectDetails ? <ProjectDetails /> : <></>}

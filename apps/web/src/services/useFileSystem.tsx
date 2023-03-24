@@ -11,10 +11,19 @@ import {
   matchingFilesAtom,
 } from '../state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'lib/utils/transforms';
+import {
+  compareStats,
+  createFileSystem,
+  createFileSystemFromS3,
+  parseFileStats,
+  parsePayload,
+} from 'lib/utils/transforms';
 import { useRouter } from 'next/router';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
+import { _addFiles, api } from 'lib';
+import workspace from 'pages/api/workspace';
+import { useWorkspace } from 'providers/workspace';
 
 const cleanTableName = (fileName) => {
   return fileName.split('.')[0].trim().toLowerCase();
@@ -33,7 +42,7 @@ const cleanTableName = (fileName) => {
 export const useFileSystem = () => {
   const router = useRouter();
   const { orgId, projectId } = router.query;
-
+  const { workspace, setWorkspace } = useWorkspace();
   const project = useRecoilValue(selectedProjectSelector);
   const existingFileStats = useRecoilValue(fileStatsSelector);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
@@ -77,20 +86,26 @@ export const useFileSystem = () => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // create loading state
-      setDataGridLoading(true);
+      // setDataGridLoading(true);
+      // console.dir({ file: await acceptedFiles[0].text() }, { depth: null });
+      const payload = await parsePayload(workspace._id, '641b6e734dd1c59b73eb43da', acceptedFiles);
+
+      api({
+        ..._addFiles(payload),
+      });
 
       // calculate & compare file stats
-      const newFileStats = await parseFileStats(acceptedFiles);
-      const matchingStats = await compareStats(newFileStats, existingFileStats);
+      // const newFileStats = await parseFileStats(acceptedFiles);
+      // const matchingStats = await compareStats(newFileStats, existingFileStats);
 
       // immutable update to modal state if decision required
-      if (matchingStats && matchingStats.length > 0) {
-        setMatchingStats(
-          produce((_) => {
-            return matchingStats;
-          })
-        );
-      }
+      // if (matchingStats && matchingStats.length > 0) {
+      //   setMatchingStats(
+      //     produce((_) => {
+      //       return matchingStats;
+      //     })
+      //   );
+      // }
 
       // if no decision required, default to 'ADD'
 
@@ -136,7 +151,7 @@ export const useFileSystem = () => {
       //   }
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
-    [setDataGridLoading, existingFileStats, setMatchingStats]
+    [workspace._id]
   );
 
   /**

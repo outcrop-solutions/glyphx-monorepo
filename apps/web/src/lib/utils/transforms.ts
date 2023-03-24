@@ -1,14 +1,18 @@
 import MD5 from 'crypto-js/md5';
 import { parse } from 'papaparse';
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-
+import { S3_BUCKET_NAME } from 'constants/config';
+import { Types as mongooseTypes } from 'mongoose';
 /**
  * Takes array of file Blobs and merges them with the existing filesystem
  * @param acceptedFiles
  * @param {webTypes.IFileSystemItem[]}
  * @returns {webTypes.IFileSystemItem[] | any[]}
  */
-export const createFileSystem = (acceptedFiles, fileSystem: webTypes.IFileSystemItem[] | null): webTypes.IFileSystemItem[] | any[] => {
+export const createFileSystem = (
+  acceptedFiles,
+  fileSystem: webTypes.IFileSystemItem[] | null
+): webTypes.IFileSystemItem[] | any[] => {
   let newData = acceptedFiles.map(({ name, type, size }, idx) => ({
     id: idx + fileSystem?.length + 1,
     parent: 0,
@@ -80,7 +84,9 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
     const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {
       key: item,
-      dataType: isNaN(Number(data[0][item])) ? fileIngestionTypes.constants.FIELD_TYPE.STRING : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+      dataType: isNaN(Number(data[0][item]))
+        ? fileIngestionTypes.constants.FIELD_TYPE.STRING
+        : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
       name: capitalized,
       width: 120,
       resizable: true,
@@ -88,7 +94,14 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
     };
   });
   // Generates first column
-  cols.unshift({ key: 'id', dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, name: '', width: 40, resizable: true, sortable: true });
+  cols.unshift({
+    key: 'id',
+    dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+    name: '',
+    width: 40,
+    resizable: true,
+    sortable: true,
+  });
   let rows = data.map((row, idx) => ({ ...row, id: idx }));
 
   return { columns: cols, rows };
@@ -97,26 +110,62 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
 /**
  * Takes in an array of file Blobs and returns the fileIngestionTypes.IFileStats
  * @param {File[]}
- * @returns {fileIngestionTypes.IFileStats[]}
+ * @returns {fileIngestionTypes.IPayload}
  */
-export const parseFileStats = async (acceptedFiles): Promise<fileIngestionTypes.IFileStats[]> => {
-  const stats = await acceptedFiles.map(async (file: File) => {
-    const text = await file.text();
-    const { data } = parse(text, { header: true });
-    return {
-      fileName: file.name,
-      tableName: file.name.split('.')[0].trim().toLowerCase(),
-      numberOfRows: data?.length,
-      numberOfColumns: Object.keys(data[0])?.length,
-      columns: Object.keys(data[0]).map((item) => ({
-        name: item,
-        fieldType: isNaN(Number(data[0][item])) ? fileIngestionTypes.constants.FIELD_TYPE.STRING : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
-        longestString: undefined,
-      })),
-      fileSize: file.size,
-    };
-  });
-  return stats;
+
+interface IClientSidePayload {
+  clientId: string | mongooseTypes.ObjectId;
+  modelId: string;
+  bucketName: string;
+  fileStats: fileIngestionTypes.IFileStats[];
+  fileInfo: Omit<fileIngestionTypes.IFileInfo, 'fileStream'>[];
+}
+
+export const parsePayload = async (
+  workspaceId: string | mongooseTypes.ObjectId,
+  projectId: string,
+  acceptedFiles: File[]
+): Promise<IClientSidePayload> => {
+  const stats = await Promise.all(
+    acceptedFiles.map(async (file: File): Promise<fileIngestionTypes.IFileStats> => {
+      const text = await file.text();
+      const { data } = parse(text, { header: true });
+      return {
+        fileName: file.name,
+        tableName: file.name.split('.')[0].trim().toLowerCase(),
+        numberOfRows: data?.length,
+        numberOfColumns: Object.keys(data[0])?.length,
+        columns: Object.keys(data[0]).map((item) => ({
+          name: item,
+          fieldType: isNaN(Number(data[0][item]))
+            ? fileIngestionTypes.constants.FIELD_TYPE.STRING
+            : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+          longestString: undefined,
+        })),
+        fileSize: file.size,
+      };
+    })
+  );
+
+  const operations = await Promise.all(
+    acceptedFiles.map((file: File): Omit<fileIngestionTypes.IFileInfo, 'fileStream'> => {
+      return {
+        fileName: file.name,
+        tableName: file.name.split('.')[0].trim().toLowerCase(),
+        operation: 2,
+      };
+    })
+  );
+
+  const payload = {
+    clientId: workspaceId.toString(),
+    modelId: projectId,
+    bucketName: S3_BUCKET_NAME,
+    fileStats: stats,
+    fileInfo: operations,
+  };
+
+  return payload;
 };
 
 /**
