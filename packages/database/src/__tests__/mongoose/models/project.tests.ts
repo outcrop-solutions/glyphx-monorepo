@@ -90,7 +90,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -129,7 +129,7 @@ describe('#mongoose/models/project', () => {
     it('will rethrow a DataValidationError when a validator throws one', async () => {
       sandbox.replace(
         ProjectModel,
-        'validateType',
+        'validateWorkspace',
         sandbox
           .stub()
           .rejects(
@@ -142,20 +142,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateWorkspace',
-        sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
-      );
-      sandbox.replace(
-        ProjectModel,
         'validateOwner',
         sandbox.stub().resolves(MOCK_PROJECT.owner._id)
-      );
-      sandbox.replace(
-        ProjectModel,
-        'validateState',
-        sandbox
-          .stub()
-          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -182,7 +170,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -226,7 +214,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
       );
       sandbox.replace(
         ProjectModel,
@@ -266,7 +254,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(
         ProjectModel,
         'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type._id)
+        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
       );
       sandbox.replace(
         ProjectModel,

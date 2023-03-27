@@ -7,7 +7,7 @@ export interface IProjectCreateInput
     '_id' | 'createdAt' | 'updatedAt' | 'workspace' | 'type' | 'owner' | 'state'
   > {
   workspace: mongooseTypes.ObjectId | databaseTypes.IWorkspace;
-  type: mongooseTypes.ObjectId | databaseTypes.IProjectType;
+  type?: mongooseTypes.ObjectId | databaseTypes.IProjectType;
   owner: mongooseTypes.ObjectId | databaseTypes.IUser;
   state?: mongooseTypes.ObjectId | databaseTypes.IState;
 }
