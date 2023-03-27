@@ -5,10 +5,10 @@ export function getFullTableName(
   modelId: string,
   tableName: string
 ): string {
-  return `${clientId}_${modelId}_${tableName}`.toLowerCase();
+  return `glyphx_${clientId}_${modelId}_${tableName}`.toLowerCase();
 }
 export function getViewName(clientId: string, modelId: string): string {
-  return `${clientId}_${modelId}_view`.toLowerCase();
+  return `glyphx_${clientId}_${modelId}_view`.toLowerCase();
 }
 
 export function getTableCsvPath(

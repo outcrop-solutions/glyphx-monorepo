@@ -245,7 +245,7 @@ export class AthenaManager {
    * @throws InvalidOperationError -- in response to any other exceptions thrown by the @aws-sdk/client-athena package.
    */
   public async dropView(viewName: string): Promise<void> {
-    const dropQuery = `DROP VIEW IF EXISTS ${viewName};`;
+    const dropQuery = `DROP VIEW IF EXISTS "${viewName}";`;
     await this.runQuery(dropQuery);
   }
 }
