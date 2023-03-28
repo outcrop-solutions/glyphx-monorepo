@@ -11,22 +11,6 @@ export const ShareModule = ({ setShare }) => {
   const selectedProject = useRecoilValue(selectedProjectSelector);
   const sdtName = useRecoilValue(sdtValue);
 
-  const handleInvite = async () => {
-    try {
-      const response = await fetch(`/api/invite`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-      });
-
-      setShare(false);
-    } catch (error) {
-    } finally {
-    }
-  };
-
   /**
    * Copies Model Link to clipboard
    */

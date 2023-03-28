@@ -85,15 +85,6 @@ export const useFileSystem = () => {
    */
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      // create loading state
-      // setDataGridLoading(true);
-      // console.dir({ file: await acceptedFiles[0].text() }, { depth: null });
-      const payload = await parsePayload(workspace._id, '641b6e734dd1c59b73eb43da', acceptedFiles);
-
-      api({
-        ..._addFiles(payload),
-      });
-
       // calculate & compare file stats
       // const newFileStats = await parseFileStats(acceptedFiles);
       // const matchingStats = await compareStats(newFileStats, existingFileStats);
@@ -113,42 +104,13 @@ export const useFileSystem = () => {
       // let newData = createFileSystem(acceptedFiles, fileSystem);
       // setFileSystem([...(Array.isArray(newData) ? newData : [])]);
 
-      // send operations to file ingestion
-      // const result = await fetch(`/api/files/browser`, {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     orgId: 'glyphx',
-      //     projectId,
-      //     fileStats: [
-      //       ...(Array.isArray(newFileStats) ? newFileStats : []),
-      //       // ...(Array.isArray(existingFileStats) ? existingFileStats : []),
-      //     ],
-      //     fileInfo: [],
-      //   }),
-      // });
+      // create payload
+      const payload = await parsePayload(workspace._id, '641b6e734dd1c59b73eb43da', acceptedFiles);
 
-      //call file ingestion here
-      // try {
-      //   await fetch(`/api/files/browser?projectId=${projectId}`, {
-      //     method: 'POST',
-      //     body: createPayload(acceptedFiles)
-      //   });
-
-      //     let fileArr = [file.name];
-      //     if (project?.files !== null) {
-      //       fileArr = [...fileArr, ...project.files];
-      //     }
-      //     const updatedProject = {
-      //       id: project?.id,
-      //       filePath: project?.filePath,
-      //       properties: project?.properties,
-      //       url: project?.url,
-      //       shared: project.shared,
-      //       description: project.description,
-      //       files: fileArr, //adding file to dynamo db
-      //     };
-      //     let GraphQLresult = await updateProjectInfo(updatedProject);
-      //   }
+      // send payload for processing
+      api({
+        ..._addFiles(payload),
+      });
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
     [workspace._id]

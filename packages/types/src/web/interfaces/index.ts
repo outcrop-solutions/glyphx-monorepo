@@ -10,5 +10,3 @@ export * from './fileSystem/iS3ProviderListOutput';
 // filters
 export * from './filters/iNumericFilter';
 export * from './filters/iStringFilter';
-// properties
-export * from './properties/iProperty';

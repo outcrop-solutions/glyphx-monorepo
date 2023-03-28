@@ -127,7 +127,7 @@ describe('#fileProcessing', () => {
       );
       await fileProcessingHelpers.validateViewResults(
         athenaManager,
-        `${clientId}_${modelId}_view`,
+        `glyphx_${clientId}_${modelId}_view`,
         joinInformation
       );
 

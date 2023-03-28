@@ -4,8 +4,6 @@ import { aws, generalPurposeFunctions } from '@glyphx/core';
 import { FileIngestor } from '@glyphx/fileingestion';
 import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants/getUrl';
 import { processTrackingService } from '@glyphx/business';
-//eslint-disable-next-line
-import { fileIngestion, database as databaseTypes } from '@glyphx/types';
 
 /**
  * File Ingestion Key Notes

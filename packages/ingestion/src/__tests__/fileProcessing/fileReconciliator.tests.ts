@@ -110,7 +110,7 @@ const PROCESSED_FILES = [
   },
 ];
 
-describe.only('#fileProcessing/FileReconciliator', () => {
+describe('#fileProcessing/FileReconciliator', () => {
   context('reconcileFileInformation', () => {
     it('will recocile our fileInformation', () => {
       const clientId = 'testClientId';

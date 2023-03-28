@@ -6,6 +6,6 @@ export * from './fileSystem/listCommandOutputContent';
 export * from './fileSystem/openFile';
 export * from './fileSystem/selectedIndex';
 
-// used for create-model call
-export * from './filters/filter';
-export * from './filters/property';
+// used for filters on projects
+export * from './filter';
+export * from './property';
