@@ -102,13 +102,6 @@ describe('#mongoose/models/project', () => {
         'validateOwner',
         sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
-      sandbox.replace(
-        ProjectModel,
-        'validateState',
-        sandbox
-          .stub()
-          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
-      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
@@ -182,13 +175,6 @@ describe('#mongoose/models/project', () => {
         'validateOwner',
         sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
-      sandbox.replace(
-        ProjectModel,
-        'validateState',
-        sandbox
-          .stub()
-          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
-      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
@@ -226,13 +212,6 @@ describe('#mongoose/models/project', () => {
         'validateOwner',
         sandbox.stub().resolves(MOCK_PROJECT.owner._id)
       );
-      sandbox.replace(
-        ProjectModel,
-        'validateState',
-        sandbox
-          .stub()
-          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
-      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
@@ -265,13 +244,6 @@ describe('#mongoose/models/project', () => {
         ProjectModel,
         'validateOwner',
         sandbox.stub().resolves(MOCK_PROJECT.owner._id)
-      );
-      sandbox.replace(
-        ProjectModel,
-        'validateState',
-        sandbox
-          .stub()
-          .resolves(MOCK_PROJECT.state?._id as mongoose.Types.ObjectId)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -520,10 +492,6 @@ describe('#mongoose/models/project', () => {
       ownerStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', ownerStub);
 
-      const stateStub = sandbox.stub();
-      stateStub.resolves(true);
-      sandbox.replace(StateModel, 'stateIdExists', stateStub);
-
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
       sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
@@ -538,7 +506,6 @@ describe('#mongoose/models/project', () => {
       assert.isFalse(errored);
       assert.isTrue(orgStub.calledOnce);
       assert.isTrue(ownerStub.calledOnce);
-      assert.isTrue(stateStub.calledOnce);
       assert.isTrue(typeStub.calledOnce);
     });
 
@@ -1057,57 +1024,6 @@ describe('#mongoose/models/project', () => {
       let errored = false;
       try {
         await ProjectModel.validateType(projectTypeId);
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidArgumentError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-  });
-
-  context('validateState', () => {
-    const sandbox = createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it('will validate the state', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-
-      const idExistsStub = sandbox.stub();
-      idExistsStub.resolves(true);
-      sandbox.replace(StateModel, 'stateIdExists', idExistsStub);
-
-      const result = await ProjectModel.validateState(stateId);
-
-      assert.strictEqual(result.toString(), stateId.toString());
-      assert.isTrue(idExistsStub.calledOnce);
-    });
-
-    it('will validate the state passing the state as an IState object', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-
-      const idExistsStub = sandbox.stub();
-      idExistsStub.resolves(true);
-      sandbox.replace(StateModel, 'stateIdExists', idExistsStub);
-
-      const result = await ProjectModel.validateState({
-        _id: stateId,
-      } as unknown as databaseTypes.IState);
-
-      assert.strictEqual(result.toString(), stateId.toString());
-      assert.isTrue(idExistsStub.calledOnce);
-    });
-    it('will throw an invalidArgumentError when the state does not exist', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-
-      const idExistsStub = sandbox.stub();
-      idExistsStub.resolves(false);
-      sandbox.replace(StateModel, 'stateIdExists', idExistsStub);
-      let errored = false;
-      try {
-        await ProjectModel.validateState(stateId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;

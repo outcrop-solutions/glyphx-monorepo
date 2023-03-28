@@ -1,5 +1,8 @@
 import {Schema} from 'mongoose';
-import {web as webTypes, database as databaseTypes} from '@glyphx/types';
+import {
+  web as webTypes,
+  fileIngestion as fileIngestionTypes,
+} from '@glyphx/types';
 
 const PROPERTY_SCHEMA = new Schema({
   axis: {type: Number, required: true, enum: webTypes.constants.AXIS},
@@ -8,17 +11,20 @@ const PROPERTY_SCHEMA = new Schema({
   dataType: {
     type: Number,
     required: true,
-    enum: databaseTypes.constants.FIELD_TYPE,
+    enum: fileIngestionTypes.constants.FIELD_TYPE,
+    default: fileIngestionTypes.constants.FIELD_TYPE[0],
   },
   interpolation: {
     type: Number,
     required: true,
     enum: webTypes.constants.INTERPOLATION_TYPE,
+    default: webTypes.constants.INTERPOLATION_TYPE[0],
   },
   direction: {
     type: Number,
     required: true,
     enum: webTypes.constants.DIRECTION_TYPE,
+    default: webTypes.constants.DIRECTION_TYPE[0],
   },
 });
 

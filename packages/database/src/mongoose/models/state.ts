@@ -8,6 +8,8 @@ import {
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {fileStatsSchema} from '../schemas';
+import {ProjectModel} from './project';
+import {UserModel} from './user';
 
 const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   createdAt: {
@@ -70,6 +72,24 @@ SCHEMA.static(
           ? input.createdBy
           : new mongooseTypes.ObjectId(input.createdBy._id);
 
+      const projectExists = await ProjectModel.projectIdExists(projectId);
+      if (!projectExists) {
+        throw new error.InvalidArgumentError(
+          `The project with the id ${projectId} cannot be found`,
+          'project._id',
+          projectId
+        );
+      }
+
+      const creatorExists = await UserModel.userIdExists(userId);
+      if (!creatorExists) {
+        throw new error.InvalidArgumentError(
+          `The user with the id ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+      }
+
       const createDate = new Date();
 
       const resolvedInput: IStateDocument = {
@@ -123,12 +143,6 @@ SCHEMA.static(
 SCHEMA.static(
   'validateUpdateObject',
   async (state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<void> => {
-    if (state.project) {
-      throw new error.InvalidOperationError(
-        'The project cannot be updated directly, please use the add/remove project methods',
-        {project: state.project}
-      );
-    }
     if (state.createdAt)
       throw new error.InvalidOperationError(
         'The createdAt date is set internally and cannot be altered externally',

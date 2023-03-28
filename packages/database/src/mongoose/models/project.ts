@@ -325,7 +325,7 @@ SCHEMA.static(
         name: input.name,
         description: input.description ?? '',
         sdtPath: input.sdtPath,
-        state: input.state ?? {},
+        state: input.state,
         workspace: workspace,
         slug: input.slug,
         isTemplate: input.isTemplate,

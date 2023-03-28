@@ -32,6 +32,7 @@ export interface IProject {
     | 'createdBy'
     | '_id'
   >;
+  stateHistory?: IState[];
   files: IFileStats[];
   viewName?: string;
 }

@@ -6,6 +6,7 @@ const FILTER_SCHEMA = new Schema({
     type: Number,
     required: true,
     enum: fileIngestionTypes.constants.FIELD_TYPE,
+    default: fileIngestionTypes.constants.FIELD_TYPE[0],
   },
   name: {type: String, required: false},
   keywords: {type: [String], required: false},
