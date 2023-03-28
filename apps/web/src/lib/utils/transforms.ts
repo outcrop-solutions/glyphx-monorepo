@@ -1,7 +1,7 @@
 import MD5 from 'crypto-js/md5';
 import { parse } from 'papaparse';
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { S3_BUCKET_NAME } from 'constants/config';
+import { S3_BUCKET_NAME } from 'config/constants/getUrl';
 import { Types as mongooseTypes } from 'mongoose';
 /**
  * Takes array of file Blobs and merges them with the existing filesystem
