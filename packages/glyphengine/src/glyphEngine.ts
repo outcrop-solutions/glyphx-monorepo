@@ -1,6 +1,19 @@
-import {aws, error, logging, generalPurposeFunctions} from '@glyphx/core';
+import {
+  aws,
+  error,
+  logging,
+  generalPurposeFunctions,
+  streams,
+} from '@glyphx/core';
 import {fileIngestion} from '@glyphx/types';
 import {SdtParser} from './io';
+import {QueryRunner} from './io/queryRunner';
+import {IQueryResponse} from './interfaces';
+import {QUERY_STATUS} from './constants';
+import {GlyphStream} from './io/glyphStream';
+import {SgcStream} from './io/sgcStream';
+import {SgnStream} from './io/sgnStream';
+import {PassThrough} from 'stream';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -13,6 +26,8 @@ export class GlyphEngine {
   private readonly databaseNameField: string;
   private readonly athenaManager: aws.AthenaManager;
 
+  private queryRunner?: QueryRunner;
+  private queryId?: string;
   private initedField: boolean;
 
   constructor(
@@ -139,7 +154,9 @@ export class GlyphEngine {
     }
   }
 
-  public async process(data: Map<string, string>): Promise<void> {
+  public async process(
+    data: Map<string, string>
+  ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
     this.cleanupData(data);
 
     const userId = data.get('user_id') ?? '';
@@ -153,21 +170,102 @@ export class GlyphEngine {
 
     data.set('view_name', viewName);
 
-    const xFunc = data.get('x_func') ?? '';
-    const yFunc = data.get('y_func') ?? '';
-    const zFunc = data.get('z_func') ?? '';
-
-    const xDir = data.get('x_dir') ?? '';
-    const yDir = data.get('y_dir') ?? '';
-    const zDir = data.get('z_dir') ?? '';
+    //Start our query now before we do any processing
+    await this.startQuery(data, viewName);
 
     await this.getDataTypes(viewName, data);
     const template = this.updateSdt(await this.getTemplateAsString(), data);
 
-    const fileName = `${userId}/${modelId}/model.sdt`;
-    await this.outputBucketField.putObject(fileName, template);
+    //TODO: fix fileName
+    const prefix = `${userId}/${modelId}`;
+    const sdtFileName = `${prefix}/model.sdt`;
+    await this.outputBucketField.putObject(sdtFileName, template);
 
     const sdtParser = await SdtParser.parseSdtString(template, viewName);
+
+    const status: IQueryResponse = await this.getQueryResponse();
+    let sgnFileName = '';
+    let sgcFileName = '';
+    if (status.status === QUERY_STATUS.FAILED) {
+      throw status.error;
+    } else {
+      const fileNames = await this.processData(sdtParser, prefix);
+      sgnFileName = fileNames.sgnFileName;
+      sgcFileName = fileNames.sgcFileName;
+    }
+
+    return {sdtFileName, sgnFileName, sgcFileName};
+  }
+
+  private async processData(
+    sdtParser: SdtParser,
+    filePrefix: string
+  ): Promise<{sgcFileName: string; sgnFileName: string}> {
+    const sgcFileName = `${filePrefix}/model.sgc`;
+    const sgnFileName = `${filePrefix}/model.sgn`;
+    const resultsStream = new streams.AthenaQueryReadStream(
+      this.athenaManager,
+      this.queryId as string,
+      1000
+    );
+
+    const glyphStream = new GlyphStream(sdtParser);
+    const forkingStream = new streams.ForkingStream(resultsStream, glyphStream);
+
+    const sgnStream = new SgnStream();
+    const sgcStream = new SgcStream();
+
+    const sgnUploadStream = new PassThrough();
+    const sgcUploadStream = new PassThrough();
+
+    //TODO: figure out our file names
+    const sgnDestStream = this.outputBucketField.getUploadStream(
+      sgnFileName,
+      sgnUploadStream
+    );
+    const sgcDestStream = this.outputBucketField.getUploadStream(
+      sgcFileName,
+      sgcUploadStream
+    );
+
+    forkingStream.fork('sgnStream', sgnStream, sgnUploadStream);
+    forkingStream.fork('sgcStream', sgcStream, sgcUploadStream);
+
+    forkingStream.startPipeline();
+
+    await Promise.all([sgnDestStream.done(), sgcDestStream.done()]);
+    return {sgcFileName, sgnFileName};
+  }
+
+  private async getQueryResponse(): Promise<IQueryResponse> {
+    let status: IQueryResponse;
+    do {
+      status = (await this.queryRunner?.getQueryStatus()) as IQueryResponse;
+    } while (
+      status.status === QUERY_STATUS.RUNNING ||
+      status.status === QUERY_STATUS.UNKNOWN
+    );
+    return status;
+  }
+
+  private async startQuery(
+    data: Map<string, string>,
+    viewName: string
+  ): Promise<void> {
+    const xCol = data.get('x_axis') ?? '';
+    const yCol = data.get('y_axis') ?? '';
+    const zCol = data.get('z_axis') ?? '';
+
+    this.queryRunner = new QueryRunner(
+      viewName,
+      xCol,
+      yCol,
+      zCol,
+      this.databaseNameField
+    );
+
+    //TODO: we will need to add error handling here.
+    this.queryId = await this.queryRunner.startQuery();
   }
 
   updateSdt(template: string, data: Map<string, string>): string {
