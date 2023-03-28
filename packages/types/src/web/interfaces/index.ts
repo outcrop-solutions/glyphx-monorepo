@@ -1,7 +1,7 @@
 // api
 export * from './api/iFetchConfig';
 export * from './api/iFrontendApiReq';
-// files
+// fileSystem
 export * from './fileSystem/iFileSystemItem';
 export * from './fileSystem/iMatchingFileStats';
 export * from './fileSystem/iRenderableDataGrid';
@@ -11,4 +11,4 @@ export * from './fileSystem/iS3ProviderListOutput';
 export * from './filters/iNumericFilter';
 export * from './filters/iStringFilter';
 // properties
-export * from './properties/iLastDroppedItem';
+export * from './properties/iProperty';

@@ -2,7 +2,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {IProject} from './iProject';
 import {IFileStats} from '../fileIngestion';
 import {IUser} from './iUser';
-import {Filter, Property} from '../web';
+import {Filter, IProperty} from '../web';
 
 // only created via user input
 // immutable
@@ -15,7 +15,7 @@ export interface IState {
   static: boolean;
   camera: number;
   filters: Filter[];
-  properties: Property[];
+  properties: IProperty[];
   fileSystemHash: string; // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
   description?: string;
   project: IProject;
