@@ -89,11 +89,6 @@ describe('#mongoose/models/project', () => {
     it('will create a project document', async () => {
       sandbox.replace(
         ProjectModel,
-        'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
-      );
-      sandbox.replace(
-        ProjectModel,
         'validateWorkspace',
         sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
@@ -162,11 +157,6 @@ describe('#mongoose/models/project', () => {
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       sandbox.replace(
         ProjectModel,
-        'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
-      );
-      sandbox.replace(
-        ProjectModel,
         'validateWorkspace',
         sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
@@ -199,11 +189,6 @@ describe('#mongoose/models/project', () => {
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
       sandbox.replace(
         ProjectModel,
-        'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
-      );
-      sandbox.replace(
-        ProjectModel,
         'validateWorkspace',
         sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
       );
@@ -230,11 +215,6 @@ describe('#mongoose/models/project', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(
-        ProjectModel,
-        'validateType',
-        sandbox.stub().resolves(MOCK_PROJECT.type?._id)
-      );
       sandbox.replace(
         ProjectModel,
         'validateWorkspace',

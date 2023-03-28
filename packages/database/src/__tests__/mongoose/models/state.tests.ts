@@ -59,7 +59,7 @@ const MOCK_STATE_IDS = {
   properties: [],
 } as unknown as databaseTypes.IState;
 
-describe.only('#mongoose/models/state', () => {
+describe('#mongoose/models/state', () => {
   context('stateIdExists', () => {
     const sandbox = createSandbox();
     afterEach(() => {
@@ -105,7 +105,7 @@ describe.only('#mongoose/models/state', () => {
     });
   });
 
-  context.only('creatState', () => {
+  context('creatState', () => {
     const sandbox = createSandbox();
     afterEach(() => {
       sandbox.restore();
@@ -195,6 +195,68 @@ describe.only('#mongoose/models/state', () => {
       const result = await StateModel.createState(MOCK_STATE_IDS);
       assert.strictEqual(result._id, stateId);
       assert.isTrue(getStateByIdStub.calledOnce);
+    });
+
+    it('will throw an InvalidArgumentError if the project cannot be validated.', async () => {
+      const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: stateId}])
+      );
+
+      const getStateByIdStub = sandbox.stub();
+      getStateByIdStub.resolves({_id: stateId});
+
+      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
+
+      let errorred = false;
+      try {
+        await StateModel.createState(MOCK_STATE);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will throw an InvalidArgumentError if the creator cannot be validated.', async () => {
+      const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: stateId}])
+      );
+
+      const getStateByIdStub = sandbox.stub();
+      getStateByIdStub.resolves({_id: stateId});
+
+      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
+
+      let errorred = false;
+      try {
+        await StateModel.createState(MOCK_STATE);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
     });
 
     it('will throw an DataValidationError if the state cannot be validated.', async () => {

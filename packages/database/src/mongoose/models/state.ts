@@ -120,7 +120,11 @@ SCHEMA.static(
       )[0];
       id = stateDocument._id;
     } catch (err) {
-      if (err instanceof error.DataValidationError) throw err;
+      if (
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
       else {
         throw new error.DatabaseOperationError(
           'An Unexpected Error occurred while adding the state.  See the inner error for additional details',

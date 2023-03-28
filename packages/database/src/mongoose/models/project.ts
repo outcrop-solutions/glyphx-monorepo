@@ -323,7 +323,7 @@ SCHEMA.static(
         createdAt: createDate,
         updatedAt: createDate,
         name: input.name,
-        description: input.description ?? '',
+        description: input.description ?? ' ',
         sdtPath: input.sdtPath,
         state: input.state,
         workspace: workspace,
