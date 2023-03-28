@@ -27,7 +27,6 @@ export interface IProjectStaticMethods
   validateUpdateObject(
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<void>;
-
   validateType(
     input: databaseTypes.IProjectType | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
@@ -36,8 +35,5 @@ export interface IProjectStaticMethods
   ): Promise<mongooseTypes.ObjectId>;
   validateOwner(
     input: databaseTypes.IUser | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId>;
-  validateState(
-    input: databaseTypes.IState | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
 }

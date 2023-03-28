@@ -22,7 +22,15 @@ export interface IProject {
   // stored as 'Json' BSON type in mongo
   state?: Omit<
     IState,
-    'createdAt' | 'updatedAt' | 'description' | 'camera' | 'project' | '_id'
+    | 'createdAt'
+    | 'updatedAt'
+    | 'description'
+    | 'version'
+    | 'static'
+    | 'camera'
+    | 'project'
+    | 'createdBy'
+    | '_id'
   >;
   files: IFileStats[];
   viewName?: string;

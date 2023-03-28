@@ -6,11 +6,11 @@ import {
   DIRECTION_TYPE,
 } from '../../constants';
 
-export interface IProperty {
+export type Property = {
   axis: AXIS;
   accepts: ACCEPTS;
   key: string; // corresponds to column name
   dataType: FIELD_TYPE; // corresponds to column data type
   interpolation: INTERPOLATION_TYPE;
   direction: DIRECTION_TYPE;
-}
+};

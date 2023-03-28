@@ -10,8 +10,8 @@ import {error} from '@glyphx/core';
 import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
 import {ProjectTypeModel} from './projectType';
-import {StateModel} from './state';
 import {fileStatsSchema} from '../schemas';
+import {embeddedStateSchema} from '../schemas/embeddedState';
 
 const SCHEMA = new Schema<
   IProjectDocument,
@@ -46,7 +46,7 @@ const SCHEMA = new Schema<
   isTemplate: {type: Boolean, required: true, default: false},
   type: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
   owner: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
-  state: {type: Schema.Types.ObjectId, required: false, ref: 'state'},
+  state: {type: embeddedStateSchema, required: false, default: {}},
   files: {type: [fileStatsSchema], required: true, default: []},
   viewName: {type: String, required: true},
 });
@@ -156,15 +156,6 @@ SCHEMA.static(
         )
       );
 
-    if (project.state)
-      tasks.push(
-        idValidator(
-          project.state._id as mongooseTypes.ObjectId,
-          'State',
-          StateModel.stateIdExists
-        )
-      );
-
     if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
 
     if (project.createdAt)
@@ -210,11 +201,6 @@ SCHEMA.static(
               : (value._id as mongooseTypes.ObjectId);
         else if (key === 'owner')
           transformedObject.owner =
-            value instanceof mongooseTypes.ObjectId
-              ? value
-              : (value._id as mongooseTypes.ObjectId);
-        else if (key === 'state')
-          transformedObject.state =
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
@@ -321,26 +307,6 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validateState',
-  async (
-    input: databaseTypes.IState | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId> => {
-    const stateId =
-      input instanceof mongooseTypes.ObjectId
-        ? input
-        : (input._id as mongooseTypes.ObjectId);
-    if (!(await StateModel.stateIdExists(stateId))) {
-      throw new error.InvalidArgumentError(
-        `The state : ${stateId} does not exist`,
-        'stateId',
-        stateId
-      );
-    }
-    return stateId;
-  }
-);
-
-SCHEMA.static(
   'createProject',
   async (input: IProjectCreateInput): Promise<databaseTypes.IProject> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
@@ -359,6 +325,7 @@ SCHEMA.static(
         name: input.name,
         description: input.description ?? '',
         sdtPath: input.sdtPath,
+        state: input.state ?? {},
         workspace: workspace,
         slug: input.slug,
         isTemplate: input.isTemplate,

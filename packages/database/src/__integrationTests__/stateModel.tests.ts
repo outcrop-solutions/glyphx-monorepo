@@ -28,7 +28,6 @@ const INPUT_DATA = {
   version: 1,
   static: false,
   fileSystemHash: UNIQUE_KEY,
-  projects: [],
   fileSystem: [],
 };
 
@@ -36,7 +35,6 @@ const INPUT_DATA2 = {
   version: 1,
   static: false,
   fileSystemHash: 'hash2' + UNIQUE_KEY,
-  projects: [],
   fileSystem: [],
 };
 describe('#StateModel', () => {
@@ -87,7 +85,7 @@ describe('#StateModel', () => {
 
     it('add a new state ', async () => {
       const stateInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      stateInput.projects.push(projectDocument);
+      stateInput.project = projectDocument;
       const stateDocument = await stateModel.createState(stateInput);
 
       assert.isOk(stateDocument);
@@ -95,7 +93,7 @@ describe('#StateModel', () => {
         stateDocument.fileSystemHash,
         stateInput.fileSystemHash
       );
-      assert.strictEqual(stateDocument.projects[0].name, projectDocument.name);
+      assert.strictEqual(stateDocument.project.name, projectDocument.name);
 
       stateId = stateDocument._id as mongooseTypes.ObjectId;
     });
@@ -111,7 +109,7 @@ describe('#StateModel', () => {
     it('Get multiple states without a filter', async () => {
       assert.isOk(stateId);
       const stateInput = JSON.parse(JSON.stringify(INPUT_DATA2));
-      stateInput.projects.push(projectDocument);
+      stateInput.project = projectDocument;
       const stateDocument = await stateModel.createState(stateInput);
 
       assert.isOk(stateDocument);
@@ -160,30 +158,6 @@ describe('#StateModel', () => {
       const input = {fileSystemHash: 'a modified hash'};
       const updatedDocument = await stateModel.updateStateById(stateId, input);
       assert.strictEqual(updatedDocument.fileSystemHash, input.fileSystemHash);
-    });
-
-    it('add a project to the state', async () => {
-      assert.isOk(stateId);
-      const updatedStateDocument = await stateModel.addProjects(stateId, [
-        projectId2,
-      ]);
-      assert.strictEqual(updatedStateDocument.projects.length, 2);
-      assert.strictEqual(
-        updatedStateDocument.projects[1]?._id?.toString(),
-        projectId2.toString()
-      );
-    });
-
-    it('remove a project from the state', async () => {
-      assert.isOk(stateId);
-      const updatedStateDocument = await stateModel.removeProjects(stateId, [
-        projectId2,
-      ]);
-      assert.strictEqual(updatedStateDocument.projects.length, 1);
-      assert.strictEqual(
-        updatedStateDocument.projects[0]?._id?.toString(),
-        projectId.toString()
-      );
     });
 
     it('remove a state', async () => {
