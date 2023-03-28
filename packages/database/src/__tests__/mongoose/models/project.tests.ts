@@ -32,6 +32,28 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   viewName: 'testView',
 };
 
+const MOCK_NULLISH_PROJECT = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  name: 'test project',
+  description: undefined,
+  sdtPath: 'sdtPath',
+  workspace: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IWorkspace,
+  slug: 'what is a slug anyway',
+  isTemplate: false,
+  type: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IProjectType,
+  owner: {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
+  state: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IState,
+  files: undefined,
+  viewName: undefined,
+} as unknown as databaseTypes.IProject;
+
 describe('#mongoose/models/project', () => {
   context('projectIdExists', () => {
     const sandbox = createSandbox();
@@ -110,6 +132,42 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'getProjectById', stub);
       const projectDocument = await ProjectModel.createProject(MOCK_PROJECT);
 
+      assert.strictEqual(projectDocument._id, objectId);
+      assert.isTrue(stub.calledOnce);
+    });
+
+    it('will create a project document with nullish coalesce', async () => {
+      sandbox.replace(
+        ProjectModel,
+        'validateWorkspace',
+        sandbox.stub().resolves(MOCK_PROJECT.workspace._id)
+      );
+      sandbox.replace(
+        ProjectModel,
+        'validateOwner',
+        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
+      );
+
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectModel,
+        'create',
+        sandbox
+          .stub()
+          .resolves([
+            {_id: objectId, description: ' ', viewName: ' ', files: []},
+          ])
+      );
+      sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+      sandbox.replace(ProjectModel, 'getProjectById', stub);
+      const projectDocument = await ProjectModel.createProject(
+        MOCK_NULLISH_PROJECT
+      );
+      assert.strictEqual(projectDocument.files.length, 0);
+      assert.strictEqual(projectDocument.description, ' ');
+      assert.strictEqual(projectDocument.viewName, ' ');
       assert.strictEqual(projectDocument._id, objectId);
       assert.isTrue(stub.calledOnce);
     });
