@@ -2,7 +2,7 @@
   "extends": "@glyphx/tsconfig/node18.json",
   "include": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts"],
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "./src"
   },
   "paths": {
     "@/aws/*": ["src/aws/*"],
