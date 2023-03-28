@@ -10,7 +10,7 @@ import {
   selectedProjectSelector,
   showReorderConfirmAtom,
   toastAtom,
-  modelCreationLoadingAtom,
+  showModelCreationLoadingAtom,
   AxisInterpolationAtom,
   AxisDirectionAtom,
   GridModalErrorAtom,
@@ -48,7 +48,7 @@ export const useProject = () => {
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
   const selectedFile = useRecoilValue(selectedFileAtom);
 
-  const setModelCreationLoadingState = useSetRecoilState(modelCreationLoadingAtom);
+  const setModelCreationLoadingState = useSetRecoilState(showModelCreationLoadingAtom);
   const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
   const setProgress = useSetRecoilState(progressDetailAtom);
 

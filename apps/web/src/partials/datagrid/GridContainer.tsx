@@ -7,12 +7,12 @@ import { ModelFooter } from './ModelFooter';
 import { GridHeader } from 'partials';
 import SplitPane from 'react-split-pane';
 import {
-  orientationAtom,
+  showHorizontalOrientationAtom,
   glyphViewerDetails,
   sdtValue,
-  showInfoAtom,
-  shareOpenAtom,
-  showNotificationAtom,
+  showInfoDropdownAtom,
+  showShareModalOpenAtom,
+  showNotificationDropdownAtom,
 } from 'state';
 
 export const GridContainer = ({ isDropped }) => {
@@ -20,12 +20,12 @@ export const GridContainer = ({ isDropped }) => {
   const cols = useRecoilValue(columnsSelector);
 
   var r = document.querySelector(':root');
-  const orientation = useRecoilValue(orientationAtom);
+  const orientation = useRecoilValue(showHorizontalOrientationAtom);
   const stdName = useRecoilValue(sdtValue);
   const glyphxViewer = useRecoilValue(glyphViewerDetails);
-  const isInfoOpen = useRecoilValue(showInfoAtom);
-  const isShareOpen = useRecoilValue(shareOpenAtom);
-  const isNotificationOpen = useRecoilValue(showNotificationAtom);
+  const isInfoOpen = useRecoilValue(showInfoDropdownAtom);
+  const isShareOpen = useRecoilValue(showShareModalOpenAtom);
+  const isNotificationOpen = useRecoilValue(showNotificationDropdownAtom);
   const [localSize, setSize] = useState(null); //set a local size state
   const [localOrientation, setLocalOrientation] = useState('horizontal');
 

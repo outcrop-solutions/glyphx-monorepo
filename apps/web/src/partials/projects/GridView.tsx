@@ -1,13 +1,17 @@
-import { useEffect } from "react";
-import { ProjectCard } from "./ProjectCard";
-import { AddProject } from "./AddProject";
+import { useEffect } from 'react';
+import { ProjectCard } from './ProjectCard';
+import { AddProject } from './AddProject';
 // import { PinnedProjects } from "./PinnedProjects";
-import React from "react";
-import { useRecoilValue } from "recoil";
-import { projectsAtom } from "state/globals";
+import React from 'react';
+import { useRecoilValue } from 'recoil';
+import { projectsAtom } from 'state/globals';
+import { useWorkspace } from 'providers/workspace';
+import { workspaceAtom } from 'state';
 
 export const GridView = () => {
-  const projects = useRecoilValue(projectsAtom);
+  // const projects = useRecoilValue(projectsAtom);
+  const workspace = useRecoilValue(workspaceAtom);
+
   return (
     <>
       {/* Page header */}
@@ -23,11 +27,11 @@ export const GridView = () => {
       {/* Cards */}
       <div className="grid grid-cols-12 gap-6 bg-primary-blue">
         {/* <AddProject /> */}
-        {projects.map((item, idx) => {
+        {workspace.projects.map((item, idx) => {
           return (
             <ProjectCard
               idx={idx}
-              key={item.id}
+              key={item._id.toString()}
               project={item}
               updatedAt={item.updatedAt}
               name={item.name}

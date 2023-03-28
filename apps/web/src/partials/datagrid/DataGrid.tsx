@@ -1,10 +1,10 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
-import { useRecoilState, useRecoilValue } from 'recoil';
+
+// state
 import { columnsSelector, rowsSelector } from 'state/files';
-import { shareOpenAtom } from 'state/share';
-import { showInfoAtom } from 'state/info';
-import { showNotificationAtom } from 'state/notification';
+import { showShareModalOpenAtom, showInfoDropdownAtom, showNotificationDropdownAtom } from 'state/ui';
 
 import dynamic from 'next/dynamic';
 
@@ -15,9 +15,9 @@ const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
 export const Datagrid = ({ isDropped }) => {
   const rows = useRecoilValue(rowsSelector);
   const columns = useRecoilValue(columnsSelector);
-  const isShareModelOpen = useRecoilValue(shareOpenAtom);
-  const isShowInfoOpen = useRecoilValue(showInfoAtom);
-  const isShowNotificationOpen = useRecoilValue(showNotificationAtom);
+  const isShareModelOpen = useRecoilValue(showShareModalOpenAtom);
+  const isShowInfoOpen = useRecoilValue(showInfoDropdownAtom);
+  const isShowNotificationOpen = useRecoilValue(showNotificationDropdownAtom);
 
   const [sortColumns, setSortColumns] = useState([]);
   const onSortColumnsChange = useCallback((sortColumns) => {

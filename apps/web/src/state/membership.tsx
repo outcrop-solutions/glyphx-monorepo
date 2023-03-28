@@ -1,11 +1,6 @@
 import { atom, selector } from "recoil";
 import { selectedProjectSelector } from "./project";
 
-export const shareOpenAtom = atom({
-  key: "shareOpen",
-  default: false,
-});
-
 export const membersSelector = selector({
   key: "members",
   get: ({ get }) => {

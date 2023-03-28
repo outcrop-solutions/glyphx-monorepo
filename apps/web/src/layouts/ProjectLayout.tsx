@@ -7,12 +7,13 @@ import Content from 'components/Content/index';
 import Header from 'components/Header';
 import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
-import { useWorkspace } from 'providers/workspace';
+import { workspaceAtom } from 'state';
+import { useRecoilValue } from 'recoil';
 
 const ProjectLayout = ({ children }) => {
   const { data } = useSession();
   const router = useRouter();
-  const { workspace } = useWorkspace();
+  const workspace = useRecoilValue(workspaceAtom);
 
   useEffect(() => {
     if (!data) {
@@ -25,7 +26,7 @@ const ProjectLayout = ({ children }) => {
       <Sidebar menu={menu(workspace?.slug)} />
       <Content.Projects>
         <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
-        <Header breadcrumbs={['My Projects']}/>
+        <Header breadcrumbs={['My Projects']} />
         {children}
       </Content.Projects>
     </main>

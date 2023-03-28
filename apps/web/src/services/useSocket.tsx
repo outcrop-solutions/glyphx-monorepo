@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { QWebChannel } from 'qwebchannel';
-import { glyphViewerDetails, orientationAtom } from '../state';
-import { shareOpenAtom } from 'state/share';
-import { showInfoAtom } from 'state/info';
-import { showNotificationAtom } from 'state/notification';
 import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  showShareModalOpenAtom,
+  showInfoDropdownAtom,
+  showNotificationDropdownAtom,
+  showHorizontalOrientationAtom,
+  glyphViewerDetails,
+} from 'state/ui';
 /**
  * To handle Socket Connection and Communications with Qt window
  * @param {boolean} isSelected
@@ -22,10 +25,10 @@ export const useSocket = () => {
   const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
   const [isSet, changeSet] = useState(false); // trying to limit number of times openSocket is ran to 1
 
-  const isShareOpen = useRecoilValue(shareOpenAtom);
-  const isInfoOpen = useRecoilValue(showNotificationAtom);
-  const isNotifOpen = useRecoilValue(showInfoAtom);
-  const orientation = useRecoilValue(orientationAtom);
+  const isShareOpen = useRecoilValue(showShareModalOpenAtom);
+  const isInfoOpen = useRecoilValue(showNotificationDropdownAtom);
+  const isNotifOpen = useRecoilValue(showInfoDropdownAtom);
+  const orientation = useRecoilValue(showHorizontalOrientationAtom);
 
   //   Create Socket
   const openSocket = useCallback(

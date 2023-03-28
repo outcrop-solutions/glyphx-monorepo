@@ -1,12 +1,12 @@
 import BarLoader from "react-spinners/BarLoader";
-import { modelCreationLoadingAtom, progressDetailSelector } from "state/globals";
+import { showModelCreationLoadingAtom, progressDetailSelector } from "state/globals";
 import { useRecoilValue } from "recoil";
 
 /**
  * ANIMATION LOADING BAR
  */
 export const LoadingModelAnimation = () =>{
-    const modeloading = useRecoilValue(modelCreationLoadingAtom);
+    const modeloading = useRecoilValue(showModelCreationLoadingAtom);
     const progress = useRecoilValue(progressDetailSelector);
 
     return (

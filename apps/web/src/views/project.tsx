@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
 // Layout
 import { ProjectHeader } from 'partials';
 import { ProjectSidebar } from 'partials';
 import { CommentsSidebar } from 'partials';
 import { MainSidebar } from 'partials';
-import { GridErrorModal } from 'partials';
 
 // Project View
 import { DndProvider } from 'react-dnd';
@@ -18,15 +18,13 @@ import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
 // Hooks
 import { useRouter } from 'next/router';
-import { useProject } from 'services';
-import { useSocket } from 'services';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useProject, useSocket } from 'services';
 import { GridContainer } from 'partials/datagrid/GridContainer';
+
+// state
 import { projectIdAtom } from 'state/project';
-import { shareOpenAtom } from 'state/share';
-import { showInfoAtom } from 'state/info';
-import { showNotificationAtom } from 'state/notification';
-import { dataGridLoadingAtom, GridModalErrorAtom, modelCreationLoadingAtom } from '../state';
+import { showShareModalOpenAtom, showNotificationDropdownAtom, showInfoDropdownAtom } from 'state/ui';
+import { showDataGridLoadingAtom, showModelCreationLoadingAtom } from 'state/ui';
 import dynamic from 'next/dynamic';
 
 const DynamicDecisionModal = dynamic(() => import('partials/files/DecisionModal'), {
@@ -41,9 +39,8 @@ export default function Project() {
     if (projectId) setProjectId(projectId);
   }, [projectId, setProjectId]);
 
-  const dataGridLoading = useRecoilValue(dataGridLoadingAtom);
-  const gridModalError = useRecoilValue(GridModalErrorAtom);
-  const modelCreationLoading = useRecoilValue(modelCreationLoadingAtom);
+  const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
+  const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
   // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
 
   // Qt hook
@@ -56,9 +53,9 @@ export default function Project() {
   // const [share, setShare] = useState(false);
 
   // Check if share model has been turned on
-  const [showShareModel, setShareModel] = useRecoilState(shareOpenAtom);
-  const [showInfo, setShowInfo] = useRecoilState(showInfoAtom);
-  const [showNotification, setNotification] = useRecoilState(showNotificationAtom);
+  const [showShareModel, setShareModel] = useRecoilState(showShareModalOpenAtom);
+  const [showInfo, setShowInfo] = useRecoilState(showInfoDropdownAtom);
+  const [showNotification, setNotification] = useRecoilState(showNotificationDropdownAtom);
 
   return (
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">
@@ -76,15 +73,9 @@ export default function Project() {
             </div>
             {/* Grid View */}
             <div className="w-full border-r border-gray">
-              {gridModalError.show ? ( //if error
-                <GridErrorModal
-                  title={gridModalError.title}
-                  message={gridModalError.message}
-                  devErrorMessage={gridModalError.devError}
-                />
-              ) : dataGridLoading ? (
+              {dataGridLoading ? (
                 <GridLoadingAnimation />
-              ) : modelCreationLoading ? ( //if creating model
+              ) : modelCreationLoading ? (
                 <LoadingModelAnimation />
               ) : (
                 <GridContainer isDropped={isDropped} />

@@ -7,12 +7,13 @@ import Content from 'components/Content/index';
 import Header from 'components/Header';
 import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
-import { useWorkspace } from 'providers/workspace';
+import { useRecoilValue } from 'recoil';
+import { workspaceAtom } from 'state';
 
 const AccountLayout = ({ children }) => {
   const { data } = useSession();
   const router = useRouter();
-  const { workspace } = useWorkspace();
+  const workspace = useRecoilValue(workspaceAtom);
 
   useEffect(() => {
     if (!data) {

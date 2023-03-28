@@ -7,6 +7,7 @@ import { projectsAtom } from 'state/globals';
 import { projectDetailsAtom } from 'state/project';
 import { deleteProject } from 'lib';
 import Image from 'next/image';
+import projectCard from "public/images/project.png" 
 
 export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   const router = useRouter();
@@ -101,7 +102,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
         </svg>
       </div>
       <div onClick={() => router.push(`/${orgId}/${project.id}`)} className="flex flex-col h-full">
-        <Image className="w-full h-full rounded-t-md" src="/images/project.png" alt="" />
+        <Image className="rounded-t-md" layout='responsive' src={projectCard} alt="" />
         <footer className="mt-2 px-5 pb-5 pt-1">
           <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{name}</p>
           <div className="flex justify-between items-center">

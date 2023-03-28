@@ -7,13 +7,15 @@ import sidebarMenu from 'config/menu/sidebar-static';
 import { useWorkspaces } from 'lib/client';
 import { useWorkspace } from 'providers/workspace';
 import { MenuIcon } from '@heroicons/react/outline';
+import { workspaceAtom } from 'state';
+import { useRecoilValue } from 'recoil';
 
 const staticMenu = sidebarMenu();
 
 const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
   const { data, isLoading } = useWorkspaces();
-  const { workspace } = useWorkspace();
+  const workspace = useRecoilValue(workspaceAtom);
 
   const renderMenu = () => {
     return (

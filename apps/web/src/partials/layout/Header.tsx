@@ -3,12 +3,12 @@ import { useRouter } from 'next/router';
 import { SearchModal, GridToggle, DropdownNotifications, Help } from 'partials';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
-  orientationAtom,
+  showHorizontalOrientationAtom,
   selectedProjectSelector,
-  shareOpenAtom,
+  showShareModalOpenAtom,
   showAddProjectAtom,
   showSearchModalAtom,
-  showInfoAtom,
+  showInfoDropdownAtom,
   payloadSelector,
   propertiesAtom,
   sdtValue,
@@ -18,9 +18,9 @@ export const Header = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-  const setShare = useSetRecoilState(shareOpenAtom);
-  const setShowInfo = useSetRecoilState(showInfoAtom);
-  const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
+  const setShare = useSetRecoilState(showShareModalOpenAtom);
+  const setShowInfo = useSetRecoilState(showInfoDropdownAtom);
+  const [paneOrientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
   const payload = useRecoilValue(payloadSelector);
   const setProperties = useSetRecoilState(propertiesAtom);
   const [sdtName, setSDTName] = useRecoilState(sdtValue);

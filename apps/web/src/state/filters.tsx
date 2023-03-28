@@ -6,18 +6,14 @@ export const filtersSelector = selector({
   key: 'filters',
   get: ({ get }) => {
     let selectedProject = get(selectedProjectSelector);
-    // @ts-ignore
     return selectedProject.filters.items;
   },
   set: ({ set, get }, newFiltersValue) => {
-    // @ts-ignore
     let selectedProject = get(selectedProjectSelector);
     let newSelectedProjectValue = {
       ...selectedProject,
-      // @ts-ignore
       filters: [...newFiltersValue],
     };
-    // @ts-ignore
     set(selectedProjectSelector, newSelectedProjectValue);
   },
 });
@@ -77,27 +73,6 @@ const REPLACEABLE_CHARS = [
   41, //)
   45, //-
 ];
-
-const convertColumnName = (value: string): string => {
-  const outArray: string[] = [];
-  const tempValue = value.toLowerCase();
-  for (let i = 0; i < tempValue.length; i++) {
-    const charValue = tempValue.charCodeAt(i);
-    if (REPLACEABLE_CHARS.find((c) => c === charValue)) {
-      outArray.push('_');
-    }
-    if (
-      (charValue >= 97 && charValue <= 122) || //a-z
-      (charValue >= 48 && charValue <= 57) || //0-9
-      charValue === 95 //_
-    ) {
-      outArray.push(String.fromCharCode(charValue));
-    }
-  }
-
-  const ret = outArray.join('');
-  return ret;
-};
 
 /**
  * TAKES FILTERS THAT ARE APPLIED

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDrop } from "react-dnd";
 import { AxesIcons } from "../filters/AxesIcons";
 import { AxisInterpolationAtom, AxisDirectionAtom } from "state/properties";
-import { modelCreationLoadingAtom } from "state/globals";
+import { showModelCreationLoadingAtom } from "state/globals";
 import { useSetRecoilState, useRecoilValue } from "recoil";
 
 export const Property = ({
@@ -27,7 +27,7 @@ export const Property = ({
 
   const setAxisInterpolation = useSetRecoilState(AxisInterpolationAtom); // recoil state for axis type
   const setAxisDirection = useSetRecoilState(AxisDirectionAtom); // recoil state for axis direction
-  const isCreatingModel = useRecoilValue(modelCreationLoadingAtom);
+  const isCreatingModel = useRecoilValue(showModelCreationLoadingAtom);
 
   /**
    * Assign value of axis type to the atom

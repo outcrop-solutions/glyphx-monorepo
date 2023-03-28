@@ -1,12 +1,6 @@
-import React, { useEffect, useState, Suspense } from 'react';
-import dynamic from 'next/dynamic';
-import { GetServerSideProps } from 'next';
-import sortArray from 'sort-array';
+import React, { useState } from 'react';
 
 // Layout
-import { Header, MainDropzone } from 'partials';
-import { MainSidebar } from 'partials';
-import { Info } from 'partials/info';
 import { PinnedProjects } from 'partials';
 
 // Project Overiew
@@ -17,30 +11,14 @@ import { AddProjectModal } from 'partials';
 import { ProjectDetails } from 'partials';
 
 // Hooks
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { isGridViewAtom, projectDetailsAtom, projectsAtom, showAddProjectAtom } from 'state';
-import { useRouter } from 'next/router';
-import { useProjects } from 'lib/client';
-import { SuspenseFallback } from 'partials/fallback';
+import { useRecoilValue } from 'recoil';
+import { showProjectsGridViewAtom, projectDetailsAtom, showAddProjectAtom, workspaceAtom } from 'state';
 
-export default function Home({ workspace }) {
-  const router = useRouter();
-  // useUser(); //gets user
-  // useProjects(); //gets projects assigned to user
-  // const projects = useRecoilValue(projectsAtom);
-  const isGridView = useRecoilValue(isGridViewAtom);
+export default function Home() {
+  const isGridView = useRecoilValue(showProjectsGridViewAtom);
   const projectDetails = useRecoilValue(projectDetailsAtom);
   const showAddProject = useRecoilValue(showAddProjectAtom);
-
-  const [isLoading, setLoading] = useState(true);
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex flex-col h-screen w-screen">
-  //       <SuspenseFallback />
-  //     </div>
-  //   );
-  // } else {
+  const workspace = useRecoilValue(workspaceAtom);
   return (
     <>
       {showAddProject ? <AddProjectModal /> : null}
@@ -58,8 +36,8 @@ export default function Home({ workspace }) {
           </div>
         </div>
       ) : (
-        <MainDropzone />
-        // <Templates />
+        // <MainDropzone />
+        <Templates />
       )}
       <div id="right-side-bars" className="">
         {projectDetails ? <ProjectDetails /> : <></>}

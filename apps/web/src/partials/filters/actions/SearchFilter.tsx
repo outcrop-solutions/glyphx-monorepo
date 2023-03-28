@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { filtersAppliedAtom } from 'state/filters';
 import { useSetRecoilState } from 'recoil';
+import { filtersAppliedAtom } from 'state/filters';
 import { produce } from 'immer';
+
 export const SearchFilter = ({ lastDroppedItem }) => {
   const setFiltersApplied = useSetRecoilState(filtersAppliedAtom);
   // TODO: consider persisting applied filters in localStorage

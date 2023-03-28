@@ -3,27 +3,28 @@ import { useRouter } from 'next/router';
 import { updateProjectName } from 'lib';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
-  orientationAtom,
+  showHorizontalOrientationAtom,
   selectedProjectSelector,
-  shareOpenAtom,
+  showShareModalOpenAtom,
   showAddProjectAtom,
   showSearchModalAtom,
-  showInfoAtom,
-  showNotificationAtom,
+  showInfoDropdownAtom,
+  showNotificationDropdownAtom,
   payloadSelector,
   propertiesAtom,
   sdtValue,
   rowsSelector,
 } from 'state';
+import produce from 'immer';
 
 export const ProjectHeader = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-  const [isShareOpen, setShare] = useRecoilState(shareOpenAtom);
-  const [isInfoOpen, setShowInfo] = useRecoilState(showInfoAtom);
-  const [isNotificationOpen, setNotification] = useRecoilState(showNotificationAtom);
-  const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
+  const [isShareOpen, setShare] = useRecoilState(showShareModalOpenAtom);
+  const [isInfoOpen, setShowInfo] = useRecoilState(showInfoDropdownAtom);
+  const [isNotificationOpen, setNotification] = useRecoilState(showNotificationDropdownAtom);
+  const [paneOrientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
   const payload = useRecoilValue(payloadSelector);
   const setProperties = useSetRecoilState(propertiesAtom);
   const [sdtName, setSDTName] = useRecoilState(sdtValue);
@@ -61,11 +62,7 @@ export const ProjectHeader = () => {
   };
 
   const handlePaneSwitch = () => {
-    if (paneOrientation === 'horizontal') {
-      setOrientation('vertical');
-    } else {
-      setOrientation('horizontal');
-    }
+    setOrientation(produce((draft) => (draft = !draft)));
   };
 
   return (
