@@ -17,7 +17,11 @@ export interface IProject {
   isTemplate: Boolean;
   type?: IProjectType;
   owner: IUser;
-  state?: IState;
+  // when filters and properties change, sent to create model call
+  state?: Omit<
+    IState,
+    'createdAt' | 'updatedAt' | 'description' | 'project' | '_id'
+  >;
   files: IFileStats[];
   viewName?: string;
 }

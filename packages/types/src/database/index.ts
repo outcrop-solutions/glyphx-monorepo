@@ -1,5 +1,6 @@
 export * as constants from './constants';
 export type {IAccount} from './iAccount';
+export type {IComment} from './iComment';
 export type {ICustomerPayment} from './iCustomerPayment';
 export type {IMember} from './iMember';
 export type {IProject} from './iProject';

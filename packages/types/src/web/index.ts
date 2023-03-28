@@ -1,4 +1,3 @@
 export * from './constants';
-export * from './api';
-export * from './fileSystem';
-export * from './s3';
+export * from './interfaces';
+export * from './types';

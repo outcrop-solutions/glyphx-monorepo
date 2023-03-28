@@ -1,9 +1,3 @@
-export interface IFetchConfig {
-  url: string;
-  options: any;
-  successMsg: string;
-}
-
 export interface IFrontendApiReq {
   url: string;
   options: any;
