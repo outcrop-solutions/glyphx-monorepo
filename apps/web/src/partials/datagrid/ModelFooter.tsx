@@ -1,29 +1,14 @@
 import { useEffect } from 'react';
 import * as dayjs from 'dayjs';
 import { useRecoilValue } from 'recoil';
-import { payloadSelector, selectedProjectSelector, sdtValue } from 'state/project';
 // import { PlusIcon } from "@heroicons/react/solid";
 
 export const ModelFooter = () => {
-  const payload = useRecoilValue(payloadSelector);
-  const name = useRecoilValue(sdtValue);
-  const { sdt, url } = payload;
-
   const handleOpen = () => {
-
-    if (url && sdt) {
-      //window.core.ToggleDrawer(true);
-      // //window.core.OpenProject(url);
-      // setProgress(true);
-      // setTimeout(() => {
-      //   setProgress(false);
-      // }, 3000);
-    } else if (url) {
-      //window.core.OpenProject(JSON.stringify(url));
-    } else {
-      //window.core.OpenProject({});
-    }
+    // window.core.OpenProject(JSON.stringify(url));
+    //window.core.OpenProject({});
   };
+  const name = '';
 
   return (
     <div className="w-full h-11 border border-gray bg-primary-dark-blue text-xs flex items-center">

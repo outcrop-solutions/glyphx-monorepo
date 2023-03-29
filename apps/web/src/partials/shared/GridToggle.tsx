@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { showProjectsGridViewAtom } from 'state/ui';
-import { selectedProjectSelector } from 'state/project';
+import { projectAtom } from 'state/project';
 
 export function GridToggle() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [grid, setGrid] = useRecoilState(showProjectsGridViewAtom);
-  const setSelectedProject = useSetRecoilState(selectedProjectSelector);
+  const setSelectedProject = useSetRecoilState(projectAtom);
   const trigger = useRef(null);
   const dropdown = useRef(null);
 

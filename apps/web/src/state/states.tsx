@@ -1,5 +1,5 @@
 import { atom, selector } from "recoil";
-import { selectedProjectSelector } from "./project";
+import { projectAtom } from "./project";
 
 // holds state of currently selected state
 export const selectedStateAtom = atom({
@@ -24,14 +24,14 @@ export const stateQueryAtom = atom({
 export const statesSelector = selector({
   key: "states",
   get: ({ get }) => {
-    let selectedProject = get(selectedProjectSelector);
+    let selectedProject = get(projectAtom);
     if (!selectedProject) return;
     // @ts-ignore
     return selectedProject.states.items;
   },
   set: ({ set, get }, newStatesValue) => {
     // @ts-ignore
-    let selectedProject = get(selectedProjectSelector);
+    let selectedProject = get(projectAtom);
     if (!selectedProject) return;
     let newSelectedProjectValue = {
       ...selectedProject,
@@ -39,6 +39,6 @@ export const statesSelector = selector({
       states: [...newStatesValue],
     };
     //@ts-ignore
-    set(selectedProjectSelector, newSelectedProjectValue);
+    set(projectAtom, newSelectedProjectValue);
   },
 });

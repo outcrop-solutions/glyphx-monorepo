@@ -3,7 +3,7 @@ import { PermissionsDropDown } from "./PermissionsDropDown";
 // import { useMembers } from '../../../services/useMembers'
 
 import {
-  selectedProjectSelector,
+  projectAtom,
 } from "state";
 import { useRecoilValue } from "recoil";
 
@@ -17,7 +17,7 @@ export const MemberList = ({size}) => {
     { author: "Kyla McAndrews" },
   ];
 
-  const selectedProject= useRecoilValue(selectedProjectSelector);
+  const selectedProject= useRecoilValue(projectAtom);
 
   return (
     <ul className='my-4 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray'>

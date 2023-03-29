@@ -1,7 +1,7 @@
 import React from "react";
 import { MemberList } from "../invite/MemberList";
 import {
-    selectedProjectSelector,
+    projectAtom,
 } from "state";
 import { useRecoilState } from "recoil";
 import Image from 'next/image'
@@ -10,7 +10,7 @@ import Image from 'next/image'
 export const Info = ({ setInfo,setShare }) => {
 
     const [selectedProject, setSelectedProject] = useRecoilState(
-        selectedProjectSelector
+        projectAtom
     );
 
     return (

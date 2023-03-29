@@ -1,6 +1,7 @@
 export * from './workspaces';
 export * from './workspace';
 export * from './user';
+export * from './createModel';
 export * from './team';
 export * from './files';
 export * from './fileingestion';

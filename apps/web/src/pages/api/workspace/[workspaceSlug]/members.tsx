@@ -13,10 +13,10 @@ const members = async (req, res) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.GET:
+    case webTypes.constants.HTTP_METHOD.GET:
       return getMembers(req, res);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.GET]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.GET]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

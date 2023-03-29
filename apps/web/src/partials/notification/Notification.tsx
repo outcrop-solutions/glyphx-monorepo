@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { MemberList } from '../invite/MemberList';
-import { selectedProjectSelector } from 'state';
+import { projectAtom } from 'state';
 import { useRecoilState } from 'recoil';
 
 export const Notification = ({ setNotif }) => {
-  const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
+  const [selectedProject, setSelectedProject] = useRecoilState(projectAtom);
 
   return (
     // <div className="flex flex-col absolute z-50 right-0 w-96 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">

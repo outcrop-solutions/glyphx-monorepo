@@ -14,10 +14,10 @@ const invitations = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.GET:
+    case webTypes.constants.HTTP_METHOD.GET:
       return getPendingInvitations(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.GET]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.GET]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

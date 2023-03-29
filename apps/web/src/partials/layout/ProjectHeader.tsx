@@ -4,30 +4,25 @@ import { updateProjectName } from 'lib';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   showHorizontalOrientationAtom,
-  selectedProjectSelector,
   showShareModalOpenAtom,
   showAddProjectAtom,
   showSearchModalAtom,
   showInfoDropdownAtom,
   showNotificationDropdownAtom,
-  payloadSelector,
   propertiesAtom,
-  sdtValue,
   rowsSelector,
+  projectAtom,
 } from 'state';
 import produce from 'immer';
 
 export const ProjectHeader = () => {
-  const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
-  const setShowAddProject = useSetRecoilState(showAddProjectAtom);
+  const [selectedProject, setSelectedProject] = useRecoilState(projectAtom);
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const [isShareOpen, setShare] = useRecoilState(showShareModalOpenAtom);
   const [isInfoOpen, setShowInfo] = useRecoilState(showInfoDropdownAtom);
   const [isNotificationOpen, setNotification] = useRecoilState(showNotificationDropdownAtom);
   const [paneOrientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
-  const payload = useRecoilValue(payloadSelector);
   const setProperties = useSetRecoilState(propertiesAtom);
-  const [sdtName, setSDTName] = useRecoilState(sdtValue);
   const rows = useRecoilValue(rowsSelector);
 
   const router = useRouter();
@@ -38,7 +33,6 @@ export const ProjectHeader = () => {
     setShowInfo(false);
     setNotification(false);
     setShowSearchModalOpen(false);
-    setSDTName(null);
     setProperties([
       // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
       { axis: 'X', accepts: 'COLUMN_DRAG', lastDroppedItem: null },

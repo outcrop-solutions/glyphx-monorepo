@@ -5,11 +5,11 @@ import { v4 as uuid } from "uuid";
 import { StateList } from "./StateList";
 // import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { selectedProjectSelector } from 'state/project';
+import { projectAtom } from 'state/project';
 import { statesSelector } from 'state/states';
 
 export const States = () => {
-  const project = useRecoilValue(selectedProjectSelector);
+  const project = useRecoilValue(projectAtom);
   const [states, setStates] = useRecoilState(statesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
 

@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
-import { selectedProjectSelector } from 'state/project';
+import { projectAtom } from 'state/project';
 import Image from 'next/image';
 
 export const MainSidebar = () => {
@@ -8,7 +8,7 @@ export const MainSidebar = () => {
   const router = useRouter();
   const { pathname } = router;
 
-  const selectedProject = useRecoilValue(selectedProjectSelector);
+  const selectedProject = useRecoilValue(projectAtom);
 
   return (
     <div

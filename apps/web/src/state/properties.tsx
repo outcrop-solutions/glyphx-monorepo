@@ -1,5 +1,5 @@
 import { atom, selector } from 'recoil';
-import { selectedProjectSelector } from './project';
+import { projectAtom as projectAtom } from './project';
 
 /**
  * ATOM THAT HOLDS DISPLAY TYPE OF EACH AXIS
@@ -32,7 +32,7 @@ export const propertiesAtom = atom({
   default: selector({
     key: 'properties/default',
     get: ({ get }) => {
-      let selectedProject = get(selectedProjectSelector);
+      let selectedProject = get(projectAtom);
       if (!selectedProject) return [];
       if (selectedProject?.properties && selectedProject?.properties.length > 0) {
         const existingProps = selectedProject?.properties.map((el, idx) => {
@@ -226,7 +226,6 @@ export const filterPayloadSelector = selector({
   key: 'firstThreeDroppedProperties',
   get: ({ get }) => {
     let properties = get(propertiesAtom);
-    // @ts-ignore
     return properties.filter((item) => item.lastDroppedItem);
   },
 });

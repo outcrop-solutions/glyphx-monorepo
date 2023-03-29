@@ -1,20 +1,12 @@
 import { atom, selector } from 'recoil';
-import { payloadSelector, selectedProjectSelector } from './project';
+import { projectAtom } from './project';
 import { droppedPropertiesSelector } from './properties';
 
 export const filtersSelector = selector({
   key: 'filters',
   get: ({ get }) => {
-    let selectedProject = get(selectedProjectSelector);
-    return selectedProject.filters.items;
-  },
-  set: ({ set, get }, newFiltersValue) => {
-    let selectedProject = get(selectedProjectSelector);
-    let newSelectedProjectValue = {
-      ...selectedProject,
-      filters: [...newFiltersValue],
-    };
-    set(selectedProjectSelector, newSelectedProjectValue);
+    const project = get(projectAtom);
+    return project.state.filters;
   },
 });
 
@@ -67,13 +59,6 @@ export const keywordChipsAtom = atom({
   default: [],
 });
 
-const REPLACEABLE_CHARS = [
-  32, //space
-  40, //(
-  41, //)
-  45, //-
-];
-
 /**
  * TAKES FILTERS THAT ARE APPLIED
   TAKES WHETHER OR NOT FILTER IS SAFE
@@ -87,8 +72,7 @@ export const filterQuerySelector = selector({
     const filtersApplied = get(filtersAppliedAtom);
     const isFilterSafe = get(isFilterSafeAtom);
     const droppedProps = get(droppedPropertiesSelector);
-    const { sdt } = get(payloadSelector);
-    let selectedProject = get(selectedProjectSelector);
+    let project = get(projectAtom);
 
     if (filtersApplied.length === 0) {
       // stop from running query when nothing in there
@@ -120,16 +104,16 @@ export const filterQuerySelector = selector({
       let query =
         filterStringArr.length > 0
           ? // TODO: MAKE IT DYNAMIC PROJECT ID
-            `SELECT rowid from ${selectedProject.id} WHERE ${filterStringArr.join(' AND ')}`
+            `SELECT rowid from ${project._id} WHERE ${filterStringArr.join(' AND ')}`
           : '';
 
       const updateFilterInput = {
         filter: query,
       };
       return updateFilterInput;
-    } else if (sdt && filtersApplied.length === 0 && droppedProps.length >= 3) {
+    } else if (filtersApplied.length === 0 && droppedProps.length >= 3) {
       // TODO: MAKE IT DYNAMIC PROJECT ID
-      let query = `SELECT rowid from \`${selectedProject.id}\``;
+      let query = `SELECT rowid from \`${project._id}\``;
       const updateFilterInput = {
         filter: query,
       };

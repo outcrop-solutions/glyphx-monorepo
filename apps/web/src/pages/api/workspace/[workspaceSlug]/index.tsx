@@ -13,10 +13,10 @@ const workspace = async (req, res) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.DELETE:
+    case webTypes.constants.HTTP_METHOD.DELETE:
       return deleteWorkspace(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.DELETE]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.DELETE]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

@@ -4,26 +4,22 @@ import { SearchModal, GridToggle, DropdownNotifications, Help } from 'partials';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   showHorizontalOrientationAtom,
-  selectedProjectSelector,
+  projectAtom,
   showShareModalOpenAtom,
   showAddProjectAtom,
   showSearchModalAtom,
   showInfoDropdownAtom,
-  payloadSelector,
   propertiesAtom,
-  sdtValue,
 } from 'state';
 
 export const Header = () => {
-  const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
+  const [selectedProject, setSelectedProject] = useRecoilState(projectAtom);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
   const setShare = useSetRecoilState(showShareModalOpenAtom);
   const setShowInfo = useSetRecoilState(showInfoDropdownAtom);
   const [paneOrientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
-  const payload = useRecoilValue(payloadSelector);
   const setProperties = useSetRecoilState(propertiesAtom);
-  const [sdtName, setSDTName] = useRecoilState(sdtValue);
 
   const router = useRouter();
 
@@ -32,7 +28,6 @@ export const Header = () => {
     setShare(false);
     setShowInfo(false);
     setShowSearchModalOpen(false);
-    setSDTName(null);
     setProperties([
       // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
       { axis: 'X', accepts: 'COLUMN_DRAG', lastDroppedItem: null },

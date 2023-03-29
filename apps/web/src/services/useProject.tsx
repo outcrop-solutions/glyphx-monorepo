@@ -1,22 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import update from 'immutability-helper';
 import {
   droppedPropertiesSelector,
   isPropsValidSelector,
-  isQtOpenAtom,
+  showQtViewerAtom,
   isZnumberSelector,
-  payloadSelector,
   propertiesAtom,
-  selectedProjectSelector,
-  showReorderConfirmAtom,
-  toastAtom,
+  projectAtom,
   showModelCreationLoadingAtom,
   AxisInterpolationAtom,
   AxisDirectionAtom,
-  GridModalErrorAtom,
-  progressDetailAtom,
   selectedFileAtom,
-} from '../state';
+} from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { createModelCall } from './create-model';
 import { formatColumnHeader } from 'utils/Utils';
@@ -29,17 +24,13 @@ import { useSession } from 'next-auth/react';
  */
 
 export const useProject = () => {
-  const [reorderConfirm, setReorderConfirm] = useRecoilState(showReorderConfirmAtom);
-  const setIsQtOpen = useSetRecoilState(isQtOpenAtom);
-  const selectedProject = useRecoilValue(selectedProjectSelector);
+  const setIsQtOpen = useSetRecoilState(showQtViewerAtom);
+  const project = useRecoilValue(projectAtom);
 
   const [properties, setProperties] = useRecoilState(propertiesAtom);
-  const [payload, setPayload] = useRecoilState(payloadSelector);
 
   const isPropsValid = useRecoilValue(isPropsValidSelector);
   const isZnumber = useRecoilValue(isZnumberSelector);
-
-  const setToast = useSetRecoilState(toastAtom);
 
   const userId = useSession().data.user.userId;
   const interpolation = useRecoilValue(AxisInterpolationAtom);
@@ -49,8 +40,6 @@ export const useProject = () => {
   const selectedFile = useRecoilValue(selectedFileAtom);
 
   const setModelCreationLoadingState = useSetRecoilState(showModelCreationLoadingAtom);
-  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
-  const setProgress = useSetRecoilState(progressDetailAtom);
 
   // DnD utilities
   const isDropped = (propName) => {
@@ -79,10 +68,9 @@ export const useProject = () => {
     const updateProjectState = async (res) => {
       // if (res?.statusCode === 200) {
       setIsQtOpen(true);
-      setPayload({ url: res.url, sdt: res.sdt });
       // update Dynamo Project Item
       const updateProjectInput = {
-        id: selectedProject.id,
+        id: project._id,
         filePath: res.sdt,
         expiry: new Date().toISOString(),
         properties: properties.map((el) =>
@@ -104,7 +92,7 @@ export const useProject = () => {
       // }
     };
     const callETL = async () => {
-      if (droppedProps?.length === 3 && selectedProject?.id) {
+      if (droppedProps?.length === 3 && project?._id) {
         if (isZnumber) {
           if (isPropsValid) {
             try {
@@ -117,7 +105,7 @@ export const useProject = () => {
             // call ETl endpoint for second half of ETL pipeline
             try {
               let response = await createModelCall(
-                selectedProject?.id,
+                project?._id,
                 {
                   X: formatColumnHeader(droppedProps[0].lastDroppedItem.key),
                   Y: formatColumnHeader(droppedProps[1].lastDroppedItem.key),
@@ -129,24 +117,18 @@ export const useProject = () => {
               );
               if (response?.errorMessage) {
                 // if there was an error
-                setGridErrorModal({
-                  show: true,
-                  title: 'Fatal Error',
-                  message: 'Failed to create Model',
-                  devError: response.errorMessage,
-                });
               } else {
                 await updateProjectState({
-                  url: `s3://glyphx-model-output-bucket/${userId}/${selectedProject?.id}/`,
+                  url: `s3://glyphx-model-output-bucket/${userId}/${project?.id}/`,
                   cache: false,
-                  sdt: `${selectedProject?.id}`,
+                  sdt: `${project?._id}`,
                 }); // on success send data to payload
                 try {
                   // create glyph window
                   window.core.OpenProject(
                     JSON.stringify({
                       user_id: userId,
-                      model_id: selectedProject?.id,
+                      model_id: project?._id,
                     }),
                     false
                   );
@@ -176,17 +158,15 @@ export const useProject = () => {
     callETL();
   }, [
     properties,
-    selectedProject,
+    project,
     interpolation,
     direction,
     setIsQtOpen,
-    setPayload,
     droppedProps,
     isZnumber,
     isPropsValid,
     setModelCreationLoadingState,
     userId,
-    setGridErrorModal,
   ]);
 
   return {

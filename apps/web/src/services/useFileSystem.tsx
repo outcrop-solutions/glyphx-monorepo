@@ -1,29 +1,12 @@
 import { useCallback } from 'react';
-
-import {
-  selectedFileAtom,
-  fileSystemAtom,
-  dataGridLoadingAtom,
-  selectedProjectSelector,
-  progressDetailAtom,
-  GridModalErrorAtom,
-  fileStatsSelector,
-  matchingFilesAtom,
-} from '../state';
-import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import {
-  compareStats,
-  createFileSystem,
-  createFileSystemFromS3,
-  parseFileStats,
-  parsePayload,
-} from 'lib/utils/transforms';
 import { useRouter } from 'next/router';
+
+import { selectedFileAtom, fileSystemAtom, projectAtom, fileStatsSelector, matchingFilesAtom } from 'state';
+import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
+import { compareStats, createFileSystem, createFileSystemFromS3, parsePayload } from 'lib/utils/transforms';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
-import { _addFiles, api } from 'lib';
-import workspace from 'pages/api/workspace';
-import { useWorkspace } from 'providers/workspace';
+import { _addFiles, api, useWorkspace, useWorkspaces } from 'lib';
 
 const cleanTableName = (fileName) => {
   return fileName.split('.')[0].trim().toLowerCase();
@@ -41,18 +24,13 @@ const cleanTableName = (fileName) => {
 
 export const useFileSystem = () => {
   const router = useRouter();
-  const { orgId, projectId } = router.query;
-  const { workspace, setWorkspace } = useWorkspace();
-  const project = useRecoilValue(selectedProjectSelector);
+  const { workspaceSlug } = router.query;
+  const { workspace, setWorkspace } = useWorkspace(workspaceSlug);
+  const project = useRecoilValue(projectAtom);
   const existingFileStats = useRecoilValue(fileStatsSelector);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
   const setMatchingStats = useSetRecoilState(matchingFilesAtom);
-  const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
-
-  // update this to be on a per-file basis using an atomFamily
-  const setProgress = useSetRecoilState(progressDetailAtom);
-  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
 
   // useEffect(() => {
   //   const refreshFiles = async () => {

@@ -13,10 +13,10 @@ const join = async (req, res) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.POST:
+    case webTypes.constants.HTTP_METHOD.POST:
       return joinWorkspace(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.POST]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

@@ -29,17 +29,17 @@ export default async function fileIngest(req: NextApiRequest, res: NextApiRespon
   // const session = (await validateSession(req, res)) as Session;
   // if (!session.user.userId) return res.status(401).end();
   switch (req.method) {
-    case webTypes.HTTP_METHOD.POST:
+    case webTypes.constants.HTTP_METHOD.POST:
       // return addFile(req, res, session);
       return addFile(req, res);
-    case webTypes.HTTP_METHOD.PUT:
+    case webTypes.constants.HTTP_METHOD.PUT:
       // return appendFile(req, res, session);
       return appendFile(req, res);
-    case webTypes.HTTP_METHOD.DELETE:
+    case webTypes.constants.HTTP_METHOD.DELETE:
       // return deleteFile(req, res, session);
       return deleteFile(req, res);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.POST, webTypes.HTTP_METHOD.PUT, webTypes.HTTP_METHOD.DELETE]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST, webTypes.constants.HTTP_METHOD.PUT, webTypes.constants.HTTP_METHOD.DELETE]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

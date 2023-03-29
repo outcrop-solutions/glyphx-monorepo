@@ -13,10 +13,10 @@ const role = async (req, res) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.PUT:
+    case webTypes.constants.HTTP_METHOD.PUT:
       return updateRole(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.PUT]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.PUT]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
