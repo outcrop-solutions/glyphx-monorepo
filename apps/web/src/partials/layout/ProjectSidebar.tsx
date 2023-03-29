@@ -2,9 +2,8 @@ import { useRef, useEffect, useState } from 'react';
 // import { ExpandCollapse } from "./ExpandCollapse";
 import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from 'partials';
 import { usePosition } from 'services/usePosition';
-import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
-import { glyphViewerDetails } from 'state/globals';
+import { glyphViewerDetails } from 'state/ui';
 
 export const ProjectSidebar = ({ handleDrop }) => {
   //utilities
@@ -24,7 +23,7 @@ export const ProjectSidebar = ({ handleDrop }) => {
   useEffect(() => {
     if (sidebar.current !== null) {
       setGlyphxViewer({
-        ...glyphxDetails,
+        ...glyphxViewerDetails,
         filterSidebarPosition: {
           values: sidebar.current.getBoundingClientRect(),
         },

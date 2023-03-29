@@ -37,6 +37,7 @@ const SCHEMA = new Schema<
   name: {type: String, required: true},
   description: {type: String, required: false},
   sdtPath: {type: String, required: false},
+  currentVersion: {type: Number, required: true, default: 0},
   workspace: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -326,6 +327,7 @@ SCHEMA.static(
         name: input.name,
         description: input.description ?? ' ',
         sdtPath: input.sdtPath,
+        currentVersion: input.currentVersion ?? 0,
         state: input.state,
         workspace: workspace,
         slug: input.slug,
@@ -374,7 +376,6 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
       .populate('owner')
       .populate('workspace')
       .populate('type')
-      .populate('state')
       .lean()) as databaseTypes.IProject;
     if (!projectDocument) {
       throw new error.DataNotFoundError(
@@ -388,7 +389,6 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     delete (projectDocument as any)['__v'];
     delete (projectDocument as any).owner?.['__v'];
     delete (projectDocument as any).type?.['__v'];
-    delete (projectDocument as any).state?.['__v'];
     delete (projectDocument as any).workspace?.['__v'];
 
     return projectDocument;
@@ -436,7 +436,6 @@ SCHEMA.static(
         .populate('workspace')
         .populate('owner')
         .populate('type')
-        .populate('state')
         .lean()) as databaseTypes.IProject[];
 
       //this is added by mongoose, so we will want to remove it before returning the document
@@ -446,7 +445,6 @@ SCHEMA.static(
         delete (doc as any)?.workspace?.__v;
         delete (doc as any)?.owner?.__v;
         delete (doc as any)?.type?.__v;
-        delete (doc as any)?.state?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.IProject> = {

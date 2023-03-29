@@ -43,6 +43,7 @@ const INPUT_DATA = {
   name: 'testProject' + UNIQUE_KEY,
   type: {},
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
+  currentVersion: 0,
   state: {
     files: [],
     properties: [],
@@ -59,6 +60,7 @@ const INPUT_DATA = {
 const INPUT_DATA2 = {
   name: 'testProject2' + UNIQUE_KEY,
   sdtPath: 'testsdtPath2' + UNIQUE_KEY,
+  currentVersion: 0,
   workspace: {},
   state: {
     files: [],

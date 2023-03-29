@@ -9,7 +9,6 @@ import {
   showAddProjectAtom,
   showSearchModalAtom,
   showInfoDropdownAtom,
-  propertiesAtom,
 } from 'state';
 
 export const Header = () => {
@@ -19,7 +18,6 @@ export const Header = () => {
   const setShare = useSetRecoilState(showShareModalOpenAtom);
   const setShowInfo = useSetRecoilState(showInfoDropdownAtom);
   const [paneOrientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
-  const setProperties = useSetRecoilState(propertiesAtom);
 
   const router = useRouter();
 
@@ -28,15 +26,7 @@ export const Header = () => {
     setShare(false);
     setShowInfo(false);
     setShowSearchModalOpen(false);
-    setProperties([
-      // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
-      { axis: 'X', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: 'Y', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: 'Z', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '1', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '2', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '3', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-    ]);
+
     try {
       //close glyph viewer
       window?.core.CloseModel();

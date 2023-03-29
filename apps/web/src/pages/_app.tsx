@@ -18,7 +18,6 @@ import swrConfig from 'config/swr/index';
 
 // State Management
 import { RecoilRoot } from 'recoil';
-import WorkspaceProvider from 'providers/workspace';
 
 // Partials
 import { ErrorFallback } from 'partials/fallback';
@@ -81,18 +80,16 @@ export default function App({
   return (
     <SessionProvider session={pageProps.session}>
       <SWRConfig value={swrOptions}>
-        <WorkspaceProvider>
-          <RecoilRoot>
-            {/* Root Fallback for when error is throws */}
-            <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-              {/* Root Fallback for when data is loading */}
-              <Suspense fallback={<SuspenseFallback />}>
-                {progress && <TopBarProgress />}
-                <Component {...pageProps} />
-              </Suspense>
-            </ErrorBoundary>
-          </RecoilRoot>
-        </WorkspaceProvider>
+        <RecoilRoot>
+          {/* Root Fallback for when error is throws */}
+          <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
+            {/* Root Fallback for when data is loading */}
+            <Suspense fallback={<SuspenseFallback />}>
+              {progress && <TopBarProgress />}
+              <Component {...pageProps} />
+            </Suspense>
+          </ErrorBoundary>
+        </RecoilRoot>
       </SWRConfig>
     </SessionProvider>
   );

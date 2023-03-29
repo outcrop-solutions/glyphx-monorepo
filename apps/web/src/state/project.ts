@@ -13,6 +13,7 @@ import { generateFilterQuery } from 'lib/client/helpers';
  *    description?: string;
  *    sdtPath?: string;
  *    lastOpened?: Date;
+ *    currentVersion: number;
  *    slug?: string;
  *    isTemplate: Boolean;
  *    type?: {
@@ -117,13 +118,14 @@ import { generateFilterQuery } from 'lib/client/helpers';
  * @note payload sent to Qt will be dynamically constructed,
  */
 
-// BASE STATE
+/************************  BASE  *************************/
 export const projectAtom = atom<databaseTypes.IProject | null>({
   key: 'projectAtom',
   default: null,
 });
 
-// DERIVED STATE
+/************************  Qt  *************************/
+
 // returns a function, which returns a selector partially applied
 export const openModelPayloadSelectorFamily = selectorFamily<webTypes.IOpenModelPayload, string>({
   key: 'openModelPayloadSelector',
@@ -138,58 +140,7 @@ export const openModelPayloadSelectorFamily = selectorFamily<webTypes.IOpenModel
     },
 });
 
-// creates unified filter query for createModel call
-export const filterQuerySelector = selector<string>({
-  key: 'filterQuerySelector',
-  get: ({ get }) => {
-    const project = get(projectAtom);
-    const axisArray = Object.values(webTypes.constants.AXIS);
-    let retval = [];
-    for (const axis of axisArray) {
-      const prop = project.state.properties[`${axis}`];
-      const query = generateFilterQuery(prop);
-      retval.push(query);
-    }
-    return retval.join(' AND ');
-  },
-});
-
-// payload sent to createModel call
-export const createModelPayloadSelector = selector<webTypes.ICreateModelPayload>({
-  key: 'createModelPayloadSelector',
-  get: ({ get }) => {
-    const project = get(projectAtom);
-    const filter = get(filterQuerySelector);
-
-    return {
-      projectId: project._id,
-      userId: project.owner._id,
-      filter: filter,
-      x_axis: project.state.properties[webTypes.constants.AXIS.X]['key'],
-      y_axis: project.state.properties[webTypes.constants.AXIS.Y]['key'],
-      z_axis: project.state.properties[webTypes.constants.AXIS.Z]['key'],
-      x_func: project.state.properties[webTypes.constants.AXIS.X]['interpolation'],
-      y_func: project.state.properties[webTypes.constants.AXIS.Y]['interpolation'],
-      z_func: project.state.properties[webTypes.constants.AXIS.Z]['interpolation'],
-      x_direction: project.state.properties[webTypes.constants.AXIS.X]['direction'],
-      y_direction: project.state.properties[webTypes.constants.AXIS.Y]['direction'],
-      z_direction: project.state.properties[webTypes.constants.AXIS.Z]['direction'],
-    };
-  },
-});
-
-// used to render single filter
-export const singleFilterSelectorFamily = selectorFamily<webTypes.Filter, webTypes.constants.AXIS>({
-  key: 'singleFilterSelectorFamily',
-  get:
-    (axis) =>
-    ({ get }) => {
-      const project = get(projectAtom);
-      return {
-        ...project.state.properties[`${axis}`].filter,
-      };
-    },
-});
+/************************  UI  *************************/
 
 export const propertiesSelector = selector<webTypes.Property[]>({
   key: 'propertiesSelector',
@@ -216,7 +167,8 @@ export const droppedPropertiesSelector = selector<webTypes.Property[]>({
   },
 });
 
-// CONDITIONS
+/************************ GLYPH ENGINE *************************/
+
 // are there 3 properties dropped for x, y & z?
 export const arePropsAlreadyDroppedSelector = selector<boolean>({
   key: 'arePropsAlreadyDroppedSelector',
@@ -245,9 +197,67 @@ export const isZAxisNumericSelector = selector<boolean>({
   },
 });
 
-// local state mutations
-// update filter keywords
-// update filter min/max
-// update interpolation
-// update direction
-// add new blank property to project state
+// can we call ETL?
+export const canCallETL = selector<boolean>({
+  key: 'canCallETLSelector',
+  get: ({ get }) => {
+    const propsSafe = get(arePropsAlreadyDroppedSelector);
+    const zAxisNumeric = get(isZAxisNumericSelector);
+    return propsSafe && zAxisNumeric;
+  },
+});
+
+// payload sent to createModel call
+export const createModelPayloadSelector = selector<webTypes.ICreateModelPayload>({
+  key: 'createModelPayloadSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    const filter = get(filterQuerySelector);
+
+    return {
+      projectId: project._id,
+      userId: project.owner._id,
+      filter: filter,
+      x_axis: project.state.properties[webTypes.constants.AXIS.X]['key'],
+      y_axis: project.state.properties[webTypes.constants.AXIS.Y]['key'],
+      z_axis: project.state.properties[webTypes.constants.AXIS.Z]['key'],
+      x_func: project.state.properties[webTypes.constants.AXIS.X]['interpolation'],
+      y_func: project.state.properties[webTypes.constants.AXIS.Y]['interpolation'],
+      z_func: project.state.properties[webTypes.constants.AXIS.Z]['interpolation'],
+      x_direction: project.state.properties[webTypes.constants.AXIS.X]['direction'],
+      y_direction: project.state.properties[webTypes.constants.AXIS.Y]['direction'],
+      z_direction: project.state.properties[webTypes.constants.AXIS.Z]['direction'],
+    };
+  },
+});
+
+/************************ FILTERS *************************/
+
+// creates unified filter query for createModel call
+export const filterQuerySelector = selector<string>({
+  key: 'filterQuerySelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    const axisArray = Object.values(webTypes.constants.AXIS);
+    let retval = [];
+    for (const axis of axisArray) {
+      const prop = project.state.properties[`${axis}`];
+      const query = generateFilterQuery(prop);
+      retval.push(query);
+    }
+    return retval.join(' AND ');
+  },
+});
+
+// used to render single filter
+export const singleFilterSelectorFamily = selectorFamily<webTypes.Filter, webTypes.constants.AXIS>({
+  key: 'singleFilterSelectorFamily',
+  get:
+    (axis) =>
+    ({ get }) => {
+      const project = get(projectAtom);
+      return {
+        ...project.state.properties[`${axis}`].filter,
+      };
+    },
+});

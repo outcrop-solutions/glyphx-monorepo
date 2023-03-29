@@ -13,7 +13,7 @@ export const workspaceAtom = atom<databaseTypes.IWorkspace>({
     deletedAt: new Date(),
     description: '',
     creator: {} as unknown as databaseTypes.IUser,
-    members: [],
-    projects: [],
+    members: [] as unknown as databaseTypes.IMember[],
+    projects: [] as unknown as databaseTypes.IProject[],
   },
 });

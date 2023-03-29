@@ -3,8 +3,8 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
-import { showSearchModalAtom } from 'state';
-import { projectsAtom } from 'state/globals';
+import { showSearchModalAtom } from 'state/ui';
+import { workspaceAtom } from 'state/workspace';
 import Fuse from 'fuse.js'; // importing fuse
 
 export function SearchModal() {
@@ -12,14 +12,14 @@ export function SearchModal() {
   const { orgId } = router.query;
 
   const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-  const projects = useRecoilValue(projectsAtom);
+  const workspace = useRecoilValue(workspaceAtom);
   const [query, setQuery] = useState('');
   const [queryResult, setQueryResult] = useState([]);
 
   // configure fuse
   const fuse = useMemo(
     () =>
-      new Fuse(projects, {
+      new Fuse(workspace.projects, {
         isCaseSensitive: false,
         // includeScore: false,
         shouldSort: true,
@@ -35,7 +35,7 @@ export function SearchModal() {
         // fieldNormWeight: 1,
         keys: ['name'],
       }),
-    [projects]
+    [workspace.projects]
   );
 
   // TODO: Fix this use effect and stop it from constantly running
@@ -125,10 +125,10 @@ export function SearchModal() {
                   Recent Projects
                 </p>
                 <ul>
-                  {projects.slice(0, 5).map((value, index) => {
+                  {workspace.projects.slice(0, 5).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/${orgId}/${value.id}`}>
+                        <Link href={`/${orgId}/${value._id}`}>
                           <a className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
                             <svg
                               className="w-4 h-4 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"

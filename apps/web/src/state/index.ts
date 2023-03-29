@@ -12,6 +12,7 @@
  */
 
 export * from './files'; // mirrors remote s3 file system
+export * from './project'; // used for modeling glyphs
+export * from './snapshot';
 export * from './ui'; // control visual state of the app
 export * from './workspace'; // holds workspace and membership
-export * from './project'; // used for modeling glyphs

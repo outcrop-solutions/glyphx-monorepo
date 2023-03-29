@@ -11,5 +11,5 @@ export * from './fileSystem/iS3ProviderListOutput';
 export * from './filters/iNumericFilter';
 export * from './filters/iStringFilter';
 // models
-export * from './model/iCreateModelPayload';
-export * from './model/iOpenModelPayload';
+export * from './payloads/iCreateModelPayload';
+export * from './payloads/iOpenModelPayload';

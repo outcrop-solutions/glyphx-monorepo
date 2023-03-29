@@ -16,6 +16,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   name: 'test project',
   description: 'this is a test description',
   sdtPath: 'sdtPath',
+  currentVersion: 0,
   workspace: {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
@@ -37,6 +38,7 @@ const MOCK_NULLISH_PROJECT = {
   updatedAt: new Date(),
   name: 'test project',
   description: undefined,
+  currentVersion: undefined,
   sdtPath: 'sdtPath',
   workspace: {
     _id: new mongoose.Types.ObjectId(),

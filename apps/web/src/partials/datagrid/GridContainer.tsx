@@ -9,7 +9,6 @@ import SplitPane from 'react-split-pane';
 import {
   showHorizontalOrientationAtom,
   glyphViewerDetails,
-  sdtValue,
   showInfoDropdownAtom,
   showShareModalOpenAtom,
   showNotificationDropdownAtom,
@@ -21,8 +20,6 @@ export const GridContainer = ({ isDropped }) => {
 
   var r = document.querySelector(':root');
   const orientation = useRecoilValue(showHorizontalOrientationAtom);
-  const stdName = useRecoilValue(sdtValue);
-  const glyphxViewer = useRecoilValue(glyphViewerDetails);
   const isInfoOpen = useRecoilValue(showInfoDropdownAtom);
   const isShareOpen = useRecoilValue(showShareModalOpenAtom);
   const isNotificationOpen = useRecoilValue(showNotificationDropdownAtom);

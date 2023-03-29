@@ -9,7 +9,6 @@ import {
   showSearchModalAtom,
   showInfoDropdownAtom,
   showNotificationDropdownAtom,
-  propertiesAtom,
   rowsSelector,
   projectAtom,
 } from 'state';
@@ -22,7 +21,6 @@ export const ProjectHeader = () => {
   const [isInfoOpen, setShowInfo] = useRecoilState(showInfoDropdownAtom);
   const [isNotificationOpen, setNotification] = useRecoilState(showNotificationDropdownAtom);
   const [paneOrientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
-  const setProperties = useSetRecoilState(propertiesAtom);
   const rows = useRecoilValue(rowsSelector);
 
   const router = useRouter();
@@ -33,15 +31,7 @@ export const ProjectHeader = () => {
     setShowInfo(false);
     setNotification(false);
     setShowSearchModalOpen(false);
-    setProperties([
-      // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
-      { axis: 'X', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: 'Y', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: 'Z', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '1', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '2', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '3', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-    ]);
+
     try {
       //close glyph viewer
       window?.core.CloseModel();

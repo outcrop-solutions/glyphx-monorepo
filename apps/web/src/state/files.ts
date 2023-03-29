@@ -3,7 +3,7 @@ import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/ty
 
 /**
  * APPLICATION FILESYSTEM
- * @note We use ```fileSystemAtom``` to update filesystem state - the downstream selectors are nodes in the state dependency graph which inherit their value from this atom. State flows through the DAG down to state values renderable by react components.  In the future, this can be bi-directional (where selector nodes can update parents) for performance reasons, however for now we are optimizing for readability and maintianability so that we can add functionality in a performant way.
+ * @note We use ```fileSystemAtom``` to denote state generated from s3
  * 
  * The shape looks like this
  * [

@@ -12,7 +12,7 @@ import { ProjectDetails } from 'partials';
 
 // Hooks
 import { useRecoilValue } from 'recoil';
-import { showProjectsGridViewAtom, projectDetailsAtom, showAddProjectAtom, workspaceAtom } from 'state';
+import { showProjectsGridViewAtom, projectDetailsAtom, showAddProjectAtom, workspaceAtom } from 'recoil';
 
 export default function Home() {
   const isGridView = useRecoilValue(showProjectsGridViewAtom);

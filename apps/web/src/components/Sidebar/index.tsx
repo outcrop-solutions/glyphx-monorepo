@@ -5,7 +5,6 @@ import Actions from './actions';
 import Menu from './menu';
 import sidebarMenu from 'config/menu/sidebar-static';
 import { useWorkspaces } from 'lib/client';
-import { useWorkspace } from 'providers/workspace';
 import { MenuIcon } from '@heroicons/react/outline';
 import { workspaceAtom } from 'state';
 import { useRecoilValue } from 'recoil';
