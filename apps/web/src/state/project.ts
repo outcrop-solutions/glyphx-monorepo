@@ -1,5 +1,5 @@
 import { atom, selector, selectorFamily } from 'recoil';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { generateFilterQuery } from 'lib/client/helpers';
 
 /**
@@ -78,7 +78,6 @@ import { generateFilterQuery } from 'lib/client/helpers';
  *           interpolation: INTERPOLATION_TYPE;
  *           direction: DIRECTION_TYPE;
  *           filter: {
- *              type: FIELD_TYPE
  *              min: number;
  *              max: number;
  *           }
@@ -91,7 +90,6 @@ import { generateFilterQuery } from 'lib/client/helpers';
  *           interpolation: INTERPOLATION_TYPE;
  *           direction: DIRECTION_TYPE;
  *           filter: {
- *              type: FIELD_TYPE
  *              keywords: string[];
  *           }
  *         }
@@ -103,7 +101,6 @@ import { generateFilterQuery } from 'lib/client/helpers';
  *           interpolation: INTERPOLATION_TYPE;
  *           direction: DIRECTION_TYPE;
  *           filter: {
- *              type: FIELD_TYPE
  *              keywords: string[];
  *           }
  *         }
@@ -120,11 +117,13 @@ import { generateFilterQuery } from 'lib/client/helpers';
  * @note payload sent to Qt will be dynamically constructed,
  */
 
+// BASE STATE
 export const projectAtom = atom<databaseTypes.IProject | null>({
   key: 'projectAtom',
   default: null,
 });
 
+// DERIVED STATE
 // returns a function, which returns a selector partially applied
 export const openModelPayloadSelectorFamily = selectorFamily<webTypes.IOpenModelPayload, string>({
   key: 'openModelPayloadSelector',
@@ -139,7 +138,7 @@ export const openModelPayloadSelectorFamily = selectorFamily<webTypes.IOpenModel
     },
 });
 
-// TODO: clean this up and make it more generic
+// creates unified filter query for createModel call
 export const filterQuerySelector = selector<string>({
   key: 'filterQuerySelector',
   get: ({ get }) => {
@@ -190,6 +189,60 @@ export const singleFilterSelectorFamily = selectorFamily<webTypes.Filter, webTyp
         ...project.state.properties[`${axis}`].filter,
       };
     },
+});
+
+export const propertiesSelector = selector<webTypes.Property[]>({
+  key: 'propertiesSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    return project.state.properties;
+  },
+});
+
+// used to add XYZ icons to datagrid columns
+export const droppedPropertiesSelector = selector<webTypes.Property[]>({
+  key: 'droppedPropertiesSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    const axisArray = Object.values(webTypes.constants.AXIS);
+    let retval = [];
+    for (const axis of axisArray.slice(0, 3)) {
+      const prop = project.state.properties[`${axis}`];
+      if (prop.key !== '') {
+        retval.push(prop);
+      }
+    }
+    return retval;
+  },
+});
+
+// CONDITIONS
+// are there 3 properties dropped for x, y & z?
+export const arePropsAlreadyDroppedSelector = selector<boolean>({
+  key: 'arePropsAlreadyDroppedSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    const axisArray = Object.values(webTypes.constants.AXIS);
+    let retval = true;
+    for (const axis of axisArray.slice(0, 3)) {
+      const prop = project.state.properties[`${axis}`];
+      if (prop.key === '') {
+        retval = false;
+      }
+    }
+    return retval;
+  },
+});
+
+// is z-axis numeric?
+export const isZAxisNumericSelector = selector<boolean>({
+  key: 'isZAxisNumericSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    return (
+      project.state.properties[webTypes.constants.AXIS.Z].dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+    );
+  },
 });
 
 // local state mutations

@@ -12,7 +12,7 @@ export const _createModel = (payload: webTypes.ICreateModelPayload): webTypes.IF
     url: `/api/model`,
     options: {
       method: 'POST',
-      body: { payload },
+      body: { ...payload },
     },
     successMsg: 'File successfully added',
   };

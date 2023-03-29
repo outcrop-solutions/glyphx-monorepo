@@ -2,8 +2,9 @@ import { useEffect, useState, useCallback } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { SortableHeaderCell } from './SortableHeaderCell';
 import { useCombinedRefs } from 'services/useCombinedRefs';
-import { droppedPropertiesSelector, propertiesAtom } from 'state/properties';
+import { droppedPropertiesSelector } from 'state/project';
 import { useRecoilValue } from 'recoil';
+import { web as webTypes } from '@glyphx/types';
 
 export function DraggableHeaderRenderer({
   onColumnsReorder,
@@ -15,8 +16,6 @@ export function DraggableHeaderRenderer({
   isDropped,
 }) {
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
-  const [assignedAxis, setAxis] = useState(null);
-  const properties = useRecoilValue(propertiesAtom);
 
   // @ts-ignore
   const [{ isDragging }, drag] = useDrag({
@@ -40,25 +39,14 @@ export function DraggableHeaderRenderer({
     }),
   });
 
-  /**
-   * Checks if column has been dropped using droppedPropsSelector
-   */
-  const isColumnDropped = useCallback(() => {
-    if (droppedProps?.length > 0) {
-      for (let index = 0; index < droppedProps?.length; index++) {
-        if (droppedProps[index].lastDroppedItem.key === column.key) {
-          setAxis(droppedProps[index].axis);
-        }
-      }
-    }
-  }, [droppedProps, column.key]);
-
-  /**
-   * Renders column name with title
-   * @returns
-   */
-  function renderColumnTitle() {
-    switch (assignedAxis) {
+  const evalMatch = (key: string) => {
+    const match = droppedProps.find((prop) => prop.key === key);
+    if (match) return match.axis;
+    return '';
+  };
+  
+  function renderColumnTitle(column: webTypes.GridColumn) {
+    switch (evalMatch(column.key)) {
       case 'X':
         return (
           <span className="inline-flex align-middle space-x-1">
@@ -180,13 +168,13 @@ export function DraggableHeaderRenderer({
         );
 
       default:
-        return <></>;
+        return (
+          <p className="inline-flex align-middle text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">
+            {column.name}
+          </p>
+        );
     }
   }
-
-  useEffect(() => {
-    isColumnDropped();
-  }, [droppedProps, isColumnDropped]);
 
   return (
     <div
@@ -200,13 +188,7 @@ export function DraggableHeaderRenderer({
         priority={priority}
         isCellSelected={isCellSelected}
       >
-        {assignedAxis ? (
-          renderColumnTitle()
-        ) : (
-          <p className="inline-flex align-middle text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">
-            {column.name}
-          </p>
-        )}
+        {renderColumnTitle(column)}
       </SortableHeaderCell>
     </div>
   );
