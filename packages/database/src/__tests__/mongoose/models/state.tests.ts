@@ -24,7 +24,6 @@ const MOCK_STATE: databaseTypes.IState = {
   } as unknown as databaseTypes.IUser,
   fileSystem: [],
   camera: 400,
-  filters: [],
   properties: [],
 };
 const MOCK_NULLISH_STATE = {
@@ -41,7 +40,6 @@ const MOCK_NULLISH_STATE = {
   } as databaseTypes.IUser,
   fileSystem: undefined,
   camera: 400,
-  filters: undefined,
   properties: undefined,
 } as unknown as databaseTypes.IState;
 
@@ -55,7 +53,6 @@ const MOCK_STATE_IDS = {
   createdBy: new mongoose.Types.ObjectId(),
   fileSystem: [],
   camera: 400,
-  filters: [],
   properties: [],
 } as unknown as databaseTypes.IState;
 
@@ -154,17 +151,16 @@ describe('#mongoose/models/state', () => {
       sandbox.replace(
         StateModel,
         'create',
-        sandbox.stub().resolves([{_id: stateId, filters: [], properties: []}])
+        sandbox.stub().resolves([{_id: stateId, properties: []}])
       );
 
       const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves({_id: stateId, filters: [], properties: []});
+      getStateByIdStub.resolves({_id: stateId, properties: []});
 
       sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
 
       const result = await StateModel.createState(MOCK_NULLISH_STATE);
       assert.strictEqual(result._id, stateId);
-      assert.strictEqual(result.filters.length, 0);
       assert.strictEqual(result.properties.length, 0);
       assert.isTrue(getStateByIdStub.calledOnce);
     });
@@ -610,7 +606,6 @@ describe('#mongoose/models/state', () => {
         __v: 1,
       } as unknown as databaseTypes.IUser,
       camera: 400,
-      filters: [],
       properties: [],
     } as databaseTypes.IState;
     const sandbox = createSandbox();
@@ -709,7 +704,6 @@ describe('#mongoose/models/state', () => {
           __v: 1,
         } as unknown as databaseTypes.IUser,
         camera: 400,
-        filters: [],
         properties: [],
       } as databaseTypes.IState,
       {
@@ -731,7 +725,6 @@ describe('#mongoose/models/state', () => {
           __v: 1,
         } as unknown as databaseTypes.IUser,
         camera: 400,
-        filters: [],
         properties: [],
       } as databaseTypes.IState,
     ];

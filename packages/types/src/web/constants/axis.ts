@@ -1,8 +1,8 @@
 export enum AXIS {
-  X,
-  Y,
-  Z,
-  A,
-  B,
-  C,
+  X = 'X',
+  Y = 'Y',
+  Z = 'Z',
+  A = 'A',
+  B = 'B',
+  C = 'C',
 }

@@ -5,6 +5,7 @@ import {
   INTERPOLATION_TYPE,
   DIRECTION_TYPE,
 } from '../../constants';
+import {Filter} from '../filter';
 
 export type Property = {
   axis: AXIS;
@@ -13,4 +14,5 @@ export type Property = {
   dataType: FIELD_TYPE; // corresponds to column data type
   interpolation: INTERPOLATION_TYPE;
   direction: DIRECTION_TYPE;
+  filter: Filter;
 };

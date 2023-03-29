@@ -7,6 +7,7 @@ export interface ICreateModelPayload {
   x_axis: string;
   y_axis: string;
   z_axis: string;
+  filter: string; // SQL QUERY AFTER THE 'WHERE' CLAUSE
   x_func: INTERPOLATION_TYPE;
   y_func: INTERPOLATION_TYPE;
   z_func: INTERPOLATION_TYPE;

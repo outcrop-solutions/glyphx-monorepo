@@ -12,3 +12,4 @@ export * from './filters/iNumericFilter';
 export * from './filters/iStringFilter';
 // models
 export * from './model/iCreateModelPayload';
+export * from './model/iOpenModelPayload';

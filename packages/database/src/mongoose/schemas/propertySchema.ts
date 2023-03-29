@@ -3,6 +3,7 @@ import {
   web as webTypes,
   fileIngestion as fileIngestionTypes,
 } from '@glyphx/types';
+import {filterSchema} from './filterSchema';
 
 const PROPERTY_SCHEMA = new Schema({
   axis: {type: Number, required: true, enum: webTypes.constants.AXIS},
@@ -26,6 +27,7 @@ const PROPERTY_SCHEMA = new Schema({
     enum: webTypes.constants.DIRECTION_TYPE,
     default: webTypes.constants.DIRECTION_TYPE[0],
   },
+  filter: {type: filterSchema, required: false},
 });
 
 export {PROPERTY_SCHEMA as propertySchema};

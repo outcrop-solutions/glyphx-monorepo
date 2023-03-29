@@ -7,7 +7,7 @@ import {
   IStateCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {fileStatsSchema, filterSchema, propertySchema} from '../schemas';
+import {fileStatsSchema, propertySchema} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
 
@@ -40,7 +40,6 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
     required: true,
     ref: 'user',
   },
-  filters: {type: [filterSchema], required: true, default: []},
   properties: {type: [propertySchema], required: true, default: []},
   fileSystem: {type: [fileStatsSchema], required: true, default: []},
 });
@@ -107,7 +106,6 @@ SCHEMA.static(
         static: input.static,
         camera: input.camera,
         properties: input.properties ?? [],
-        filters: input.filters ?? [],
         createdBy: userId,
         fileSystemHash: input.fileSystemHash,
         project: projectId,
