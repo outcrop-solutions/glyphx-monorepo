@@ -24,6 +24,7 @@ export interface IProject {
     IState,
     | 'createdAt'
     | 'updatedAt'
+    | 'fileSystem'
     | 'description'
     | 'version'
     | 'static'

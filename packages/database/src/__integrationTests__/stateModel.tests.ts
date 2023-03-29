@@ -24,11 +24,52 @@ const INPUT_PROJECT2 = {
   files: [],
 };
 
+const INPUT_USER = {
+  name: 'testUser' + UNIQUE_KEY,
+  userCode: 'testUserCode' + UNIQUE_KEY,
+  username: 'testUserName' + UNIQUE_KEY,
+  email: 'testEmail' + UNIQUE_KEY + '@email.com',
+  emailVerified: new Date(),
+  isVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
+};
+
+const INPUT_USER2 = {
+  name: 'testUser2' + UNIQUE_KEY,
+  userCode: 'testUserCode2' + UNIQUE_KEY,
+  username: 'testUserName2' + UNIQUE_KEY,
+  email: 'testEmail2' + UNIQUE_KEY + '@email.com',
+  emailVerified: new Date(),
+  isVerified: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accounts: [],
+  sessions: [],
+  membership: [],
+  invitedMembers: [],
+  createdWorkspaces: [],
+  projects: [],
+  webhooks: [],
+};
+
 const INPUT_DATA = {
   version: 1,
   static: false,
   fileSystemHash: UNIQUE_KEY,
   fileSystem: [],
+  camera: 400,
+  filters: [],
+  properties: [],
+  project: {},
+  createdBy: {},
 };
 
 const INPUT_DATA2 = {
@@ -36,15 +77,24 @@ const INPUT_DATA2 = {
   static: false,
   fileSystemHash: 'hash2' + UNIQUE_KEY,
   fileSystem: [],
+  camera: 400,
+  filters: [],
+  properties: [],
+  project: {},
+  createdBy: {},
 };
+
 describe('#StateModel', () => {
   context('test the crud functions of the state model', () => {
     const mongoConnection = new MongoDbConnection();
     const stateModel = mongoConnection.models.StateModel;
     let stateId: ObjectId;
     let stateId2: ObjectId;
+    let userId: ObjectId;
+    let userId2: ObjectId;
     let projectId: ObjectId;
     let projectDocument: any;
+    let userDocument: any;
     let projectId2: ObjectId;
     before(async () => {
       await mongoConnection.init();
@@ -67,6 +117,26 @@ describe('#StateModel', () => {
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(projectId2);
+
+      const userModel = mongoConnection.models.UserModel;
+
+      await userModel.create([INPUT_USER], {validateBeforeSave: false});
+      const savedUserDocument = await userModel
+        .findOne({name: INPUT_USER.name})
+        .lean();
+      userId = savedUserDocument?._id as mongooseTypes.ObjectId;
+
+      userDocument = savedUserDocument;
+
+      assert.isOk(userId);
+
+      await userModel.create([INPUT_USER2], {validateBeforeSave: false});
+      const savedUserDocument2 = await userModel
+        .findOne({name: INPUT_USER2.name})
+        .lean();
+      userId2 = savedUserDocument2?._id as mongooseTypes.ObjectId;
+
+      assert.isOk(userId2);
     });
 
     after(async () => {
@@ -86,6 +156,7 @@ describe('#StateModel', () => {
     it('add a new state ', async () => {
       const stateInput = JSON.parse(JSON.stringify(INPUT_DATA));
       stateInput.project = projectDocument;
+      stateInput.createdBy = userDocument;
       const stateDocument = await stateModel.createState(stateInput);
 
       assert.isOk(stateDocument);
@@ -94,6 +165,7 @@ describe('#StateModel', () => {
         stateInput.fileSystemHash
       );
       assert.strictEqual(stateDocument.project.name, projectDocument.name);
+      assert.strictEqual(stateDocument.createdBy.name, userDocument.name);
 
       stateId = stateDocument._id as mongooseTypes.ObjectId;
     });
@@ -110,6 +182,7 @@ describe('#StateModel', () => {
       assert.isOk(stateId);
       const stateInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       stateInput.project = projectDocument;
+      stateInput.createdBy = userDocument;
       const stateDocument = await stateModel.createState(stateInput);
 
       assert.isOk(stateDocument);

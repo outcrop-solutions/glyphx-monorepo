@@ -41,13 +41,17 @@ const INPUT_USER = {
 
 const INPUT_DATA = {
   name: 'testProject' + UNIQUE_KEY,
+  type: {},
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
+  state: {
+    files: [],
+    properties: [],
+    fileSystemHash: 'testFileSystemHash' + UNIQUE_KEY,
+  },
   workspace: {},
   slug: 'testSlug' + UNIQUE_KEY,
   isTemplate: false,
-  type: {},
   owner: {},
-  state: {},
   files: [],
   viewName: 'testViewName' + UNIQUE_KEY,
 };
@@ -56,11 +60,15 @@ const INPUT_DATA2 = {
   name: 'testProject2' + UNIQUE_KEY,
   sdtPath: 'testsdtPath2' + UNIQUE_KEY,
   workspace: {},
+  state: {
+    files: [],
+    properties: [],
+    fileSystemHash: 'testFileSystemHash' + UNIQUE_KEY,
+  },
   slug: 'testSlug2' + UNIQUE_KEY,
   isTemplate: false,
   type: {},
   owner: {},
-  state: {},
   files: [],
   viewName: 'testViewName2' + UNIQUE_KEY,
 };
