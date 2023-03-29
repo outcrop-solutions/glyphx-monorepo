@@ -160,7 +160,12 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
       const stub = sandbox.stub();
-      stub.resolves({_id: objectId});
+      stub.resolves({
+        _id: objectId,
+        description: ' ',
+        viewName: ' ',
+        files: [],
+      });
       sandbox.replace(ProjectModel, 'getProjectById', stub);
       const projectDocument = await ProjectModel.createProject(
         MOCK_NULLISH_PROJECT

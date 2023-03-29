@@ -297,9 +297,10 @@ describe('#mongoose/models/state', () => {
 
     it('will throw an DatabaseOperationError if the underlying database connection throws an error.', async () => {
       const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(
         ProjectModel,
-        'allProjectIdsExist',
+        'projectIdExists',
         sandbox.stub().resolves(true)
       );
       sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));

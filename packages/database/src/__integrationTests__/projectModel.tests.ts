@@ -39,14 +39,6 @@ const INPUT_USER = {
   webhooks: [],
 };
 
-const INPUT_STATE = {
-  version: 1,
-  static: true,
-  fileSystemHash: 'testFileSystemHash' + UNIQUE_KEY,
-  projects: [],
-  fileSystem: [],
-};
-
 const INPUT_DATA = {
   name: 'testProject' + UNIQUE_KEY,
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
@@ -87,18 +79,15 @@ describe('#ProjectModel', () => {
     let projectId2: ObjectId;
     let userId: ObjectId;
     let workspaceId: ObjectId;
-    let stateId: ObjectId;
     let projectTypeId: ObjectId;
     let workspaceDocument: any;
     let userDocument: any;
-    let stateDocument: any;
     let projectTypeDocument: any;
 
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
-      const stateModel = mongoConnection.models.StateModel;
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
@@ -135,16 +124,6 @@ describe('#ProjectModel', () => {
       projectTypeDocument = savedProjectTypeDocument;
 
       assert.isOk(projectTypeId);
-
-      await stateModel.create([INPUT_STATE], {validateBeforeSave: false});
-      const savedStateDocument = await stateModel
-        .findOne({fileSystemHash: INPUT_STATE.fileSystemHash})
-        .lean();
-      stateId = savedStateDocument?._id as mongooseTypes.ObjectId;
-
-      stateDocument = savedStateDocument;
-
-      assert.isOk(stateId);
     });
 
     after(async () => {
@@ -156,9 +135,6 @@ describe('#ProjectModel', () => {
 
       const projectTypeModel = mongoConnection.models.ProjectTypeModel;
       await projectTypeModel.findByIdAndDelete(projectTypeId);
-
-      const stateModel = mongoConnection.models.StateModel;
-      await stateModel.findByIdAndDelete(stateId);
 
       if (projectId) {
         await projectModel.findByIdAndDelete(projectId);
@@ -174,7 +150,6 @@ describe('#ProjectModel', () => {
       projectInput.owner = userDocument;
       projectInput.workspace = workspaceDocument;
       projectInput.type = projectTypeDocument;
-      projectInput.state = stateDocument;
 
       const projectDocument = await projectModel.createProject(projectInput);
 
@@ -187,14 +162,6 @@ describe('#ProjectModel', () => {
       assert.strictEqual(
         projectDocument.workspace._id?.toString(),
         workspaceId.toString()
-      );
-      assert.strictEqual(
-        projectDocument.type._id?.toString(),
-        projectTypeId.toString()
-      );
-      assert.strictEqual(
-        projectDocument.state?._id?.toString(),
-        stateId.toString()
       );
 
       projectId = projectDocument._id as mongooseTypes.ObjectId;
@@ -224,7 +191,6 @@ describe('#ProjectModel', () => {
       projectInput.owner = userDocument;
       projectInput.workspace = workspaceDocument;
       projectInput.type = projectTypeDocument;
-      projectInput.state = stateDocument;
 
       const projectDocument = await projectModel.createProject(projectInput);
 
