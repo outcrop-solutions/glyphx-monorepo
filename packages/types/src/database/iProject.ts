@@ -13,6 +13,7 @@ export interface IProject {
   description?: string;
   sdtPath?: string;
   workspace: IWorkspace;
+  lastOpened?: Date;
   slug?: string;
   isTemplate: Boolean;
   type?: IProjectType;

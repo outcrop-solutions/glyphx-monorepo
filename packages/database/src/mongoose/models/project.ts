@@ -42,6 +42,7 @@ const SCHEMA = new Schema<
     required: true,
     ref: 'workspace',
   },
+  lastOpened: {type: Date, required: false},
   slug: {type: String, required: false},
   isTemplate: {type: Boolean, required: true, default: false},
   type: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
