@@ -1,18 +1,19 @@
 import { useCallback, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import update from 'immutability-helper';
 import {
   droppedPropertiesSelector,
-  showQtViewerAtom,
   createModelPayloadSelector,
   propertiesSelector,
   projectAtom,
   showModelCreationLoadingAtom,
   canCallETL,
+  showQtViewerAtom,
 } from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { useSession } from 'next-auth/react';
 import { api } from 'lib';
 import { _createModel } from 'lib/client/mutations/core';
+import { compose } from 'utils/compose';
 /**
  * Utility for interfacing with the Project class
  * @returns {Object}
@@ -33,13 +34,14 @@ export const useProject = () => {
 
   // ui state
   const setModelCreationLoadingState = useSetRecoilState(showModelCreationLoadingAtom);
+  const setShowQtViewer = useSetRecoilState(showQtViewerAtom);
 
   // DnD utilities
   const isDropped = (propName) => {
     return droppedProps?.indexOf(propName) > -1;
   };
 
-  // TODO: update handle drop to use recoil
+  // TODO: update handle drop to use curried version of immer produce
   const handleDrop = useCallback(
     (index, item) => {
       setProject(
@@ -71,7 +73,7 @@ export const useProject = () => {
               false
             );
           },
-          setLoading: setModelCreationLoadingState,
+          setLoading: compose(setModelCreationLoadingState, showQtViewerAtom),
         });
       }
     };
