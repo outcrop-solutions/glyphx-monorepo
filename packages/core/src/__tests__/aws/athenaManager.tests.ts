@@ -452,6 +452,7 @@ describe('#aws/AthenaManager', () => {
           {col_name: 'col1      \tbigint\t'},
           {col_name: 'col2      \tstring\t'},
           {col_name: 'col3      \tdouble\t'},
+          {col_name: 'col4      \tvarchar(100)\t'},
         ])
       );
 
@@ -463,7 +464,7 @@ describe('#aws/AthenaManager', () => {
       );
 
       assert.isArray(r);
-      assert.strictEqual(r.length, 3);
+      assert.strictEqual(r.length, 4);
 
       assert.strictEqual(r[0].columnName, 'col1');
       assert.strictEqual(
@@ -481,6 +482,11 @@ describe('#aws/AthenaManager', () => {
       assert.strictEqual(
         r[2].columnType,
         fileIngestion.constants.FIELD_TYPE.NUMBER
+      );
+      assert.strictEqual(r[3].columnName, 'col4');
+      assert.strictEqual(
+        r[3].columnType,
+        fileIngestion.constants.FIELD_TYPE.STRING
       );
     });
 

@@ -592,9 +592,11 @@ importers:
       '@aws-sdk/client-secrets-manager': 3.223.0
       '@aws-sdk/lib-storage': 3.223.0
       '@aws-sdk/types': 3.222.0
+      '@glyphx/business': workspace:^1.0.0
       '@glyphx/core': workspace:*
       '@glyphx/database': workspace:*
       '@glyphx/eslint-config-glyphx-backend': workspace:*
+      '@glyphx/fileingestion': workspace:^1.0.0
       '@glyphx/tsconfig': workspace:*
       '@glyphx/types': workspace:*
       '@types/chai': ^4.3.3
@@ -639,7 +641,9 @@ importers:
       rewiremock: 3.14.5
     devDependencies:
       '@aws-sdk/types': 3.222.0
+      '@glyphx/business': link:../business
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
+      '@glyphx/fileingestion': link:../ingestion
       '@glyphx/tsconfig': link:../tsconfig
       '@glyphx/types': link:../types
       '@types/chai': 4.3.4

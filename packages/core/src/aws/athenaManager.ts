@@ -362,7 +362,7 @@ export class AthenaManager {
       const split = dirty.split('\t');
       const colTypeString = split[1].trim();
       let colType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
-      if (colTypeString === 'string') {
+      if (colTypeString === 'string' || colTypeString.startsWith('varchar(')) {
         colType = fileIngestion.constants.FIELD_TYPE.STRING;
       } else if (colTypeString === 'bigint') {
         colType = fileIngestion.constants.FIELD_TYPE.INTEGER;

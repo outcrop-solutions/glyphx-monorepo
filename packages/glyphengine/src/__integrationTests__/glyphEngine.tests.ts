@@ -1,23 +1,24 @@
 import 'mocha';
 import {assert} from 'chai';
-import {aws, generalPurposeFunctions} from '@glyphx/core';
-import {FileIngestor} from '../fileIngestor';
-import addFilesJson from './assets/addTables.json';
-//eslint-disable-next-line
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
-import * as fileProcessingHelpers from './fileProcessingHelpers';
+import {aws, error, generalPurposeFunctions} from '@glyphx/core';
+import {FileIngestor} from '@glyphx/fileingestion';
 import {
   Initializer,
   processTrackingService,
-  projectService,
   dbConnection,
 } from '@glyphx/business';
+
+import addFilesJson from './assets/addTables.json';
 import {v4} from 'uuid';
-import {config} from '../config';
+import * as fileProcessingHelpers from './fileProcessingHelpers';
+
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
+import {GlyphEngine} from '../glyphEngine';
+import {Initializer as glyphEngineInitializer} from '../init';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
-const PROCESS_NAME = 'addFileProcessing' + UNIQUE_KEY;
+const PROCESS_NAME = 'glyphEngine' + UNIQUE_KEY;
 
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
@@ -31,8 +32,8 @@ const INPUT_PROJECT = {
   files: [],
 };
 
-describe('#fileProcessing', () => {
-  context('Inbound s3 file to parquet to S3', () => {
+describe('GlyphEngine', () => {
+  context('BasicTests', () => {
     let s3Bucket: aws.S3Manager;
     let athenaManager: aws.AthenaManager;
 
@@ -46,8 +47,10 @@ describe('#fileProcessing', () => {
     let projectId: any;
     let viewName: any;
 
+    let inputBucketName: string;
+
+    let data: Map<string, string>;
     before(async () => {
-      (config as any).inited = false;
       await Initializer.init();
       const projectDocument = (
         await dbConnection.models.ProjectModel.create([INPUT_PROJECT], {
@@ -59,9 +62,10 @@ describe('#fileProcessing', () => {
       addFilesJson.payload.modelId = projectId.toString();
 
       bucketName = addFilesJson.bucketName;
+      inputBucketName = addFilesJson.inputBucketName;
       databaseName = addFilesJson.databaseName;
-      clientId = addFilesJson.payload.clientId;
-      modelId = addFilesJson.payload.modelId;
+      clientId = addFilesJson.payload.clientId + UNIQUE_KEY;
+      modelId = projectId.toString();
       testDataDirectory = addFilesJson.testDataDirectory;
       viewName = generalPurposeFunctions.fileIngestion.getViewName(
         clientId,
@@ -76,6 +80,8 @@ describe('#fileProcessing', () => {
       assert.isNotEmpty(viewName);
 
       payload = addFilesJson.payload as fileIngestion.IPayload;
+      payload.clientId = clientId;
+      payload.modelId = modelId;
       assert.isOk(payload);
 
       fileNames = payload.fileStats.map(f => f.fileName);
@@ -99,6 +105,26 @@ describe('#fileProcessing', () => {
         PROCESS_ID,
         PROCESS_NAME
       );
+      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      await fileIngestor.init();
+
+      const r = await fileIngestor.process();
+      data = new Map<string, string>([
+        ['x_axis', 'col1'],
+        ['y_axis', 'col2'],
+        ['z_axis', 'col4'],
+        ['type_x', 'number'],
+        ['type_y', 'string'],
+        ['type_z', 'number'],
+        ['x_func', 'LIN'],
+        ['y_func', 'LIN'],
+        ['z_func', 'LIN'],
+        ['x_direction', 'ASC'],
+        ['y_direction', 'ASC'],
+        ['z_direction', 'ASC'],
+        ['model_id', modelId],
+        ['client_id', clientId],
+      ]);
     });
 
     after(async () => {
@@ -114,49 +140,22 @@ describe('#fileProcessing', () => {
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
     });
 
-    it('Basic pipeline test', async () => {
-      console.log('stuff spun up ok');
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
-      await fileIngestor.init();
-      const {
-        fileInformation,
-        joinInformation,
-        viewName: savedViewName,
-        status,
-      } = await fileIngestor.process();
-      await fileProcessingHelpers.validateTableResults(
-        joinInformation,
-        athenaManager
-      );
-      await fileProcessingHelpers.validateViewResults(
-        athenaManager,
-        `${clientId}_${modelId}_view`,
-        joinInformation
+    it('will run glyphEngine over our view', async () => {
+      await glyphEngineInitializer.init();
+      const glyphEngine = new GlyphEngine(
+        inputBucketName,
+        bucketName,
+        databaseName
       );
 
-      assert.strictEqual(savedViewName, viewName);
-
-      const fileStats = await projectService.getProjectFileStats(
-        payload.modelId
-      );
-      assert.strictEqual(fileStats.length, fileInformation.length);
-      assert.strictEqual(fileStats[0].fileName, fileInformation[0].fileName);
-
-      const documentViewName = await projectService.getProjectViewName(
-        payload.modelId
-      );
-      assert.strictEqual(documentViewName, viewName);
-
-      const processStatus = await processTrackingService.getProcessStatus(
-        PROCESS_ID
-      );
-      assert.strictEqual(
-        processStatus?.processStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
+      await glyphEngine.init();
+      const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(
+        data
       );
 
-      assert.strictEqual(processStatus?.processResult?.status, status);
-      console.log('I am done');
+      assert.isTrue(await s3Bucket.fileExists(sdtFileName));
+      assert.isTrue(await s3Bucket.fileExists(sgnFileName));
+      assert.isTrue(await s3Bucket.fileExists(sgcFileName));
     });
   });
 });
