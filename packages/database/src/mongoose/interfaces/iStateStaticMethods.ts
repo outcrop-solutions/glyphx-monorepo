@@ -1,12 +1,11 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IStateMethods} from './iStateMethods';
+import {IStateCreateInput} from './iStateCreateInput';
 export interface IStateStaticMethods
   extends Model<databaseTypes.IState, {}, IStateMethods> {
   stateIdExists(stateId: mongooseTypes.ObjectId): Promise<boolean>;
-  createState(
-    input: Omit<databaseTypes.IState, '_id'>
-  ): Promise<databaseTypes.IState>;
+  createState(input: IStateCreateInput): Promise<databaseTypes.IState>;
   getStateById(stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState>;
   queryStates(
     filter?: Record<string, unknown>,

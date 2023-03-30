@@ -19,6 +19,9 @@
     "fix": "gts fix",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
   },
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "author": "James M. Graham",
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",

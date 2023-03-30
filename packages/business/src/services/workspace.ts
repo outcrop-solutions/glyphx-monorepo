@@ -46,17 +46,43 @@ export class WorkspaceService {
       if (count > 0) {
         newSlug = `${slug}-${count}`;
       }
-      // TODO: add member record to workspace
-      // @jp: do we have a clean way to create related records in one operation - in this case a member record for the workspace
+
+      const castCreatorId =
+        typeof creatorId === 'string'
+          ? new mongooseTypes.ObjectId(creatorId)
+          : creatorId;
+
       const input = {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
-        creatorId,
+        creator: castCreatorId,
         name,
         slug: newSlug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
+
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
+
+      const member = await mongoDbConnection.models.MemberModel.createMember({
+        inviter: email,
+        email: email,
+        joinedAt: new Date(),
+        status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
+        teamRole: databaseTypes.constants.ROLE.OWNER,
+        member: {_id: castCreatorId} as unknown as databaseTypes.IUser,
+        invitedBy: {_id: castCreatorId} as unknown as databaseTypes.IUser,
+        workspace: {_id: workspace._id} as unknown as databaseTypes.IWorkspace,
+      } as unknown as databaseTypes.IMember);
+
+      const newWorkspace =
+        await mongoDbConnection.models.WorkspaceModel.addMembers(
+          workspace?._id as unknown as mongooseTypes.ObjectId,
+          [member]
+        );
+
+      await mongoDbConnection.models.UserModel.addWorkspaces(castCreatorId, [
+        newWorkspace,
+      ]);
 
       // TODO: add workspace to user model
 
@@ -67,7 +93,7 @@ export class WorkspaceService {
         to: email,
       });
 
-      return workspace;
+      return newWorkspace;
     } catch (err: any) {
       if (
         err instanceof error.UnexpectedError ||
@@ -159,7 +185,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
           slug,
         });
 
@@ -169,7 +195,7 @@ export class WorkspaceService {
             mem =>
               mem.email === email &&
               mem.teamRole === databaseTypes.constants.ROLE.OWNER &&
-              mem.deletedAt === null
+              mem.deletedAt === undefined
           ).length > 0
       );
       if (filteredWorkspaces.length > 0) {
@@ -209,7 +235,7 @@ export class WorkspaceService {
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           inviteCode,
-          deletedAt: null,
+          deletedAt: undefined,
         });
       return workspace.results[0];
     } catch (err: any) {
@@ -240,7 +266,7 @@ export class WorkspaceService {
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           slug,
-          deletedAt: null,
+          deletedAt: undefined,
         });
       return workspace.results[0];
     } catch (err: any) {
@@ -283,14 +309,13 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
           slug,
         });
-
       const filteredWorkspaces = workspaces.results.filter(
         space =>
           space.members.filter(
-            mem => mem.email === email && mem.deletedAt === null
+            mem => mem.email === email && mem.deletedAt === undefined
           ).length > 0
       );
       if (filteredWorkspaces.length > 0) {
@@ -335,15 +360,14 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
         });
-
       const filteredWorkspaces = workspaces.results.filter(
         space =>
           space.members.filter(
             mem =>
               mem.email === email &&
-              mem.deletedAt === null &&
+              mem.deletedAt === undefined &&
               mem.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
           ).length > 0
       );
@@ -383,7 +407,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         (await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
         })) as IQueryResult<databaseTypes.IWorkspace>;
 
       return [
@@ -549,7 +573,6 @@ export class WorkspaceService {
     return isTeamOwner;
   }
 
-  // untested
   static async joinWorkspace(
     workspaceCode: string,
     email: string
@@ -557,7 +580,7 @@ export class WorkspaceService {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: null,
+          deletedAt: undefined,
           workspaceCode,
         });
 

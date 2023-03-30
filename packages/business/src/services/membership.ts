@@ -66,7 +66,7 @@ export class MembershipService {
     try {
       const members = await MembershipService.getMembers({
         email,
-        deletedAt: null,
+        deletedAt: undefined,
         status: database.constants.INVITATION_STATUS.PENDING,
       });
       return members;

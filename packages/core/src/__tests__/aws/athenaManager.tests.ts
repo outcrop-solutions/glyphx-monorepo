@@ -523,7 +523,10 @@ describe('#aws/AthenaManager', () => {
   });
   context('StartQuery', () => {
     let athenaMock: any;
+<<<<<<< HEAD
     const sandbox = createSandbox();
+=======
+>>>>>>> dev
 
     beforeEach(() => {
       athenaMock = mockClient(AthenaClient as any);
@@ -531,17 +534,11 @@ describe('#aws/AthenaManager', () => {
 
     afterEach(() => {
       athenaMock.restore();
-      sandbox.restore();
     });
 
     it('Should successfully start a query', async () => {
       const queryId = 'testQueryId';
       athenaMock.on(GetDatabaseCommand).resolves(true as any);
-      const startQueryStub = sandbox.stub();
-      startQueryStub.resolves({
-        QueryExecutionId: queryId,
-      });
-
       athenaMock.on(StartQueryExecutionCommand).resolves({
         QueryExecutionId: queryId,
       });

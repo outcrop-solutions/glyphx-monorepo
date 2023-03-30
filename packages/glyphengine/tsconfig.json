@@ -6,13 +6,5 @@
     "baseUrl": "./src",
     "noImplicitAny": false,
     "noImplicitThis": false
-  },
-  "paths": {
-    "@/constants/*": ["constants/*"],
-    "@/email/*": ["email/*"],
-    "@/hooks/*": ["hooks/*"],
-    "@/lib/*": ["lib/*"],
-    "@/services/*": ["services/*"],
-    "@/validation/*": ["validation/*"]
   }
 }

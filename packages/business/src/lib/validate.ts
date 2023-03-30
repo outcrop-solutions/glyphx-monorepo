@@ -1,6 +1,6 @@
 import {validationResult} from 'express-validator';
 
-export async function validateMiddleware(validations) {
+export function validateMiddleware(validations) {
   return async (req, res, next) => {
     await Promise.all(validations.map(validation => validation.run(req)));
     const errors = validationResult(req);

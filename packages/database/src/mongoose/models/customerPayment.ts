@@ -4,6 +4,7 @@ import {
   ICustomerPaymentMethods,
   ICustomerPaymentStaticMethods,
   ICustomerPaymentDocument,
+  ICustomerPaymentCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -181,7 +182,7 @@ SCHEMA.static(
       //to the user.
       paymentDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
-        delete (doc as any).customer['__v'];
+        delete (doc as any)?.customer?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.ICustomerPayment> = {
@@ -212,16 +213,20 @@ SCHEMA.static(
 SCHEMA.static(
   'createCustomerPayment',
   async (
-    input: Omit<databaseTypes.ICustomerPayment, '_id'>
+    input: ICustomerPaymentCreateInput
   ): Promise<databaseTypes.ICustomerPayment> => {
-    const userExists = await UserModel.userIdExists(
-      input.customer._id as mongooseTypes.ObjectId
-    );
+    const customerId =
+      input.customer instanceof mongooseTypes.ObjectId
+        ? input.customer
+        : new mongooseTypes.ObjectId(input.customer._id);
+
+    const userExists = await UserModel.userIdExists(customerId);
+
     if (!userExists)
       throw new error.InvalidArgumentError(
-        `A customer with _id : ${input.customer._id} cannot be found`,
+        `A customer with _id : ${customerId} cannot be found`,
         'customer._id',
-        input.customer._id
+        customerId
       );
 
     const createDate = new Date();
@@ -231,8 +236,10 @@ SCHEMA.static(
       email: input.email,
       createdAt: createDate,
       updatedAt: createDate,
-      subscriptionType: input.subscriptionType,
-      customer: input.customer._id as mongooseTypes.ObjectId,
+      subscriptionType:
+        input.subscriptionType ||
+        databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+      customer: customerId,
     };
 
     try {

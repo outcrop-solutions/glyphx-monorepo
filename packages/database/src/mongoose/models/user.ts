@@ -1,6 +1,11 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {Types as mongooseTypes, Schema, model} from 'mongoose';
-import {IUserMethods, IUserStaticMethods, IUserDocument} from '../interfaces';
+import {
+  IUserMethods,
+  IUserStaticMethods,
+  IUserDocument,
+  IUserCreateInput,
+} from '../interfaces';
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
 import {AccountModel} from './account';
@@ -11,9 +16,9 @@ import {WorkspaceModel} from './workspace';
 import {CustomerPaymentModel} from './customerPayment';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
-  userCode: {type: String, required: true},
-  name: {type: String, required: true},
-  username: {type: String, required: true, unique: true},
+  userCode: {type: String, required: false},
+  name: {type: String, required: false},
+  username: {type: String, required: false, unique: true},
   gh_username: {type: String, required: false},
   email: {type: String, required: true, unique: true},
   emailVerified: {type: Date, required: false},
@@ -517,7 +522,7 @@ SCHEMA.static(
 );
 SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   try {
-    const userDocument = (await USER_MODEL.findById(userId)
+    const userDocument = await USER_MODEL.findById(userId)
       .populate('accounts')
       .populate('sessions')
       .populate('membership')
@@ -526,7 +531,7 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
       .populate('customerPayment')
       .populate('projects')
       .populate('webhooks')
-      .lean()) as databaseTypes.IUser;
+      .lean();
     if (!userDocument) {
       throw new error.DataNotFoundError(
         `Could not find a user with the _id: ${userId}`,
@@ -537,16 +542,16 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (userDocument as any)['__v'];
-    delete (userDocument as any).customerPayment?.['__v'];
-    userDocument.accounts.forEach((a: any) => delete (a as any)['__v']);
-    userDocument.sessions.forEach((s: any) => delete (s as any)['__v']);
-    userDocument.membership.forEach((m: any) => delete (m as any)['__v']);
-    userDocument.invitedMembers.forEach((i: any) => delete (i as any)['__v']);
-    userDocument.webhooks.forEach((w: any) => delete (w as any)['__v']);
-    userDocument.createdWorkspaces.forEach(
+    delete (userDocument as any).customerPayment?.__v;
+    userDocument.accounts?.forEach((a: any) => delete (a as any)['__v']);
+    userDocument.sessions?.forEach((s: any) => delete (s as any)['__v']);
+    userDocument.membership?.forEach((m: any) => delete (m as any)['__v']);
+    userDocument.invitedMembers?.forEach((i: any) => delete (i as any)['__v']);
+    userDocument.webhooks?.forEach((w: any) => delete (w as any)['__v']);
+    userDocument.createdWorkspaces?.forEach(
       (c: any) => delete (c as any)['__v']
     );
-    userDocument.projects.forEach((p: any) => delete (p as any)['__v']);
+    userDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
 
     return userDocument;
   } catch (err) {
@@ -561,115 +566,89 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
   }
 });
 
-SCHEMA.static(
-  'createUser',
-  async (
-    input: Omit<databaseTypes.IUser, '_id' | 'createdAt' | 'updatedAt'>
-  ) => {
-    // const workspaces = Array.from(
-    //   //istanbul ignore next
-    //   input.createdWorkspaces ?? []
-    // ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
-    //istanbul ignore else
-    // if (input.createdWorkspaces) workspaces.unshift(input.createdWorkspaces);
-    let id: undefined | mongooseTypes.ObjectId = undefined;
-    try {
-      const [
-        accounts,
-        sessions,
-        webhooks,
-        membership,
-        invitedMembers,
-        createdWorkspaces,
-        projects,
-        customerPaymentId,
-      ] = await Promise.all([
-        USER_MODEL.validateAccounts(
-          //istanbul ignore next
-          input.accounts ?? []
-        ),
-        USER_MODEL.validateSessions(
-          //istanbul ignore next
-          input.sessions ?? []
-        ),
-        USER_MODEL.validateWebhooks(
-          //istanbul ignore next
-          input.webhooks ?? []
-        ),
-        USER_MODEL.validateMembership(
-          //istanbul ignore next
-          input.membership ?? []
-        ),
-        USER_MODEL.validateMembership(
-          //istanbul ignore next
-          input.invitedMembers ?? []
-        ),
-        USER_MODEL.validateWorkspaces(
-          //istanbul ignore next
-          input.createdWorkspaces ?? []
-        ),
-        USER_MODEL.validateProjects(
-          //istanbul ignore next
-          input.projects ?? []
-        ),
-        USER_MODEL.validateCustomerPayment(input.customerPayment),
-      ]);
-      const createDate = new Date();
+SCHEMA.static('createUser', async (input: IUserCreateInput) => {
+  // const workspaces = Array.from(
+  //   //istanbul ignore next
+  //   input.createdWorkspaces ?? []
+  // ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
+  //istanbul ignore else
+  // if (input.createdWorkspaces) workspaces.unshift(input.createdWorkspaces);
+  let id: undefined | mongooseTypes.ObjectId = undefined;
+  try {
+    const [
+      accounts,
+      sessions,
+      webhooks,
+      membership,
+      invitedMembers,
+      createdWorkspaces,
+      projects,
+      customerPaymentId,
+    ] = await Promise.all([
+      USER_MODEL.validateAccounts(input.accounts ?? []),
+      USER_MODEL.validateSessions(input.sessions ?? []),
+      USER_MODEL.validateWebhooks(input.webhooks ?? []),
+      USER_MODEL.validateMembership(input.membership ?? []),
+      USER_MODEL.validateMembership(input.invitedMembers ?? []),
+      USER_MODEL.validateWorkspaces(input.createdWorkspaces ?? []),
+      USER_MODEL.validateProjects(input.projects ?? []),
+      USER_MODEL.validateCustomerPayment(input.customerPayment),
+    ]);
+    const createDate = new Date();
 
-      const resolvedInput: IUserDocument = {
-        userCode: input.userCode,
-        name: input.name,
-        username: input.username,
-        gh_username: input.gh_username,
-        email: input.email,
-        emailVerified: input.emailVerified,
-        isVerified: input.isVerified,
-        image: input.image,
-        createdAt: createDate,
-        updatedAt: createDate,
-        accounts: accounts,
-        sessions: sessions,
-        membership: membership,
-        invitedMembers: invitedMembers,
-        webhooks: webhooks,
-        apiKey: input.apiKey,
-        createdWorkspaces: createdWorkspaces,
-        projects: projects,
-        customerPayment: customerPaymentId,
-      };
-      try {
-        await USER_MODEL.validate(resolvedInput);
-      } catch (err) {
-        throw new error.DataValidationError(
-          'An error occurred while validating the document before creating it.  See the inner error for additional information',
-          'IUserDocument',
-          resolvedInput,
-          err
-        );
-      }
-      const userDocument = (
-        await USER_MODEL.create([resolvedInput], {validateBeforeSave: false})
-      )[0];
-      id = userDocument._id;
+    const resolvedInput: IUserDocument = {
+      userCode: input.userCode,
+      name: input.name,
+      username: input.username,
+      gh_username: input.gh_username,
+      email: input.email,
+      emailVerified: input.emailVerified,
+      isVerified: input.isVerified,
+      image: input.image,
+      createdAt: createDate,
+      updatedAt: createDate,
+      accounts: accounts,
+      sessions: sessions,
+      membership: membership,
+      invitedMembers: invitedMembers,
+      webhooks: webhooks,
+      apiKey: input.apiKey,
+      createdWorkspaces: createdWorkspaces,
+      projects: projects,
+      customerPayment: customerPaymentId,
+    };
+    try {
+      await USER_MODEL.validate(resolvedInput);
     } catch (err) {
-      if (err instanceof error.DataValidationError) throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while adding the user.  See the inner error for additional details',
-          'mongoDb',
-          'add User',
-          {},
-          err
-        );
-      }
-    }
-    if (id) return await USER_MODEL.getUserById(id);
-    else
-      throw new error.UnexpectedError(
-        'An unexpected error has occurred and the user may not have been created.  I have no other information to provide.'
+      throw new error.DataValidationError(
+        'An error occurred while validating the document before creating it.  See the inner error for additional information',
+        'IUserDocument',
+        resolvedInput,
+        err
       );
+    }
+    const userDocument = (
+      await USER_MODEL.create([resolvedInput], {validateBeforeSave: false})
+    )[0];
+    id = userDocument._id;
+  } catch (err) {
+    if (err instanceof error.DataValidationError) throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An Unexpected Error occurred while adding the user.  See the inner error for additional details',
+        'mongoDb',
+        'add User',
+        {},
+        err
+      );
+    }
   }
-);
+  if (id) return await USER_MODEL.getUserById(id);
+  else
+    throw new error.UnexpectedError(
+      'An unexpected error has occurred and the user may not have been created.  I have no other information to provide.'
+    );
+});
 
 SCHEMA.static(
   'deleteUserById',

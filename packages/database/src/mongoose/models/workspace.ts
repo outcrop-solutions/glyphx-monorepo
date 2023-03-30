@@ -4,6 +4,7 @@ import {
   IWorkspaceMethods,
   IWorkspaceStaticMethods,
   IWorkspaceDocument,
+  IWorkspaceCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
@@ -158,30 +159,26 @@ SCHEMA.static(
       user instanceof mongooseTypes.ObjectId
         ? user
         : (user._id as mongooseTypes.ObjectId);
+
     const idExists = await UserModel.userIdExists(userId);
     if (idExists) return userId;
     else
       throw new error.DataValidationError(
-        `the user id : ${userId} does not exisit in the database.`,
+        `the user id : ${userId} does not exist in the database.`,
         'user',
         userId
       );
   }
 );
+
 SCHEMA.static(
   'createWorkspace',
-  async (
-    input: Omit<databaseTypes.IWorkspace, '_id' | 'createdAt' | 'updatedAt'>
-  ): Promise<databaseTypes.IWorkspace> => {
+  async (input: IWorkspaceCreateInput): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const users = Array.from(input.members) as (
-        | databaseTypes.IMember
-        | mongooseTypes.ObjectId
-      )[];
       const [members, projects, creator] = await Promise.all([
-        WORKSPACE_MODEL.validateMembers(users),
-        WORKSPACE_MODEL.validateProjects(input.projects),
+        WORKSPACE_MODEL.validateMembers(input.members ?? []),
+        WORKSPACE_MODEL.validateProjects(input.projects ?? []),
         WORKSPACE_MODEL.validateUser(input.creator),
       ]);
       const createDate = new Date();
@@ -359,9 +356,9 @@ SCHEMA.static(
           workspaceId
         );
       delete (workspaceDocument as any)['__v'];
-      delete (workspaceDocument as any).creator['__v'];
-      workspaceDocument.members.forEach((m: any) => delete (m as any)['__v']);
-      workspaceDocument.projects.forEach((p: any) => delete (p as any)['__v']);
+      delete (workspaceDocument as any).creator?.__v;
+      workspaceDocument.members?.forEach((m: any) => delete (m as any)['__v']);
+      workspaceDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
 
       return workspaceDocument;
     } catch (err) {
@@ -554,7 +551,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedProjects = workspaceDocument.projects.filter(p => {
+      const updatedProjects = workspaceDocument.projects.filter((p: any) => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -679,7 +676,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedMembers = workspaceDocument.members.filter(m => {
+      const updatedMembers = workspaceDocument.members.filter((m: any) => {
         let retval = true;
         if (
           reconciledIds.find(
