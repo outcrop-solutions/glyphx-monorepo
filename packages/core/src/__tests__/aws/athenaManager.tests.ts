@@ -523,10 +523,6 @@ describe('#aws/AthenaManager', () => {
   });
   context('StartQuery', () => {
     let athenaMock: any;
-<<<<<<< HEAD
-    const sandbox = createSandbox();
-=======
->>>>>>> dev
 
     beforeEach(() => {
       athenaMock = mockClient(AthenaClient as any);
