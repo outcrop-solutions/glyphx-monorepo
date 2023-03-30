@@ -12,6 +12,7 @@ describe('SdtParser', () => {
   let stringTemplate: string;
   const inputBucketName = 'testInputBucketName';
   const outputBucketName = 'testOutputBucketName';
+  const processId = 'testProcessId';
   const databaseName = 'testDatabaseName';
   const viewName = 'testViewName';
   const modelId = 'testModelName';
@@ -88,7 +89,8 @@ describe('SdtParser', () => {
       glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
@@ -157,7 +159,8 @@ describe('SdtParser', () => {
       glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
@@ -206,7 +209,8 @@ describe('SdtParser', () => {
       glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
@@ -452,7 +456,8 @@ describe('SdtParser', () => {
       glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });

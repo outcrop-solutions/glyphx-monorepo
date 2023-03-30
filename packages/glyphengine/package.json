@@ -68,7 +68,6 @@
     "@glyphx/business": "workspace:*",
     "@glyphx/core": "workspace:*",
     "@glyphx/database": "workspace:*",
-    "dotenv": "^16.0.3",
-    "rewiremock": "^3.14.5"
+    "dotenv": "^16.0.3"
   }
 }

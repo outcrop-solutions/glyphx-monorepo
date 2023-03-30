@@ -11,6 +11,7 @@ import {QueryRunner} from '../io/queryRunner';
 import {IQueryResponse} from '../interfaces';
 import {QUERY_STATUS} from '../constants';
 import {SdtParser} from '../io/sdtParser';
+import {Heartbeat, processTrackingService} from '@glyphx/business';
 
 describe('GlyphEngine', () => {
   context('constructor', () => {
@@ -18,11 +19,12 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
-
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
 
       assert.isOk(glyphEngine);
@@ -35,6 +37,7 @@ describe('GlyphEngine', () => {
         outputBucketName
       );
       assert.strictEqual((glyphEngine as any).databaseNameField, databaseName);
+      assert.strictEqual((glyphEngine as any).processId, processId);
 
       assert.isNotEmpty((glyphEngine as any).templateKey);
       assert.isOk((glyphEngine as any).inputBucketField);
@@ -70,11 +73,12 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
-
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
 
       await glyphEngine.init();
@@ -105,11 +109,12 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
-
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
 
       await glyphEngine.init();
@@ -142,11 +147,12 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
-
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       let errored = false;
       try {
@@ -165,6 +171,7 @@ describe('GlyphEngine', () => {
     const inputBucketName = 'testInputBucketName';
     const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
+    const processId = 'testProcessId';
     const data: Map<string, string> = new Map<string, string>([
       ['x_axis', 'some.random x value'],
       ['y_axis', 'some.random y value'],
@@ -175,7 +182,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       (glyphEngine as any).cleanupData(localData);
       assert.strictEqual(localData.get('x_axis'), 'somerandom_x_value');
@@ -196,9 +204,11 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       (glyphEngine as any).cleanupData(localData);
+
       assert.strictEqual(localData.get('x_axis'), '');
       assert.strictEqual(localData.get('y_axis'), '');
       assert.strictEqual(localData.get('z_axis'), '');
@@ -223,7 +233,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       (glyphEngine as any).cleanupData(localData);
       assert.strictEqual(localData.get('x_axis'), 'somerandom_x_value');
@@ -246,6 +257,7 @@ describe('GlyphEngine', () => {
     const inputBucketName = 'testInputBucketName';
     const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
+    const processId = 'testProcessId';
     const clientName = 'testClientName';
     const modelName = 'testModelName';
 
@@ -285,7 +297,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
 
       await (glyphEngine as any).getDataTypes('testViewname', localData);
@@ -322,7 +335,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
 
       await (glyphEngine as any).getDataTypes('testViewname', localData);
@@ -362,7 +376,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       let errored = false;
       try {
@@ -387,6 +402,7 @@ describe('GlyphEngine', () => {
     const inputBucketName = 'testInputBucketName';
     const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
+    const processId = 'testProcessId';
 
     afterEach(() => {
       sandbox.restore();
@@ -406,7 +422,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
 
       const result = await (glyphEngine as any).getTemplateAsString();
@@ -428,7 +445,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       let errored = false;
       try {
@@ -447,6 +465,7 @@ describe('GlyphEngine', () => {
     const inputBucketName = 'testInputBucketName';
     const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
+    const processId = 'testProcessId';
     const modelId = 'testModelName';
     const options = {
       ignoreAttributes: false,
@@ -477,7 +496,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
@@ -577,7 +597,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
@@ -673,7 +694,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       );
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
@@ -781,10 +803,12 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       await glyphEngine.startQuery(data, viewName);
@@ -814,10 +838,13 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
+      const processId = 'testProcessId';
+
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
       let errored = false;
       try {
@@ -853,10 +880,13 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
+      const processId = 'testProcessId';
+
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       const viewName = 'testViewName';
@@ -895,10 +925,13 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
+      const processId = 'testProcessId';
+
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       const viewName = 'testViewName';
@@ -937,10 +970,13 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
+      const processId = 'testProcessId';
+
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       const viewName = 'testViewName';
@@ -1002,10 +1038,13 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
+      const processId = 'testProcessId';
+
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       await glyphEngine.processData(prefix, sdtParser);
@@ -1041,10 +1080,12 @@ describe('GlyphEngine', () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
       let errored = false;
       try {
@@ -1140,10 +1181,51 @@ describe('GlyphEngine', () => {
         processDataStub
       );
 
+      const heartBeatStub = sandbox.stub();
+      heartBeatStub.returns(null as unknown as void);
+      sandbox.replace(Heartbeat.prototype, 'start', heartBeatStub);
+
+      const processTrackingUpdateStub = sandbox.stub();
+      processTrackingUpdateStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'updateProcessStatus',
+        processTrackingUpdateStub
+      );
+
+      const processTrackingCompleteStub = sandbox.stub();
+      processTrackingCompleteStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'completeProcess',
+        processTrackingCompleteStub
+      );
+
+      const processTrackingMessageStub = sandbox.stub();
+      processTrackingMessageStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'addProcessMessage',
+        processTrackingMessageStub
+      );
+
+      const processTrackingErrorStub = sandbox.stub();
+      processTrackingErrorStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'addProcessError',
+        processTrackingErrorStub
+      );
+
+      const hertbeatStopStub = sandbox.stub();
+      heartBeatStub.returns(null as unknown as void);
+      sandbox.replace(Heartbeat.prototype, 'stop', hertbeatStopStub);
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       const result = await glyphEngine.process(data);
@@ -1159,6 +1241,12 @@ describe('GlyphEngine', () => {
       assert.isTrue(getQueryResponseStub.calledOnce);
       assert.isTrue(processDataStub.calledOnce);
       assert.isTrue(getTemplateAsStringStub.calledOnce);
+      assert.isTrue(heartBeatStub.calledOnce);
+      assert.isTrue(processTrackingUpdateStub.calledOnce);
+      assert.isTrue(processTrackingCompleteStub.calledOnce);
+      assert.isTrue(processTrackingMessageStub.called);
+      assert.isFalse(processTrackingErrorStub.called);
+      assert.isTrue(hertbeatStopStub.calledOnce);
     });
 
     it('will throw an unexpected error when our query fails', async () => {
@@ -1238,10 +1326,52 @@ describe('GlyphEngine', () => {
         processDataStub
       );
 
+      const heartBeatStub = sandbox.stub();
+      heartBeatStub.returns(null as unknown as void);
+      sandbox.replace(Heartbeat.prototype, 'start', heartBeatStub);
+
+      const processTrackingUpdateStub = sandbox.stub();
+      processTrackingUpdateStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'updateProcessStatus',
+        processTrackingUpdateStub
+      );
+
+      const processTrackingCompleteStub = sandbox.stub();
+      processTrackingCompleteStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'completeProcess',
+        processTrackingCompleteStub
+      );
+
+      const processTrackingMessageStub = sandbox.stub();
+      processTrackingMessageStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'addProcessMessage',
+        processTrackingMessageStub
+      );
+
+      const processTrackingErrorStub = sandbox.stub();
+      processTrackingErrorStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'addProcessError',
+        processTrackingErrorStub
+      );
+
+      const hertbeatStopStub = sandbox.stub();
+      heartBeatStub.returns(null as unknown as void);
+      sandbox.replace(Heartbeat.prototype, 'stop', hertbeatStopStub);
+
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       let errored = false;
@@ -1253,7 +1383,14 @@ describe('GlyphEngine', () => {
         errored = true;
       }
       assert.isTrue(errored);
+      assert.isTrue(heartBeatStub.calledOnce);
+      assert.isTrue(processTrackingUpdateStub.calledOnce);
+      assert.isTrue(processTrackingCompleteStub.calledOnce);
+      assert.isTrue(processTrackingMessageStub.called);
+      assert.isTrue(processTrackingErrorStub.called);
+      assert.isTrue(hertbeatStopStub.calledOnce);
     });
+
     it('will catch and publish an error when thrown by underlying functions', async () => {
       const inputBucketName = 'testInputBucketName';
       const outputBucketName = 'testOutputBucketName';
@@ -1325,11 +1462,52 @@ describe('GlyphEngine', () => {
         'processData',
         processDataStub
       );
+      const heartBeatStub = sandbox.stub();
+      heartBeatStub.returns(null as unknown as void);
+      sandbox.replace(Heartbeat.prototype, 'start', heartBeatStub);
 
+      const processTrackingUpdateStub = sandbox.stub();
+      processTrackingUpdateStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'updateProcessStatus',
+        processTrackingUpdateStub
+      );
+
+      const processTrackingCompleteStub = sandbox.stub();
+      processTrackingCompleteStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'completeProcess',
+        processTrackingCompleteStub
+      );
+
+      const processTrackingMessageStub = sandbox.stub();
+      processTrackingMessageStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'addProcessMessage',
+        processTrackingMessageStub
+      );
+
+      const processTrackingErrorStub = sandbox.stub();
+      processTrackingErrorStub.resolves();
+      sandbox.replace(
+        processTrackingService,
+        'addProcessError',
+        processTrackingErrorStub
+      );
+
+      const hertbeatStopStub = sandbox.stub();
+      heartBeatStub.returns(null as unknown as void);
+      sandbox.replace(Heartbeat.prototype, 'stop', hertbeatStopStub);
+
+      const processId = 'testProcessId';
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
-        databaseName
+        databaseName,
+        processId
       ) as any;
 
       let didPublish = false;

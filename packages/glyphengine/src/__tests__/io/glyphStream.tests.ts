@@ -112,7 +112,8 @@ describe('#io/GlyphStream', () => {
     const glyphEngine = new GlyphEngine(
       'testBucketName',
       'outputBucketName',
-      'databaseName'
+      'databaseName',
+      'testProcessId'
     );
     const stringSdt = (glyphEngine as any).updateSdt(
       stringTemplate,

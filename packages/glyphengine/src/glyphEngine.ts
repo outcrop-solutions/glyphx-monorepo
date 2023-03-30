@@ -5,7 +5,7 @@ import {
   generalPurposeFunctions,
   streams,
 } from '@glyphx/core';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestion, database as databaseTypes} from '@glyphx/types';
 import {SdtParser} from './io';
 import {QueryRunner} from './io/queryRunner';
 import {IQueryResponse} from './interfaces';
@@ -14,6 +14,11 @@ import {GlyphStream} from './io/glyphStream';
 import {SgcStream} from './io/sgcStream';
 import {SgnStream} from './io/sgnStream';
 import {PassThrough} from 'stream';
+import {
+  processTrackingService,
+  Initializer as businessLogicInit,
+  Heartbeat,
+} from '@glyphx/business';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -26,6 +31,8 @@ export class GlyphEngine {
   private readonly databaseNameField: string;
   private readonly athenaManager: aws.AthenaManager;
 
+  private readonly processId: string;
+
   private queryRunner?: QueryRunner;
   private queryId?: string;
   private initedField: boolean;
@@ -33,7 +40,8 @@ export class GlyphEngine {
   constructor(
     inputBucketName: string,
     outputBucketName: string,
-    databaseName: string
+    databaseName: string,
+    processId: string
   ) {
     this.templateKey = 'public/templates/template_new.sdt';
 
@@ -46,6 +54,7 @@ export class GlyphEngine {
     this.databaseNameField = databaseName;
     this.athenaManager = new aws.AthenaManager(this.databaseNameField);
 
+    this.processId = processId;
     this.initedField = false;
   }
 
@@ -157,6 +166,16 @@ export class GlyphEngine {
   public async process(
     data: Map<string, string>
   ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
+    await processTrackingService.updateProcessStatus(
+      this.processId,
+      databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      `File Ingestion has started : ${new Date()}`
+    );
+    //Use the default of 1 minute.
+    //we can change it later if we want.
+    //this is set as the second parameter on the constructor.
+    const heartBeat = new Heartbeat(this.processId);
+    await heartBeat.start();
     try {
       this.cleanupData(data);
       //TODO: we probably need to do some validation here
@@ -171,8 +190,16 @@ export class GlyphEngine {
       data.set('view_name', viewName);
 
       //Start our query now before we do any processing
+      processTrackingService.addProcessMessage(
+        this.processId,
+        `Starting the query: ${new Date()}`
+      );
       await this.startQuery(data, viewName);
 
+      processTrackingService.addProcessMessage(
+        this.processId,
+        `Getting the data types and updating the SDT: ${new Date()}`
+      );
       await this.getDataTypes(viewName, data);
       const template = this.updateSdt(await this.getTemplateAsString(), data);
 
@@ -183,24 +210,47 @@ export class GlyphEngine {
 
       const sdtParser = await SdtParser.parseSdtString(template, viewName);
 
+      processTrackingService.addProcessMessage(
+        this.processId,
+        `Waiting for the query to complete: ${new Date()}`
+      );
       const status: IQueryResponse = await this.getQueryResponse();
       let sgnFileName = '';
       let sgcFileName = '';
       if (status.status === QUERY_STATUS.FAILED) {
         throw status.error;
       } else {
+        processTrackingService.addProcessMessage(
+          this.processId,
+          `Creating Gyphs and uploading files: ${new Date()}`
+        );
+
         const fileNames = await this.processData(sdtParser, prefix);
         sgnFileName = fileNames.sgnFileName;
         sgcFileName = fileNames.sgcFileName;
       }
-
-      return {sdtFileName, sgnFileName, sgcFileName};
+      const retval = {sdtFileName, sgnFileName, sgcFileName};
+      heartBeat.stop();
+      await processTrackingService.completeProcess(
+        this.processId,
+        retval,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
+      );
+      return retval;
     } catch (err) {
       const e = new error.UnexpectedError(
         'An unexpected error occurred while processing the data. See the inner error for additional information',
         err
       );
       e.publish();
+      heartBeat.stop();
+      await processTrackingService.addProcessError(this.processId, e);
+      await processTrackingService.completeProcess(
+        this.processId,
+        {},
+        databaseTypes.constants.PROCESS_STATUS.FAILED
+      );
+
       throw e;
     }
   }

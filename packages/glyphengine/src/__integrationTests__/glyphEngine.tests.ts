@@ -18,7 +18,10 @@ import {Initializer as glyphEngineInitializer} from '../init';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
+const INGESTION_PROCESS_ID =
+  generalPurposeFunctions.processTracking.getProcessId();
 const PROCESS_NAME = 'glyphEngine' + UNIQUE_KEY;
+const INGESTION_PROCESS_NAME = 'fileIngestion' + UNIQUE_KEY;
 
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
@@ -102,10 +105,14 @@ describe('GlyphEngine', () => {
       );
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
       await processTrackingService.createProcessTracking(
-        PROCESS_ID,
-        PROCESS_NAME
+        INGESTION_PROCESS_ID,
+        INGESTION_PROCESS_NAME
       );
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const fileIngestor = new FileIngestor(
+        payload,
+        databaseName,
+        INGESTION_PROCESS_ID
+      );
       await fileIngestor.init();
 
       const r = await fileIngestor.process();
@@ -125,6 +132,10 @@ describe('GlyphEngine', () => {
         ['model_id', modelId],
         ['client_id', clientId],
       ]);
+      await processTrackingService.createProcessTracking(
+        PROCESS_ID,
+        PROCESS_NAME
+      );
     });
 
     after(async () => {
@@ -138,6 +149,9 @@ describe('GlyphEngine', () => {
 
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
+      await processTrackingService.removeProcessTrackingDocument(
+        INGESTION_PROCESS_ID
+      );
     });
 
     it('will run glyphEngine over our view', async () => {
@@ -145,7 +159,8 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         bucketName,
-        databaseName
+        databaseName,
+        PROCESS_ID
       );
 
       await glyphEngine.init();
@@ -156,6 +171,13 @@ describe('GlyphEngine', () => {
       assert.isTrue(await s3Bucket.fileExists(sdtFileName));
       assert.isTrue(await s3Bucket.fileExists(sgnFileName));
       assert.isTrue(await s3Bucket.fileExists(sgcFileName));
+      const processStatus = await processTrackingService.getProcessStatus(
+        PROCESS_ID
+      );
+      assert.strictEqual(
+        processStatus?.processStatus,
+        databaseTypes.constants.PROCESS_STATUS.COMPLETED
+      );
     });
   });
 });
