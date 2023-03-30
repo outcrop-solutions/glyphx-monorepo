@@ -258,7 +258,7 @@ export class AthenaManager {
         return pager;
       } else if (queryStatus.QueryExecution?.Status?.State === 'FAILED') {
         throw new error.QueryExecutionError(
-          'An error occuered while processing the query.  See the inner error for details',
+          'An error occurred while processing the query.  See the inner error for details',
           queryId,
           queryStatus.QueryExecution?.Status?.AthenaError
         );
