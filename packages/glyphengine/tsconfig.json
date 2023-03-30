@@ -1,0 +1,10 @@
+{
+  "extends": "@glyphx/tsconfig/node18.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "noImplicitAny": false,
+    "noImplicitThis": false
+  }
+}

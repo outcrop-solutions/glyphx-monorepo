@@ -1,14 +1,14 @@
-import {generalPurposeFunctions as coreFunctions} from '@glyphx/core';
+import * as fileIngestionFunctions from './strings';
 
 export function getFullTableName(
   clientId: string,
   modelId: string,
   tableName: string
 ): string {
-  return `${clientId}_${modelId}_${tableName}`.toLowerCase();
+  return `glyphx_${clientId}_${modelId}_${tableName}`.toLowerCase();
 }
 export function getViewName(clientId: string, modelId: string): string {
-  return `${clientId}_${modelId}_view`.toLowerCase();
+  return `glyphx_${clientId}_${modelId}_view`.toLowerCase();
 }
 
 export function getTableCsvPath(
@@ -32,7 +32,7 @@ export function getArchiveFilePath(
   key: string,
   timestamp: string
 ): string {
-  const deconstructedFilePath = coreFunctions.string.deconstructFilePath(key);
+  const deconstructedFilePath = fileIngestionFunctions.deconstructFilePath(key);
   const src = deconstructedFilePath.pathParts[2];
   const tableName = deconstructedFilePath.pathParts[3];
   const fileName = deconstructedFilePath.fileName;

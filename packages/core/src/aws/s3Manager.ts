@@ -2,6 +2,7 @@ import {S3} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import * as error from '../error';
 import {aws} from '@glyphx/types';
+import {Readable} from 'node:stream';
 
 /**`
  * This class provides basic operations for working with S3 buckets.
@@ -163,7 +164,7 @@ export class S3Manager {
    *
    * @throws InvalidOperationError - If an error is thrown by the S3 client.
    */
-  public async getObjectStream(key: string): Promise<any> {
+  public async getObjectStream(key: string): Promise<Readable> {
     const bucketParameters = {
       Bucket: this.bucketName,
       Key: key,
@@ -172,7 +173,7 @@ export class S3Manager {
     try {
       const response = await this.bucket.getObject(bucketParameters);
 
-      return response.Body;
+      return response.Body as Readable;
     } catch (err) {
       throw new error.InvalidOperationError(
         `An error occurred while setting up the stream.  Are you sure that the file ${key} exists and that you have permissions to access it?  See the innerError for additional details`,
@@ -240,5 +241,21 @@ export class S3Manager {
     }
 
     return retval;
+  }
+
+  async putObject(key: string, content: string | Buffer): Promise<void> {
+    try {
+      await this.bucket.putObject({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: content,
+      });
+    } catch (err) {
+      throw new error.InvalidOperationError(
+        'An unexpected error occurred while storing the object, See the inner error for more information',
+        {key: key, bucketName: this.bucketName},
+        err
+      );
+    }
   }
 }

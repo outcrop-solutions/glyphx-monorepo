@@ -1,3 +1,56 @@
+"setup testing for vim-test
+:let test#javascript#runner = 'mocha'
+:let test#javascript#mocha#executable = 'npx mocha'
+:let test#strategy = 'floaterm'
+:let test#javascript#mocha#file_pattern = '\v.+\.(test|spec)\.ts$|(^|[\\/])(test|__tests__)[\\/].+\.(ts)$'
+:let test#javascript#mocha#options = {
+  \ 'env': {'TS_NODE_FILES': 'true'},
+  \ 'opts': {'require': [
+  \    'ts-node/register',
+  \    'tsconfig-paths/register'
+  \    ],
+  \    'timeout': 999999,
+  \    'exit': 'true'
+  \  }
+  \ }
+
+function! RunTestInPackageRoot()
+  let orig_dir = getcwd()
+  let file_dir = substitute(expand("%:p:h"), '[^/]\+$', '', '')
+  let src_dir = substitute(file_dir, '\/src\/.*', '', '')
+  if src_dir !=# ""
+    execute "cd " . src_dir 
+    execute "TestFile -strategy=asyncrun_background"
+    execute "cd " . orig_dir
+  else
+    echo "Unable to find src directory"
+  endif
+endfunction
+
+function! ToggleAutoTests()
+    " Switch the toggle variable
+    let g:TestAutoGroupToggle = !get(g:, 'TestAutoGroupToggle', 1)
+    " Reset group
+    augroup test
+        autocmd!
+    augroup END
+
+    " Enable if toggled on
+    if g:TestAutoGroupToggle
+	augroup test
+  		autocmd!
+		autocmd BufWritePost * if test#exists() |
+    			\  call RunTestInPackageRoot() | 
+    			\ endif
+	augroup END
+    endif
+endfunction
+
+call ToggleAutoTests()
+nnoremap <F2> :call ToggleAutoTests()<CR>
+
+
+"
 " close all buffers but the current.
 nnoremap <silent> <C-b><C-o> :%bd<Bar>e#<cr>
 
@@ -11,3 +64,5 @@ nnoremap <silent> <C-b><C-o> :%bd<Bar>e#<cr>
 :command BuildDatabase :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/database
 " Build our @glyphx/business 
 :command BuildBusiness :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/business
+" Build our @glyphx/glyphEngine 
+:command BuildGlyphEngine :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/glyphengine

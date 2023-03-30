@@ -3,7 +3,6 @@ import {aws, error, generalPurposeFunctions} from '@glyphx/core';
 import {createReadStream} from 'fs';
 import {IJoinTableDefinition} from '@interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
-import {generalPurposeFunctions as gpFunctions} from '@util';
 import {GLYPHX_ID_COLUMN_NAME} from 'fileProcessing/basicFileTransformer';
 export async function removeS3File(filePath: string, s3Bucket: aws.S3Manager) {
   await s3Bucket.removeObject(filePath);
@@ -48,7 +47,7 @@ export async function cleanupAthenaTable(
   tableName: string,
   athenaManager: aws.AthenaManager
 ) {
-  const fullTableName = gpFunctions.getFullTableName(
+  const fullTableName = generalPurposeFunctions.fileIngestion.getFullTableName(
     clientId,
     modelId,
     tableName
@@ -62,7 +61,10 @@ export async function cleanupAthenaView(
   modelId: string,
   athenaManager: aws.AthenaManager
 ) {
-  const viewName = gpFunctions.getViewName(clientId, modelId);
+  const viewName = generalPurposeFunctions.fileIngestion.getViewName(
+    clientId,
+    modelId
+  );
   await athenaManager.dropView(viewName);
 
   assert.isFalse(await athenaManager.viewExists(viewName));

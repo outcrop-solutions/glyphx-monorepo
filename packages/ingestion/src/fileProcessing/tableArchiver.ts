@@ -3,7 +3,6 @@ import {
   error,
   generalPurposeFunctions as coreFunctions,
 } from '@glyphx/core';
-import {generalPurposeFunctions} from '@util';
 import {PassThrough} from 'stream';
 import {pipeline} from 'node:stream/promises';
 
@@ -44,7 +43,7 @@ export class TableArchiver {
     timestamp: string
   ): Promise<IArchivedFileInformation> {
     this.isSafe;
-    const archivePath = generalPurposeFunctions.getArchiveFilePath(
+    const archivePath = coreFunctions.fileIngestion.getArchiveFilePath(
       this.clientId,
       this.modelId,
       key,
@@ -87,12 +86,12 @@ export class TableArchiver {
     };
     this.isSafe;
     try {
-      const csvPath = generalPurposeFunctions.getTableCsvPath(
+      const csvPath = coreFunctions.fileIngestion.getTableCsvPath(
         this.clientId,
         this.modelId,
         tableName
       );
-      const parquetPath = generalPurposeFunctions.getTableParquetPath(
+      const parquetPath = coreFunctions.fileIngestion.getTableParquetPath(
         this.clientId,
         this.modelId,
         tableName

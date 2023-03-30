@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {aws, generalPurposeFunctions} from '@glyphx/core';
 import {FileIngestor} from '../fileIngestor';
@@ -12,7 +13,6 @@ import {
   dbConnection,
 } from '@glyphx/business';
 import {v4} from 'uuid';
-import * as sharedFunctions from '../util/generalPurposeFunctions';
 import {config} from '../config';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
@@ -63,7 +63,10 @@ describe('#fileProcessing', () => {
       clientId = addFilesJson.payload.clientId;
       modelId = addFilesJson.payload.modelId;
       testDataDirectory = addFilesJson.testDataDirectory;
-      viewName = sharedFunctions.getViewName(clientId, modelId);
+      viewName = generalPurposeFunctions.fileIngestion.getViewName(
+        clientId,
+        modelId
+      );
 
       assert.isNotEmpty(bucketName);
       assert.isNotEmpty(databaseName);

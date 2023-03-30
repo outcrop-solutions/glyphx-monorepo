@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {AthenaManager} from '../../aws';
 //eslint-disable-next-line
@@ -12,6 +13,8 @@ import {
 import ResultSetMock from './resultSetMocks.json';
 import * as error from '../../error';
 import {createSandbox} from 'sinon';
+import {fileIngestion} from '@glyphx/types';
+import {ResultSetConverter} from '../../aws/util/resultsetConverter';
 
 describe('#aws/AthenaManager', () => {
   context('init', () => {
@@ -59,6 +62,7 @@ describe('#aws/AthenaManager', () => {
 
   context('Run Query', () => {
     let athenaMock: any;
+    const sandbox = createSandbox();
 
     beforeEach(() => {
       athenaMock = mockClient(AthenaClient as any);
@@ -66,6 +70,7 @@ describe('#aws/AthenaManager', () => {
 
     afterEach(() => {
       athenaMock.restore();
+      sandbox.restore();
     });
     it('Should run a command with no results', async () => {
       athenaMock.on(GetDatabaseCommand).resolves(true as any);
@@ -138,7 +143,7 @@ describe('#aws/AthenaManager', () => {
       try {
         await athenaManager.runQuery('SELECT * FROM someTable LIMIT 100');
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.QueryExecutionError);
         hasErrored = true;
       }
 
@@ -168,6 +173,39 @@ describe('#aws/AthenaManager', () => {
         await athenaManager.runQuery('SELECT * FROM someTable LIMIT 100', 0.1);
       } catch (err) {
         assert.instanceOf(err, error.QueryTimeoutError);
+        hasErrored = true;
+      }
+
+      assert.isTrue(hasErrored);
+    });
+
+    it('Should throw an invalidOperationError when an unexpected eror is thrown', async () => {
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+      athenaMock.on(StartQueryExecutionCommand).resolves({
+        QueryExecutionId: 'some random id',
+      });
+
+      athenaMock.on(GetQueryExecutionCommand).resolves({
+        QueryExecution: {
+          Status: {
+            State: 'SUCCEEDED',
+          },
+        },
+      });
+
+      sandbox.replace(
+        ResultSetConverter,
+        'fromResultset',
+        sandbox.stub().throws('oops I did it again')
+      );
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+
+      let hasErrored = false;
+      try {
+        await athenaManager.runQuery('SELECT * FROM someTable LIMIT 100');
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
         hasErrored = true;
       }
 
@@ -390,6 +428,192 @@ describe('#aws/AthenaManager', () => {
         errored = true;
       }
 
+      assert.isTrue(errored);
+    });
+  });
+
+  context('getTableDescription', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('will get a table description', async () => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(true as unknown as void)
+      );
+
+      sandbox.replace(
+        AthenaManager.prototype,
+        'runQuery',
+        sandbox.fake.resolves([
+          {col_name: 'col1      \tbigint\t'},
+          {col_name: 'col2      \tstring\t'},
+          {col_name: 'col3      \tdouble\t'},
+          {col_name: 'col4      \tvarchar(100)\t'},
+        ])
+      );
+
+      const athenaManager = new AthenaManager('glyphx-etl-db');
+      await athenaManager.init();
+
+      const r = await athenaManager.getTableDescription(
+        '-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb'
+      );
+
+      assert.isArray(r);
+      assert.strictEqual(r.length, 4);
+
+      assert.strictEqual(r[0].columnName, 'col1');
+      assert.strictEqual(
+        r[0].columnType,
+        fileIngestion.constants.FIELD_TYPE.INTEGER
+      );
+
+      assert.strictEqual(r[1].columnName, 'col2');
+      assert.strictEqual(
+        r[1].columnType,
+        fileIngestion.constants.FIELD_TYPE.STRING
+      );
+
+      assert.strictEqual(r[2].columnName, 'col3');
+      assert.strictEqual(
+        r[2].columnType,
+        fileIngestion.constants.FIELD_TYPE.NUMBER
+      );
+      assert.strictEqual(r[3].columnName, 'col4');
+      assert.strictEqual(
+        r[3].columnType,
+        fileIngestion.constants.FIELD_TYPE.STRING
+      );
+    });
+
+    it('will throw an invalidOperationException when it encounters an unknown column type', async () => {
+      sandbox.replace(
+        AthenaManager.prototype,
+        'init',
+        sandbox.fake.resolves(true as unknown as void)
+      );
+
+      sandbox.replace(
+        AthenaManager.prototype,
+        'runQuery',
+        sandbox.fake.resolves([
+          {col_name: 'col1      \tfoo\t'},
+          {col_name: 'col2      \tstring\t'},
+          {col_name: 'col3      \tdouble\t'},
+        ])
+      );
+
+      const athenaManager = new AthenaManager('glyphx-etl-db');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.getTableDescription(
+          '-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb'
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+  context('StartQuery', () => {
+    let athenaMock: any;
+
+    beforeEach(() => {
+      athenaMock = mockClient(AthenaClient as any);
+    });
+
+    afterEach(() => {
+      athenaMock.restore();
+    });
+    it('Should successfully start a query', async () => {
+      const queryId = 'testQueryId';
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+      athenaMock.on(StartQueryExecutionCommand).resolves({
+        QueryExecutionId: queryId,
+      });
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const startedQueryId = await athenaManager.startQuery(
+        "Select * from  a table syntax doesn't matter"
+      );
+
+      assert.strictEqual(startedQueryId, queryId);
+    });
+
+    it('Should throw a QueryExecutionError when the underlying connection fails', async () => {
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+      athenaMock
+        .on(StartQueryExecutionCommand)
+        .rejects('something bad happened');
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.startQuery(
+          "Select * from  a table syntax doesn't matter"
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.QueryExecutionError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('getQueryStatus', () => {
+    let athenaMock: any;
+
+    beforeEach(() => {
+      athenaMock = mockClient(AthenaClient as any);
+    });
+
+    afterEach(() => {
+      athenaMock.restore();
+    });
+
+    it('Should report that the query has succeeded ', async () => {
+      const queryId = 'testQueryId';
+      const queryState = 'SUCCEEDED';
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+
+      athenaMock.on(GetQueryExecutionCommand).resolves({
+        QueryExecution: {
+          Status: {
+            State: queryState,
+          },
+        },
+      });
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const queryStatus = await athenaManager.getQueryStatus(queryId);
+
+      assert.strictEqual(queryStatus.QueryExecution?.Status?.State, queryState);
+    });
+
+    it('Should throw a QueryExecutionError if the underlying connection throws an error ', async () => {
+      const queryId = 'testQueryId';
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+
+      athenaMock.on(GetQueryExecutionCommand).rejects('something bad happened');
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.getQueryStatus(queryId);
+      } catch (err) {
+        assert.instanceOf(err, error.QueryExecutionError);
+        errored = true;
+      }
       assert.isTrue(errored);
     });
   });

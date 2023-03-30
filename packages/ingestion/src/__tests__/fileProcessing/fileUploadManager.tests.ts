@@ -1,11 +1,13 @@
+import 'mocha';
 import {assert} from 'chai';
 import * as fileProcessing from '@fileProcessing';
 import {createSandbox} from 'sinon';
-import {aws, error} from '@glyphx/core';
+import {aws, error, streams} from '@glyphx/core';
 import {Readable} from 'stream';
 import {fileIngestion} from '@glyphx/types';
 import {mockClient} from 'aws-sdk-client-mock';
 import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
+import {Upload} from '@aws-sdk/lib-storage';
 import {tableService} from '@glyphx/business';
 import {Upload} from '@aws-sdk/lib-storage';
 
@@ -91,7 +93,11 @@ describe('#fileProcessing/fileUploadManager', () => {
         FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
       );
     });
+
     it('will throw an error when uploading a file fails', async () => {
+      const doneStream = sandbox.stub();
+      doneStream.rejects('something bad has happened');
+      sandbox.replace(Upload.prototype, 'done', doneStream);
       s3Mock.on(PutObjectCommand).rejects('an error has occurrred');
       s3Mock.on(HeadBucketCommand).resolves(true);
 
