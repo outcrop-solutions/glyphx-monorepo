@@ -265,16 +265,17 @@ export class GlyphEngine {
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
     const zCol = data.get('z_axis') as string;
+    const filter = (data.get('filter') as string) ?? undefined;
 
     this.queryRunner = new QueryRunner(
+      this.databaseNameField,
       viewName,
       xCol,
       yCol,
       zCol,
-      this.databaseNameField
+      filter
     );
     await this.queryRunner.init();
-    //TODO: we will need to add error handling here.
     this.queryId = await this.queryRunner.startQuery();
   }
 

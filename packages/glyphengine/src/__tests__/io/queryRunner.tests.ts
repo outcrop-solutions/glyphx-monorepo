@@ -14,11 +14,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
       assert.strictEqual(queryRunner.viewName, viewName);
       assert.strictEqual(queryRunner.xColumn, xColumn);
@@ -44,11 +44,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
       const initStub = sandbox
         .stub(queryRunner.athenaManager, 'init')
@@ -65,11 +65,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
       const initStub = sandbox
         .stub(queryRunner.athenaManager, 'init')
@@ -88,11 +88,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
       const initStub = sandbox
         .stub(queryRunner.athenaManager, 'init')
@@ -116,7 +116,7 @@ describe('#io/QueryRunner', () => {
       sandbox.restore();
     });
     const regexString =
-      'WITH\\s*temp\\s*as\\s*\\(SELECT\\s*(\\w*)\\s*as\\s*"rowid",\\s*"(\\w*)","(\\w*)","(\\w*)"\\s*FROM\\s*"(\\w*)"\\."(\\w*)"\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\)\\s*,\\s*\'\\|\'\\)\\s*as\\s*"rowids",\\s*"(\\w*)",\\s*"(\\w*)",\\s*SUM\\("(\\w*)"\\)\\s*as\\s*"(\\w*)"\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*"(\\w*)",\\s*"(\\w*)';
+      'WITH\\s*temp\\s*as\\s*\\(SELECT\\s*(\\w*)\\s*as\\s*"rowid",\\s*"(\\w*)","(\\w*)","(\\w*)"\\s*FROM\\s*"(\\w*)"\\."(\\w*)"(.*)\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\)\\s*,\\s*\'\\|\'\\)\\s*as\\s*"rowids",\\s*"(\\w*)",\\s*"(\\w*)",\\s*SUM\\("(\\w*)"\\)\\s*as\\s*"(\\w*)"\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*"(\\w*)",\\s*"(\\w*)';
 
     it('will start a query', async () => {
       const viewName = 'testViewName';
@@ -125,11 +125,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -148,22 +148,72 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexString, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 13);
+      assert.strictEqual(match.length, 14);
       assert.strictEqual(match[1], 'glyphx_id__');
       assert.strictEqual(match[2], xColumn);
       assert.strictEqual(match[3], yColumn);
       assert.strictEqual(match[4], zColumn);
       assert.strictEqual(match[5], databaseName);
       assert.strictEqual(match[6], viewName);
-      assert.strictEqual(match[7], xColumn);
-      assert.strictEqual(match[8], yColumn);
-      assert.strictEqual(match[9], zColumn);
+      //No filter in this test
+      assert.isEmpty(match[7].trim());
+      assert.strictEqual(match[8], xColumn);
+      assert.strictEqual(match[9], yColumn);
       assert.strictEqual(match[10], zColumn);
-      assert.strictEqual(match[11], xColumn);
-      assert.strictEqual(match[12], yColumn);
+      assert.strictEqual(match[11], zColumn);
+      assert.strictEqual(match[12], xColumn);
+      assert.strictEqual(match[13], yColumn);
       assert.isTrue(initStub.calledOnce);
     });
 
+    it('will start a query with a filter', async () => {
+      const viewName = 'testViewName';
+      const xColumn = 'testXColumn';
+      const yColumn = 'testYColumn';
+      const zColumn = 'testZColumn';
+      const databaseName = 'testDatabaseName';
+      const filter = 'foo = bar';
+      const queryRunner = new QueryRunner(
+        databaseName,
+        viewName,
+        xColumn,
+        yColumn,
+        zColumn,
+        filter
+      ) as any;
+
+      const queryId = 'testQueryId';
+      const queryStub = sandbox
+        .stub(queryRunner.athenaManager, 'startQuery')
+        .resolves(queryId);
+      const initStub = sandbox
+        .stub(queryRunner.athenaManager, 'init')
+        .resolves();
+      await queryRunner.init();
+      const result = await queryRunner.startQuery();
+      assert.strictEqual(result, queryId);
+      assert.isTrue(queryStub.calledOnce);
+      const query = queryStub.getCall(0).args[0];
+
+      const queryRegex = new RegExp(regexString, 'gm');
+      const match = queryRegex.exec(query) as string[];
+      assert.isNotEmpty(match);
+      assert.strictEqual(match.length, 14);
+      assert.strictEqual(match[1], 'glyphx_id__');
+      assert.strictEqual(match[2], xColumn);
+      assert.strictEqual(match[3], yColumn);
+      assert.strictEqual(match[4], zColumn);
+      assert.strictEqual(match[5], databaseName);
+      assert.strictEqual(match[6], viewName);
+      assert.strictEqual(match[7].trim(), `WHERE ${filter}`);
+      assert.strictEqual(match[8], xColumn);
+      assert.strictEqual(match[9], yColumn);
+      assert.strictEqual(match[10], zColumn);
+      assert.strictEqual(match[11], zColumn);
+      assert.strictEqual(match[12], xColumn);
+      assert.strictEqual(match[13], yColumn);
+      assert.isTrue(initStub.calledOnce);
+    });
     it('will pass through an error when the underlying connection throws an error', async () => {
       const err = new error.GlyphxError('An Error has occurred', 999);
       const viewName = 'testViewName';
@@ -172,11 +222,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -214,11 +264,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -252,11 +302,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -295,11 +345,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -337,11 +387,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -375,11 +425,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -413,11 +463,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const queryId = 'testQueryId';
@@ -447,11 +497,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xColumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       const initStub = sandbox

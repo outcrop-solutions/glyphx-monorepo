@@ -865,11 +865,11 @@ describe('GlyphEngine', () => {
       const zColumn = 'testZColumn';
 
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xcolumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       queryRunner.queryId = queryId;
@@ -907,11 +907,11 @@ describe('GlyphEngine', () => {
       const zColumn = 'testZColumn';
 
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xcolumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       queryRunner.queryId = queryId;
@@ -949,11 +949,11 @@ describe('GlyphEngine', () => {
       const zColumn = 'testZColumn';
 
       const queryRunner = new QueryRunner(
+        databaseName,
         viewName,
         xcolumn,
         yColumn,
-        zColumn,
-        databaseName
+        zColumn
       ) as any;
 
       queryRunner.queryId = queryId;

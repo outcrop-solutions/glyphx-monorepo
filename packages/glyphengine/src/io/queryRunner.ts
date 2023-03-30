@@ -12,12 +12,14 @@ export class QueryRunner {
   private readonly databaseName: string;
   private queryId?: string;
   private queryStatusField?: IQueryResponse;
+  private readonly filter: string;
   constructor(
+    databaseName: string,
     viewName: string,
     xcolumn: string,
     yColumn: string,
     zColumn: string,
-    databaseName: string
+    filter?: string
   ) {
     this.viewName = viewName;
     this.xColumn = xcolumn;
@@ -26,6 +28,14 @@ export class QueryRunner {
     this.databaseName = databaseName;
     this.athenaManager = new aws.AthenaManager(databaseName);
     this.inited = false;
+    this.filter = this.composeFilter(filter);
+  }
+  private composeFilter(filter: string | undefined): string {
+    if (!filter?.trim()) {
+      return '';
+    } else {
+      return `WHERE ${filter.trim()}`;
+    }
   }
 
   public async getQueryStatus(): Promise<IQueryResponse> {
@@ -62,7 +72,7 @@ export class QueryRunner {
   }
   //TODO: need to add the filter
   async startQuery() {
-    const query = `WITH temp as (SELECT glyphx_id__ as "rowid", "${this.xColumn}","${this.yColumn}","${this.zColumn}" FROM "${this.databaseName}"."${this.viewName}")  SELECT array_join(array_agg(rowid) , '|') as "rowids", "${this.xColumn}", "${this.yColumn}", SUM("${this.zColumn}") as "${this.zColumn}"  FROM temp GROUP BY "${this.xColumn}", "${this.yColumn}";`;
+    const query = `WITH temp as (SELECT glyphx_id__ as "rowid", "${this.xColumn}","${this.yColumn}","${this.zColumn}" FROM "${this.databaseName}"."${this.viewName}" ${this.filter})  SELECT array_join(array_agg(rowid) , '|') as "rowids", "${this.xColumn}", "${this.yColumn}", SUM("${this.zColumn}") as "${this.zColumn}"  FROM temp GROUP BY "${this.xColumn}", "${this.yColumn}";`;
 
     //this is already wrapped in a GlyphxError so no need to wrap it again
     this.queryId = await this.athenaManager.startQuery(query);
