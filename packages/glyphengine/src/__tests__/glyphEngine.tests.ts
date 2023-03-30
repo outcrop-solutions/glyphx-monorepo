@@ -1105,6 +1105,9 @@ describe('GlyphEngine', () => {
     const data: Map<string, string> = new Map([
       ['model_id', 'testModelId'],
       ['client_id', 'testClientId'],
+      ['x_axis', 'testXAxis'],
+      ['y_axis', 'testYAxis'],
+      ['z_axis', 'testZAxis'],
     ]);
     afterEach(() => {
       sandbox.restore();
@@ -1528,6 +1531,98 @@ describe('GlyphEngine', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(didPublish);
+    });
+  });
+
+  context('validateInput', () => {
+    const inputBucketName = 'testInputBucketName';
+    const outputBucketName = 'testOutputBucketName';
+    const databaseName = 'testDatabaseName';
+
+    const processId = 'testProcessId';
+    const glyphEngine = new GlyphEngine(
+      inputBucketName,
+      outputBucketName,
+      databaseName,
+      processId
+    ) as any;
+    it('will succeed when all fields are present', () => {
+      const data: Map<string, string> = new Map([
+        ['model_id', 'testModelId'],
+        ['client_id', 'testClientId'],
+        ['x_axis', 'testXAxis'],
+        ['y_axis', 'testYAxis'],
+        ['z_axis', 'testZAxis'],
+      ]);
+
+      assert.doesNotThrow(() => {
+        glyphEngine.validateInput(data);
+      });
+    });
+
+    it('will Throw an InvalidArgumentError when model_id is not present', () => {
+      const data: Map<string, string> = new Map([
+        ['client_id', 'testClientId'],
+        ['x_axis', 'testXAxis'],
+        ['y_axis', 'testYAxis'],
+        ['z_axis', 'testZAxis'],
+      ]);
+
+      assert.throws(() => {
+        glyphEngine.validateInput(data);
+      }, error.InvalidArgumentError);
+    });
+
+    it('will Throw an InvalidArgumentError when client_id is not present', () => {
+      const data: Map<string, string> = new Map([
+        ['model_id', 'testModelId'],
+        ['x_axis', 'testXAxis'],
+        ['y_axis', 'testYAxis'],
+        ['z_axis', 'testZAxis'],
+      ]);
+
+      assert.throws(() => {
+        glyphEngine.validateInput(data);
+      }, error.InvalidArgumentError);
+    });
+
+    it('will Throw an InvalidArgumentError when x_axis is not present', () => {
+      const data: Map<string, string> = new Map([
+        ['model_id', 'testModelId'],
+        ['client_id', 'testClientId'],
+        ['y_axis', 'testYAxis'],
+        ['z_axis', 'testZAxis'],
+      ]);
+
+      assert.throws(() => {
+        glyphEngine.validateInput(data);
+      }, error.InvalidArgumentError);
+    });
+
+    it('will Throw an InvalidArgumentError when y_axis is not present', () => {
+      const data: Map<string, string> = new Map([
+        ['model_id', 'testModelId'],
+        ['client_id', 'testClientId'],
+        ['x_axis', 'testxAxis'],
+        ['z_axis', 'testZAxis'],
+      ]);
+
+      assert.throws(() => {
+        glyphEngine.validateInput(data);
+      }, error.InvalidArgumentError);
+    });
+
+    it('will Throw an InvalidArgumentError when z_axis is not present', () => {
+      const data: Map<string, string> = new Map([
+        ['model_id', 'testModelId'],
+        ['client_id', 'testClientId'],
+        ['x_axis', 'testxAxis'],
+        ['y_axis', 'testyAxis'],
+      ]);
+
+      assert.throws(() => {
+        glyphEngine.validateInput(data);
+      }, error.InvalidArgumentError);
     });
   });
 });

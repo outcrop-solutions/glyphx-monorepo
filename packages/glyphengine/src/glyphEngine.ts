@@ -162,7 +162,23 @@ export class GlyphEngine {
       throw e;
     }
   }
-
+  private validateInput(data: Map<string, string>): void {
+    const requiredFileds = [
+      'x_axis',
+      'y_axis',
+      'z_axis',
+      'client_id',
+      'model_id',
+    ];
+    requiredFileds.forEach(field => {
+      if (!data.get(field))
+        throw new error.InvalidArgumentError(
+          `${field} is required`,
+          field,
+          data
+        );
+    });
+  }
   public async process(
     data: Map<string, string>
   ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
@@ -177,8 +193,8 @@ export class GlyphEngine {
     const heartBeat = new Heartbeat(this.processId);
     await heartBeat.start();
     try {
+      this.validateInput(data);
       this.cleanupData(data);
-      //TODO: we probably need to do some validation here
       const modelId = data.get('model_id') as string;
       const clientId = data.get('client_id') as string;
 
