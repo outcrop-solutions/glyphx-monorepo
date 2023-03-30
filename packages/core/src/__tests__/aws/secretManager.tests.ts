@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {SecretManager} from '../../aws';
 //eslint-disable-next-line

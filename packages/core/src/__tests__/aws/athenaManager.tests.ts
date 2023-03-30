@@ -601,7 +601,6 @@ describe('#aws/AthenaManager', () => {
 
     it('Should throw a QueryExecutionError if the underlying connection throws an error ', async () => {
       const queryId = 'testQueryId';
-      const queryState = 'SUCCEEDED';
       athenaMock.on(GetDatabaseCommand).resolves(true as any);
 
       athenaMock.on(GetQueryExecutionCommand).rejects('something bad happened');

@@ -3,13 +3,13 @@ import {assert} from 'chai';
 import {S3Manager} from '../../aws';
 import {v4} from 'uuid';
 
-const uniqueKey = v4().replaceAll('-', '');
-const bucketName = 'jps-test-bucket';
+const UNIUQUE_KEY = v4().replaceAll('-', '');
+const BUCKET_NAME = 'jps-test-bucket';
 
 describe('#integrationTests/s3Manager', () => {
-  const s3Manager = new S3Manager(bucketName);
+  const s3Manager = new S3Manager(BUCKET_NAME);
   const body = 'I am the body';
-  const fileName = 'testFileName' + uniqueKey;
+  const fileName = 'testFileName' + UNIUQUE_KEY;
   let fileExists = false;
 
   before(async () => {
@@ -19,7 +19,7 @@ describe('#integrationTests/s3Manager', () => {
   after(async () => {
     if (fileExists) {
       await (s3Manager as any).bucket.deleteObject({
-        BucketName: bucketName,
+        BucketName: BUCKET_NAME,
         Key: fileName,
       });
     }
