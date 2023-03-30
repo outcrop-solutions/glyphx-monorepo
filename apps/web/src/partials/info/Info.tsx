@@ -1,14 +1,13 @@
 import React from 'react';
 import { MemberList } from '../invite/MemberList';
 import { projectAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import Image from 'next/image';
 
 export const Info = ({ setInfo, setShare }) => {
-  const [selectedProject, setSelectedProject] = useRecoilState(projectAtom);
+  const selectedProject = useRecoilValue(projectAtom);
 
   return (
-    // <div className="flex flex-col absolute z-50 right-0 w-96 bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
     <div className="flex flex-col w-[250px] bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
       <div className="pt-4 pl-4 pr-4  overflow-auto">
         <div className="flex flex-row justify-between mb-2 items-center">
@@ -19,12 +18,10 @@ export const Info = ({ setInfo, setShare }) => {
                 fill="#CECECE"
               />
             </svg>
-
             <p className="text-light-gray text-[14px] leading-[16px] font-medium font-roboto">
               {selectedProject ? selectedProject.name : 'My Projects'}
             </p>
           </div>
-
           <svg
             onClick={() => {
               setInfo(false);

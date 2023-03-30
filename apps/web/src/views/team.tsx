@@ -16,7 +16,7 @@ import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
 import { useMembers } from 'lib/client';
-import { _createMember, _removeMember, _updateRole, api } from 'lib';
+import { _createMember, _removeMember, _updateRole, api } from 'lib/client';
 
 const MEMBERS_TEMPLATE = { email: '', teamRole: databaseTypes.constants.ROLE.MEMBER };
 

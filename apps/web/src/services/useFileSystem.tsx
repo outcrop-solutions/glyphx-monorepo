@@ -6,7 +6,7 @@ import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { compareStats, createFileSystem, createFileSystemFromS3, parsePayload } from 'lib/utils/transforms';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
-import { _addFiles, api, useWorkspace, useWorkspaces } from 'lib';
+import { _ingestFiles, api, useWorkspace, useWorkspaces } from 'lib/client';
 
 const cleanTableName = (fileName) => {
   return fileName.split('.')[0].trim().toLowerCase();
@@ -25,7 +25,7 @@ const cleanTableName = (fileName) => {
 export const useFileSystem = () => {
   const router = useRouter();
   const { workspaceSlug } = router.query;
-  const { workspace, setWorkspace } = useWorkspace(workspaceSlug);
+  const { workspace } = useWorkspace(workspaceSlug);
   const project = useRecoilValue(projectAtom);
   const existingFileStats = useRecoilValue(fileStatsSelector);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
@@ -87,7 +87,7 @@ export const useFileSystem = () => {
 
       // send payload for processing
       api({
-        ..._addFiles(payload),
+        ..._ingestFiles(payload),
       });
     },
     // [setFileSystem, project, fileSystem, setDataGrid]

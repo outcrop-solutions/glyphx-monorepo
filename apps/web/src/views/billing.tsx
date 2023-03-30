@@ -6,8 +6,8 @@ import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
 import Modal from 'components/Modal';
-import { api, _createSubscription } from 'lib';
-import { redirectToCheckout } from 'lib/server';
+import { api, _createSubscription } from 'lib/client';
+// import { redirectToCheckout } from 'lib/server';
 
 const BillingView = ({ invoices, products }) => {
   const [isSubmitting, setSubmittingState] = useState(false);
@@ -20,7 +20,7 @@ const BillingView = ({ invoices, products }) => {
       ..._createSubscription(priceId),
       setLoading: setSubmittingState,
       onSuccess: (data) => {
-        return (async () => redirectToCheckout(data.sessionId))();
+        // return (async () => redirectToCheckout(data.sessionId))();
       },
     });
   };

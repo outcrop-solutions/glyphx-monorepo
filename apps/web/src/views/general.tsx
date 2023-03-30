@@ -9,12 +9,12 @@ import isSlug from 'validator/lib/isSlug';
 import Button from 'components/Button/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
-import { _updateWorkspaceName, _updateWorkspaceSlug, api } from 'lib';
-import { useWorkspace } from 'providers/workspace';
+import { _updateWorkspaceName, _updateWorkspaceSlug, api, useWorkspace } from 'lib/client';
 
 const General = ({ isTeamOwner, workspace }) => {
   const router = useRouter();
-  const { setWorkspace } = useWorkspace();
+  const { workspaceSlug } = router.query;
+  const { setWorkspace } = useWorkspace(workspaceSlug);
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(workspace.name || '');
   const [slug, setSlug] = useState(workspace.slug || '');

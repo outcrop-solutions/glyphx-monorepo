@@ -1,4 +1,4 @@
 export enum DIRECTION_TYPE {
-  ASC,
-  DESC,
+  ASC = 'ASC',
+  DESC = 'DESC',
 }

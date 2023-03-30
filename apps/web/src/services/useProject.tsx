@@ -11,8 +11,7 @@ import {
   showQtViewerAtom,
 } from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { api } from 'lib';
-import { _createModel } from 'lib/client/mutations/core';
+import { _createModel, api } from 'lib/client';
 import { compose } from 'utils/compose';
 /**
  * Utility for interfacing with the Project class

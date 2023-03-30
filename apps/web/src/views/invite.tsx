@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast';
 
 import Card from 'components/Card/index';
 import Button from 'components/Button';
-import { _joinWorkspace, api } from 'lib';
+import { _joinWorkspace, api } from 'lib/client';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
 

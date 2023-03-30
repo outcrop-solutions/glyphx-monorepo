@@ -5,7 +5,7 @@ import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import { getSession } from 'next-auth/react';
 import Meta from 'components/Meta';
 import { AccountLayout } from 'layouts';
-import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib';
+import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
 import { userService, Initializer } from '@glyphx/business';
 
 import dynamic from 'next/dynamic';

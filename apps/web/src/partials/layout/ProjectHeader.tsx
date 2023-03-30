@@ -1,18 +1,17 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { updateProjectName } from 'lib';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import produce from 'immer';
+import { updateProjectName } from 'lib/client';
 import {
   showHorizontalOrientationAtom,
   showShareModalOpenAtom,
-  showAddProjectAtom,
   showSearchModalAtom,
   showInfoDropdownAtom,
   showNotificationDropdownAtom,
   rowsSelector,
   projectAtom,
 } from 'state';
-import produce from 'immer';
 
 export const ProjectHeader = () => {
   const [selectedProject, setSelectedProject] = useRecoilState(projectAtom);

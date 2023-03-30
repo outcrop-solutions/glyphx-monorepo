@@ -42,6 +42,7 @@
     "lodash": "^4.17.21",
     "micro": "^10.0.1",
     "mongodb": "^4.8.1",
+    "mongoose": "^6.8.1",
     "next": "^12.2.5",
     "next-auth": "4.15.0",
     "next-themes": "^0.2.1",
@@ -100,7 +101,6 @@
   "devDependencies": {
     "@aws-sdk/types": "3.222.0",
     "@glyphx/types": "workspace:*",
-    "eslint-config-custom": "workspace:*",
     "@tailwindcss/forms": "^0.4.0",
     "@tailwindcss/line-clamp": "^0.3.1",
     "@tailwindcss/typography": "^0.5.0",
@@ -108,6 +108,7 @@
     "@types/react": "17.0.2",
     "@types/react-dom": "17.0.2",
     "autoprefixer": "10.4.5",
+    "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.5",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",

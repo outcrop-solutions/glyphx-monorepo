@@ -1,37 +1,34 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { filtersAppliedAtom } from 'state/filters';
+// import { filtersAppliedAtom } from 'state/filters';
 import { produce } from 'immer';
 
 export const SearchFilter = ({ lastDroppedItem }) => {
-  const setFiltersApplied = useSetRecoilState(filtersAppliedAtom);
+  // const setFiltersApplied = useSetRecoilState(filtersAppliedAtom);
   // TODO: consider persisting applied filters in localStorage
   const [keyword, setKeyword] = useState('');
   const [chips, setChips] = useState([]);
   const [showVisibility, setVisibility] = useState(false); //true means eye with no dash, false means eye with dash
   const [ishover, setHover] = useState(false);
 
-  useEffect(() => {
-    setFiltersApplied(
-      produce((draft) => {
-        draft[lastDroppedItem.index].keywords = [...(Array.isArray(chips) ? chips : [])];
-      })
-    );
-  }, [chips, lastDroppedItem.index, setFiltersApplied]);
+  // useEffect(() => {
+  //   setFiltersApplied(
+  //     produce((draft) => {
+  //       draft[lastDroppedItem.index].keywords = [...(Array.isArray(chips) ? chips : [])];
+  //     })
+  //   );
+  // }, [chips, lastDroppedItem.index, setFiltersApplied]);
 
-  const handleAddKeyword = useCallback(
-    (value, idx, prop) => {
-      if (value.key === 'Enter') {
-        value.preventDefault();
-        setFiltersApplied(
-          produce((draft) => {
-            draft[lastDroppedItem.index].keywords = [...(Array.isArray(chips) ? chips : [])];
-          })
-        );
-      }
-    },
-    [chips, lastDroppedItem.index, setFiltersApplied]
-  );
+  const handleAddKeyword = useCallback((value, idx, prop) => {
+    if (value.key === 'Enter') {
+      value.preventDefault();
+      // setFiltersApplied(
+      //   produce((draft) => {
+      //     draft[lastDroppedItem.index].keywords = [...(Array.isArray(chips) ? chips : [])];
+      //   })
+      // );
+    }
+  }, []);
 
   const handleAddKey = () => {
     setChips((prev) => {

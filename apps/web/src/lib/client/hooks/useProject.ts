@@ -1,7 +1,10 @@
+import { useRouter } from 'next/router';
 import useSWR from 'swr';
 
-const useProject = (id) => {
-  const apiRoute = `/api/project/${id}`;
+const useProject = () => {
+  const router = useRouter();
+  const { projectId } = router.query;
+  const apiRoute = `/api/project/${projectId}`;
   const { data, error } = useSWR(`${apiRoute}`);
   return {
     ...data,

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
 // import { createState } from "graphql/mutations";
-import { v4 as uuid } from "uuid";
-import { StateList } from "./StateList";
+import { v4 as uuid } from 'uuid';
+import { StateList } from './StateList';
 // import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { projectAtom } from 'state/project';
-import { statesSelector } from 'state/states';
+// import { statesSelector } from 'state/states';
 
 export const States = () => {
   const project = useRecoilValue(projectAtom);
-  const [states, setStates] = useRecoilState(statesSelector);
+  // const [states, setStates] = useRecoilState(statesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
 
   // useEffect(() => {
@@ -94,7 +94,7 @@ export const States = () => {
 
           {/* <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white" onClick={addState} /> */}
         </summary>
-        {states && states.length > 0 && !isCollapsed && <StateList />}
+        {/* {states && states.length > 0 && !isCollapsed && <StateList />} */}
       </div>
     </React.Fragment>
   );

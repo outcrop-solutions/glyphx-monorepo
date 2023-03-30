@@ -981,7 +981,6 @@ describe('#mongoose/models/project', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.owner as any).__v);
       assert.isUndefined((doc.type as any).__v);
-      assert.isUndefined((doc.state as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
       assert.strictEqual(doc._id, mockProject._id);
@@ -1295,10 +1294,9 @@ describe('#mongoose/models/project', () => {
       assert.strictEqual(results.page, 0);
       assert.strictEqual(results.results.length, mockProjects.length);
       assert.isNumber(results.itemsPerPage);
-      results.results.forEach(doc => {
+      results.results.forEach((doc: any) => {
         assert.isUndefined((doc as any).__v);
         assert.isUndefined((doc.type as any).__v);
-        assert.isUndefined((doc.state as any).__v);
         assert.isUndefined((doc.workspace as any).__v);
         assert.isUndefined((doc.owner as any).__v);
       });

@@ -4,7 +4,7 @@ import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import { getSession } from 'next-auth/react';
 import Meta from 'components/Meta';
 import { AccountLayout } from 'layouts';
-import { _createMember, _removeMember, _updateRole, api } from 'lib';
+import { _createMember, _removeMember, _updateRole } from 'lib/client';
 import { workspaceService, Initializer } from '@glyphx/business';
 import TeamView from 'views/team';
 

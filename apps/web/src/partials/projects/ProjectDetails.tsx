@@ -6,9 +6,8 @@ import { CheckIcon, PencilIcon, PlusSmIcon } from '@heroicons/react/solid';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { projectDetailsAtom } from 'state/project';
-// import { updateProject } from 'lib';
+import { useRecoilState } from 'recoil';
+import { projectAtom } from 'state';
 import { useSession } from 'next-auth/react';
 
 const tabs = [
@@ -19,14 +18,13 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 export const ProjectDetails = () => {
-  const [projectDetails, setProjectDetails] = useRecoilState(projectDetailsAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
   const { data } = useSession();
 
   const [open, setOpen] = useState(true);
-  const [name, setName] = useState(projectDetails.name);
-  const [description, setDescription] = useState(projectDetails.description);
+  const [name, setName] = useState(project.name);
+  const [description, setDescription] = useState(project.description);
   const [members, setMembers] = useState('');
-  const [chips, setChips] = useState(projectDetails.shared);
   const [msg, setMsg] = useState(null);
   const [error, setError] = useState(null);
   const [editShare, setEditShare] = useState(false);
@@ -34,38 +32,6 @@ export const ProjectDetails = () => {
   const [editDesc, setEditDesc] = useState(false);
 
   dayjs.extend(relativeTime);
-
-  const handleChip = () => {
-    setChips((prev) => {
-      setMembers('');
-      return [...prev, members];
-    });
-  };
-  const handleDelete = (item) => {
-    if (item === data.user.email) {
-      setError('Cannot remove project author.');
-      setTimeout(() => {
-        setError(false);
-      }, 3000);
-      return;
-    }
-    setChips((prev) => {
-      let newChips = [...prev].filter((el) => el !== item);
-      return newChips;
-    });
-  };
-
-  const handleSave = async () => {
-    const updateProjectInput = {
-      id: projectDetails.id,
-      name: name,
-      description: description,
-      shared: chips,
-    };
-    setEditDesc(false);
-    setEditTitle(false);
-    setEditShare(false);
-  };
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -208,15 +174,15 @@ export const ProjectDetails = () => {
                       <dl className="mt-2 border-t border-b border-gray divide-y divide-gray">
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white mr-2">Owner</dt>
-                          <dd className="text-slate-300 truncate">{projectDetails.author}</dd>
+                          <dd className="text-slate-300 truncate">{project.owner}</dd>
                         </div>
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white">Created</dt>
-                          <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.createdAt))}</dd>
+                          <dd className="text-slate-300">{dayjs().to(dayjs(project.createdAt))}</dd>
                         </div>
                         <div className="py-3 flex justify-between text-sm font-medium">
                           <dt className="text-white">Last modified</dt>
-                          <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.updatedAt))}</dd>
+                          <dd className="text-slate-300">{dayjs().to(dayjs(project.updatedAt))}</dd>
                         </div>
                       </dl>
                     </div>
@@ -233,7 +199,7 @@ export const ProjectDetails = () => {
                             className="mt-1 rounded-sm w-40 block border-px bg-gray border-gray shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         ) : (
-                          <p className="text-sm text-white italic">{projectDetails.description}</p>
+                          <p className="text-sm text-white italic">{project.description}</p>
                         )}
                         <button
                           type="button"
@@ -267,32 +233,12 @@ export const ProjectDetails = () => {
                           </button>
                         </li>
                       </div>
-                      {chips && chips.length > 0 && (
-                        <ul role="list" className="mt-2 divide-y divide-gray">
-                          {chips.map((member, idx) => (
-                            <li className="flex py-1 justify-between items-center w-full" key={`${member}-${idx}`}>
-                              <div className="flex items-center">
-                                <UserCircleIcon className="w-8 h-8 rounded-full" />
-                                <p className="ml-4 text-sm font-medium text-white truncate w-24">{member}</p>
-                              </div>
-                              <button
-                                onClick={() => handleDelete(member)}
-                                type="button"
-                                className="ml-6 bg-gray rounded-md text-sm font-medium text-white hover:text-slate-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yelloy-500"
-                              >
-                                Remove
-                                <span className="sr-only">{member}</span>
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+
                       {editShare ? (
                         <div
                           onKeyPress={(ev) => {
                             if (ev.key === 'Enter') {
                               ev.preventDefault();
-                              handleChip();
                             }
                           }}
                         >

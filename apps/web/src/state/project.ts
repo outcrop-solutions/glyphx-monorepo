@@ -1,6 +1,6 @@
 import { atom, selector, selectorFamily } from 'recoil';
 import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { generateFilterQuery } from 'lib/client/helpers';
+// import { generateFilterQuery } from 'lib/client/helpers';
 
 /**
  * EXAMPLE PROJECT
@@ -242,8 +242,8 @@ export const filterQuerySelector = selector<string>({
     let retval = [];
     for (const axis of axisArray) {
       const prop = project.state.properties[`${axis}`];
-      const query = generateFilterQuery(prop);
-      retval.push(query);
+      // const query = generateFilterQuery(prop);
+      // retval.push(query);
     }
     return retval.join(' AND ');
   },

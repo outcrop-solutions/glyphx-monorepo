@@ -3,14 +3,16 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import Meta from 'components/Meta/index';
 import { AccountLayout } from 'layouts/index';
-import { _deleteWorkspace } from 'lib';
+import { _deleteWorkspace, useWorkspace } from 'lib/client';
 import { workspaceService, Initializer } from '@glyphx/business';
-import { useWorkspace } from 'providers/workspace';
 import { getSession } from 'next-auth/react';
 import AdvancedView from 'views/advanced';
+import { useRouter } from 'next/router';
 
 const Advanced = ({ isCreator }) => {
-  const { workspace } = useWorkspace();
+  const router = useRouter();
+  const { workspaceSlug } = router.query;
+  const { workspace } = useWorkspace(workspaceSlug);
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>

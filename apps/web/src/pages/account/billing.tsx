@@ -1,11 +1,11 @@
-import { getSession } from 'next-auth/react';
 import { Suspense } from 'react';
+import { getSession } from 'next-auth/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 
 import Meta from 'components/Meta';
 import { AccountLayout } from 'layouts';
-import { _createSubscription } from 'lib';
+import { _createSubscription } from 'lib/client';
 import { StripeClient, customerPaymentService, Initializer } from '@glyphx/business';
 import BillingView from 'views/billing';
 

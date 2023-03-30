@@ -4,8 +4,6 @@ import { AddProject } from './AddProject';
 // import { PinnedProjects } from "./PinnedProjects";
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { projectsAtom } from 'state/globals';
-import { useWorkspace } from 'providers/workspace';
 import { workspaceAtom } from 'state';
 
 export const GridView = () => {

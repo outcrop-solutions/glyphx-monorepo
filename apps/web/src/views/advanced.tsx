@@ -5,12 +5,12 @@ import Button from 'components/Button/index';
 import Modal from 'components/Modal/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
-import { _deleteWorkspace, api } from 'lib';
-import { useWorkspace } from 'providers/workspace';
+import { _deleteWorkspace, api, useWorkspace } from 'lib/client';
 
 const Advanced = ({ isCreator }) => {
-  const { setWorkspace, workspace } = useWorkspace();
   const router = useRouter();
+  const { workspaceSlug } = router.query;
+  const { setWorkspace, workspace } = useWorkspace(workspaceSlug);
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalState] = useState(false);
   const [verifyWorkspace, setVerifyWorkspace] = useState('');

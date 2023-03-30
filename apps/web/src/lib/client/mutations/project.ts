@@ -1,5 +1,4 @@
 import { database as databaseTypes, web as webTypes } from '@glyphx/types';
-import { Types as mongooseTypes } from 'mongoose';
 // PROJECT MUTATIONS
 
 /**
@@ -17,9 +16,7 @@ export const forkProject = () => {};
  * @param name
  * @returns
  */
-export const _createDefaultProject = (
-  workspaceId: string | mongooseTypes.ObjectId
-): webTypes.IFetchConfig => {
+export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfig => {
   return {
     url: '/api/project',
     options: {
@@ -37,7 +34,7 @@ export const _createDefaultProject = (
  * @param name
  * @returns
  */
-export const updateProjectName = (id: string | mongooseTypes.ObjectId, name: string) => {};
+export const updateProjectName = (id: string, name: string) => {};
 
 /**
  * Updates Project Name
@@ -47,7 +44,7 @@ export const updateProjectName = (id: string | mongooseTypes.ObjectId, name: str
  * @param members
  * @returns
  */
-export const updateProject = (id: string | mongooseTypes.ObjectId, input: Partial<databaseTypes.IProject>) => {};
+export const updateProject = (id: string, input: Partial<databaseTypes.IProject>) => {};
 
 /**
  * Deletes a project
@@ -56,7 +53,7 @@ export const updateProject = (id: string | mongooseTypes.ObjectId, input: Partia
  * @param name
  * @returns
  */
-export const deleteProject = (id: string | mongooseTypes.ObjectId, name: string) => {};
+export const deleteProject = (id: string, name: string) => {};
 
 /**
  * Removes filter from a project
@@ -65,7 +62,7 @@ export const deleteProject = (id: string | mongooseTypes.ObjectId, name: string)
  * @param
  * @returns
  */
-export const removeFilter = (id: string | mongooseTypes.ObjectId) => {};
+export const removeFilter = (id: string) => {};
 
 /**
  * Apply filter to a state
@@ -74,4 +71,4 @@ export const removeFilter = (id: string | mongooseTypes.ObjectId) => {};
  * @param
  * @returns
  */
-export const applyFilter = (id: string | mongooseTypes.ObjectId) => {};
+export const applyFilter = (id: string) => {};

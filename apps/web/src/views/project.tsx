@@ -1,17 +1,13 @@
 import React, { useEffect } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-
-// Layout
-import { ProjectHeader } from 'partials';
-import { ProjectSidebar } from 'partials';
-import { CommentsSidebar } from 'partials';
-import { MainSidebar } from 'partials';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 // Project View
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { ShareModule } from 'partials';
+// Layout
+import { MainSidebar, ProjectSidebar, ProjectHeader, CommentsSidebar, ShareModule } from 'partials';
+
 import { Info } from 'partials/info';
 import { Notification } from 'partials/notification';
 import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
@@ -22,9 +18,13 @@ import { useProject, useSocket } from 'services';
 import { GridContainer } from 'partials/datagrid/GridContainer';
 
 // state
-import { projectIdAtom } from 'state/project';
-import { showShareModalOpenAtom, showNotificationDropdownAtom, showInfoDropdownAtom } from 'state/ui';
-import { showDataGridLoadingAtom, showModelCreationLoadingAtom } from 'state/ui';
+import {
+  showShareModalOpenAtom,
+  showNotificationDropdownAtom,
+  showInfoDropdownAtom,
+  showDataGridLoadingAtom,
+  showModelCreationLoadingAtom,
+} from 'state/ui';
 import dynamic from 'next/dynamic';
 
 const DynamicDecisionModal = dynamic(() => import('partials/files/DecisionModal'), {
@@ -34,10 +34,6 @@ const DynamicDecisionModal = dynamic(() => import('partials/files/DecisionModal'
 export default function Project() {
   const { query } = useRouter();
   const { projectId } = query;
-  const setProjectId = useSetRecoilState(projectIdAtom);
-  useEffect(() => {
-    if (projectId) setProjectId(projectId);
-  }, [projectId, setProjectId]);
 
   const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
   const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);

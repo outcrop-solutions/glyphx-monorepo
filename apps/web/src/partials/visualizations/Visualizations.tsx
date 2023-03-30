@@ -5,11 +5,11 @@ import React, { useState, useEffect } from 'react';
 // import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { projectAtom } from 'state/project';
-import { statesSelector } from 'state/states';
+// import { statesSelector } from 'state/states';
 
 export const Visualizations = () => {
   const project = useRecoilValue(projectAtom);
-  const [states, setStates] = useRecoilState(statesSelector);
+  // const [states, setStates] = useRecoilState(statesSelector);
 
   // useEffect(() => {
   //   if (window && window?.core) {

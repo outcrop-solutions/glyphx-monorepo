@@ -1,4 +1,4 @@
 export enum INTERPOLATION_TYPE {
-  LINEAR,
-  NUMERIC,
+  LINEAR = 'LINEAR',
+  NUMERIC = 'NUMERIC',
 }

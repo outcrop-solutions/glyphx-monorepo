@@ -1,18 +1,17 @@
 import { Fragment, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, PlusIcon, SelectorIcon } from '@heroicons/react/solid';
-import { useRouter } from 'next/router';
 
 import Button from 'components/Button/index';
 import Modal from 'components/Modal/index';
-import { useWorkspaces } from 'lib/client';
-import { api, _createWorkspace } from 'lib';
-import { useWorkspace } from 'providers/workspace';
+import { useWorkspace, useWorkspaces, api, _createWorkspace } from 'lib/client';
 
 const Actions = () => {
-  const { data, isLoading } = useWorkspaces();
-  const { workspace, setWorkspace } = useWorkspace();
   const router = useRouter();
+  const { data: workspace } = useWorkspace();
+  const { data, isLoading } = useWorkspaces();
+
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState('');
   const [showModal, setModalState] = useState(false);
@@ -21,7 +20,6 @@ const Actions = () => {
   // local state
   const handleNameChange = (event) => setName(event.target.value);
   const handleWorkspaceChange = (workspace) => {
-    setWorkspace(workspace);
     router.replace(`/account/${workspace?.slug}`);
   };
   const toggleModal = () => setModalState(!showModal);
@@ -32,10 +30,10 @@ const Actions = () => {
     api({
       ..._createWorkspace(name),
       setLoading: setSubmittingState,
-     
-      onSuccess: () => {
-        toggleModal();
-        setName('');
+      onSuccess: (result) => {
+        router.replace(`/account/${result.data.workspace?.slug}`);
+        // toggleModal();
+        // setName('');
       },
     });
   };

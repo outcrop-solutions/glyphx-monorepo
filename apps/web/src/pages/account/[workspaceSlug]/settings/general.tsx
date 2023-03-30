@@ -5,7 +5,7 @@ import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 
 import Meta from 'components/Meta/index';
 import { AccountLayout } from 'layouts/index';
-import { _updateWorkspaceName, _updateWorkspaceSlug, api } from 'lib';
+import { _updateWorkspaceName, _updateWorkspaceSlug } from 'lib/client';
 import { workspaceService, Initializer } from '@glyphx/business';
 import GeneralView from 'views/general';
 

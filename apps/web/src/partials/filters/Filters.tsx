@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import { Column } from './Column';
 import { Axes } from './Axes';
-import { useFilterChange } from 'services/useFilterChange';
-import { propertiesAtom } from 'state/properties';
-import { useRecoilValue } from 'recoil';
-import { filterQuerySelector } from 'state/filters';
+import { filterQuerySelector } from 'state';
 
 export const Filters = ({ handleDrop }) => {
-  const properties = useRecoilValue(propertiesAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const filterQuery = useRecoilValue(filterQuerySelector);
-
+  const properties = [];
   useEffect(() => {
     if (filterQuery) {
       try {
@@ -60,7 +57,7 @@ export const Filters = ({ handleDrop }) => {
           >
             <ul className={`overflow-auto py-1 w-full`}>
               {/* read only (no drag n drop) property filters */}
-              {properties?.length > 0
+              {true
                 ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
                     if (idx < 3) {
                       return <Axes axis={axis} lastDroppedItem={lastDroppedItem} key={idx} />;

@@ -4,15 +4,14 @@ import { useRouter } from 'next/router';
 import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
-import { useWorkspace } from 'providers/workspace';
-
-import { _acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces } from 'lib';
+import { _acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces, useWorkspace } from 'lib/client';
 
 const Welcome = () => {
   const router = useRouter();
+  const { workspaceSlug } = router.query;
   const { data: invitationsData, isLoading: isFetchingInvitations } = useInvitations();
   const { data: workspacesData, isLoading: isFetchingWorkspaces } = useWorkspaces();
-  const { setWorkspace } = useWorkspace();
+  const { setWorkspace } = useWorkspace(workspaceSlug);
   const [isSubmitting, setSubmittingState] = useState(false);
 
   // mutatations

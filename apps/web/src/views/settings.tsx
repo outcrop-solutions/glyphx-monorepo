@@ -9,7 +9,7 @@ import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
 import Modal from 'components/Modal';
-import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib';
+import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
 
 export default function Settings({ user }) {
   const [email, setEmail] = useState(user.email || '');

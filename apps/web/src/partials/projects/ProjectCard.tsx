@@ -3,19 +3,18 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
 import { useSetRecoilState } from 'recoil';
-import { projectsAtom } from 'state/globals';
-import { projectDetailsAtom } from 'state/project';
-import { deleteProject } from 'lib';
+import { workspaceAtom, projectAtom } from 'state';
+import { deleteProject } from 'lib/client';
 import Image from 'next/image';
-import projectCard from "public/images/project.png" 
+import projectCard from 'public/images/project.png';
 
 export const ProjectCard = ({ project, updatedAt, name, idx }) => {
   const router = useRouter();
   const { orgId, projectId } = router.query;
 
   dayjs.extend(relativeTime);
-  const setProjects = useSetRecoilState(projectsAtom);
-  const setProjectDetails = useSetRecoilState(projectDetailsAtom);
+  const setWorkspace = useSetRecoilState(workspaceAtom);
+  const setProjectDetails = useSetRecoilState(projectAtom);
 
   const deleteProject = () => {};
 
@@ -102,7 +101,7 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
         </svg>
       </div>
       <div onClick={() => router.push(`/${orgId}/${project.id}`)} className="flex flex-col h-full">
-        <Image className="rounded-t-md" layout='responsive' src={projectCard} alt="" />
+        <Image className="rounded-t-md" layout="responsive" src={projectCard} alt="" />
         <footer className="mt-2 px-5 pb-5 pt-1">
           <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{name}</p>
           <div className="flex justify-between items-center">
@@ -139,7 +138,6 @@ export const ProjectCard = ({ project, updatedAt, name, idx }) => {
                 <div className="text-xs">{`+ ${project.shared.length - 3} more`}</div>
               ) : null}
             </div>
-
             <div>
               <p className="font-roboto font-medium text-sm text-gray leading-[16px] text-right">
                 {dayjs().to(dayjs(updatedAt))}

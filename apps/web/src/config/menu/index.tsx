@@ -1,18 +1,18 @@
-const menu = (workspaceId) => [
+const menu = (workspaceSlug) => [
   {
     name: 'Settings',
     menuItems: [
       {
         name: 'Workspace Information',
-        path: `/account/${workspaceId}/settings/general`,
+        path: `/account/${workspaceSlug}/settings/general`,
       },
       {
         name: 'Team Management',
-        path: `/account/${workspaceId}/settings/team`,
+        path: `/account/${workspaceSlug}/settings/team`,
       },
       {
         name: 'Advanced',
-        path: `/account/${workspaceId}/settings/advanced`,
+        path: `/account/${workspaceSlug}/settings/advanced`,
       },
     ],
   },

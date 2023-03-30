@@ -1,14 +1,12 @@
-import { AxesIcons } from './AxesIcons';
 import { useState } from 'react';
-import { Filter } from './Filter';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { removeFilter } from 'lib/client';
+
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';
-import { removeFilter } from 'lib';
-import { ShowHide } from './actions/ShowHide';
-import { DeleteFilter } from './actions/DeleteFilter';
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { propertiesAtom } from 'state/properties';
-import { filtersAppliedAtom } from 'state/filters';
+import { AxesIcons } from './AxesIcons';
+
+import { propertiesAtom } from 'state';
 import { FIELD_TYPE } from '@glyphx/types/src/fileIngestion/constants';
 
 export const Axes = ({ axis, lastDroppedItem }) => {

@@ -147,15 +147,13 @@ export const parsePayload = async (
     })
   );
 
-  const operations = await Promise.all(
-    acceptedFiles.map((file: File): Omit<fileIngestionTypes.IFileInfo, 'fileStream'> => {
-      return {
-        fileName: file.name,
-        tableName: file.name.split('.')[0].trim().toLowerCase(),
-        operation: 2,
-      };
-    })
-  );
+  const operations = acceptedFiles.map((file: File): Omit<fileIngestionTypes.IFileInfo, 'fileStream'> => {
+    return {
+      fileName: file.name,
+      tableName: file.name.split('.')[0].trim().toLowerCase(),
+      operation: 2,
+    };
+  });
 
   const payload = {
     clientId: workspaceId.toString(),

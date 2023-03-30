@@ -19,13 +19,13 @@ const PROPERTY_SCHEMA = new Schema({
     type: Number,
     required: true,
     enum: webTypes.constants.INTERPOLATION_TYPE,
-    default: webTypes.constants.INTERPOLATION_TYPE[0],
+    default: webTypes.constants.INTERPOLATION_TYPE['LINEAR'],
   },
   direction: {
     type: Number,
     required: true,
     enum: webTypes.constants.DIRECTION_TYPE,
-    default: webTypes.constants.DIRECTION_TYPE[0],
+    default: webTypes.constants.DIRECTION_TYPE['ASC'],
   },
   filter: {type: filterSchema, required: false},
 });
