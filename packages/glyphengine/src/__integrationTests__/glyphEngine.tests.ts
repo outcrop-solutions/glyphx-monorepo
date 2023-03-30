@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {aws, error, generalPurposeFunctions} from '@glyphx/core';
+import {aws, generalPurposeFunctions} from '@glyphx/core';
 import {FileIngestor} from '@glyphx/fileingestion';
 import {
   Initializer,
@@ -115,7 +115,7 @@ describe('GlyphEngine', () => {
       );
       await fileIngestor.init();
 
-      const r = await fileIngestor.process();
+      await fileIngestor.process();
       data = new Map<string, string>([
         ['x_axis', 'col1'],
         ['y_axis', 'col2'],

@@ -1,7 +1,5 @@
 import 'mocha';
 import {assert} from 'chai';
-import {createSandbox} from 'sinon';
-import {error} from '@glyphx/core';
 import {convertNumberTo32bIeee754Float} from '../../util/numberConversion';
 
 describe('#util/NumberConversion', () => {

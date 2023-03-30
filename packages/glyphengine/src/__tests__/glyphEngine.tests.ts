@@ -347,20 +347,6 @@ describe('GlyphEngine', () => {
 
     it('will publish and throw an UnexpectedError when the underlying database calls throw an error', async () => {
       const localData = new Map<string, string>(data);
-      const dataDef = [
-        {
-          columnName: 'columnx',
-          columnType: fileIngestion.constants.FIELD_TYPE.STRING,
-        },
-        {
-          columnName: 'columny',
-          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
-        },
-        {
-          columnName: 'columnz',
-          columnType: fileIngestion.constants.FIELD_TYPE.INTEGER,
-        },
-      ];
 
       const getTableDescriptionStub = sandbox.stub();
       getTableDescriptionStub.rejects('Something bad has occurred');

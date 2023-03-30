@@ -229,7 +229,6 @@ describe('#io/QueryRunner', () => {
         zColumn
       ) as any;
 
-      const queryId = 'testQueryId';
       const queryStub = sandbox
         .stub(queryRunner.athenaManager, 'startQuery')
         .rejects(err);

@@ -14,11 +14,7 @@ import {GlyphStream} from './io/glyphStream';
 import {SgcStream} from './io/sgcStream';
 import {SgnStream} from './io/sgnStream';
 import {PassThrough} from 'stream';
-import {
-  processTrackingService,
-  Initializer as businessLogicInit,
-  Heartbeat,
-} from '@glyphx/business';
+import {processTrackingService, Heartbeat} from '@glyphx/business';
 
 export class GlyphEngine {
   private readonly templateKey: string;

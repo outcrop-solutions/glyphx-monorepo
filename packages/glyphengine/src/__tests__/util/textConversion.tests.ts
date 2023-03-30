@@ -1,7 +1,5 @@
 import 'mocha';
 import {assert} from 'chai';
-import {createSandbox} from 'sinon';
-import {error} from '@glyphx/core';
 import * as textConversion from '../../util/textConversion';
 
 describe('#utl/textConversion', () => {

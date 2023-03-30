@@ -1,6 +1,5 @@
 import {XMLParser} from 'fast-xml-parser';
 import {sdt, IDataSource, IProperty, IInputField} from '../interfaces';
-import {convertRgbToHsv} from '../util';
 import {FUNCTION, TYPE, SHAPE} from '../constants';
 import {MinMaxCalculator} from './minMaxCalulator';
 import {TextColumnToNumberConverter} from './textToNumberConverter';

@@ -1,7 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {error} from '@glyphx/core';
 import {GlyphStream} from '../../io/glyphStream';
 import {SdtParser} from '../../io';
 import * as helperFunctions from '../glyphEnginHelpers';
