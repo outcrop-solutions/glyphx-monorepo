@@ -1,4 +1,4 @@
-import { EmailClient } from './EmailClient';
+import { EmailClient } from './emailClient';
 
 /**
  * Sends an email via nodemailer smtp connection
@@ -11,7 +11,7 @@ export async function sendVerificationRequest(params: any) {
   const result = await EmailClient.sendMail({
     to: identifier,
     from: provider.from,
-    subject: `Sign in to glyphx.co`,
+    subject: 'Sign in to glyphx.co',
     text: text({ url, host }),
     html: html({ url, host, theme }),
   });
@@ -31,9 +31,7 @@ export async function sendVerificationRequest(params: any) {
  * @note We don't add the email address to avoid needing to escape it, if you do, remember to sanitize it!
  */
 function html(params: { url: string; host: string; theme: any }) {
-  const { url, host, theme } = params;
-
-  const escapedHost = host.replace(/\./g, '&#8203;.');
+  const { url, theme } = params;
 
   const brandColor = theme.brandColor || '#FFC500';
   const color = {

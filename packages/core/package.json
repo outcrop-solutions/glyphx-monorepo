@@ -23,6 +23,9 @@
       "gts fix"
     ]
   },
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",

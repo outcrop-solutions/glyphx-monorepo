@@ -1,12 +1,13 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IUserMethods} from './iUserMethods';
+import {IUserCreateInput} from './iUserCreateInput';
 
 export interface IUserStaticMethods
   extends Model<databaseTypes.IUser, {}, IUserMethods> {
   userIdExists(userId: mongooseTypes.ObjectId): Promise<boolean>;
   allUserIdsExist(userIds: mongooseTypes.ObjectId[]): Promise<boolean>;
-  createUser(input: databaseTypes.IUser): Promise<databaseTypes.IUser>;
+  createUser(input: IUserCreateInput): Promise<databaseTypes.IUser>;
   getUserById(userId: mongooseTypes.ObjectId): Promise<databaseTypes.IUser>;
   queryUsers(
     filter?: Record<string, unknown>,

@@ -7,7 +7,7 @@ export interface IProjectDocument
     '_id' | 'workspace' | 'type' | 'owner' | 'state'
   > {
   workspace: mongooseTypes.ObjectId;
-  type: mongooseTypes.ObjectId;
+  type?: mongooseTypes.ObjectId;
   owner: mongooseTypes.ObjectId;
   state?: mongooseTypes.ObjectId;
 }

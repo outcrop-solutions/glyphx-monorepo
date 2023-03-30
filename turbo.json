@@ -4,6 +4,9 @@
     "lint": {
       "outputs": []
     },
+    "fix": {
+      "outputs": []
+    },
     "format": {
       "outputs": []
     },
@@ -39,18 +42,6 @@
     },
     "web#build": {
       "dependsOn": ["^build"],
-      "env": [
-        "SMTP_HOST",
-        "SMTP_PORT",
-        "SMTP_USERNAME",
-        "SMTP_PASSWORD",
-        "NEXTAUTH_URL",
-        "EMAIL_SERVER",
-        "EMAIL_FROM",
-        "SENDGRID_API_KEY",
-        "RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED",
-        "NEXTAUTH_SECRET"
-      ],
       "outputs": [".next/**"]
     },
     "database#build": {
@@ -63,21 +54,31 @@
     },
     "web#dev": {
       "dependsOn": ["^dev", "^build"],
-      "cache": false,
-      "env": [
-        "SMTP_HOST",
-        "SMTP_PORT",
-        "SMTP_USERNAME",
-        "SMTP_PASSWORD",
-        "NEXTAUTH_URL",
-        "EMAIL_SERVER",
-        "EMAIL_FROM",
-        "SENDGRID_API_KEY",
-        "RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED",
-        "NEXTAUTH_SECRET"
-      ]
+      "cache": false
     }
   },
-  "globalEnv": ["GITHUB_TOKEN"],
+  "globalEnv": [
+    "GITHUB_TOKEN",
+    "API_ENV",
+    "MONGODB_URI",
+    "APP_URL",
+    "DATABASE_URL",
+    "NEXTAUTH_URL",
+    "NEXTAUTH_SECRET",
+    "RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED",
+    "SENDGRID_API_KEY",
+    "EMAIL_FROM",
+    "EMAIL_SERVER",
+    "SMTP_HOST",
+    "SMTP_PORT",
+    "SMTP_USERNAME",
+    "SMTP_PASSWORD",
+    "NODE_ENV",
+    "AWS_KEY",
+    "AWS_BUCKET",
+    "SIGNER_URL",
+    "NEXT_PUBLIC_PUBLISHABLE_KEY",
+    "PAYMENTS_SIGNING_SECRET"
+  ],
   "globalDependencies": ["tsconfig.json"]
 }

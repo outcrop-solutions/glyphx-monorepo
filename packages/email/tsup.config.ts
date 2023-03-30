@@ -1,4 +1,4 @@
-import {defineConfig} from 'tsup';
+import { defineConfig } from 'tsup';
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
