@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 // import { Session } from 'next-auth';
 import { aws, generalPurposeFunctions } from '@glyphx/core';
 import { FileIngestor } from '@glyphx/fileingestion';
-import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants/getUrl';
+import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
 import { processTrackingService } from '@glyphx/business';
 
 /**
@@ -76,18 +76,23 @@ export const addFile = async (req: NextApiRequest, res: NextApiResponse) => {
       newPayload.fileInfo[i].fileStream = stream;
     }
 
-    // Ingest file
+    // Setup process tracking
     const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
     const PROCESS_NAME = 'testingProcessUnique';
     await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
+    // Create file ingestor
     const fileIngestor = new FileIngestor(newPayload, ATHENA_DB_NAME, PROCESS_ID);
     if (!fileIngestor.inited) {
       await fileIngestor.init();
     }
+
     const { fileInformation, fileProcessingErrors, joinInformation, viewName, status } = await fileIngestor.process();
+
     // return file information & processID
-    res.status(200).json({ data: { fileInformation, joinInformation, viewName, status, processId: PROCESS_ID } });
+    res.status(200).json({
+      data: { fileInformation, fileProcessingErrors, joinInformation, viewName, status, processId: PROCESS_ID },
+    });
     // res.status(200).json({ ok: true });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
