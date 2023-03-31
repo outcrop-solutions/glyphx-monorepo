@@ -1,7 +1,8 @@
 import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
-import { Initializer, validateSession } from '@glyphx/business';
+import { Initializer as businessInitializer, validateSession } from '@glyphx/business';
+import { Initializer as engineInitializer } from '@glyphx/glyphengine';
 import { createModel } from 'lib/server';
 
 /**
@@ -13,8 +14,9 @@ import { createModel } from 'lib/server';
  */
 
 export default async function model(req: NextApiRequest, res: NextApiResponse) {
-  // initialize the business layer
-  await Initializer.init();
+  // initialize the glyphengine layer
+  await businessInitializer.init();
+  await engineInitializer.init();
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
   if (!session.user.userId) return res.status(401).end();

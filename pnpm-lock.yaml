@@ -34,6 +34,7 @@ importers:
       '@glyphx/database': workspace:*
       '@glyphx/email': workspace:*
       '@glyphx/fileingestion': workspace:*
+      '@glyphx/glyphengine': workspace:*
       '@glyphx/react-data-grid': workspace:*
       '@glyphx/types': workspace:*
       '@headlessui/react': ^1.4.2
@@ -126,6 +127,7 @@ importers:
       '@glyphx/database': link:../../packages/database
       '@glyphx/email': link:../../packages/email
       '@glyphx/fileingestion': link:../../packages/ingestion
+      '@glyphx/glyphengine': link:../../packages/glyphengine
       '@glyphx/react-data-grid': link:../../packages/react-data-grid
       '@headlessui/react': 1.7.13_biqbaboplfbrettd7655fr4n2y
       '@heroicons/react': 1.0.6_react@18.2.0
@@ -8858,7 +8860,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001473
-      electron-to-chromium: 1.4.347
+      electron-to-chromium: 1.4.348
       node-releases: 2.0.10
       update-browserslist-db: 1.0.10_browserslist@4.21.5
 
@@ -10303,8 +10305,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: true
 
-  /electron-to-chromium/1.4.347:
-    resolution: {integrity: sha512-LNi3+/9nV0vT6Bz1OsSoZ/w7IgNuWdefZ7mjKNjZxyRlI/ag6uMXxsxAy5Etvuixq3Q26exw2fc4bNYvYQqXSw==}
+  /electron-to-chromium/1.4.348:
+    resolution: {integrity: sha512-gM7TdwuG3amns/1rlgxMbeeyNoBFPa+4Uu0c7FeROWh4qWmvSOnvcslKmWy51ggLKZ2n/F/4i2HJ+PVNxH9uCQ==}
 
   /emittery/0.10.2:
     resolution: {integrity: sha512-aITqOwnLanpHLNXZJENbOgjUBeHocD+xsSJmNrjovKBW5HbSpW3d1pEls7GFQPUWXiwG9+0P4GtHfEqC/4M0Iw==}

@@ -8,6 +8,7 @@
     "@aws-sdk/lib-storage": "^3.223.0",
     "@aws-sdk/signature-v4-crt": "3.222.0",
     "@glyphx/business": "workspace:*",
+    "@glyphx/glyphengine": "workspace:*",
     "@glyphx/core": "workspace:*",
     "@glyphx/database": "workspace:*",
     "@glyphx/email": "workspace:*",

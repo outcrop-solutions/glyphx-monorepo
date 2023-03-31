@@ -46,9 +46,9 @@ import { processTrackingService } from '@glyphx/business';
  */
 
 /**
- * Add File
+ * Process Files
  *
- * @note Add a file to a table
+ * @note Process a file set to a table
  *
  * @route POST /api/files/ingest
  * @param req - Next.js API Request
@@ -57,7 +57,7 @@ import { processTrackingService } from '@glyphx/business';
  *
  */
 
-export const addFile = async (req: NextApiRequest, res: NextApiResponse) => {
+export const processFiles = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // Extract payload
     const { payload } = req.body;

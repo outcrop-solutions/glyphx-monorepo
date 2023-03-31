@@ -8,6 +8,9 @@ export interface ICreateModelPayload {
   x_axis: string;
   y_axis: string;
   z_axis: string;
+  type_x: string; // 'string' | 'number'
+  type_y: string; // 'string' | 'number'
+  type_z: string; // 'string' | 'number'
   filter: string; // SQL QUERY AFTER THE 'WHERE' CLAUSE
   x_func?: INTERPOLATION_TYPE;
   y_func?: INTERPOLATION_TYPE;
