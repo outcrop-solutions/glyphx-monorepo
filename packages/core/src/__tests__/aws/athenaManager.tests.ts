@@ -531,6 +531,7 @@ describe('#aws/AthenaManager', () => {
     afterEach(() => {
       athenaMock.restore();
     });
+
     it('Should successfully start a query', async () => {
       const queryId = 'testQueryId';
       athenaMock.on(GetDatabaseCommand).resolves(true as any);
@@ -547,6 +548,32 @@ describe('#aws/AthenaManager', () => {
       assert.strictEqual(startedQueryId, queryId);
     });
 
+    it('Should successfully start a query with setting the output location', async () => {
+      const queryId = 'testQueryId';
+      athenaMock.on(GetDatabaseCommand).resolves(true as any);
+
+      const clientMock = athenaMock.on(StartQueryExecutionCommand).resolves({
+        QueryExecutionId: queryId,
+      });
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const outputLocation = 's3://testbucket/testpath';
+      const startedQueryId = await athenaManager.startQuery(
+        "Select * from  a table syntax doesn't matter",
+        outputLocation
+      );
+
+      assert.strictEqual(startedQueryId, queryId);
+      //this assumes the second aws call is to
+      //the startQueryExecution command.  If that
+      //changes, then you will have to update the
+      //array pointers.
+      assert.strictEqual(
+        clientMock.send.args[1][0].input.ResultConfiguration.OutputLocation,
+        outputLocation
+      );
+    });
     it('Should throw a QueryExecutionError when the underlying connection fails', async () => {
       athenaMock.on(GetDatabaseCommand).resolves(true as any);
       athenaMock
@@ -612,6 +639,112 @@ describe('#aws/AthenaManager', () => {
         await athenaManager.getQueryStatus(queryId);
       } catch (err) {
         assert.instanceOf(err, error.QueryExecutionError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('getPagedQueryResults', () => {
+    let athenaMock: any;
+    const sandbox = createSandbox();
+
+    beforeEach(() => {
+      athenaMock = mockClient(AthenaClient as any);
+    });
+
+    afterEach(() => {
+      athenaMock.restore();
+      sandbox.restore();
+    });
+
+    it('should get us a pager to enumberate the results', async () => {
+      const getQueryStatusStub = sandbox.stub();
+      getQueryStatusStub.resolves({
+        QueryExecution: {Status: {State: 'SUCCEEDED'}},
+      });
+      sandbox.replace(
+        AthenaManager.prototype,
+        'getQueryStatus',
+        getQueryStatusStub
+      );
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      const pager = await athenaManager.getPagedQueryResults('testQueryId');
+
+      assert.isOk(pager);
+      //Pager should be an AsyncGenerator object.  The
+      //next function is how we will page through results
+      assert.isFunction(pager.next);
+    });
+
+    it('will throw an InvalidOperationError if the query has not yet finished', async () => {
+      const getQueryStatusStub = sandbox.stub();
+      getQueryStatusStub.resolves({
+        QueryExecution: {Status: {State: 'RUNNING'}},
+      });
+      sandbox.replace(
+        AthenaManager.prototype,
+        'getQueryStatus',
+        getQueryStatusStub
+      );
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.getPagedQueryResults('testQueryId');
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an QueryExecutionError if the query has failed', async () => {
+      const errorText = 'Something bad has happened';
+      const getQueryStatusStub = sandbox.stub();
+      getQueryStatusStub.resolves({
+        QueryExecution: {Status: {State: 'FAILED', AthenaError: errorText}},
+      });
+      sandbox.replace(
+        AthenaManager.prototype,
+        'getQueryStatus',
+        getQueryStatusStub
+      );
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.getPagedQueryResults('testQueryId');
+      } catch (err: any) {
+        assert.instanceOf(err, error.QueryExecutionError);
+        assert.strictEqual(err.innerError, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidOperationError if an unexpected error occures down stream ', async () => {
+      const getQueryStatusStub = sandbox.stub();
+      const errorText = 'Something bad has happened';
+      getQueryStatusStub.rejects(errorText);
+      sandbox.replace(
+        AthenaManager.prototype,
+        'getQueryStatus',
+        getQueryStatusStub
+      );
+
+      const athenaManager = new AthenaManager('jpstestdatabase');
+      await athenaManager.init();
+      let errored = false;
+      try {
+        await athenaManager.getPagedQueryResults('testQueryId');
+      } catch (err: any) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        assert.strictEqual(err.innerError.name, errorText);
         errored = true;
       }
       assert.isTrue(errored);
