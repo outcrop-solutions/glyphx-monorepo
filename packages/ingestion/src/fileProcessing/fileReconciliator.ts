@@ -1,6 +1,6 @@
 import {IFileInformation} from '@interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
-import {generalPurposeFunctions as sharedFunctions} from '@util';
+import {generalPurposeFunctions} from '@glyphx/core';
 
 export class FileReconciliator {
   private static getDeletedTables(fileInfo: fileIngestion.IFileInfo[]) {
@@ -59,11 +59,12 @@ export class FileReconciliator {
   ) {
     return fileInfos.reduce((group, fileInfo) => {
       const {tableName} = fileInfo;
-      const fullTableName = sharedFunctions.getFullTableName(
-        clientId,
-        modelId,
-        tableName
-      );
+      const fullTableName =
+        generalPurposeFunctions.fileIngestion.getFullTableName(
+          clientId,
+          modelId,
+          tableName
+        );
       group[fullTableName] = group[fullTableName] ?? [];
       group[fullTableName].push(fileInfo);
       return group;

@@ -7,6 +7,7 @@ import {
   HeadObjectCommand,
   ListObjectsV2Command,
   DeleteObjectCommand,
+  PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import {S3Manager} from '../../aws';
 import * as error from '../../error';
@@ -218,6 +219,7 @@ describe('#aws/s3Manager', () => {
       assert.isTrue(hasError);
     });
   });
+
   context('getObjectStream', () => {
     let s3Mock: any;
     beforeEach(() => {
@@ -339,6 +341,7 @@ describe('#aws/s3Manager', () => {
       assert.isTrue(errored);
     });
   });
+
   context('fileExists', () => {
     let s3Mock: any;
     beforeEach(() => {
@@ -378,6 +381,55 @@ describe('#aws/s3Manager', () => {
       const result = await s3Manager.fileExists(fileName);
 
       assert.isFalse(result);
+    });
+  });
+
+  context('putObject', () => {
+    let s3Mock: any;
+    beforeEach(() => {
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
+    });
+
+    afterEach(() => {
+      s3Mock.restore();
+    });
+
+    it('will put an string into s3 bucket', async () => {
+      const fileName = 'testFileName';
+      const body = 'I am the test files data';
+
+      const mock = new S3Mock();
+
+      s3Mock.on(PutObjectCommand).callsFake(mock.putObject.bind(mock));
+      const s3Manager = new S3Manager('Some unknown bucket');
+      await s3Manager.init();
+
+      await s3Manager.putObject(fileName, body);
+
+      assert.strictEqual(mock.putFileName, fileName);
+    });
+    it('will throw an InvalidOperationError if the put fails', async () => {
+      const fileName = 'testFileName';
+      const body = 'I am the test files data';
+
+      const errorText = 'Something bad has happened';
+
+      const mock = new S3Mock({failsOnPutObject: errorText});
+
+      s3Mock.on(PutObjectCommand).callsFake(mock.putObject.bind(mock));
+      const s3Manager = new S3Manager('Some unknown bucket');
+      await s3Manager.init();
+
+      let errored = false;
+      try {
+        await s3Manager.putObject(fileName, body);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
     });
   });
 });
