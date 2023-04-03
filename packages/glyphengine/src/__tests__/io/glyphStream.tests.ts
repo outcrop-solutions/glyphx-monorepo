@@ -29,31 +29,31 @@ describe('#io/GlyphStream', () => {
   ]);
 
   const mockData = [
-    {rowId: '1', columnx: 'a', columny: 1, columnz: 1},
-    {rowId: '2', columnx: 'b', columny: 2, columnz: 2},
-    {rowId: '3', columnx: 'c', columny: 3, columnz: 3},
-    {rowId: '4', columnx: 'd', columny: 4, columnz: 4},
-    {rowId: '5', columnx: 'e', columny: 5, columnz: 5},
-    {rowId: '6', columnx: 'f', columny: 6, columnz: 6},
-    {rowId: '7', columnx: 'g', columny: 7, columnz: 7},
-    {rowId: '8', columnx: 'h', columny: 8, columnz: 8},
-    {rowId: '9', columnx: 'i', columny: 9, columnz: 9},
-    {rowId: '10', columnx: 'j', columny: 10, columnz: 10},
-    {rowId: '11', columnx: 'k', columny: 11, columnz: 11},
-    {rowId: '12', columnx: 'l', columny: 12, columnz: 12},
-    {rowId: '13', columnx: 'm', columny: 13, columnz: 13},
-    {rowId: '14', columnx: 'n', columny: 14, columnz: 14},
-    {rowId: '15', columnx: 'o', columny: 15, columnz: 15},
-    {rowId: '16', columnx: 'p', columny: 16, columnz: 16},
-    {rowId: '17', columnx: 'q', columny: 17, columnz: 17},
-    {rowId: '18', columnx: 'r', columny: 18, columnz: 18},
-    {rowId: '19|28', columnx: 's', columny: 19, columnz: 19},
-    {rowId: '20', columnx: 't', columny: 20, columnz: 20},
-    {rowId: '21', columnx: 'u', columny: 21, columnz: 21},
-    {rowId: '22', columnx: 'v', columny: 22, columnz: 22},
-    {rowId: '23', columnx: 'w', columny: 23, columnz: 23},
-    {rowId: '24|27', columnx: 'x', columny: 24, columnz: 24},
-    {rowId: '25|26', columnx: 'y', columny: 25, columnz: 25},
+    {rowids: '1', columnx: 'a', columny: 1, columnz: 1},
+    {rowids: '2', columnx: 'b', columny: 2, columnz: 2},
+    {rowids: '3', columnx: 'c', columny: 3, columnz: 3},
+    {rowids: '4', columnx: 'd', columny: 4, columnz: 4},
+    {rowids: '5', columnx: 'e', columny: 5, columnz: 5},
+    {rowids: '6', columnx: 'f', columny: 6, columnz: 6},
+    {rowids: '7', columnx: 'g', columny: 7, columnz: 7},
+    {rowids: '8', columnx: 'h', columny: 8, columnz: 8},
+    {rowids: '9', columnx: 'i', columny: 9, columnz: 9},
+    {rowids: '10', columnx: 'j', columny: 10, columnz: 10},
+    {rowids: '11', columnx: 'k', columny: 11, columnz: 11},
+    {rowids: '12', columnx: 'l', columny: 12, columnz: 12},
+    {rowids: '13', columnx: 'm', columny: 13, columnz: 13},
+    {rowids: '14', columnx: 'n', columny: 14, columnz: 14},
+    {rowids: '15', columnx: 'o', columny: 15, columnz: 15},
+    {rowids: '16', columnx: 'p', columny: 16, columnz: 16},
+    {rowids: '17', columnx: 'q', columny: 17, columnz: 17},
+    {rowids: '18', columnx: 'r', columny: 18, columnz: 18},
+    {rowids: '19|28', columnx: 's', columny: 19, columnz: 19},
+    {rowids: '20', columnx: 't', columny: 20, columnz: 20},
+    {rowids: '21', columnx: 'u', columny: 21, columnz: 21},
+    {rowids: '22', columnx: 'v', columny: 22, columnz: 22},
+    {rowids: '23', columnx: 'w', columny: 23, columnz: 23},
+    {rowids: '24|27', columnx: 'x', columny: 24, columnz: 24},
+    {rowids: '25|26', columnx: 'y', columny: 25, columnz: 25},
   ];
 
   const mockMinMaxData = {
@@ -202,18 +202,21 @@ describe('#io/GlyphStream', () => {
           assert.notStrictEqual(color, lastColor);
           lastColor = color;
 
-          const expectedRowId = mockData[rowId].rowId;
+          const expectedRowId = mockData[rowId].rowids.split('|');
           const expectedX = mockData[rowId].columnx;
           const expectedY = mockData[rowId].columny;
           const expectedZ = mockData[rowId].columnz;
 
           const desc = JSON.parse(chunk.desc);
 
-          assert.strictEqual(desc.rowId, expectedRowId);
-          assert.strictEqual(desc.x.columnx, expectedX);
-          assert.strictEqual(desc.y.columny, expectedY);
-          assert.strictEqual(desc.z.columnz, expectedZ);
+          desc.rowId.forEach((r: number, index: number) => {
+            assert.strictEqual(r, parseInt(expectedRowId[index]));
+          });
+          assert.strictEqual(desc.x.columnx, expectedX.toString());
+          assert.strictEqual(desc.y.columny, expectedY.toString());
+          assert.strictEqual(desc.z.columnz, expectedZ.toString());
 
+          //TODO: I thik tag should be the value of z
           assert.strictEqual(chunk.tag, `columnx: ${expectedX}`);
 
           rowId++;

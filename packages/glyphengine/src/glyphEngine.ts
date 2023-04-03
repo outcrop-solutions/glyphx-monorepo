@@ -202,13 +202,13 @@ export class GlyphEngine {
       data.set('view_name', viewName);
 
       //Start our query now before we do any processing
-      processTrackingService.addProcessMessage(
+      await processTrackingService.addProcessMessage(
         this.processId,
         `Starting the query: ${new Date()}`
       );
       await this.startQuery(data, viewName);
 
-      processTrackingService.addProcessMessage(
+      await processTrackingService.addProcessMessage(
         this.processId,
         `Getting the data types and updating the SDT: ${new Date()}`
       );
@@ -222,7 +222,7 @@ export class GlyphEngine {
 
       const sdtParser = await SdtParser.parseSdtString(template, viewName);
 
-      processTrackingService.addProcessMessage(
+      await processTrackingService.addProcessMessage(
         this.processId,
         `Waiting for the query to complete: ${new Date()}`
       );
@@ -232,7 +232,7 @@ export class GlyphEngine {
       if (status.status === QUERY_STATUS.FAILED) {
         throw status.error;
       } else {
-        processTrackingService.addProcessMessage(
+        await processTrackingService.addProcessMessage(
           this.processId,
           `Creating Gyphs and uploading files: ${new Date()}`
         );
