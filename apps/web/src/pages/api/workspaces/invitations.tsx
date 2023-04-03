@@ -6,7 +6,7 @@ import { getPendingInvitations } from 'lib/server';
 
 const invitations = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

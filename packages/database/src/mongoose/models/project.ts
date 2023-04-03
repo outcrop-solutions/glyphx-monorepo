@@ -1,5 +1,5 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes, Schema, model} from 'mongoose';
+import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IProjectMethods,
   IProjectStaticMethods,
@@ -496,6 +496,11 @@ SCHEMA.static(
     }
   }
 );
+
+// define the object that holds Mongoose models
+const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
+
+delete MODELS['project'];
 
 const PROJECT_MODEL = model<IProjectDocument, IProjectStaticMethods>(
   'project',

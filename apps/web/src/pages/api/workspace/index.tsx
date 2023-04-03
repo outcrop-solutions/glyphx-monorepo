@@ -6,7 +6,7 @@ import { createWorkspace } from 'lib/server';
 
 const workspace = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

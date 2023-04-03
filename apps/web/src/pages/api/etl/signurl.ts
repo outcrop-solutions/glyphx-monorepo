@@ -13,7 +13,7 @@ import { signUrl } from 'lib/server/etl/signUrl';
 
 export default async function sign(req: NextApiRequest, res: NextApiResponse) {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
   // check for valid session

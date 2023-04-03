@@ -5,7 +5,7 @@ import { deleteWorkspace } from 'lib/server';
 
 const workspace = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

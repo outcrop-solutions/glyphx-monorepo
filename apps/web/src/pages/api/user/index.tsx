@@ -6,7 +6,7 @@ import { deactivateUser } from 'lib/server';
 
 const deactivate = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

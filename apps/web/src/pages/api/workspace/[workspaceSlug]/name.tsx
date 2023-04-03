@@ -5,7 +5,7 @@ import { updateWorkspaceName } from 'lib/server';
 
 const name = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

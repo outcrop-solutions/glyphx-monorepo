@@ -5,7 +5,7 @@ import { declineInvitation } from 'lib/server';
 
 const decline = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

@@ -5,7 +5,7 @@ import { getMembers } from 'lib/server';
 
 const members = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

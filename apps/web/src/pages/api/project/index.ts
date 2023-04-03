@@ -3,7 +3,7 @@ import {} from '@glyphx/business';
 import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

@@ -5,7 +5,7 @@ import { StripeClient, customerPaymentService, Initializer } from '@glyphx/busin
 export const config = { api: { bodyParser: false } };
 
 const handler = async (req, res) => {
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

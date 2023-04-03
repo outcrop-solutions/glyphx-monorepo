@@ -15,9 +15,14 @@ export class Initializer {
 
   public static async init() {
     await logging.Logger.init();
-    await databaseConnection.init();
-    await athenaConnection.init();
+    if (!databaseConnection.inited) {
+      await databaseConnection.init();
+    }
+    if (!athenaConnection.inited) {
+      await athenaConnection.init();
+    }
     await EmailClient.init();
     await StripeClient.init();
+    Initializer.initedField = true;
   }
 }

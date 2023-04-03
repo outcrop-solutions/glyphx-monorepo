@@ -14,7 +14,7 @@ import { createModel } from 'lib/server';
 
 export default async function glyphengine(req: NextApiRequest, res: NextApiResponse) {
   // initialize the glyphengine layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
   // check for valid session

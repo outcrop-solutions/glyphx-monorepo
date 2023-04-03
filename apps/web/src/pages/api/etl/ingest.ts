@@ -24,7 +24,7 @@ import { processFiles } from 'lib/server/etl/processFiles';
 
 export default async function fileIngest(req: NextApiRequest, res: NextApiResponse) {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
   // check for valid session

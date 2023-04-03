@@ -28,7 +28,7 @@ const Advanced = ({ isCreator }) => {
 };
 
 export const getServerSideProps = async (context) => {
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
   const session = await getSession(context);

@@ -5,7 +5,7 @@ import { updateWorkspaceSlug } from 'lib/server';
 
 const slug = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

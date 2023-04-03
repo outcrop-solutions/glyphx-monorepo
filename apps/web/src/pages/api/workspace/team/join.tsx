@@ -5,7 +5,7 @@ import { joinWorkspace } from 'lib/server';
 
 const join = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

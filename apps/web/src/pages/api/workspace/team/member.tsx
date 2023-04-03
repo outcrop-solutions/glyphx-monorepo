@@ -5,7 +5,7 @@ import { removeMember } from 'lib/server';
 
 const member = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

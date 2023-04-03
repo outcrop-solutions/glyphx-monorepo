@@ -1,5 +1,5 @@
 import {database as databaseTypes, IQueryResult} from '@glyphx/types';
-import {Types as mongooseTypes, Schema, model} from 'mongoose';
+import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IAccountMethods,
   IAccountStaticMethods,
@@ -370,6 +370,11 @@ SCHEMA.static(
     }
   }
 );
+
+// define the object that holds Mongoose models
+const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
+
+delete MODELS['account'];
 
 const ACCOUNT_MODEL = model<IAccountDocument, IAccountStaticMethods>(
   'account',

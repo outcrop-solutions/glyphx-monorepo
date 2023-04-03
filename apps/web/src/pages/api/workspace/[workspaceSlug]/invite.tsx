@@ -5,7 +5,7 @@ import { inviteUsers } from 'lib/server';
 
 const invite = async (req, res) => {
   // initialize the business layer
-  if (!Initializer.inited) {
+  if (!Initializer.initedField) {
     await Initializer.init();
   }
 

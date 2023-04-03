@@ -83,7 +83,7 @@
     "ws": "8.11.0"
   },
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect' next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "clean": "rimraf .turbo node_modules .next",
