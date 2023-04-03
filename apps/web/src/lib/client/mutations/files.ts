@@ -8,7 +8,7 @@ import { web as webTypes } from '@glyphx/types';
  */
 export const _ingestFiles = (payload): webTypes.IFetchConfig => {
   return {
-    url: `/api/files/ingest`,
+    url: `/api/etl/ingest`,
     options: {
       method: 'POST',
       body: { payload },

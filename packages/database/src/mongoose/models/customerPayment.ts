@@ -1,5 +1,5 @@
 import {database as databaseTypes, IQueryResult} from '@glyphx/types';
-import {Types as mongooseTypes, Schema, model} from 'mongoose';
+import mongoose, {Types as mongooseTypes, Schema, model} from 'mongoose';
 import {
   ICustomerPaymentMethods,
   ICustomerPaymentStaticMethods,
@@ -407,9 +407,11 @@ SCHEMA.static(
   }
 );
 
-const CUSTOMER_PAYMENT_MODEL = model<
-  ICustomerPaymentDocument,
-  ICustomerPaymentStaticMethods
->('customerPayment', SCHEMA);
+const CUSTOMER_PAYMENT_MODEL =
+  (mongoose.models.CustomerPayment as ICustomerPaymentStaticMethods) ||
+  model<ICustomerPaymentDocument, ICustomerPaymentStaticMethods>(
+    'customerPayment',
+    SCHEMA
+  );
 
 export {CUSTOMER_PAYMENT_MODEL as CustomerPaymentModel};

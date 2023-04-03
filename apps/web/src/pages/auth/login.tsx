@@ -8,7 +8,6 @@ import Meta from 'components/Meta/index';
 const Login = () => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-      {/* Fallback for when data is loading */}
       <Suspense fallback={SuspenseFallback}>
         <AuthLayout>
           <Meta title="Glyphx | Login" description="Data exploration for enterprise" />

@@ -1,20 +1,20 @@
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import { getSession } from 'next-auth/react';
-import Meta from 'components/Meta';
-import { AccountLayout } from 'layouts';
-import { _createMember, _removeMember, _updateRole } from 'lib/client';
 import { workspaceService, Initializer } from '@glyphx/business';
+
+import Meta from 'components/Meta';
+import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
+import { AccountLayout } from 'layouts';
 import TeamView from 'views/team';
+import { _createMember, _removeMember, _updateRole } from 'lib/client';
 
 const Team = ({ isTeamOwner, workspace }) => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-      {/* Fallback for when data is loading */}
       <Suspense fallback={SuspenseFallback}>
         <AccountLayout>
-          <Meta title={`Glyphx - ${workspace.name} | Team Management`} />
+          <Meta title={`Glyphx - ${workspace?.name} | Team Management`} />
           <TeamView isTeamOwner={isTeamOwner} workspace={workspace} />
         </AccountLayout>
       </Suspense>
@@ -23,7 +23,9 @@ const Team = ({ isTeamOwner, workspace }) => {
 };
 
 export const getServerSideProps = async (context) => {
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
   const session = await getSession(context);
   let isTeamOwner = false;
   let workspace = null;
@@ -36,7 +38,7 @@ export const getServerSideProps = async (context) => {
     );
     if (workspace) {
       isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email, workspace);
-      workspace.inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace.inviteCode)}`;
+      workspace.inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace?.inviteCode)}`;
     }
   }
 

@@ -6,7 +6,9 @@ import { createWorkspace } from 'lib/server';
 
 const workspace = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;

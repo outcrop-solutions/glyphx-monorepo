@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 
 import { selectedFileAtom, fileSystemAtom, projectAtom, fileStatsSelector, matchingFilesAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { compareStats, createFileSystem, createFileSystemFromS3, parsePayload } from 'lib/utils/transforms';
+import { compareStats, createFileSystem, createFileSystemFromS3, parsePayload } from 'lib/client/files/transforms';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
-import { _ingestFiles, api, useWorkspace, useWorkspaces } from 'lib/client';
+import { _ingestFiles, api, useWorkspace } from 'lib/client';
 
 const cleanTableName = (fileName) => {
   return fileName.split('.')[0].trim().toLowerCase();
@@ -23,9 +23,7 @@ const cleanTableName = (fileName) => {
  */
 
 export const useFileSystem = () => {
-  const router = useRouter();
-  const { workspaceSlug } = router.query;
-  const { workspace } = useWorkspace(workspaceSlug);
+  const { data: workspace } = useWorkspace();
   const project = useRecoilValue(projectAtom);
   const existingFileStats = useRecoilValue(fileStatsSelector);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);

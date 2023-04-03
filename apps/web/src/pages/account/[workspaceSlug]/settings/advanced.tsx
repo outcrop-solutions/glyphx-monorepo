@@ -1,22 +1,22 @@
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
-import Meta from 'components/Meta/index';
-import { AccountLayout } from 'layouts/index';
-import { _deleteWorkspace, useWorkspace } from 'lib/client';
-import { workspaceService, Initializer } from '@glyphx/business';
-import { getSession } from 'next-auth/react';
-import AdvancedView from 'views/advanced';
 import { useRouter } from 'next/router';
+import { getSession } from 'next-auth/react';
+
+import { workspaceService, Initializer } from '@glyphx/business';
+
+import Meta from 'components/Meta/index';
+import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
+import AdvancedView from 'views/advanced';
+import { AccountLayout } from 'layouts/index';
+
+import { _deleteWorkspace, useWorkspace } from 'lib/client';
 
 const Advanced = ({ isCreator }) => {
-  const router = useRouter();
-  const { workspaceSlug } = router.query;
-  const { workspace } = useWorkspace(workspaceSlug);
+  const { workspace } = useWorkspace();
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-      {/* Fallback for when data is loading */}
       <Suspense fallback={SuspenseFallback}>
         <AccountLayout>
           <Meta title={`Glyphx - ${workspace?.name} | Advanced Settings`} />
@@ -28,7 +28,9 @@ const Advanced = ({ isCreator }) => {
 };
 
 export const getServerSideProps = async (context) => {
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
   const session = await getSession(context);
   let isCreator = false;
 

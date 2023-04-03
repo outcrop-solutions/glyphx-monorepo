@@ -5,7 +5,9 @@ import { acceptInvitation } from 'lib/server';
 
 const accept = async (req, res) => {
   // initialize the business layer
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;

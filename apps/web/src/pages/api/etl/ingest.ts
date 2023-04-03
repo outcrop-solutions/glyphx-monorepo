@@ -24,19 +24,17 @@ import { processFiles } from 'lib/server/etl/processFiles';
 
 export default async function fileIngest(req: NextApiRequest, res: NextApiResponse) {
   // initialize the business layer
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
   if (!session.user.userId) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
-      return addFile(req, res);
+      return processFiles(req, res);
     default:
-      res.setHeader('Allow', [
-        webTypes.constants.HTTP_METHOD.POST,
-        webTypes.constants.HTTP_METHOD.PUT,
-        webTypes.constants.HTTP_METHOD.DELETE,
-      ]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

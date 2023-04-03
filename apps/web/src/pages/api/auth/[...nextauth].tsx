@@ -2,14 +2,16 @@ import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import { signInHtml, signInText, EmailClient } from '@glyphx/email';
-import { Initializer, dbConnection as connection, customerPaymentService, userService } from '@glyphx/business';
+import { Initializer, customerPaymentService, userService } from '@glyphx/business';
 import clientPromise from 'lib/server/mongodb';
 // import mongoose from 'mongoose';
 import type { NextApiRequest, NextApiResponse } from 'next';
 // import { log } from 'lib/logsnag';
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   // Do whatever you want here, before the request is passed down to `NextAuth`
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
   return await NextAuth(req, res, {
     adapter: MongoDBAdapter(clientPromise),
     callbacks: {

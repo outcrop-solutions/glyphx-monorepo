@@ -128,7 +128,6 @@ export const columnsSelector = selector<webTypes.GridColumn[]>({
   key: 'columnsSelector',
   get: ({ get }) => {
     let dataGrid = get(dataGridSelector);
-    // @ts-ignore
     return dataGrid?.columns;
   },
 });

@@ -3,19 +3,19 @@ import { getSession } from 'next-auth/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 
+import { workspaceService, Initializer } from '@glyphx/business';
+
 import Meta from 'components/Meta/index';
 import { AccountLayout } from 'layouts/index';
-import { _updateWorkspaceName, _updateWorkspaceSlug } from 'lib/client';
-import { workspaceService, Initializer } from '@glyphx/business';
 import GeneralView from 'views/general';
+import { _updateWorkspaceName, _updateWorkspaceSlug } from 'lib/client';
 
 const General = ({ isTeamOwner, workspace }) => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-      {/* Fallback for when data is loading */}
       <Suspense fallback={SuspenseFallback}>
         <AccountLayout>
-          <Meta title={`Glyphx - ${workspace.name} | Settings`} />
+          <Meta title={`Glyphx - ${workspace?.name} | Settings`} />
           <GeneralView isTeamOwner={isTeamOwner} workspace={workspace} />
         </AccountLayout>
       </Suspense>
@@ -24,7 +24,9 @@ const General = ({ isTeamOwner, workspace }) => {
 };
 
 export const getServerSideProps = async (context) => {
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
   const session = await getSession(context);
   let isTeamOwner = false;
   let workspace = null;

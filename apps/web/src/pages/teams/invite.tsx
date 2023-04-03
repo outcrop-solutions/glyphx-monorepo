@@ -1,10 +1,11 @@
 import React, { Suspense, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { workspaceService, Initializer } from '@glyphx/business';
+
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 
-import dynamic from 'next/dynamic';
 import { useSetRecoilState } from 'recoil';
 import { workspaceAtom } from 'state';
 const DynamicInvite = dynamic(() => import('views/invite'), {
@@ -17,10 +18,8 @@ const Invite = ({ workspace }) => {
   const setWorkspace = useSetRecoilState(workspaceAtom);
   useMemo(() => setWorkspace(workspace), [setWorkspace, workspace]);
 
-  // set error boundary and suspense fallbacks
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-      {/* Fallback for when data is loading */}
       <Suspense fallback={SuspenseFallback}>
         <DynamicInvite />
       </Suspense>

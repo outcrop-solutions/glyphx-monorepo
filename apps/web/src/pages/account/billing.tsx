@@ -1,18 +1,19 @@
 import { Suspense } from 'react';
 import { getSession } from 'next-auth/react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
+
+import { StripeClient, customerPaymentService, Initializer } from '@glyphx/business';
 
 import Meta from 'components/Meta';
+import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import { AccountLayout } from 'layouts';
-import { _createSubscription } from 'lib/client';
-import { StripeClient, customerPaymentService, Initializer } from '@glyphx/business';
 import BillingView from 'views/billing';
+
+import { _createSubscription } from 'lib/client';
 
 const Billing = ({ invoices, products }) => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-      {/* Fallback for when data is loading */}
       <Suspense fallback={SuspenseFallback}>
         <AccountLayout>
           <Meta title="Glyphx - Billing" />
@@ -24,7 +25,9 @@ const Billing = ({ invoices, products }) => {
 };
 
 export const getServerSideProps = async (context) => {
-  await Initializer.init();
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
   const session = await getSession(context);
 
   const customerPayment = await customerPaymentService.getPayment(session?.user?.email);

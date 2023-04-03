@@ -1,5 +1,6 @@
-import {S3} from '@aws-sdk/client-s3';
+import {S3, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
+import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import * as error from '../error';
 import {aws} from '@glyphx/types';
 import {Readable} from 'node:stream';
@@ -155,6 +156,23 @@ export class S3Manager {
         err
       );
     }
+  }
+  /**
+   * Will get a signedUrlPromise for client side file upload
+   */
+
+  public async getSignedUrlPromise(key: string): Promise<any> {
+    const putObjectParams = {
+      Bucket: this.bucketName,
+      Key: key,
+    };
+    const client = new S3Client({region: 'us-west-2'});
+    const command = new PutObjectCommand(putObjectParams);
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const url = await getSignedUrl(client, command, {expiresIn: 3600});
+    return url;
   }
 
   /**

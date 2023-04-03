@@ -9,7 +9,7 @@ import { web as webTypes } from '@glyphx/types';
 
 export const _createModel = (payload: webTypes.ICreateModelPayload): webTypes.IFetchConfig => {
   return {
-    url: `/api/model`,
+    url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
       body: { ...payload },

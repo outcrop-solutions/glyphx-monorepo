@@ -2,8 +2,10 @@ import { StripeClient, validateSession, customerPaymentService, Initializer } fr
 import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
-  await Initializer.init()
-  
+  if (!Initializer.inited) {
+    await Initializer.init();
+  }
+
   const { method } = req;
   if (method === 'POST') {
     const session = (await validateSession(req, res)) as Session;

@@ -1,24 +1,22 @@
 import dynamic from 'next/dynamic';
-import { useRecoilValue } from 'recoil';
-import { workspaceAtom } from 'state';
 
 // layout
-import ProjectLayout from 'layouts/ProjectLayout';
 import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
+import ProjectLayout from 'layouts/ProjectLayout';
+import { useWorkspace } from 'lib';
 
 const DynamicHome = dynamic(() => import('views/home'), {
   ssr: false,
-  // suspense: true,
 });
 
 const Workspace = () => {
-  const workspace = useRecoilValue(workspaceAtom);
+  const { data } = useWorkspace();
 
   return (
-    workspace.name && (
+    data && (
       <ProjectLayout>
-        <Meta title={`Glyphx - ${workspace.name} | Dashboard`} />
+        <Meta title={`Glyphx - ${data.name} | Dashboard`} />
         <Content.Container>
           <DynamicHome />
         </Content.Container>
