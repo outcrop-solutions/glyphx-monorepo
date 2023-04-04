@@ -6,7 +6,7 @@ export class DataService {
     tableName: string,
     glyphxIds: number[]
   ): Promise<any[]> {
-    const query = `SELECT * FROM ${tableName} WHERE glyphxId IN (${glyphxIds.join(
+    const query = `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(
       ','
     )})`;
     try {
