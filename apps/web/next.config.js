@@ -1,6 +1,6 @@
 const intercept = require('intercept-stdout');
 const withTM = require('next-transpile-modules')(['@glyphx/types']);
-
+const path = require('path');
 // safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
 function interceptStdout(text) {
@@ -25,5 +25,27 @@ module.exports = withTM({
   },
   compiler: {
     removeConsole: process.env.NODE_ENV == 'production',
+  },
+
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: {
+            svgoConfig: {
+              plugins: {
+                removeViewBox: false,
+              },
+            },
+          },
+        },
+        'url-loader',
+      ],
+      include: path.resolve(__dirname, 'public'),
+    });
+
+    return config;
   },
 });
