@@ -30,13 +30,13 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
-  const { data } = useSession();
-  const { workspace, setWorkspace } = useWorkspace();
+  const { data: user } = useSession();
+  const { data } = useWorkspace();
 
   // mutations
   const handleCreate = async () => {
     api({
-      ..._createDefaultProject(workspace._id),
+      ..._createDefaultProject(data.workspace._id),
       onSuccess: (data) => {
         router.push(`/project/${data.id}`);
       },

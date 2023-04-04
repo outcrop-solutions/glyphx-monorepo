@@ -10,7 +10,7 @@ import { database as databaseTypes, web as webTypes } from '@glyphx/types';
  */
 export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfig => {
   return {
-    url: '/api/project',
+    url: '/api/project/create',
     options: {
       body: { name: 'Untitled', workspaceId },
       method: 'POST',

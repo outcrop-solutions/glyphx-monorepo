@@ -32,6 +32,7 @@ export interface IProject {
     | 'version'
     | 'static'
     | 'camera'
+    | 'fileSystemHash'
     | 'project'
     | 'createdBy'
     | '_id'

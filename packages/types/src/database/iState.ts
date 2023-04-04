@@ -14,7 +14,7 @@ export interface IState {
   version: number;
   static: boolean;
   camera: number;
-  properties: Property[];
+  properties: Record<string, Property>;
   fileSystemHash: string; // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
   description?: string;
   project: IProject;

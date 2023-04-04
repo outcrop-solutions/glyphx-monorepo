@@ -23,7 +23,7 @@ import { compose } from 'utils/compose';
 export const useProject = () => {
   // user session
   const { data } = useSession();
-  const userId = data.user.userId;
+  const userId = data?.user?.userId;
 
   // project state
   const [project, setProject] = useRecoilState(projectAtom);

@@ -6,12 +6,11 @@ import { _deleteProject, api } from 'lib/client';
 import Image from 'next/image';
 import projectCard from 'public/images/project.png';
 
-export const ProjectCard = ({ project, key, updatedAt, name, idx }) => {
+export const ProjectCard = ({ idx, project }) => {
   const router = useRouter();
   const { workspaceSlug } = router.query;
-
-  const navigate = (slug, id) => {
-    router.push(`/account/${slug}/${id}`);
+  const navigate = (slug) => {
+    router.push(`/account/${slug}/${project._id}`);
   };
 
   dayjs.extend(relativeTime);
@@ -90,10 +89,10 @@ export const ProjectCard = ({ project, key, updatedAt, name, idx }) => {
           />
         </svg>
       </div>
-      <div onClick={() => navigate(workspaceSlug, key)} className="flex flex-col h-full">
+      <div onClick={() => navigate(workspaceSlug)} className="flex flex-col h-full">
         <Image className="rounded-t-md" layout="responsive" src={projectCard} alt="" />
         <footer className="mt-2 px-5 pb-5 pt-1">
-          <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{name}</p>
+          <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{project.name}</p>
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <div className="flex shrink-0 -space-x-3 -ml-px mr-2">
@@ -130,7 +129,7 @@ export const ProjectCard = ({ project, key, updatedAt, name, idx }) => {
             </div>
             <div>
               <p className="font-roboto font-medium text-sm text-gray leading-[16px] text-right">
-                {dayjs().to(dayjs(updatedAt))}
+                {dayjs().to(dayjs(project.updatedAt))}
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
-
+import { useDrop } from 'react-dnd';
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';
 
@@ -15,9 +15,20 @@ export const Axes = ({ axis, handleDrop }) => {
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const [showFilter, setShowFilter] = useState(false); //shows filter property
 
+  console.log({ prop });
+  const [{ isOver, canDrop }, drop] = useDrop({
+    accept: prop.accepts,
+    drop: handleDrop,
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  });
+
   return (
     <>
       <li
+        ref={drop}
         className={`py-0 px-2 group-filters hover:bg-secondary-midnight hover:bg-opacity-70 last:mb-0 flex gap-x-2 items-center h-5`}
       >
         <AxesIcons property={axis} />
@@ -27,7 +38,7 @@ export const Axes = ({ axis, handleDrop }) => {
           className={`flex grow justify-center bg-gray h-4 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium uppercase lg:opacity-100 2xl:opacity-100 transition duration-150 truncate">
-            {prop.key}
+            {prop?.key || ''}
           </span>
         </div>
         {/* ADD FILTER BTN */}
@@ -40,11 +51,11 @@ export const Axes = ({ axis, handleDrop }) => {
       </li>
       {/* filtering dropdown */}
       <>
-        {prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ? (
+        {/* {prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ? (
           <RangeFilter prop={prop} />
         ) : (
           <SearchFilter prop={prop} />
-        )}
+        )} */}
       </>
     </>
   );

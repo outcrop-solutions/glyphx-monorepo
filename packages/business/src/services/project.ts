@@ -1,6 +1,7 @@
 import {
   database as databaseTypes,
   fileIngestion as fileIngestionTypes,
+  web as webTypes,
 } from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
 import {Types as mongooseTypes} from 'mongoose';
@@ -99,6 +100,82 @@ export class ProjectService {
         isTemplate: false,
         type: projectTypeCastId ?? defaultType,
         files: [],
+        state: {
+          properties: {
+            X: {
+              axis: webTypes.constants.AXIS.X,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column X', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            Y: {
+              axis: webTypes.constants.AXIS.X,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column Y', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            Z: {
+              axis: webTypes.constants.AXIS.X,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column Z', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            A: {
+              axis: webTypes.constants.AXIS.X,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column 1', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            B: {
+              axis: webTypes.constants.AXIS.X,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column 2', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            C: {
+              axis: webTypes.constants.AXIS.X,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column 3', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+          },
+        },
       };
 
       // create project

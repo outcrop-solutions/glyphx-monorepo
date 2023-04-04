@@ -48,7 +48,7 @@ export const Filters = ({ handleDrop }) => {
             <ul className={`overflow-auto py-1 w-full`}>
               {/* read only (no drag n drop) property filters */}
               {Object.keys(properties).map((key, idx) => (
-                <Axes axis={key} handleDrop={handleDrop} />
+                <Axes key={key} axis={key} handleDrop={handleDrop} />
               ))}
             </ul>
           </div>

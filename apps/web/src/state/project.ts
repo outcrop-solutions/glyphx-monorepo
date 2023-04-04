@@ -135,7 +135,7 @@ export const openModelPayloadSelectorFamily = selectorFamily<webTypes.IOpenModel
     ({ get }) => {
       const project = get(projectAtom);
       return {
-        lastOpened: project.lastOpened,
+        lastOpened: project?.lastOpened,
         signedUrl: url,
       };
     },
@@ -147,7 +147,7 @@ export const propertiesSelector = selector<webTypes.Property[]>({
   key: 'propertiesSelector',
   get: ({ get }) => {
     const project = get(projectAtom);
-    return project.state.properties;
+    return project?.state?.properties;
   },
 });
 
@@ -159,8 +159,8 @@ export const droppedPropertiesSelector = selector<webTypes.Property[]>({
     const axisArray = Object.values(webTypes.constants.AXIS);
     let retval = [];
     for (const axis of axisArray.slice(0, 3)) {
-      const prop = project.state.properties[`${axis}`];
-      if (prop.key !== '') {
+      const prop = project?.state?.properties[`${axis}`];
+      if (prop?.key !== '') {
         retval.push(prop);
       }
     }
@@ -178,8 +178,8 @@ export const arePropsAlreadyDroppedSelector = selector<boolean>({
     const axisArray = Object.values(webTypes.constants.AXIS);
     let retval = true;
     for (const axis of axisArray.slice(0, 3)) {
-      const prop = project.state.properties[`${axis}`];
-      if (prop.key === '') {
+      const prop = project?.state?.properties[`${axis}`];
+      if (prop?.key === '') {
         retval = false;
       }
     }
@@ -193,7 +193,7 @@ export const isZAxisNumericSelector = selector<boolean>({
   get: ({ get }) => {
     const project = get(projectAtom);
     return (
-      project.state.properties[webTypes.constants.AXIS.Z].dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+      project?.state?.properties[webTypes.constants.AXIS.Z].dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
     );
   },
 });
@@ -216,18 +216,18 @@ export const createModelPayloadSelector = selector<webTypes.ICreateModelPayload>
     const filter = get(filterQuerySelector);
 
     return {
-      projectId: project._id,
-      userId: project.owner._id,
+      projectId: project?._id,
+      userId: project?.owner._id,
       filter: filter,
-      x_axis: project.state.properties[webTypes.constants.AXIS.X]['key'],
-      y_axis: project.state.properties[webTypes.constants.AXIS.Y]['key'],
-      z_axis: project.state.properties[webTypes.constants.AXIS.Z]['key'],
-      x_func: project.state.properties[webTypes.constants.AXIS.X]['interpolation'],
-      y_func: project.state.properties[webTypes.constants.AXIS.Y]['interpolation'],
-      z_func: project.state.properties[webTypes.constants.AXIS.Z]['interpolation'],
-      x_direction: project.state.properties[webTypes.constants.AXIS.X]['direction'],
-      y_direction: project.state.properties[webTypes.constants.AXIS.Y]['direction'],
-      z_direction: project.state.properties[webTypes.constants.AXIS.Z]['direction'],
+      x_axis: project?.state.properties[webTypes.constants.AXIS.X]['key'],
+      y_axis: project?.state.properties[webTypes.constants.AXIS.Y]['key'],
+      z_axis: project?.state.properties[webTypes.constants.AXIS.Z]['key'],
+      x_func: project?.state.properties[webTypes.constants.AXIS.X]['interpolation'],
+      y_func: project?.state.properties[webTypes.constants.AXIS.Y]['interpolation'],
+      z_func: project?.state.properties[webTypes.constants.AXIS.Z]['interpolation'],
+      x_direction: project?.state.properties[webTypes.constants.AXIS.X]['direction'],
+      y_direction: project?.state.properties[webTypes.constants.AXIS.Y]['direction'],
+      z_direction: project?.state.properties[webTypes.constants.AXIS.Z]['direction'],
     };
   },
 });
@@ -242,7 +242,7 @@ export const filterQuerySelector = selector<string>({
     const axisArray = Object.values(webTypes.constants.AXIS);
     let retval = [];
     for (const axis of axisArray) {
-      const prop = project.state.properties[`${axis}`];
+      const prop = project?.state.properties[`${axis}`];
       // const query = generateFilterQuery(prop);
       // retval.push(query);
     }
@@ -258,7 +258,7 @@ export const singleFilterSelectorFamily = selectorFamily<webTypes.Filter, webTyp
     ({ get }) => {
       const project = get(projectAtom);
       return {
-        ...project.state.properties[`${axis}`].filter,
+        ...project?.state.properties[`${axis}`].filter,
       };
     },
 });
@@ -271,7 +271,7 @@ export const singlePropertySelectorFamily = selectorFamily<webTypes.Property, we
     ({ get }) => {
       const project = get(projectAtom);
       return {
-        ...project.state.properties[`${axis}`],
+        ...project?.state.properties[`${axis}`],
       };
     },
 });

@@ -1,9 +1,12 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import { useRouter } from 'next/router';
 
 import dynamic from 'next/dynamic';
+import { useSetRecoilState } from 'recoil';
+import { projectAtom } from 'state';
+import { useProject } from 'lib/client/hooks';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -11,13 +14,23 @@ const DynamicProject = dynamic(() => import('views/project'), {
 });
 
 export default function Project() {
-  const router = useRouter();
-  const { workspaceSlug, projectId } = router.query;
+  const { data, isLoading } = useProject();
+  const setProject = useSetRecoilState(projectAtom);
+
+  // hydrate recoil state
+  useEffect(() => {
+    if (!isLoading) {
+      setProject(data.project);
+    }
+  }, [data, isLoading, setProject]);
+
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[projectId, workspaceSlug]} onReset={() => {}}>
-      <Suspense fallback={SuspenseFallback}>
-        <DynamicProject />
-      </Suspense>
-    </ErrorBoundary>
+    !isLoading && (
+      <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
+        <Suspense fallback={SuspenseFallback}>
+          <DynamicProject />
+        </Suspense>
+      </ErrorBoundary>
+    )
   );
 }

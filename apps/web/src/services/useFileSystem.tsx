@@ -89,7 +89,7 @@ export const useFileSystem = () => {
       });
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
-    [workspace._id]
+    [workspace?._id]
   );
 
   /**

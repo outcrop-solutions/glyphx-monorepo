@@ -40,7 +40,7 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
     required: true,
     ref: 'user',
   },
-  properties: {type: [propertySchema], required: true, default: []},
+  properties: {type: Map, of: propertySchema},
   fileSystem: {type: [fileStatsSchema], required: true, default: []},
 });
 
