@@ -1,4 +1,4 @@
-import { dataService, Initializer } from '@glyphx/business';
+import { dataService, Initializer, validateSession } from '@glyphx/business';
 import { Session } from 'next-auth';
 
 const handler = async (req, res) => {
@@ -10,6 +10,8 @@ const handler = async (req, res) => {
     //TODO: we need to validate the session here
     //Once we get things sorted on the QT side.
     const { rowIds, tableName } = req.body;
+    const session = (await validateSession(req, res)) as Session;
+
     const data = await dataService.getDataByGlyphxIds(tableName, rowIds);
     if (!data.length) {
       res.status(404).json({ errors: { error: { msg: `No data found` } } });
