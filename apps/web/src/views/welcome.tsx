@@ -8,10 +8,8 @@ import { _acceptInvitation, _declineInvitation, api, useInvitations, useWorkspac
 
 const Welcome = () => {
   const router = useRouter();
-  const { workspaceSlug } = router.query;
   const { data: invitationsData, isLoading: isFetchingInvitations } = useInvitations();
   const { data: workspacesData, isLoading: isFetchingWorkspaces } = useWorkspaces();
-  const { setWorkspace } = useWorkspace(workspaceSlug);
   const [isSubmitting, setSubmittingState] = useState(false);
 
   // mutatations
@@ -29,7 +27,6 @@ const Welcome = () => {
   };
 
   const navigate = (workspace) => {
-    setWorkspace(workspace);
     router.replace(`/account/${workspace.slug}`);
   };
 

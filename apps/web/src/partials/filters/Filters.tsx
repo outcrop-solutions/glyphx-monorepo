@@ -1,21 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { Column } from './Column';
 import { Axes } from './Axes';
-import { filterQuerySelector } from 'state';
+import { propertiesSelector } from 'state';
 
 export const Filters = ({ handleDrop }) => {
+  // TODO: change this to <summary></summary> html
   const [isCollapsed, setCollapsed] = useState(false);
-  const filterQuery = useRecoilValue(filterQuerySelector);
-  const properties = [];
-  useEffect(() => {
-    if (filterQuery) {
-      try {
-        //attempt to use Update Filter
-        window.core.UpdateFilter(JSON.stringify(filterQuery));
-      } catch (error) {}
-    }
-  }, [filterQuery]);
+  const properties = useRecoilValue(propertiesSelector);
 
   return (
     <React.Fragment>
@@ -48,7 +39,6 @@ export const Filters = ({ handleDrop }) => {
               </span>
             </a>
           </div>
-          {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
         </summary>
         {!isCollapsed ? (
           <div
@@ -57,24 +47,9 @@ export const Filters = ({ handleDrop }) => {
           >
             <ul className={`overflow-auto py-1 w-full`}>
               {/* read only (no drag n drop) property filters */}
-              {true
-                ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
-                    if (idx < 3) {
-                      return <Axes axis={axis} lastDroppedItem={lastDroppedItem} key={idx} />;
-                    } else {
-                      return (
-                        <Column
-                          axis={axis}
-                          accept={accepts}
-                          lastDroppedItem={lastDroppedItem}
-                          onDrop={(item) => handleDrop(idx, item)}
-                          key={idx}
-                          idx={idx}
-                        />
-                      );
-                    }
-                  })
-                : null}
+              {Object.keys(properties).map((key, idx) => (
+                <Axes axis={key} handleDrop={handleDrop} />
+              ))}
             </ul>
           </div>
         ) : (

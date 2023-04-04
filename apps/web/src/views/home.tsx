@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // Layout
 import { PinnedProjects } from 'partials';
@@ -12,11 +12,11 @@ import { ProjectDetails } from 'partials';
 
 // Hooks
 import { useRecoilValue } from 'recoil';
-import { showProjectsGridViewAtom, projectDetailsAtom, showAddProjectAtom, workspaceAtom } from 'recoil';
+import { showProjectsGridViewAtom, showAddProjectAtom, workspaceAtom, projectAtom } from 'state';
 
 export default function Home() {
   const isGridView = useRecoilValue(showProjectsGridViewAtom);
-  const projectDetails = useRecoilValue(projectDetailsAtom);
+  const project = useRecoilValue(projectAtom);
   const showAddProject = useRecoilValue(showAddProjectAtom);
   const workspace = useRecoilValue(workspaceAtom);
   return (
@@ -36,11 +36,10 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        // <MainDropzone />
         <Templates />
       )}
       <div id="right-side-bars" className="">
-        {projectDetails ? <ProjectDetails /> : <></>}
+        {project ? <ProjectDetails /> : <></>}
       </div>
     </>
   );

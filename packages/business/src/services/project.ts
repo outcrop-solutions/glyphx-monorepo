@@ -142,6 +142,87 @@ export class ProjectService {
     }
   }
 
+  public static async updateProjectState(
+    projectId: mongooseTypes.ObjectId | string,
+    state: Omit<
+      databaseTypes.IState,
+      | 'project'
+      | '_id'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'description'
+      | 'fileSystem'
+      | 'version'
+      | 'static'
+      | 'camera'
+      | 'createdBy'
+    >
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const project =
+        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+          state: state,
+        });
+      return project;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the User. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {projectId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async deactivate(
+    projectId: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const project =
+        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+          deletedAt: new Date(),
+        });
+      return project;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the User. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {projectId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
   public static async getProjectFileStats(
     id: mongooseTypes.ObjectId | string
   ): Promise<fileIngestionTypes.IFileStats[]> {

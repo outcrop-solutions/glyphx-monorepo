@@ -22,13 +22,12 @@ export const useSocket = () => {
 
   const [commentsPosition, setCommentsPosition] = useState(null);
   const [filterSidebarPosition, setFilterSidebarPosition] = useState(null);
-  const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
   const [isSet, changeSet] = useState(false); // trying to limit number of times openSocket is ran to 1
 
   const isShareOpen = useRecoilValue(showShareModalOpenAtom);
   const isInfoOpen = useRecoilValue(showNotificationDropdownAtom);
   const isNotifOpen = useRecoilValue(showInfoDropdownAtom);
-  const orientation = useRecoilValue(showHorizontalOrientationAtom);
+  // const orientation = useRecoilValue(showHorizontalOrientationAtom);
 
   //   Create Socket
   const openSocket = useCallback(
@@ -66,7 +65,6 @@ export const useSocket = () => {
           //     });
           //     //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
           //     //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
-          //     //core.UpdateFilter("Update Filter");	// Takes a SQL query based on current filters
           //     //core.ChangeState("Change State");		// Takes the Json information for the selected state
           //     //core.ReloadDrawer("Reload Drawer");	// Triggers a reload of the visualization currently in the drawer. This does not need to be called after a filter update.
           //   } catch (e) {

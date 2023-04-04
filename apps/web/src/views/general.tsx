@@ -13,8 +13,6 @@ import { _updateWorkspaceName, _updateWorkspaceSlug, api, useWorkspace } from 'l
 
 const General = ({ isTeamOwner, workspace }) => {
   const router = useRouter();
-  const { workspaceSlug } = router.query;
-  const { setWorkspace } = useWorkspace(workspaceSlug);
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(workspace.name || '');
   const [slug, setSlug] = useState(workspace.slug || '');
@@ -51,7 +49,6 @@ const General = ({ isTeamOwner, workspace }) => {
   useEffect(() => {
     setName(workspace.name);
     setSlug(workspace.slug);
-    setWorkspace(workspace);
   }, [workspace, setWorkspace]);
 
   return (

@@ -12,7 +12,7 @@ import { useWorkspace } from 'lib';
 const ProjectLayout = ({ children }) => {
   const { data } = useSession();
   const router = useRouter();
-  const { data: workspace } = useWorkspace();
+  const { data: result, isLoading } = useWorkspace();
 
   useEffect(() => {
     if (!data) {
@@ -22,7 +22,7 @@ const ProjectLayout = ({ children }) => {
 
   return (
     <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:space-x-5 md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(workspace?.slug)} />
+      <Sidebar menu={menu(result.workspace?.slug)} />
       <Content.Projects>
         <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
         <Header breadcrumbs={['My Projects']} />

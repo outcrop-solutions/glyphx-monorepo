@@ -66,8 +66,12 @@ export const useProject = () => {
           onSuccess: (response) => {
             window.core.OpenProject(
               JSON.stringify({
-                user_id: userId,
-                model_id: project?._id,
+                userId: userId,
+                projectId: project?._id,
+                workspaceId: '',
+                sdtUrl: '',
+                sgnUrl: '',
+                sgcUrl: '',
               }),
               false
             );

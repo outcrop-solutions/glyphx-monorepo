@@ -3,6 +3,7 @@ export * from './etl/createModel';
 export * from './files';
 export * from './mongodb';
 export * from './stripe';
+export * from './project';
 export * from './team';
 export * from './user';
 export * from './workspaces';

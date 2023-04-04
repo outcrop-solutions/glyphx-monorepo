@@ -2,14 +2,6 @@ import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 // PROJECT MUTATIONS
 
 /**
- * Duplicates existing project
- * @note not active
- * @param id // existing project id
- * @returns
- */
-export const forkProject = () => {};
-
-/**
  * Creates Project
  * @note not active
  * @param id
@@ -26,6 +18,64 @@ export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfi
     successMsg: 'New project successfully created',
   };
 };
+
+/**
+ * Creates Project
+ * @note not active
+ * @param id
+ * @param name
+ * @returns
+ */
+export const _updateProjectState = (
+  id: string,
+  state: Omit<
+    databaseTypes.IState,
+    | 'project'
+    | '_id'
+    | 'createdAt'
+    | 'updatedAt'
+    | 'description'
+    | 'fileSystem'
+    | 'version'
+    | 'static'
+    | 'camera'
+    | 'createdBy'
+  >
+): webTypes.IFetchConfig => {
+  return {
+    url: `/api/project/${id}`,
+    options: {
+      body: { state },
+      method: 'PUT',
+    },
+    successMsg: 'Project updated successfully',
+  };
+};
+
+/**
+ * Deletes a project
+ * @note not active
+ * @param id
+ * @param name
+ * @returns
+ */
+export const _deleteProject = (id: string): webTypes.IFetchConfig => {
+  return {
+    url: `/api/project/${id}`,
+    options: {
+      method: 'DELETE',
+    },
+    successMsg: 'Project successfully deleted.',
+  };
+};
+
+/**
+ * Duplicates existing project
+ * @note not active
+ * @param id // existing project id
+ * @returns
+ */
+export const forkProject = () => {};
 
 /**
  * Updates Project Name
@@ -45,15 +95,6 @@ export const updateProjectName = (id: string, name: string) => {};
  * @returns
  */
 export const updateProject = (id: string, input: Partial<databaseTypes.IProject>) => {};
-
-/**
- * Deletes a project
- * @note not active
- * @param id
- * @param name
- * @returns
- */
-export const deleteProject = (id: string, name: string) => {};
 
 /**
  * Removes filter from a project

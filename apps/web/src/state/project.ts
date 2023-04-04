@@ -2,6 +2,7 @@ import { atom, selector, selectorFamily } from 'recoil';
 import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 // import { generateFilterQuery } from 'lib/client/helpers';
 
+// TODO: get rid of x
 /**
  * EXAMPLE PROJECT
  *
@@ -258,6 +259,19 @@ export const singleFilterSelectorFamily = selectorFamily<webTypes.Filter, webTyp
       const project = get(projectAtom);
       return {
         ...project.state.properties[`${axis}`].filter,
+      };
+    },
+});
+
+// used to render property chip
+export const singlePropertySelectorFamily = selectorFamily<webTypes.Property, webTypes.constants.AXIS>({
+  key: 'singlePropertySelectorFamily',
+  get:
+    (axis) =>
+    ({ get }) => {
+      const project = get(projectAtom);
+      return {
+        ...project.state.properties[`${axis}`],
       };
     },
 });

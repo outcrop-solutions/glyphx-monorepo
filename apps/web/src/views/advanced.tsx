@@ -9,8 +9,7 @@ import { _deleteWorkspace, api, useWorkspace } from 'lib/client';
 
 const Advanced = ({ isCreator }) => {
   const router = useRouter();
-  const { workspaceSlug } = router.query;
-  const { setWorkspace, workspace } = useWorkspace(workspaceSlug);
+  const { setWorkspace, workspace } = useWorkspace();
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalState] = useState(false);
   const [verifyWorkspace, setVerifyWorkspace] = useState('');

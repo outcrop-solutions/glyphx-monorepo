@@ -7,7 +7,6 @@ import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
 
 export const GridView = () => {
-  // const projects = useRecoilValue(projectsAtom);
   const workspace = useRecoilValue(workspaceAtom);
 
   return (
@@ -15,7 +14,6 @@ export const GridView = () => {
       {/* Page header */}
       {/* <PinnedProjects /> */}
       <div className="sm:flex sm:justify-between sm:items-center mb-8 bg-primary-blue ">
-        {/* Left: Title */}
         <div className="mb-4 sm:mb-0">
           <p className="font-rubik font-light text-lg leading-[21px] tracking-[0.01em] text-white ">
             Recently Viewed Projects

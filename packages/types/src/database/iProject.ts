@@ -11,6 +11,7 @@ export interface IProject {
   updatedAt: Date;
   name: string;
   description?: string;
+  deletedAt?: Date;
   sdtPath?: string;
   workspace: IWorkspace;
   lastOpened?: Date;
