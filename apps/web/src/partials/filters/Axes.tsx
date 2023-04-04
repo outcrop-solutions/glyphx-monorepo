@@ -20,7 +20,7 @@ export const Axes = ({ axis }) => {
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
-    drop: handleDrop,
+    drop: () => handleDrop(axis, prop),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),

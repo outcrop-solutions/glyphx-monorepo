@@ -1,9 +1,16 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 
-import { selectedFileAtom, fileSystemAtom, projectAtom, fileStatsSelector, matchingFilesAtom } from 'state';
+import {
+  selectedFileAtom,
+  fileSystemAtom,
+  projectAtom,
+  fileStatsSelector,
+  matchingFilesAtom,
+  workspaceAtom,
+} from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { compareStats, createFileSystem, createFileSystemFromS3, parsePayload } from 'lib/client/files/transforms';
+import { compareStats, parsePayload } from 'lib/client/files/transforms';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 import { _ingestFiles, api, useWorkspace } from 'lib/client';
@@ -23,36 +30,12 @@ const cleanTableName = (fileName) => {
  */
 
 export const useFileSystem = () => {
-  const { data: workspace } = useWorkspace();
-  const project = useRecoilValue(projectAtom);
+  const workspace = useRecoilValue(workspaceAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
   const existingFileStats = useRecoilValue(fileStatsSelector);
   const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
   const setMatchingStats = useSetRecoilState(matchingFilesAtom);
-
-  // useEffect(() => {
-  //   const refreshFiles = async () => {
-  //     if (!Array.isArray(projectId))
-  //       try {
-  //         // client/clientid/modelid/input/tablename/file.csv
-  //         const data = await Storage.list(`${orgId}/${projectId}/input/`);
-  //         const fileSystemData = await createFileSystemFromS3(data, projectId);
-  //         // setFileSystem(produce((draft) => fileSystemData));
-  //         // // select file
-  //         // setSelectedFile(
-  //         //   produce((draft) => {
-  //         //     draft.index = 0;
-  //         //   })
-  //         // );
-  //       } catch (error) {}
-  //   };
-
-  //   // refresh file system on project or org change
-  //   if (orgId && projectId) {
-  //     refreshFiles();
-  //   }
-  //   return () => {};
-  // }, [orgId, projectId]);
 
   /**
    * Handle all file ingestion across the application
@@ -75,19 +58,38 @@ export const useFileSystem = () => {
       // if no decision required, default to 'ADD'
 
       // update file system state with processed data based on user decision
-      let newData = createFileSystem(acceptedFiles, fileSystem);
-      setFileSystem([...(Array.isArray(newData) ? newData : [])]);
 
       // create payload
-      const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
-
+      console.log({ workspace, project });
+      if (workspace?.id && project?._id) {
+        const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
+        console.log({ payload });
+        setProject(
+          produce((draft) => {
+            // @ts-ignore
+            draft.files = payload.fileStats;
+          })
+        );
+      }
       // send payload for processing
-      api({
-        ..._ingestFiles(payload),
-      });
+      // api({
+      //   ..._ingestFiles(payload),
+      // });
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
-    [fileSystem, project, setFileSystem, workspace]
+    [project, setProject, workspace]
+  );
+
+  const selectFile = useCallback(
+    (idx: number) => {
+      // select file
+      setSelectedFile(
+        produce((draft: any) => {
+          draft.index = idx;
+        })
+      );
+    },
+    [setSelectedFile]
   );
 
   /**
@@ -102,25 +104,9 @@ export const useFileSystem = () => {
         })
       );
       // select file
-      setSelectedFile(
-        produce((draft: any) => {
-          draft.index = idx;
-        })
-      );
+      selectFile(idx);
     },
-    [setFileSystem, setSelectedFile]
-  );
-
-  const selectFile = useCallback(
-    (idx: number) => {
-      // select file
-      setSelectedFile(
-        produce((draft: any) => {
-          draft.index = idx;
-        })
-      );
-    },
-    [setSelectedFile]
+    [selectFile, setFileSystem]
   );
 
   const closeFile = useCallback(

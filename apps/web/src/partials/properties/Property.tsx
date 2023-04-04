@@ -1,9 +1,10 @@
 import { useDrop } from 'react-dnd';
+import { useRecoilValue } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
 // import { AxesIcons } from '../filters/AxesIcons';
+
 import { showModelCreationLoadingAtom } from 'state/ui';
-import { useSetRecoilState, useRecoilValue } from 'recoil';
-import { projectAtom, singlePropertySelectorFamily } from 'state';
+import { singlePropertySelectorFamily } from 'state/project';
 import { useProject } from 'services';
 
 import ClearIcon from 'public/svg/clear-icon.svg';
@@ -14,26 +15,22 @@ import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 
 export const Property = ({ axis }) => {
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
-  const setProject = useSetRecoilState(projectAtom);
   const { handleDrop } = useProject();
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
-    drop: handleDrop,
+    drop: () => handleDrop(axis, prop),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
   });
   const isActive = isOver && canDrop;
-
-  // const setAxisInterpolation = useSetRecoilState(AxisInterpolationAtom); // recoil state for axis type
-  // const setAxisDirection = useSetRecoilState(AxisDirectionAtom); // recoil state for axis direction
   const isCreatingModel = useRecoilValue(showModelCreationLoadingAtom);
 
-  function logLin() {}
+  const logLin = () => {};
 
-  function ascDesc() {}
+  const ascDesc = () => {};
 
   return (
     <li

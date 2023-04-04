@@ -5,8 +5,8 @@ import { useRouter } from 'next/router';
 
 import dynamic from 'next/dynamic';
 import { useSetRecoilState } from 'recoil';
-import { projectAtom } from 'state';
-import { useProject } from 'lib/client/hooks';
+import { projectAtom, workspaceAtom } from 'state';
+import { useProject, useWorkspace } from 'lib/client/hooks';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -14,15 +14,19 @@ const DynamicProject = dynamic(() => import('views/project'), {
 });
 
 export default function Project() {
+  const { data: result, isLoading: isWorkspaceLoading } = useWorkspace();
   const { data, isLoading } = useProject();
+
+  const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);
 
   // hydrate recoil state
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && !isWorkspaceLoading) {
+      setWorkspace(result.project);
       setProject(data.project);
     }
-  }, [data, isLoading, setProject]);
+  }, [data, isLoading, isWorkspaceLoading, result, setProject, setWorkspace]);
 
   return (
     !isLoading && (
