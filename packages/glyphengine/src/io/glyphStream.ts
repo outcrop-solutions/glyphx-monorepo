@@ -103,7 +103,7 @@ export class GlyphStream extends Transform {
   }
 
   private getTag(chunk: Record<string, unknown>): string {
-    const filedName = this.sdtParser.getInputFields().x.field;
+    const filedName = this.sdtParser.getInputFields().z.field;
     const value = chunk[filedName];
     const tag = `${filedName}: ${value}`;
     return tag;

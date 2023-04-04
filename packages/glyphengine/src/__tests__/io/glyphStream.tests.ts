@@ -216,8 +216,7 @@ describe('#io/GlyphStream', () => {
           assert.strictEqual(desc.y.columny, expectedY.toString());
           assert.strictEqual(desc.z.columnz, expectedZ.toString());
 
-          //TODO: I thik tag should be the value of z
-          assert.strictEqual(chunk.tag, `columnx: ${expectedX}`);
+          assert.strictEqual(chunk.tag, `columnz: ${expectedZ}`);
 
           rowId++;
           callback();
