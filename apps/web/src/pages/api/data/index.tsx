@@ -11,12 +11,14 @@ const handler = async (req, res) => {
     //Once we get things sorted on the QT side.
     const { rowIds, tableName } = req.body;
     const session = (await validateSession(req, res)) as Session;
-
-    const data = await dataService.getDataByGlyphxIds(tableName, rowIds);
-    if (!data.length) {
-      res.status(404).json({ errors: { error: { msg: `No data found` } } });
-    } else {
-      res.status(200).json(data);
+    //validateSession handles the response if the session is invalid
+    if (session) {
+      const data = await dataService.getDataByGlyphxIds(tableName, rowIds);
+      if (!data.length) {
+        res.status(404).json({ errors: { error: { msg: `No data found` } } });
+      } else {
+        res.status(200).json(data);
+      }
     }
   } else {
     res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
