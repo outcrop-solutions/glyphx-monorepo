@@ -5,7 +5,7 @@ import { usePosition } from 'services/usePosition';
 import { useRecoilState } from 'recoil';
 import { glyphViewerDetails } from 'state/ui';
 
-export const ProjectSidebar = ({ handleDrop }) => {
+export const ProjectSidebar = () => {
   //utilities
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);
@@ -22,12 +22,12 @@ export const ProjectSidebar = ({ handleDrop }) => {
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
-      setGlyphxViewer({
-        ...glyphxViewerDetails,
-        filterSidebarPosition: {
-          values: sidebar.current.getBoundingClientRect(),
-        },
-      });
+      // setGlyphxViewer({
+      //   // ...glyphxViewerDetails,
+      //   // filterSidebarPosition: {
+      //   //   values: sidebar.current.getBoundingClientRect(),
+      //   // },
+      // });
     }
   }, [glyphxDetails, projPosition, setGlyphxViewer]);
 
@@ -39,8 +39,8 @@ export const ProjectSidebar = ({ handleDrop }) => {
     >
       <div className="overflow-y-auto w-full scrollbar-none ">
         <Files />
-        <Axes handleDrop={handleDrop} />
-        <Filters handleDrop={handleDrop} />
+        <Axes />
+        <Filters />
         <States />
       </div>
     </div>

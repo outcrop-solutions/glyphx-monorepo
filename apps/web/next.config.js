@@ -30,20 +30,7 @@ module.exports = withTM({
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
-      use: [
-        {
-          loader: '@svgr/webpack',
-          options: {
-            svgoConfig: {
-              plugins: {
-                removeViewBox: false,
-              },
-            },
-          },
-        },
-        'url-loader',
-      ],
-      include: path.resolve(__dirname, 'public'),
+      use: ['@svgr/webpack'],
     });
 
     return config;

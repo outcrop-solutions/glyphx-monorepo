@@ -5,8 +5,8 @@ import { useRecoilValue } from 'recoil';
 
 export const ModelFooter = () => {
   const handleOpen = () => {
-    // window.core.OpenProject(JSON.stringify(url));
-    //window.core.OpenProject({});
+    // window?.core?.OpenProject(JSON.stringify(url));
+    //window?.core?.OpenProject({});
   };
   const name = '';
 

@@ -6,15 +6,7 @@ import { droppedPropertiesSelector } from 'state/project';
 import { useRecoilValue } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
 
-export function DraggableHeaderRenderer({
-  onColumnsReorder,
-  column,
-  sortDirection,
-  onSort,
-  priority,
-  isCellSelected,
-  isDropped,
-}) {
+export function DraggableHeaderRenderer({ onColumnsReorder, column, sortDirection, onSort, priority, isCellSelected }) {
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
 
   // @ts-ignore
@@ -44,7 +36,7 @@ export function DraggableHeaderRenderer({
     if (match) return match.axis;
     return '';
   };
-  
+
   function renderColumnTitle(column: webTypes.GridColumn) {
     switch (evalMatch(column.key)) {
       case 'X':

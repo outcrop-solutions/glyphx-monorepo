@@ -38,7 +38,7 @@ export const ProjectHeader = () => {
 
     try {
       //close glyph viewer
-      window?.core.CloseModel();
+      window?.core?.CloseModel();
     } catch (error) {
       // do nothng
     }

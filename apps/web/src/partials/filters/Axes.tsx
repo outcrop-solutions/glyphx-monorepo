@@ -10,12 +10,14 @@ import GarbageIcon from 'public/svg/garbage-can-icon.svg';
 
 import { singlePropertySelectorFamily } from 'state';
 import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { useProject } from 'services';
 
-export const Axes = ({ axis, handleDrop }) => {
+export const Axes = ({ axis }) => {
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const [showFilter, setShowFilter] = useState(false); //shows filter property
 
-  console.log({ prop });
+  const { handleDrop } = useProject();
+
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
     drop: handleDrop,
@@ -51,11 +53,11 @@ export const Axes = ({ axis, handleDrop }) => {
       </li>
       {/* filtering dropdown */}
       <>
-        {/* {prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ? (
+        {prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ? (
           <RangeFilter prop={prop} />
         ) : (
           <SearchFilter prop={prop} />
-        )} */}
+        )}
       </>
     </>
   );

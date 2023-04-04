@@ -107,7 +107,7 @@ export class ProjectService {
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column X', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
               direction: webTypes.constants.DIRECTION_TYPE.ASC,
               filter: {
                 min: 0,
@@ -119,7 +119,7 @@ export class ProjectService {
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column Y', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
               direction: webTypes.constants.DIRECTION_TYPE.ASC,
               filter: {
                 min: 0,
@@ -131,7 +131,7 @@ export class ProjectService {
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column Z', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
               direction: webTypes.constants.DIRECTION_TYPE.ASC,
               filter: {
                 min: 0,
@@ -143,7 +143,7 @@ export class ProjectService {
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column 1', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
               direction: webTypes.constants.DIRECTION_TYPE.ASC,
               filter: {
                 min: 0,
@@ -155,7 +155,7 @@ export class ProjectService {
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column 2', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
               direction: webTypes.constants.DIRECTION_TYPE.ASC,
               filter: {
                 min: 0,
@@ -167,7 +167,7 @@ export class ProjectService {
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column 3', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-              interpolation: webTypes.constants.INTERPOLATION_TYPE.NUMERIC,
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
               direction: webTypes.constants.DIRECTION_TYPE.ASC,
               filter: {
                 min: 0,

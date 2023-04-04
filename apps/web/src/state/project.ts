@@ -143,7 +143,7 @@ export const openModelPayloadSelectorFamily = selectorFamily<webTypes.IOpenModel
 
 /************************  UI  *************************/
 
-export const propertiesSelector = selector<webTypes.Property[]>({
+export const propertiesSelector = selector<Record<string, webTypes.Property>>({
   key: 'propertiesSelector',
   get: ({ get }) => {
     const project = get(projectAtom);

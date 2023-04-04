@@ -19,7 +19,7 @@ const PROPERTY_SCHEMA = new Schema({
     type: Number,
     required: true,
     enum: webTypes.constants.INTERPOLATION_TYPE,
-    default: webTypes.constants.INTERPOLATION_TYPE['LINEAR'],
+    default: webTypes.constants.INTERPOLATION_TYPE['LIN'],
   },
   direction: {
     type: Number,

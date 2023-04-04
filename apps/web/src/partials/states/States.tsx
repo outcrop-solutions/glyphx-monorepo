@@ -15,7 +15,7 @@ export const States = () => {
 
   // useEffect(() => {
   //   if (window && window?.core) {
-  //     //window.core.SendCameraPosition.connect(async function (message) {
+  //     //window?.core?.SendCameraPosition.connect(async function (message) {
   //       const createStateInput = {
   //         id: uuid(),
   //         title: "new_state",
@@ -43,7 +43,7 @@ export const States = () => {
       window
       //&& window.core
     ) {
-      //await window.core.GetCameraPosition(true);
+      //await window?.core?.GetCameraPosition(true);
     }
   };
 

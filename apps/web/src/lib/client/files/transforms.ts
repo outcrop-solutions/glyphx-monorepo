@@ -123,7 +123,7 @@ interface IClientSidePayload {
 
 export const parsePayload = async (
   workspaceId: string | mongooseTypes.ObjectId,
-  projectId: string,
+  projectId: string | mongooseTypes.ObjectId,
   acceptedFiles: File[]
 ): Promise<IClientSidePayload> => {
   const stats = await Promise.all(

@@ -65,7 +65,7 @@ export default function Project() {
           <DndProvider backend={HTML5Backend}>
             {/* Project sidebar */}
             <div className="w-[250px] shrink-0">
-              <ProjectSidebar handleDrop={handleDrop} />
+              <ProjectSidebar />
             </div>
             {/* Grid View */}
             <div className="w-full border-r border-gray">
@@ -74,7 +74,7 @@ export default function Project() {
               ) : modelCreationLoading ? (
                 <LoadingModelAnimation />
               ) : (
-                <GridContainer isDropped={isDropped} />
+                <GridContainer />
               )}
             </div>
           </DndProvider>

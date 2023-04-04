@@ -62,7 +62,6 @@ export const useFileSystem = () => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // calculate & compare file stats
-      // const newFileStats = await parseFileStats(acceptedFiles);
       // const matchingStats = await compareStats(newFileStats, existingFileStats);
 
       // immutable update to modal state if decision required
@@ -73,15 +72,14 @@ export const useFileSystem = () => {
       //     })
       //   );
       // }
-
       // if no decision required, default to 'ADD'
 
       // update file system state with processed data based on user decision
-      // let newData = createFileSystem(acceptedFiles, fileSystem);
-      // setFileSystem([...(Array.isArray(newData) ? newData : [])]);
+      let newData = createFileSystem(acceptedFiles, fileSystem);
+      setFileSystem([...(Array.isArray(newData) ? newData : [])]);
 
       // create payload
-      const payload = await parsePayload(workspace._id, '641b6e734dd1c59b73eb43da', acceptedFiles);
+      const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
 
       // send payload for processing
       api({
@@ -89,7 +87,7 @@ export const useFileSystem = () => {
       });
     },
     // [setFileSystem, project, fileSystem, setDataGrid]
-    [workspace?._id]
+    [fileSystem, project, setFileSystem, workspace]
   );
 
   /**

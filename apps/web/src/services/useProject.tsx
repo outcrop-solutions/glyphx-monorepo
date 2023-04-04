@@ -9,6 +9,7 @@ import {
   showModelCreationLoadingAtom,
   canCallETL,
   showQtViewerAtom,
+  workspaceAtom,
 } from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { _createModel, api } from 'lib/client';
@@ -27,6 +28,7 @@ export const useProject = () => {
 
   // project state
   const [project, setProject] = useRecoilState(projectAtom);
+  const workspace = useRecoilState(workspaceAtom);
   const properties = useRecoilValue(propertiesSelector);
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
   const createModelPayload = useRecoilValue(createModelPayloadSelector);
@@ -59,16 +61,16 @@ export const useProject = () => {
   // handle ETL
   useEffect(() => {
     const callETL = async () => {
-      window?.core.ToggleDrawer(false);
+      // window?.core?.ToggleDrawer(false);
       if (canCallETL) {
         api({
           ..._createModel(createModelPayload),
           onSuccess: (response) => {
-            window.core.OpenProject(
+            window?.core?.OpenProject(
               JSON.stringify({
                 userId: userId,
                 projectId: project?._id,
-                workspaceId: '',
+                workspaceId: workspace?.id,
                 sdtUrl: '',
                 sgnUrl: '',
                 sgcUrl: '',
@@ -76,12 +78,12 @@ export const useProject = () => {
               false
             );
           },
-          setLoading: compose(setModelCreationLoadingState, showQtViewerAtom),
+          // setLoading: compose(setModelCreationLoadingState, showQtViewerAtom),
         });
       }
     };
     callETL();
-  }, [createModelPayload, project?._id, setModelCreationLoadingState, userId]);
+  }, [createModelPayload, project?._id, setModelCreationLoadingState, userId, workspace?.id]);
 
   return {
     isDropped,

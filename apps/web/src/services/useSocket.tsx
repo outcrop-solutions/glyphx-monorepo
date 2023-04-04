@@ -43,11 +43,11 @@ export const useSocket = () => {
         new QWebChannel(socket, function (channel) {
           window.core = channel.objects.core; // making it global
           try {
-            window.core.KeepAlive.connect(function (message) {});
-            window.core.GetDrawerPosition.connect(function (message) {});
-            window.core.SendDrawerStatus.connect(function (message) {});
-            window.core.SendSdtName.connect(function (message) {});
-            window.core.SendCameraPosition.connect(function (message) {});
+            window?.core?.KeepAlive.connect(function (message) {});
+            window?.core?.GetDrawerPosition.connect(function (message) {});
+            window?.core?.SendDrawerStatus.connect(function (message) {});
+            window?.core?.SendSdtName.connect(function (message) {});
+            window?.core?.SendCameraPosition.connect(function (message) {});
 
             setGlyphViewer({
               // set to true to signify we are ready to go
@@ -58,10 +58,10 @@ export const useSocket = () => {
           //   try {
           //     // make core object accessible globally
           //     //window.core = channel.objects.core;
-          //     //window.core.KeepAlive.connect(function (message) {
+          //     //window?.core?.KeepAlive.connect(function (message) {
           //       //Issued every 30 seconds from Qt to prevent websocket timeout
           //     });
-          //     //window.core.GetDrawerPosition.connect(function (message) {
+          //     //window?.core?.GetDrawerPosition.connect(function (message) {
           //     });
           //     //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
           //     //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
@@ -97,7 +97,7 @@ export const useSocket = () => {
       }
 
       try {
-        window.core.SendDrawerPosition(
+        window?.core?.SendDrawerPosition(
           JSON.stringify({
             filterSidebar: {
               y: yValue, //843

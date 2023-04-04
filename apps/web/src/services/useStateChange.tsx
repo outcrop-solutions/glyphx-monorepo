@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useRecoilValue } from "recoil";
-import { stateQueryAtom } from "../state";
+import { useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
+import { stateQueryAtom } from '../state';
 
 /**
  * Utility for applying a change in the current state to a given vizualization
@@ -11,10 +11,12 @@ import { stateQueryAtom } from "../state";
 export const useStateChange = () => {
   const stateQuery = useRecoilValue(stateQueryAtom);
   useEffect(() => {
-    if (stateQuery && window 
+    if (
+      stateQuery &&
+      window
       //&& window.core
-      ) {
-      //window.core.ChangeState(JSON.stringify(stateQuery));
+    ) {
+      //window?.core?.ChangeState(JSON.stringify(stateQuery));
     }
   }, [stateQuery]);
 };

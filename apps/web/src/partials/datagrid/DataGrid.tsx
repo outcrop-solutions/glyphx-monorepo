@@ -12,7 +12,7 @@ const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
   ssr: false,
 });
 
-export const Datagrid = ({ isDropped }) => {
+export const Datagrid = () => {
   const rows = useRecoilValue(rowsSelector);
   const columns = useRecoilValue(columnsSelector);
   const isShareModelOpen = useRecoilValue(showShareModalOpenAtom);
@@ -30,7 +30,7 @@ export const Datagrid = ({ isDropped }) => {
       return (
         <>
           {columns && columns?.length > 0 && (
-            <DraggableHeaderRenderer {...props} isDropped={isDropped} onColumnsReorder={handleColumnsReorder} />
+            <DraggableHeaderRenderer {...props} onColumnsReorder={handleColumnsReorder} />
           )}
         </>
       );
@@ -50,7 +50,7 @@ export const Datagrid = ({ isDropped }) => {
       if (c.key === 'id') return c;
       return { ...c, headerRenderer: HeaderRenderer };
     });
-  }, [columns, isDropped]);
+  }, [columns]);
 
   // data grid row handling
   const sortedRows = useMemo(() => {

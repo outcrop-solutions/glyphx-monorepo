@@ -1,60 +1,19 @@
 /* eslint-disable no-lone-blocks */
 import React, { useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { Property } from './Property';
+import { propertiesSelector } from 'state';
 // import { propertiesSelector } from "state";
 
-export const Properties = ({ handleDrop }) => {
-  // const [properties, setProperties] = useRecoilState(propertiesSelector);
-  const [isCollapsed, setCollapsed] = useState(false);
-  let properties = [];
-  /**
-   * TAKES IN AXIS TO CLEAR IN PROPERTIES ATOM
-   * @param axis
-   */
-  function clearAxis(axis) {
-    let newObj = null;
-    let prev_X = properties[0];
-    let prev_Y = properties[1];
-    let prev_Z = properties[2];
-    let others = properties.slice(3, 6);
-    switch (axis) {
-      case 'X':
-        newObj = [{ axis: 'X', accepts: 'COLUMN_DRAG', lastDroppedItem: null }, prev_Y, prev_Z, ...others];
-        // setProperties(newObj);
-        break;
-
-      case 'Y':
-        newObj = [prev_X, { axis: 'Y', accepts: 'COLUMN_DRAG', lastDroppedItem: null }, prev_Z, ...others];
-        // setProperties(newObj);
-        break;
-
-      case 'Z':
-        newObj = [prev_X, prev_Y, { axis: 'Z', accepts: 'COLUMN_DRAG', lastDroppedItem: null }, ...others];
-        // setProperties(newObj);
-        break;
-
-      default:
-        break;
-    }
-  }
-
+export const Properties = () => {
+  const properties = useRecoilValue(propertiesSelector);
   return (
     <React.Fragment>
       <div className="group">
         <summary className="flex h-8 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:border-b-white hover:text-white truncate border-b border-gray">
-          <div
-            onClick={() => {
-              setCollapsed(!isCollapsed);
-            }}
-            className="flex ml-2 items-center"
-          >
+          <div className="flex ml-2 items-center">
             <span className="">
-              <svg
-                className={`w-5 h-5 ${isCollapsed ? '-rotate-90' : 'rotate-180'}`}
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
+              <svg className={`w-5 h-5 -rotate-90`} viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fill="#CECECE"
                   fillRule="evenodd"
@@ -72,30 +31,14 @@ export const Properties = ({ handleDrop }) => {
           </div>
           {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
         </summary>
-        {!isCollapsed ? (
-          <div className={`block border-b border-gray`}>
-            <ul className="py-1">
-              {true
-                ? properties.map(({ axis, accepts, lastDroppedItem }, idx) => {
-                    if (idx < 3) {
-                      return (
-                        <Property
-                          axis={axis}
-                          accept={accepts}
-                          lastDroppedItem={lastDroppedItem}
-                          onDrop={(item) => handleDrop(idx, item)}
-                          key={idx}
-                          ClearProperty={clearAxis}
-                        />
-                      );
-                    } else return null;
-                  })
-                : null}
-            </ul>
-          </div>
-        ) : (
-          <></>
-        )}
+
+        <div className={`block border-b border-gray`}>
+          <ul className="py-1">
+            {Object.keys(properties).map((key) => (
+              <Property key={key} axis={key} />
+            ))}
+          </ul>
+        </div>
       </div>
     </React.Fragment>
   );
