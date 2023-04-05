@@ -24,7 +24,7 @@ const MOCK_STATE: databaseTypes.IState = {
   } as unknown as databaseTypes.IUser,
   fileSystem: [],
   camera: 400,
-  properties: [],
+  properties: {},
 };
 const MOCK_NULLISH_STATE = {
   createdAt: new Date(),
@@ -53,7 +53,7 @@ const MOCK_STATE_IDS = {
   createdBy: new mongoose.Types.ObjectId(),
   fileSystem: [],
   camera: 400,
-  properties: [],
+  properties: {},
 } as unknown as databaseTypes.IState;
 
 describe('#mongoose/models/state', () => {
@@ -151,17 +151,16 @@ describe('#mongoose/models/state', () => {
       sandbox.replace(
         StateModel,
         'create',
-        sandbox.stub().resolves([{_id: stateId, properties: []}])
+        sandbox.stub().resolves([{_id: stateId, properties: {}}])
       );
 
       const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves({_id: stateId, properties: []});
+      getStateByIdStub.resolves({_id: stateId, properties: {}});
 
       sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
 
       const result = await StateModel.createState(MOCK_NULLISH_STATE);
       assert.strictEqual(result._id, stateId);
-      assert.strictEqual(result.properties.length, 0);
       assert.isTrue(getStateByIdStub.calledOnce);
     });
 
@@ -606,7 +605,7 @@ describe('#mongoose/models/state', () => {
         __v: 1,
       } as unknown as databaseTypes.IUser,
       camera: 400,
-      properties: [],
+      properties: {},
     } as databaseTypes.IState;
     const sandbox = createSandbox();
 
@@ -704,7 +703,7 @@ describe('#mongoose/models/state', () => {
           __v: 1,
         } as unknown as databaseTypes.IUser,
         camera: 400,
-        properties: [],
+        properties: {},
       } as databaseTypes.IState,
       {
         _id: new mongoose.Types.ObjectId(),
@@ -725,7 +724,7 @@ describe('#mongoose/models/state', () => {
           __v: 1,
         } as unknown as databaseTypes.IUser,
         camera: 400,
-        properties: [],
+        properties: {},
       } as databaseTypes.IState,
     ];
     const sandbox = createSandbox();
