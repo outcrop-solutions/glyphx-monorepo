@@ -62,31 +62,48 @@ export class GlyphStream extends Transform {
     callback();
   }
 
-  private getDesc(chunk: Record<string, unknown>) {
-    const xFieldName = this.sdtParser.getInputFields().x.field;
-    const xValue = chunk[xFieldName];
-    const yFieldName = this.sdtParser.getInputFields().y.field;
-    const yValue = chunk[yFieldName];
-    const zFieldName = this.sdtParser.getInputFields().z.field;
-    const zValue = chunk[zFieldName];
-    const rowIds = chunk['rowId'];
+  private getDesc(chunk: Record<string, unknown>): string {
+    //To make things a little more straight forward on the QT side of things
+    //we will coalesc our x, y, and z values into a string.  This will prevent
+    //us from having to do some pointer work to get the values into strongly
+    //typed structures.
 
-    const retval = {
-      x: {},
-      y: {},
-      z: {},
-      rowId: rowIds,
-    };
+    let retval = '';
+    try {
+      const xFieldName = this.sdtParser.getInputFields().x.field;
+      const xValue = (chunk[xFieldName] as any).toString();
+      const yFieldName = this.sdtParser.getInputFields().y.field;
+      const yValue = (chunk[yFieldName] as any).toString();
+      const zFieldName = this.sdtParser.getInputFields().z.field;
+      const zValue = (chunk[zFieldName] as any).toString();
+      //Row ids should always be ints, so let's send them across the wire
+      //as such
+      const rowIdValues = chunk['rowids'] as string;
+      const rowIds = rowIdValues.split('|').map(x => parseInt(x));
 
-    retval.x[xFieldName] = xValue;
-    retval.y[yFieldName] = yValue;
-    retval.z[zFieldName] = zValue;
+      const outObj = {
+        x: {},
+        y: {},
+        z: {},
+        rowId: rowIds,
+      };
 
-    return JSON.stringify(retval);
+      //to try and restrict the amount of data that we are sending across the wire
+      //we will  send the field name and the data as a sting in the format {x : {filedName: value}}
+      outObj.x[xFieldName] = xValue;
+      outObj.y[yFieldName] = yValue;
+      outObj.z[zFieldName] = zValue;
+
+      //make it a string so it is easier to pass
+      retval = JSON.stringify(outObj);
+    } catch (e) {
+      console.log(e);
+    }
+    return retval;
   }
 
   private getTag(chunk: Record<string, unknown>): string {
-    const filedName = this.sdtParser.getInputFields().x.field;
+    const filedName = this.sdtParser.getInputFields().z.field;
     const value = chunk[filedName];
     const tag = `${filedName}: ${value}`;
     return tag;
