@@ -70,14 +70,6 @@ export const _deleteProject = (id: string): webTypes.IFetchConfig => {
 };
 
 /**
- * Duplicates existing project
- * @note not active
- * @param id // existing project id
- * @returns
- */
-export const forkProject = () => {};
-
-/**
  * Updates Project Name
  * @note not active
  * @param id
@@ -85,31 +77,3 @@ export const forkProject = () => {};
  * @returns
  */
 export const updateProjectName = (id: string, name: string) => {};
-
-/**
- * Updates Project Name
- * @note not active
- * @param id
- * @param description
- * @param members
- * @returns
- */
-export const updateProject = (id: string, input: Partial<databaseTypes.IProject>) => {};
-
-/**
- * Removes filter from a project
- * @note not active
- * @param id
- * @param
- * @returns
- */
-export const removeFilter = (id: string) => {};
-
-/**
- * Apply filter to a state
- * @note not active
- * @param id
- * @param
- * @returns
- */
-export const applyFilter = (id: string) => {};
