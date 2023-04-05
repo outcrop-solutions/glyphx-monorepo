@@ -17,9 +17,6 @@ import {
 import { getUrl } from 'config/constants';
 
 export const useProject = () => {
-  // user session
-  const { data } = useSession();
-
   // app state
   const workspace = useRecoilValue(workspaceAtom);
   const [project, setProject] = useRecoilState(projectAtom);
@@ -43,7 +40,7 @@ export const useProject = () => {
       });
       // get signed urls
       await api({
-        ..._getSignedDataUrls(workspace?._id, project?._id),
+        ..._getSignedDataUrls(workspace?._id.toString(), project?._id.toString()),
         onSuccess: (data) => {
           window?.core?.OpenProject(
             JSON.stringify({
