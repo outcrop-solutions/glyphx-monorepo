@@ -109,16 +109,20 @@ export const useFileSystem = () => {
       // parse payload
       const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
 
+      // get s3 keys
+      const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+
       // get signed urls
       api({
-        ..._getSignedUploadUrls(workspace._id, project._id, payload.fileStats),
-        onSuccess: ({ data }) => {
+        ..._getSignedUploadUrls(workspace._id, project._id, keys),
+        onSuccess: ({ signedUrls }) => {
           Promise.all(
-            data.signedUrls.map((url, idx) => {
+            signedUrls.map((url, idx) => {
               // upload raw file data to s3
+              const file = await acceptedFiles[idx].text();
               api({
-                ..._uploadFile(acceptedFiles[idx], url),
-                onSuccess: (res) => {
+                ..._uploadFile(file, url),
+                onSuccess: (upload) => {
                   // run ingestor on files
                   api({
                     ..._ingestFiles(payload),
@@ -158,7 +162,7 @@ export const useFileSystem = () => {
 
       // update file system state with processed data based on user decision
     },
-    [project?._id, selectFile, setProject, workspace?._id]
+    [project, workspace]
   );
 
   return {

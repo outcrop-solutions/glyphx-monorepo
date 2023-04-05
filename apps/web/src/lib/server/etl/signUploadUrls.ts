@@ -13,11 +13,7 @@ import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
  */
 
 export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {
-    workspaceId,
-    projectId,
-    fileStats,
-  }: { workspaceId: string; projectId: string; fileStats: fileIngestionTypes.IFileStats[] } = req.body;
+  const { workspaceId, projectId, keys } = req.body;
   try {
     // init S3 client
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
@@ -25,9 +21,7 @@ export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) 
       await s3Manager.init();
     }
 
-    const urls = fileStats.map(
-      (stat) => `client/${workspaceId}/${projectId}/input/${stat.tableName}/${stat.fileName}.csv`
-    );
+    const urls = keys.map((key) => `client/${workspaceId}/${projectId}/input/${key}`);
 
     // Create an array of promises
     const promises = urls.map((url) => s3Manager.getSignedUploadUrlPromise(url));

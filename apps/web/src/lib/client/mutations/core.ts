@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 // FILE MUTATIONS
 
 /**
@@ -51,13 +51,28 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
   };
 };
 
-export const _uploadFile = (acceptedFile: File, signedUrl: string): webTypes.IFetchConfig => {
+export const _uploadFile = (acceptedFile, key: string): webTypes.IFetchConfig => {
   return {
-    url: signedUrl,
+    url: `/api/etl/upload`,
     options: {
-      method: 'PUT',
+      headers: {
+        key: key,
+      },
+      method: 'POST',
       body: acceptedFile,
     },
     successMsg: 'File successfully added',
   };
 };
+
+// TODO: fix cors error to use this
+// export const _uploadFile = (acceptedFile: File, signedUrl: string): webTypes.IFetchConfig => {
+//   return {
+//     url: signedUrl,
+//     options: {
+//       method: 'POST',
+//       body: acceptedFile,
+//     },
+//     successMsg: 'File successfully added',
+//   };
+// };

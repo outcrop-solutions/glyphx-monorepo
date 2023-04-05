@@ -36,31 +36,31 @@ export const useProject = () => {
   };
 
   const callETL = useCallback(async () => {
-    // if (canCallETL) {
-    // call glyph engine
-    // await api({
-    //   ..._createModel(createModelPayload),
-    // });
-    // get signed urls
-    await api({
-      ..._getSignedDataUrls(workspace?._id, project?._id),
-      onSuccess: (res) => {
-        window?.core?.OpenProject(
-          JSON.stringify({
-            projectId: project?._id,
-            workspaceId: workspace?._id,
-            sdtUrl: res.data.sdturl,
-            sgnUrl: res.data.sgnurl,
-            sgcUrl: res.data.sgcurl,
-            viewName: project?.viewName,
-            apiLocation: `${getUrl()}/api`,
-            sessionInformation: data,
-          })
-        );
-      },
-    });
-    // }
-  }, [data, project, workspace?._id]);
+    if (canCallETL) {
+      // call glyph engine
+      await api({
+        ..._createModel(createModelPayload),
+      });
+      // get signed urls
+      await api({
+        ..._getSignedDataUrls(workspace?._id, project?._id),
+        onSuccess: (data) => {
+          window?.core?.OpenProject(
+            JSON.stringify({
+              projectId: project?._id,
+              workspaceId: workspace?._id,
+              sdtUrl: data.sdturl,
+              sgnUrl: data.sgnurl,
+              sgcUrl: data.data.sgcurl,
+              viewName: project?.viewName,
+              apiLocation: `${getUrl()}/api`,
+              sessionInformation: data,
+            })
+          );
+        },
+      });
+    }
+  }, [createModelPayload, project, workspace]);
 
   const handleDrop = useCallback(
     async (axis: webTypes.constants.AXIS, column: GridColumn) => {
