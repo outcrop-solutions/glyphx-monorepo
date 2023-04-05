@@ -19,9 +19,8 @@ export const _createModel = (payload: webTypes.ICreateModelPayload): webTypes.IF
 };
 
 /**
- * Calls the glyph engine to create data files
- * @note implements glyphengine.process()
- * @param payload corresponds to the glyph engine payload
+ * Created signed urls to upload files to S3
+ * @note implements s3Manager.getSignedDataUrlPromise concurrently
  */
 
 export const _getSignedDataUrls = (workspaceId: string, projectId: string): webTypes.IFetchConfig => {
@@ -35,9 +34,8 @@ export const _getSignedDataUrls = (workspaceId: string, projectId: string): webT
   };
 };
 /**
- * Calls the glyph engine to create data files
- * @note implements glyphengine.process()
- * @param payload corresponds to the glyph engine payload
+ * Gets signed urls to pass to the Qt engine
+ * @note implements s3Manager.getSignedDataUrlPromise concurrently
  */
 
 export const _getSignedUploadUrls = (workspaceId: string, projectId: string, keys: string[]): webTypes.IFetchConfig => {
