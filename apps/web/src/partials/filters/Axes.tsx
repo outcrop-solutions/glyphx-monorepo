@@ -16,7 +16,7 @@ export const Axes = ({ axis }) => {
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const [showFilter, setShowFilter] = useState(false); //shows filter property
 
-  const { handleDrop, callETL } = useProject();
+  const { handleDrop } = useProject();
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
@@ -45,7 +45,6 @@ export const Axes = ({ axis }) => {
         </div>
         {/* ADD FILTER BTN */}
         <div
-          onClick={() => callETL()}
           className={`flex justify-between bg-secondary-dark-blue rounded border border-transparent hover:border-white hover:cursor-pointer`}
         >
           {showFilter ? <GarbageIcon /> : <PlusIcon />}

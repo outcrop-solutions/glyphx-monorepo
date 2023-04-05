@@ -162,7 +162,7 @@ export const useFileSystem = () => {
 
       // update file system state with processed data based on user decision
     },
-    [project, workspace]
+    [project, selectFile, setProject, workspace]
   );
 
   return {
