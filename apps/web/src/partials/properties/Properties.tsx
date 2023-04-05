@@ -27,9 +27,11 @@ export const Properties = () => {
 
         <div className={`block border-b border-gray`}>
           <ul className="py-1">
-            {Object.keys(properties).map((key) => (
-              <Property key={key} axis={key} />
-            ))}
+            {Object.keys(properties)
+              .slice(0, 3)
+              .map((key) => (
+                <Property key={key} axis={key} />
+              ))}
           </ul>
         </div>
       </div>

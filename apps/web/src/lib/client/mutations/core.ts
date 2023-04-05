@@ -42,10 +42,21 @@ export const _getSignedDataUrls = (workspaceId: string, projectId: string): webT
 
 export const _getSignedUploadUrls = (workspaceId: string, projectId: string, keys: string[]): webTypes.IFetchConfig => {
   return {
-    url: `/api/etl/sign-file-urls`,
+    url: `/api/etl/sign-upload-urls`,
     options: {
       method: 'POST',
       body: { workspaceId, projectId, keys },
+    },
+    successMsg: 'File successfully added',
+  };
+};
+
+export const _uploadFile = (acceptedFile: File, signedUrl: string): webTypes.IFetchConfig => {
+  return {
+    url: signedUrl,
+    options: {
+      method: 'PUT',
+      body: acceptedFile,
     },
     successMsg: 'File successfully added',
   };

@@ -1,53 +1,28 @@
-import React, { useEffect } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import React from 'react';
+import { useRecoilState } from 'recoil';
 
 // Project View
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // Layout
-import { MainSidebar, ProjectSidebar, ProjectHeader, CommentsSidebar, ShareModule } from 'partials';
+import { MainSidebar, ProjectSidebar, ProjectHeader, ShareModule } from 'partials';
 
 import { Info } from 'partials/info';
 import { Notification } from 'partials/notification';
-import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
 // Hooks
-import { useRouter } from 'next/router';
-import { useProject, useSocket } from 'services';
 import { GridContainer } from 'partials/datagrid/GridContainer';
 
 // state
-import {
-  showShareModalOpenAtom,
-  showNotificationDropdownAtom,
-  showInfoDropdownAtom,
-  showDataGridLoadingAtom,
-  showModelCreationLoadingAtom,
-} from 'state/ui';
+import { showShareModalOpenAtom, showNotificationDropdownAtom, showInfoDropdownAtom } from 'state/ui';
 import dynamic from 'next/dynamic';
 
-const DynamicDecisionModal = dynamic(() => import('partials/files/DecisionModal'), {
-  ssr: false,
-});
+// const DynamicDecisionModal = dynamic(() => import('partials/files/DecisionModal'), {
+//   ssr: false,
+// });
 
 export default function Project() {
-  const { query } = useRouter();
-  const { projectId } = query;
-
-  const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
-  const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
-  // const showReorderConfirm = useRecoilValue(showReorderConfirmAtom);
-
-  // Qt hook
-  try {
-    useSocket();
-  } catch (error) {}
-
-  // Project Hook
-  const { isDropped, handleDrop } = useProject();
-  // const [share, setShare] = useState(false);
-
   // Check if share model has been turned on
   const [showShareModel, setShareModel] = useRecoilState(showShareModalOpenAtom);
   const [showInfo, setShowInfo] = useRecoilState(showInfoDropdownAtom);
@@ -69,13 +44,7 @@ export default function Project() {
             </div>
             {/* Grid View */}
             <div className="w-full border-r border-gray">
-              {dataGridLoading ? (
-                <GridLoadingAnimation />
-              ) : modelCreationLoading ? (
-                <LoadingModelAnimation />
-              ) : (
-                <GridContainer />
-              )}
+              <GridContainer />
             </div>
           </DndProvider>
           {/* Right Sidebar */}

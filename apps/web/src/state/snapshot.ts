@@ -24,7 +24,7 @@ export const stateSnapshopPayloadSelector = selectorFamily<IStateCreateInput, st
         properties: project.state.properties,
         fileSystemHash: project.state.fileSystemHash,
         project: project._id,
-        fileSystem: project.files,
+        fileSystem: project?.files,
       };
     },
 });

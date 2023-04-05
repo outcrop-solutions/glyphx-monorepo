@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import produce from 'immer';
@@ -14,11 +14,11 @@ import {
   canCallETL,
   workspaceAtom,
 } from 'state';
+import { getUrl } from 'config/constants';
 
 export const useProject = () => {
   // user session
   const { data } = useSession();
-  const userId = data?.user?.userId;
 
   // app state
   const workspace = useRecoilValue(workspaceAtom);
@@ -35,8 +35,35 @@ export const useProject = () => {
     return droppedProps?.indexOf(propName) > -1;
   };
 
+  const callETL = useCallback(async () => {
+    // if (canCallETL) {
+    // call glyph engine
+    // await api({
+    //   ..._createModel(createModelPayload),
+    // });
+    // get signed urls
+    await api({
+      ..._getSignedDataUrls(workspace?._id, project?._id),
+      onSuccess: (res) => {
+        window?.core?.OpenProject(
+          JSON.stringify({
+            projectId: project?._id,
+            workspaceId: workspace?._id,
+            sdtUrl: res.data.sdturl,
+            sgnUrl: res.data.sgnurl,
+            sgcUrl: res.data.sgcurl,
+            viewName: project?.viewName,
+            apiLocation: `${getUrl()}/api`,
+            sessionInformation: data,
+          })
+        );
+      },
+    });
+    // }
+  }, [data, project, workspace?._id]);
+
   const handleDrop = useCallback(
-    (axis: webTypes.constants.AXIS, column: GridColumn) => {
+    async (axis: webTypes.constants.AXIS, column: GridColumn) => {
       setProject(
         produce((draft) => {
           // @ts-ignore
@@ -45,42 +72,16 @@ export const useProject = () => {
           draft.state.properties[`${axis}`].dataType = column.dataType;
         })
       );
-    },
-    [setProject]
-  );
-
-  // handle ETL
-  useEffect(() => {
-    const callETL = async () => {
-      console.log({ canCallETL });
       if (canCallETL) {
-        // call glyph engine
-        // await api({
-        //   ..._createModel(createModelPayload),
-        // });
-        // get signed urls
-        // await api({
-        //   ..._getSignedDataUrls(workspace?._id, project?._id),
-        //   onSuccess: (res) => {
-        //     window?.core?.OpenProject(
-        //       JSON.stringify({
-        //         userId: userId,
-        //         projectId: project?._id,
-        //         workspaceId: workspace?._id,
-        //         sdtUrl: res.data.sdturl,
-        //         sgnUrl: res.data.sgnurl,
-        //         sgcUrl: res.data.sgcurl,
-        //       })
-        //     );
-        //   },
-        // });
+        callETL();
       }
-    };
-    callETL();
-  }, [createModelPayload, project?._id, setModelCreationLoadingState, userId, workspace?._id]);
+    },
+    [callETL, setProject]
+  );
 
   return {
     isDropped,
     handleDrop,
+    callETL,
   };
 };

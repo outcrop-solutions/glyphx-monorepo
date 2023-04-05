@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 
 import {
   selectedFileAtom,
-  fileSystemAtom,
+  fileSystemSelector,
   projectAtom,
   fileStatsSelector,
   matchingFilesAtom,
@@ -13,11 +13,7 @@ import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { compareStats, parsePayload } from 'lib/client/files/transforms';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
-import { _ingestFiles, api, useWorkspace } from 'lib/client';
-
-const cleanTableName = (fileName) => {
-  return fileName.split('.')[0].trim().toLowerCase();
-};
+import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -32,53 +28,10 @@ const cleanTableName = (fileName) => {
 export const useFileSystem = () => {
   const workspace = useRecoilValue(workspaceAtom);
   const [project, setProject] = useRecoilState(projectAtom);
-  const existingFileStats = useRecoilValue(fileStatsSelector);
-  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
+  const existingFileStats = useRecoilValue(fileStatsSelector);
+  const fileSystem = useRecoilValue(fileSystemSelector);
   const setMatchingStats = useSetRecoilState(matchingFilesAtom);
-
-  /**
-   * Handle all file ingestion across the application
-   * @param {File[]}
-   * @returns {void}
-   */
-  const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
-      // calculate & compare file stats
-      // const matchingStats = await compareStats(newFileStats, existingFileStats);
-
-      // immutable update to modal state if decision required
-      // if (matchingStats && matchingStats.length > 0) {
-      //   setMatchingStats(
-      //     produce((_) => {
-      //       return matchingStats;
-      //     })
-      //   );
-      // }
-      // if no decision required, default to 'ADD'
-
-      // update file system state with processed data based on user decision
-
-      // create payload
-      console.log({ workspace, project });
-      if (workspace?.id && project?._id) {
-        const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
-        console.log({ payload });
-        setProject(
-          produce((draft) => {
-            // @ts-ignore
-            draft.files = payload.fileStats;
-          })
-        );
-      }
-      // send payload for processing
-      // api({
-      //   ..._ingestFiles(payload),
-      // });
-    },
-    // [setFileSystem, project, fileSystem, setDataGrid]
-    [project, setProject, workspace]
-  );
 
   const selectFile = useCallback(
     (idx: number) => {
@@ -98,23 +51,25 @@ export const useFileSystem = () => {
   const openFile = useCallback(
     (idx: number) => {
       // open file
-      setFileSystem(
+      setProject(
         produce((draft) => {
-          draft[idx].open = true;
+          // @ts-ignore
+          draft.files[idx].open = true;
         })
       );
       // select file
       selectFile(idx);
     },
-    [selectFile, setFileSystem]
+    [selectFile, setProject]
   );
 
   const closeFile = useCallback(
     (idx: number) => {
       // close file
-      setFileSystem(
+      setProject(
         produce((draft) => {
-          draft[idx].open = false;
+          // @ts-ignore
+          draft.files[idx].open = false;
         })
       );
       // update selection
@@ -125,7 +80,7 @@ export const useFileSystem = () => {
         })
       );
     },
-    [setFileSystem, setSelectedFile]
+    [setProject, setSelectedFile]
   );
 
   /**
@@ -134,13 +89,76 @@ export const useFileSystem = () => {
   const removeFile = useCallback(
     async (idx, operation: FILE_OPERATION) => {
       // close file
-      setFileSystem(
+      setProject(
         produce((draft) => {
-          draft[idx].open = false;
+          // @ts-ignore
+          draft.files[idx].open = false;
         })
       );
     },
-    [setFileSystem]
+    [setProject]
+  );
+
+  /**
+   * Handle all file ingestion across the application
+   * @param {File[]}
+   * @returns {void}
+   */
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      // parse payload
+      const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
+
+      // get signed urls
+      api({
+        ..._getSignedUploadUrls(workspace._id, project._id, payload.fileStats),
+        onSuccess: ({ data }) => {
+          Promise.all(
+            data.signedUrls.map((url, idx) => {
+              // upload raw file data to s3
+              api({
+                ..._uploadFile(acceptedFiles[idx], url),
+                onSuccess: (res) => {
+                  // run ingestor on files
+                  api({
+                    ..._ingestFiles(payload),
+                    onSuccess: () => {
+                      // update project filesystem
+                      setProject(
+                        produce((draft) => {
+                          // @ts-ignore
+                          draft.files = payload.fileStats;
+                        })
+                      );
+                      // open first file
+                      selectFile(0);
+                    },
+                  });
+                },
+              });
+            })
+          );
+        },
+      });
+
+      // ingest files
+
+      // TODO: add calculate & compare file stats once error free
+      // const matchingStats = await compareStats(newFileStats, existingFileStats);
+
+      // immutable update to modal state if decision required
+      // if (matchingStats && matchingStats.length > 0) {
+      //   setMatchingStats(
+      //     produce((_) => {
+      //       return matchingStats;
+      //     })
+      //   );
+      // }
+      // if no decision required, default to 'ADD'
+
+      // update file system state with processed data based on user decision
+    },
+    [project?._id, selectFile, setProject, workspace?._id]
   );
 
   return {

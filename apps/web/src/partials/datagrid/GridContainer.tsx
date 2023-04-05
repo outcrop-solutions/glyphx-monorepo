@@ -1,35 +1,31 @@
 import React from 'react';
-import { rowsSelector } from 'state/files';
 import { useRecoilValue } from 'recoil';
 import { MainDropzone } from '../files';
 import { Datagrid } from './DataGrid';
+import { GridHeader } from './GridHeader';
 import { ModelFooter } from './ModelFooter';
-import { GridHeader } from 'partials';
+import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
+
+import { filesOpenSelector, rowsSelector } from 'state/files';
+import { showDataGridLoadingAtom, showModelCreationLoadingAtom } from 'state/ui';
 
 export const GridContainer = () => {
-  const rows = useRecoilValue(rowsSelector);
+  const openFiles = useRecoilValue(filesOpenSelector);
+  const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
+  const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
 
   return (
     <>
-      {rows?.length > 0 ? (
-        <>
-          {true ? (
-            <div className="">
-              <div className="flex flex-col">
-                <GridHeader />
-                <Datagrid />
-              </div>
-              <div className={`flex flex-col`}>
-                <ModelFooter />
-              </div>
-            </div>
-          ) : (
-            <div className={`flex flex-col h-full w-full `}>
-              <GridHeader />
-              <Datagrid />
-            </div>
-          )}
-        </>
+      {openFiles?.length > 0 ? (
+        <div className="">
+          <div className="flex flex-col">
+            <GridHeader />
+            <Datagrid />
+          </div>
+          {/* <div className={`flex flex-col`}>
+            <ModelFooter />
+          </div> */}
+        </div>
       ) : (
         <MainDropzone />
       )}

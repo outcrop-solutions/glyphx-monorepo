@@ -1,5 +1,6 @@
 import { atom, selector } from 'recoil';
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { projectAtom } from './project';
 
 /**
  * APPLICATION FILESYSTEM
@@ -31,9 +32,12 @@ import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/ty
  **/
 
 // WRITEABLE STATE HERE
-export const fileSystemAtom = atom<webTypes.FileSystem>({
-  key: 'fileSystemAtom',
-  default: null,
+export const fileSystemSelector = selector<webTypes.FileSystem>({
+  key: 'fileSystemSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    return project?.files;
+  },
 });
 
 /**
@@ -60,7 +64,7 @@ export const matchingFilesAtom = atom<webTypes.IMatchingFileStats[]>({
 export const filesSelector = selector<string[]>({
   key: 'filesSelector',
   get: ({ get }) => {
-    const fileSystem = get(fileSystemAtom);
+    const fileSystem = get(fileSystemSelector);
     if (Array.isArray(fileSystem)) {
       return fileSystem.map((file) => file?.tableName);
     }
@@ -73,7 +77,7 @@ export const filesSelector = selector<string[]>({
 export const fileStatsSelector = selector<fileIngestionTypes.IFileStats[]>({
   key: 'fileStatsSelector',
   get: ({ get }) => {
-    const fileSystem = get(fileSystemAtom);
+    const fileSystem = get(fileSystemSelector);
     if (Array.isArray(fileSystem) && fileSystem?.length > 0) {
       return fileSystem.map(({ fileName, tableName, numberOfRows, numberOfColumns, columns, fileSize }) => ({
         fileName,
@@ -96,7 +100,7 @@ export const fileStatsSelector = selector<fileIngestionTypes.IFileStats[]>({
 export const filesOpenSelector = selector<webTypes.OpenFile[]>({
   key: 'filesOpenAtom',
   get: ({ get }) => {
-    const fileSystem = get(fileSystemAtom);
+    const fileSystem = get(fileSystemSelector);
     return (
       fileSystem
         .map(({ open, tableName }, idx) => (open ? { tableName, fileIndex: idx } : null))
@@ -112,7 +116,7 @@ export const dataGridSelector = selector<webTypes.IRenderableDataGrid>({
   key: 'dataGridSelector',
   get: async ({ get }) => {
     const selectedFile = get(selectedFileAtom);
-    const fileSystem = get(fileSystemAtom);
+    const fileSystem = get(fileSystemSelector);
     if (fileSystem && fileSystem?.length > 0 && selectedFile?.index !== -1) {
       return fileSystem[selectedFile?.index]?.dataGrid;
     } else {
@@ -128,7 +132,7 @@ export const columnsSelector = selector<webTypes.GridColumn[]>({
   key: 'columnsSelector',
   get: ({ get }) => {
     let dataGrid = get(dataGridSelector);
-    return dataGrid?.columns;
+    return dataGrid?.columns || [];
   },
 });
 
@@ -139,6 +143,6 @@ export const rowsSelector = selector({
   key: 'rowsSelector',
   get: ({ get }) => {
     let dataGrid = get(dataGridSelector);
-    return dataGrid.rows;
+    return dataGrid?.rows || [];
   },
 });

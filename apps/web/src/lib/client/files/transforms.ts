@@ -32,8 +32,7 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
     resizable: true,
     sortable: true,
   });
-  let rows = data.map((row, idx) => ({ ...row, id: idx }));
-
+  const rows = data.map((row, idx) => ({ ...row, id: idx }));
   return { columns: cols, rows };
 };
 
@@ -60,6 +59,7 @@ export const parsePayload = async (
     acceptedFiles.map(async (file: File): Promise<fileIngestionTypes.IFileStats> => {
       const text = await file.text();
       const { data } = parse(text, { header: true });
+      const dataGrid = formatGridData(data);
       return {
         fileName: file.name,
         tableName: file.name.split('.')[0].trim().toLowerCase(),
@@ -73,6 +73,8 @@ export const parsePayload = async (
           longestString: undefined,
         })),
         fileSize: file.size,
+        dataGrid: dataGrid,
+        open: false,
       };
     })
   );

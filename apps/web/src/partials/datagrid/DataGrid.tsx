@@ -15,6 +15,7 @@ const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
 export const Datagrid = () => {
   const rows = useRecoilValue(rowsSelector);
   const columns = useRecoilValue(columnsSelector);
+  console.log({ rows, columns });
   const isShareModelOpen = useRecoilValue(showShareModalOpenAtom);
   const isShowInfoOpen = useRecoilValue(showInfoDropdownAtom);
   const isShowNotificationOpen = useRecoilValue(showNotificationDropdownAtom);
@@ -42,11 +43,9 @@ export const Datagrid = () => {
       const reorderedColumns = [...columns];
 
       reorderedColumns.splice(targetColumnIndex, 0, reorderedColumns.splice(sourceColumnIndex, 1)[0]);
-
-      // setColumns(reorderedColumns);
     }
 
-    return columns.map((c) => {
+    return columns?.map((c) => {
       if (c.key === 'id') return c;
       return { ...c, headerRenderer: HeaderRenderer };
     });

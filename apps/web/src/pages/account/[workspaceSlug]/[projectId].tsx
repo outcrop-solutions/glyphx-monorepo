@@ -1,7 +1,6 @@
 import React, { Suspense, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
-import { useRouter } from 'next/router';
 
 import dynamic from 'next/dynamic';
 import { useSetRecoilState } from 'recoil';
@@ -10,7 +9,6 @@ import { useProject, useWorkspace } from 'lib/client/hooks';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
-  // suspense: true,
 });
 
 export default function Project() {
@@ -23,7 +21,7 @@ export default function Project() {
   // hydrate recoil state
   useEffect(() => {
     if (!isLoading && !isWorkspaceLoading) {
-      setWorkspace(result.project);
+      setWorkspace(result.workspace);
       setProject(data.project);
     }
   }, [data, isLoading, isWorkspaceLoading, result, setProject, setWorkspace]);
@@ -31,9 +29,7 @@ export default function Project() {
   return (
     !isLoading && (
       <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-        <Suspense fallback={SuspenseFallback}>
-          <DynamicProject />
-        </Suspense>
+        <DynamicProject />
       </ErrorBoundary>
     )
   );
