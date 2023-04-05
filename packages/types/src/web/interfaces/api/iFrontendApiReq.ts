@@ -5,4 +5,5 @@ export interface IFrontendApiReq {
   onError?: (status: number) => void | null;
   onSuccess?: (data: any) => void | null;
   successMsg?: string;
+  upload?: boolean;
 }

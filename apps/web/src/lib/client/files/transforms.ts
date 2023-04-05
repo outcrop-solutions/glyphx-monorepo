@@ -89,7 +89,7 @@ export const parsePayload = async (
 
   const payload = {
     clientId: workspaceId.toString(),
-    modelId: projectId,
+    modelId: projectId.toString(),
     bucketName: S3_BUCKET_NAME,
     fileStats: stats,
     fileInfo: operations,

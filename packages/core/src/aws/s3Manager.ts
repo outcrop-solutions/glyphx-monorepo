@@ -235,14 +235,20 @@ export class S3Manager {
    */
   /*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/
   // @ts-ignore
-  public getUploadStream(fileName: string, stream) {
+  public getUploadStream(fileName: string, stream, contentType?: string) {
+    const params: any = {
+      Bucket: this.bucketName,
+      Key: fileName,
+      Body: stream,
+    };
+
+    if (contentType) {
+      params.ContentType = contentType;
+    }
+
     const upload = new Upload({
       client: this.bucket,
-      params: {
-        Bucket: this.bucketName,
-        Key: fileName,
-        Body: stream,
-      },
+      params: params,
     });
 
     return upload;

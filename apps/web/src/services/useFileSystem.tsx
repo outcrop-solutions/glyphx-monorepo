@@ -108,42 +108,48 @@ export const useFileSystem = () => {
     async (acceptedFiles: File[]) => {
       // parse payload
       const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
-
+      console.log({ payload });
       // get s3 keys
-      const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+      const keys = payload.fileStats.map(
+        (stat) => `client/${workspace._id}/${project._id}/input/${stat.tableName}/${stat.fileName}`
+      );
 
       // get signed urls
-      api({
-        ..._getSignedUploadUrls(workspace._id, project._id, keys),
-        onSuccess: ({ signedUrls }) => {
-          Promise.all(
-            signedUrls.map((url, idx) => {
-              // upload raw file data to s3
-              const file = await acceptedFiles[idx].text();
+      // api({
+      // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
+      // onSuccess: ({ signedUrls }) => {
+      Promise.all(
+        keys.map(async (key, idx) => {
+          // upload raw file data to s3
+          api({
+            ..._uploadFile(await acceptedFiles[idx].arrayBuffer(), key, workspace._id, project._id),
+            upload: true,
+            onSuccess: (upload) => {
+              // run ingestor on files
               api({
-                ..._uploadFile(file, url),
-                onSuccess: (upload) => {
-                  // run ingestor on files
-                  api({
-                    ..._ingestFiles(payload),
-                    onSuccess: () => {
-                      // update project filesystem
-                      setProject(
-                        produce((draft) => {
-                          // @ts-ignore
-                          draft.files = payload.fileStats;
-                        })
-                      );
-                      // open first file
-                      selectFile(0);
-                    },
-                  });
+                ..._ingestFiles(payload),
+                onSuccess: (data) => {
+                  // update project filesystem
+                  setProject(
+                    produce((draft) => {
+                      // @ts-ignore
+                      draft.files = payload.fileStats;
+                      // @ts-ignore
+                      draft.files[0].dataGrid = data.dataGrid;
+                      // @ts-ignore
+                      draft.files[0].open = true;
+                    })
+                  );
+                  // open first file
+                  selectFile(0);
                 },
               });
-            })
-          );
-        },
-      });
+            },
+          });
+        })
+      );
+      // },
+      // });
 
       // ingest files
 

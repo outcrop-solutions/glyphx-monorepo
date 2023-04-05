@@ -61,7 +61,6 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
   try {
     // Extract payload
     const { payload } = req.body;
-
     // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
     if (!s3Manager.inited) {
@@ -71,7 +70,7 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
     let newPayload = { ...payload };
     for (let i = 0; i < payload.fileInfo.length; i++) {
       const stream = await s3Manager.getObjectStream(
-        `${payload.clientId}/${payload.modelId}/input/${payload.fileInfo[i].tableName}/${payload.fileInfo[i].fileName}`
+        `client/${payload.clientId}/${payload.modelId}/input/${payload.fileInfo[i].tableName}/${payload.fileInfo[i].fileName}`
       );
       newPayload.fileInfo[i].fileStream = stream;
     }
@@ -86,12 +85,15 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
     if (!fileIngestor.inited) {
       await fileIngestor.init();
     }
-
     const { fileInformation, fileProcessingErrors, joinInformation, viewName, status } = await fileIngestor.process();
 
+    const dataGrid = {
+      columns: fileInformation[0].columns.map((col) => ({ key: col.name, dataType: col.fieldType })),
+      rows: [],
+    };
     // return file information & processID
     res.status(200).json({
-      data: { fileInformation, fileProcessingErrors, joinInformation, viewName, status, processId: PROCESS_ID },
+      data: { dataGrid, fileProcessingErrors, joinInformation, viewName, status, processId: PROCESS_ID },
     });
     // res.status(200).json({ ok: true });
   } catch (error) {

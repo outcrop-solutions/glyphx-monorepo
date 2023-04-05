@@ -184,16 +184,14 @@ export class ProjectService {
       );
 
       // connect project to user
-      await mongoDbConnection.models.UserModel.updateUserById(ownerCastId, {
-        projects: [project] as unknown as databaseTypes.IProject[],
-      });
+      await mongoDbConnection.models.UserModel.addProjects(ownerCastId, [
+        project,
+      ]);
 
       // connect project to workspace
-      await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
+      await mongoDbConnection.models.WorkspaceModel.addProjects(
         workspaceCastId,
-        {
-          projects: [project] as unknown as databaseTypes.IProject[],
-        }
+        [project]
       );
 
       return project;

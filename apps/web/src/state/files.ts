@@ -66,7 +66,7 @@ export const filesSelector = selector<string[]>({
   get: ({ get }) => {
     const fileSystem = get(fileSystemSelector);
     if (Array.isArray(fileSystem)) {
-      return fileSystem.map((file) => file?.tableName);
+      return fileSystem?.map((file) => file?.tableName);
     }
   },
 });
@@ -79,7 +79,7 @@ export const fileStatsSelector = selector<fileIngestionTypes.IFileStats[]>({
   get: ({ get }) => {
     const fileSystem = get(fileSystemSelector);
     if (Array.isArray(fileSystem) && fileSystem?.length > 0) {
-      return fileSystem.map(({ fileName, tableName, numberOfRows, numberOfColumns, columns, fileSize }) => ({
+      return fileSystem?.map(({ fileName, tableName, numberOfRows, numberOfColumns, columns, fileSize }) => ({
         fileName,
         tableName,
         numberOfRows,
@@ -103,7 +103,7 @@ export const filesOpenSelector = selector<webTypes.OpenFile[]>({
     const fileSystem = get(fileSystemSelector);
     return (
       fileSystem
-        .map(({ open, tableName }, idx) => (open ? { tableName, fileIndex: idx } : null))
+        ?.map(({ open, tableName }, idx) => (open ? { tableName, fileIndex: idx } : null))
         .filter((el) => el !== null) || null
     );
   },

@@ -8,16 +8,22 @@ export async function api({
   onError = () => {},
   onSuccess = () => {},
   successMsg,
+  upload = false,
 }: webTypes.IFrontendApiReq) {
   setLoading(true);
   const { body, headers, ...opts } = options;
-  const requestBody = JSON.stringify(body);
+  let requestBody;
+  if (upload) {
+    requestBody = body;
+  } else {
+    requestBody = JSON.stringify(body);
+  }
 
   try {
     const res = await fetch(url, {
       body: requestBody,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': upload ? 'text/csv' : 'application/json',
         ...headers,
       },
       ...opts,

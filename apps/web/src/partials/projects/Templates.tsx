@@ -38,7 +38,7 @@ export const Templates = () => {
     api({
       ..._createDefaultProject(data.workspace._id),
       onSuccess: (data) => {
-        router.push(`/project/${data.id}`);
+        router.push(`/project/${data.project._id}`);
       },
     });
   };

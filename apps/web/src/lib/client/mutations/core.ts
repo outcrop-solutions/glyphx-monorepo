@@ -49,12 +49,19 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
   };
 };
 
-export const _uploadFile = (acceptedFile, key: string): webTypes.IFetchConfig => {
+export const _uploadFile = (
+  acceptedFile: ArrayBuffer,
+  key: string,
+  workspaceId: string,
+  projectId: string
+): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/upload`,
     options: {
       headers: {
         key: key,
+        workspaceId: workspaceId,
+        projectId: projectId,
       },
       method: 'POST',
       body: acceptedFile,

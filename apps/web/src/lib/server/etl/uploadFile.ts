@@ -1,11 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 // import { Session } from 'next-auth';
-import { aws, generalPurposeFunctions } from '@glyphx/core';
-import { FileIngestor } from '@glyphx/fileingestion';
-import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
-import { processTrackingService } from '@glyphx/business';
+import { aws } from '@glyphx/core';
+import { S3_BUCKET_NAME } from 'config/constants';
 import { PassThrough } from 'stream';
-import { requestToBodyStream } from 'next/dist/server/body-streams';
 
 /**
  * Upload Files
@@ -33,12 +30,14 @@ export const uploadFile = async (req: NextApiRequest, res: NextApiResponse) => {
       await s3Manager.init();
     }
     const pStream = new PassThrough();
-    const upload = s3Manager.getUploadStream(key, pStream);
+    const upload = s3Manager.getUploadStream(key, pStream, 'text/csv');
     req.pipe(pStream);
+
+    await upload.done();
 
     // return file information & processID
     res.status(200).json({
-      data: upload,
+      data: true,
     });
     // res.status(200).json({ ok: true });
   } catch (error) {
