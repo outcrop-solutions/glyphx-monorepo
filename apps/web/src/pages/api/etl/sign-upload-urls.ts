@@ -2,7 +2,7 @@ import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
 import { Initializer, validateSession } from '@glyphx/business';
-import { signDataUrls } from 'lib/server/etl/signDataUrls';
+import { signUploadUrls } from 'lib/server/etl/signUploadUrls';
 /**
  * Implements controller of browser based FILE OPERATIONS
  * HANDLERS FOUND @ /lib/server/fileingestion.ts
@@ -11,7 +11,7 @@ import { signDataUrls } from 'lib/server/etl/signDataUrls';
  * @returns {Promise<void | NextApiResponse>}
  */
 
-export default async function signFiles(req: NextApiRequest, res: NextApiResponse) {
+export default async function signUpload(req: NextApiRequest, res: NextApiResponse) {
   // initialize the business layer
   if (!Initializer.initedField) {
     await Initializer.init();
@@ -21,7 +21,7 @@ export default async function signFiles(req: NextApiRequest, res: NextApiRespons
   if (!session.user.userId) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
-      return signDataUrls(req, res);
+      return signUploadUrls(req, res);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
