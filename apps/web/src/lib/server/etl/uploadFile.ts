@@ -19,24 +19,34 @@ import { PassThrough } from 'stream';
 
 export const uploadFile = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
+    // key = tableName/fileName (dirty)
+    // where tableName is just filesName with whitespace trimmed and no file extension
+    // i.e 'File Name .csv'
+    //     'filename'
     // Extract payload
-    const { tableName, workspaceId, projectId } = req.query;
+    const { key, workspaceId, projectId } = req.query;
 
-    if (Array.isArray(tableName) && Array.isArray(workspaceId) && Array.isArray(projectId)) {
+    if (Array.isArray(key) || Array.isArray(workspaceId) || Array.isArray(projectId)) {
       return res.status(400).end('Bad request. Parameter cannot be an array.');
     }
-    const cleaner = new BasicColumnNameCleaner();
-    const table = cleaner.cleanColumnName(tableName as string);
 
-    const key = `client/${workspaceId}/${projectId}/input/${table}/${table}.csv`;
-    console.log({ key });
+    const tableName = key.split('/')[0];
+    const fileNamWithoutExt = key.split('/')[1].split('.')[0];
+
+    const cleaner = new BasicColumnNameCleaner();
+    const cleanTableName = cleaner.cleanColumnName(tableName);
+    const cleanFileName = cleaner.cleanColumnName(fileNamWithoutExt);
+
+    const fullKey = `client/${workspaceId}/${projectId}/input/${cleanTableName}/${cleanFileName}.csv`;
+
+    console.log({ fullKey });
     // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
     if (!s3Manager.inited) {
       await s3Manager.init();
     }
     const pStream = new PassThrough();
-    const upload = s3Manager.getUploadStream(key, pStream, 'text/csv');
+    const upload = s3Manager.getUploadStream(fullKey, pStream, 'text/csv');
     req.pipe(pStream);
 
     await upload.done();
