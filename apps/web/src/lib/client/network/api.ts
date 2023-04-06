@@ -11,6 +11,15 @@ export async function api({
   upload = false,
   silentFail = false,
 }: webTypes.IFrontendApiReq) {
+  console.log({
+    api: true,
+    url,
+    options,
+    onSuccess,
+    successMsg,
+    upload,
+    silentFail,
+  });
   setLoading(true);
   const { body, headers, ...opts } = options;
   let requestBody;

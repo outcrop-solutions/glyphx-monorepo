@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { getProviders, signIn, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
+import { useRouter } from 'next/router';
 
 const Login = () => {
   const { status } = useSession();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
   const [socialProviders, setSocialProviders] = useState([]);
@@ -16,7 +18,7 @@ const Login = () => {
   const signInWithEmail = async (event) => {
     event.preventDefault();
     setSubmittingState(true);
-    const response = await signIn('email', { email, redirect: false });
+    const response = await signIn('email', { email, redirect: true });
 
     if (response.error === null) {
       toast.success(`Please check your email (${email}) for the login link.`, {
@@ -31,16 +33,17 @@ const Login = () => {
   const signInWithSocial = (socialId) => {
     signIn(socialId);
   };
+  const signInWithCreds = async () => {
+    router.push('/account');
+  };
 
   useEffect(() => {
     (async () => {
       const socialProviders = [];
       const { email, ...providers } = await getProviders();
-
       for (const provider in providers) {
         socialProviders.push(providers[provider]);
       }
-
       setSocialProviders([...socialProviders]);
     })();
   }, []);
@@ -81,16 +84,22 @@ const Login = () => {
         </form>
         {socialProviders?.length > 0 && (
           <>
-            <span className="text-sm text-gray-400">or sign in with</span>
+            <span className="text-sm text-white">or sign in with</span>
             <div className="flex flex-col w-full space-y-3">
               {socialProviders.map((provider, index) => (
                 <button
                   key={index}
-                  className="py-2 bg-secondary-midnight border rounded hover:bg-gray-50 disabled:opacity-75"
+                  className="py-2 bg-secondary-midnight border rounded hover:bg-gray-50 disabled:opacity-75 text-white"
                   disabled={status === 'loading'}
-                  onClick={() => signInWithSocial(provider.id)}
+                  onClick={() => {
+                    if (provider.name === 'Credentials') {
+                      signInWithCreds();
+                    } else {
+                      signInWithSocial(provider.id);
+                    }
+                  }}
                 >
-                  {provider.name}
+                  {provider.name === 'Credentials' ? 'Dev Mode Sign In' : provider.name}
                 </button>
               ))}
             </div>

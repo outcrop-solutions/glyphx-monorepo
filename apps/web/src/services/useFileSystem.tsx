@@ -11,7 +11,7 @@ import {
 } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { compareStats, parsePayload } from 'lib/client/files/transforms';
-import produce from 'immer';
+import produce, { current } from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
@@ -37,6 +37,7 @@ export const useFileSystem = () => {
 
   const selectFile = useCallback(
     (idx: number) => {
+      console.log('called selectFile');
       // select file
       setSelectedFile(
         produce((draft: any) => {
@@ -53,6 +54,7 @@ export const useFileSystem = () => {
    */
   const openFile = useCallback(
     (idx: number) => {
+      console.log('called openFile');
       // open file
       setProject(
         produce((draft) => {
@@ -60,17 +62,22 @@ export const useFileSystem = () => {
           draft.files[idx].open = true;
         })
       );
-      // select file
-      selectFile(idx);
+      setSelectedFile(
+        produce((draft: any) => {
+          draft.index = idx;
+        })
+      );
     },
-    [selectFile, setProject]
+    [setProject, setSelectedFile]
   );
 
   const closeFile = useCallback(
     (idx: number) => {
+      console.log('called closeFile');
       // close file
       setProject(
         produce((draft) => {
+          console.log({ draft: current(draft), closeFile: true });
           // @ts-ignore
           draft.files[idx].open = false;
         })
@@ -78,8 +85,11 @@ export const useFileSystem = () => {
       // update selection
       setSelectedFile(
         produce((draft: any) => {
+          console.log({ draft: current(draft), index: true });
           // if closed file is selected, go to next closest file, else select none (via -1)
           draft.index = draft.index == idx ? idx - 1 : -1;
+
+          console.log({ draft: current(draft), index: 'after' });
         })
       );
     },
