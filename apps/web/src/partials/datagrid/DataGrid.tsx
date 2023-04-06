@@ -40,7 +40,7 @@ export const Datagrid = () => {
   return (
     data && (
       <DataGrid
-        className="w-[500px]"
+        className=""
         headerRowHeight={20}
         rowHeight={20}
         columns={draggableColumns}
