@@ -115,7 +115,7 @@ export const useFileSystem = () => {
       // get s3 keys for upload
       const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
-      console.log({ hook: true, keys });
+      console.log({ hook: true, payload });
       // get signed urls
       // api({
       // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
