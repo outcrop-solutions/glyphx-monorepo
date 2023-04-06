@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dataService } from '@glyphx/business';
-import { generalPurposeFunctions } from '@glyphx/core';
+import { generalPurposeFunctions as sharedFunctions } from '@glyphx/core';
 import { formatGridData } from 'lib/client/files/transforms';
 export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
   const { rowIds, tableName } = req.body;
@@ -16,7 +16,7 @@ export const getDataByTableName = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void | NextApiResponse> => {
-  const { workspaceId, projectId, tableName } = req.query;
+  const { workspaceId, projectId, tableName } = req.body;
 
   if (Array.isArray(workspaceId) && Array.isArray(projectId) && Array.isArray(tableName)) {
     res.status(400).end('Invalid Query parameter');
@@ -24,8 +24,12 @@ export const getDataByTableName = async (
 
   // const table = generalPurposeFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName as string);
 
+  console.log({
+    server: true,
+    tableName: sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName),
+  });
   const data = await dataService.getDataByTableName(
-    `glyphx_testclientid02d78bf6f54f485f81295ec510841742_642ae3b1c976ba8cc7ac445e_table1`
+    sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName)
   );
 
   const formattedData = formatGridData(data);

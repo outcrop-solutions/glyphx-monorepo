@@ -6,7 +6,6 @@ import dynamic from 'next/dynamic';
 import { useSetRecoilState } from 'recoil';
 import { dataGridAtom, projectAtom, workspaceAtom } from 'state';
 import { useProject, useWorkspace } from 'lib/client/hooks';
-import useDataGrid from 'lib/client/hooks/useDataGrid';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,

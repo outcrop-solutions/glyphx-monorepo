@@ -21,18 +21,13 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
 
 export const _uploadFile = (
   acceptedFile: ArrayBuffer,
-  key: string,
+  tableName: string,
   workspaceId: string,
   projectId: string
 ): webTypes.IFetchConfig => {
   return {
-    url: `/api/etl/upload`,
+    url: `/api/etl/upload?workspaceId=${workspaceId}&projectId=${projectId}&tableName=${tableName}`,
     options: {
-      headers: {
-        key: key,
-        workspaceId: workspaceId,
-        projectId: projectId,
-      },
       method: 'POST',
       body: acceptedFile,
     },
@@ -40,11 +35,23 @@ export const _uploadFile = (
   };
 };
 
+/**
+ * @note I know it's not great form to put body on a get but we will refactor the query param / routing later
+ * @param workpaceId
+ * @param projectId
+ * @param tableName
+ * @returns config
+ */
 export const _getDataGrid = (workpaceId: string, projectId: string, tableName: string): webTypes.IFetchConfig => {
   return {
-    url: `/api/data/${workpaceId}/${projectId}/${tableName}`,
+    url: `/api/data/grid`,
     options: {
       method: 'GET',
+      body: {
+        workpaceId,
+        projectId,
+        tableName,
+      },
     },
     successMsg: 'File successfully added',
   };

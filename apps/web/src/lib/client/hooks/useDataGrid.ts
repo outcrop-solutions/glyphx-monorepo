@@ -1,30 +1,37 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
-import { selectedTableNameSelector } from 'state';
+import { fileSystemSelector, projectAtom, selectedFileAtom } from 'state';
 import useSWRImmutable from 'swr/immutable';
 import { api } from '../network';
 import { _getDataGrid } from '../mutations';
 import { useRouter } from 'next/router';
 
-const useDataGrid = (tableName) => {
+const useDataGrid = () => {
   const router = useRouter();
-  const { workspaceId, projectId } = router.query;
+  const { projectId } = router.query;
+  const { index } = useRecoilValue(selectedFileAtom);
+  const project = useRecoilValue(projectAtom);
   const [data, setData] = useState(null);
 
-  const fetchData = useCallback(async () => {
-    api({
-      ..._getDataGrid(workspaceId as string, projectId as string, tableName),
-      onSuccess(data) {
-        setData(data);
-      },
-    });
-  }, [projectId, tableName, workspaceId]);
-
   useEffect(() => {
-    if (!data) {
-      fetchData();
-    }
-  }, [data, fetchData]);
+    const fetchData = async (idx: number) => {
+      if (idx === -1) {
+        console.log('no selected file');
+        setData(null);
+      } else {
+        console.log('else block');
+        api({
+          ..._getDataGrid(project.workspace._id as string, projectId as string, project.files[idx]?.tableName),
+          onSuccess(data) {
+            console.log({ data });
+            setData(data);
+          },
+        });
+      }
+    };
+
+    fetchData(index);
+  }, [index, project, projectId]);
 
   return { data };
 };

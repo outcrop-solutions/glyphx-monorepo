@@ -48,19 +48,6 @@ export const selectedFileAtom = atom<webTypes.SelectedIndex>({
   default: { index: -1 },
 });
 
-export const selectedTableNameSelector = selector<string>({
-  key: 'selectedTableNameSelector',
-  get: ({ get }) => {
-    const index = get(selectedFileAtom);
-    const files = get(fileSystemSelector);
-    if (index !== -1) {
-      return files[index]?.tableName;
-    } else {
-      return '';
-    }
-  },
-});
-
 /**
  * Holds the matches found upon file ingestion between existing and new file statistics.
  * If !== null, modal will display asking user to make a ADD | APPEND choice

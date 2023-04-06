@@ -14,6 +14,7 @@ import { compareStats, parsePayload } from 'lib/client/files/transforms';
 import produce from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
+import useDataGrid from 'lib/client/hooks/useDataGrid';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -29,9 +30,10 @@ export const useFileSystem = () => {
   const workspace = useRecoilValue(workspaceAtom);
   const [project, setProject] = useRecoilState(projectAtom);
   const setSelectedFile = useSetRecoilState(selectedFileAtom);
-  const existingFileStats = useRecoilValue(fileStatsSelector);
-  const fileSystem = useRecoilValue(fileSystemSelector);
-  const setMatchingStats = useSetRecoilState(matchingFilesAtom);
+  // const { fetchData } = useDataGrid();
+  // const existingFileStats = useRecoilValue(fileStatsSelector);
+  // const fileSystem = useRecoilValue(fileSystemSelector);
+  // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
 
   const selectFile = useCallback(
     (idx: number) => {
@@ -41,6 +43,7 @@ export const useFileSystem = () => {
           draft.index = idx;
         })
       );
+      // fetchData(idx);
     },
     [setSelectedFile]
   );
@@ -109,22 +112,20 @@ export const useFileSystem = () => {
       // parse payload
       const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
 
-      // get s3 keys
-      const keys = payload.fileStats.map(
-        (stat) => `client/${workspace._id}/${project._id}/input/${stat.tableName}/${stat.fileName}`
-      );
+      // get s3 keys for upload
+      const tableNames = payload.fileStats.map((stat) => `${stat.tableName}`);
 
       // get signed urls
       // api({
       // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
       // onSuccess: ({ signedUrls }) => {
       Promise.all(
-        keys.map(async (key, idx) => {
+        tableNames.map(async (tableName, idx) => {
           // upload raw file data to s3
           api({
             ..._uploadFile(
               await acceptedFiles[idx].arrayBuffer(),
-              key,
+              tableName,
               workspace._id.toString(),
               project._id.toString()
             ),

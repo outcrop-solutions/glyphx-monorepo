@@ -30,19 +30,7 @@ export const ProjectHeader = () => {
   const router = useRouter();
 
   const backPresssed = () => {
-    setSelectedProject(null);
-    setShare(false);
-    setShowInfo(false);
-    setNotification(false);
-    setShowSearchModalOpen(false);
-
-    try {
-      //close glyph viewer
-      window?.core?.CloseModel();
-    } catch (error) {
-      // do nothng
-    }
-    router.push('/');
+    router.push(`/account/${selectedProject.workspace.slug}`);
   };
 
   const handleChange = (e) => {

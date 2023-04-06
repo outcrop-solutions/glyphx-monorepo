@@ -16,19 +16,15 @@ export const GridContainer = () => {
 
   return (
     <>
-      {/* {openFiles?.length > 0 ? ( */}
-      {/* <div className=""> */}
-      <div className="flex flex-col">
-        <GridHeader />
-        <Datagrid />
-      </div>
-      {/* <div className={`flex flex-col`}>
-            <ModelFooter />
-          </div> */}
-      {/* </div>
+      {openFiles?.length > 0 ? (
+        <div className="flex flex-col">
+          <GridHeader />
+          <Datagrid />
+          {/* <ModelFooter /> */}
+        </div>
       ) : (
         <MainDropzone />
-      )} */}
+      )}
     </>
   );
 };

@@ -8,7 +8,7 @@ import { Templates } from 'partials';
 import { TableView } from 'partials';
 import { GridView } from 'partials';
 import { AddProjectModal } from 'partials';
-import { ProjectDetails } from 'partials';
+// import { ProjectDetails } from 'partials';
 
 // Hooks
 import { useRecoilValue } from 'recoil';
@@ -38,9 +38,9 @@ export default function Home() {
       ) : (
         <Templates />
       )}
-      <div id="right-side-bars" className="">
+      {/* <div id="right-side-bars" className="">
         {project ? <ProjectDetails /> : <></>}
-      </div>
+      </div> */}
     </>
   );
 }

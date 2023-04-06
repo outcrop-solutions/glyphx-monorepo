@@ -4,7 +4,7 @@ import { aws, generalPurposeFunctions } from '@glyphx/core';
 import { FileIngestor } from '@glyphx/fileingestion';
 import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
 import { processTrackingService } from '@glyphx/business';
-
+import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
 /**
  * File Ingestion Key Notes
  *
@@ -61,16 +61,34 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
   try {
     // Extract payload
     const { payload } = req.body;
+    const cleaner = new BasicColumnNameCleaner();
+
+    // clean fileStats & fileInfo and table names
+    const cleanPayload = {
+      ...payload,
+      fileStats: payload.fileStats.map((stat) => ({
+        ...stat,
+        fileName: cleaner.cleanColumnName(stat.fileName),
+        tabelName: cleaner.cleanColumnName(stat.tableName),
+      })),
+      fileInfo: payload.fileInfo.map((info) => ({
+        ...info,
+        fileName: cleaner.cleanColumnName(info.fileName),
+        tabelName: cleaner.cleanColumnName(info.tableName),
+      })),
+    };
+
     // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
     if (!s3Manager.inited) {
       await s3Manager.init();
     }
 
-    let newPayload = { ...payload };
+    let newPayload = { ...cleanPayload };
+
     for (let i = 0; i < payload.fileInfo.length; i++) {
       const stream = await s3Manager.getObjectStream(
-        `client/${payload.clientId}/${payload.modelId}/input/${payload.fileInfo[i].tableName}/${payload.fileInfo[i].fileName}`
+        `client/${payload.clientId}/${payload.modelId}/input/${cleanPayload.fileInfo[i].tableName}/${cleanPayload.fileInfo[i].fileName}`
       );
       newPayload.fileInfo[i].fileStream = stream;
     }

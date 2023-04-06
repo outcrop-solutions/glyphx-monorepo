@@ -3,7 +3,6 @@ import { parse } from 'papaparse';
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { S3_BUCKET_NAME } from 'config/constants';
 import { Types as mongooseTypes } from 'mongoose';
-
 /**
  * Takes in papaparsed file data and returns the rendarable grid state
  * @param {File}

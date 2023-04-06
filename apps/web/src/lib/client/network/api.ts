@@ -29,6 +29,7 @@ export async function api({
       },
       ...opts,
     });
+    console.log({ res });
     const data = await res.json();
     const response = { status: res.status, ...data, url };
     setLoading(false);

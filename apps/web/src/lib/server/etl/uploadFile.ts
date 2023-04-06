@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
 // import { Session } from 'next-auth';
 import { aws } from '@glyphx/core';
 import { S3_BUCKET_NAME } from 'config/constants';
@@ -19,11 +20,16 @@ import { PassThrough } from 'stream';
 export const uploadFile = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // Extract payload
-    const { key } = req.headers;
-    if (Array.isArray(key)) {
+    const { tableName, workspaceId, projectId } = req.query;
+
+    if (Array.isArray(tableName) && Array.isArray(workspaceId) && Array.isArray(projectId)) {
       return res.status(400).end('Bad request. Parameter cannot be an array.');
     }
+    const cleaner = new BasicColumnNameCleaner();
+    const table = cleaner.cleanColumnName(tableName as string);
 
+    const key = `client/${workspaceId}/${projectId}/input/${table}/${table}.csv`;
+    console.log({ key });
     // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
     if (!s3Manager.inited) {
