@@ -36,7 +36,6 @@ export const fileSystemSelector = selector<webTypes.FileSystem>({
   key: 'fileSystemSelector',
   get: ({ get }) => {
     const project = get(projectAtom);
-    return project?.files;
   },
 });
 
