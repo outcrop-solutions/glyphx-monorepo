@@ -7,4 +7,5 @@ export interface IFrontendApiReq {
   successMsg?: string;
   upload?: boolean;
   silentFail?: boolean;
+  returnData?: boolean;
 }

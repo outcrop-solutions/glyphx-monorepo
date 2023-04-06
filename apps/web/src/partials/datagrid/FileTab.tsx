@@ -1,11 +1,11 @@
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { selectedFileAtom } from 'state/files';
+import { selectedFileIndexSelector } from 'state/files';
 import { XIcon } from '@heroicons/react/solid';
 import { useFileSystem } from 'services/useFileSystem';
 
 export const FileTab = ({ tableName, fileIndex }) => {
   const { closeFile, selectFile } = useFileSystem();
-  const selectedFile = useRecoilValue(selectedFileAtom);
+  const selectedFile = useRecoilValue(selectedFileIndexSelector);
 
   const handleClose = (e) => {
     e.stopPropagation();

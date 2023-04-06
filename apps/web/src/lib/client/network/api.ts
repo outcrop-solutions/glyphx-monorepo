@@ -10,6 +10,7 @@ export async function api({
   successMsg,
   upload = false,
   silentFail = false,
+  returnData = false,
 }: webTypes.IFrontendApiReq) {
   console.log({
     api: true,
@@ -26,10 +27,12 @@ export async function api({
   if (upload) {
     requestBody = body;
   } else {
+    console.log('request body');
     requestBody = JSON.stringify(body);
   }
 
   try {
+    console.log('calling fetch');
     const res = await fetch(url, {
       body: requestBody,
       headers: {
@@ -40,6 +43,7 @@ export async function api({
     });
     console.log({ res });
     const data = await res.json();
+    console.log({ data, api: true });
     const response = { status: res.status, ...data, url };
     setLoading(false);
 
@@ -49,10 +53,15 @@ export async function api({
         Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
       }
     } else {
-      onSuccess(response.data);
-      toast.success(successMsg);
+      if (!returnData) {
+        onSuccess(response.data);
+        toast.success(successMsg);
+      } else {
+        return response.data;
+      }
     }
   } catch (error) {
+    console.log({ error, api: true });
     if (!silentFail) {
       toast.error(error.msg);
     }

@@ -24,7 +24,6 @@ export const _uploadFile = (
   workspaceId: string,
   projectId: string
 ): webTypes.IFetchConfig => {
-  console.log({ key, config: true });
   return {
     url: `/api/etl/upload?workspaceId=${workspaceId}&projectId=${projectId}&key=${key}`,
     options: {
@@ -42,18 +41,18 @@ export const _uploadFile = (
  * @param tableName
  * @returns config
  */
-export const _getDataGrid = (workpaceId: string, projectId: string, tableName: string): webTypes.IFetchConfig => {
+export const _getDataGrid = (workspaceId: string, projectId: string, tableName: string): webTypes.IFetchConfig => {
   return {
     url: `/api/data/grid`,
     options: {
-      method: 'GET',
+      method: 'POST',
       body: {
-        workpaceId,
-        projectId,
-        tableName,
+        workspaceId: workspaceId,
+        projectId: projectId,
+        tableName: tableName,
       },
     },
-    successMsg: 'File successfully added',
+    successMsg: 'File successfully loaded',
   };
 };
 

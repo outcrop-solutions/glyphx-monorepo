@@ -12,40 +12,23 @@ import {
 } from 'state';
 
 export const Header = () => {
-  const [selectedProject, setSelectedProject] = useRecoilState(projectAtom);
+  const setSelectedProject = useSetRecoilState(projectAtom);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
-  const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-  const setShare = useSetRecoilState(showShareModalOpenAtom);
-  const setShowInfo = useSetRecoilState(showInfoDropdownAtom);
-  const [paneOrientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
 
   const router = useRouter();
 
-  const backPresssed = () => {
-    setSelectedProject(null);
-    setShare(false);
-    setShowInfo(false);
-    setShowSearchModalOpen(false);
-
+  const backPressed = () => {
     try {
       //close glyph viewer
       window?.core?.CloseModel();
     } catch (error) {
       // do nothng
     }
-    router.push('/');
+    router.push('/account');
   };
 
   const handleChange = (e) => {
     setSelectedProject((prev) => ({ ...prev, name: e.target.value }));
-  };
-
-  const handlePaneSwitch = () => {
-    if (paneOrientation === 'horizontal') {
-      setOrientation('vertical');
-    } else {
-      setOrientation('horizontal');
-    }
   };
 
   return (

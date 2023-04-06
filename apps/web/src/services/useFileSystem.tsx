@@ -1,20 +1,11 @@
 import { useCallback } from 'react';
-import { useRouter } from 'next/router';
 
-import {
-  selectedFileAtom,
-  fileSystemSelector,
-  projectAtom,
-  fileStatsSelector,
-  matchingFilesAtom,
-  workspaceAtom,
-} from 'state';
+import { projectAtom, fileStatsSelector, matchingFilesAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { compareStats, parsePayload } from 'lib/client/files/transforms';
 import produce, { current } from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
-import useDataGrid from 'lib/client/hooks/useDataGrid';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -27,26 +18,23 @@ import useDataGrid from 'lib/client/hooks/useDataGrid';
  */
 
 export const useFileSystem = () => {
-  const workspace = useRecoilValue(workspaceAtom);
   const [project, setProject] = useRecoilState(projectAtom);
-  const setSelectedFile = useSetRecoilState(selectedFileAtom);
   // const { fetchData } = useDataGrid();
   // const existingFileStats = useRecoilValue(fileStatsSelector);
-  // const fileSystem = useRecoilValue(fileSystemSelector);
   // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
 
   const selectFile = useCallback(
     (idx: number) => {
-      console.log('called selectFile');
       // select file
-      setSelectedFile(
-        produce((draft: any) => {
-          draft.index = idx;
+      setProject(
+        produce((draft) => {
+          // @ts-ignore
+          draft.files[idx].selected = true;
         })
       );
       // fetchData(idx);
     },
-    [setSelectedFile]
+    [setProject]
   );
 
   /**
@@ -60,15 +48,12 @@ export const useFileSystem = () => {
         produce((draft) => {
           // @ts-ignore
           draft.files[idx].open = true;
-        })
-      );
-      setSelectedFile(
-        produce((draft: any) => {
-          draft.index = idx;
+          // @ts-ignore
+          draft.files[idx].selected = true;
         })
       );
     },
-    [setProject, setSelectedFile]
+    [setProject]
   );
 
   const closeFile = useCallback(
@@ -77,23 +62,14 @@ export const useFileSystem = () => {
       // close file
       setProject(
         produce((draft) => {
-          console.log({ draft: current(draft), closeFile: true });
           // @ts-ignore
           draft.files[idx].open = false;
-        })
-      );
-      // update selection
-      setSelectedFile(
-        produce((draft: any) => {
-          console.log({ draft: current(draft), index: true });
-          // if closed file is selected, go to next closest file, else select none (via -1)
-          draft.index = draft.index == idx ? idx - 1 : -1;
-
-          console.log({ draft: current(draft), index: 'after' });
+          // @ts-ignore
+          draft.files[idx].selected = false;
         })
       );
     },
-    [setProject, setSelectedFile]
+    [setProject]
   );
 
   /**
@@ -120,12 +96,10 @@ export const useFileSystem = () => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // parse payload
-      const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
+      const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
       // get s3 keys for upload
       const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
-
-      console.log({ hook: true, payload });
       // get signed urls
       // api({
       // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
@@ -137,7 +111,7 @@ export const useFileSystem = () => {
             ..._uploadFile(
               await acceptedFiles[idx].arrayBuffer(),
               key,
-              workspace._id.toString(),
+              project.workspace._id.toString(),
               project._id.toString()
             ),
             upload: true,
@@ -185,7 +159,7 @@ export const useFileSystem = () => {
 
       // update file system state with processed data based on user decision
     },
-    [project, selectFile, setProject, workspace]
+    [project, selectFile, setProject]
   );
 
   return {

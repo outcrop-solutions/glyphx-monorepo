@@ -25,14 +25,13 @@ import { projectAtom } from './project';
       numberOfColumns: 4,
       columns: [],
       fileSize: 2035,
-      dataGrid: { rows: [], columns: [] },
       open: true,
     },
   ],
  **/
 
-// WRITEABLE STATE HERE
-export const fileSystemSelector = selector<webTypes.FileSystem>({
+// Intermediate Representation
+export const fileSystemSelector = selector<fileIngestionTypes.IFileStats[]>({
   key: 'fileSystemSelector',
   get: ({ get }) => {
     const project = get(projectAtom);
@@ -43,22 +42,26 @@ export const fileSystemSelector = selector<webTypes.FileSystem>({
 /**
  * Holds the index of the currently selected file relative to filesystem. This is important for index based array update patterns to work performantly, -1 denotes non selected
  * */
-export const selectedFileAtom = atom<webTypes.SelectedIndex>({
+
+export const selectedFileIndexSelector = selector({
   key: 'selectedFileSelector',
-  default: { index: -1 },
+  get: ({ get }) => {
+    const files = get(fileSystemSelector);
+    // @ts-ignore
+    return files.findIndex((file) => file?.selected);
+  },
 });
 
-export const selectedTableNameSelector = selector<string>({
-  key: 'selectedTableNameSelector',
+export const dataGridPayloadSelector = selector({
+  key: 'dataGridPayloadSelector',
   get: ({ get }) => {
-    const { index } = get(selectedFileAtom);
-    const files = get(fileSystemSelector);
-    console.log({ index, files });
-    if (index !== -1) {
-      return files[index]?.tableName;
-    } else {
-      return '';
-    }
+    const project = get(projectAtom);
+    const idx = get(selectedFileIndexSelector);
+    return {
+      workspaceId: project.workspace._id.toString(),
+      projectId: project._id,
+      tableName: project.files[idx]?.tableName,
+    };
   },
 });
 

@@ -5,6 +5,7 @@ import { showShareModalOpenAtom, showInfoDropdownAtom, showNotificationDropdownA
 
 import dynamic from 'next/dynamic';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
+import { dataGridPayloadSelector } from 'state';
 
 const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
   ssr: false,
@@ -13,7 +14,10 @@ const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
 export const Datagrid = () => {
   // const rows = useRecoilValue(rowsSelector);
   // const columns = useRecoilValue(columnsSelector);
-  const { data } = useDataGrid();
+  const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
+  console.log({ workspaceId, projectId, tableName });
+
+  const { data } = useDataGrid(workspaceId, projectId, tableName);
 
   const isShareModelOpen = useRecoilValue(showShareModalOpenAtom);
   const isShowInfoOpen = useRecoilValue(showInfoDropdownAtom);

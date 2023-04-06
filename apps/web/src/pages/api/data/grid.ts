@@ -14,11 +14,11 @@ const data = async (req, res) => {
   if (!session.user.userId) return res.status(401).end();
 
   switch (req.method) {
-    case webTypes.constants.HTTP_METHOD.GET:
+    case webTypes.constants.HTTP_METHOD.POST:
       // return addFile(req, res, session);
       return getDataByTableName(req, res);
     default:
-      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.GET]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 };

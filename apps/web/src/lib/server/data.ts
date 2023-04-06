@@ -18,16 +18,12 @@ export const getDataByTableName = async (
 ): Promise<void | NextApiResponse> => {
   const { workspaceId, projectId, tableName } = req.body;
 
-  if (Array.isArray(workspaceId) && Array.isArray(projectId) && Array.isArray(tableName)) {
+  if (Array.isArray(workspaceId) || Array.isArray(projectId) || Array.isArray(tableName)) {
     res.status(400).end('Invalid Query parameter');
   }
 
   // const table = generalPurposeFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName as string);
 
-  console.log({
-    server: true,
-    tableName: sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName),
-  });
   const data = await dataService.getDataByTableName(
     sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName)
   );

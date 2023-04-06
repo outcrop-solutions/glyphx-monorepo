@@ -1,11 +1,11 @@
 import React from 'react';
-import { selectedFileAtom } from 'state/files';
+import { selectedFileIndexSelector } from 'state/files';
 import { useRecoilValue } from 'recoil';
 import { useFileSystem } from 'services/useFileSystem';
 
 export const File = ({ fileName, idx }) => {
   const { openFile } = useFileSystem();
-  const selectedFile = useRecoilValue(selectedFileAtom);
+  const selectedFile = useRecoilValue(selectedFileIndexSelector);
 
   return (
     <div

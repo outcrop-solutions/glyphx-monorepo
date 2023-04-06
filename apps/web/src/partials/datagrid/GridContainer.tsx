@@ -6,7 +6,7 @@ import { GridHeader } from './GridHeader';
 import { ModelFooter } from './ModelFooter';
 import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
-import { filesOpenSelector, rowsSelector } from 'state/files';
+import { filesOpenSelector } from 'state/files';
 import { showDataGridLoadingAtom, showModelCreationLoadingAtom } from 'state/ui';
 
 export const GridContainer = () => {
