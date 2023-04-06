@@ -48,11 +48,11 @@ export class AthenaManager {
    * @throws InvalidOperationException - if {@link init} has not been previously called on this instance.
    */
   public get athenaClient(): AthenaClient {
-    if (!this.initedField)
-      throw new error.InvalidOperationError(
-        'you must call init before you can retreive the athena client',
-        {}
-      );
+    // if (!this.initedField)
+    // throw new error.InvalidOperationError(
+    //   'you must call init before you can retreive the athena client',
+    //   {}
+    // );
     return this.athenaClientField;
   }
 
@@ -83,23 +83,23 @@ export class AthenaManager {
    * named in {@link databaseName}
    */
   public async init(): Promise<void> {
-    try {
-      await this.athenaClientField.send(
-        new GetDatabaseCommand({
-          CatalogName: DATA_CATALOG_NAME,
-          DatabaseName: this.databaseNameField,
-        })
-      );
+    // try {
+    await this.athenaClientField.send(
+      new GetDatabaseCommand({
+        CatalogName: DATA_CATALOG_NAME,
+        DatabaseName: this.databaseNameField,
+      })
+    );
 
-      this.initedField = true;
-    } catch (err) {
-      throw new error.InvalidArgumentError(
-        `An unexpected error occurred while checking for the existance of the database ${this.databaseName}.  Are you sure that it exists and that you have permissions to access it`,
-        'databaseName',
-        this.databaseName,
-        err
-      );
-    }
+    this.initedField = true;
+    // } catch (err) {
+    //   throw new error.InvalidArgumentError(
+    //     `An unexpected error occurred while checking for the existance of the database ${this.databaseName}.  Are you sure that it exists and that you have permissions to access it`,
+    //     'databaseName',
+    //     this.databaseName,
+    //     err
+    //   );
+    // }
   }
   /**
    * Will execute the query against Athena.  Athena completes the query offline, so this funciton will start the query

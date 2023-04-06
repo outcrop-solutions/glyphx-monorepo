@@ -46,6 +46,7 @@ export class MinMaxCalculator {
   }
 
   public async load(): Promise<void> {
+    await athenaClient.init();
     const filterString = this.filter ? `WHERE ${this.filter}` : '';
 
     const query = `WITH temp as (SELECT "${this.xColumnName}","${this.yColumnName}", SUM("${this.zColumnName}") as "${this.zColumnName}" FROM "${this.tableName}" ${filterString} GROUP BY "${this.xColumnName}","${this.yColumnName}") SELECT MIN("${this.xColumnName}") as "min${this.xColumnName}", MAX("${this.xColumnName}") as "max${this.xColumnName}", MIN("${this.yColumnName}") as "min${this.yColumnName}", MAX("${this.yColumnName}") as "max${this.yColumnName}", MIN("${this.zColumnName}") as "min${this.zColumnName}", MAX("${this.zColumnName}") as "max${this.zColumnName}" FROM temp`;

@@ -13,9 +13,9 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
   const colNames = Object.keys(data[0]);
 
   let cols = colNames.map((item, idx) => {
-    const capitalized = item.charAt(0).toUpperCase() + item.slice(1);
     return {
-      key: capitalized,
+      key: item,
+      name: item === 'glyphx_id__' ? 'id' : item,
       dataType: isNaN(Number(data[0][item]))
         ? fileIngestionTypes.constants.FIELD_TYPE.STRING
         : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
@@ -25,13 +25,6 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
     };
   });
   // Generates first column
-  cols.unshift({
-    key: 'id',
-    dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
-    width: 40,
-    resizable: true,
-    sortable: true,
-  });
   const rows = data.map((row, idx) => ({ ...row, id: idx }));
   return { columns: cols, rows };
 };

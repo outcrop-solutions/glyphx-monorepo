@@ -5,7 +5,11 @@ const useProject = () => {
   const router = useRouter();
   const { projectId } = router.query;
   const apiRoute = `/api/project/${projectId}`;
-  const { data, error } = useSWR(projectId && `${apiRoute}`);
+  const { data, error } = useSWR(projectId && `${apiRoute}`, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
   return {
     ...data,
     isLoading: !error && !data,

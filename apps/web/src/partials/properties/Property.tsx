@@ -4,7 +4,7 @@ import { web as webTypes } from '@glyphx/types';
 // import { AxesIcons } from '../filters/AxesIcons';
 
 import { showModelCreationLoadingAtom } from 'state/ui';
-import { singlePropertySelectorFamily } from 'state/project';
+import { projectAtom, singlePropertySelectorFamily } from 'state/project';
 import { useProject } from 'services';
 
 import ClearIcon from 'public/svg/clear-icon.svg';
@@ -14,12 +14,13 @@ import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
 import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 
 export const Property = ({ axis }) => {
+  const project = useRecoilValue(projectAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const { handleDrop } = useProject();
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
-    drop: () => handleDrop(axis, prop),
+    drop: (item) => handleDrop(axis, item, project),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),

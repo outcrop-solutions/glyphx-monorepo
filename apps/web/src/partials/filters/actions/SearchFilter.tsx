@@ -65,7 +65,7 @@ export const SearchFilter = ({ prop }) => {
       </div>
       {/* SEARCH KEYWORD CHIPS */}
       <div className="flex flex-wrap gap-y-1 scrollbar-none mx-2 my-1">
-        {prop.filter.keywords.map((keyword, idx) => (
+        {prop?.filter?.keywords?.map((keyword, idx) => (
           <span
             key={idx}
             className="px-1 mr-1 rounded-[2px] bg-gray h-3 hover:bg-primary-yellow-hover text-secondary-space-blue font-medium font-roboto text-[10px] flex items-center justify-between gap-x-1 align-middle cursor-pointer"

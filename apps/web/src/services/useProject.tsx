@@ -1,84 +1,50 @@
 import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import produce from 'immer';
-import { web as webTypes } from '@glyphx/types';
-import { _createModel, _getSignedDataUrls, api } from 'lib/client';
-import { GridColumn } from 'lib/types';
+import { useSetRecoilState } from 'recoil';
+import { web as webTypes, fileIngestion as fileIngestionTypes, database as databaseTypes } from '@glyphx/types';
+import { _createModel, _createOpenProject, _getSignedDataUrls, api } from 'lib/client';
 
-import {
-  droppedPropertiesSelector,
-  createModelPayloadSelector,
-  projectAtom,
-  showModelCreationLoadingAtom,
-  canCallETL,
-  workspaceAtom,
-} from 'state';
-import { getUrl } from 'config/constants';
+import { projectAtom, showModelCreationLoadingAtom } from 'state';
+import { updateDrop } from 'lib/client/actions/updateProp';
 
 export const useProject = () => {
-  // app state
-  const workspace = useRecoilValue(workspaceAtom);
-  const [project, setProject] = useRecoilState(projectAtom);
-  const droppedProps = useRecoilValue(droppedPropertiesSelector);
-  const createModelPayload = useRecoilValue(createModelPayloadSelector);
+  const session = useSession();
+  const setProject = useSetRecoilState(projectAtom);
 
   // ui state
   const setModelCreationLoadingState = useSetRecoilState(showModelCreationLoadingAtom);
   // const setShowQtViewer = useSetRecoilState(showQtViewerAtom);
 
-  // DnD utilities
-  const isDropped = (propName) => {
-    return droppedProps?.indexOf(propName) > -1;
-  };
-
-  const callETL = useCallback(async () => {
-    if (canCallETL) {
+  const callETL = useCallback(
+    async (axis: webTypes.constants.AXIS, column: any, project) => {
       // call glyph engine
       await api({
-        ..._createModel(createModelPayload),
-      });
-      // get signed urls
-      await api({
-        ..._getSignedDataUrls(workspace?._id.toString(), project?._id.toString()),
+        ..._createModel(axis, column, project),
+        silentFail: true,
         onSuccess: (data) => {
-          window?.core?.OpenProject(
-            JSON.stringify({
-              projectId: project?._id,
-              workspaceId: workspace?._id,
-              sdtUrl: data.sdturl,
-              sgnUrl: data.sgnurl,
-              sgcUrl: data.data.sgcurl,
-              viewName: project?.viewName,
-              apiLocation: `${getUrl()}/api`,
-              sessionInformation: data,
-            })
-          );
+          api({
+            ..._getSignedDataUrls(project?.workspace.toString(), project?._id.toString()),
+            onSuccess: (data) => {
+              window?.core?.OpenProject(_createOpenProject(data, project, session));
+            },
+          });
         },
       });
-    }
-  }, [createModelPayload, project, workspace]);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   const handleDrop = useCallback(
-    async (axis: webTypes.constants.AXIS, column: GridColumn) => {
-      setProject(
-        produce((draft) => {
-          // @ts-ignore
-          draft.state.properties[`${axis}`].key = column.key;
-          // @ts-ignore
-          draft.state.properties[`${axis}`].dataType = column.dataType;
-        })
-      );
-      if (canCallETL) {
-        callETL();
-      }
+    (axis: webTypes.constants.AXIS, column: any, project: databaseTypes.IProject) => {
+      // we can compose these for a one liner
+      callETL(axis, column, project);
+      setProject(updateDrop(axis, column));
     },
     [callETL, setProject]
   );
 
   return {
-    isDropped,
     handleDrop,
-    callETL,
   };
 };

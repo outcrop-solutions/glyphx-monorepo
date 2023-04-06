@@ -8,3 +8,4 @@ export * from './team';
 export * from './user';
 export * from './workspaces';
 export * from './workspace';
+export * from './data';

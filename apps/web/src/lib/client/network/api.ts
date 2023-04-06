@@ -9,6 +9,7 @@ export async function api({
   onSuccess = () => {},
   successMsg,
   upload = false,
+  silentFail = false,
 }: webTypes.IFrontendApiReq) {
   setLoading(true);
   const { body, headers, ...opts } = options;
@@ -34,13 +35,17 @@ export async function api({
 
     if (response.errors) {
       onError(response.status);
-      Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
+      if (!silentFail) {
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
+      }
     } else {
       onSuccess(response.data);
       toast.success(successMsg);
     }
   } catch (error) {
-    toast.error(error.msg);
+    if (!silentFail) {
+      toast.error(error.msg);
+    }
   }
 }
 

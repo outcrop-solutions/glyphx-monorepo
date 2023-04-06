@@ -1,4 +1,5 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { web as webTypes, fileIngestion as fileIngestionTypes, database as databaseTypes } from '@glyphx/types';
+import { getUrl } from 'config/constants';
 // FILE MUTATIONS
 
 /**
@@ -7,15 +8,34 @@ import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/ty
  * @param payload corresponds to the glyph engine payload
  */
 
-export const _createModel = (payload: webTypes.ICreateModelPayload): webTypes.IFetchConfig => {
+export const _createModel = (axis, column, project: databaseTypes.IProject): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: { ...payload },
+      body: { axis, column, project },
     },
     successMsg: 'File successfully added',
   };
+};
+
+/**
+ *
+ * @param project
+ * @param data
+ * @returns stringified Qt Open Project payload
+ */
+export const _createOpenProject = (data, project, session) => {
+  return JSON.stringify({
+    projectId: project?._id,
+    workspaceId: project?.workspace._id,
+    sdtUrl: data.sdturl,
+    sgnUrl: data.sgnurl,
+    sgcUrl: data.sgcurl,
+    viewName: project?.viewName,
+    apiLocation: `${getUrl()}/api`,
+    sessionInformation: session,
+  });
 };
 
 /**

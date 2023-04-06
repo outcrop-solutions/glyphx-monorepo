@@ -8,19 +8,19 @@ import { AxesIcons } from './AxesIcons';
 import PlusIcon from 'public/svg/plus-icon.svg';
 import GarbageIcon from 'public/svg/garbage-can-icon.svg';
 
-import { singlePropertySelectorFamily } from 'state';
+import { projectAtom, singlePropertySelectorFamily } from 'state';
 import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { useProject } from 'services';
 
 export const Axes = ({ axis }) => {
+  const project = useRecoilValue(projectAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const [showFilter, setShowFilter] = useState(false); //shows filter property
-
   const { handleDrop } = useProject();
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
-    drop: () => handleDrop(axis, prop),
+    drop: (item) => handleDrop(axis, item, project),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),

@@ -1,5 +1,6 @@
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import { signInHtml, signInText, EmailClient } from '@glyphx/email';
 import { Initializer, customerPaymentService, userService } from '@glyphx/business';
@@ -61,6 +62,12 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             to: email,
           });
         },
+      }),
+      GoogleProvider({
+        // eslint-disable-next-line turbo/no-undeclared-env-vars
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        // eslint-disable-next-line turbo/no-undeclared-env-vars
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       }),
     ],
     secret: process.env.NEXTAUTH_SECRET || null,

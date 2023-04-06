@@ -48,6 +48,19 @@ export const selectedFileAtom = atom<webTypes.SelectedIndex>({
   default: { index: -1 },
 });
 
+export const selectedTableNameSelector = selector<string>({
+  key: 'selectedTableNameSelector',
+  get: ({ get }) => {
+    const index = get(selectedFileAtom);
+    const files = get(fileSystemSelector);
+    if (index !== -1) {
+      return files[index]?.tableName;
+    } else {
+      return '';
+    }
+  },
+});
+
 /**
  * Holds the matches found upon file ingestion between existing and new file statistics.
  * If !== null, modal will display asking user to make a ADD | APPEND choice
@@ -112,17 +125,9 @@ export const filesOpenSelector = selector<webTypes.OpenFile[]>({
 /**
  * Peels the pre-calculated datagrid off the filesystem to render in react-data-grid
  */
-export const dataGridSelector = selector<webTypes.IRenderableDataGrid>({
-  key: 'dataGridSelector',
-  get: async ({ get }) => {
-    const selectedFile = get(selectedFileAtom);
-    const fileSystem = get(fileSystemSelector);
-    if (fileSystem && fileSystem?.length > 0 && selectedFile?.index !== -1) {
-      return fileSystem[selectedFile?.index]?.dataGrid;
-    } else {
-      return { columns: [], rows: [] };
-    }
-  },
+export const dataGridAtom = atom<webTypes.IRenderableDataGrid | null>({
+  key: 'dataGridAtom',
+  default: null,
 });
 
 /**
@@ -131,7 +136,7 @@ export const dataGridSelector = selector<webTypes.IRenderableDataGrid>({
 export const columnsSelector = selector<webTypes.GridColumn[]>({
   key: 'columnsSelector',
   get: ({ get }) => {
-    let dataGrid = get(dataGridSelector);
+    let dataGrid = get(dataGridAtom);
     return dataGrid?.columns || [];
   },
 });
@@ -142,7 +147,7 @@ export const columnsSelector = selector<webTypes.GridColumn[]>({
 export const rowsSelector = selector({
   key: 'rowsSelector',
   get: ({ get }) => {
-    let dataGrid = get(dataGridSelector);
+    let dataGrid = get(dataGridAtom);
     return dataGrid?.rows || [];
   },
 });

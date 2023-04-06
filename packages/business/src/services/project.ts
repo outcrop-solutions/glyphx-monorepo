@@ -115,7 +115,7 @@ export class ProjectService {
               },
             },
             Y: {
-              axis: webTypes.constants.AXIS.X,
+              axis: webTypes.constants.AXIS.Y,
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column Y', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
@@ -127,7 +127,7 @@ export class ProjectService {
               },
             },
             Z: {
-              axis: webTypes.constants.AXIS.X,
+              axis: webTypes.constants.AXIS.Z,
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column Z', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
@@ -139,7 +139,7 @@ export class ProjectService {
               },
             },
             A: {
-              axis: webTypes.constants.AXIS.X,
+              axis: webTypes.constants.AXIS.A,
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column 1', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
@@ -151,7 +151,7 @@ export class ProjectService {
               },
             },
             B: {
-              axis: webTypes.constants.AXIS.X,
+              axis: webTypes.constants.AXIS.B,
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column 2', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
@@ -163,7 +163,7 @@ export class ProjectService {
               },
             },
             C: {
-              axis: webTypes.constants.AXIS.X,
+              axis: webTypes.constants.AXIS.C,
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
               key: 'Column 3', // corresponds to column name
               dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type

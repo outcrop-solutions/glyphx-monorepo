@@ -39,7 +39,7 @@ export class GlyphEngine {
     databaseName: string,
     processId: string
   ) {
-    this.templateKey = 'public/templates/template_new.sdt';
+    this.templateKey = 'templates/template_new.sdt';
 
     this.inputBucketNameField = inputBucketName;
     this.outputBucketNameField = outputBucketName;
