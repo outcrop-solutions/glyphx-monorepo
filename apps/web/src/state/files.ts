@@ -36,6 +36,7 @@ export const fileSystemSelector = selector<webTypes.FileSystem>({
   key: 'fileSystemSelector',
   get: ({ get }) => {
     const project = get(projectAtom);
+    return project?.files;
   },
 });
 
@@ -45,6 +46,20 @@ export const fileSystemSelector = selector<webTypes.FileSystem>({
 export const selectedFileAtom = atom<webTypes.SelectedIndex>({
   key: 'selectedFileSelector',
   default: { index: -1 },
+});
+
+export const selectedTableNameSelector = selector<string>({
+  key: 'selectedTableNameSelector',
+  get: ({ get }) => {
+    const { index } = get(selectedFileAtom);
+    const files = get(fileSystemSelector);
+    console.log({ index, files });
+    if (index !== -1) {
+      return files[index]?.tableName;
+    } else {
+      return '';
+    }
+  },
 });
 
 /**
