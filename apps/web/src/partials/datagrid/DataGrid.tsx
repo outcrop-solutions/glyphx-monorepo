@@ -3,7 +3,7 @@ import { useRecoilValue } from 'recoil';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 
 // state
-import { columnsSelector, rowsSelector } from 'state/files';
+import { columnsSelector, rowsSelector, selectedTableNameSelector } from 'state/files';
 import { showShareModalOpenAtom, showInfoDropdownAtom, showNotificationDropdownAtom } from 'state/ui';
 
 import dynamic from 'next/dynamic';
@@ -16,7 +16,8 @@ const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
 export const Datagrid = () => {
   // const rows = useRecoilValue(rowsSelector);
   // const columns = useRecoilValue(columnsSelector);
-  const { data, isLoading } = useDataGrid();
+  const tableName = useRecoilValue(selectedTableNameSelector);
+  const { data } = useDataGrid(tableName);
 
   const isShareModelOpen = useRecoilValue(showShareModalOpenAtom);
   const isShowInfoOpen = useRecoilValue(showInfoDropdownAtom);
@@ -25,19 +26,19 @@ export const Datagrid = () => {
   // data grid column handling
   const draggableColumns = useMemo(() => {
     function HeaderRenderer(props) {
-      return <>{!isLoading && <DraggableHeaderRenderer {...props} />}</>;
+      return <>{data && <DraggableHeaderRenderer {...props} />}</>;
     }
 
-    return !isLoading
+    return data
       ? data.columns?.map((c) => {
           if (c.key === 'id') return c;
           return { ...c, headerRenderer: HeaderRenderer };
         })
       : [];
-  }, [data?.columns, isLoading]);
+  }, [data]);
 
   return (
-    !isLoading && (
+    data && (
       <DataGrid
         className="w-[500px]"
         headerRowHeight={20}

@@ -108,7 +108,7 @@ export const useFileSystem = () => {
     async (acceptedFiles: File[]) => {
       // parse payload
       const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
-      console.log({ payload });
+
       // get s3 keys
       const keys = payload.fileStats.map(
         (stat) => `client/${workspace._id}/${project._id}/input/${stat.tableName}/${stat.fileName}`
@@ -122,7 +122,12 @@ export const useFileSystem = () => {
         keys.map(async (key, idx) => {
           // upload raw file data to s3
           api({
-            ..._uploadFile(await acceptedFiles[idx].arrayBuffer(), key, workspace._id, project._id),
+            ..._uploadFile(
+              await acceptedFiles[idx].arrayBuffer(),
+              key,
+              workspace._id.toString(),
+              project._id.toString()
+            ),
             upload: true,
             onSuccess: (upload) => {
               // run ingestor on files

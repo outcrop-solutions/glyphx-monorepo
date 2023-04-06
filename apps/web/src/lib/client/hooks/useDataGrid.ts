@@ -1,16 +1,32 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { selectedTableNameSelector } from 'state';
 import useSWRImmutable from 'swr/immutable';
-const useDataGrid = () => {
-  const apiRoute = `/api/data/table1`;
-  const { data, error } = useSWRImmutable(`${apiRoute}`, { revalidateOnMount: false });
+import { api } from '../network';
+import { _getDataGrid } from '../mutations';
+import { useRouter } from 'next/router';
 
-  return {
-    ...data,
-    isLoading: !error && !data,
-    isError: error,
-  };
+const useDataGrid = (tableName) => {
+  const router = useRouter();
+  const { workspaceId, projectId } = router.query;
+  const [data, setData] = useState(null);
+
+  const fetchData = useCallback(async () => {
+    api({
+      ..._getDataGrid(workspaceId as string, projectId as string, tableName),
+      onSuccess(data) {
+        setData(data);
+      },
+    });
+  }, [projectId, tableName, workspaceId]);
+
+  useEffect(() => {
+    if (!data) {
+      fetchData();
+    }
+  }, [data, fetchData]);
+
+  return { data };
 };
 
 export default useDataGrid;

@@ -16,10 +16,9 @@ export const getDataByTableName = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void | NextApiResponse> => {
-  const { tableName } = req.query;
-  const { workspaceId, projectId } = req.body;
+  const { workspaceId, projectId, tableName } = req.query;
 
-  if (Array.isArray(tableName)) {
+  if (Array.isArray(workspaceId) && Array.isArray(projectId) && Array.isArray(tableName)) {
     res.status(400).end('Invalid Query parameter');
   }
 
