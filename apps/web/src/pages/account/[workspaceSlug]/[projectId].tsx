@@ -21,8 +21,8 @@ export default function Project() {
   // hydrate recoil state
   useEffect(() => {
     if (!isLoading && !isWorkspaceLoading) {
-      setProject(data.project);
-      setWorkspace(result.workspace);
+      setProject(data?.project);
+      setWorkspace(result?.workspace);
     }
   }, [data, isLoading, isWorkspaceLoading, result, setDataGrid, setProject, setWorkspace]);
 

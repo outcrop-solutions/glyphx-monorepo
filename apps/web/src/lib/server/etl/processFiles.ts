@@ -61,6 +61,7 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
   try {
     // Extract payload
     const { payload } = req.body;
+
     const cleaner = new BasicColumnNameCleaner();
 
     // clean fileStats & fileInfo and table names
@@ -68,13 +69,13 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
       ...payload,
       fileStats: payload.fileStats.map((stat) => ({
         ...stat,
-        fileName: cleaner.cleanColumnName(stat.fileName),
-        tabelName: cleaner.cleanColumnName(stat.tableName),
+        fileName: `${cleaner.cleanColumnName(stat.fileName.split('.')[0])}.csv`,
+        tableName: cleaner.cleanColumnName(stat.tableName),
       })),
       fileInfo: payload.fileInfo.map((info) => ({
         ...info,
-        fileName: cleaner.cleanColumnName(info.fileName),
-        tabelName: cleaner.cleanColumnName(info.tableName),
+        fileName: `${cleaner.cleanColumnName(info.fileName.split('.')[0])}.csv`,
+        tableName: cleaner.cleanColumnName(info.tableName),
       })),
     };
 
@@ -86,9 +87,9 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
 
     let newPayload = { ...cleanPayload };
 
-    for (let i = 0; i < payload.fileInfo.length; i++) {
+    for (let i = 0; i < newPayload.fileInfo.length; i++) {
       const stream = await s3Manager.getObjectStream(
-        `client/${payload.clientId}/${payload.modelId}/input/${cleanPayload.fileInfo[i].tableName}/${cleanPayload.fileInfo[i].fileName}`
+        `client/${newPayload.clientId}/${newPayload.modelId}/input/${cleanPayload.fileInfo[i].tableName}/${cleanPayload.fileInfo[i].fileName}`
       );
       newPayload.fileInfo[i].fileStream = stream;
     }
@@ -105,13 +106,9 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
     }
     const { fileInformation, fileProcessingErrors, joinInformation, viewName, status } = await fileIngestor.process();
 
-    const dataGrid = {
-      columns: fileInformation[0].columns.map((col) => ({ key: col.name, dataType: col.fieldType })),
-      rows: [],
-    };
     // return file information & processID
     res.status(200).json({
-      data: { dataGrid, fileProcessingErrors, joinInformation, viewName, status, processId: PROCESS_ID },
+      data: { fileInformation, fileProcessingErrors, joinInformation, viewName, status, processId: PROCESS_ID },
     });
     // res.status(200).json({ ok: true });
   } catch (error) {

@@ -113,19 +113,20 @@ export const useFileSystem = () => {
       const payload = await parsePayload(workspace._id, project._id, acceptedFiles);
 
       // get s3 keys for upload
-      const tableNames = payload.fileStats.map((stat) => `${stat.tableName}`);
+      const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
+      console.log({ hook: true, payload });
       // get signed urls
       // api({
       // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
       // onSuccess: ({ signedUrls }) => {
       Promise.all(
-        tableNames.map(async (tableName, idx) => {
+        keys.map(async (key, idx) => {
           // upload raw file data to s3
           api({
             ..._uploadFile(
               await acceptedFiles[idx].arrayBuffer(),
-              tableName,
+              key,
               workspace._id.toString(),
               project._id.toString()
             ),

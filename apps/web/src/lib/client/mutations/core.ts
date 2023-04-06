@@ -7,7 +7,6 @@ import { getUrl } from 'config/constants';
  * @note implements s3Manager.getSignedDataUrlPromise concurrently
  * @note requires signed body, so no go for nwo
  */
-
 export const _getSignedUploadUrls = (workspaceId: string, projectId: string, keys: string[]): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/sign-upload-urls`,
@@ -21,12 +20,13 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
 
 export const _uploadFile = (
   acceptedFile: ArrayBuffer,
-  tableName: string,
+  key: string,
   workspaceId: string,
   projectId: string
 ): webTypes.IFetchConfig => {
+  console.log({ key, config: true });
   return {
-    url: `/api/etl/upload?workspaceId=${workspaceId}&projectId=${projectId}&tableName=${tableName}`,
+    url: `/api/etl/upload?workspaceId=${workspaceId}&projectId=${projectId}&key=${key}`,
     options: {
       method: 'POST',
       body: acceptedFile,
