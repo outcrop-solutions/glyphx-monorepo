@@ -30,20 +30,15 @@ export const useSendPosition = () => {
   const sendPosition = useCallback(
     (coords: DOMRect) => {
       try {
-        console.log({
-          x: coords.right,
-          y: coords.top,
-          w: windowSize.width - (coords.right + (isShareOpen || isInfoOpen || isNotifOpen ? coords.width : 0)),
-          h: coords.height,
-        });
-        // window?.core?.SendDrawerPosition(
-        //   JSON.stringify({
-        //     x: coords.right,
-        //     y: coords.top,
-        //     w: windowSize.width - (coords.right + (isShareOpen || isInfoOpen || isNotifOpen ? coords.width : 0)),
-        //     h: coords.height,
-        //   })
-        // );
+        window?.core?.SendDrawerPosition(
+          JSON.stringify({
+            x: coords.right,
+            y: coords.top,
+            // assumes left & right sidebar are equal width
+            w: windowSize.width - (coords.right + (isShareOpen || isInfoOpen || isNotifOpen ? coords.width : 0)),
+            h: coords.height,
+          })
+        );
         setViewer({
           x: coords.right,
           y: coords.top,
