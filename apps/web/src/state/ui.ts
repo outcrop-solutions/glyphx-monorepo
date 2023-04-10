@@ -76,7 +76,7 @@ export const viewerPositionAtom = atom<webTypes.IViewerPosition>({
   key: 'viewerPositionAtom',
   default: {
     x: 0, // w-MainSidebar + w-ProjectSidebar
-    y: 0, // window.innerHeight - h-Projectheader
+    y: 0, // h-Projectheader
     w: 0, // window.innerWidth - (w-MainSidebar + w-ProjectSidebar + w-RightSidebar)
     h: 0, // window.innerHeight - h-Projectheader
   },

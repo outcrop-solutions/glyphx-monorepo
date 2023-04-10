@@ -4,22 +4,23 @@ import { Files, States, Properties as Axes, Filters, Visualizations, Visualizati
 import { usePosition } from 'services/usePosition';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { viewerPositionAtom } from 'state';
+import { useSendPosition } from 'services';
 // import { glyphViewerDetails } from 'state/ui';
 
 export const ProjectSidebar = () => {
   //utilities
   const sidebar = useRef(null);
-  const projPosition = usePosition(sidebar);
-
-  const setViewer = useSetRecoilState(viewerPositionAtom);
-
+  // trigger sendPosition when sidebar changes
+  const pos = usePosition(sidebar);
+  // const setViewer = useSetRecoilState(viewerPositionAtom);
+  const { sendPosition } = useSendPosition();
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
       const coords = sidebar.current.getBoundingClientRect();
-      setViewer({ x: coords.right, y: coords.top, w:  });
+      sendPosition(coords);
     }
-  }, [projPosition]);
+  }, [sendPosition, pos]);
 
   return (
     <div
