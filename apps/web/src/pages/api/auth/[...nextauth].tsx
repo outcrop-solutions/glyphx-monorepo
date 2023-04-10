@@ -27,8 +27,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             session.user.subscription = customerPayment.subscriptionType;
           }
         }
-        return;
-        session;
+        return session;
       },
     },
     debug: !(process.env.NODE_ENV === 'production'),
@@ -40,14 +39,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         }
         // @ts-ignore
         if (isNewUser || customerPayment === null || user.createdAt === null) {
-          await Promise.all([
-            customerPaymentService.createPaymentAccount(user.email, user.id),
-            // log(
-            //   'user-registration',
-            //   'New User Signup',
-            //   `A new user recently signed up. (${user.email})`
-            // ),
-          ]);
+          await Promise.all([customerPaymentService.createPaymentAccount(user.email, user.id)]);
         }
       },
     },
@@ -73,23 +65,12 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           });
 
           const user = await res.json();
-
-          console.log({ user });
           // If no error and we have user data, return it
           if (res.ok && user) {
             return user;
           }
           // Return null if user data could not be retrieved
           return null;
-          // if (user) {
-          //   // Any object returned will be saved in `user` property of the JWT
-          //   return user;
-          // } else {
-          //   // If you return null then an error will be displayed advising the user to check their details.
-          //   return null;
-
-          //   // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-          // }
         },
       }),
       EmailProvider({
@@ -113,9 +94,5 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
       }),
     ],
     secret: process.env.NEXTAUTH_SECRET || null,
-    session: {
-      // @ts-ignore
-      jwt: true,
-    },
   });
 }

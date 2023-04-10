@@ -2,15 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
 div[data-type='string'] {
   @apply bg-blue text-white rounded text-center w-32;
 }
 div[data-type='number'] {
   @apply bg-cyan text-white rounded text-center w-32;
 }
-div[datatype='string'] {
-  @apply bg-blue text-white rounded text-center;
+
+div div[role='columnheader'] {
+  @apply bg-secondary-dark-blue;
+  /* first:bg-secondary-dark-blue 
+}*/
+
+div[role='grid'] {
+  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+  /* @apply grid grid-cols-[40px_repeat(var(--col),minmax(90px,200px))] !important; */
 }
-div[datatype='number'] {
-  @apply bg-cyan text-white rounded text-center;
+
+/* div[role="row"] {
+  @apply first:w-10 !important
+} */
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 10px;
+}
+
+/* FOR REMOVING AUTO INCREMENT BUTTONS ON NUMBER INPUT TYPE */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+div[role='grid']::-webkit-scrollbar-thumb {
+  background: rgba(255, 197, 0, 0.5);
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f100;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 197, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  /* background: rgb(235, 202, 17); */
+  background: rgba(255, 197, 0, 0.5);
+}
+
+div[role='row'] {
+  @apply text-white bg-secondary-deep-blue;
+}
+
+div[role='gridcell'] {
+  @apply bg-primary-dark-blue first:bg-secondary-deep-blue text-white font-roboto text-right text-[10px] font-normal leading-[12px] pt-1 pr-1;
+  /* @apply bg-[#354773] text-white; */
+}
+
+.c1wupbe700-beta13[aria-selected='true'] {
+  border: 1px solid rgb(235, 202, 17);
+  outline: none;
+  /* background-color: rgb(17, 235, 93); */
+}
+
+/* FOR SUSPENSE LOADER */
+
+div[aria-colindex='1'] {
+  @apply bg-secondary-dark-blue;
 }

@@ -6,6 +6,7 @@ import { _createModel, _createOpenProject, _getSignedDataUrls, api } from 'lib/c
 
 import { projectAtom, showModelCreationLoadingAtom } from 'state';
 import { updateDrop } from 'lib/client/actions/updateProp';
+import { getUrl } from 'config/constants';
 
 export const useProject = () => {
   const session = useSession();

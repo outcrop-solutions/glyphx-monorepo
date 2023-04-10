@@ -13,6 +13,6 @@ export const getUrl = () => {
     case 'production':
       return 'https://app.glyphx.co';
     default:
-      break;
+      return 'http://localhost:3000';
   }
 };

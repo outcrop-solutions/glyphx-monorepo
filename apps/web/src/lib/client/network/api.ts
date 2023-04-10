@@ -12,27 +12,16 @@ export async function api({
   silentFail = false,
   returnData = false,
 }: webTypes.IFrontendApiReq) {
-  console.log({
-    api: true,
-    url,
-    options,
-    onSuccess,
-    successMsg,
-    upload,
-    silentFail,
-  });
   setLoading(true);
   const { body, headers, ...opts } = options;
   let requestBody;
   if (upload) {
     requestBody = body;
   } else {
-    console.log('request body');
     requestBody = JSON.stringify(body);
   }
 
   try {
-    console.log('calling fetch');
     const res = await fetch(url, {
       body: requestBody,
       headers: {
@@ -41,9 +30,7 @@ export async function api({
       },
       ...opts,
     });
-    console.log({ res });
     const data = await res.json();
-    console.log({ data, api: true });
     const response = { status: res.status, ...data, url };
     setLoading(false);
 
@@ -61,7 +48,6 @@ export async function api({
       }
     }
   } catch (error) {
-    console.log({ error, api: true });
     if (!silentFail) {
       toast.error(error.msg);
     }
