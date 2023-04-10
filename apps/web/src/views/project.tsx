@@ -25,13 +25,11 @@ import { useSocket } from 'services';
 
 export default function Project() {
   // Check if share model has been turned on
+  useSocket();
   const [showShareModel, setShareModel] = useRecoilState(showShareModalOpenAtom);
   const [showInfo, setShowInfo] = useRecoilState(showInfoDropdownAtom);
   const [showNotification, setNotification] = useRecoilState(showNotificationDropdownAtom);
   // Qt hook
-  try {
-    useSocket();
-  } catch (error) {}
 
   return (
     <div className="flex flex-row h-screen w-screen overflow-hidden scrollbar-none bg-primary-dark-blue">

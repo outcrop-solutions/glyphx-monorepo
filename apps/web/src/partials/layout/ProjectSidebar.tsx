@@ -2,27 +2,24 @@ import { useRef, useEffect, useState } from 'react';
 // import { ExpandCollapse } from "./ExpandCollapse";
 import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from 'partials';
 import { usePosition } from 'services/usePosition';
-import { useRecoilState } from 'recoil';
-import { glyphViewerDetails } from 'state/ui';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { viewerPositionAtom } from 'state';
+// import { glyphViewerDetails } from 'state/ui';
 
 export const ProjectSidebar = () => {
   //utilities
   const sidebar = useRef(null);
   const projPosition = usePosition(sidebar);
 
-  const [glyphxDetails, setGlyphxViewer] = useRecoilState(glyphViewerDetails);
+  const setViewer = useSetRecoilState(viewerPositionAtom);
 
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
-      // setGlyphxViewer({
-      //   // ...glyphxViewerDetails,
-      //   // filterSidebarPosition: {
-      //   //   values: sidebar.current.getBoundingClientRect(),
-      //   // },
-      // });
+      const coords = sidebar.current.getBoundingClientRect();
+      setViewer({ x: coords.right, y: coords.top, w:  });
     }
-  }, [glyphxDetails, projPosition, setGlyphxViewer]);
+  }, [projPosition]);
 
   return (
     <div
