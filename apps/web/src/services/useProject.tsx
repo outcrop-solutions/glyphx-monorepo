@@ -24,7 +24,7 @@ export const useProject = () => {
         silentFail: true,
         onSuccess: (data) => {
           api({
-            ..._getSignedDataUrls(project?.workspace.toString(), project?._id.toString()),
+            ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString()),
             onSuccess: (data) => {
               window?.core?.OpenProject(_createOpenProject(data, project, session));
             },
