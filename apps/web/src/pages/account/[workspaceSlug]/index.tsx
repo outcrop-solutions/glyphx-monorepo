@@ -3,15 +3,12 @@ import dynamic from 'next/dynamic';
 // layout
 import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
-import ProjectLayout from 'layouts/ProjectLayout';
+import WorkspaceLayout from 'layouts/WorkspaceLayout';
 import { useWorkspace } from 'lib';
 import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { workspaceAtom } from 'state';
-
-const DynamicHome = dynamic(() => import('views/home'), {
-  ssr: false,
-});
+import Home from 'views/home';
 
 const Workspace = () => {
   const { data, isLoading } = useWorkspace();
@@ -26,12 +23,12 @@ const Workspace = () => {
 
   return (
     data && (
-      <ProjectLayout>
+      <WorkspaceLayout>
         <Meta title={`Glyphx - ${data.workspace.name} | Dashboard`} />
         <Content.Container>
-          <DynamicHome />
+          <Home />
         </Content.Container>
-      </ProjectLayout>
+      </WorkspaceLayout>
     )
   );
 };

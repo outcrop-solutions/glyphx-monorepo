@@ -6,6 +6,7 @@ import { web as webTypes } from '@glyphx/types';
 import { showModelCreationLoadingAtom } from 'state/ui';
 import { projectAtom, singlePropertySelectorFamily } from 'state/project';
 import { useProject } from 'services';
+import { handleDataType } from 'lib/client/helpers/handleDataType';
 
 import ClearIcon from 'public/svg/clear-icon.svg';
 import LinIcon from 'public/svg/lin-icon.svg';
@@ -59,7 +60,7 @@ export const Property = ({ axis }) => {
         </div>
       ) : (
         <div
-          data-type={prop?.dataType}
+          data-type={handleDataType(prop)}
           className={`flex min-w-[8rem] grow text-white uppercase justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">

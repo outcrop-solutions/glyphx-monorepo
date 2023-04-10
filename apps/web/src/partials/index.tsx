@@ -9,4 +9,3 @@ export * from './properties'; // logic for column selection via Dn
 export * from './search'; // global search bar
 export * from './shared'; // utility components and shared deps
 export * from './states'; // states component for sidebar component
-export * from './visualizations';

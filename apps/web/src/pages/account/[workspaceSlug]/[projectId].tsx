@@ -6,6 +6,9 @@ import dynamic from 'next/dynamic';
 import { useSetRecoilState } from 'recoil';
 import { dataGridAtom, projectAtom, workspaceAtom } from 'state';
 import { useProject, useWorkspace } from 'lib/client/hooks';
+import Meta from 'components/Meta';
+import ProjectLayout from 'layouts/ProjectLayout';
+import Content from 'components/Content';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -28,9 +31,12 @@ export default function Project() {
 
   return (
     !isLoading && (
-      <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
+      // <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
+      <ProjectLayout>
+        <Meta title={`Glyphx - ${data?.project?.name} | Project`} />
         <DynamicProject />
-      </ErrorBoundary>
+      </ProjectLayout>
+      // </ErrorBoundary>
     )
   );
 }

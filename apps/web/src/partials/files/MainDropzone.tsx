@@ -1,7 +1,7 @@
 import { useDropzone } from 'react-dropzone';
 import { PlusIcon } from '@heroicons/react/solid';
 import { useFileSystem } from 'services/useFileSystem';
-
+import DropFileIcon from 'public/svg/drop-file-icon.svg';
 export const MainDropzone = () => {
   const { onDrop } = useFileSystem();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -12,21 +12,7 @@ export const MainDropzone = () => {
 
   return (
     <div {...getRootProps()} className="text-center h-[600px] flex flex-col justify-center items-center">
-      <svg
-        className="mx-auto h-12 w-12 text-gray"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        aria-hidden="true"
-      >
-        <path
-          vectorEffect="non-scaling-stroke"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-        />
-      </svg>
+      <DropFileIcon />
       <h3 className="mt-2 text-sm font-medium text-white">No files loaded...</h3>
       <p className="mt-1 text-sm text-gray">
         Add a new CSV file to your project or open an existing file form the Files drawer.

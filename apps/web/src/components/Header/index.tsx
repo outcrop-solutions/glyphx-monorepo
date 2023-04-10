@@ -1,82 +1,52 @@
-import { Fragment } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import { CogIcon, CreditCardIcon, DesktopComputerIcon, LogoutIcon, UserCircleIcon } from '@heroicons/react/outline';
-import Link from 'next/link';
-import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { projectAtom } from 'state';
+import { useRecoilState } from 'recoil';
+
+import { Controls } from 'partials/layout/Controls';
+
+import BackBtnIcon from 'public/svg/back-button-icon.svg';
 
 const Header = ({ breadcrumbs }) => {
-  const logOut = () => {
-    const result = confirm('Are you sure you want to logout?');
-    if (result) {
-      signOut({ callbackUrl: '/auth/login' });
-    }
+  const [project, setProject] = useRecoilState(projectAtom);
+
+  const router = useRouter();
+
+  const backPressed = () => {
+    router.push(`/account/${project.workspace.slug}`);
+    setProject(null);
   };
 
   return (
-    <div className="flex flex-row h-14 items-center justify-between">
-      <div className="text-left">
-        <p className="font-rubik font-normal text-white text-[22px] leading-[26px] tracking-[0.01em]">
-          {breadcrumbs.map((crumb) => crumb)}
-        </p>
-      </div>
-      <Menu as="div" className="relative inline-block text-left">
-        <div>
-          <Menu.Button className="flex items-center justify-center p-1 space-x-3 border rounded hover:bg-secondary-midnight">
-            <CogIcon aria-hidden="true" className="w-5 h-5" />
-          </Menu.Button>
+    <div
+      className={`flex flex-row h-14 items-center justify-between px-4 ${
+        project ? 'bg-secondary-space-blue border border-gray' : 'bg-transparent'
+      }`}
+    >
+      {project ? (
+        <div className="flex">
+          <button
+            onClick={backPressed}
+            className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
+          >
+            <BackBtnIcon />
+            <span className="text-light-gray font-roboto font-medium text-[14px] leading-[16px] text-center ml-2">
+              Back
+            </span>
+          </button>
+          <input
+            className="p-1 m-2 text-white font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] flex text-left outline-none border-2 border-transparent rounded-lg pr-2 bg-transparent hover:border-yellow"
+            defaultValue={project?.name}
+            // onChange={updateProjectName}
+          />
         </div>
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items className="absolute right-0 w-40 mt-2 origin-top-right border divide-y divide-gray-100 bg-secondary-space-blue rounded">
-            <div className="p-2">
-              <Menu.Item>
-                <Link href="/account/settings">
-                  <a className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group">
-                    <UserCircleIcon aria-hidden="true" className="w-5 h-5" />
-                    <span>Account</span>
-                  </a>
-                </Link>
-              </Menu.Item>
-              <Menu.Item>
-                <Link href="/account/billing">
-                  <a className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group">
-                    <CreditCardIcon aria-hidden="true" className="w-5 h-5" />
-                    <span>Billing</span>
-                  </a>
-                </Link>
-              </Menu.Item>
-            </div>
-            <div className="p-2">
-              <Menu.Item>
-                <Link href="https://glyphx.co">
-                  <a className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group">
-                    <DesktopComputerIcon aria-hidden="true" className="w-5 h-5" />
-                    <span>Resources</span>
-                  </a>
-                </Link>
-              </Menu.Item>
-            </div>
-            <div className="p-2">
-              <Menu.Item>
-                <button
-                  className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group"
-                  onClick={logOut}
-                >
-                  <LogoutIcon aria-hidden="true" className="w-5 h-5" />
-                  <span>Logout</span>
-                </button>
-              </Menu.Item>
-            </div>
-          </Menu.Items>
-        </Transition>
-      </Menu>
+      ) : (
+        <div className="ml-8">
+          <p className="font-rubik font-normal text-white text-[22px] leading-[26px] tracking-[0.01em]">
+            {breadcrumbs.map((crumb) => crumb)}
+          </p>
+        </div>
+      )}
+      <Controls />
     </div>
   );
 };

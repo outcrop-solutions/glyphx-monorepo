@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
-import { showShareModalOpenAtom, showInfoDropdownAtom, showNotificationDropdownAtom } from 'state/ui';
 
 import dynamic from 'next/dynamic';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
@@ -12,16 +11,8 @@ const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
 });
 
 export const Datagrid = () => {
-  // const rows = useRecoilValue(rowsSelector);
-  // const columns = useRecoilValue(columnsSelector);
   const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
-  console.log({ workspaceId, projectId, tableName });
-
   const { data } = useDataGrid(workspaceId, projectId, tableName);
-
-  const isShareModelOpen = useRecoilValue(showShareModalOpenAtom);
-  const isShowInfoOpen = useRecoilValue(showInfoDropdownAtom);
-  const isShowNotificationOpen = useRecoilValue(showNotificationDropdownAtom);
 
   // data grid column handling
   const draggableColumns = useMemo(() => {

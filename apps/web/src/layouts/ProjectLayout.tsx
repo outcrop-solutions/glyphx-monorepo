@@ -21,13 +21,18 @@ const ProjectLayout = ({ children }) => {
   }, [data, router]);
 
   return (
-    <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:space-x-5 md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(result.workspace?.slug)} />
-      <Content.Projects>
+    <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
+      <Sidebar menu={menu(result?.workspace?.slug)} />
+      <Content.Project>
         <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
-        <Header breadcrumbs={['My Projects']} />
+        <Header breadcrumbs={['My Project']} />
         {children}
-      </Content.Projects>
+      </Content.Project>
+      {/* Right Sidebar */}
+      {/* <div id="right-side-bars" className="">
+        {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
+        {showInfo ? <Info setInfo={setShowInfo} setShare={setShareModel} /> : <></>}
+      </div> */}
     </main>
   );
 };
