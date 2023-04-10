@@ -173,7 +173,7 @@ export class S3Manager {
       ContentType: '', // Set Content-Type header to empty string for unsigned body
       ContentLength: 0,
     };
-    const client = new S3Client({region: 'us-west-2'});
+    const client = new S3Client({region: 'us-east-2'});
     const command = new PutObjectCommand(putObjectParams);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -190,7 +190,7 @@ export class S3Manager {
       Key: key,
       ContentType: 'text/csv',
     };
-    const client = new S3Client({region: 'us-west-2'});
+    const client = new S3Client({region: 'us-east-2'});
     const command = new GetObjectCommand(getObjectParams);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
