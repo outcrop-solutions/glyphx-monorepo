@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from 'partials';
+import { Files, States, Properties as Axes, Filters } from 'partials';
 import { usePosition } from 'services/usePosition';
 import { useSendPosition } from 'services';
 
