@@ -31,7 +31,7 @@ export const useSendPosition = () => {
         window?.core?.SendDrawerPosition(
           JSON.stringify({
             x: Math.round(coords.right),
-            y: Math.round(coords.top),
+            y: Math.round(coords.top - 150),
             // assumes left & right sidebar are equal width
             w: Math.round(windowSize.width - (coords.right + (isControlOpen ? coords.width : 0))),
             h: Math.round(coords.height),
@@ -39,7 +39,7 @@ export const useSendPosition = () => {
         );
         setViewer({
           x: Math.round(coords.right),
-          y: Math.round(coords.top),
+          y: Math.round(coords.top - 150),
           // assumes left & right sidebar are equal width
           w: Math.round(windowSize.width - (coords.right + (isControlOpen ? coords.width : 0))),
           h: Math.round(coords.height),
