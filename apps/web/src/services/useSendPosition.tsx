@@ -30,19 +30,19 @@ export const useSendPosition = () => {
       try {
         window?.core?.SendDrawerPosition(
           JSON.stringify({
-            x: coords.right,
-            y: coords.top,
+            x: Math.round(coords.right),
+            y: Math.round(coords.top),
             // assumes left & right sidebar are equal width
-            w: windowSize.width - (coords.right + (isControlOpen ? coords.width : 0)),
-            h: coords.height,
+            w: Math.round(windowSize.width - (coords.right + (isControlOpen ? coords.width : 0))),
+            h: Math.round(coords.height),
           })
         );
         setViewer({
-          x: coords.right,
-          y: coords.top,
+          x: Math.round(coords.right),
+          y: Math.round(coords.top),
           // assumes left & right sidebar are equal width
-          w: windowSize.width - (coords.right + (isControlOpen ? coords.width : 0)),
-          h: coords.height,
+          w: Math.round(windowSize.width - (coords.right + (isControlOpen ? coords.width : 0))),
+          h: Math.round(coords.height),
         });
       } catch (error) {
         console.log({ error });
