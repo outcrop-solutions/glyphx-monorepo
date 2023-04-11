@@ -1,18 +1,13 @@
-import { useRef, useEffect, useState } from 'react';
-// import { ExpandCollapse } from "./ExpandCollapse";
+import { useRef, useEffect } from 'react';
 import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from 'partials';
 import { usePosition } from 'services/usePosition';
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { viewerPositionAtom } from 'state';
 import { useSendPosition } from 'services';
-// import { glyphViewerDetails } from 'state/ui';
 
 export const ProjectSidebar = () => {
   //utilities
   const sidebar = useRef(null);
   // trigger sendPosition when sidebar changes
   const pos = usePosition(sidebar);
-  // const setViewer = useSetRecoilState(viewerPositionAtom);
   const { sendPosition } = useSendPosition();
   // set projectsSidebar position on transition
   useEffect(() => {
