@@ -5,9 +5,19 @@ import { web as webTypes } from '@glyphx/types';
 // HIDE = FALSE
 
 // Global
+<<<<<<< HEAD
 // Right Sidebar Controls
 export const rightSidebarControlAtom = atom<webTypes.RightSidebarControl>({
   key: 'rightSidebarControlAtom',
+=======
+export const showNotificationDropdownAtom = atom<boolean>({
+  key: 'showNotificationDropdownAtom',
+  default: false,
+});
+
+export const showInfoDropdownAtom = atom<boolean>({
+  key: 'showInfoDropdownAtom',
+>>>>>>> dev
   default: false,
 });
 
@@ -16,6 +26,25 @@ export const showMainSidebarExpandedAtom = atom<boolean>({
   default: false,
 });
 
+<<<<<<< HEAD
+=======
+export const showShareModalOpenAtom = atom<boolean>({
+  key: 'showShareModalOpenAtom',
+  default: false,
+});
+
+export const showSearchModalAtom = atom<boolean>({
+  key: 'showSearchModalAtom',
+  default: false,
+});
+
+// Project View
+export const showCommentsSidebarAtom = atom<boolean>({
+  key: 'showCommentsSidebarAtom',
+  default: false,
+});
+
+>>>>>>> dev
 // Home View
 export const showProjectsGridViewAtom = atom<boolean>({
   key: 'showProjectsGridViewAtom',
@@ -52,17 +81,12 @@ export const showModelCreationLoadingAtom = atom<boolean>({
  * Required to position the Qt Glyph Viewer
  */
 
-interface IViewerPosition {
-  commentsPosition: boolean;
-  filterSidebarPosition: boolean;
-  sendDrawerPositionApp: boolean;
-}
-
-export const glyphViewerDetails = atom<IViewerPosition>({
-  key: 'glyphViewerDetails',
+export const viewerPositionAtom = atom<webTypes.IViewerPosition>({
+  key: 'viewerPositionAtom',
   default: {
-    commentsPosition: false,
-    filterSidebarPosition: false,
-    sendDrawerPositionApp: false,
+    x: 0, // w-MainSidebar + w-ProjectSidebar
+    y: 0, // h-Projectheader
+    w: 0, // window.innerWidth - (w-MainSidebar + w-ProjectSidebar + w-RightSidebar)
+    h: 0, // window.innerHeight - h-Projectheader
   },
 });

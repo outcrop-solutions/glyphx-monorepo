@@ -1,6 +1,7 @@
 import { useDrop } from 'react-dnd';
 import { useRecoilValue } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
+<<<<<<< HEAD
 import { AxesIcons } from '../icons/AxesIcons';
 
 import { useProject } from 'services';
@@ -9,6 +10,13 @@ import { handleDataType } from 'lib/client/helpers/handleDataType';
 // state
 import { showModelCreationLoadingAtom } from 'state/ui';
 import { projectAtom, singlePropertySelectorFamily } from 'state/project';
+=======
+// import { AxesIcons } from '../filters/AxesIcons';
+
+import { showModelCreationLoadingAtom } from 'state/ui';
+import { projectAtom, singlePropertySelectorFamily } from 'state/project';
+import { useProject } from 'services';
+>>>>>>> dev
 
 import ClearIcon from 'public/svg/clear-icon.svg';
 import LinIcon from 'public/svg/lin-icon.svg';
@@ -47,6 +55,7 @@ export const Property = ({ axis }) => {
           isCreatingModel ? '' : 'hover:border-white'
         } p-0 rounded`}
       >
+<<<<<<< HEAD
         <div className="h-4 group">
           <div className="flex group-hover:hidden">
             <AxesIcons property={axis} />
@@ -55,6 +64,15 @@ export const Property = ({ axis }) => {
             <ClearIcon />
           </div>
         </div>
+=======
+        {/* {clearAxis ? (
+          <AxesIcons property={axis} />
+        ) : ( */}
+        <div className="h-4">
+          <ClearIcon />
+        </div>
+        {/* )} */}
+>>>>>>> dev
       </div>
       {/* AXES CHIP */}
       {isActive ? (
@@ -63,7 +81,11 @@ export const Property = ({ axis }) => {
         </div>
       ) : (
         <div
+<<<<<<< HEAD
           data-type={handleDataType(prop)}
+=======
+          data-type={prop?.dataType}
+>>>>>>> dev
           className={`flex min-w-[8rem] grow text-white uppercase justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">

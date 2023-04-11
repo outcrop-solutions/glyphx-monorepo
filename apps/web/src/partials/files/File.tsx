@@ -1,4 +1,8 @@
 import React from 'react';
+<<<<<<< HEAD
+=======
+import { selectedFileIndexSelector } from 'state/files';
+>>>>>>> dev
 import { useRecoilValue } from 'recoil';
 
 import { selectedFileIndexSelector } from 'state/files';

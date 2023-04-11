@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useDrop } from 'react-dnd';
+<<<<<<< HEAD
 import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
 
 import { RangeFilter } from './actions/RangeFilter';
@@ -14,6 +15,19 @@ import { projectAtom, singlePropertySelectorFamily } from 'state';
 import { useProject } from 'services';
 import { handleDataType } from 'lib/client/helpers/handleDataType';
 
+=======
+import { RangeFilter } from './actions/RangeFilter';
+import { SearchFilter } from './actions/SearchFilter';
+
+import { AxesIcons } from './AxesIcons';
+import PlusIcon from 'public/svg/plus-icon.svg';
+import GarbageIcon from 'public/svg/garbage-can-icon.svg';
+
+import { projectAtom, singlePropertySelectorFamily } from 'state';
+import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { useProject } from 'services';
+
+>>>>>>> dev
 export const Axes = ({ axis }) => {
   const project = useRecoilValue(projectAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
@@ -38,7 +52,11 @@ export const Axes = ({ axis }) => {
         <AxesIcons property={axis} />
         {/* PROPERTY CHIP */}
         <div
+<<<<<<< HEAD
           data-type={handleDataType(prop)}
+=======
+          data-type={prop.dataType === 0 ? 'number' : 'string'}
+>>>>>>> dev
           className={`flex grow justify-center bg-gray h-4 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium uppercase lg:opacity-100 2xl:opacity-100 transition duration-150 truncate">

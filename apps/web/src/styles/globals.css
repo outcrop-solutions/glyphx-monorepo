@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
 div[data-type='number'] {
   @apply bg-cyan text-white rounded text-center;
 }
@@ -21,6 +22,24 @@ div div[role='columnheader'] {
 
 div[role='grid'] {
   @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+=======
+/*
+div[data-type='string'] {
+  @apply bg-blue text-white rounded text-center w-32;
+}
+div[data-type='number'] {
+  @apply bg-cyan text-white rounded text-center w-32;
+}
+
+div div[role='columnheader'] {
+  @apply bg-secondary-dark-blue;
+  /* first:bg-secondary-dark-blue 
+}*/
+
+div[role='grid'] {
+  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+  /* @apply grid grid-cols-[40px_repeat(var(--col),minmax(90px,200px))] !important; */
+>>>>>>> dev
 }
 
 ::-webkit-scrollbar {
@@ -70,6 +89,10 @@ div[role='gridcell'] {
 }
 
 /* FOR SUSPENSE LOADER */
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
 div[aria-colindex='1'] {
   @apply bg-secondary-dark-blue;
 }

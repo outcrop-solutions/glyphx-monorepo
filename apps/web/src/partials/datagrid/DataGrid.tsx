@@ -1,6 +1,10 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
+<<<<<<< HEAD
+=======
+import { showShareModalOpenAtom, showInfoDropdownAtom, showNotificationDropdownAtom } from 'state/ui';
+>>>>>>> dev
 
 import dynamic from 'next/dynamic';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
