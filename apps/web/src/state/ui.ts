@@ -1,4 +1,5 @@
 import { atom } from 'recoil';
+import { web as webTypes } from '@glyphx/types';
 // SHOW/HIDE UI ELEMENTS
 // SHOW = TRUE
 // HIDE = FALSE
@@ -71,17 +72,12 @@ export const showModelCreationLoadingAtom = atom<boolean>({
  * Required to position the Qt Glyph Viewer
  */
 
-interface IViewerPosition {
-  commentsPosition: boolean;
-  filterSidebarPosition: boolean;
-  sendDrawerPositionApp: boolean;
-}
-
-export const glyphViewerDetails = atom<IViewerPosition>({
-  key: 'glyphViewerDetails',
+export const viewerPositionAtom = atom<webTypes.IViewerPosition>({
+  key: 'viewerPositionAtom',
   default: {
-    commentsPosition: false,
-    filterSidebarPosition: false,
-    sendDrawerPositionApp: false,
+    x: 0, // w-MainSidebar + w-ProjectSidebar
+    y: 0, // h-Projectheader
+    w: 0, // window.innerWidth - (w-MainSidebar + w-ProjectSidebar + w-RightSidebar)
+    h: 0, // window.innerHeight - h-Projectheader
   },
 });

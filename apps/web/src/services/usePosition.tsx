@@ -7,14 +7,9 @@ import useResizeObserver from '@react-hook/resize-observer';
  * @returns {Object}
  */
 export const usePosition = (target) => {
-  const [entry, setEntry] = useState();
-
-  useLayoutEffect(() => {
-    if (target.current) setEntry(target.current.getBoundingClientRect());
-  }, [target]);
+  const [entry, setEntry] = useState(null);
   // Where the magic happens
-  // @ts-ignore
-  useResizeObserver(target, (entry) => setEntry(entry));
+  useResizeObserver(target, (entry) => setEntry(entry.contentRect));
 
   return entry;
 };

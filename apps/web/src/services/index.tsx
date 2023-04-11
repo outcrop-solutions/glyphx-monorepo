@@ -6,3 +6,4 @@ export * from './useProject';
 export * from './useSocket';
 export * from './useStateChange';
 export * from './useStates';
+export * from './useSendPosition';
