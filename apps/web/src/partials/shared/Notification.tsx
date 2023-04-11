@@ -1,4 +1,4 @@
-import Warning from 'public/svg/tooltip-notif.svg';
+import Warning from 'public/svg/tooltip-icon.svg';
 import Error from 'public/svg/error-notif.svg';
 import Success from 'public/svg/success-notif.svg';
 import Default from 'public/svg/tooltip-icon.svg';

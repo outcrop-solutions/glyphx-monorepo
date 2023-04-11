@@ -4,8 +4,8 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { showProjectsGridViewAtom } from 'state/ui';
 import { projectAtom } from 'state/project';
 
-import ToggleGridOnIcon from 'public/svg/toogle-grid-on.svg';
-import ToggleGridOffIcon from 'public/svg/toogle-grid-off.svg';
+import ToggleGridOnIcon from 'public/svg/toggle-grid-on.svg';
+import ToggleGridOffIcon from 'public/svg/toggle-grid-off.svg';
 
 export function GridToggle() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
