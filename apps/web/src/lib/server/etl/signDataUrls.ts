@@ -22,7 +22,7 @@ export const signDataUrls = async (req: NextApiRequest, res: NextApiResponse) =>
     const urls = [
       `client/${workspaceId}/${projectId}/output/model.sdt`,
       `client/${workspaceId}/${projectId}/output/model.sgn`,
-      `client/${workspaceId}/${projectId}/output/model3.sgc`,
+      `client/${workspaceId}/${projectId}/output/model.sgc`,
     ];
 
     // Create an array of promises
