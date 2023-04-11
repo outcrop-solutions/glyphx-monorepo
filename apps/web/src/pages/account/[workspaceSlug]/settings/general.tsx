@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
@@ -8,18 +8,31 @@ import { workspaceService, Initializer } from '@glyphx/business';
 import Meta from 'components/Meta/index';
 import { AccountLayout } from 'layouts/index';
 import GeneralView from 'views/general';
-import { _updateWorkspaceName, _updateWorkspaceSlug } from 'lib/client';
+import { _updateWorkspaceName, _updateWorkspaceSlug, useWorkspace } from 'lib/client';
+import { useSetRecoilState } from 'recoil';
+import { workspaceAtom } from 'state';
 
 const General = ({ isTeamOwner, workspace }) => {
+  const { data, isLoading } = useWorkspace();
+  const setWorkspace = useSetRecoilState(workspaceAtom);
+
+  useEffect(() => {
+    if (!isLoading && !isLoading) {
+      setWorkspace(data?.workspace);
+    }
+  }, [data, isLoading, setWorkspace]);
+
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
-      <Suspense fallback={SuspenseFallback}>
-        <AccountLayout>
-          <Meta title={`Glyphx - ${workspace?.name} | Settings`} />
-          <GeneralView isTeamOwner={isTeamOwner} workspace={workspace} />
-        </AccountLayout>
-      </Suspense>
-    </ErrorBoundary>
+    !isLoading && (
+      <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
+        <Suspense fallback={SuspenseFallback}>
+          <AccountLayout>
+            <Meta title={`Glyphx - ${workspace?.name} | Settings`} />
+            <GeneralView isTeamOwner={isTeamOwner} />
+          </AccountLayout>
+        </Suspense>
+      </ErrorBoundary>
+    )
   );
 };
 

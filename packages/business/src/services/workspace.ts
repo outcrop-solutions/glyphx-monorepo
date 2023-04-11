@@ -466,6 +466,7 @@ export class WorkspaceService {
         userId instanceof mongooseTypes.ObjectId
           ? userId
           : new mongooseTypes.ObjectId(userId);
+
       const invitedBy = await mongoDbConnection.models.UserModel.getUserById(
         id
       );
@@ -481,18 +482,16 @@ export class WorkspaceService {
           }) => ({
             email,
             inviter,
-            teamRole,
-            invitedBy,
-            workspace: workspace,
-            status: databaseTypes.constants.INVITATION_STATUS.PENDING,
             invitedAt: new Date(),
+            status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+            teamRole,
+            invitedBy: invitedBy._id,
+            workspace: workspace._id,
           })
         );
 
         const createdMembers =
-          (await mongoDbConnection.models.MemberModel.create({
-            membersList,
-          })) as unknown as databaseTypes.IMember[];
+          await mongoDbConnection.models.MemberModel.create(membersList);
 
         const memberIds = createdMembers.map(mem => {
           return mem._id;

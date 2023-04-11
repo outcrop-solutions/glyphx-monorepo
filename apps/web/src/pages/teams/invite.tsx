@@ -8,10 +8,7 @@ import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 
 import { useSetRecoilState } from 'recoil';
 import { workspaceAtom } from 'state';
-const DynamicInvite = dynamic(() => import('views/invite'), {
-  ssr: false,
-  suspense: true,
-});
+import InviteView from 'views/invite';
 
 const Invite = ({ workspace }) => {
   // set workspace in recoil
@@ -21,7 +18,7 @@ const Invite = ({ workspace }) => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
       <Suspense fallback={SuspenseFallback}>
-        <DynamicInvite />
+        <InviteView />
       </Suspense>
     </ErrorBoundary>
   );

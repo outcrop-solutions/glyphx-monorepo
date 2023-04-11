@@ -5,10 +5,12 @@ const sidebarMenu = () => [
       {
         name: 'Billing',
         path: `/account/billing`,
+        altIcon: '',
       },
       {
         name: 'Settings',
         path: `/account/settings`,
+        altIcon: '',
       },
     ],
   },
