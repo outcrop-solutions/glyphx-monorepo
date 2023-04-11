@@ -1,17 +1,17 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { _deleteProject, api } from 'lib/client';
+import { ProjectTypeIcons } from '../icons';
 
 import projectCard from 'public/images/project.png';
-import { ProjectTypeIcon } from './ProjectTypeIcon';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
 import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
 import DeleteProjectIcon from 'public/svg/delete-proejct-icon.svg';
+
 export const ProjectCard = ({ idx, project }) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
@@ -30,7 +30,7 @@ export const ProjectCard = ({ idx, project }) => {
   return (
     <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue hover:cursor-pointer">
       <div className="absolute top-0 left-0 z-60">
-        <ProjectTypeIcon project={project} />
+        <ProjectTypeIcons project={project} />
       </div>
       <div className="absolute top-0 right-0 group-hover:flex bg-primary-dark-blue items-center justify-between p-2 rounded-md rounded-tl-none rounded-br-none">
         {/* add member */}

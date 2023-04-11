@@ -3,6 +3,7 @@ import { useRecoilValue } from 'recoil';
 import { projectAtom } from 'state/project';
 import Image from 'next/image';
 import Logo from 'public/svg/main-sidebar-logo.svg';
+
 export const MainSidebar = () => {
   // const isMainSidebarExpanded = useRecoilValue(isMainSidebarExpandedAtom);
   const router = useRouter();
@@ -56,32 +57,6 @@ export const MainSidebar = () => {
         <div className="space-y-8 mt-1">
           {/* Pages group */}
           <div>
-            {/* <div className="text-xs uppercase text-gray font-semibold border-b pb-2 border-white flex justify-center lg:justify-start lg:ml-3 items-center">
-              <span
-                className="hidden lg:block lg:hidden text-center w-6"
-                aria-hidden="true"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 4C7.584 4 4 7.584 4 12C4 16.416 7.584 20 12 20C16.416 20 20 16.416 20 12C20 7.584 16.416 4 12 4ZM8.056 17.024C8.4 16.304 10.496 15.6 12 15.6C13.504 15.6 15.608 16.304 15.944 17.024C14.856 17.888 13.488 18.4 12 18.4C10.512 18.4 9.144 17.888 8.056 17.024ZM17.088 15.864C15.944 14.472 13.168 14 12 14C10.832 14 8.056 14.472 6.912 15.864C6.096 14.792 5.6 13.456 5.6 12C5.6 8.472 8.472 5.6 12 5.6C15.528 5.6 18.4 8.472 18.4 12C18.4 13.456 17.904 14.792 17.088 15.864ZM12 7.2C10.448 7.2 9.2 8.448 9.2 10C9.2 11.552 10.448 12.8 12 12.8C13.552 12.8 14.8 11.552 14.8 10C14.8 8.448 13.552 7.2 12 7.2ZM12 11.2C11.336 11.2 10.8 10.664 10.8 10C10.8 9.336 11.336 8.8 12 8.8C12.664 8.8 13.2 9.336 13.2 10C13.2 10.664 12.664 11.2 12 11.2Z"
-                    fill="white"
-                  />
-                </svg>
-              </span>
-              <span className="lg:hidden block">
-                <UserMenu
-                  align="right"
-                  user={user}
-                  setIsLoggedIn={setIsLoggedIn}
-                />
-              </span>
-            </div> */}
             <ul className="mt-3">
               {/* Dashboard */}
               <li className={`px-3 py-1 rounded-full mb-0.5 last:mb-0 ${pathname === '/' && 'bg-transparent'}`}>

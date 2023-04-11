@@ -7,7 +7,7 @@ import TextFileIcon from 'public/svg/text-file-icon.svg';
 import JsonFileIcon from 'public/svg/json-file-icon.svg';
 import DefaultFileIcon from 'public/svg/file-icon.svg';
 
-export const TypeIcon = (fileType) => {
+export const FileTypeIcons = (fileType) => {
   switch (fileType) {
     case 'png':
       return <PngFileIcon />;

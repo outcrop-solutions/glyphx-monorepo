@@ -12,7 +12,7 @@ export const Notification = ({ setNotif }) => {
       <div className="pt-4 pl-4 pr-4">
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center justify-between space-x-3">
-            
+            <svg
               className="mt-0"
               width="24"
               height="24"

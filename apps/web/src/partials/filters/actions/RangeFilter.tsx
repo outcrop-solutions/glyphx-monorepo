@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import produce from 'immer';
+
+import { projectAtom } from 'state';
+
 import FilterTypeIcon from 'public/svg/filter-type-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
-import { useSetRecoilState } from 'recoil';
-import { projectAtom } from 'state';
-import produce from 'immer';
 
 export const RangeFilter = ({ prop }) => {
   const setProject = useSetRecoilState(projectAtom);

@@ -1,7 +1,7 @@
-import Warning from 'public/svg/warning-notif.svg';
+import Warning from 'public/svg/tooltip-notif.svg';
 import Error from 'public/svg/error-notif.svg';
 import Success from 'public/svg/success-notif.svg';
-import Default from 'public/svg/default-notif.svg';
+import Default from 'public/svg/tooltip-icon.svg';
 import NotifIcon from 'public/svg/notif-icon.svg';
 
 export function Notification({ children, className, type, open, setOpen }) {

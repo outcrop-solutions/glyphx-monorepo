@@ -33,5 +33,6 @@ export const AxesIcons = ({ property }) => {
         );
     }
   };
+
   return <Icon />;
 };

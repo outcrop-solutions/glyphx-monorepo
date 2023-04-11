@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useDrop } from 'react-dnd';
+import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
+
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';
 
-import { AxesIcons } from './AxesIcons';
+import { AxesIcons } from '../icons/AxesIcons';
 import PlusIcon from 'public/svg/plus-icon.svg';
 import GarbageIcon from 'public/svg/garbage-can-icon.svg';
 
 import { projectAtom, singlePropertySelectorFamily } from 'state';
-import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { useProject } from 'services';
 import { handleDataType } from 'lib/client/helpers/handleDataType';
 

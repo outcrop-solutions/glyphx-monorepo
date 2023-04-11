@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { projectAtom } from 'state';
 import { useRecoilState } from 'recoil';
 
-import { Controls } from 'partials/layout/Controls';
+import { Controls } from 'partials/layout/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
 

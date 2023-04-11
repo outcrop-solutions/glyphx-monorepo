@@ -1,12 +1,14 @@
 import { useDrop } from 'react-dnd';
 import { useRecoilValue } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
-// import { AxesIcons } from '../filters/AxesIcons';
+import { AxesIcons } from '../icons/AxesIcons';
 
-import { showModelCreationLoadingAtom } from 'state/ui';
-import { projectAtom, singlePropertySelectorFamily } from 'state/project';
 import { useProject } from 'services';
 import { handleDataType } from 'lib/client/helpers/handleDataType';
+
+// state
+import { showModelCreationLoadingAtom } from 'state/ui';
+import { projectAtom, singlePropertySelectorFamily } from 'state/project';
 
 import ClearIcon from 'public/svg/clear-icon.svg';
 import LinIcon from 'public/svg/lin-icon.svg';
@@ -45,13 +47,14 @@ export const Property = ({ axis }) => {
           isCreatingModel ? '' : 'hover:border-white'
         } p-0 rounded`}
       >
-        {/* {clearAxis ? (
-          <AxesIcons property={axis} />
-        ) : ( */}
-        <div className="h-4">
-          <ClearIcon />
+        <div className="h-4 group">
+          <div className="flex group-hover:hidden">
+            <AxesIcons property={axis} />
+          </div>
+          <div className="group-hover:flex hidden">
+            <ClearIcon />
+          </div>
         </div>
-        {/* )} */}
       </div>
       {/* AXES CHIP */}
       {isActive ? (

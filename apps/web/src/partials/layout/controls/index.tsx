@@ -1,8 +1,11 @@
 import React from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import produce from 'immer';
-
 import { web as webTypes } from '@glyphx/types';
+
+import { GridToggle } from 'partials/shared';
+import { SettingsDropdown } from './SettingsDropdown';
+
 import { projectAtom, showAddProjectAtom, showHorizontalOrientationAtom, rightSidebarControlAtom } from 'state';
 
 import HorizontalIcon from 'public/svg/horizontal-layout.svg';
@@ -10,8 +13,6 @@ import ShareIcon from 'public/svg/share-icon.svg';
 import ShowAddIcon from 'public/svg/show-add-project.svg';
 import NotificationIcon from 'public/svg/notification-icon.svg';
 import NewProjectIcon from 'public/svg/new-project-icon.svg';
-import { GridToggle } from 'partials/shared';
-import { SettingsDropdown } from './SettingsDropdown';
 
 const btnClass =
   'h-8 p-1 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-[2px] ml-0';
