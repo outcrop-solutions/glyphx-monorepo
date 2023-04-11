@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { viewerPositionAtom, showInfoDropdownAtom, showNotificationDropdownAtom, showShareModalOpenAtom } from 'state';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { rightSidebarControlAtom, viewerPositionAtom } from 'state';
 
 export const useSendPosition = () => {
   const setViewer = useSetRecoilState(viewerPositionAtom);
-  const isShareOpen = useRecoilValue(showShareModalOpenAtom);
-  const isInfoOpen = useRecoilValue(showNotificationDropdownAtom);
-  const isNotifOpen = useRecoilValue(showInfoDropdownAtom);
+  const isControlOpen = useRecoilValue(rightSidebarControlAtom);
 
   // return new callback when window size changes
   const [windowSize, setWindowSize] = useState({
@@ -35,7 +33,7 @@ export const useSendPosition = () => {
             x: coords.right,
             y: coords.top,
             // assumes left & right sidebar are equal width
-            w: windowSize.width - (coords.right + (isShareOpen || isInfoOpen || isNotifOpen ? coords.width : 0)),
+            w: windowSize.width - (coords.right + (isControlOpen ? coords.width : 0)),
             h: coords.height,
           })
         );
@@ -43,14 +41,14 @@ export const useSendPosition = () => {
           x: coords.right,
           y: coords.top,
           // assumes left & right sidebar are equal width
-          w: windowSize.width - (coords.right + (isShareOpen || isInfoOpen || isNotifOpen ? coords.width : 0)),
+          w: windowSize.width - (coords.right + (isControlOpen ? coords.width : 0)),
           h: coords.height,
         });
       } catch (error) {
         console.log({ error });
       }
     },
-    [isInfoOpen, isNotifOpen, isShareOpen, setViewer, windowSize.width]
+    [isControlOpen, setViewer, windowSize.width]
   );
 
   return { sendPosition };

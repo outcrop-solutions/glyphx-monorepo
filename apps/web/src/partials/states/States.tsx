@@ -6,37 +6,12 @@ import { StateList } from './StateList';
 // import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { projectAtom } from 'state/project';
+import { PlusIcon } from '@heroicons/react/outline';
 // import { statesSelector } from 'state/states';
 
 export const States = () => {
   const project = useRecoilValue(projectAtom);
-  // const [states, setStates] = useRecoilState(statesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
-
-  // useEffect(() => {
-  //   if (window && window?.core) {
-  //     //window?.core?.SendCameraPosition.connect(async function (message) {
-  //       const createStateInput = {
-  //         id: uuid(),
-  //         title: "new_state",
-  //         description: "",
-  //         camera: message,
-  //         queries: query ? query : "",
-  //         projectID: project.id,
-  //       };
-
-  //       try {
-  //         const result = await API.graphql(
-  //           graphqlOperation(createState, { input: createStateInput })
-  //         );
-  //         // @ts-ignore
-  //         setStates(result.data.createState);
-  //       } catch (error) {
-  //
-  //       }
-  //     });
-  //   }
-  // }, []);
 
   const addState = async () => {
     if (
@@ -92,7 +67,11 @@ export const States = () => {
             />
           </svg>
 
-          {/* <PlusIcon color="#CECECE" className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white" onClick={addState} /> */}
+          <PlusIcon
+            color="#CECECE"
+            className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
+            onClick={addState}
+          />
         </summary>
         {/* {states && states.length > 0 && !isCollapsed && <StateList />} */}
       </div>

@@ -19,7 +19,6 @@ export const useSocket = () => {
       };
       ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        console.log({ message });
       };
       return () => {
         ws.close();

@@ -1,16 +1,9 @@
-import { useFocusRef } from "services/useFocusRef";
-
-export function SortableHeaderCell({
-  onSort,
-  sortDirection,
-  priority,
-  children,
-  isCellSelected,
-}) {
+import { useFocusRef } from 'services/useFocusRef';
+export function SortableHeaderCell({ onSort, sortDirection, priority, children, isCellSelected }) {
   const { ref, tabIndex } = useFocusRef(isCellSelected);
 
   function handleKeyDown(event) {
-    if (event.key === " " || event.key === "Enter") {
+    if (event.key === ' ' || event.key === 'Enter') {
       // stop propagation to prevent scrolling
       event.preventDefault();
       onSort(event.ctrlKey || event.metaKey);
@@ -35,22 +28,6 @@ export function SortableHeaderCell({
       >
         {children}
       </div>
-      <span>
-        {sortDirection !== undefined && (
-          <svg
-            viewBox="0 0 12 8"
-            width="12"
-            height="8"
-            className="mt-3"
-            aria-hidden
-          >
-            <path
-              d={sortDirection === "ASC" ? "M0 8 6 0 12 8" : "M0 0 6 8 12 0"}
-            />
-          </svg>
-        )}
-        {priority}
-      </span>
     </span>
   );
 }

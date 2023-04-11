@@ -9,3 +9,6 @@ export * from './fileSystem/selectedIndex';
 // used for filters on projects
 export * from './filter';
 export * from './property';
+
+// used for ui controls
+export * from './ui';

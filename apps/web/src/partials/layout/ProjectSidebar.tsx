@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Files, States, Properties as Axes, Filters, Visualizations, VisualizationProps } from 'partials';
+import { Files, States, Properties as Axes, Filters } from 'partials';
 import { usePosition } from 'services/usePosition';
 import { useSendPosition } from 'services';
 
@@ -21,9 +21,9 @@ export const ProjectSidebar = () => {
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex grow flex-col bg-secondary-space-blue absolute z-30 left-0 top-0 lg:static border-r border-l border-t border-gray lg:left-auto lg:top-auto  h-full w-full scrollbar-none`}
+      className={`flex grow flex-col bg-secondary-space-blue z-30 border-r border-l border-t border-gray h-full scrollbar-none`}
     >
-      <div className="overflow-y-auto w-full scrollbar-none ">
+      <div className="overflow-y-auto w-full scrollbar-none">
         <Files />
         <Axes />
         <Filters />

@@ -16,7 +16,6 @@ import { showProjectsGridViewAtom, showAddProjectAtom, workspaceAtom, projectAto
 
 export default function Home() {
   const isGridView = useRecoilValue(showProjectsGridViewAtom);
-  const project = useRecoilValue(projectAtom);
   const showAddProject = useRecoilValue(showAddProjectAtom);
   const workspace = useRecoilValue(workspaceAtom);
   return (

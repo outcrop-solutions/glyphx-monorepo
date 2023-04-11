@@ -1,3 +1,2 @@
-export * from "./Properties";
-export * from "./Property";
-export * from "./PropertyIcons";
+export * from './Properties';
+export * from './Property';

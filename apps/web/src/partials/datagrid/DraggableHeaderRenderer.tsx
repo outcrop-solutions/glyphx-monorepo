@@ -82,7 +82,7 @@ export function DraggableHeaderRenderer({ onColumnsReorder, column, sortDirectio
 
   return (
     <div
-      datatype={`${column.dataType}`}
+      data-type={`${column.dataType}`}
       ref={useCombinedRefs(drag, drop)}
       className={`${isDragging ? 'opacity-80' : 'opacity-100'} px-2 h-full  ${isOver ? 'bg-blue-500' : ''}`}
     >

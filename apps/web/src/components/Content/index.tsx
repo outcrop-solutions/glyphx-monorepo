@@ -7,8 +7,12 @@ const Content = ({ children }) => {
   );
 };
 
-Content.Projects = ({ children }) => {
-  return <div className="flex flex-col h-full overflow-y-auto md:w-3/4 bg-transparent">{children}</div>;
+Content.Workspace = ({ children }) => {
+  return <div className="flex flex-col h-full overflow-y-auto bg-transparent">{children}</div>;
+};
+
+Content.Project = ({ children }) => {
+  return <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">{children}</div>;
 };
 
 Content.Container = ({ children }: { children?: any }) => {

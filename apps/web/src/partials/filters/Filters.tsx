@@ -25,7 +25,6 @@ export const Filters = () => {
               </a>
             </div>
           </summary>
-
           <div
             className={`block border-b border-gray
         `}
