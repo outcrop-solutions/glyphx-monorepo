@@ -9,6 +9,7 @@ import { useProject, useWorkspace } from 'lib/client/hooks';
 import Meta from 'components/Meta';
 import ProjectLayout from 'layouts/ProjectLayout';
 import Content from 'components/Content';
+import { useSocket } from 'services';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -28,6 +29,8 @@ export default function Project() {
       setWorkspace(result?.workspace);
     }
   }, [data, isLoading, isWorkspaceLoading, result, setDataGrid, setProject, setWorkspace]);
+
+  useSocket();
 
   return (
     !isLoading && (
