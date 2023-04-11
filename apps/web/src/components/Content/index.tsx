@@ -1,14 +1,12 @@
 /* eslint-disable react/display-name */
 const Content = ({ children }) => {
   return (
-    <div className="flex flex-col h-full px-5 space-y-5 overflow-y-auto md:px-10 md:w-3/4 bg-transparent">
-      {children}
-    </div>
+    <div className="flex flex-col h-full w-full px-5 space-y-5 overflow-y-auto md:px-10 bg-transparent">{children}</div>
   );
 };
 
 Content.Workspace = ({ children }) => {
-  return <div className="flex flex-col h-full overflow-y-auto bg-transparent">{children}</div>;
+  return <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">{children}</div>;
 };
 
 Content.Project = ({ children }) => {

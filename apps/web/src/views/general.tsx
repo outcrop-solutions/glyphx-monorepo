@@ -10,12 +10,17 @@ import Button from 'components/Button/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { _updateWorkspaceName, _updateWorkspaceSlug, api, useWorkspace } from 'lib/client';
+import { useRecoilValue } from 'recoil';
+import { workspaceAtom } from 'state';
 
-const General = ({ isTeamOwner, workspace }) => {
+const General = ({ isTeamOwner }) => {
   const router = useRouter();
+  const workspace = useRecoilValue(workspaceAtom);
+
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(workspace?.name || '');
   const [slug, setSlug] = useState(workspace?.slug || '');
+
   const validName = name?.length > 0 && name?.length <= 16;
   const validSlug =
     slug?.length > 0 && slug?.length <= 16 && isSlug(slug) && isAlphanumeric(slug, undefined, { ignore: '-' });
@@ -47,8 +52,8 @@ const General = ({ isTeamOwner, workspace }) => {
   };
 
   useEffect(() => {
-    setName(workspace.name);
-    setSlug(workspace.slug);
+    setName(workspace?.name);
+    setSlug(workspace?.slug);
   }, [workspace]);
 
   return (
@@ -100,8 +105,8 @@ const General = ({ isTeamOwner, workspace }) => {
         <Card>
           <Card.Body title="Workspace ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
-              <span className="overflow-x-auto">{workspace.workspaceCode}</span>
-              <CopyToClipboard onCopy={copyToClipboard} text={workspace.workspaceCode}>
+              <span className="overflow-x-auto">{workspace?.workspaceCode}</span>
+              <CopyToClipboard onCopy={copyToClipboard} text={workspace?.workspaceCode}>
                 <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
               </CopyToClipboard>
             </div>

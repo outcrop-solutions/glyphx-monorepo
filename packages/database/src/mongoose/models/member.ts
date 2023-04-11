@@ -34,7 +34,7 @@ const SCHEMA = new Schema<
     enum: databaseTypes.constants.ROLE,
     default: databaseTypes.constants.ROLE.MEMBER,
   },
-  member: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
+  member: {type: Schema.Types.ObjectId, required: false, ref: 'user'},
   invitedBy: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   workspace: {type: Schema.Types.ObjectId, required: true, ref: 'workspace'},
 });

@@ -44,7 +44,7 @@ export default function Invite() {
                   </Button>
                 ) : (
                   <Link href="/auth/login">
-                    <a className="flex items-center justify-center px-5 py-2 space-x-3 text-white bg-blue-600 rounded hover:bg-blue-500">
+                    <a className="flex items-center justify-center px-5 py-2 space-x-3 text-black bg-yellow rounded hover:bg-blue-500">
                       Create an account
                     </a>
                   </Link>

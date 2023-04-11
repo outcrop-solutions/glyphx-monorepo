@@ -9,10 +9,14 @@ export const useSocket = () => {
   const [channel, setChannel] = useState(null);
 
   useEffect(() => {
+    let ws;
+    let webChannel;
+
     if (!channel) {
       const ws = new WebSocket('ws://localhost:12345'); // Replace with your WebSocket server URL and port
       ws.onopen = () => {
-        const webChannel = new QWebChannel(ws, function (channel) {
+        webChannel = new QWebChannel(ws, function (channel) {
+          console.log({ channel });
           window.core = channel.objects.core; // making it global
         });
         setChannel(webChannel);
@@ -20,11 +24,14 @@ export const useSocket = () => {
       ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
       };
-      return () => {
-        ws.close();
-      };
-    } else {
-      channel.close();
     }
+    return () => {
+      if (webChannel) {
+        webChannel.reset();
+      }
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
   }, [channel]);
 };

@@ -123,7 +123,7 @@ export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiRespo
  */
 
 export const getMembers = async (req: NextApiRequest, res: NextApiResponse) => {
-  let { workspaceSlug } = req.query;
+  const { workspaceSlug } = req.query;
 
   if (Array.isArray(workspaceSlug)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
@@ -193,6 +193,37 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
       workspaceSlug
     );
     res.status(200).json({ data: { slug: deletedSlug } });
+  } catch (error) {
+    res.status(404).json({ errors: { error: { msg: error.message } } });
+  }
+};
+
+/**
+ * Checks if user is team owner
+ *
+ * @route GET /api/workspace/[workspaceSlug]/isTeamOwner
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+export const isTeamOwner = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+  const { workspaceSlug } = req.query;
+
+  if (Array.isArray(workspaceSlug)) {
+    return res.status(400).end('Query parameter is invalid');
+  }
+
+  try {
+    const workspace = await workspaceService.getWorkspace(session?.user?.userId, session?.user?.email, workspaceSlug);
+
+    if (workspace) {
+      const isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email, workspace);
+      const inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace?.inviteCode)}`;
+
+      res.status(200).json({ data: { isTeamOwner, inviteLink } });
+    }
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
   }

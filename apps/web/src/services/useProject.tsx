@@ -2,11 +2,12 @@ import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSetRecoilState } from 'recoil';
 import { web as webTypes, fileIngestion as fileIngestionTypes, database as databaseTypes } from '@glyphx/types';
-import { _createModel, _createOpenProject, _getSignedDataUrls, api } from 'lib/client';
+import { api } from 'lib/client';
 
 import { projectAtom, showModelCreationLoadingAtom } from 'state';
 import { updateDrop } from 'lib/client/actions/updateProp';
 import { getUrl } from 'config/constants';
+import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations/core';
 
 export const useProject = () => {
   const session = useSession();
@@ -26,7 +27,9 @@ export const useProject = () => {
           api({
             ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString()),
             onSuccess: (data) => {
-              window?.core?.OpenProject(_createOpenProject(data, project, session));
+              if (window.core) {
+                window?.core?.OpenProject(_createOpenProject(data, project, session));
+              }
             },
           });
         },
