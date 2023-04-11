@@ -1,3 +1,4 @@
+import SettingsIcon from 'public/svg/settings-icon.svg';
 const sidebarMenu = () => [
   {
     name: 'Account',
@@ -10,7 +11,7 @@ const sidebarMenu = () => [
       {
         name: 'Settings',
         path: `/account/settings`,
-        altIcon: '',
+        altIcon: <SettingsIcon />,
       },
     ],
   },
