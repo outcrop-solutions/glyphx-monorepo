@@ -10,7 +10,7 @@ import { ProjectTypeIcons } from '../icons';
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
 import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
-import DeleteProjectIcon from 'public/svg/delete-proejct-icon.svg';
+import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 
 export const ProjectCard = ({ idx, project }) => {
   dayjs.extend(relativeTime);

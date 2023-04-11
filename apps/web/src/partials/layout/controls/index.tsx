@@ -3,7 +3,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import produce from 'immer';
 import { web as webTypes } from '@glyphx/types';
 
-import { GridToggle } from 'partials/shared';
+import { GridToggle } from './GridToggle';
 import { SettingsDropdown } from './SettingsDropdown';
 
 import { projectAtom, showAddProjectAtom, showHorizontalOrientationAtom, rightSidebarControlAtom } from 'state';
