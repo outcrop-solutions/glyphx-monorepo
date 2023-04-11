@@ -6,7 +6,9 @@ import { updateEmail } from 'lib/server';
 
 const name = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
-  await Initializer.init();
+  if (!Initializer.initedField) {
+    await Initializer.init();
+  }
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
@@ -14,10 +16,10 @@ const name = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.PUT:
+    case webTypes.constants.HTTP_METHOD.PUT:
       return updateEmail(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.PUT]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.PUT]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

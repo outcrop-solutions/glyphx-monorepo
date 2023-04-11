@@ -14,6 +14,8 @@ export class BasicColumnNameCleaner
     40, //(
     41, //)
     45, //-
+    // 65-90, //A-Z
+    // 97-122, //a-z
   ];
   /**
    * See the IcolumnNameInterface for additional information --
@@ -24,10 +26,17 @@ export class BasicColumnNameCleaner
     const tempValue = value.toLowerCase();
     for (let i = 0; i < tempValue.length; i++) {
       const charValue = tempValue.charCodeAt(i);
-      if (this.REPLACEABLE_CHARS.find(c => c === charValue)) {
-        outArray.push('_');
-      }
       if (
+        i === 0 &&
+        !(
+          (charValue >= 65 && charValue <= 90) ||
+          (charValue >= 97 && charValue <= 122)
+        )
+      ) {
+        outArray.push('_');
+      } else if (i !== 0 && this.REPLACEABLE_CHARS.find(c => c === charValue)) {
+        outArray.push('_');
+      } else if (
         charValue === 95 || //_
         (charValue >= 48 && charValue <= 57) || //0-9
         (charValue >= 97 && charValue <= 122) //a-z
@@ -38,6 +47,13 @@ export class BasicColumnNameCleaner
 
     const ret = outArray.join('');
 
-    return ret;
+    const result = ret.split('').reduce((acc, curr) => {
+      if (acc === '' && curr === '_') {
+        return acc;
+      }
+      return acc + curr;
+    }, '');
+
+    return result;
   }
 }

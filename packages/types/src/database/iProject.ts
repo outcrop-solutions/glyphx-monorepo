@@ -11,13 +11,33 @@ export interface IProject {
   updatedAt: Date;
   name: string;
   description?: string;
+  deletedAt?: Date;
   sdtPath?: string;
   workspace: IWorkspace;
+  lastOpened?: Date;
   slug?: string;
   isTemplate: Boolean;
   type?: IProjectType;
   owner: IUser;
-  state?: IState;
+  currentVersion?: number;
+  // when filters and properties change, sent to create model call on filter apply or change in properties (given 3 props are dropped)
+  // duplicated to new immutable state object when user clicks to add new state
+  // stored as 'Json' BSON type in mongo
+  state?: Omit<
+    IState,
+    | 'createdAt'
+    | 'updatedAt'
+    | 'fileSystem'
+    | 'description'
+    | 'version'
+    | 'static'
+    | 'camera'
+    | 'fileSystemHash'
+    | 'project'
+    | 'createdBy'
+    | '_id'
+  >;
+  stateHistory?: IState[];
   files: IFileStats[];
   viewName?: string;
 }

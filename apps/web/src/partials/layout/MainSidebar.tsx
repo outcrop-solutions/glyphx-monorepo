@@ -1,14 +1,14 @@
 import { useRouter } from 'next/router';
 import { useRecoilValue } from 'recoil';
-import { selectedProjectSelector } from 'state/project';
+import { projectAtom } from 'state/project';
 import Image from 'next/image';
-
+import Logo from 'public/svg/main-sidebar-logo.svg';
 export const MainSidebar = () => {
   // const isMainSidebarExpanded = useRecoilValue(isMainSidebarExpandedAtom);
   const router = useRouter();
   const { pathname } = router;
 
-  const selectedProject = useRecoilValue(selectedProjectSelector);
+  const selectedProject = useRecoilValue(projectAtom);
 
   return (
     <div
@@ -30,7 +30,7 @@ export const MainSidebar = () => {
           {/* TODO: fix this style wise in UI cleanup */}
           <div className="flex pb-1 justify-center">
             {selectedProject ? (
-              <Image src="/images/MainSidebar_G_Logo.svg" height={150} width={300} alt="" />
+              <Logo />
             ) : (
               <Image src="/images/MainSidebar_Full_Logo.svg" height={150} width={300} alt="" />
             )}

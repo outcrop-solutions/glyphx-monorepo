@@ -8,6 +8,7 @@ import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {ProjectModel} from '../../../mongoose/models/project';
+import {UserModel} from '../../../mongoose/models';
 
 const MOCK_STATE: databaseTypes.IState = {
   createdAt: new Date(),
@@ -15,9 +16,45 @@ const MOCK_STATE: databaseTypes.IState = {
   version: 0,
   static: false,
   fileSystemHash: 'hash this',
-  projects: [],
+  project: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IProject,
+  createdBy: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IUser,
   fileSystem: [],
+  camera: 400,
+  properties: {},
 };
+const MOCK_NULLISH_STATE = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  version: 0,
+  static: false,
+  fileSystemHash: 'hash this',
+  project: {
+    _id: new mongoose.Types.ObjectId(),
+  } as databaseTypes.IProject,
+  createdBy: {
+    _id: new mongoose.Types.ObjectId(),
+  } as databaseTypes.IUser,
+  fileSystem: undefined,
+  camera: 400,
+  properties: undefined,
+} as unknown as databaseTypes.IState;
+
+const MOCK_STATE_IDS = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  version: 0,
+  static: false,
+  fileSystemHash: 'hash this',
+  project: new mongoose.Types.ObjectId(),
+  createdBy: new mongoose.Types.ObjectId(),
+  fileSystem: [],
+  camera: 400,
+  properties: {},
+} as unknown as databaseTypes.IState;
 
 describe('#mongoose/models/state', () => {
   context('stateIdExists', () => {
@@ -73,12 +110,16 @@ describe('#mongoose/models/state', () => {
 
     it('will create a state document', async () => {
       const stateId = new mongoose.Types.ObjectId();
-      sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
+
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(
         ProjectModel,
-        'allProjectIdsExist',
+        'projectIdExists',
         sandbox.stub().resolves(true)
       );
+
+      sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
+
       sandbox.replace(
         StateModel,
         'create',
@@ -95,18 +136,134 @@ describe('#mongoose/models/state', () => {
       assert.isTrue(getStateByIdStub.calledOnce);
     });
 
-    it('will throw an DataValidationError if the state cannont be validated.', async () => {
+    it('will create a state document with nullish coallesce', async () => {
       const stateId = new mongoose.Types.ObjectId();
+
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(
         ProjectModel,
-        'allProjectIdsExist',
+        'projectIdExists',
         sandbox.stub().resolves(true)
+      );
+
+      sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
+
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: stateId, properties: {}}])
+      );
+
+      const getStateByIdStub = sandbox.stub();
+      getStateByIdStub.resolves({_id: stateId, properties: {}});
+
+      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
+
+      const result = await StateModel.createState(MOCK_NULLISH_STATE);
+      assert.strictEqual(result._id, stateId);
+      assert.isTrue(getStateByIdStub.calledOnce);
+    });
+
+    it('will create a state document with project and createdBy as ID', async () => {
+      const stateId = new mongoose.Types.ObjectId();
+
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        sandbox.stub().resolves(true)
+      );
+
+      sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
+
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: stateId}])
+      );
+
+      const getStateByIdStub = sandbox.stub();
+      getStateByIdStub.resolves({_id: stateId});
+
+      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
+
+      const result = await StateModel.createState(MOCK_STATE_IDS);
+      assert.strictEqual(result._id, stateId);
+      assert.isTrue(getStateByIdStub.calledOnce);
+    });
+
+    it('will throw an InvalidArgumentError if the project cannot be validated.', async () => {
+      const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        sandbox.stub().resolves(false)
       );
       sandbox.replace(
         StateModel,
-        'stateIdExists',
+        'create',
+        sandbox.stub().resolves([{_id: stateId}])
+      );
+
+      const getStateByIdStub = sandbox.stub();
+      getStateByIdStub.resolves({_id: stateId});
+
+      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
+
+      let errorred = false;
+      try {
+        await StateModel.createState(MOCK_STATE);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will throw an InvalidArgumentError if the creator cannot be validated.', async () => {
+      const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
         sandbox.stub().resolves(true)
       );
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: stateId}])
+      );
+
+      const getStateByIdStub = sandbox.stub();
+      getStateByIdStub.resolves({_id: stateId});
+
+      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
+
+      let errorred = false;
+      try {
+        await StateModel.createState(MOCK_STATE);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('will throw an DataValidationError if the state cannot be validated.', async () => {
+      const stateId = new mongoose.Types.ObjectId();
+
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        sandbox.stub().resolves(true)
+      );
+
       sandbox.replace(
         StateModel,
         'validate',
@@ -135,9 +292,10 @@ describe('#mongoose/models/state', () => {
 
     it('will throw an DatabaseOperationError if the underlying database connection throws an error.', async () => {
       const stateId = new mongoose.Types.ObjectId();
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(
         ProjectModel,
-        'allProjectIdsExist',
+        'projectIdExists',
         sandbox.stub().resolves(true)
       );
       sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
@@ -350,26 +508,6 @@ describe('#mongoose/models/state', () => {
       }
       assert.isTrue(errored);
     });
-
-    it('will fail when trying to update projects', async () => {
-      const inputState = {
-        version: 2,
-        projects: [
-          {
-            _id: new mongoose.Types.ObjectId(),
-          } as unknown as databaseTypes.IProject,
-        ],
-      };
-      let errored = false;
-
-      try {
-        await StateModel.validateUpdateObject(inputState);
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
   });
 
   context('Delete a state document', () => {
@@ -428,125 +566,6 @@ describe('#mongoose/models/state', () => {
     });
   });
 
-  context('validate projects', () => {
-    const sandbox = createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it('should return an array of ids when the projects can be validated', async () => {
-      const inputProjects = [
-        {
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProject,
-        {
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProject,
-      ];
-
-      const allProjectIdsExistStub = sandbox.stub();
-      allProjectIdsExistStub.resolves(true);
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
-
-      const results = await StateModel.validateProjects(inputProjects);
-
-      assert.strictEqual(results.length, inputProjects.length);
-      results.forEach(r => {
-        const foundId = inputProjects.find(
-          p => p._id?.toString() === r.toString()
-        );
-        assert.isOk(foundId);
-      });
-    });
-
-    it('should return an array of ids when the projectIds can be validated ', async () => {
-      const inputProjects = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
-
-      const allProjectIdsExistStub = sandbox.stub();
-      allProjectIdsExistStub.resolves(true);
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
-
-      const results = await StateModel.validateProjects(inputProjects);
-
-      assert.strictEqual(results.length, inputProjects.length);
-      results.forEach(r => {
-        const foundId = inputProjects.find(
-          p => p._id?.toString() === r.toString()
-        );
-        assert.isOk(foundId);
-      });
-    });
-
-    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputProjects = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
-
-      const allProjectIdsExistStub = sandbox.stub();
-      allProjectIdsExistStub.rejects(
-        new error.DataNotFoundError(
-          'the project ids cannot be found',
-          'projectIds',
-          inputProjects
-        )
-      );
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
-
-      let errored = false;
-      try {
-        await StateModel.validateProjects(inputProjects);
-      } catch (err: any) {
-        assert.instanceOf(err, error.DataValidationError);
-        assert.instanceOf(err.innerError, error.DataNotFoundError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-
-    it('should rethrow an error from the underlying connection', async () => {
-      const inputProjects = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
-
-      const errorText = 'something bad has happened';
-
-      const allProjectIdsExistStub = sandbox.stub();
-      allProjectIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
-
-      let errored = false;
-      try {
-        await StateModel.validateProjects(inputProjects);
-      } catch (err: any) {
-        assert.strictEqual(err.name, errorText);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-  });
-
   context('getStateById', () => {
     class MockMongooseQuery {
       mockData?: any;
@@ -575,13 +594,18 @@ describe('#mongoose/models/state', () => {
       fileSystemHash: 'I am the hash',
       fileSystem: [],
       __v: 1,
-      projects: [
-        {
-          _id: new mongoose.Types.ObjectId(),
-          name: 'test user',
-          __v: 1,
-        } as unknown as databaseTypes.IProject,
-      ],
+      project: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test project',
+        __v: 1,
+      } as unknown as databaseTypes.IProject,
+      createdBy: {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'test user',
+        __v: 1,
+      } as unknown as databaseTypes.IUser,
+      camera: 400,
+      properties: {},
     } as databaseTypes.IState;
     const sandbox = createSandbox();
 
@@ -589,7 +613,7 @@ describe('#mongoose/models/state', () => {
       sandbox.restore();
     });
 
-    it('will retreive a state document with the projects populated', async () => {
+    it('will retreive a state document with the project and createdBy populated', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new MockMongooseQuery(mockState));
       sandbox.replace(StateModel, 'findById', findByIdStub);
@@ -600,8 +624,7 @@ describe('#mongoose/models/state', () => {
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
-      doc.projects.forEach(p => assert.isUndefined((p as any).__v));
-
+      assert.isUndefined((doc.project as any).__v);
       assert.strictEqual(doc._id, mockState._id);
     });
 
@@ -640,384 +663,6 @@ describe('#mongoose/models/state', () => {
     });
   });
 
-  context('addProjects', () => {
-    const sandbox = createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it('will add a project to an state', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const validateProjectsStub = sandbox.stub();
-      validateProjectsStub.resolves([projectId]);
-      sandbox.replace(StateModel, 'validateProjects', validateProjectsStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      const updatedState = await StateModel.addProjects(stateId, [projectId]);
-
-      assert.strictEqual(updatedState._id, stateId);
-      assert.strictEqual(
-        updatedState.projects[0].toString(),
-        projectId.toString()
-      );
-
-      assert.isTrue(findByIdStub.calledOnce);
-      assert.isTrue(validateProjectsStub.calledOnce);
-      assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getStateByIdStub.calledOnce);
-    });
-
-    it('will not save when a project is already attached to a state', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-      localMockState.projects.push(projectId);
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const validateProjectsStub = sandbox.stub();
-      validateProjectsStub.resolves([projectId]);
-      sandbox.replace(StateModel, 'validateProjects', validateProjectsStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      const updatedState = await StateModel.addProjects(stateId, [projectId]);
-
-      assert.strictEqual(updatedState._id, stateId);
-      assert.strictEqual(
-        updatedState.projects[0].toString(),
-        projectId.toString()
-      );
-
-      assert.isTrue(findByIdStub.calledOnce);
-      assert.isTrue(validateProjectsStub.calledOnce);
-      assert.isFalse(saveStub.calledOnce);
-      assert.isTrue(getStateByIdStub.calledOnce);
-    });
-
-    it('will throw a data not found error when the state does not exist', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(null);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const validateProjectsStub = sandbox.stub();
-      validateProjectsStub.resolves([projectId]);
-      sandbox.replace(StateModel, 'validateProjects', validateProjectsStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      let errored = false;
-      try {
-        await StateModel.addProjects(stateId, [projectId]);
-      } catch (err) {
-        assert.instanceOf(err, error.DataNotFoundError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-    });
-
-    it('will throw a data validation error when project id does not exist', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const validateProjectsStub = sandbox.stub();
-      validateProjectsStub.rejects(
-        new error.DataValidationError(
-          'The projects id does not exist',
-          'projectId',
-          projectId
-        )
-      );
-      sandbox.replace(StateModel, 'validateProjects', validateProjectsStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      let errored = false;
-      try {
-        await StateModel.addProjects(stateId, [projectId]);
-      } catch (err) {
-        assert.instanceOf(err, error.DataValidationError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-    });
-
-    it('will throw a data operation error when the underlying connection fails', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const validateProjectsStub = sandbox.stub();
-      validateProjectsStub.resolves([projectId]);
-      sandbox.replace(StateModel, 'validateProjects', validateProjectsStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.rejects('Something bad has happened');
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      let errored = false;
-      try {
-        await StateModel.addProjects(stateId, [projectId]);
-      } catch (err) {
-        assert.instanceOf(err, error.DatabaseOperationError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-    });
-
-    it('will throw an invalid argument error when the projects array is empty', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(null);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const validateProjectsStub = sandbox.stub();
-      validateProjectsStub.resolves([projectId]);
-      sandbox.replace(StateModel, 'validateProjects', validateProjectsStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      let errored = false;
-      try {
-        await StateModel.addProjects(stateId, []);
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidArgumentError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-    });
-  });
-
-  context('removeProjects', () => {
-    const sandbox = createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it('will remove a project from the state', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-      localMockState.projects.push(projectId);
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      const updatedState = await StateModel.removeProjects(stateId, [
-        projectId,
-      ]);
-
-      assert.strictEqual(updatedState._id, stateId);
-      assert.strictEqual(updatedState.projects.length, 0);
-
-      assert.isTrue(findByIdStub.calledOnce);
-      assert.isTrue(saveStub.calledOnce);
-      assert.isTrue(getStateByIdStub.calledOnce);
-    });
-
-    it('will not modify the projects if the projectid are not on the state projects', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-      localMockState.projects.push(projectId);
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      const updatedState = await StateModel.removeProjects(stateId, [
-        new mongoose.Types.ObjectId(),
-      ]);
-
-      assert.strictEqual(updatedState._id, stateId);
-      assert.strictEqual(updatedState.projects.length, 1);
-
-      assert.isTrue(findByIdStub.calledOnce);
-      assert.isFalse(saveStub.calledOnce);
-      assert.isTrue(getStateByIdStub.calledOnce);
-    });
-
-    it('will throw a data not found error when the state does not exist', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-      localMockState.projects.push(projectId);
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(null);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      let errored = false;
-      try {
-        await StateModel.removeProjects(stateId, [projectId]);
-      } catch (err) {
-        assert.instanceOf(err, error.DataNotFoundError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-    });
-
-    it('will throw a data operation error when the underlying connection fails', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-      localMockState.projects.push(projectId);
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.rejects('Something bad has happened');
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      let errored = false;
-      try {
-        await StateModel.removeProjects(stateId, [projectId]);
-      } catch (err) {
-        assert.instanceOf(err, error.DatabaseOperationError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-    });
-
-    it('will throw an invalid argument error when the projects array is empty', async () => {
-      const stateId = new mongoose.Types.ObjectId();
-      const localMockState = JSON.parse(JSON.stringify(MOCK_STATE));
-      localMockState._id = stateId;
-      const projectId = new mongoose.Types.ObjectId();
-      localMockState.projects.push(projectId);
-
-      const findByIdStub = sandbox.stub();
-      findByIdStub.resolves(null);
-      sandbox.replace(StateModel, 'findById', findByIdStub);
-
-      const saveStub = sandbox.stub();
-      saveStub.resolves(localMockState);
-      localMockState.save = saveStub;
-
-      const getStateByIdStub = sandbox.stub();
-      getStateByIdStub.resolves(localMockState);
-      sandbox.replace(StateModel, 'getStateById', getStateByIdStub);
-
-      let errored = false;
-      try {
-        await StateModel.removeProjects(stateId, []);
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidArgumentError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-    });
-  });
-
   context('queryStates', () => {
     class MockMongooseQuery {
       mockData?: any;
@@ -1048,13 +693,17 @@ describe('#mongoose/models/state', () => {
         fileSystemHash: 'I am the hash',
         fileSystem: [],
         __v: 1,
-        projects: [
-          {
-            _id: new mongoose.Types.ObjectId(),
-            name: 'test user',
-            __v: 1,
-          } as unknown as databaseTypes.IProject,
-        ],
+        project: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user',
+          __v: 1,
+        } as unknown as databaseTypes.IProject,
+        createdBy: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        camera: 400,
+        properties: {},
       } as databaseTypes.IState,
       {
         _id: new mongoose.Types.ObjectId(),
@@ -1065,13 +714,17 @@ describe('#mongoose/models/state', () => {
         fileSystemHash: 'I am the hash2',
         fileSystem: [],
         __v: 1,
-        projects: [
-          {
-            _id: new mongoose.Types.ObjectId(),
-            name: 'test user2',
-            __v: 1,
-          } as unknown as databaseTypes.IProject,
-        ],
+        project: {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'test user2',
+          __v: 1,
+        } as unknown as databaseTypes.IProject,
+        createdBy: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        camera: 400,
+        properties: {},
       } as databaseTypes.IState,
     ];
     const sandbox = createSandbox();
@@ -1101,9 +754,7 @@ describe('#mongoose/models/state', () => {
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
         assert.isUndefined((doc as any).__v);
-        doc.projects.forEach((p: any) => {
-          assert.isUndefined((p as any).__v);
-        });
+        assert.isUndefined((doc.project as any).__v);
       });
     });
 

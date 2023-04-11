@@ -119,9 +119,7 @@ export class FileIngestor {
     if (!this.inited) {
       try {
         await this.s3Manager.init();
-
         await this.athenaManager.init();
-
         await this.basicAthenaProcessor.init();
         //TODO: set our file statistics here
         await businessLogicInit.init();

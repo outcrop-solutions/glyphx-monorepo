@@ -4,16 +4,16 @@ import React, { useState, useEffect } from 'react';
 // import { v4 as uuid } from "uuid";
 // import { PlusIcon } from "@heroicons/react/outline";
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { selectedProjectSelector } from 'state/project';
-import { statesSelector } from 'state/states';
+import { projectAtom } from 'state/project';
+// import { statesSelector } from 'state/states';
 
 export const VisualizationProps = () => {
-  const project = useRecoilValue(selectedProjectSelector);
-  const [states, setStates] = useRecoilState(statesSelector);
+  const project = useRecoilValue(projectAtom);
+  // const [states, setStates] = useRecoilState(statesSelector);
 
   // useEffect(() => {
   //   if (window && window?.core) {
-  //     //window.core.SendCameraPosition.connect(async function (message) {
+  //     //window?.core?.SendCameraPosition.connect(async function (message) {
   //       const createStateInput = {
   //         id: uuid(),
   //         title: "new_state",
@@ -41,7 +41,7 @@ export const VisualizationProps = () => {
       window
       //&& window.core
     ) {
-      //await window.core.GetCameraPosition(true);
+      //await window?.core?.GetCameraPosition(true);
     }
   };
 

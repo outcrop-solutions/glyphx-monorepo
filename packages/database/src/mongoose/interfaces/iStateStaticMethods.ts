@@ -21,18 +21,13 @@ export interface IStateStaticMethods
     state: Omit<Partial<databaseTypes.IState>, '_id'>
   ): Promise<databaseTypes.IState>;
   deleteStateById(stateId: mongooseTypes.ObjectId): Promise<void>;
-  validateProjects(
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
+  validateProject(
+    project: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId>;
+  validateUser(
+    user: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId>;
   validateUpdateObject(
     state: Omit<Partial<databaseTypes.IState>, '_id'>
   ): Promise<void>;
-  addProjects(
-    stateId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IState>;
-  removeProjects(
-    stateId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IState>;
 }

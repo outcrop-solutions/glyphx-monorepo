@@ -7,25 +7,25 @@ import Content from 'components/Content/index';
 import Header from 'components/Header';
 import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
-import { useWorkspace } from 'providers/workspace';
+import { useWorkspace } from 'lib';
 
 const ProjectLayout = ({ children }) => {
   const { data } = useSession();
   const router = useRouter();
-  const { workspace } = useWorkspace();
+  const { data: result, isLoading } = useWorkspace();
 
   useEffect(() => {
     if (!data) {
-      router.replace('/auth/login');
+      // router.replace('/auth/login');
     }
   }, [data, router]);
 
   return (
     <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:space-x-5 md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(workspace?.slug)} />
+      <Sidebar menu={menu(result.workspace?.slug)} />
       <Content.Projects>
         <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
-        <Header breadcrumbs={['My Projects']}/>
+        <Header breadcrumbs={['My Projects']} />
         {children}
       </Content.Projects>
     </main>

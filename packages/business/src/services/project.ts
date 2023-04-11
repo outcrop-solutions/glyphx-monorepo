@@ -1,6 +1,7 @@
 import {
   database as databaseTypes,
   fileIngestion as fileIngestionTypes,
+  web as webTypes,
 } from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
 import {Types as mongooseTypes} from 'mongoose';
@@ -66,7 +67,6 @@ export class ProjectService {
     ownerId: mongooseTypes.ObjectId | string,
     workspaceId: mongooseTypes.ObjectId | string,
     type?: mongooseTypes.ObjectId | string,
-    state?: mongooseTypes.ObjectId | string,
     description?: string
   ): Promise<databaseTypes.IProject> {
     try {
@@ -85,24 +85,10 @@ export class ProjectService {
           ? type
           : new mongooseTypes.ObjectId(type);
 
-      const stateCastId =
-        state instanceof mongooseTypes.ObjectId
-          ? state
-          : new mongooseTypes.ObjectId(state);
-
       const defaultType = {
         name: `${name}-type`,
         projects: [],
         shape: {},
-      };
-
-      const defaultState = {
-        name: `${name}-state`,
-        version: 0,
-        static: true,
-        fileSystemHash: 'hash',
-        projects: [],
-        fileSystem: [],
       };
 
       // TODO: requires getProjectType service
@@ -114,7 +100,82 @@ export class ProjectService {
         isTemplate: false,
         type: projectTypeCastId ?? defaultType,
         files: [],
-        state: stateCastId ?? defaultState,
+        state: {
+          properties: {
+            X: {
+              axis: webTypes.constants.AXIS.X,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column X', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            Y: {
+              axis: webTypes.constants.AXIS.Y,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column Y', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            Z: {
+              axis: webTypes.constants.AXIS.Z,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column Z', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            A: {
+              axis: webTypes.constants.AXIS.A,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column 1', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            B: {
+              axis: webTypes.constants.AXIS.B,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column 2', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+            C: {
+              axis: webTypes.constants.AXIS.C,
+              accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+              key: 'Column 3', // corresponds to column name
+              dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+              interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+              direction: webTypes.constants.DIRECTION_TYPE.ASC,
+              filter: {
+                min: 0,
+                max: 0,
+              },
+            },
+          },
+        },
       };
 
       // create project
@@ -123,16 +184,14 @@ export class ProjectService {
       );
 
       // connect project to user
-      await mongoDbConnection.models.UserModel.updateUserById(ownerCastId, {
-        projects: [project] as unknown as databaseTypes.IProject[],
-      });
+      await mongoDbConnection.models.UserModel.addProjects(ownerCastId, [
+        project,
+      ]);
 
       // connect project to workspace
-      await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
+      await mongoDbConnection.models.WorkspaceModel.addProjects(
         workspaceCastId,
-        {
-          projects: [project] as unknown as databaseTypes.IProject[],
-        }
+        [project]
       );
 
       return project;
@@ -150,6 +209,87 @@ export class ProjectService {
           'project',
           'createProject',
           {name, ownerId, workspaceId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async updateProjectState(
+    projectId: mongooseTypes.ObjectId | string,
+    state: Omit<
+      databaseTypes.IState,
+      | 'project'
+      | '_id'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'description'
+      | 'fileSystem'
+      | 'version'
+      | 'static'
+      | 'camera'
+      | 'createdBy'
+    >
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const project =
+        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+          state: state,
+        });
+      return project;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the User. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {projectId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async deactivate(
+    projectId: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const project =
+        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+          deletedAt: new Date(),
+        });
+      return project;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the User. See the inner error for additional details',
+          'user',
+          'updateUser',
+          {projectId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

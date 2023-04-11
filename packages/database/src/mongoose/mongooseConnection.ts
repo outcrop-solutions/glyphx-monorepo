@@ -13,6 +13,11 @@ export class MongoDbConnection {
   @secretBinders.boundProperty()
   password: string;
 
+  private initedField: boolean;
+  public get inited(): boolean {
+    return this.initedField;
+  }
+
   connectionStringField: string;
   get models() {
     return models;
@@ -26,21 +31,23 @@ export class MongoDbConnection {
     this.database = '';
     this.user = '';
     this.password = '';
-
+    this.initedField = false;
     this.connectionStringField = '';
   }
 
   async init(): Promise<void> {
-    this.connectionStringField = `mongodb+srv://${this.user}:${this.password}@${this.database}.${this.endpoint}?retryWrites=true&w=majority`;
-    try {
-      await mongoose.connect(encodeURI(this.connectionString));
-    } catch (err) {
-      throw new error.DatabaseOperationError(
-        'An error occurred while connecting to the MongoDB database instance.  See the inner exception for more details',
-        'MongoDb',
-        'Init',
-        err
-      );
+    if (!this.initedField) {
+      this.connectionStringField = `mongodb+srv://${this.user}:${this.password}@${this.database}.${this.endpoint}?retryWrites=true&w=majority`;
+      try {
+        await mongoose.connect(encodeURI(this.connectionString));
+      } catch (err) {
+        throw new error.DatabaseOperationError(
+          'An error occurred while connecting to the MongoDB database instance.  See the inner exception for more details',
+          'MongoDb',
+          'Init',
+          err
+        );
+      }
     }
   }
 }

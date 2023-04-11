@@ -6,7 +6,9 @@ import { createWorkspace } from 'lib/server';
 
 const workspace = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
-  await Initializer.init();
+  if (!Initializer.initedField) {
+    await Initializer.init();
+  }
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
@@ -14,10 +16,10 @@ const workspace = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.POST:
+    case webTypes.constants.HTTP_METHOD.POST:
       return createWorkspace(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.POST]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

@@ -1,5 +1,5 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
-import {Types as mongooseTypes, Schema, model} from 'mongoose';
+import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IUserMethods,
   IUserStaticMethods,
@@ -18,7 +18,7 @@ import {CustomerPaymentModel} from './customerPayment';
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   userCode: {type: String, required: false},
   name: {type: String, required: false},
-  username: {type: String, required: false, unique: true},
+  username: {type: String, required: false},
   gh_username: {type: String, required: false},
   email: {type: String, required: true, unique: true},
   emailVerified: {type: Date, required: false},
@@ -1304,6 +1304,11 @@ SCHEMA.static(
     }
   }
 );
+
+// define the object that holds Mongoose models
+const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
+
+delete MODELS['user'];
 
 const USER_MODEL = model<IUserDocument, IUserStaticMethods>('user', SCHEMA);
 

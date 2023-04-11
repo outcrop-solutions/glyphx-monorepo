@@ -1,18 +1,16 @@
 import { Fragment, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, PlusIcon, SelectorIcon } from '@heroicons/react/solid';
-import { useRouter } from 'next/router';
 
 import Button from 'components/Button/index';
 import Modal from 'components/Modal/index';
-import { useWorkspaces } from 'lib/client';
-import { api, _createWorkspace } from 'lib';
-import { useWorkspace } from 'providers/workspace';
+import { useWorkspace, useWorkspaces, api, _createWorkspace } from 'lib/client';
 
 const Actions = () => {
-  const { data, isLoading } = useWorkspaces();
-  const { workspace, setWorkspace } = useWorkspace();
   const router = useRouter();
+  const { data: result } = useWorkspace();
+  const { data, isLoading } = useWorkspaces();
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState('');
   const [showModal, setModalState] = useState(false);
@@ -21,7 +19,6 @@ const Actions = () => {
   // local state
   const handleNameChange = (event) => setName(event.target.value);
   const handleWorkspaceChange = (workspace) => {
-    setWorkspace(workspace);
     router.replace(`/account/${workspace?.slug}`);
   };
   const toggleModal = () => setModalState(!showModal);
@@ -32,10 +29,8 @@ const Actions = () => {
     api({
       ..._createWorkspace(name),
       setLoading: setSubmittingState,
-     
-      onSuccess: () => {
-        toggleModal();
-        setName('');
+      onSuccess: (result) => {
+        router.replace(`/account/${result.data.workspace?.slug}`);
       },
     });
   };
@@ -68,7 +63,7 @@ const Actions = () => {
           </Button>
         </div>
       </Modal>
-      <Listbox value={workspace} onChange={handleWorkspaceChange}>
+      <Listbox value={result?.workspace} onChange={handleWorkspaceChange}>
         <div className="relative">
           <Listbox.Button className="relative w-full py-2 pl-3 pr-10 text-left bg-secondary-midnight rounded-lg shadow-md cursor-default">
             <span className="block text-white truncate">
@@ -76,9 +71,9 @@ const Actions = () => {
                 ? 'Fetching workspaces...'
                 : data?.workspaces?.length === 0
                 ? 'No workspaces found'
-                : workspace === null
+                : result?.workspace === undefined
                 ? 'Select a workspace...'
-                : workspace.name}
+                : result?.workspace.name}
             </span>
             <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
               <SelectorIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
@@ -92,7 +87,7 @@ const Actions = () => {
               leaveTo="opacity-0"
             >
               <Listbox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base rounded-md shadow-lg max-h-60">
-                {data?.workspaces.map((workspace, index) => (
+                {data.workspaces.map((workspace, index) => (
                   <Listbox.Option
                     key={index}
                     className={({ active }) =>

@@ -17,13 +17,6 @@ class Config {
   }
 
   public init(config: IConfig): void {
-    if (this.inited) {
-      throw new error.InvalidOperationError(
-        'The configuration has already been initialized.  Init cannot be called more than once.',
-        {}
-      );
-    }
-
     this.processIdField = config.processId;
     this.inited = true;
   }

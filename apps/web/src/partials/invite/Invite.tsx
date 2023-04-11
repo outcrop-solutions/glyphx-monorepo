@@ -3,29 +3,12 @@ import { LinkDropDown } from './LinkDropDown';
 import { MemberList } from './MemberList';
 import { PermissionsDropDown } from './PermissionsDropDown';
 
-import { selectedProjectSelector, sdtValue } from 'state';
+import { projectAtom } from 'state';
 import { useRecoilValue } from 'recoil';
 
 export const ShareModule = ({ setShare }) => {
   const [showShareText, setShareText] = useState(false);
-  const selectedProject = useRecoilValue(selectedProjectSelector);
-  const sdtName = useRecoilValue(sdtValue);
-
-  const handleInvite = async () => {
-    try {
-      const response = await fetch(`/api/invite`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-      });
-
-      setShare(false);
-    } catch (error) {
-    } finally {
-    }
-  };
+  const selectedProject = useRecoilValue(projectAtom);
 
   /**
    * Copies Model Link to clipboard

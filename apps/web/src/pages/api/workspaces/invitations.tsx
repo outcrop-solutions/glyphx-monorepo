@@ -6,7 +6,9 @@ import { getPendingInvitations } from 'lib/server';
 
 const invitations = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
-  await Initializer.init();
+  if (!Initializer.initedField) {
+    await Initializer.init();
+  }
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
@@ -14,10 +16,10 @@ const invitations = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.GET:
+    case webTypes.constants.HTTP_METHOD.GET:
       return getPendingInvitations(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.GET]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.GET]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

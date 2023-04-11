@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { MenuIcon } from '@heroicons/react/outline';
 
+// components
 import Actions from './actions';
 import Menu from './menu';
 import sidebarMenu from 'config/menu/sidebar-static';
-import { useWorkspaces } from 'lib/client';
-import { useWorkspace } from 'providers/workspace';
-import { MenuIcon } from '@heroicons/react/outline';
+
+// hooks
+import { useWorkspace, useWorkspaces } from 'lib/client';
 
 const staticMenu = sidebarMenu();
 
 const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
   const { data, isLoading } = useWorkspaces();
-  const { workspace } = useWorkspace();
+  const { data: workspace } = useWorkspace();
 
   const renderMenu = () => {
     return (

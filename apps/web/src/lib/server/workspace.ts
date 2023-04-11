@@ -20,6 +20,29 @@ import slugify from 'slugify';
  *
  */
 
+export const getWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+  const { workspaceSlug } = req.query;
+  if (Array.isArray(workspaceSlug)) {
+    return res.status(400).end('Bad request. Parameter cannot be an array.');
+  }
+  try {
+    const workspace = await workspaceService.getSiteWorkspace(workspaceSlug);
+    res.status(200).json({ data: { workspace } });
+  } catch (error) {
+    res.status(404).json({ errors: { error: { msg: error.message } } });
+  }
+};
+/**
+ * Create Workspace
+ *
+ * @note Fetches & returns all workspaces available.
+ * @route POST /api/workspace
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
 export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { name } = req.body;
   try {

@@ -1,196 +1,51 @@
-import { useCallback, useEffect, useState } from 'react';
-import update from 'immutability-helper';
-import {
-  droppedPropertiesSelector,
-  isPropsValidSelector,
-  isQtOpenAtom,
-  isZnumberSelector,
-  payloadSelector,
-  propertiesAtom,
-  selectedProjectSelector,
-  showReorderConfirmAtom,
-  toastAtom,
-  modelCreationLoadingAtom,
-  AxisInterpolationAtom,
-  AxisDirectionAtom,
-  GridModalErrorAtom,
-  progressDetailAtom,
-  selectedFileAtom,
-} from '../state';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { createModelCall } from './create-model';
-import { formatColumnHeader } from 'utils/Utils';
+import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-/**
- * Utility for interfacing with the Project class
- * @returns {Object}
- * isDropped - {function}
- * handleDrop - {function}
- */
+import { useSetRecoilState } from 'recoil';
+import { web as webTypes, fileIngestion as fileIngestionTypes, database as databaseTypes } from '@glyphx/types';
+import { _createModel, _createOpenProject, _getSignedDataUrls, api } from 'lib/client';
+
+import { projectAtom, showModelCreationLoadingAtom } from 'state';
+import { updateDrop } from 'lib/client/actions/updateProp';
+import { getUrl } from 'config/constants';
 
 export const useProject = () => {
-  const [reorderConfirm, setReorderConfirm] = useRecoilState(showReorderConfirmAtom);
-  const setIsQtOpen = useSetRecoilState(isQtOpenAtom);
-  const selectedProject = useRecoilValue(selectedProjectSelector);
+  const session = useSession();
+  const setProject = useSetRecoilState(projectAtom);
 
-  const [properties, setProperties] = useRecoilState(propertiesAtom);
-  const [payload, setPayload] = useRecoilState(payloadSelector);
+  // ui state
+  const setModelCreationLoadingState = useSetRecoilState(showModelCreationLoadingAtom);
+  // const setShowQtViewer = useSetRecoilState(showQtViewerAtom);
 
-  const isPropsValid = useRecoilValue(isPropsValidSelector);
-  const isZnumber = useRecoilValue(isZnumberSelector);
-
-  const setToast = useSetRecoilState(toastAtom);
-
-  const userId = useSession().data.user.userId;
-  const interpolation = useRecoilValue(AxisInterpolationAtom);
-  const direction = useRecoilValue(AxisDirectionAtom);
-
-  const droppedProps = useRecoilValue(droppedPropertiesSelector);
-  const selectedFile = useRecoilValue(selectedFileAtom);
-
-  const setModelCreationLoadingState = useSetRecoilState(modelCreationLoadingAtom);
-  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
-  const setProgress = useSetRecoilState(progressDetailAtom);
-
-  // DnD utilities
-  const isDropped = (propName) => {
-    return droppedProps?.indexOf(propName) > -1;
-  };
-
-  const handleDrop = useCallback(
-    (index, item) => {
-      const { key } = item;
-      setProperties(
-        update(properties, {
-          [index]: {
-            lastDroppedItem: {
-              $set: item,
+  const callETL = useCallback(
+    async (axis: webTypes.constants.AXIS, column: any, project) => {
+      // call glyph engine
+      await api({
+        ..._createModel(axis, column, project),
+        silentFail: true,
+        onSuccess: (data) => {
+          api({
+            ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString()),
+            onSuccess: (data) => {
+              window?.core?.OpenProject(_createOpenProject(data, project, session));
             },
-          },
-        })
-      );
+          });
+        },
+      });
     },
-    [properties, setProperties]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
-  // handle ETL
-  useEffect(() => {
-    // utilties
-    const updateProjectState = async (res) => {
-      // if (res?.statusCode === 200) {
-      setIsQtOpen(true);
-      setPayload({ url: res.url, sdt: res.sdt });
-      // update Dynamo Project Item
-      const updateProjectInput = {
-        id: selectedProject.id,
-        filePath: res.sdt,
-        expiry: new Date().toISOString(),
-        properties: properties.map((el) =>
-          el.lastDroppedItem
-            ? el.lastDroppedItem.key
-              ? `${el.lastDroppedItem.key}-${el.lastDroppedItem.dataType}-${el.lastDroppedItem.id}`
-              : ''
-            : ''
-        ),
-        url: res.url,
-      };
-      try {
-        // const result = await API.graphql(
-        //   graphqlOperation(updateProject, { input: updateProjectInput })
-        // );
-      } catch (error) {
-        // TODO: put error handling in toast
-      }
-      // }
-    };
-    const callETL = async () => {
-      if (droppedProps?.length === 3 && selectedProject?.id) {
-        if (isZnumber) {
-          if (isPropsValid) {
-            try {
-              //hide existing model
-              window?.core.ToggleDrawer(false);
-            } catch (error) {}
-
-            setModelCreationLoadingState(true);
-
-            // call ETl endpoint for second half of ETL pipeline
-            try {
-              let response = await createModelCall(
-                selectedProject?.id,
-                {
-                  X: formatColumnHeader(droppedProps[0].lastDroppedItem.key),
-                  Y: formatColumnHeader(droppedProps[1].lastDroppedItem.key),
-                  Z: formatColumnHeader(droppedProps[2].lastDroppedItem.key),
-                },
-                userId,
-                interpolation,
-                direction
-              );
-              if (response?.errorMessage) {
-                // if there was an error
-                setGridErrorModal({
-                  show: true,
-                  title: 'Fatal Error',
-                  message: 'Failed to create Model',
-                  devError: response.errorMessage,
-                });
-              } else {
-                await updateProjectState({
-                  url: `s3://glyphx-model-output-bucket/${userId}/${selectedProject?.id}/`,
-                  cache: false,
-                  sdt: `${selectedProject?.id}`,
-                }); // on success send data to payload
-                try {
-                  // create glyph window
-                  window.core.OpenProject(
-                    JSON.stringify({
-                      user_id: userId,
-                      model_id: selectedProject?.id,
-                    }),
-                    false
-                  );
-                } catch (error) {}
-              }
-            } catch (error) {
-              setGridErrorModal({
-                show: true,
-                title: 'Fatal Error',
-                message: 'Failed to create Model',
-                devError: error.message,
-              });
-            }
-            setModelCreationLoadingState(false);
-          } else {
-          }
-        } else {
-          setGridErrorModal({
-            show: true,
-            title: 'Z-Axis Error',
-            message: 'Z-Axis must be a column with numbers or of numeric data type. UNABLE TO CREATE MODULE',
-            devError: 'N/A',
-          });
-        }
-      }
-    };
-    callETL();
-  }, [
-    properties,
-    selectedProject,
-    interpolation,
-    direction,
-    setIsQtOpen,
-    setPayload,
-    droppedProps,
-    isZnumber,
-    isPropsValid,
-    setModelCreationLoadingState,
-    userId,
-    setGridErrorModal,
-  ]);
+  const handleDrop = useCallback(
+    (axis: webTypes.constants.AXIS, column: any, project: databaseTypes.IProject) => {
+      // we can compose these for a one liner
+      callETL(axis, column, project);
+      setProject(updateDrop(axis, column));
+    },
+    [callETL, setProject]
+  );
 
   return {
-    isDropped,
     handleDrop,
   };
 };

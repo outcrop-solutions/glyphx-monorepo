@@ -1,24 +1,11 @@
 import { useCallback } from 'react';
 
-import {
-  selectedFileAtom,
-  fileSystemAtom,
-  dataGridLoadingAtom,
-  selectedProjectSelector,
-  progressDetailAtom,
-  GridModalErrorAtom,
-  fileStatsSelector,
-  matchingFilesAtom,
-} from '../state';
+import { projectAtom, fileStatsSelector, matchingFilesAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { compareStats, createFileSystem, createFileSystemFromS3, parseFileStats } from 'lib/utils/transforms';
-import { useRouter } from 'next/router';
-import produce from 'immer';
+import { compareStats, parsePayload } from 'lib/client/files/transforms';
+import produce, { current } from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
-
-const cleanTableName = (fileName) => {
-  return fileName.split('.')[0].trim().toLowerCase();
-};
+import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -31,112 +18,23 @@ const cleanTableName = (fileName) => {
  */
 
 export const useFileSystem = () => {
-  const router = useRouter();
-  const { orgId, projectId } = router.query;
+  const [project, setProject] = useRecoilState(projectAtom);
+  // const { fetchData } = useDataGrid();
+  // const existingFileStats = useRecoilValue(fileStatsSelector);
+  // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
 
-  const project = useRecoilValue(selectedProjectSelector);
-  const existingFileStats = useRecoilValue(fileStatsSelector);
-  const [fileSystem, setFileSystem] = useRecoilState(fileSystemAtom);
-  const setSelectedFile = useSetRecoilState(selectedFileAtom);
-  const setMatchingStats = useSetRecoilState(matchingFilesAtom);
-  const setDataGridLoading = useSetRecoilState(dataGridLoadingAtom);
-
-  // update this to be on a per-file basis using an atomFamily
-  const setProgress = useSetRecoilState(progressDetailAtom);
-  const setGridErrorModal = useSetRecoilState(GridModalErrorAtom);
-
-  // useEffect(() => {
-  //   const refreshFiles = async () => {
-  //     if (!Array.isArray(projectId))
-  //       try {
-  //         // client/clientid/modelid/input/tablename/file.csv
-  //         const data = await Storage.list(`${orgId}/${projectId}/input/`);
-  //         const fileSystemData = await createFileSystemFromS3(data, projectId);
-  //         // setFileSystem(produce((draft) => fileSystemData));
-  //         // // select file
-  //         // setSelectedFile(
-  //         //   produce((draft) => {
-  //         //     draft.index = 0;
-  //         //   })
-  //         // );
-  //       } catch (error) {}
-  //   };
-
-  //   // refresh file system on project or org change
-  //   if (orgId && projectId) {
-  //     refreshFiles();
-  //   }
-  //   return () => {};
-  // }, [orgId, projectId]);
-
-  /**
-   * Handle all file ingestion across the application
-   * @param {File[]}
-   * @returns {void}
-   */
-  const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
-      // create loading state
-      setDataGridLoading(true);
-
-      // calculate & compare file stats
-      const newFileStats = await parseFileStats(acceptedFiles);
-      const matchingStats = await compareStats(newFileStats, existingFileStats);
-
-      // immutable update to modal state if decision required
-      if (matchingStats && matchingStats.length > 0) {
-        setMatchingStats(
-          produce((_) => {
-            return matchingStats;
-          })
-        );
-      }
-
-      // if no decision required, default to 'ADD'
-
-      // update file system state with processed data based on user decision
-      // let newData = createFileSystem(acceptedFiles, fileSystem);
-      // setFileSystem([...(Array.isArray(newData) ? newData : [])]);
-
-      // send operations to file ingestion
-      // const result = await fetch(`/api/files/browser`, {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     orgId: 'glyphx',
-      //     projectId,
-      //     fileStats: [
-      //       ...(Array.isArray(newFileStats) ? newFileStats : []),
-      //       // ...(Array.isArray(existingFileStats) ? existingFileStats : []),
-      //     ],
-      //     fileInfo: [],
-      //   }),
-      // });
-
-      //call file ingestion here
-      // try {
-      //   await fetch(`/api/files/browser?projectId=${projectId}`, {
-      //     method: 'POST',
-      //     body: createPayload(acceptedFiles)
-      //   });
-
-      //     let fileArr = [file.name];
-      //     if (project?.files !== null) {
-      //       fileArr = [...fileArr, ...project.files];
-      //     }
-      //     const updatedProject = {
-      //       id: project?.id,
-      //       filePath: project?.filePath,
-      //       properties: project?.properties,
-      //       url: project?.url,
-      //       shared: project.shared,
-      //       description: project.description,
-      //       files: fileArr, //adding file to dynamo db
-      //     };
-      //     let GraphQLresult = await updateProjectInfo(updatedProject);
-      //   }
+  const selectFile = useCallback(
+    (idx: number) => {
+      // select file
+      setProject(
+        produce((draft) => {
+          // @ts-ignore
+          draft.files[idx].selected = true;
+        })
+      );
+      // fetchData(idx);
     },
-    // [setFileSystem, project, fileSystem, setDataGrid]
-    [setDataGridLoading, existingFileStats, setMatchingStats]
+    [setProject]
   );
 
   /**
@@ -144,51 +42,34 @@ export const useFileSystem = () => {
    */
   const openFile = useCallback(
     (idx: number) => {
+      console.log('called openFile');
       // open file
-      setFileSystem(
+      setProject(
         produce((draft) => {
-          draft[idx].open = true;
-        })
-      );
-      // select file
-      setSelectedFile(
-        produce((draft: any) => {
-          draft.index = idx;
+          // @ts-ignore
+          draft.files[idx].open = true;
+          // @ts-ignore
+          draft.files[idx].selected = true;
         })
       );
     },
-    [setFileSystem, setSelectedFile]
-  );
-
-  const selectFile = useCallback(
-    (idx: number) => {
-      // select file
-      setSelectedFile(
-        produce((draft: any) => {
-          draft.index = idx;
-        })
-      );
-    },
-    [setSelectedFile]
+    [setProject]
   );
 
   const closeFile = useCallback(
     (idx: number) => {
+      console.log('called closeFile');
       // close file
-      setFileSystem(
+      setProject(
         produce((draft) => {
-          draft[idx].open = false;
-        })
-      );
-      // update selection
-      setSelectedFile(
-        produce((draft: any) => {
-          // if closed file is selected, go to next closest file, else select none (via -1)
-          draft.index = draft.index == idx ? idx - 1 : -1;
+          // @ts-ignore
+          draft.files[idx].open = false;
+          // @ts-ignore
+          draft.files[idx].selected = false;
         })
       );
     },
-    [setFileSystem, setSelectedFile]
+    [setProject]
   );
 
   /**
@@ -197,13 +78,88 @@ export const useFileSystem = () => {
   const removeFile = useCallback(
     async (idx, operation: FILE_OPERATION) => {
       // close file
-      setFileSystem(
+      setProject(
         produce((draft) => {
-          draft[idx].open = false;
+          // @ts-ignore
+          draft.files[idx].open = false;
         })
       );
     },
-    [setFileSystem]
+    [setProject]
+  );
+
+  /**
+   * Handle all file ingestion across the application
+   * @param {File[]}
+   * @returns {void}
+   */
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      // parse payload
+      const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
+
+      // get s3 keys for upload
+      const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+      // get signed urls
+      // api({
+      // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
+      // onSuccess: ({ signedUrls }) => {
+      Promise.all(
+        keys.map(async (key, idx) => {
+          // upload raw file data to s3
+          api({
+            ..._uploadFile(
+              await acceptedFiles[idx].arrayBuffer(),
+              key,
+              project.workspace._id.toString(),
+              project._id.toString()
+            ),
+            upload: true,
+            onSuccess: (upload) => {
+              // run ingestor on files
+              api({
+                ..._ingestFiles(payload),
+                onSuccess: (data) => {
+                  // update project filesystem
+                  setProject(
+                    produce((draft) => {
+                      // @ts-ignore
+                      draft.files = payload.fileStats;
+                      // @ts-ignore
+                      draft.files[0].dataGrid = data.dataGrid;
+                      // @ts-ignore
+                      draft.files[0].open = true;
+                    })
+                  );
+                  // open first file
+                  selectFile(0);
+                },
+              });
+            },
+          });
+        })
+      );
+      // },
+      // });
+
+      // ingest files
+
+      // TODO: add calculate & compare file stats once error free
+      // const matchingStats = await compareStats(newFileStats, existingFileStats);
+
+      // immutable update to modal state if decision required
+      // if (matchingStats && matchingStats.length > 0) {
+      //   setMatchingStats(
+      //     produce((_) => {
+      //       return matchingStats;
+      //     })
+      //   );
+      // }
+      // if no decision required, default to 'ADD'
+
+      // update file system state with processed data based on user decision
+    },
+    [project, selectFile, setProject]
   );
 
   return {

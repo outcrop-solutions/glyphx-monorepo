@@ -5,7 +5,9 @@ import { updateWorkspaceSlug } from 'lib/server';
 
 const slug = async (req, res) => {
   // initialize the business layer
-  await Initializer.init();
+  if (!Initializer.initedField) {
+    await Initializer.init();
+  }
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
@@ -13,10 +15,10 @@ const slug = async (req, res) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.HTTP_METHOD.PUT:
+    case webTypes.constants.HTTP_METHOD.PUT:
       return updateWorkspaceSlug(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.HTTP_METHOD.PUT]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.PUT]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

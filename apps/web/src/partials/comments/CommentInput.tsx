@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { activeStateAtom } from 'state/states';
 
 export const CommentInput = ({ setComments }) => {
   const [commentContent, setCommentContent] = useState('');
-  const activeState = useRecoilValue(activeStateAtom);
 
   // update comment state
   const handleComment = (e) => {
     setCommentContent(e.target.value);
   };
 
-  const handeSaveComment = () => {
-    
-  }
+  const handeSaveComment = () => {};
 
   return (
     <div className="relative flex items-center justify-around">

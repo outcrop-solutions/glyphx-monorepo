@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { projectsAtom, showAddProjectAtom } from 'state/globals';
+import { workspaceAtom, showAddProjectAtom } from 'state';
 import { LinkDropDown, MemberList } from '../../invite';
 import { PermissionsDropDown } from '../../invite';
-import { createProject } from 'lib';
+import { _createProject } from 'lib/client';
 import { useRouter } from 'next/router';
 import { v4 as uuid } from 'uuid';
 import { useSession } from 'next-auth/react';
@@ -53,18 +53,8 @@ export const NewProject = ({ exit }) => {
     }
 
     let members = createMembersArray();
-
-    const createProjectInput = {
-      id: uuid(),
-      name,
-      description,
-      expiry: new Date(),
-      author: data.user.email,
-      shared: [data.user.email, , ...members],
-    };
     try {
-      const result = createProject();
-      // setShowAddProject(false);
+      // const result = createProject();
       // router.push(`/project/${result.data.createProject.id}`);
     } catch (error) {}
   };

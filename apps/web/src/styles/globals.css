@@ -1,73 +1,23 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
 
-/* TRY MAKING A GLOBAL CSS VARIABLE THAT WILL HOLD SIZE OF COL then change in javascript */
-:root {
-  --col: 0; /* HOLDS COUNT OF COLS*/
-  --width:0px; /* HOLDS WIDTH OF GRID*/
-  --screen:0px;
+/*
+div[data-type='string'] {
+  @apply bg-blue text-white rounded text-center w-32;
+}
+div[data-type='number'] {
+  @apply bg-cyan text-white rounded text-center w-32;
 }
 
+div div[role='columnheader'] {
+  @apply bg-secondary-dark-blue;
+  /* first:bg-secondary-dark-blue 
+}*/
 
-.h1 {
-  @apply text-4xl font-extrabold tracking-tighter;
-}
-
-.h2 {
-  @apply text-3xl font-extrabold tracking-tighter;
-}
-
-.h3 {
-  @apply text-3xl font-extrabold;
-}
-
-.h4 {
-  @apply text-2xl font-extrabold tracking-tight;
-}
-
-@screen md {
-  .h1 {
-    @apply text-5xl;
-  }
-
-  .h2 {
-    @apply text-4xl;
-  }
-}
-
-.btn,
-.btn-lg,
-.btn-sm,
-.btn-xs {
-  @apply font-medium text-sm inline-flex items-center justify-center border border-transparent rounded leading-5 shadow-sm transition duration-150 ease-in-out;
-}
-
-.btn {
-  @apply px-3 py-2;
-}
-
-.btn-lg {
-  @apply px-4 py-3;
-}
-
-.btn-sm {
-  @apply px-2 py-1;
-}
-
-.btn-xs {
-  @apply px-2 py-0.5;
-}
-
-div div[role="columnheader"] {
-  @apply  bg-secondary-dark-blue ;
-  /* first:bg-secondary-dark-blue */
-}
-
-div[role="grid"] {
+div[role='grid'] {
   @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
   /* @apply grid grid-cols-[40px_repeat(var(--col),minmax(90px,200px))] !important; */
-  @apply w-[var(--width)] !important;
 }
 
 /* div[role="row"] {
@@ -80,27 +30,17 @@ div[role="grid"] {
 }
 
 /* FOR REMOVING AUTO INCREMENT BUTTONS ON NUMBER INPUT TYPE */
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
 }
 
-input[type=number] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
-div[role="grid"]::-webkit-scrollbar-thumb {
+div[role='grid']::-webkit-scrollbar-thumb {
   background: rgba(255, 197, 0, 0.5);
-  
-}
-
-/* FOR TESTIG PURPOSES */
-div[class="SplitPane  horizontal "]{
-  @apply  w-[var(--width)] z-0 relative !important 
-}
-
-div[class="SplitPane  vertical "]{
-  @apply  h-screen z-0 relative !important 
 }
 
 ::-webkit-scrollbar-track {
@@ -116,102 +56,23 @@ div[class="SplitPane  vertical "]{
   background: rgba(255, 197, 0, 0.5);
 }
 
-div[role="row"] {
+div[role='row'] {
   @apply text-white bg-secondary-deep-blue;
 }
 
-div[role="gridcell"] {
+div[role='gridcell'] {
   @apply bg-primary-dark-blue first:bg-secondary-deep-blue text-white font-roboto text-right text-[10px] font-normal leading-[12px] pt-1 pr-1;
   /* @apply bg-[#354773] text-white; */
 }
 
-/* .rdg-cell.c1wupbe700-beta13[aria-colindex="1"]{
-  @apply min-w-[40px] !important
-} */
-
-/* .c1wupbe700-beta13[aria-colindex = '1'] {
-  @apply w-[16px]
-}
-div[role="columnheader"].c1wupbe700-beta13[aria-colindex = '1']{
-  @apply min-w-[16px] !important
-} */
-
-.c1wupbe700-beta13[aria-selected="true"]{
-  border:1px solid rgb(235, 202, 17);
+.c1wupbe700-beta13[aria-selected='true'] {
+  border: 1px solid rgb(235, 202, 17);
   outline: none;
   /* background-color: rgb(17, 235, 93); */
 }
 
 /* FOR SUSPENSE LOADER */
-.css-1w7tt7z{
-  @apply rounded-md !important
-}
 
-div[aria-colindex="1"] {
+div[aria-colindex='1'] {
   @apply bg-secondary-dark-blue;
-}
-
-div[data-type="string"] {
-  @apply bg-blue text-white rounded text-center w-32;
-}
-div[data-type="number"] {
-  @apply bg-cyan text-white rounded text-center w-32;
-}
-div[datatype="string"] {
-  @apply bg-blue text-white rounded text-center;
-}
-div[datatype="number"] {
-  @apply bg-cyan text-white rounded text-center;
-}
-
-.Resizer {
-  background: rgb(31, 39, 58); /*PRIMARY DARK BLUE*/
-  opacity: 1;
-  z-index: 1;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  -moz-background-clip: padding;
-  -webkit-background-clip: padding;
-  background-clip: padding-box;
-}
-
-.Resizer:hover {
-  -webkit-transition: all 2s ease;
-  transition: all 0s ease;
-}
-
-.Resizer.horizontal {
-  height: 4px;
-  margin: -0px 0;
-  border-top: 2px solid rgba(89, 94, 104, 1);
-  border-bottom: 2px solid rgba(89, 94, 104, 1);
-  cursor: row-resize;
-  width: 100%;
-}
-
-.Resizer.horizontal:hover {
-  border-top: 2px solid rgba(89, 94, 104, 1);
-  border-bottom: 2px solid rgba(89, 94, 104, 1);
-}
-
-.Resizer.vertical {
-  width: 4px;
-  margin: 0 -0px;
-  border-left: 2px solid rgba(89, 94, 104, 1);
-  border-right: 2px solid rgba(89, 94, 104, 1);
-  cursor: col-resize;
-}
-
-.Resizer.vertical:hover {
-  border-left: 2px solid rgba(89, 94, 104, 1);
-  border-right: 2px solid rgba(89, 94, 104, 1);
-}
-
-.Resizer.disabled {
-  cursor: not-allowed;
-}
-
-.Resizer.disabled:hover {
-  border-color: transparent;
 }

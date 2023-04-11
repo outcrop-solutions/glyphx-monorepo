@@ -1,4 +1,4 @@
-import mongoose, {Types as mongooseTypes} from 'mongoose';
+import mongoose, {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {
   IProcessTrackingMethods,
@@ -598,6 +598,12 @@ SCHEMA.static(
     }
   }
 );
+
+// define the object that holds Mongoose models
+const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
+
+delete MODELS['processTracking'];
+
 const PROCESS_TRACKING_MODEL = mongoose.model<
   IProcessTrackingDocument,
   IProcessTrackingStaticMethods

@@ -11,7 +11,7 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
 
       assert.strictEqual(columnName.toLowerCase(), cleanName);
     });
-    it('will convert reserved characters to _ ', () => {
+    it('will convert reserved characters to _', () => {
       const columnName = 'I-Am A(Good)ColumnName';
       const columnNameCleaner = new BasicColumnNameCleaner();
 
@@ -19,7 +19,7 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
 
       assert.strictEqual(cleanName, 'I_Am_A_Good_ColumnName'.toLowerCase());
     });
-    it('will remove unwanted characters ', () => {
+    it('will remove unwanted characters', () => {
       let columnName = '';
       for (let i = 32; i <= 127; i++) {
         if (i === 32 || i === 40 || i === 41 || i === 45) continue;
@@ -37,6 +37,17 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
           `${i} - ${cleanName[i]} - ${charValue}`
         );
       }
+    });
+    it('will remove leading underscores no matter how many there are', () => {
+      const columnName = '_____leadingunderscoreColumnName';
+      const columnNameCleaner = new BasicColumnNameCleaner();
+
+      const cleanName = columnNameCleaner.cleanColumnName(columnName);
+      console.log({cleanName});
+      const charValue = cleanName.charCodeAt(0);
+      assert.isTrue(
+        charValue !== 95 //_
+      );
     });
   });
 });

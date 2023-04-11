@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRecoilValue } from 'recoil';
-import { projectsAtom } from 'state/globals';
+import { workspaceAtom } from 'state';
 import { TableListItem } from './TableListItem';
 
 export const TableView = () => {
-  const projects = useRecoilValue(projectsAtom);
+  const workspace = useRecoilValue(workspaceAtom);
 
   dayjs.extend(relativeTime);
   return (
@@ -17,7 +17,7 @@ export const TableView = () => {
             Recently Viewed Projects
           </p>
           <div className="flex flex-col my-4 space-y-2">
-            {projects.map((item, idx) => {
+            {workspace.projects.map((item, idx) => {
               return <TableListItem key={idx} projectDetails={item} />;
             })}
           </div>

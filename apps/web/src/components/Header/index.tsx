@@ -1,25 +1,14 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import {
-  CogIcon,
-  CreditCardIcon,
-  DesktopComputerIcon,
-  LogoutIcon,
-  MoonIcon,
-  SunIcon,
-  UserCircleIcon,
-} from '@heroicons/react/outline';
+import { CogIcon, CreditCardIcon, DesktopComputerIcon, LogoutIcon, UserCircleIcon } from '@heroicons/react/outline';
 import Link from 'next/link';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 const Header = ({ breadcrumbs }) => {
-  const { data } = useSession();
-
   const logOut = () => {
     const result = confirm('Are you sure you want to logout?');
-
     if (result) {
-      signOut({ callbackUrl: '/' });
+      signOut({ callbackUrl: '/auth/login' });
     }
   };
 

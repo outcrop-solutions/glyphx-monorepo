@@ -3,64 +3,32 @@ import { useRouter } from 'next/router';
 import { SearchModal, GridToggle, DropdownNotifications, Help } from 'partials';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
-  orientationAtom,
-  selectedProjectSelector,
-  shareOpenAtom,
+  showHorizontalOrientationAtom,
+  projectAtom,
+  showShareModalOpenAtom,
   showAddProjectAtom,
   showSearchModalAtom,
-  showInfoAtom,
-  payloadSelector,
-  propertiesAtom,
-  sdtValue,
+  showInfoDropdownAtom,
 } from 'state';
 
 export const Header = () => {
-  const [selectedProject, setSelectedProject] = useRecoilState(selectedProjectSelector);
+  const setSelectedProject = useSetRecoilState(projectAtom);
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
-  const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
-  const setShare = useSetRecoilState(shareOpenAtom);
-  const setShowInfo = useSetRecoilState(showInfoAtom);
-  const [paneOrientation, setOrientation] = useRecoilState(orientationAtom);
-  const payload = useRecoilValue(payloadSelector);
-  const setProperties = useSetRecoilState(propertiesAtom);
-  const [sdtName, setSDTName] = useRecoilState(sdtValue);
 
   const router = useRouter();
 
-  const backPresssed = () => {
-    setSelectedProject(null);
-    setShare(false);
-    setShowInfo(false);
-    setShowSearchModalOpen(false);
-    setSDTName(null);
-    setProperties([
-      // TODO: THIS IS A TEMPORARY FIX, BUT NEED TO FIGURE OUT A MORE EFFICIENT WAY OF RESETING PROPERTIES
-      { axis: 'X', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: 'Y', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: 'Z', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '1', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '2', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-      { axis: '3', accepts: 'COLUMN_DRAG', lastDroppedItem: null },
-    ]);
+  const backPressed = () => {
     try {
       //close glyph viewer
-      window?.core.CloseModel();
+      window?.core?.CloseModel();
     } catch (error) {
       // do nothng
     }
-    router.push('/');
+    router.push('/account');
   };
 
   const handleChange = (e) => {
     setSelectedProject((prev) => ({ ...prev, name: e.target.value }));
-  };
-
-  const handlePaneSwitch = () => {
-    if (paneOrientation === 'horizontal') {
-      setOrientation('vertical');
-    } else {
-      setOrientation('horizontal');
-    }
   };
 
   return (

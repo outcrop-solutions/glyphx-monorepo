@@ -5,7 +5,9 @@ import { StripeClient, customerPaymentService, Initializer } from '@glyphx/busin
 export const config = { api: { bodyParser: false } };
 
 const handler = async (req, res) => {
-  await Initializer.init()
+  if (!Initializer.initedField) {
+    await Initializer.init();
+  }
 
   const reqBuffer = await buffer(req);
   const signature = req.headers['stripe-signature'];

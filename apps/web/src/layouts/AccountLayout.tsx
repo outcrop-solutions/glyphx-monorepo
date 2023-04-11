@@ -7,22 +7,22 @@ import Content from 'components/Content/index';
 import Header from 'components/Header';
 import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
-import { useWorkspace } from 'providers/workspace';
+import { useWorkspace } from 'lib';
 
 const AccountLayout = ({ children }) => {
   const { data } = useSession();
   const router = useRouter();
-  const { workspace } = useWorkspace();
+  const { data: workspace, isWorkspaceLoading } = useWorkspace();
 
   useEffect(() => {
     if (!data) {
-      router.replace('/auth/login');
+      // router.replace('/auth/login');
     }
   }, [data, router]);
 
   return (
     <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:space-x-5 md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(workspace?.slug)} />
+      <Sidebar menu={menu(workspace?.workspace?.slug)} />
       <Content>
         <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
         <Header breadcrumbs={['My workspaces']} />

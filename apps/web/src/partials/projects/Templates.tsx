@@ -2,9 +2,8 @@ import { ChevronRightIcon } from '@heroicons/react/solid';
 import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
 import { v4 as uuid } from 'uuid';
 import { useRouter } from 'next/router';
-import { _createDefaultProject, api } from 'lib';
+import { _createDefaultProject, api, useWorkspace } from 'lib/client';
 import { useSession } from 'next-auth/react';
-import { useWorkspace } from 'providers/workspace';
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -31,15 +30,15 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
-  const { data } = useSession();
-  const { workspace, setWorkspace } = useWorkspace();
+  const { data: user } = useSession();
+  const { data } = useWorkspace();
 
   // mutations
   const handleCreate = async () => {
     api({
-      ..._createDefaultProject(workspace._id),
+      ..._createDefaultProject(data.workspace._id),
       onSuccess: (data) => {
-        router.push(`/project/${data.id}`);
+        router.push(`/project/${data.project._id}`);
       },
     });
   };

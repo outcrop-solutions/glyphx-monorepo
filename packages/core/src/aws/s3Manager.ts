@@ -1,5 +1,11 @@
-import {S3} from '@aws-sdk/client-s3';
+import {
+  S3,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
+import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import * as error from '../error';
 import {aws} from '@glyphx/types';
 import {Readable} from 'node:stream';
@@ -67,17 +73,17 @@ export class S3Manager {
    * @throws InvalidArgumentError if the bucket does not exist, or you do not have access to it.
    */
   public async init() {
-    try {
-      await this.bucketField.headBucket({Bucket: this.bucketName});
-      this.initedField = true;
-    } catch (err) {
-      throw new error.InvalidArgumentError(
-        `An error occurred while checking for the existance of the bucket : ${this.bucketName}.  See the inner error for additional details`,
-        'bucketName',
-        this.bucketName,
-        err
-      );
-    }
+    // try {
+    await this.bucketField.headBucket({Bucket: this.bucketName});
+    this.initedField = true;
+    // } catch (err) {
+    //   throw new error.InvalidArgumentError(
+    //     `An error occurred while checking for the existance of the bucket : ${this.bucketName}.  See the inner error for additional details`,
+    //     'bucketName',
+    //     this.bucketName,
+    //     err
+    //   );
+    // }
   }
 
   /**
@@ -156,6 +162,42 @@ export class S3Manager {
       );
     }
   }
+  /**
+   * Will get a signedUrlPromise for client side file upload
+   */
+
+  public async getSignedUploadUrlPromise(key: string): Promise<any> {
+    const putObjectParams = {
+      Bucket: this.bucketName,
+      Key: key,
+      ContentType: '', // Set Content-Type header to empty string for unsigned body
+      ContentLength: 0,
+    };
+    const client = new S3Client({region: 'us-east-2'});
+    const command = new PutObjectCommand(putObjectParams);
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const url = await getSignedUrl(client, command, {
+      signableHeaders: new Set(['content-type', 'content-length']),
+    });
+    return url;
+  }
+
+  public async getSignedDataUrlPromise(key: string): Promise<any> {
+    const getObjectParams = {
+      Bucket: this.bucketName,
+      Key: key,
+      ContentType: 'text/csv',
+    };
+    const client = new S3Client({region: 'us-east-2'});
+    const command = new GetObjectCommand(getObjectParams);
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const url = await getSignedUrl(client, command, {expiresIn: 3600});
+    return url;
+  }
 
   /**
    * Will get a Readable stream to provide access to a file.
@@ -193,14 +235,20 @@ export class S3Manager {
    */
   /*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/
   // @ts-ignore
-  public getUploadStream(fileName: string, stream) {
+  public getUploadStream(fileName: string, stream, contentType?: string) {
+    const params: any = {
+      Bucket: this.bucketName,
+      Key: fileName,
+      Body: stream,
+    };
+
+    if (contentType) {
+      params.ContentType = contentType;
+    }
+
     const upload = new Upload({
       client: this.bucket,
-      params: {
-        Bucket: this.bucketName,
-        Key: fileName,
-        Body: stream,
-      },
+      params: params,
     });
 
     return upload;

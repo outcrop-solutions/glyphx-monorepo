@@ -1,315 +1,166 @@
-import React from 'react';
-import Image from 'next/image';
-import {
-  BellIcon,
-  CashIcon,
-  CogIcon,
-  KeyIcon,
-  PhotographIcon,
-  SearchCircleIcon,
-  ViewGridAddIcon,
-} from '@heroicons/react/outline';
-import { ChevronLeftIcon } from '@heroicons/react/solid';
+import { useState } from 'react';
+import { DocumentDuplicateIcon } from '@heroicons/react/outline';
+import { getSession, signOut } from 'next-auth/react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import toast from 'react-hot-toast';
+import isEmail from 'validator/lib/isEmail';
 
-const subNavigation = [
-  {
-    name: 'Account',
-    description: 'Ullamcorper id at suspendisse nec id volutpat vestibulum enim. Interdum blandit.',
-    href: '#',
-    icon: CogIcon,
-    current: true,
-  },
-  {
-    name: 'Notifications',
-    description: 'Enim, nullam mi vel et libero urna lectus enim. Et sed in maecenas tellus.',
-    href: '#',
-    icon: BellIcon,
-    current: false,
-  },
-  {
-    name: 'Security',
-    description: 'Semper accumsan massa vel volutpat massa. Non turpis ut nulla aliquet turpis.',
-    href: '#',
-    icon: KeyIcon,
-    current: false,
-  },
-  {
-    name: 'Appearance',
-    description: 'Magna nulla id sed ornare ipsum eget. Massa eget porttitor suscipit consequat.',
-    href: '#',
-    icon: PhotographIcon,
-    current: false,
-  },
-  {
-    name: 'Billing',
-    description: 'Orci aliquam arcu egestas turpis cursus. Lectus faucibus netus dui auctor mauris.',
-    href: '#',
-    icon: CashIcon,
-    current: false,
-  },
-  {
-    name: 'Integrations',
-    description: 'Nisi, elit volutpat odio urna quis arcu faucibus dui. Mauris adipiscing pellentesque.',
-    href: '#',
-    icon: ViewGridAddIcon,
-    current: false,
-  },
-  {
-    name: 'Additional Resources',
-    description: 'Quis viverra netus donec ut auctor fringilla facilisis. Nunc sit donec cursus sit quis et.',
-    href: '#',
-    icon: SearchCircleIcon,
-    current: false,
-  },
-];
+import Button from 'components/Button';
+import Card from 'components/Card';
+import Content from 'components/Content';
+import Modal from 'components/Modal';
+import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+export default function Settings({ user }) {
+  const [email, setEmail] = useState(user.email || '');
+  const [isSubmitting, setSubmittingState] = useState(false);
+  const [name, setName] = useState(user.name || '');
+  const [showModal, setModalState] = useState(false);
+  const [userCode] = useState(user.userCode);
+  const [verifyEmail, setVerifyEmail] = useState('');
+  const validName = name?.length > 0 && name?.length <= 32;
+  const validEmail = isEmail(email);
+  const verifiedEmail = verifyEmail === email;
 
-export default function Settings() {
+  // local state
+  const handleEmailChange = (event) => setEmail(event.target.value);
+  const handleNameChange = (event) => setName(event.target.value);
+  const handleVerifyEmailChange = (event) => setVerifyEmail(event.target.value);
+  const toggleModal = () => {
+    setVerifyEmail('');
+    setModalState(!showModal);
+  };
+  const copyToClipboard = () => toast.success('Copied to clipboard!');
+
+  // mutations
+  const changeName = (event) => {
+    event.preventDefault();
+    api({ ..._updateUserName(name), setLoading: setSubmittingState });
+  };
+  const changeEmail = (event) => {
+    event.preventDefault();
+    const result = confirm('Are you sure you want to update your email address?');
+    if (result) {
+      api({
+        ..._updateUserEmail(email),
+        setLoading: setSubmittingState,
+
+        onSuccess: () => setTimeout(() => signOut({ callbackUrl: '/auth/login' }), 2000),
+      });
+    }
+  };
+  const deactivateAccount = (event) => {
+    event.preventDefault();
+    api({
+      ..._deactivateAccount(),
+      setLoading: setSubmittingState,
+
+      onSuccess: () => toggleModal(),
+    });
+  };
+
   return (
-    <main className="flex-1 flex bg-primary-dark-blue overflow-hidden">
-      <div className="flex-1 flex flex-col overflow-y-auto xl:overflow-hidden">
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className=" border-b border-gray xl:hidden">
-          <div className="max-w-3xl mx-auto py-3 px-4 flex items-start sm:px-6 lg:px-8">
-            <a href="/" className="-ml-1 inline-flex items-center space-x-3 text-sm font-medium text-white">
-              <ChevronLeftIcon className="h-5 w-5 text-gray" aria-hidden="true" />
-              <span>Settings</span>
-            </a>
-          </div>
-        </nav>
-        <div className="flex-1 flex xl:overflow-hidden">
-          {/* Secondary sidebar */}
-          <nav
-            aria-label="Sections"
-            className="hidden shrink-0 w-96 bg-primary-dark-blue border-r border-gray xl:flex xl:flex-col"
-          >
-            <div className="shrink-0 h-16 px-6 border-b border-gray flex items-center">
-              <p className="text-lg font-medium text-white">Settings</p>
+    <>
+      <Content.Title title="Account Settings" subtitle="Manage your profile, preferences, and account settings" />
+      <Content.Divider />
+      <Content.Container>
+        <Card>
+          <form>
+            <Card.Body
+              title="Your Name"
+              subtitle="Please enter your full name, or a display name you are comfortable with"
+            >
+              <input
+                className="px-3 py-2 border border-gray rounded md:w-1/2 bg-transparent"
+                disabled={isSubmitting}
+                onChange={handleNameChange}
+                type="text"
+                value={name}
+              />
+            </Card.Body>
+            <Card.Footer>
+              <small>Please use 32 characters at maximum</small>
+              <Button className="" disabled={!validName || isSubmitting} onClick={changeName}>
+                Save
+              </Button>
+            </Card.Footer>
+          </form>
+        </Card>
+        <Card>
+          <form>
+            <Card.Body
+              title="Email Address"
+              subtitle="Please enter the email address you want to use to log in with
+              Glyphx"
+            >
+              <input
+                className="px-3 py-2 border border-gray rounded md:w-1/2 bg-transparent"
+                disabled={isSubmitting}
+                onChange={handleEmailChange}
+                type="email"
+                value={email}
+              />
+            </Card.Body>
+            <Card.Footer>
+              <small>We will email you to verify the change</small>
+              <Button className="" disabled={!validEmail || isSubmitting} onClick={changeEmail}>
+                Save
+              </Button>
+            </Card.Footer>
+          </form>
+        </Card>
+
+        <Card>
+          <Card.Body title="Personal Account ID" subtitle="Used when interacting with APIs">
+            <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border text-white rounded md:w-1/2">
+              <span className="overflow-x-auto">{userCode}</span>
+              <CopyToClipboard onCopy={copyToClipboard} text={userCode}>
+                <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
+              </CopyToClipboard>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {subNavigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={classNames(
-                    item.current ? 'bg-blue-900 bg-opacity-50' : 'hover:bg-blue-900 hover:bg-opacity-50',
-                    'flex p-6 border-b border-gray'
-                  )}
-                  aria-current={item.current ? 'page' : undefined}
-                >
-                  <item.icon className="shrink-0 -mt-0.5 h-6 w-6 text-gray" aria-hidden="true" />
-                  <div className="ml-3 text-sm">
-                    <p className="font-medium text-white">{item.name}</p>
-                    <p className="mt-1 text-gray">{item.description}</p>
-                  </div>
-                </a>
-              ))}
+          </Card.Body>
+        </Card>
+        <Card danger>
+          <Card.Body
+            title="Danger Zone"
+            subtitle="Permanently remove your Personal Account and all of its contents
+              from Glyphx platform"
+          />
+          <Card.Footer>
+            <small>This action is not reversible, so please continue with caution</small>
+            <Button className="text-white bg-red-600 hover:bg-red-500" onClick={toggleModal}>
+              Deactivate Personal Account
+            </Button>
+          </Card.Footer>
+          <Modal show={showModal} title="Deactivate Personal Account" toggle={toggleModal}>
+            <p>Your account will be deleted, along with all of its Workspace contents.</p>
+            <p className="px-3 py-2 text-red-600 border border-red-600 rounded">
+              <strong>Warning:</strong> This action is not reversible. Please be certain.
+            </p>
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-400">
+                Enter <strong>{user.email}</strong> to continue:
+              </label>
+              <input
+                className="px-3 py-2 border rounded bg-transparent"
+                disabled={isSubmitting}
+                onChange={handleVerifyEmailChange}
+                type="email"
+                value={verifyEmail}
+              />
             </div>
-          </nav>
-          {/* Main content */}
-          <div className="flex-1 xl:overflow-y-auto">
-            <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:py-12 lg:px-8">
-              <h1 className="text-3xl font-extrabold text-white">Account</h1>
-
-              <form className="mt-6 space-y-8 divide-y divide-y-gray">
-                <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-6 sm:gap-x-6">
-                  <div className="sm:col-span-6">
-                    <h2 className="text-xl font-medium text-white">Profile</h2>
-                    <p className="mt-1 text-sm text-gray">
-                      This information will be displayed publicly so be careful what you share.
-                    </p>
-                  </div>
-
-                  <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium text-white">
-                      First name
-                    </label>
-                    <input
-                      type="text"
-                      name="first-name"
-                      id="first-name"
-                      autoComplete="given-name"
-                      className="mt-1 block w-full bg-transparent  border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label htmlFor="last-name" className="block text-sm font-medium text-white">
-                      Last name
-                    </label>
-                    <input
-                      type="text"
-                      name="last-name"
-                      id="last-name"
-                      autoComplete="family-name"
-                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-6">
-                    <label htmlFor="username" className="block text-sm font-medium text-white">
-                      Username
-                    </label>
-                    <div className="mt-1 flex rounded-md shadow-sm">
-                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-300 bg-gray text-gray sm:text-sm">
-                        workcation.com/
-                      </span>
-                      <input
-                        type="text"
-                        name="username"
-                        id="username"
-                        autoComplete="username"
-                        defaultValue="lisamarie"
-                        className="flex-1 block w-full min-w-0 border-slate-300 rounded-none rounded-r-md text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="sm:col-span-6">
-                    <label htmlFor="photo" className="block text-sm font-medium text-white">
-                      Photo
-                    </label>
-                    <div className="mt-1 flex items-center">
-                      <Image
-                        className="inline-block h-12 w-12 rounded-full"
-                        src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80"
-                        alt=""
-                      />
-                      <div className="ml-4 flex">
-                        <div className="relative bg-primary-dark-blue py-2 px-3 border border-slate-300 rounded-md shadow-sm flex items-center cursor-pointer hover:bg-gray focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray focus-within:ring-blue-500">
-                          <label
-                            htmlFor="user-photo"
-                            className="relative text-sm font-medium text-white pointer-events-none"
-                          >
-                            <span>Change</span>
-                            <span className="sr-only"> user photo</span>
-                          </label>
-                          <input
-                            id="user-photo"
-                            name="user-photo"
-                            type="file"
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer border-slate-300 rounded-md"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          className="ml-3 bg-transparent py-2 px-3 border border-transparent rounded-md text-sm font-medium text-white hover:text-gray focus:outline-none focus:border-slate-300 focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray focus:ring-blue-500"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="sm:col-span-6">
-                    <label htmlFor="description" className="block text-sm font-medium text-white">
-                      Description
-                    </label>
-                    <div className="mt-1">
-                      <textarea
-                        id="description"
-                        name="description"
-                        rows={4}
-                        className="block w-full border border-slate-300 rounded-md shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                        defaultValue={''}
-                      />
-                    </div>
-                    <p className="mt-3 text-sm text-gray">Brief description for your profile. URLs are hyperlinked.</p>
-                  </div>
-                  <div className="sm:col-span-6">
-                    <label htmlFor="url" className="block text-sm font-medium text-white">
-                      URL
-                    </label>
-                    <input
-                      type="text"
-                      name="url"
-                      id="url"
-                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-                <div className="pt-8 grid grid-cols-1 gap-y-6 sm:grid-cols-6 sm:gap-x-6">
-                  <div className="sm:col-span-6">
-                    <h2 className="text-xl font-medium text-white">Personal Information</h2>
-                    <p className="mt-1 text-sm text-gray">
-                      This information will be displayed publicly so be careful what you share.
-                    </p>
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label htmlFor="email-address" className="block text-sm font-medium text-white">
-                      Email address
-                    </label>
-                    <input
-                      type="text"
-                      name="email-address"
-                      id="email-address"
-                      autoComplete="email"
-                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label htmlFor="phone-number" className="block text-sm font-medium text-white">
-                      Phone number
-                    </label>
-                    <input
-                      type="text"
-                      name="phone-number"
-                      id="phone-number"
-                      autoComplete="tel"
-                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label htmlFor="country" className="block text-sm font-medium text-white">
-                      Country
-                    </label>
-                    <select
-                      id="country"
-                      name="country"
-                      autoComplete="country-name"
-                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option />
-                      <option>United States</option>
-                      <option>Canada</option>
-                      <option>Mexico</option>
-                    </select>
-                  </div>
-
-                  <div className="sm:col-span-3">
-                    <label htmlFor="language" className="block text-sm font-medium text-white">
-                      Language
-                    </label>
-                    <input
-                      type="text"
-                      name="language"
-                      id="language"
-                      className="mt-1 block w-full bg-transparent border-slate-300 rounded-md shadow-sm text-white sm:text-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <p className="text-sm text-gray sm:col-span-6">
-                    This account was created on <time dateTime="2017-01-05T20:35:40">January 5, 2017, 8:35:40 PM</time>.
-                  </p>
-                </div>
-                <div className="pt-8 flex justify-end">
-                  <button
-                    type="button"
-                    className="bg-primary-dark-blue py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-white hover:bg-gray focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Save
-                  </button>
-                </div>
-              </form>
+            <div className="flex flex-col items-stretch">
+              <Button
+                className="text-white bg-red-600 hover:bg-red-500"
+                disabled={!verifiedEmail || isSubmitting}
+                onClick={deactivateAccount}
+              >
+                <span>Deactivate Personal Account</span>
+              </Button>
             </div>
-          </div>
-        </div>
-      </div>
-    </main>
+          </Modal>
+        </Card>
+      </Content.Container>
+    </>
   );
 }

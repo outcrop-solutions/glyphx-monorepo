@@ -1,7 +1,7 @@
 /**
  * client/hooks pulls data from the server into react from client side
- * mutations/   POST | PUT | DELETE request configuration
- * server/      server side api operations and utilities
+ * client/mutations/   POST | PUT | DELETE frontend api request configuration
+ * server/      server side api operations and utilities called from pages/api
  */
 
 export * from './client';

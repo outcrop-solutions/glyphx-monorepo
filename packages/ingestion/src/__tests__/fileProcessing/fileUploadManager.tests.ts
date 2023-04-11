@@ -2,14 +2,13 @@ import 'mocha';
 import {assert} from 'chai';
 import * as fileProcessing from '@fileProcessing';
 import {createSandbox} from 'sinon';
-import {aws, error, streams} from '@glyphx/core';
+import {aws, error} from '@glyphx/core';
 import {Readable} from 'stream';
 import {fileIngestion} from '@glyphx/types';
 import {mockClient} from 'aws-sdk-client-mock';
 import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {tableService} from '@glyphx/business';
-import {Upload} from '@aws-sdk/lib-storage';
 
 import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
 

@@ -1,22 +1,35 @@
+import dynamic from 'next/dynamic';
+
+// layout
 import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
 import ProjectLayout from 'layouts/ProjectLayout';
-import { useWorkspace } from 'providers/workspace';
-import dynamic from 'next/dynamic';
+import { useWorkspace } from 'lib';
+import { useEffect } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { workspaceAtom } from 'state';
+
 const DynamicHome = dynamic(() => import('views/home'), {
   ssr: false,
-  // suspense: true,
 });
 
 const Workspace = () => {
-  const { workspace } = useWorkspace();
+  const { data, isLoading } = useWorkspace();
+  const setWorkspace = useSetRecoilState(workspaceAtom);
+
+  // hydrate recoil state
+  useEffect(() => {
+    if (!isLoading) {
+      setWorkspace(data.workspace);
+    }
+  }, [data, isLoading, setWorkspace]);
 
   return (
-    workspace && (
+    data && (
       <ProjectLayout>
-        <Meta title={`Glyphx - ${workspace.name} | Dashboard`} />
+        <Meta title={`Glyphx - ${data.workspace.name} | Dashboard`} />
         <Content.Container>
-          <DynamicHome workspace={workspace} />
+          <DynamicHome />
         </Content.Container>
       </ProjectLayout>
     )

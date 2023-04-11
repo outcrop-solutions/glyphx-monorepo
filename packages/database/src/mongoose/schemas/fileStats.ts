@@ -1,5 +1,6 @@
 import {Schema} from 'mongoose';
 import {columnStatsSchema} from './columnStats';
+
 const FILE_STATS_SCHEMA = new Schema({
   fileName: {type: String, required: true},
   tableName: {type: String, required: true},

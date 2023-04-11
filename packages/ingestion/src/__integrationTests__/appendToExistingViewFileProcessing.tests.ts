@@ -139,16 +139,16 @@ describe('#fileProcessing', () => {
       );
       await fileProcessingHelpers.validateViewResults(
         athenaManager,
-        `${clientId}_${modelId}_view`,
+        `glyphx_${clientId}_${modelId}_view`,
         joinInformation
       );
-      const query = `SELECT * FROM ${clientId}_${modelId}_view WHERE col1 = 163`;
+      const query = `SELECT * FROM glyphx_${clientId}_${modelId}_view WHERE col1 = 163`;
       const results = (await athenaManager.runQuery(query)) as unknown as any[];
       assert.isAtLeast(results.length, 1);
 
       const foundIds: number[] = [];
       let maxRowId = 0;
-      const glyphIdQuery = `SELECT ${GLYPHX_ID_COLUMN_NAME} from ${clientId}_${modelId}_view`;
+      const glyphIdQuery = `SELECT ${GLYPHX_ID_COLUMN_NAME} from glyphx_${clientId}_${modelId}_view`;
       const rowIdResults = (await athenaManager.runQuery(
         glyphIdQuery
       )) as unknown as any[];

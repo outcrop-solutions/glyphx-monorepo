@@ -143,7 +143,7 @@ describe('#fileProcessing/FileReconciliator', () => {
 
       //table1, table2, table3
       assert.strictEqual(reconciledResults.accumFiles.length, 3);
-      const table1Name = `${clientId}_${modelId}_table1`.toLowerCase();
+      const table1Name = `glyphx_${clientId}_${modelId}_table1`.toLowerCase();
       const table1 = reconciledResults.accumFiles.find(
         f => f.tableName === table1Name
       );
@@ -164,7 +164,7 @@ describe('#fileProcessing/FileReconciliator', () => {
       assert.strictEqual(table1?.numberOfRows, numberOfRows1);
       assert.strictEqual(table1?.fileSize, fileSize1);
 
-      const table2Name = `${clientId}_${modelId}_table2`.toLowerCase();
+      const table2Name = `glyphx_${clientId}_${modelId}_table2`.toLowerCase();
       const table2 = reconciledResults.accumFiles.find(
         f => f.tableName === table2Name
       );
@@ -183,7 +183,7 @@ describe('#fileProcessing/FileReconciliator', () => {
       assert.strictEqual(table2?.numberOfRows, numberOfRows2);
       assert.strictEqual(table2?.fileSize, fileSize2);
 
-      const table3Name = `${clientId}_${modelId}_table3`.toLowerCase();
+      const table3Name = `glyphx_${clientId}_${modelId}_table3`.toLowerCase();
       const table3 = reconciledResults.accumFiles.find(
         f => f.tableName === table3Name
       );

@@ -1,10 +1,8 @@
 import { CheckCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { useState } from 'react';
-import { activeStateAtom } from 'state/states';
 import { useRecoilState } from 'recoil';
 
 export const State = ({ item }) => {
-  const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const [title, setTitle] = useState(item.title);
   const [edit, setEdit] = useState(false);
 
@@ -33,7 +31,7 @@ export const State = ({ item }) => {
     <li
       key={item.id}
       onClick={() => {
-        setActiveState(item);
+        // setActiveState(item);
       }}
       className="py-2 group-states pl-2 hover:bg-gray last:mb-0 flex items-center cursor-pointer"
     >

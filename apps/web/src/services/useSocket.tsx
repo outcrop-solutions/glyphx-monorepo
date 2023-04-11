@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { QWebChannel } from 'qwebchannel';
-import { glyphViewerDetails, orientationAtom } from '../state';
-import { shareOpenAtom } from 'state/share';
-import { showInfoAtom } from 'state/info';
-import { showNotificationAtom } from 'state/notification';
 import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  showShareModalOpenAtom,
+  showInfoDropdownAtom,
+  showNotificationDropdownAtom,
+  showHorizontalOrientationAtom,
+  glyphViewerDetails,
+} from 'state/ui';
 /**
  * To handle Socket Connection and Communications with Qt window
  * @param {boolean} isSelected
@@ -19,13 +22,12 @@ export const useSocket = () => {
 
   const [commentsPosition, setCommentsPosition] = useState(null);
   const [filterSidebarPosition, setFilterSidebarPosition] = useState(null);
-  const [sendDrawerPositionApp, setSendDrawerPositionApp] = useState(false);
   const [isSet, changeSet] = useState(false); // trying to limit number of times openSocket is ran to 1
 
-  const isShareOpen = useRecoilValue(shareOpenAtom);
-  const isInfoOpen = useRecoilValue(showNotificationAtom);
-  const isNotifOpen = useRecoilValue(showInfoAtom);
-  const orientation = useRecoilValue(orientationAtom);
+  const isShareOpen = useRecoilValue(showShareModalOpenAtom);
+  const isInfoOpen = useRecoilValue(showNotificationDropdownAtom);
+  const isNotifOpen = useRecoilValue(showInfoDropdownAtom);
+  // const orientation = useRecoilValue(showHorizontalOrientationAtom);
 
   //   Create Socket
   const openSocket = useCallback(
@@ -41,11 +43,11 @@ export const useSocket = () => {
         new QWebChannel(socket, function (channel) {
           window.core = channel.objects.core; // making it global
           try {
-            window.core.KeepAlive.connect(function (message) {});
-            window.core.GetDrawerPosition.connect(function (message) {});
-            window.core.SendDrawerStatus.connect(function (message) {});
-            window.core.SendSdtName.connect(function (message) {});
-            window.core.SendCameraPosition.connect(function (message) {});
+            window?.core?.KeepAlive.connect(function (message) {});
+            window?.core?.GetDrawerPosition.connect(function (message) {});
+            window?.core?.SendDrawerStatus.connect(function (message) {});
+            window?.core?.SendSdtName.connect(function (message) {});
+            window?.core?.SendCameraPosition.connect(function (message) {});
 
             setGlyphViewer({
               // set to true to signify we are ready to go
@@ -56,14 +58,13 @@ export const useSocket = () => {
           //   try {
           //     // make core object accessible globally
           //     //window.core = channel.objects.core;
-          //     //window.core.KeepAlive.connect(function (message) {
+          //     //window?.core?.KeepAlive.connect(function (message) {
           //       //Issued every 30 seconds from Qt to prevent websocket timeout
           //     });
-          //     //window.core.GetDrawerPosition.connect(function (message) {
+          //     //window?.core?.GetDrawerPosition.connect(function (message) {
           //     });
           //     //core.ToggleDrawer("Toggle Drawer"); 	// A Show/Hide toggle for the Glyph Drawer
           //     //core.ResizeEvent("Resize Event");		// Needs to be called when sidebars change size
-          //     //core.UpdateFilter("Update Filter");	// Takes a SQL query based on current filters
           //     //core.ChangeState("Change State");		// Takes the Json information for the selected state
           //     //core.ReloadDrawer("Reload Drawer");	// Triggers a reload of the visualization currently in the drawer. This does not need to be called after a filter update.
           //   } catch (e) {
@@ -96,7 +97,7 @@ export const useSocket = () => {
       }
 
       try {
-        window.core.SendDrawerPosition(
+        window?.core?.SendDrawerPosition(
           JSON.stringify({
             filterSidebar: {
               y: yValue, //843

@@ -4,7 +4,8 @@ import {Types as mongooseTypes} from 'mongoose';
 export interface IStateCreateInput
   extends Omit<
     databaseTypes.IState,
-    '_id' | 'createdAd' | 'updatedAt' | 'projects'
+    '_id' | 'createdAt' | 'updatedAt' | 'project' | 'createdBy'
   > {
-  projects: (mongooseTypes.ObjectId | databaseTypes.IProject)[];
+  project: mongooseTypes.ObjectId | databaseTypes.IProject;
+  createdBy: mongooseTypes.ObjectId | databaseTypes.IUser;
 }

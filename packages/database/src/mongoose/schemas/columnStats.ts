@@ -1,5 +1,6 @@
 import {Schema} from 'mongoose';
 import {fileIngestion as fileIngestionTypes} from '@glyphx/types';
+
 const COLUMN_STATS_SCHEMA = new Schema({
   name: {type: String, required: true},
   fieldType: {

@@ -8,16 +8,24 @@ export async function api({
   onError = () => {},
   onSuccess = () => {},
   successMsg,
+  upload = false,
+  silentFail = false,
+  returnData = false,
 }: webTypes.IFrontendApiReq) {
   setLoading(true);
   const { body, headers, ...opts } = options;
-  const requestBody = JSON.stringify(body);
+  let requestBody;
+  if (upload) {
+    requestBody = body;
+  } else {
+    requestBody = JSON.stringify(body);
+  }
 
   try {
     const res = await fetch(url, {
       body: requestBody,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': upload ? 'text/csv' : 'application/json',
         ...headers,
       },
       ...opts,
@@ -28,13 +36,21 @@ export async function api({
 
     if (response.errors) {
       onError(response.status);
-      Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
+      if (!silentFail) {
+        Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
+      }
     } else {
-      onSuccess(response.data);
-      toast.success(successMsg);
+      if (!returnData) {
+        onSuccess(response.data);
+        toast.success(successMsg);
+      } else {
+        return response.data;
+      }
     }
   } catch (error) {
-    toast.error(error.msg);
+    if (!silentFail) {
+      toast.error(error.msg);
+    }
   }
 }
 
