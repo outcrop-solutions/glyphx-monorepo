@@ -1,11 +1,7 @@
 import React from 'react';
-<<<<<<< HEAD
-=======
 import { selectedFileIndexSelector } from 'state/files';
->>>>>>> dev
 import { useRecoilValue } from 'recoil';
 
-import { selectedFileIndexSelector } from 'state/files';
 import { useFileSystem } from 'services/useFileSystem';
 
 import StackedDragHandleIcon from 'public/svg/stacked-drag-handle-icon.svg';

@@ -4,28 +4,18 @@ import Link from 'next/link';
 import Fuse from 'fuse.js';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
-<<<<<<< HEAD
 import { rightSidebarControlAtom } from 'state/ui';
 import { workspaceAtom } from 'state/workspace';
 // importing fuse
 import SearchInputIcon from 'public/svg/search-input-icon.svg';
 import SearchFilterIcon from 'public/svg/search-filter-icon.svg';
 import ProjectResultIcon from 'public/svg/project-result-icon.svg';
-=======
-import { showSearchModalAtom } from 'state/ui';
-import { workspaceAtom } from 'state/workspace';
-import Fuse from 'fuse.js'; // importing fuse
->>>>>>> dev
 
 export function SearchModal() {
   const router = useRouter();
   const { orgId } = router.query;
 
-<<<<<<< HEAD
   const [rightSidebar, setRightSidebar] = useRecoilState(rightSidebarControlAtom);
-=======
-  const [showSearchModalOpen, setShowSearchModalOpen] = useRecoilState(showSearchModalAtom);
->>>>>>> dev
   const workspace = useRecoilValue(workspaceAtom);
   const [query, setQuery] = useState('');
   const [queryResult, setQueryResult] = useState([]);

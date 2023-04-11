@@ -1,5 +1,4 @@
 import React from 'react';
-<<<<<<< HEAD
 import Image from 'next/image';
 
 import { MemberList } from '../invite/MemberList';
@@ -11,36 +10,16 @@ import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
 export const Info = ({ setInfo, setShare }) => {
   const selectedProject = useRecoilValue(projectAtom);
 
-=======
-import { MemberList } from '../invite/MemberList';
-import { projectAtom } from 'state';
-import { useRecoilValue } from 'recoil';
-import Image from 'next/image';
-
-export const Info = ({ setInfo, setShare }) => {
-  const selectedProject = useRecoilValue(projectAtom);
-
->>>>>>> dev
   return (
     <div className="flex flex-col w-[250px] bg-secondary-space-blue h-full border border-l-gray border-l-1 border-t-gray border-t-1">
       <div className="pt-4 pl-4 pr-4  overflow-auto">
         <div className="flex flex-row justify-between mb-2 items-center">
           <div className="flex flex-row justify-between space-x-3">
-<<<<<<< HEAD
             <ProjectIcon />
-=======
-            <svg width="15" height="12" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M5.3775 1.5L6.8775 3H13.5V10.5H1.5V1.5H5.3775ZM6 0H1.5C0.675 0 0.00749999 0.675 0.00749999 1.5L0 10.5C0 11.325 0.675 12 1.5 12H13.5C14.325 12 15 11.325 15 10.5V3C15 2.175 14.325 1.5 13.5 1.5H7.5L6 0Z"
-                fill="#CECECE"
-              />
-            </svg>
->>>>>>> dev
             <p className="text-light-gray text-[14px] leading-[16px] font-medium font-roboto">
               {selectedProject ? selectedProject.name : 'My Projects'}
             </p>
           </div>
-<<<<<<< HEAD
           <div
             onClick={() => {
               setInfo(false);
@@ -48,25 +27,6 @@ export const Info = ({ setInfo, setShare }) => {
           >
             <CloseProjectInfoIcon />
           </div>
-=======
-          <svg
-            onClick={() => {
-              setInfo(false);
-            }}
-            className="p-0 rounded-xl border-2 border-transparent hover:border-white hover:cursor-pointer"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect width="24" height="24" rx="12" fill="none" />
-            <path
-              d="M18.3 5.70997C17.91 5.31997 17.28 5.31997 16.89 5.70997L12 10.59L7.10997 5.69997C6.71997 5.30997 6.08997 5.30997 5.69997 5.69997C5.30997 6.08997 5.30997 6.71997 5.69997 7.10997L10.59 12L5.69997 16.89C5.30997 17.28 5.30997 17.91 5.69997 18.3C6.08997 18.69 6.71997 18.69 7.10997 18.3L12 13.41L16.89 18.3C17.28 18.69 17.91 18.69 18.3 18.3C18.69 17.91 18.69 17.28 18.3 16.89L13.41 12L18.3 7.10997C18.68 6.72997 18.68 6.08997 18.3 5.70997V5.70997Z"
-              fill="#CECECE"
-            />
-          </svg>
->>>>>>> dev
         </div>
       </div>
       <Image className="w-full h-auto" src="/images/project.png" alt="Sample Project" />

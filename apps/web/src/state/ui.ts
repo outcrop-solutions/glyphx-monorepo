@@ -5,19 +5,9 @@ import { web as webTypes } from '@glyphx/types';
 // HIDE = FALSE
 
 // Global
-<<<<<<< HEAD
 // Right Sidebar Controls
 export const rightSidebarControlAtom = atom<webTypes.RightSidebarControl>({
   key: 'rightSidebarControlAtom',
-=======
-export const showNotificationDropdownAtom = atom<boolean>({
-  key: 'showNotificationDropdownAtom',
-  default: false,
-});
-
-export const showInfoDropdownAtom = atom<boolean>({
-  key: 'showInfoDropdownAtom',
->>>>>>> dev
   default: false,
 });
 
@@ -26,25 +16,6 @@ export const showMainSidebarExpandedAtom = atom<boolean>({
   default: false,
 });
 
-<<<<<<< HEAD
-=======
-export const showShareModalOpenAtom = atom<boolean>({
-  key: 'showShareModalOpenAtom',
-  default: false,
-});
-
-export const showSearchModalAtom = atom<boolean>({
-  key: 'showSearchModalAtom',
-  default: false,
-});
-
-// Project View
-export const showCommentsSidebarAtom = atom<boolean>({
-  key: 'showCommentsSidebarAtom',
-  default: false,
-});
-
->>>>>>> dev
 // Home View
 export const showProjectsGridViewAtom = atom<boolean>({
   key: 'showProjectsGridViewAtom',
