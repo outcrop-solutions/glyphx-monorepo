@@ -1,4 +1,4 @@
-import SettingsIcon from 'public/svg/settings-icon.svg';
+import { CreditCardIcon, UserCircleIcon } from '@heroicons/react/outline';
 const sidebarMenu = () => [
   {
     name: 'Account',
@@ -6,12 +6,12 @@ const sidebarMenu = () => [
       {
         name: 'Billing',
         path: `/account/billing`,
-        altIcon: '',
+        altIcon: <CreditCardIcon />,
       },
       {
         name: 'Settings',
         path: `/account/settings`,
-        altIcon: <SettingsIcon />,
+        altIcon: <UserCircleIcon />,
       },
     ],
   },
