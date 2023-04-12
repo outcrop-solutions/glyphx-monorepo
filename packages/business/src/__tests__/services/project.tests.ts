@@ -167,7 +167,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -179,7 +179,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'addProjects',
         updateWorkspaceStub
       );
 
@@ -229,7 +229,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -241,7 +241,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'addProjects',
         updateWorkspaceStub
       );
 
@@ -291,7 +291,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -303,7 +303,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'addProjects',
         updateWorkspaceStub
       );
 
@@ -487,7 +487,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -549,7 +549,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -611,7 +611,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -678,7 +678,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -687,7 +687,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'addProjects',
         updateWorkspaceStub
       );
 
@@ -752,7 +752,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -761,7 +761,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'addProjects',
         updateWorkspaceStub
       );
 
@@ -826,7 +826,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'updateUserById',
+        'addProjects',
         updateUserStub
       );
 
@@ -835,7 +835,7 @@ describe('#services/project', () => {
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'addProjects',
         updateWorkspaceStub
       );
 
