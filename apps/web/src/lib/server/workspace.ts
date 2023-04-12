@@ -69,7 +69,6 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
 export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { slug } = req.body;
   const { workspaceSlug } = req.query;
-  console.log({ slug: workspaceSlug, newSlug: slug });
 
   if (Array.isArray(workspaceSlug)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
