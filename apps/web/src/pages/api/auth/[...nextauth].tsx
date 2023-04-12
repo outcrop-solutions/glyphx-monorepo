@@ -19,13 +19,15 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     callbacks: {
       session: async ({ session, user }) => {
         if (session?.user) {
-          const customerPayment = await customerPaymentService.getPayment(user.email);
+          // TODO: uncomment when accepting payments
+          // const customerPayment = await customerPaymentService.getPayment(user.email);
 
           session.user.userId = user.id;
 
-          if (customerPayment) {
-            session.user.subscription = customerPayment.subscriptionType;
-          }
+          // TODO: uncomment when accepting payments
+          // if (customerPayment) {
+          //   session.user.subscription = customerPayment.subscriptionType;
+          // }
         }
         return session;
       },
@@ -37,6 +39,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         if (isNewUser) {
           await userService.updateUserCode(user.id);
         }
+        console.log({ isNewUser, user, customerPayment });
         // @ts-ignore
         if (isNewUser || customerPayment === null || user.createdAt === null) {
           await Promise.all([customerPaymentService.createPaymentAccount(user.email, user.id)]);
@@ -47,23 +50,15 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
       CredentialsProvider({
         // The name to display on the sign in form (e.g. "Sign in with...")
         name: 'Credentials',
-        // `credentials` is used to generate a form on the sign in page.
-        // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-        // e.g. domain, username, password, 2FA token, etc.
-        // You can pass any HTML attribute to the <input> tag through the object.
         credentials: {
           email: { label: 'email', type: 'text', placeholder: 'youremail@gmail.com' },
         },
         async authorize(credentials, req) {
-          // Add logic here to look up the user from the credentials supplied
-          // const user = { id: '1', name: 'J Smith', email: 'jsmith@example.com' };
-
           const res = await fetch('http://localhost:3000/api/authorize', {
             method: 'POST',
             body: JSON.stringify(credentials),
             headers: { 'Content-Type': 'application/json' },
           });
-
           const user = await res.json();
           // If no error and we have user data, return it
           if (res.ok && user) {

@@ -158,7 +158,7 @@ SCHEMA.static(
 
       if (!count) {
         throw new error.DataNotFoundError(
-          `Could not find accounts with the filter: ${filter}`,
+          `Could not find members with the filter: ${filter}`,
           'account_filter',
           filter
         );

@@ -7,6 +7,9 @@ import { projectAtom } from 'state/project';
 import ToggleGridOnIcon from 'public/svg/toggle-grid-on.svg';
 import ToggleGridOffIcon from 'public/svg/toggle-grid-off.svg';
 
+const btnClass =
+  'h-8 p-1 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-[2px]';
+
 export function GridToggle() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -37,30 +40,23 @@ export function GridToggle() {
   });
 
   return (
-    <div className="relative inline-flex">
-      <button
-        ref={trigger}
-        className={'flex items-center justify-center border border-transparent hover:border-white px-0 rounded'}
-        aria-haspopup="true"
-        aria-expanded={dropdownOpen}
-      >
-        <span className="sr-only">Grid Toggle</span>
-        {!grid ? (
-          <ToggleGridOnIcon
-            onClick={() => {
-              setGrid((prev) => !prev);
-              setSelectedProject(null);
-            }}
-          />
-        ) : (
-          <ToggleGridOffIcon
-            onClick={() => {
-              setSelectedProject(null);
-              setGrid((prev) => !prev);
-            }}
-          />
-        )}
-      </button>
-    </div>
+    <button ref={trigger} className={`${btnClass}`} aria-haspopup="true" aria-expanded={dropdownOpen}>
+      <span className="sr-only">Grid Toggle</span>
+      {!grid ? (
+        <ToggleGridOnIcon
+          onClick={() => {
+            setGrid((prev) => !prev);
+            setSelectedProject(null);
+          }}
+        />
+      ) : (
+        <ToggleGridOffIcon
+          onClick={() => {
+            setSelectedProject(null);
+            setGrid((prev) => !prev);
+          }}
+        />
+      )}
+    </button>
   );
 }

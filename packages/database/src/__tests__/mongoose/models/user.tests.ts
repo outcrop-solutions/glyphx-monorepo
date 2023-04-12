@@ -47,7 +47,7 @@ const MOCK_NULLISH_USER = {
   webhooks: undefined,
 } as unknown as databaseTypes.IUser;
 
-describe('#mongoose/models/user', () => {
+describe.only('#mongoose/models/user', () => {
   context('createUser', () => {
     const sandbox = createSandbox();
 
@@ -3455,6 +3455,382 @@ describe('#mongoose/models/user', () => {
       let errored = false;
       try {
         await UserModel.removeWebhooks(userId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('addMembership', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add a membership to a user', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateMembersStub = sandbox.stub();
+      validateMembersStub.resolves([memberId]);
+      sandbox.replace(UserModel, 'validateMembership', validateMembersStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.addMembership(userId, [memberId]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(
+        updatedUser.membership[0].toString(),
+        memberId.toString()
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateMembersStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will not save when a member is already attached to a user', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+      localMockUser.membership.push(memberId);
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateMembersStub = sandbox.stub();
+      validateMembersStub.resolves([memberId]);
+      sandbox.replace(UserModel, 'validateMembership', validateMembersStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.addMembership(userId, [memberId]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(
+        updatedUser.membership[0].toString(),
+        memberId.toString()
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateMembersStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the user does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateMembersStub = sandbox.stub();
+      validateMembersStub.resolves([memberId]);
+      sandbox.replace(UserModel, 'validateMembership', validateMembersStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addWebhooks(userId, [memberId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data validation error when member id does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateMembersStub = sandbox.stub();
+      validateMembersStub.rejects(
+        new error.DataValidationError(
+          'The webhook id does not exist',
+          'memberId',
+          memberId
+        )
+      );
+      sandbox.replace(UserModel, 'validateMembership', validateMembersStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addMembership(userId, [memberId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validatWebhooksStub = sandbox.stub();
+      validatWebhooksStub.resolves([memberId]);
+      sandbox.replace(UserModel, 'validateMembership', validatWebhooksStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addMembership(userId, [memberId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the Members array is empty', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const validateMembersStub = sandbox.stub();
+      validateMembersStub.resolves([memberId]);
+      sandbox.replace(UserModel, 'validateMembership', validateMembersStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.addMembership(userId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('removeMembership', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will remove a webhook from the user', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+      localMockUser.membership.push(memberId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.removeMembership(userId, [memberId]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(updatedUser.membership.length, 0);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will not modify the webhooks if the memberId is not on the user webhooks', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+      localMockUser.membership.push(memberId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const updatedUser = await UserModel.removeMembership(userId, [
+        new mongoose.Types.ObjectId(),
+      ]);
+
+      assert.strictEqual(updatedUser._id, userId);
+      assert.strictEqual(updatedUser.membership.length, 1);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the user does not exist', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+      localMockUser.membership.push(memberId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.removeMembership(userId, [memberId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+      localMockUser.membership.push(memberId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.removeMembership(userId, [memberId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the webhooks array is empty', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const localMockUser = JSON.parse(JSON.stringify(MOCK_USER));
+      localMockUser._id = userId;
+      const memberId = new mongoose.Types.ObjectId();
+      localMockUser.membership.push(memberId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(UserModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockUser);
+      localMockUser.save = saveStub;
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves(localMockUser);
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      let errored = false;
+      try {
+        await UserModel.removeMembership(userId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;

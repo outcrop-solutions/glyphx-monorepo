@@ -79,6 +79,14 @@ export interface IUserStaticMethods
     userId: mongooseTypes.ObjectId,
     webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IUser>;
+  addMembership(
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
+  removeMembership(
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser>;
   addWorkspaces(
     userId: mongooseTypes.ObjectId,
     workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]

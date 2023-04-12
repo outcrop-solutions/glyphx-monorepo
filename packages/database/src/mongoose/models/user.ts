@@ -1178,6 +1178,132 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'addMembership',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one memberId',
+          'members',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateMembership(members);
+      let dirty = false;
+      reconciledIds.forEach(m => {
+        if (
+          !userDocument.membership.find(
+            mhId => mhId.toString() === m.toString()
+          )
+        ) {
+          dirty = true;
+          userDocument.membership.push(m as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the Members. See the innner error for additional information',
+          'mongoDb',
+          'user.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeMembership',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one webhookId',
+          'sessions',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${userId} cannot be found`,
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = members.map(i =>
+        //istanbul ignore next
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedMemberships = userDocument.membership.filter(w => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (w as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        userDocument.membership =
+          updatedMemberships as unknown as databaseTypes.IMember[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the members. See the innner error for additional information',
+          'mongoDb',
+          'user.removeMember',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
   'addWorkspaces',
   async (
     userId: mongooseTypes.ObjectId,

@@ -37,10 +37,10 @@ const Actions = () => {
 
   return (
     <div className="flex flex-col items-stretch justify-center px-5 space-y-3">
-      <Button className="text-white bg-secondary-deep-blue hover:bg-blue-500" onClick={toggleModal}>
+      <Button.Secondary className="mt-4" onClick={toggleModal}>
         <PlusIcon className="w-5 h-5 text-white" aria-hidden="true" />
-        <span className="whitespace-nowrap">Create Workspace</span>
-      </Button>
+        <span className="text-white">Workspace</span>
+      </Button.Secondary>
       <Modal show={showModal} title="Create a Workspace" toggle={toggleModal}>
         <div className="space-y-0 text-sm text-gray-600">
           <p>Create a workspace to keep your team&apos;s content in one place.</p>

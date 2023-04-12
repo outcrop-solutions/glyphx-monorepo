@@ -80,6 +80,9 @@ export class WorkspaceService {
           [member]
         );
 
+      await mongoDbConnection.models.UserModel.addMembership(castCreatorId, [
+        member,
+      ]);
       await mongoDbConnection.models.UserModel.addWorkspaces(castCreatorId, [
         newWorkspace,
       ]);
