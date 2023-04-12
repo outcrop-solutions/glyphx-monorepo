@@ -1,4 +1,5 @@
 import { CreditCardIcon, UserCircleIcon } from '@heroicons/react/outline';
+
 const sidebarMenu = () => [
   {
     name: 'Account',

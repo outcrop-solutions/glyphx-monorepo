@@ -1,4 +1,5 @@
 import { CogIcon, UserGroupIcon, ShieldExclamationIcon } from '@heroicons/react/outline';
+
 const menu = (workspaceSlug) => [
   {
     name: 'Settings',

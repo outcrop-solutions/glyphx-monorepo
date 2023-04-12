@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import Link from 'next/link';
 import { MenuIcon } from '@heroicons/react/outline';
 
@@ -48,7 +48,18 @@ const Sidebar = ({ menu }) => {
           projectId && 'border-b-gray'
         }`}
       >
-        <Link href="/account">{projectId ? <SmallLogo /> : <FullLogo />}</Link>
+        {/* eslint-disable-next-line react/no-string-refs */}
+        <Link href="/account">
+          {projectId ? (
+            <>
+              <SmallLogo />
+            </>
+          ) : (
+            <>
+              <FullLogo />
+            </>
+          )}
+        </Link>
         {!projectId && (
           <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>
             <MenuIcon className="w-6 h-6" />

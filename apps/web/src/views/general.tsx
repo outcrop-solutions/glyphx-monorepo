@@ -12,10 +12,12 @@ import Content from 'components/Content/index';
 import { _updateWorkspaceName, _updateWorkspaceSlug, api, useWorkspace } from 'lib/client';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
+import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 
-const General = ({ isTeamOwner }) => {
+const General = () => {
   const router = useRouter();
   const workspace = useRecoilValue(workspaceAtom);
+  const { data: ownership, isLoading: isOwnershipLoading } = useIsTeamOwner();
 
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(workspace?.name || '');
@@ -44,7 +46,6 @@ const General = ({ isTeamOwner }) => {
     api({
       ..._updateWorkspaceSlug({ slug: workspace.slug, newSlug: slug }),
       setLoading: setSubmittingState,
-
       onSuccess: (data) => {
         router.replace(`/account/${data?.slug}/settings/general`);
       },
@@ -65,7 +66,7 @@ const General = ({ isTeamOwner }) => {
           <Card.Body title="Workspace Name" subtitle="Used to identify your Workspace on the Dashboard">
             <input
               className="px-3 py-2 border rounded md:w-1/2 bg-transparent"
-              disabled={isSubmitting || !isTeamOwner}
+              disabled={isSubmitting || !ownership?.isTeamOwner}
               onChange={handleNameChange}
               type="text"
               value={name}
@@ -73,7 +74,7 @@ const General = ({ isTeamOwner }) => {
           </Card.Body>
           <Card.Footer>
             <small>Please use 16 characters at maximum</small>
-            {isTeamOwner && (
+            {ownership?.isTeamOwner && (
               <Button className="bg-primary-yellow" disabled={!validName || isSubmitting} onClick={changeName}>
                 Save
               </Button>
@@ -85,7 +86,7 @@ const General = ({ isTeamOwner }) => {
             <div className="flex items-center space-x-3">
               <input
                 className="px-3 py-2 border rounded md:w-1/2 bg-transparent"
-                disabled={isSubmitting || !isTeamOwner}
+                disabled={isSubmitting || !ownership?.isTeamOwner}
                 onChange={handleSlugChange}
                 type="text"
                 value={slug}
@@ -95,7 +96,7 @@ const General = ({ isTeamOwner }) => {
           </Card.Body>
           <Card.Footer>
             <small>Please use 16 characters at maximum. Hyphenated alphanumeric characters only.</small>
-            {isTeamOwner && (
+            {ownership?.isTeamOwner && (
               <Button className="" disabled={!validSlug || isSubmitting} onClick={changeSlug}>
                 Save
               </Button>
