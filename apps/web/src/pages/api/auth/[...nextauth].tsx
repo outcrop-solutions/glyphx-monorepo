@@ -19,15 +19,13 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
     callbacks: {
       session: async ({ session, user }) => {
         if (session?.user) {
-          // TODO: uncomment when accepting payments
-          // const customerPayment = await customerPaymentService.getPayment(user.email);
+          const customerPayment = await customerPaymentService.getPayment(user.email);
 
           session.user.userId = user.id;
 
-          // TODO: uncomment when accepting payments
-          // if (customerPayment) {
-          //   session.user.subscription = customerPayment.subscriptionType;
-          // }
+          if (customerPayment) {
+            session.user.subscription = customerPayment.subscriptionType;
+          }
         }
         return session;
       },
