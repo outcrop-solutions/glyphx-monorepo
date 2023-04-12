@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { MainDropzone } from '../files';
+import { MainDropzone } from '../projectSidebar/files';
 import { Datagrid } from './DataGrid';
 import { GridHeader } from './GridHeader';
 import { ModelFooter } from './ModelFooter';

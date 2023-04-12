@@ -24,7 +24,7 @@ const Header = ({ breadcrumbs }) => {
       }`}
     >
       {project ? (
-        <div className="flex">
+        <div className="flex items-center">
           <button
             onClick={backPressed}
             className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"

@@ -1,7 +1,7 @@
 import { useDrop } from 'react-dnd';
 import { useRecoilValue } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
-import { AxesIcons } from '../icons/AxesIcons';
+import { AxesIcons } from '../../icons/AxesIcons';
 
 import { useProject } from 'services';
 import { handleDataType } from 'lib/client/helpers/handleDataType';

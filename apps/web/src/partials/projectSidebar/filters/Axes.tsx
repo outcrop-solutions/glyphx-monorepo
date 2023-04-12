@@ -6,7 +6,7 @@ import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';
 
-import { AxesIcons } from '../icons/AxesIcons';
+import { AxesIcons } from '../../icons/AxesIcons';
 import PlusIcon from 'public/svg/plus-icon.svg';
 import GarbageIcon from 'public/svg/garbage-can-icon.svg';
 

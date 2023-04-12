@@ -701,7 +701,6 @@ export class WorkspaceService {
         pathSlug
       );
 
-      console.log({workspace});
       if (workspace) {
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
           workspace._id as unknown as mongooseTypes.ObjectId,
