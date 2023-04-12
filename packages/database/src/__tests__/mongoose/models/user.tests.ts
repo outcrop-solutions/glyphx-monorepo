@@ -47,7 +47,7 @@ const MOCK_NULLISH_USER = {
   webhooks: undefined,
 } as unknown as databaseTypes.IUser;
 
-describe.only('#mongoose/models/user', () => {
+describe('#mongoose/models/user', () => {
   context('createUser', () => {
     const sandbox = createSandbox();
 
