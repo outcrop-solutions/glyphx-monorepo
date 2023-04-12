@@ -37,7 +37,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         if (isNewUser) {
           await userService.updateUserCode(user.id);
         }
-        console.log({ isNewUser, user, customerPayment });
         // @ts-ignore
         if (isNewUser || customerPayment === null || user.createdAt === null) {
           await Promise.all([customerPaymentService.createPaymentAccount(user.email, user.id)]);
