@@ -29,8 +29,8 @@ const Actions = () => {
     api({
       ..._createWorkspace(name),
       setLoading: setSubmittingState,
-      onSuccess: (result) => {
-        router.replace(`/account/${result.data.workspace?.slug}`);
+      onSuccess: (data) => {
+        router.replace(`/account/${data.slug}`);
       },
     });
   };

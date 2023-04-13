@@ -7,11 +7,13 @@ import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { _deleteWorkspace, api, useWorkspace } from 'lib/client';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
+import { workspaceAtom } from 'state';
+import { useRecoilState } from 'recoil';
 
 const Advanced = () => {
   const router = useRouter();
   const isCreator = useIsTeamOwner();
-  const { setWorkspace, workspace } = useWorkspace();
+  const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalState] = useState(false);
   const [verifyWorkspace, setVerifyWorkspace] = useState('');

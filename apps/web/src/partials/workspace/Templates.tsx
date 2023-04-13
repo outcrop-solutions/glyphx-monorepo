@@ -30,7 +30,7 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
-  const { data: user } = useSession();
+  const { workspaceSlug } = router.query;
   const { data } = useWorkspace();
 
   // mutations
@@ -38,7 +38,8 @@ export const Templates = () => {
     api({
       ..._createDefaultProject(data.workspace._id),
       onSuccess: (data) => {
-        router.push(`/project/${data.project._id}`);
+        console.log({ data });
+        router.push(`/account/${workspaceSlug}/${data._id}`);
       },
     });
   };

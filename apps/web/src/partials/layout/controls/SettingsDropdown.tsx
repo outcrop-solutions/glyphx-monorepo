@@ -4,12 +4,14 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 
 import { CogIcon, CreditCardIcon, DesktopComputerIcon, LogoutIcon, UserCircleIcon } from '@heroicons/react/outline';
+import { useUrl } from 'lib/client/hooks';
 
 export const SettingsDropdown = () => {
+  const url = useUrl();
   const logOut = () => {
     const result = confirm('Are you sure you want to logout?');
     if (result) {
-      signOut({ callbackUrl: '/auth/login' });
+      signOut({ callbackUrl: `${url}/auth/login` });
     }
   };
 

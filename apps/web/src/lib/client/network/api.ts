@@ -49,6 +49,7 @@ export async function api({
     }
   } catch (error) {
     if (!silentFail) {
+      console.log({ error });
       toast.error(error.msg);
     }
   }
