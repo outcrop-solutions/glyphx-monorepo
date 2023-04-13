@@ -40,10 +40,8 @@ const Actions = () => {
       <Menu as="div" className="z-60">
         <div>
           <Menu.Button className="flex items-center bg-gray justify-around px-5 py-2 rounded disabled:opacity-75 text-white">
-            {/* <Button.Secondary className="mt-4" onClick={toggleModal}> */}
             <PlusIcon className="w-5 h-5 text-white" aria-hidden="true" />
             <span className="text-white">Workspace</span>
-            {/* </Button.Secondary> */}
           </Menu.Button>
         </div>
         <Transition
