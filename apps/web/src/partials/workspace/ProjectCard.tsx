@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-
+import SharedTag from 'public/svg/shared-tag.svg';
 import { _deleteProject, api } from 'lib/client';
 import { ProjectTypeIcons } from '../icons';
 
@@ -28,10 +28,7 @@ export const ProjectCard = ({ idx, project }) => {
   };
 
   return (
-    <div className="group relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-lg bg-secondary-space-blue hover:cursor-pointer">
-      <div className="absolute top-0 left-0 z-30">
-        <ProjectTypeIcons project={project} />
-      </div>
+    <div className="group aspect-w-4 border border-gray aspect-h-4 relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-md bg-secondary-space-blue hover:cursor-pointer">
       <div className="absolute top-0 right-0 group-hover:flex bg-primary-dark-blue items-center justify-between p-2 rounded-md rounded-tl-none rounded-br-none">
         {/* add member */}
         <AddMemberIcon />
@@ -40,47 +37,24 @@ export const ProjectCard = ({ idx, project }) => {
         {/* delete button */}
         <DeleteProjectIcon onClick={deleteProject} />
       </div>
-      <div onClick={() => navigate(workspaceSlug)} className="flex flex-col h-full">
-        <Image className="rounded-t-md" layout="responsive" src={projectCard} alt="" />
-        <footer className="mt-2 px-5 pb-5 pt-1">
-          <p className="font-roboto font-medium text-sm leading-[16px] text-light-gray mb-2 h-9">{project.name}</p>
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <div className="flex shrink-0 -space-x-3 -ml-px mr-2">
-                {project.shared && project.shared.length > 0 ? (
-                  <>
-                    {project.shared.map((member, idx) => {
-                      if (idx < 3) {
-                        return (
-                          <div
-                            key={`${member}-${idx}`}
-                            className={`rounded-full ${
-                              idx % 2 === 0 ? 'bg-blue' : 'bg-primary-yellow'
-                            } h-6 w-6 text-sm text-white flex items-center justify-center`}
-                          >
-                            {`${member.split('@')[0][0]?.toUpperCase()}`}
-                          </div>
-                        );
-                      }
-                    })}
-                  </>
-                ) : (
-                  <div
-                    className={`rounded-full ${
-                      idx % 2 === 0 ? 'bg-cyan' : 'bg-primary-yellow'
-                    } h-6 w-6 font-roboto font-medium text-[12px] leading-[14px] tracking-[0.01em] text-white flex items-center justify-center`}
-                  >
-                    {project.author ? `${project.author[0].toUpperCase()}` : ''}
-                  </div>
-                )}
-              </div>
-              {project.shared && project.shared.length > 4 ? (
-                <div className="text-xs">{`+ ${project.shared.length - 3} more`}</div>
-              ) : null}
-            </div>
+      <div onClick={() => navigate(workspaceSlug)} className="flex flex-col h-full justify-between rounded-md">
+        <Image className="rounded-t-md h-5/6" layout="responsive" src={projectCard} alt="" />
+        <footer className="flex flex-col w-full space-y-2 justify-between px-4 py-3">
+          <div className="flex items-center justify-between w-full">
+            <p className="font-roboto font-medium truncate ellipsis text-sm leading-[16px] text-light-gray">
+              {project.name}
+            </p>
             <div>
-              <p className="font-roboto font-medium text-sm text-gray leading-[16px] text-right">
-                {dayjs().to(dayjs(project.updatedAt))}
+              <ProjectTypeIcons project={project} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between w-full">
+            <p className="font-roboto font-medium text-sm w-20 leading-[16px] text-light-gray whitespace-nowrap">
+              {project.owner.name}
+            </p>
+            <div className="bg-yellow px-2 py-1 rounded">
+              <p className="font-roboto font-medium text-sm leading-[16px] text-right text-white">
+                {'shared'.toUpperCase()}
               </p>
             </div>
           </div>

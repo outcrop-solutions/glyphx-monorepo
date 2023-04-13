@@ -41,7 +41,7 @@ export const Files = () => {
           </div>
           <div
             {...getRootProps()}
-            className="border-2 border-transparent hover:border-white hover:cursor-pointer rounded-full p-1 mr-1 bg-secondary-space-blue"
+            className="border-2 border-transparen w-6 h-6 hover:border-white hover:cursor-pointer rounded-full p-1 mr-1  bg-secondary-space-blue"
           >
             <input {...getInputProps()} />
             <UploadIcon />

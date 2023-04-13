@@ -405,7 +405,12 @@ SCHEMA.static(
       })
         .populate('creator')
         .populate('members')
-        .populate('projects')
+        .populate({
+          path: 'projects',
+          populate: {
+            path: 'owner',
+          },
+        })
         .lean()) as databaseTypes.IWorkspace[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.

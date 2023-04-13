@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { projectAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 
 import { Controls } from 'partials/layout/controls';
 
@@ -8,18 +8,19 @@ import BackBtnIcon from 'public/svg/back-button-icon.svg';
 
 const Header = ({ breadcrumbs }) => {
   const [project, setProject] = useRecoilState(projectAtom);
+  const resetProject = useResetRecoilState(projectAtom);
 
   const router = useRouter();
   const { workspaceSlug } = router.query;
 
   const backPressed = () => {
     router.push(`/account/${project.workspace.slug}`);
-    setProject(null);
+    resetProject();
   };
 
   return (
     <div
-      className={`flex flex-row h-14 items-center pr-4 justify-between ${
+      className={`flex flex-row pt-4 md:pt-0 h-14 items-center pr-4 justify-between ${
         project ? 'bg-secondary-space-blue border border-gray' : 'bg-transparent'
       }`}
     >
