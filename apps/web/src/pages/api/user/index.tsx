@@ -16,10 +16,10 @@ const deactivate = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.constants.HTTP_METHOD.PUT:
+    case webTypes.constants.HTTP_METHOD.DELETE:
       return deactivateUser(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.PUT]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.DELETE]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };

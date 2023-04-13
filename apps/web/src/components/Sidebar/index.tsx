@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import Link from 'next/link';
 import { MenuIcon } from '@heroicons/react/outline';
 
@@ -8,14 +8,17 @@ import Menu from './menu';
 import sidebarMenu from 'config/menu/sidebar-static';
 
 import FullLogo from 'public/svg/full-logo.svg';
-
+import SmallLogo from 'public/svg/small-logo.svg';
 // hooks
 import { useWorkspace, useWorkspaces } from 'lib/client';
+import { useRouter } from 'next/router';
 
 const staticMenu = sidebarMenu();
 
 const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
+  const router = useRouter();
+  const { projectId } = router.query;
   const { data, isLoading } = useWorkspaces();
   const { data: workspace } = useWorkspace();
 
@@ -35,14 +38,33 @@ const Sidebar = ({ menu }) => {
   const toggleMenu = () => setMenuVisibility(!showMenu);
 
   return (
-    <aside className="sticky z-40 flex flex-col space-y-2 text-white bg-secondary-deep-blue md:overflow-y-auto md:w-1/8 md:h-screen overscroll-contain">
-      <div className="relative flex items-center justify-center py-4 px-2 mx-8 text-center border-b border-b-gray">
+    <aside
+      className={`sticky z-40 flex flex-col space-y-2 text-white bg-secondary-deep-blue ${
+        projectId ? '' : 'md: w-1/8 overscroll-contain md:overflow-y-auto'
+      } md:h-screen`}
+    >
+      <div
+        className={`relative flex items-center justify-center py-4 px-2 md:mx-8 text-center border-b ${
+          projectId && 'border-b-gray'
+        }`}
+      >
+        {/* eslint-disable-next-line react/no-string-refs */}
         <Link href="/account">
-          <FullLogo />
+          {projectId ? (
+            <>
+              <SmallLogo />
+            </>
+          ) : (
+            <>
+              <FullLogo />
+            </>
+          )}
         </Link>
-        <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>
-          <MenuIcon className="w-6 h-6" />
-        </button>
+        {!projectId && (
+          <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>
+            <MenuIcon className="w-6 h-6" />
+          </button>
+        )}
       </div>
       <div
         className={[
@@ -50,8 +72,8 @@ const Sidebar = ({ menu }) => {
           showMenu ? 'absolute top-12 bg-primary-dark-blue right-0 left-0 h-screen' : 'hidden',
         ].join(' ')}
       >
-        <Actions />
-        <div className="flex flex-col p-5 space-y-10">
+        {!projectId && <Actions />}
+        <div className={`flex flex-col ${projectId ? 'items-center space-y-2' : 'p-5 space-y-10'}`}>
           {renderStaticMenu()}
           {renderMenu()}
         </div>

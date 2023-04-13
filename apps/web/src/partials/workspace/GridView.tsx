@@ -24,7 +24,7 @@ export const GridView = () => {
       <div className="grid grid-cols-12 gap-6 bg-primary-blue">
         {/* <AddProject /> */}
         {workspace.projects.map((project, idx) => {
-          return <ProjectCard key={project._id} idx={idx} project={project} />;
+          return <ProjectCard key={project._id.toString()} idx={idx} project={project} />;
         })}
       </div>
     </>

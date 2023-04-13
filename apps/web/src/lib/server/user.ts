@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
-import { userService, validateUpdateName } from '@glyphx/business';
+import { userService, validateUpdateName, validateUpdateEmail } from '@glyphx/business';
 
 /**
  * Update Name
@@ -38,7 +38,7 @@ export const updateName = async (req: NextApiRequest, res: NextApiResponse, sess
 export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { email } = req.body;
   try {
-    await validateUpdateName(req, res);
+    await validateUpdateEmail(req, res);
     await userService.updateEmail(session?.user?.userId, email, session?.user?.email);
     res.status(200).json({ data: { email } });
   } catch (error) {
@@ -57,7 +57,7 @@ export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, ses
  *
  */
 
-const ALLOW_DEACTIVATION = false;
+const ALLOW_DEACTIVATION = true;
 
 export const deactivateUser = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {

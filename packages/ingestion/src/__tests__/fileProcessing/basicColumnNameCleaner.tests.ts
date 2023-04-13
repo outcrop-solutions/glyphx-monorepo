@@ -43,7 +43,6 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
       const columnNameCleaner = new BasicColumnNameCleaner();
 
       const cleanName = columnNameCleaner.cleanColumnName(columnName);
-      console.log({cleanName});
       const charValue = cleanName.charCodeAt(0);
       assert.isTrue(
         charValue !== 95 //_

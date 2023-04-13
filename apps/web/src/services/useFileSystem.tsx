@@ -104,7 +104,7 @@ export const useFileSystem = () => {
       // api({
       // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
       // onSuccess: ({ signedUrls }) => {
-      Promise.all(
+      await Promise.all(
         keys.map(async (key, idx) => {
           // upload raw file data to s3
           api({
@@ -115,30 +115,29 @@ export const useFileSystem = () => {
               project._id.toString()
             ),
             upload: true,
-            onSuccess: (upload) => {
-              // run ingestor on files
-              api({
-                ..._ingestFiles(payload),
-                onSuccess: (data) => {
-                  // update project filesystem
-                  setProject(
-                    produce((draft) => {
-                      // @ts-ignore
-                      draft.files = payload.fileStats;
-                      // @ts-ignore
-                      draft.files[0].dataGrid = data.dataGrid;
-                      // @ts-ignore
-                      draft.files[0].open = true;
-                    })
-                  );
-                  // open first file
-                  selectFile(0);
-                },
-              });
-            },
           });
         })
       );
+
+      // only call ingest once
+      await api({
+        ..._ingestFiles(payload),
+        onSuccess: (data) => {
+          // update project filesystem
+          setProject(
+            produce((draft) => {
+              // @ts-ignore
+              draft.files = payload.fileStats;
+              // @ts-ignore
+              draft.files[0].dataGrid = data.dataGrid;
+              // @ts-ignore
+              draft.files[0].open = true;
+            })
+          );
+          // open first file
+          selectFile(0);
+        },
+      });
       // },
       // });
 

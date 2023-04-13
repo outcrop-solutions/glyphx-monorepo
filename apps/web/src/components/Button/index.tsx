@@ -1,7 +1,19 @@
+/* eslint-disable react/display-name */
 const Button = ({ children, className, ...rest }) => {
   return (
     <button
-      className={`flex items-center bg-primary-yellow justify-center px-5 py-2 space-x-3 rounded disabled:opacity-75 text-secondary-space-blue ${className}`}
+      className={`flex items-center bg-primary-yellow text-secondary-space-blue justify-around px-5 py-2 rounded disabled:opacity-75 ${className}`}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+};
+
+Button.Secondary = ({ children, className, ...rest }) => {
+  return (
+    <button
+      className={`flex items-center bg-gray justify-around px-5 py-2 rounded disabled:opacity-75 text-white ${className}`}
       {...rest}
     >
       {children}

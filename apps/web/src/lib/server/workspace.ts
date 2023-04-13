@@ -67,17 +67,18 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
  */
 
 export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  let { slug } = req.body;
-  let { workspaceSlug } = req.query;
+  const { slug } = req.body;
+  const { workspaceSlug } = req.query;
 
   if (Array.isArray(workspaceSlug)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
 
   try {
-    const updatedSlug = await validateUpdateWorkspaceSlug(req, res);
-    workspaceService.updateWorkspaceSlug(session?.user?.userId, session?.user?.email, slug, workspaceSlug);
-    res.status(200).json({ data: { slug: updatedSlug } });
+    await validateUpdateWorkspaceSlug(req, res);
+    await workspaceService.updateWorkspaceSlug(session?.user?.userId, session?.user?.email, slug, workspaceSlug);
+
+    res.status(200).json({ data: { slug: slug } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
   }

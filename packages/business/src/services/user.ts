@@ -45,6 +45,29 @@ export class UserService {
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         deletedAt: new Date(),
       });
+
+      // delete associated workspaces
+      await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
+        {creator: user._id},
+        {
+          deletedAt: new Date(),
+        }
+      );
+      // delete associated memberships
+      await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+        {member: user._id},
+        {
+          deletedAt: new Date(),
+        }
+      );
+      // delete associated projects
+      await mongoDbConnection.models.ProjectModel.updateProjectWithFilter(
+        {owner: user._id},
+        {
+          deletedAt: new Date(),
+        }
+      );
+
       return user;
     } catch (err: any) {
       if (
@@ -83,14 +106,25 @@ export class UserService {
         emailVerified: undefined,
       });
 
-      // TODO: update member.inviter and member.email on corresponding member models
-
       await EmailClient.sendMail({
         html: updateHtml({email}),
         subject: '[Glyphx] Email address updated',
         text: updateText({email}),
         to: [email, previousEmail],
       });
+
+      await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+        {email: previousEmail},
+        {email: email}
+      );
+      await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+        {inviter: previousEmail},
+        {inviter: email}
+      );
+      await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(
+        {email: previousEmail},
+        {email: email}
+      );
 
       return user;
     } catch (err: any) {

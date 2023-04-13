@@ -1,42 +1,26 @@
-import { StripeClient, validateSession, customerPaymentService, Initializer } from '@glyphx/business';
+import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
+import { validateSession, Initializer } from '@glyphx/business';
+import { initStripePaymentSession } from 'lib/server';
 
-const handler = async (req, res) => {
+const payment = async (req, res) => {
+  // initialize the business layer
   if (!Initializer.initedField) {
     await Initializer.init();
   }
 
-  const { method } = req;
-  if (method === 'POST') {
-    const session = (await validateSession(req, res)) as Session;
-    const { priceId } = req.query;
-    const [customerPayment, price] = await Promise.all([
-      customerPaymentService.getPayment(session?.user?.email),
-      StripeClient.stripe.prices.retrieve(priceId),
-    ]);
-    const product = await StripeClient.stripe.products.retrieve(price.product);
-    const lineItems = [
-      {
-        price: price.id,
-        quantity: 1,
-      },
-    ];
-    const paymentSession = await StripeClient.stripe.checkout.sessions.create({
-      customer: customerPayment.paymentId,
-      mode: 'subscription',
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      success_url: `${process.env.APP_URL}/account/payment?status=success`,
-      cancel_url: `${process.env.APP_URL}/account/payment?status=cancelled`,
-      metadata: {
-        customerId: customerPayment.customer._id,
-        type: product.metadata.type,
-      },
-    });
-    res.status(200).json({ data: { sessionId: paymentSession.id } });
-  } else {
-    res.status(405).json({ errors: { error: { msg: `${method} method unsupported` } } });
+  // check for valid session
+  const session = (await validateSession(req, res)) as Session;
+  if (!session.user.userId) return res.status(401).end();
+
+  // execute the appropriate handler
+  switch (req.method) {
+    case webTypes.constants.HTTP_METHOD.POST:
+      return initStripePaymentSession(req, res, session);
+    default:
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
 
-export default handler;
+export default payment;

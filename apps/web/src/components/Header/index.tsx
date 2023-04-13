@@ -10,6 +10,7 @@ const Header = ({ breadcrumbs }) => {
   const [project, setProject] = useRecoilState(projectAtom);
 
   const router = useRouter();
+  const { workspaceSlug } = router.query;
 
   const backPressed = () => {
     router.push(`/account/${project.workspace.slug}`);
@@ -18,12 +19,12 @@ const Header = ({ breadcrumbs }) => {
 
   return (
     <div
-      className={`flex flex-row h-14 items-center justify-between px-4 ${
+      className={`flex flex-row h-14 items-center pr-4 justify-between ${
         project ? 'bg-secondary-space-blue border border-gray' : 'bg-transparent'
       }`}
     >
       {project ? (
-        <div className="flex">
+        <div className="flex items-center">
           <button
             onClick={backPressed}
             className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
@@ -40,7 +41,7 @@ const Header = ({ breadcrumbs }) => {
           />
         </div>
       ) : (
-        <div className="ml-8">
+        <div className={`${workspaceSlug ? 'pl-8' : ''}`}>
           <p className="font-rubik font-normal text-white text-[22px] leading-[26px] tracking-[0.01em]">
             {breadcrumbs.map((crumb) => crumb)}
           </p>

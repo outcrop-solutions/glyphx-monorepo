@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { getSession, signOut } from 'next-auth/react';
+import { getSession, signOut, useSession } from 'next-auth/react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
@@ -10,13 +10,15 @@ import Card from 'components/Card';
 import Content from 'components/Content';
 import Modal from 'components/Modal';
 import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
+import produce from 'immer';
 
-export default function Settings({ user }) {
-  const [email, setEmail] = useState(user.email || '');
+export default function Settings() {
+  const { data } = useSession();
+  const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
-  const [name, setName] = useState(user.name || '');
+  const [name, setName] = useState('');
   const [showModal, setModalState] = useState(false);
-  const [userCode] = useState(user.userCode);
+  const [userCode, setUserCode] = useState('');
   const [verifyEmail, setVerifyEmail] = useState('');
   const validName = name?.length > 0 && name?.length <= 32;
   const validEmail = isEmail(email);
@@ -59,8 +61,16 @@ export default function Settings({ user }) {
     });
   };
 
+  useEffect(() => {
+    if (data) {
+      setName(data?.user?.name);
+      setEmail(data?.user?.email);
+      setUserCode(data?.user?.userId);
+    }
+  }, [data]);
+
   return (
-    <>
+    <Fragment>
       <Content.Title title="Account Settings" subtitle="Manage your profile, preferences, and account settings" />
       <Content.Divider />
       <Content.Container>
@@ -139,7 +149,7 @@ export default function Settings({ user }) {
             </p>
             <div className="flex flex-col">
               <label className="text-sm text-gray-400">
-                Enter <strong>{user.email}</strong> to continue:
+                Enter <strong>{data?.user?.email}</strong> to continue:
               </label>
               <input
                 className="px-3 py-2 border rounded bg-transparent"
@@ -161,6 +171,6 @@ export default function Settings({ user }) {
           </Modal>
         </Card>
       </Content.Container>
-    </>
+    </Fragment>
   );
 }

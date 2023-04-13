@@ -16,7 +16,6 @@ export const useSocket = () => {
       const ws = new WebSocket('ws://localhost:12345'); // Replace with your WebSocket server URL and port
       ws.onopen = () => {
         webChannel = new QWebChannel(ws, function (channel) {
-          console.log({ channel });
           window.core = channel.objects.core; // making it global
         });
         setChannel(webChannel);

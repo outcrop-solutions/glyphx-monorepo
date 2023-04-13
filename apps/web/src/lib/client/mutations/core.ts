@@ -114,25 +114,6 @@ export const _getSignedDataUrls = (workspaceId: string, projectId: string): webT
  * @returns stringified Qt Open Project payload
  */
 export const _createOpenProject = (data, project, session) => {
-  console.log({
-    projectId: project?._id,
-    workspaceId: project?.workspace._id,
-    sdtUrl: data.sdtUrl,
-    sgnUrl: data.sgnUrl,
-    sgcUrl: data.sgcUrl,
-    viewName: project?.viewName,
-    apiLocation: `${getUrl()}/api`,
-    sessionInformation:
-      session.status === 'unauthenticated'
-        ? {
-            user: {
-              email: 'jp@glyphx.co',
-              userId: '642ed599d2c489175363dd8b',
-            },
-            expires: '2023-05-10T14:29:38.896Z',
-          }
-        : session,
-  });
   return JSON.stringify({
     projectId: project?._id,
     workspaceId: project?.workspace._id,

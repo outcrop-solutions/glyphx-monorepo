@@ -155,6 +155,14 @@ describe('#services/workspace', () => {
         addMembersFromWorkspaceModel
       );
 
+      const addMembershipFromUserModel = sandbox.stub();
+      addMembershipFromUserModel.resolves();
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'addMembership',
+        addMembershipFromUserModel
+      );
+
       const addWorkspacesFromUserModel = sandbox.stub();
       addWorkspacesFromUserModel.resolves();
       sandbox.replace(
@@ -256,6 +264,14 @@ describe('#services/workspace', () => {
         dbConnection.models.WorkspaceModel,
         'addMembers',
         addMembersFromWorkspaceModel
+      );
+
+      const addMembershipFromUserModel = sandbox.stub();
+      addMembershipFromUserModel.resolves();
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'addMembership',
+        addMembershipFromUserModel
       );
 
       const addWorkspacesFromUserModel = sandbox.stub();
@@ -367,6 +383,14 @@ describe('#services/workspace', () => {
         dbConnection.models.UserModel,
         'addWorkspaces',
         addWorkspacesFromUserModel
+      );
+
+      const addMembershipFromUserModel = sandbox.stub();
+      addMembershipFromUserModel.resolves();
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'addMembership',
+        addMembershipFromUserModel
       );
 
       const sendStub = sandbox.stub();
