@@ -14,7 +14,7 @@ export const SettingsDropdown = () => {
   };
 
   return (
-    <Menu as="div" className="relative inline-block text-left">
+    <Menu as="div" className="relative inline-block text-left z-60">
       <div>
         <Menu.Button className="flex items-center justify-center p-1 space-x-3 border rounded hover:bg-secondary-midnight">
           <CogIcon aria-hidden="true" className="w-5 h-5" />

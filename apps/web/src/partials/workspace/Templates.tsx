@@ -51,7 +51,7 @@ export const Templates = () => {
           <li key={itemIdx}>
             <div className="relative group py-4 flex items-start space-x-3">
               <div className="shrink-0">
-                <span className={'bg-yellow z-60 inline-flex items-center justify-center h-10 w-10 rounded-lg'}>
+                <span className={'bg-yellow inline-flex items-center justify-center h-10 w-10 rounded-lg'}>
                   <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
                 </span>
               </div>
