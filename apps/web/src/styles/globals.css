@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+div[class='react-grid-HeaderCell'] {
+  @apply bg-primary-dark-blue text-white border-none py-0 px-1 rounded text-center;
+}
+div[class='react-grid-Header'] {
+  @apply bg-transparent shadow-none;
+}
+div[class='react-grid-Container'] {
+  @apply bg-primary-dark-blue text-white rounded text-center;
+}
+div[class='react-grid-Canvas'] {
+  @apply bg-primary-dark-blue text-white rounded w-full p-0 h-screen text-center;
+}
+div[class='react-grid-Viewport'] {
+  @apply bg-primary-dark-blue p-0 h-screen text-center;
+}
+
+div[class='react-grid-Container'] > div > div > div:nth-child(2) > div > div > div:nth-child(2) {
+  @apply h-[600px];
+}
+div[class='react-grid-Cell'] {
+  @apply bg-primary-dark-blue first:bg-secondary-deep-blue;
+}
+div[class='react-grid-Grid'] {
+  @apply bg-primary-dark-blue border border-none text-white outline-none rounded text-center;
+}
+div[class='rdg-selected'] {
+  @apply border border-secondary-blue text-white rounded text-center;
+}
+
 div[data-type='number'] {
   @apply bg-cyan text-white rounded text-center;
 }

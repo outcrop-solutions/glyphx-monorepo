@@ -19,8 +19,9 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
         ? fileIngestionTypes.constants.FIELD_TYPE.STRING
         : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
       width: 120,
-      resizable: true,
-      sortable: true,
+      dragable: true,
+      resizable: false,
+      sortable: false,
     };
   });
   // Generates first column
