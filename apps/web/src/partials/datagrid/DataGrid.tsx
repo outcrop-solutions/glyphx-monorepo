@@ -35,7 +35,7 @@ export const Datagrid = () => {
         columns={draggableColumns}
         rowGetter={(i) => data.rows[i]}
         rowsCount={data.rows.length}
-        minHeight={150}
+        minHeight={window.innerHeight - 88}
       />
     )
   );

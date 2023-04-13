@@ -41,8 +41,8 @@ const Header = ({ breadcrumbs }) => {
           />
         </div>
       ) : (
-        <div className={`${workspaceSlug ? 'pl-8' : ''}`}>
-          <p className="font-rubik font-normal text-white text-[22px] leading-[26px] tracking-[0.01em]">
+        <div className={`${workspaceSlug && !router.pathname.includes('settings') ? 'pl-8' : ''}`}>
+          <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
             {breadcrumbs.map((crumb) => crumb)}
           </p>
         </div>

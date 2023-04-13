@@ -1,6 +1,7 @@
 import { useState, Fragment, useEffect } from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { getSession, signOut, useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { Transition, Menu } from '@headlessui/react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
@@ -8,12 +9,14 @@ import isEmail from 'validator/lib/isEmail';
 import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
-import Modal from 'components/Modal';
 import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
-import produce from 'immer';
+import { useRouter } from 'next/router';
+import { getUrl } from 'config/constants';
+import { useUrl } from 'lib/client/hooks';
 
 export default function Settings() {
   const { data } = useSession();
+  const url = useUrl();
   const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState('');
@@ -23,7 +26,6 @@ export default function Settings() {
   const validName = name?.length > 0 && name?.length <= 32;
   const validEmail = isEmail(email);
   const verifiedEmail = verifyEmail === email;
-
   // local state
   const handleEmailChange = (event) => setEmail(event.target.value);
   const handleNameChange = (event) => setName(event.target.value);
@@ -57,7 +59,9 @@ export default function Settings() {
       ..._deactivateAccount(),
       setLoading: setSubmittingState,
 
-      onSuccess: () => toggleModal(),
+      onSuccess: () => {
+        signOut({ callbackUrl: `${url}/auth/login` });
+      },
     });
   };
 
@@ -131,44 +135,57 @@ export default function Settings() {
           </Card.Body>
         </Card>
         <Card danger>
-          <Card.Body
-            title="Danger Zone"
-            subtitle="Permanently remove your Personal Account and all of its contents
+          <Menu as="div" className="z-60">
+            <Card.Body
+              title="Danger Zone"
+              subtitle="Permanently remove your Personal Account and all of its contents
               from Glyphx platform"
-          />
-          <Card.Footer>
-            <small>This action is not reversible, so please continue with caution</small>
-            <Button className="text-white bg-red-600 hover:bg-red-500" onClick={toggleModal}>
-              Deactivate Personal Account
-            </Button>
-          </Card.Footer>
-          <Modal show={showModal} title="Deactivate Personal Account" toggle={toggleModal}>
-            <p>Your account will be deleted, along with all of its Workspace contents.</p>
-            <p className="px-3 py-2 text-red-600 border border-red-600 rounded">
-              <strong>Warning:</strong> This action is not reversible. Please be certain.
-            </p>
-            <div className="flex flex-col">
-              <label className="text-sm text-gray-400">
-                Enter <strong>{data?.user?.email}</strong> to continue:
-              </label>
-              <input
-                className="px-3 py-2 border rounded bg-transparent"
-                disabled={isSubmitting}
-                onChange={handleVerifyEmailChange}
-                type="email"
-                value={verifyEmail}
-              />
-            </div>
-            <div className="flex flex-col items-stretch">
-              <Button
-                className="text-white bg-red-600 hover:bg-red-500"
-                disabled={!verifiedEmail || isSubmitting}
-                onClick={deactivateAccount}
-              >
-                <span>Deactivate Personal Account</span>
-              </Button>
-            </div>
-          </Modal>
+            />
+            <Menu.Button as="div" className="w-full">
+              <Card.Footer>
+                <small>This action is not reversible, so please continue with caution</small>
+
+                <Button className="text-white bg-red-600 hover:bg-red-500">Deactivate Personal Account</Button>
+              </Card.Footer>
+            </Menu.Button>
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="relative z-60 bg-secondary-space-blue rounded w-full py-4 px-6 flex flex-col">
+                <p>Your account will be deleted, along with all of its Workspace contents.</p>
+                <p className="py-2 my-2 text-red-600 rounded">
+                  <strong>Warning:</strong> This action is not reversible. Please be certain.
+                </p>
+                <div className="flex flex-col space-y-2 my-2">
+                  <label className="text-sm text-gray-400">
+                    Enter <strong>{data?.user?.email}</strong> to continue:
+                  </label>
+                  <input
+                    className="px-3 py-2 border rounded bg-transparent"
+                    disabled={isSubmitting}
+                    onChange={handleVerifyEmailChange}
+                    type="email"
+                    value={verifyEmail}
+                  />
+                </div>
+                <div className="flex flex-col items-stretch">
+                  <Button
+                    className="text-white bg-red-600 hover:bg-red-500"
+                    disabled={!verifiedEmail || isSubmitting}
+                    onClick={deactivateAccount}
+                  >
+                    <span>Deactivate Personal Account</span>
+                  </Button>
+                </div>
+              </Menu.Items>
+            </Transition>
+          </Menu>
         </Card>
       </Content.Container>
     </Fragment>

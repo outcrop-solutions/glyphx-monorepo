@@ -10,7 +10,7 @@ const menu = (workspaceSlug) => [
         altIcon: <CogIcon />,
       },
       {
-        name: 'Team Management',
+        name: 'Team',
         path: `/account/${workspaceSlug}/settings/team`,
         altIcon: <UserGroupIcon />,
       },

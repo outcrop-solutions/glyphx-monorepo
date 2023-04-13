@@ -37,11 +37,10 @@ const Actions = () => {
 
   return (
     <div className="flex flex-col items-stretch justify-center px-5 space-y-3">
-      <Menu as="div" className="z-60">
+      <Menu as="div" className="z-60 mt-4">
         <div>
-          <Menu.Button className="flex items-center bg-gray justify-around px-5 py-2 rounded disabled:opacity-75 text-white">
-            <PlusIcon className="w-5 h-5 text-white" aria-hidden="true" />
-            <span className="text-white">Workspace</span>
+          <Menu.Button className="flex items-center justify-around w-full bg-gray px-2 py-2 rounded disabled:opacity-75 text-white">
+            <span className="text-white whitespace-nowrap">Create Workspace</span>
           </Menu.Button>
         </div>
         <Transition

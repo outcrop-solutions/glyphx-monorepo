@@ -6,9 +6,11 @@ import Modal from 'components/Modal/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
 import { _deleteWorkspace, api, useWorkspace } from 'lib/client';
+import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 
-const Advanced = ({ isCreator }) => {
+const Advanced = () => {
   const router = useRouter();
+  const isCreator = useIsTeamOwner();
   const { setWorkspace, workspace } = useWorkspace();
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalState] = useState(false);

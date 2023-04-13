@@ -1,5 +1,3 @@
-import dynamic from 'next/dynamic';
-
 // layout
 import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
@@ -13,7 +11,6 @@ import Home from 'views/home';
 const Workspace = () => {
   const { data, isLoading } = useWorkspace();
   const setWorkspace = useSetRecoilState(workspaceAtom);
-
   // hydrate recoil state
   useEffect(() => {
     if (!isLoading) {
