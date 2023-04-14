@@ -418,7 +418,10 @@ SCHEMA.static(
         delete (doc as any)['__v'];
         delete (doc as any).creator['__v'];
         (doc as any).members.map((mem: any) => delete mem['__v']);
-        (doc as any).projects.map((proj: any) => delete proj['__v']);
+        (doc as any).projects.map((proj: any) => {
+          delete proj['__v'];
+          delete proj.owner['__v'];
+        });
       });
 
       const retval: IQueryResult<databaseTypes.IWorkspace> = {
