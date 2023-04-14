@@ -4,7 +4,7 @@ import { generalPurposeFunctions as sharedFunctions } from '@glyphx/core';
 import { formatGridData } from 'lib/client/files/transforms';
 export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
   const { rowIds, tableName } = req.body;
-  const data = await dataService.getDataByGlyphxIds(tableName, rowIds);
+  const data = await dataService.getDataByGlyphxIds(tableName, Array.isArray(rowIds) ? rowIds : JSON.parse(rowIds));
   if (!data.length) {
     res.status(404).json({ errors: { error: { msg: `No data found` } } });
   } else {

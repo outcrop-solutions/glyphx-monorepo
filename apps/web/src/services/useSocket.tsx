@@ -25,7 +25,7 @@ export const useSocket = () => {
       };
     }
     return () => {
-      if (webChannel) {
+      if (webChannel?.reset) {
         webChannel.reset();
       }
       if (ws && ws.readyState === WebSocket.OPEN) {
