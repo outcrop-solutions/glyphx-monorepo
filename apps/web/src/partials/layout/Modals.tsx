@@ -12,10 +12,6 @@ import { DeleteWorkspaceModal } from 'partials/modals';
 export const Modals = () => {
   const [modalContent, setModalContent] = useRecoilState(showModalAtom);
 
-  useEffect(() => {
-    console.log({ modalContent });
-  }, [modalContent]);
-
   const handleClickAway = () => {
     setModalContent(
       produce((draft) => {
@@ -31,7 +27,6 @@ export const Modals = () => {
           <ClickAwayListener onClickAway={handleClickAway}>
             <div>
               {(() => {
-                console.log({ type: modalContent.type });
                 switch (modalContent.type) {
                   case 'createProject':
                     return <CreateProjectModal />;

@@ -38,16 +38,15 @@ export const Templates = () => {
     api({
       ..._createDefaultProject(data.workspace._id),
       onSuccess: (data) => {
-        console.log({ data });
         router.push(`/account/${workspaceSlug}/${data._id}`);
       },
     });
   };
   return (
-    <div className="max-w-lg mx-auto h-full flex flex-col pt-40 grow justify-center items-center">
+    <div className="max-w-lg mx-auto flex flex-col grow justify-center items-center">
       <div className="text-lg font-medium text-white">Create your first project</div>
       <div className="mt-1 text-sm text-gray">Get started by selecting a template or start from an empty project.</div>
-      <ul className="mt-6 border-t border-b border-gray divide-y divide-gray">
+      <ul className="border-t border-b border-gray divide-y divide-gray">
         {items.map((item, itemIdx) => (
           <li key={itemIdx}>
             <div className="relative group py-4 flex items-start space-x-3">
