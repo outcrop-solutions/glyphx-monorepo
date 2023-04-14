@@ -3,7 +3,6 @@ import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
 import WorkspaceLayout from 'layouts/WorkspaceLayout';
 import { useWorkspace } from 'lib';
-import { Modals } from 'partials/layout/Modals';
 import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { workspaceAtom } from 'state';

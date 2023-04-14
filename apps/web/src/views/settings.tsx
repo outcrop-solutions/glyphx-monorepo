@@ -24,7 +24,6 @@ export default function Settings() {
   const [userCode, setUserCode] = useState('');
   const validName = name?.length > 0 && name?.length <= 32;
   const validEmail = isEmail(email);
-
   // local state
   const handleEmailChange = (event) => setEmail(event.target.value);
   const handleNameChange = (event) => setName(event.target.value);

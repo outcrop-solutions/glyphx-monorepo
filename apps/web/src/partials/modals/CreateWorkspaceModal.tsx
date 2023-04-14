@@ -36,6 +36,7 @@ export const CreateWorkspaceModal = () => {
       },
     });
   };
+
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
       <div className="space-y-0 text-sm text-gray-600">
