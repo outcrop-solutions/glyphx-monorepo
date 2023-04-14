@@ -1,10 +1,6 @@
 import { Suspense, useEffect } from 'react';
-import { getSession } from 'next-auth/react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
-
-import { workspaceService, Initializer } from '@glyphx/business';
-
 import Meta from 'components/Meta/index';
 import { AccountLayout } from 'layouts/index';
 import GeneralView from 'views/general';
