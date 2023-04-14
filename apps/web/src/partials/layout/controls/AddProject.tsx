@@ -13,11 +13,7 @@ export const AddProject = () => {
   const setShowAddProject = useSetRecoilState(showAddProjectAtom);
 
   const handleNewProject = () => {
-    setShowAddProject(
-      produce((draft) => {
-        draft = !draft;
-      })
-    );
+    setShowAddProject(true);
   };
   return (
     <button className={`${btnPrimary}`} onClick={() => handleNewProject()} aria-controls="create-project-modal">
