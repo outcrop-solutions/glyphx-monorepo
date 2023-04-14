@@ -1,5 +1,5 @@
 import { useDrop } from 'react-dnd';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
 import { AxesIcons } from '../../icons/AxesIcons';
 
@@ -15,9 +15,11 @@ import LinIcon from 'public/svg/lin-icon.svg';
 import LogIcon from 'public/svg/log-icon.svg';
 import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
 import SwapRightIcon from 'public/svg/swap-right-icon.svg';
+import produce from 'immer';
+import { useCallback, useEffect } from 'react';
 
 export const Property = ({ axis }) => {
-  const project = useRecoilValue(projectAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const { handleDrop } = useProject();
 
@@ -32,9 +34,31 @@ export const Property = ({ axis }) => {
   const isActive = isOver && canDrop;
   const isCreatingModel = useRecoilValue(showModelCreationLoadingAtom);
 
-  const logLin = () => {};
+  useEffect(() => {
+    console.log({ project });
+  }, [project]);
 
-  const ascDesc = () => {};
+  const logLin = useCallback(() => {
+    setProject(
+      produce((draft) => {
+        draft.state.properties[`${axis}`].interpolation =
+          prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
+            ? webTypes.constants.INTERPOLATION_TYPE.LOG
+            : webTypes.constants.INTERPOLATION_TYPE.LIN;
+      })
+    );
+  }, [axis, prop.interpolation, setProject]);
+
+  const ascDesc = useCallback(() => {
+    setProject(
+      produce((draft) => {
+        draft.state.properties[`${axis}`].direction =
+          draft.state.properties[`${axis}`].direction === webTypes.constants.DIRECTION_TYPE.ASC
+            ? webTypes.constants.DIRECTION_TYPE.DESC
+            : webTypes.constants.DIRECTION_TYPE.ASC;
+      })
+    );
+  }, [axis, setProject]);
 
   return (
     <li
