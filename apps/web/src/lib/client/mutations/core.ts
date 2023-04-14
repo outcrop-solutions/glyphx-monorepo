@@ -1,5 +1,4 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes, database as databaseTypes } from '@glyphx/types';
-import { getUrl } from 'config/constants';
+import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 
 /******************** INGESTION *********************/
 /**

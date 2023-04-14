@@ -1,4 +1,4 @@
-import { AddProject } from 'partials/layout/controls/AddProject';
+import { CreateProject } from 'partials/layout/controls/CreateProject';
 import { GridToggle } from 'partials/layout/controls/GridToggle';
 import { OrientationToggle } from 'partials/layout/controls/OrientationToggle';
 import { SettingsDropdown } from 'partials/layout/controls/SettingsDropdown';
@@ -22,7 +22,7 @@ export const projectControls = () => [
 
 export const workspaceControls = () => [
   {
-    component: () => <AddProject />,
+    component: () => <CreateProject />,
   },
   {
     component: () => <GridToggle />,

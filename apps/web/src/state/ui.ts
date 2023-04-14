@@ -33,9 +33,12 @@ export const showHorizontalOrientationAtom = atom<boolean>({
   default: false,
 });
 
-export const showAddProjectAtom = atom<boolean>({
-  key: 'showAddProjectAtom',
-  default: false,
+export const showModalAtom = atom<{ type: webTypes.ModalContent; isSubmitting: boolean }>({
+  key: 'showModalAtom',
+  default: {
+    type: false,
+    isSubmitting: false,
+  },
 });
 
 export const showDataGridLoadingAtom = atom<boolean>({

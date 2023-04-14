@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { workspaceAtom, showAddProjectAtom } from 'state';
+import { useSetRecoilState } from 'recoil';
 import { LinkDropDown, MemberList } from '../../invite';
 import { PermissionsDropDown } from '../../invite';
 import { _createProject } from 'lib/client';
 import { useRouter } from 'next/router';
 import { v4 as uuid } from 'uuid';
 import { useSession } from 'next-auth/react';
+import { showModalAtom } from 'state';
 
 export const NewProject = ({ exit }) => {
   const router = useRouter();
@@ -16,7 +16,7 @@ export const NewProject = ({ exit }) => {
   const [description, setDescription] = useState('');
   const [members, setMembers] = useState('');
 
-  const setShowAddProject = useSetRecoilState(showAddProjectAtom);
+  const setShowAddProject = useSetRecoilState(showModalAtom);
 
   function createMembersArray() {
     if (members === '') {

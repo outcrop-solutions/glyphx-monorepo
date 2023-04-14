@@ -3,7 +3,6 @@ import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 
 /**
  * Creates Project
- * @note not active
  * @param id
  * @param name
  * @returns
@@ -13,6 +12,25 @@ export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfi
     url: '/api/project/create',
     options: {
       body: { name: 'Untitled', workspaceId },
+      method: 'POST',
+    },
+    successMsg: 'New project successfully created',
+  };
+};
+
+/**
+ * Creates Project
+ * @note not active
+ * @param id
+ * @param name
+ * @param description
+ * @returns
+ */
+export const _createProject = (workspaceId: string, name: string, description: string): webTypes.IFetchConfig => {
+  return {
+    url: '/api/project/create',
+    options: {
+      body: { name: name, description: description, workspaceId },
       method: 'POST',
     },
     successMsg: 'New project successfully created',

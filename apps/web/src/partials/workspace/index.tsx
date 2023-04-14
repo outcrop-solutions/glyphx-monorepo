@@ -1,4 +1,4 @@
-export * from './AddProjectModal';
+// MODALS
 export * from './GridView';
 export * from './PinnedProjects';
 export * from './ProjectCard';

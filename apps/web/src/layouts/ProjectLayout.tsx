@@ -8,11 +8,12 @@ import Header from 'components/Header';
 import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
 import { useWorkspace } from 'lib';
+import { Modals } from 'partials/layout/Modals';
 
 const ProjectLayout = ({ children }) => {
   const { data } = useSession();
   const router = useRouter();
-  const { data: result, isLoading } = useWorkspace();
+  const { data: result } = useWorkspace();
 
   useEffect(() => {
     if (!data) {
@@ -21,19 +22,22 @@ const ProjectLayout = ({ children }) => {
   }, [data, router]);
 
   return (
-    <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(result?.workspace?.slug)} />
-      <Content.Project>
-        <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
-        <Header breadcrumbs={['']} />
-        {children}
-      </Content.Project>
-      {/* Right Sidebar */}
-      {/* <div id="right-side-bars" className="">
+    <>
+      <Modals />
+      <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
+        <Sidebar menu={menu(result?.workspace?.slug)} />
+        <Content.Project>
+          <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
+          <Header breadcrumbs={['']} />
+          {children}
+        </Content.Project>
+        {/* Right Sidebar */}
+        {/* <div id="right-side-bars" className="">
         {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
         {showInfo ? <Info setInfo={setShowInfo} setShare={setShareModel} /> : <></>}
       </div> */}
-    </main>
+      </main>
+    </>
   );
 };
 
