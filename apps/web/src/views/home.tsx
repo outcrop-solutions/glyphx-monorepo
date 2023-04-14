@@ -16,30 +16,28 @@ import { showProjectsGridViewAtom, showAddProjectAtom, workspaceAtom, projectAto
 
 export default function Home() {
   const isGridView = useRecoilValue(showProjectsGridViewAtom);
-  const showAddProject = useRecoilValue(showAddProjectAtom);
   const workspace = useRecoilValue(workspaceAtom);
   return (
     <>
-      {showAddProject ? <AddProjectModal /> : null}
-      {workspace?.projects && workspace?.projects?.length > 0 ? (
-        <div className="relative flex flex-col w-full">
-          <div className="h-full overflow-y-scroll">
-            <div className="flex grow relative h-full">
-              <div className="w-full flex text-white">
-                <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
-                  <PinnedProjects />
-                  {isGridView ? <GridView /> : <TableView />}
-                </div>
+      <div className="relative flex flex-col w-full">
+        <div className="h-full overflow-y-scroll">
+          <div className="flex grow relative h-full">
+            <div className="w-full flex text-white">
+              <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
+                <PinnedProjects />
+                {workspace?.projects && workspace?.projects?.length > 0 ? (
+                  <>{isGridView ? <GridView /> : <TableView />}</>
+                ) : (
+                  <Templates />
+                )}
               </div>
             </div>
           </div>
         </div>
-      ) : (
-        <Templates />
-      )}
+      </div>
       {/* <div id="right-side-bars" className="">
-        {project ? <ProjectDetails /> : <></>}
-      </div> */}
+      {project ? <ProjectDetails /> : <></>}
+    </div> */}
     </>
   );
 }

@@ -84,7 +84,9 @@ export function DraggableHeaderRenderer({ onColumnsReorder, column, sortDirectio
     <div
       data-type={`${column.dataType}`}
       ref={useCombinedRefs(drag, drop)}
-      className={`${isDragging ? 'opacity-80' : 'opacity-100'} px-2 h-full  ${isOver ? 'bg-blue-500' : ''}`}
+      className={`${isDragging ? 'opacity-80' : 'opacity-100'} flex items-center justify-center h-[30px] my-1  ${
+        isOver ? 'bg-blue-500' : ''
+      }`}
     >
       <SortableHeaderCell
         sortDirection={sortDirection}

@@ -5,8 +5,8 @@ import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import dynamic from 'next/dynamic';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
 import { dataGridPayloadSelector } from 'state';
-
-const DataGrid = dynamic(() => import('@glyphx/react-data-grid'), {
+// import DataGrid from 'react-data-grid';
+const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
 });
 
@@ -30,15 +30,28 @@ export const Datagrid = () => {
 
   return (
     data && (
-      <DataGrid
-        className=""
-        headerRowHeight={20}
-        rowHeight={20}
+      <ReactDataGrid
+        // @ts-ignore
         columns={draggableColumns}
-        rows={data.rows}
-        // sortColumns={sortColumns}
-        // onSortColumnsChange={onSortColumnsChange}
+        rowGetter={(i) => data.rows[i]}
+        rowsCount={data.rows.length}
+        minHeight={window.innerHeight - 88}
       />
     )
   );
+
+  // return (
+  //   data &&
+  //   data.rows && (
+  //     <ReactDataGrid
+  //       // headerRowHeight={20}
+  //       // rowHeight={20}
+  //       // rowGetter={(i) => data.rows[i]}
+  //       columns={draggableColumns}
+  //       rows={data.rows}
+  //       // sortColumns={sortColumns}
+  //       // onSortColumnsChange={onSortColumnsChange}
+  //     />
+  //   )
+  // );
 };

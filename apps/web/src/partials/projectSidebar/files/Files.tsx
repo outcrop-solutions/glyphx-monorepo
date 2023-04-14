@@ -7,6 +7,7 @@ import { File } from './File';
 import { SidebarDropzone } from './SidebarDropzone';
 import FilesIcon from 'public/svg/files-icon.svg';
 import UploadIcon from 'public/svg/upload-icon.svg';
+import { PlusCircleIcon } from '@heroicons/react/outline';
 
 export const Files = () => {
   const { onDrop } = useFileSystem();
@@ -21,16 +22,28 @@ export const Files = () => {
 
   return (
     <React.Fragment>
-      <div className="group">
-        <summary className="flex h-8 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight hover:border-b-white truncate border-b border-gray">
-          <div
-            onClick={() => {
-              setCollapsed(!isCollapsed);
-            }}
-            className="flex ml-2 items-center"
-          >
+      <details open className="group">
+        <summary
+          onClick={() => {
+            setCollapsed(!isCollapsed);
+          }}
+          className="flex h-8 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight hover:border-b-white truncate border-b border-gray"
+        >
+          <div className="flex ml-2 items-center">
             <span className="">
-              <FilesIcon />
+              {/* @jp-burford it's sinful but it's functional for now so*/}
+              <svg
+                className={`w-5 h-5 ${isCollapsed ? '-rotate-90' : 'rotate-180'}`}
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill="#CECECE"
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
             </span>
             <a>
               <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
@@ -41,10 +54,10 @@ export const Files = () => {
           </div>
           <div
             {...getRootProps()}
-            className="border-2 border-transparent hover:border-white hover:cursor-pointer rounded-full p-1 mr-1 bg-secondary-space-blue"
+            className="w-8 h-8  hover:cursor-pointer rounded-full p-1 mr-1  bg-secondary-space-blue"
           >
+            <PlusCircleIcon className="hover:text-white" />
             <input {...getInputProps()} />
-            <UploadIcon />
           </div>
         </summary>
         <div className={`lg:block py-1 border-b border-gray`}>
@@ -56,7 +69,7 @@ export const Files = () => {
             )}
           </div>
         </div>
-      </div>
+      </details>
     </React.Fragment>
   );
 };

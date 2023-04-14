@@ -34,7 +34,7 @@ export const showHorizontalOrientationAtom = atom<boolean>({
 });
 
 export const showAddProjectAtom = atom<boolean>({
-  key: 'showAddProject',
+  key: 'showAddProjectAtom',
   default: false,
 });
 

@@ -40,7 +40,7 @@ const Sidebar = ({ menu }) => {
   return (
     <aside
       className={`sticky z-40 flex flex-col space-y-2 text-white bg-secondary-deep-blue ${
-        projectId ? '' : 'md: w-1/8 overscroll-contain md:overflow-y-auto'
+        projectId ? '' : 'md:w-[250px] overscroll-contain md:overflow-y-auto'
       } md:h-screen`}
     >
       <div
@@ -51,13 +51,13 @@ const Sidebar = ({ menu }) => {
         {/* eslint-disable-next-line react/no-string-refs */}
         <Link href="/account">
           {projectId ? (
-            <>
+            <div>
               <SmallLogo />
-            </>
+            </div>
           ) : (
-            <>
+            <div>
               <FullLogo />
-            </>
+            </div>
           )}
         </Link>
         {!projectId && (

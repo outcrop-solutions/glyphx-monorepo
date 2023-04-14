@@ -1,8 +1,6 @@
 import React, { Suspense } from 'react';
-import { getSession, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { ErrorBoundary } from 'react-error-boundary';
-
-import { userService, Initializer } from '@glyphx/business';
 
 import Meta from 'components/Meta';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';

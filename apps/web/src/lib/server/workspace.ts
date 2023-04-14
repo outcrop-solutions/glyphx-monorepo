@@ -47,7 +47,7 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
   const { name } = req.body;
   try {
     await validateCreateWorkspace(req, res);
-    let slug = slugify(name.toLowerCase());
+    const slug = slugify(name.toLowerCase());
     await workspaceService.createWorkspace(session?.user?.userId, session?.user?.email, name, slug);
     res.status(200).json({ data: { name, slug } });
   } catch (error) {

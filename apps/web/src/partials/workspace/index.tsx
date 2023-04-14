@@ -1,4 +1,3 @@
-export * from './AddProject';
 export * from './AddProjectModal';
 export * from './GridView';
 export * from './PinnedProjects';

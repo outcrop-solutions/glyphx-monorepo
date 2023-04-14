@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { projectAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 
 import { Controls } from 'partials/layout/controls';
 
@@ -8,19 +8,20 @@ import BackBtnIcon from 'public/svg/back-button-icon.svg';
 
 const Header = ({ breadcrumbs }) => {
   const [project, setProject] = useRecoilState(projectAtom);
+  const resetProject = useResetRecoilState(projectAtom);
 
   const router = useRouter();
   const { workspaceSlug } = router.query;
 
   const backPressed = () => {
     router.push(`/account/${project.workspace.slug}`);
-    setProject(null);
+    resetProject();
   };
 
   return (
     <div
       className={`flex flex-row h-14 items-center pr-4 justify-between ${
-        project ? 'bg-secondary-space-blue border border-gray' : 'bg-transparent'
+        project ? 'bg-secondary-space-blue border border-gray' : 'bg-transparent pt-4 md:pt-0'
       }`}
     >
       {project ? (
@@ -41,8 +42,8 @@ const Header = ({ breadcrumbs }) => {
           />
         </div>
       ) : (
-        <div className={`${workspaceSlug ? 'pl-8' : ''}`}>
-          <p className="font-rubik font-normal text-white text-[22px] leading-[26px] tracking-[0.01em]">
+        <div className={`${workspaceSlug && !router.pathname.includes('settings') ? 'pl-8' : ''}`}>
+          <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
             {breadcrumbs.map((crumb) => crumb)}
           </p>
         </div>
