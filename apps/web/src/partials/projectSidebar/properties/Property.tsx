@@ -1,6 +1,6 @@
 import { useDrop } from 'react-dnd';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { AxesIcons } from '../../icons/AxesIcons';
 
 import { useProject } from 'services';
@@ -37,6 +37,25 @@ export const Property = ({ axis }) => {
   useEffect(() => {
     console.log({ project });
   }, [project]);
+
+  const clearProp = useCallback(() => {
+    setProject(
+      produce((draft) => {
+        draft.state.properties[`${axis}`] = {
+          axis: axis,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: `Column ${axis}`, // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        };
+      })
+    );
+  }, [axis, setProject]);
 
   const logLin = useCallback(() => {
     setProject(
@@ -75,7 +94,7 @@ export const Property = ({ axis }) => {
           <div className="flex group-hover:hidden">
             <AxesIcons property={axis} />
           </div>
-          <div className="group-hover:flex hidden">
+          <div onClick={clearProp} className="group-hover:flex hidden">
             <ClearIcon />
           </div>
         </div>
