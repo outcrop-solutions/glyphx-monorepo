@@ -29,7 +29,7 @@ export const ProjectCard = ({ idx, project }) => {
 
   return (
     <div className="group aspect-w-4 border border-gray aspect-h-4 relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-md bg-secondary-space-blue hover:cursor-pointer">
-      <div className="absolute top-0 right-0 group-hover:flex bg-primary-dark-blue items-center justify-between p-2 rounded-md rounded-tl-none rounded-br-none">
+      <div className="absolute top-0 right-0 group-hover:flex bg-primary-dark-blue items-center justify-between p-2 rounded-md">
         {/* add member */}
         <AddMemberIcon />
         {/* info button */}
@@ -39,7 +39,7 @@ export const ProjectCard = ({ idx, project }) => {
       </div>
       <div onClick={() => navigate(workspaceSlug)} className="flex flex-col h-full justify-between rounded-md">
         <Image className="rounded-t-md h-5/6" layout="responsive" src={projectCard} alt="" />
-        <footer className="flex flex-col w-full space-y-2 justify-between px-4 py-3">
+        <footer className="flex flex-col w-full space-y-2 rounded-md justify-between px-4 py-3">
           <div className="flex items-center justify-between w-full">
             <p className="font-roboto font-medium truncate ellipsis text-sm leading-[16px] text-light-gray">
               {project.name}

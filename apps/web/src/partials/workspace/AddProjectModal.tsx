@@ -22,7 +22,7 @@ export const AddProjectModal = () => {
   };
 
   return (
-    <div className="absolute w-full h-full flex justify-center items-center bg-gray bg-opacity-50 z-60">
+    <div className="fixed w-screen h-screen flex justify-center items-center bg-gray bg-opacity-50 z-60">
       <ClickAwayListener onClickAway={handleClickAway}>
         <div className="rounded-lg flex flex-row w-[928px] h-[506px] bg-secondary-midnight z-60">
           <div className="flex flex-col rounded-l-lg bg-secondary-space-blue w-[240px]">
