@@ -11,6 +11,7 @@ import ImportProjectIcon from 'public/svg/import-project-icon.svg';
 import BlankProjectIcon from 'public/svg/blank-project-icon.svg';
 import TemplateLibraryIcon from 'public/svg/template-lib-icon.svg';
 import produce from 'immer';
+import Content from 'components/Content';
 
 export const CreateProjectModal = () => {
   const setShowAddProject = useSetRecoilState(showModalAtom);
@@ -25,14 +26,14 @@ export const CreateProjectModal = () => {
   };
 
   return (
-    <div className="rounded-lg flex flex-row w-[928px] h-[506px] bg-secondary-midnight z-60">
-      <div className="flex flex-col rounded-l-lg bg-secondary-space-blue w-[240px]">
+    <div className="rounded-lg flex flex-row bg-secondary-midnight w-[600px] z-60">
+      <aside className="flex flex-col rounded-l-lg bg-secondary-space-blue w-[200px]">
         <div
           onClick={handleClickAway}
           className="group flex flex-row items-center mt-4 mx-2 p-1 border border-transparent hover:cursor-pointer hover:border-light-gray hover:bg-secondary-midnight"
         >
           <BackBtnIcon />
-          <p className=" font-roboto font-medium text-[14px] leading-[16px] text-light-gray group-hover:text-white">
+          <p className="whitespace-nowrap font-roboto font-medium text-[14px] leading-[16px] text-light-gray group-hover:text-white">
             Back to Dashboard
           </p>
         </div>
@@ -45,7 +46,7 @@ export const CreateProjectModal = () => {
             className="group flex flex-row justify-start items-center space-x-1 border border-transparent rounded-[2px] hover:cursor-pointer hover:border-white hover:bg-secondary-midnight hover:text-white"
           >
             <BlankProjectIcon />
-            <p>New Project</p>
+            <p className="whitespace-nowrap">New Project</p>
           </div>
           <div
             onClick={() => {
@@ -54,7 +55,7 @@ export const CreateProjectModal = () => {
             className="group flex flex-row justify-start items-center space-x-1 border border-transparent rounded-[2px] hover:cursor-pointer hover:border-white hover:bg-secondary-midnight hover:text-white"
           >
             <ImportProjectIcon />
-            <p>Import Project</p>
+            <p className="whitespace-nowrap">Import Project</p>
           </div>
           <div
             onClick={() => {
@@ -63,13 +64,15 @@ export const CreateProjectModal = () => {
             className="group flex flex-row justify-start items-center space-x-1 border border-transparent rounded-[2px] hover:cursor-pointer hover:border-white hover:bg-secondary-midnight hover:text-white"
           >
             <TemplateLibraryIcon />
-            <p>Template Library</p>
+            <p className="whitespace-nowrap">Template Library</p>
           </div>
         </div>
+      </aside>
+      <div className="grow">
+        {current === 0 ? <NewProject exit={handleClickAway} /> : <></>}
+        {current === 1 ? <ImportProject exit={handleClickAway} /> : <></>}
+        {current === 2 ? <TemplateLibrary exit={handleClickAway} /> : <></>}
       </div>
-      {current === 0 ? <NewProject exit={handleClickAway} /> : <></>}
-      {current === 1 ? <ImportProject exit={handleClickAway} /> : <></>}
-      {current === 2 ? <TemplateLibrary exit={handleClickAway} /> : <></>}
     </div>
   );
 };

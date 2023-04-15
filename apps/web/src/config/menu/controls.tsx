@@ -27,9 +27,15 @@ export const workspaceControls = () => [
   {
     component: () => <GridToggle />,
   },
-  // {
-  //   component: () => <ShowInfo />,
-  // },
+  {
+    component: () => <ShowNotifications />,
+  },
+  {
+    component: () => <SettingsDropdown />,
+  },
+];
+
+export const homeControls = () => [
   {
     component: () => <ShowNotifications />,
   },
