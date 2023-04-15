@@ -53,10 +53,10 @@ export const DeleteWorkspaceModal = () => {
           Enter <strong>{workspace?.slug}</strong> to continue:
         </label>
         <input
-          className="px-3 py-2 border rounded"
+          className="px-3 py-2 border rounded bg-transparent"
           disabled={deleteModal.isSubmitting}
           onChange={handleVerifyWorkspaceChange}
-          type="email"
+          type="text"
           value={verifyWorkspace}
         />
       </div>

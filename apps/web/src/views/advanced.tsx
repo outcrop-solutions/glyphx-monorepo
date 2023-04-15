@@ -40,7 +40,7 @@ const Advanced = () => {
               <Button
                 className="text-white bg-red-600 hover:bg-red-500"
                 disabled={deleteModal.isSubmitting}
-                onClick={() => handleDeleteWorkspace}
+                onClick={() => handleDeleteWorkspace()}
               >
                 {deleteModal.isSubmitting ? 'Deleting' : 'Delete'}
               </Button>

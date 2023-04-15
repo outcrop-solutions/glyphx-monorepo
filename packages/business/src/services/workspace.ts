@@ -124,6 +124,11 @@ export class WorkspaceService {
     slug: string
   ): Promise<string | null> {
     try {
+      // TODO: remove workspace from "createdWorkspaces" on user
+      // TODO: update deletedAt on all members associated with workspace
+      // TODO: update deletedAt on all projects in workspace
+      // TODO: update deletedAt on all states associated with projects
+
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
@@ -136,9 +141,12 @@ export class WorkspaceService {
       );
 
       if (workspace) {
-        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(id, {
-          deletedAt: new Date(),
-        });
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
+          {slug: },
+          {
+            deletedAt: new Date(),
+          }
+        );
         return slug;
       } else {
         throw new error.DataNotFoundError(

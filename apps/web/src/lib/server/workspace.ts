@@ -181,18 +181,14 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
  */
 
 export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  let { workspaceSlug } = req.query;
+  const { workspaceSlug } = req.query;
 
   if (Array.isArray(workspaceSlug)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
 
   try {
-    const deletedSlug = await workspaceService.deleteWorkspace(
-      session?.user?.userId,
-      session?.user?.email,
-      workspaceSlug
-    );
+    const deletedSlug = await workspaceService.deleteWorkspace(workspaceSlug);
     res.status(200).json({ data: { slug: deletedSlug } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
