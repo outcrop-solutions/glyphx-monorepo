@@ -42,6 +42,7 @@ export class UserService {
         userId instanceof mongooseTypes.ObjectId
           ? userId
           : new mongooseTypes.ObjectId(userId);
+
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         deletedAt: new Date(),
       });
@@ -53,6 +54,7 @@ export class UserService {
           deletedAt: new Date(),
         }
       );
+
       // delete associated memberships
       await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
         {member: user._id},
@@ -60,9 +62,13 @@ export class UserService {
           deletedAt: new Date(),
         }
       );
-      // delete associated projects
-      await mongoDbConnection.models.ProjectModel.updateProjectWithFilter(
-        {owner: user._id},
+
+      // console.log('deleted memberships');
+
+      // if (paymentId) {
+      //   // delete associated customerPayments
+      await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(
+        {email: user.email},
         {
           deletedAt: new Date(),
         }
