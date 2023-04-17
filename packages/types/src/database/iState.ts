@@ -10,6 +10,7 @@ export interface IState {
   _id?: mongooseTypes.ObjectId;
   createdBy: IUser;
   createdAt: Date;
+  deletedAt?: Date;
   updatedAt: Date;
   version: number;
   static: boolean;

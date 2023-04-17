@@ -124,11 +124,6 @@ export class WorkspaceService {
     slug: string
   ): Promise<string | null> {
     try {
-      // TODO: remove workspace from "createdWorkspaces" on user
-      // TODO: update deletedAt on all members associated with workspace
-      // TODO: update deletedAt on all projects in workspace
-      // TODO: update deletedAt on all states associated with projects
-
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
@@ -141,8 +136,56 @@ export class WorkspaceService {
       );
 
       if (workspace) {
+        const workId = workspace._id;
+        const workspaceId =
+          workId instanceof mongooseTypes.ObjectId
+            ? workId
+            : new mongooseTypes.ObjectId(workId);
+
+        // remove workspace and membership from user
+        await mongoDbConnection.models.UserModel.removeWorkspaces(id, [
+          workspaceId,
+        ]);
+        console.log('removed workspace');
+
+        console.dir({members: workspace.members}, {depth: null});
+
+        const userMemberId = workspace.members.filter(
+          (mem: any) => mem.member.toString() === id.toString()
+        );
+
+        console.log({userMemberId});
+
+        await mongoDbConnection.models.UserModel.removeMembership(id, [
+          ...userMemberId,
+        ]);
+        console.log('remove membership');
+
+        // delete all associated members
+        await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+          {workspace: workspaceId},
+          {deletedAt: new Date()}
+        );
+        console.log('deleted members');
+
+        // delete all projects associated with workspace
+        await mongoDbConnection.models.ProjectModel.updateProjectWithFilter(
+          {workspace: workspaceId},
+          {deletedAt: new Date()}
+        );
+
+        console.log('deleted projects');
+
+        // delete all states assocoiated with deleted projects
+        await mongoDbConnection.models.StateModel.updateStateWithFilter(
+          {workspace: workspaceId},
+          {deletedAt: new Date()}
+        );
+        console.log('deleted states');
+
+        // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
-          {slug: },
+          {slug: slug},
           {
             deletedAt: new Date(),
           }

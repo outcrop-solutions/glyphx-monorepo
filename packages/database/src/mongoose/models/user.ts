@@ -1242,8 +1242,8 @@ SCHEMA.static(
     try {
       if (!members.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one webhookId',
-          'sessions',
+          'You must supply at least one memberId',
+          'memebrship',
           members
         );
       const userDocument = await USER_MODEL.findById(userId);

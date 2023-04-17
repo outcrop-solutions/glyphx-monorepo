@@ -188,7 +188,7 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
   }
 
   try {
-    const deletedSlug = await workspaceService.deleteWorkspace(workspaceSlug);
+    const deletedSlug = await workspaceService.deleteWorkspace(session.user.userId, session.user.email, workspaceSlug);
     res.status(200).json({ data: { slug: deletedSlug } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
