@@ -159,7 +159,7 @@ SCHEMA.static(
       if (!count) {
         throw new error.DataNotFoundError(
           `Could not find members with the filter: ${filter}`,
-          'account_filter',
+          'member_filter',
           filter
         );
       }

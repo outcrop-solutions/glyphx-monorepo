@@ -142,47 +142,6 @@ export class WorkspaceService {
             ? workId
             : new mongooseTypes.ObjectId(workId);
 
-        // remove workspace and membership from user
-        await mongoDbConnection.models.UserModel.removeWorkspaces(id, [
-          workspaceId,
-        ]);
-        console.log('removed workspace');
-
-        console.dir({members: workspace.members}, {depth: null});
-
-        const userMemberId = workspace.members.filter(
-          (mem: any) => mem.member.toString() === id.toString()
-        );
-
-        console.log({userMemberId});
-
-        await mongoDbConnection.models.UserModel.removeMembership(id, [
-          ...userMemberId,
-        ]);
-        console.log('remove membership');
-
-        // delete all associated members
-        await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-          {workspace: workspaceId},
-          {deletedAt: new Date()}
-        );
-        console.log('deleted members');
-
-        // delete all projects associated with workspace
-        await mongoDbConnection.models.ProjectModel.updateProjectWithFilter(
-          {workspace: workspaceId},
-          {deletedAt: new Date()}
-        );
-
-        console.log('deleted projects');
-
-        // delete all states assocoiated with deleted projects
-        await mongoDbConnection.models.StateModel.updateStateWithFilter(
-          {workspace: workspaceId},
-          {deletedAt: new Date()}
-        );
-        console.log('deleted states');
-
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
           {slug: slug},
@@ -190,6 +149,39 @@ export class WorkspaceService {
             deletedAt: new Date(),
           }
         );
+        console.log('deleted-workspace');
+
+        // remove workspace and membership from user
+        await mongoDbConnection.models.UserModel.removeWorkspaces(id, [
+          workspaceId,
+        ]);
+
+        const userMember = workspace.members.filter(
+          (mem: any) => mem.member.toString() === id.toString()
+        );
+
+        if (userMember?.length > 0) {
+          await mongoDbConnection.models.UserModel.removeMembership(id, [
+            ...userMember,
+          ]);
+        }
+
+        if (workspace?.members?.length > 0) {
+          // delete all associated members
+          await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+            {workspace: workspaceId},
+            {deletedAt: new Date()}
+          );
+        }
+
+        if (workspace?.projects?.length > 0) {
+          // delete all projects associated with workspace
+          await mongoDbConnection.models.ProjectModel.updateProjectWithFilter(
+            {workspace: workspaceId},
+            {deletedAt: new Date()}
+          );
+        }
+
         return slug;
       } else {
         throw new error.DataNotFoundError(
