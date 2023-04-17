@@ -36,6 +36,8 @@ export const Modals = () => {
                     return <DeleteAccountModal />;
                   case 'deleteWorkspace':
                     return <DeleteWorkspaceModal />;
+                  case 'deleteProject':
+                    return <DeleteProjectModal />;
                   default:
                     return <></>;
                 }

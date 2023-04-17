@@ -13,4 +13,5 @@ export type ModalContent =
   | 'createProject'
   | 'createWorkspace'
   | 'deleteAccount'
-  | 'deleteWorkspace';
+  | 'deleteWorkspace'
+  | 'deleteProject';

@@ -33,11 +33,16 @@ export const showHorizontalOrientationAtom = atom<boolean>({
   default: false,
 });
 
-export const showModalAtom = atom<{ type: webTypes.ModalContent; isSubmitting: boolean }>({
+export const showModalAtom = atom<{
+  type: webTypes.ModalContent;
+  isSubmitting: boolean;
+  data: Record<string, unknown>;
+}>({
   key: 'showModalAtom',
   default: {
     type: false,
     isSubmitting: false,
+    data: {},
   },
 });
 
