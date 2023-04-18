@@ -9,7 +9,6 @@
     "@glyphx/email": "workspace:*",
     "@glyphx/fileingestion": "workspace:*",
     "@glyphx/glyphengine": "workspace:*",
-    "@glyphx/react-data-grid": "workspace:*",
     "@headlessui/react": "^1.4.2",
     "@heroicons/react": "^1.0.5",
     "@minoru/react-dnd-treeview": "^1.5.10",

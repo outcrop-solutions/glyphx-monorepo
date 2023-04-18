@@ -21,7 +21,8 @@ export const useSocket = () => {
         webChannel = new QWebChannel(ws, function (channel) {
           window.core = channel.objects.core; // making it global
           window.core.SendRowIds.connect((rowIds: string) => {
-            setRowIds(JSON.parse(rowIds));
+            // @ts-ignore
+            setRowIds([...Array.from(JSON.parse(rowIds)?.rowIds)]);
           });
         });
         setChannel(webChannel);

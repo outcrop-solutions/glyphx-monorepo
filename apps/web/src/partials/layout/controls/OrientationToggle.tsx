@@ -13,7 +13,11 @@ export const OrientationToggle = () => {
   const handleOrientation = () => {
     setOrientation(
       produce((draft) => {
-        draft = !draft;
+        if (draft.orientation === 'horizontal') {
+          draft.orientation = 'vertical';
+        } else {
+          draft.orientation = 'horizontal';
+        }
       })
     );
   };

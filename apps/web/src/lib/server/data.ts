@@ -12,7 +12,7 @@ export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse):
 
   const fullTableName = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
 
-  const data = await dataService.getDataByGlyphxIds(fullTableName, Array.isArray(rowIds) ? rowIds : JSON.parse(rowIds));
+  const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds);
 
   const formattedData = formatGridData(data);
 

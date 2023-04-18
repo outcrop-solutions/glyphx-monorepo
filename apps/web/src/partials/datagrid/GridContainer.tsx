@@ -13,7 +13,7 @@ import { showDataGridLoadingAtom, showHorizontalOrientationAtom, showModelCreati
 
 export const GridContainer = () => {
   const openFiles = useRecoilValue(filesOpenSelector);
-  const [orientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
+  const orientation = useRecoilValue(showHorizontalOrientationAtom);
   const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
   const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
 
@@ -29,7 +29,7 @@ export const GridContainer = () => {
   );
 
   return (
-    <>
+    <div className="relative h-full w-full">
       {openFiles?.length > 0 ? (
         <SplitPane
           split={orientation ? 'horizontal' : 'vertical'}
@@ -40,7 +40,7 @@ export const GridContainer = () => {
           onChange={handlePaneResize}
           primary={'first'}
         >
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             <GridHeader />
             <Datagrid />
             {/* <ModelFooter /> */}
@@ -49,6 +49,6 @@ export const GridContainer = () => {
       ) : (
         <MainDropzone />
       )}
-    </>
+    </div>
   );
 };

@@ -28,9 +28,10 @@ export const showQtViewerAtom = atom<boolean>({
   default: false,
 });
 
-export const showHorizontalOrientationAtom = atom<boolean>({
+// vertical, horizonal
+export const showHorizontalOrientationAtom = atom<Record<string, string>>({
   key: 'showHorizontalOrientationAtom',
-  default: false,
+  default: { orientation: 'vertical' },
 });
 
 export const showModalAtom = atom<{
