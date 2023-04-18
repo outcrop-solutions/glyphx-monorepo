@@ -22,7 +22,7 @@ export const useSocket = () => {
           window.core = channel.objects.core; // making it global
           window.core.SendRowIds.connect((rowIds: string) => {
             // @ts-ignore
-            setRowIds([...Array.from(JSON.parse(rowIds)?.rowIds)]);
+            setRowIds([...JSON.parse(rowIds)?.rowIds]);
           });
         });
         setChannel(webChannel);
