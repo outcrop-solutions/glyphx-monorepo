@@ -35,7 +35,7 @@ export const getWorkspace = async (req: NextApiRequest, res: NextApiResponse, se
 /**
  * Create Workspace
  *
- * @note Fetches & returns all workspaces available.
+ * @note Creates a new workspace
  * @route POST /api/workspace
  * @param req - Next.js API Request
  * @param res - Next.js API Response

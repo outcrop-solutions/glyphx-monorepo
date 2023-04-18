@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QWebChannel } from 'qwebchannel';
+import { useSetRecoilState } from 'recoil';
+import { rowIdsAtom } from 'state';
 /**
  * To handle Socket Connection and Communications with Qt window
  * @param {boolean} isSelected
@@ -7,6 +9,7 @@ import { QWebChannel } from 'qwebchannel';
  */
 export const useSocket = () => {
   const [channel, setChannel] = useState(null);
+  const setRowIds = useSetRecoilState(rowIdsAtom);
 
   useEffect(() => {
     let ws;
@@ -17,6 +20,9 @@ export const useSocket = () => {
       ws.onopen = () => {
         webChannel = new QWebChannel(ws, function (channel) {
           window.core = channel.objects.core; // making it global
+          window.core.SendRowIds.connect((rowIds: string) => {
+            setRowIds(JSON.parse(rowIds));
+          });
         });
         setChannel(webChannel);
       };

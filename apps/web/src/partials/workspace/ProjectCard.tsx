@@ -30,9 +30,10 @@ export const ProjectCard = ({ idx, project }) => {
     setShowDeleteProject(
       produce((draft) => {
         draft.type = 'deleteProject';
+        draft.data = { projectId: project._id, projectName: project.name };
       })
     );
-  }, [setShowDeleteProject]);
+  }, [project._id, project.name, setShowDeleteProject]);
 
   return (
     <div className="group aspect-w-4 border border-gray aspect-h-4 relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-md bg-secondary-space-blue hover:cursor-pointer">

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { ProjectCard } from './ProjectCard';
-import { AddProject } from './AddProject';
 // import { PinnedProjects } from "./PinnedProjects";
 import React from 'react';
 import { useRecoilValue } from 'recoil';
@@ -23,9 +22,11 @@ export const GridView = () => {
       {/* Cards */}
       <div className="grid grid-cols-12 gap-6 bg-primary-blue">
         {/* <AddProject /> */}
-        {workspace.projects.map((project, idx) => {
-          return <ProjectCard key={project._id.toString()} idx={idx} project={project} />;
-        })}
+        {workspace.projects
+          .filter((proj) => !proj.deletedAt)
+          .map((project, idx) => {
+            return <ProjectCard key={project._id.toString()} idx={idx} project={project} />;
+          })}
       </div>
     </>
   );

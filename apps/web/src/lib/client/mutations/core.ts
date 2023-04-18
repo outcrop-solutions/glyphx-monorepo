@@ -56,6 +56,35 @@ export const _getDataGrid = (workspaceId: string, projectId: string, tableName: 
 };
 
 /**
+ * @note I know it's not great form to put body on a get but we will refactor the query param / routing later
+ * @param workpaceId
+ * @param projectId
+ * @param tableName
+ * @param rowIds
+ * @returns config
+ */
+export const _getRowIds = (
+  workspaceId: string,
+  projectId: string,
+  tableName: string,
+  rowIds: string[]
+): webTypes.IFetchConfig => {
+  return {
+    url: `/api/data/rows`,
+    options: {
+      method: 'POST',
+      body: {
+        workspaceId: workspaceId,
+        projectId: projectId,
+        tableName: tableName,
+        rowIds: rowIds,
+      },
+    },
+    successMsg: 'Rows successfully selected',
+  };
+};
+
+/**
  * Ingest files
  * @note implements fileIngestion.process()
  * @param files corresponds to an array of file buffers

@@ -7,7 +7,8 @@ import { CreateWorkspaceModal } from 'partials/modals/CreateWorkspaceModal';
 import { CreateProjectModal } from 'partials/modals/CreateProjectModal';
 import produce from 'immer';
 import { DeleteAccountModal } from 'partials/modals/DeleteAccountModal';
-import { DeleteWorkspaceModal } from 'partials/modals';
+import { DeleteWorkspaceModal } from 'partials/modals/DeleteWorkspaceModal';
+import { DeleteProjectModal } from 'partials/modals/DeleteProjectModal';
 
 export const Modals = () => {
   const [modalContent, setModalContent] = useRecoilState(showModalAtom);

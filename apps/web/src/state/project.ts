@@ -211,3 +211,8 @@ export const singlePropertySelectorFamily = selectorFamily<webTypes.Property, we
       };
     },
 });
+
+export const rowIdsAtom = atom<string[] | false>({
+  key: 'rowIdsAtom',
+  default: false,
+});
