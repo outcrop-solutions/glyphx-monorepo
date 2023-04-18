@@ -1,27 +1,51 @@
-import React from 'react';
-import { useRecoilValue } from 'recoil';
+import React, { useCallback } from 'react';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { MainDropzone } from '../projectSidebar/files';
+import SplitPane from 'react-split-pane';
 import { Datagrid } from './DataGrid';
 import { GridHeader } from './GridHeader';
+import { debounce } from 'lodash';
 import { ModelFooter } from './ModelFooter';
 import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
 import { filesOpenSelector } from 'state/files';
-import { showDataGridLoadingAtom, showModelCreationLoadingAtom } from 'state/ui';
+import { showDataGridLoadingAtom, showHorizontalOrientationAtom, showModelCreationLoadingAtom } from 'state/ui';
 
 export const GridContainer = () => {
   const openFiles = useRecoilValue(filesOpenSelector);
+  const [orientation, setOrientation] = useRecoilState(showHorizontalOrientationAtom);
   const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
   const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
+
+  const debouncedOnChange = debounce((data) => {
+    console.log(data);
+  }, 500);
+
+  const handlePaneResize = useCallback(
+    (size) => {
+      debouncedOnChange(size);
+    },
+    [debouncedOnChange]
+  );
 
   return (
     <>
       {openFiles?.length > 0 ? (
-        <div className="flex flex-col">
-          <GridHeader />
-          <Datagrid />
-          {/* <ModelFooter /> */}
-        </div>
+        <SplitPane
+          split={orientation ? 'horizontal' : 'vertical'}
+          allowResize={true}
+          defaultSize={700}
+          maxSize={900}
+          minSize={200}
+          onChange={handlePaneResize}
+          primary={'first'}
+        >
+          <div className="flex flex-col">
+            <GridHeader />
+            <Datagrid />
+            {/* <ModelFooter /> */}
+          </div>
+        </SplitPane>
       ) : (
         <MainDropzone />
       )}
