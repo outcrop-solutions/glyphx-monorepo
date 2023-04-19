@@ -9,7 +9,7 @@ import { useProject, useWorkspace } from 'lib/client/hooks';
 import Meta from 'components/Meta';
 import ProjectLayout from 'layouts/ProjectLayout';
 import Content from 'components/Content';
-import { useSocket } from 'services';
+import { useSendPosition, useSocket, useWindowSize } from 'services';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -18,6 +18,10 @@ const DynamicProject = dynamic(() => import('views/project'), {
 export default function Project() {
   const { data, isLoading } = useProject();
   const { data: result, isLoading: isWorkspaceLoading } = useWorkspace();
+
+  // resize setup
+  useWindowSize();
+  useSendPosition();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);

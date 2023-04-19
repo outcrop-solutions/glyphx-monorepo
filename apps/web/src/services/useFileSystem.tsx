@@ -42,7 +42,6 @@ export const useFileSystem = () => {
    */
   const openFile = useCallback(
     (idx: number) => {
-      console.log('called openFile');
       // open file
       setProject(
         produce((draft) => {

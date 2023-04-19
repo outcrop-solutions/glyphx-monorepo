@@ -14,7 +14,7 @@ div[class='react-grid-Header'] {
   @apply bg-transparent shadow-none;
 }
 div[class='react-grid-Container'] {
-  @apply bg-primary-dark-blue text-white rounded text-center;
+  @apply w-full bg-primary-dark-blue text-white rounded text-center;
 }
 div[class='react-grid-Canvas'] {
   @apply bg-primary-dark-blue text-white rounded w-full p-0 h-screen text-center;

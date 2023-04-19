@@ -7,20 +7,23 @@ import { States } from './states';
 
 import { usePosition } from 'services/usePosition';
 import { useSendPosition } from 'services';
+import { useSetRecoilState } from 'recoil';
+import { coordinatesAtom } from 'state';
 
 export const ProjectSidebar = () => {
   //utilities
   const sidebar = useRef(null);
   // trigger sendPosition when sidebar changes
   const pos = usePosition(sidebar);
-  const { sendPosition } = useSendPosition();
+  const setCoords = useSetRecoilState(coordinatesAtom);
+
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
       const coords = sidebar.current.getBoundingClientRect();
-      sendPosition(coords);
+      setCoords(coords);
     }
-  }, [sendPosition, pos]);
+  }, [setCoords, pos]);
 
   return (
     <div

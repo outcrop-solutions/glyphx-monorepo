@@ -14,12 +14,12 @@ export const Properties = () => {
   return (
     properties && (
       <React.Fragment>
-        <details open className="group">
+        <div className="group">
           <summary
             onClick={() => {
               setCollapsed(!isCollapsed);
             }}
-            className="flex h-8 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:border-b-white hover:text-white truncate border-b border-gray"
+            className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:bg-secondary-midnight hover:border-b-white hover:text-white truncate border-b border-gray"
           >
             <div className="flex ml-2 items-center">
               <span className="">
@@ -46,17 +46,18 @@ export const Properties = () => {
             </div>
             {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
           </summary>
-
-          <div className={`block border-b border-gray`}>
-            <ul className="py-1">
-              {Object.keys(properties)
-                .slice(0, 3)
-                .map((key) => (
-                  <Property key={key} axis={key} />
-                ))}
-            </ul>
-          </div>
-        </details>
+          {!isCollapsed && (
+            <div className={`block border-b border-gray`}>
+              <ul className="py-1">
+                {Object.keys(properties)
+                  .slice(0, 3)
+                  .map((key) => (
+                    <Property key={key} axis={key} />
+                  ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </React.Fragment>
     )
   );

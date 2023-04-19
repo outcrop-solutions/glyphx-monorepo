@@ -1,42 +1,33 @@
-import React, { useCallback } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import React from 'react';
+import { useRecoilValue } from 'recoil';
 import { MainDropzone } from '../projectSidebar/files';
 import SplitPane from 'react-split-pane';
 import { Datagrid } from './DataGrid';
 import { GridHeader } from './GridHeader';
-import { debounce } from 'lodash';
 import { ModelFooter } from './ModelFooter';
 import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
 import { filesOpenSelector } from 'state/files';
-import { showDataGridLoadingAtom, showHorizontalOrientationAtom, showModelCreationLoadingAtom } from 'state/ui';
+import { showDataGridLoadingAtom, showModelCreationLoadingAtom } from 'state/ui';
+import { useResize } from 'services/useResize';
 
 export const GridContainer = () => {
   const openFiles = useRecoilValue(filesOpenSelector);
-  const orientation = useRecoilValue(showHorizontalOrientationAtom);
-  const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
-  const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
+  // TODO: Loading animations
+  // const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
+  // const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
 
-  const debouncedOnChange = debounce((data) => {
-    console.log(data);
-  }, 500);
-
-  const handlePaneResize = useCallback(
-    (size) => {
-      debouncedOnChange(size);
-    },
-    [debouncedOnChange]
-  );
+  const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
 
   return (
     <div className="relative h-full w-full">
       {openFiles?.length > 0 ? (
         <SplitPane
-          split={orientation ? 'horizontal' : 'vertical'}
+          split={split()}
           allowResize={true}
-          defaultSize={700}
-          maxSize={900}
-          minSize={200}
+          defaultSize={defaultSize()}
+          maxSize={maxSize()} // window.innerHeght - headers
+          minSize={minSize()} // always show col headers
           onChange={handlePaneResize}
           primary={'first'}
         >

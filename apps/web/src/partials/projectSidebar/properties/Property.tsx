@@ -34,13 +34,10 @@ export const Property = ({ axis }) => {
   const isActive = isOver && canDrop;
   const isCreatingModel = useRecoilValue(showModelCreationLoadingAtom);
 
-  useEffect(() => {
-    console.log({ project });
-  }, [project]);
-
   const clearProp = useCallback(() => {
     setProject(
       produce((draft) => {
+        // @ts-ignore
         draft.state.properties[`${axis}`] = {
           axis: axis,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,

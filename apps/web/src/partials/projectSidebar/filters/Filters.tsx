@@ -12,12 +12,12 @@ export const Filters = () => {
   return (
     properties && (
       <React.Fragment>
-        <details open className="group">
+        <div className="group">
           <summary
             onClick={() => {
               setCollapsed(!isCollapsed);
             }}
-            className="flex h-8 items-center justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white hover:border-b-white truncate border-b border-gray"
+            className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white hover:border-b-white truncate border-b border-gray"
           >
             <div className="flex ml-2 items-center">
               <span className="">
@@ -43,18 +43,20 @@ export const Filters = () => {
               </a>
             </div>
           </summary>
-          <div
-            className={`block border-b border-gray
+          {!isCollapsed && (
+            <div
+              className={`block border-b border-gray
         `}
-          >
-            <ul className={`overflow-auto py-1 w-full`}>
-              {/* read only (no drag n drop) property filters */}
-              {Object.keys(properties).map((key) => (
-                <Axes key={key} axis={key} />
-              ))}
-            </ul>
-          </div>
-        </details>
+            >
+              <ul className={`overflow-auto py-1 w-full`}>
+                {/* read only (no drag n drop) property filters */}
+                {Object.keys(properties).map((key) => (
+                  <Axes key={key} axis={key} />
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </React.Fragment>
     )
   );
