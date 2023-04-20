@@ -17,6 +17,7 @@ import { projectAtom } from './project';
       fileSize: 2035,
       dataGrid: { rows: [], columns: [] },
       open: false,
+      selected: false
     },
     {
       fileName: 'table2.csv',
@@ -26,9 +27,15 @@ import { projectAtom } from './project';
       columns: [],
       fileSize: 2035,
       open: true,
+      selected: false
     },
   ],
  **/
+
+// export interface IFileStatsExtended extends fileIngestionTypes.IFileStats {
+//   open: boolean;
+//   selected: boolean;
+// }
 
 // Intermediate Representation
 export const fileSystemSelector = selector<fileIngestionTypes.IFileStats[]>({
@@ -48,7 +55,7 @@ export const selectedFileIndexSelector = selector({
   get: ({ get }) => {
     const files = get(fileSystemSelector);
     // @ts-ignore
-    return files.findIndex((file) => file?.selected);
+    return files?.findIndex((file) => file?.selected);
   },
 });
 

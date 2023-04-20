@@ -10,30 +10,24 @@ import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
 import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
-import { useRouter } from 'next/router';
-import { getUrl } from 'config/constants';
-import { useUrl } from 'lib/client/hooks';
+import { useSetRecoilState } from 'recoil';
+import { showModalAtom } from 'state';
+import produce from 'immer';
 
 export default function Settings() {
   const { data } = useSession();
-  const url = useUrl();
+  const setShowDeleteModal = useSetRecoilState(showModalAtom);
+
   const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState('');
-  const [showModal, setModalState] = useState(false);
   const [userCode, setUserCode] = useState('');
-  const [verifyEmail, setVerifyEmail] = useState('');
   const validName = name?.length > 0 && name?.length <= 32;
   const validEmail = isEmail(email);
-  const verifiedEmail = verifyEmail === email;
   // local state
   const handleEmailChange = (event) => setEmail(event.target.value);
   const handleNameChange = (event) => setName(event.target.value);
-  const handleVerifyEmailChange = (event) => setVerifyEmail(event.target.value);
-  const toggleModal = () => {
-    setVerifyEmail('');
-    setModalState(!showModal);
-  };
+
   const copyToClipboard = () => toast.success('Copied to clipboard!');
 
   // mutations
@@ -48,21 +42,18 @@ export default function Settings() {
       api({
         ..._updateUserEmail(email),
         setLoading: setSubmittingState,
-
-        onSuccess: () => setTimeout(() => signOut({ callbackUrl: '/auth/login' }), 2000),
+        onSuccess: () => signOut({ callbackUrl: '/auth/login' }),
       });
     }
   };
-  const deactivateAccount = (event) => {
-    event.preventDefault();
-    api({
-      ..._deactivateAccount(),
-      setLoading: setSubmittingState,
 
-      onSuccess: () => {
-        signOut({ callbackUrl: `${url}/auth/login` });
-      },
-    });
+  // open delete confirmation modal
+  const toggleModal = () => {
+    setShowDeleteModal(
+      produce((draft) => {
+        draft.type = 'deleteAccount';
+      })
+    );
   };
 
   useEffect(() => {
@@ -135,57 +126,17 @@ export default function Settings() {
           </Card.Body>
         </Card>
         <Card danger>
-          <Menu as="div" className="z-60">
-            <Card.Body
-              title="Danger Zone"
-              subtitle="Permanently remove your Personal Account and all of its contents
+          <Card.Body
+            title="Danger Zone"
+            subtitle="Permanently remove your Personal Account and all of its contents
               from Glyphx platform"
-            />
-            <Menu.Button as="div" className="w-full">
-              <Card.Footer>
-                <small>This action is not reversible, so please continue with caution</small>
-
-                <Button className="text-white bg-red-600 hover:bg-red-500">Deactivate Personal Account</Button>
-              </Card.Footer>
-            </Menu.Button>
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
-            >
-              <Menu.Items className="relative z-60 bg-secondary-space-blue rounded w-full py-4 px-6 flex flex-col">
-                <p>Your account will be deleted, along with all of its Workspace contents.</p>
-                <p className="py-2 my-2 text-red-600 rounded">
-                  <strong>Warning:</strong> This action is not reversible. Please be certain.
-                </p>
-                <div className="flex flex-col space-y-2 my-2">
-                  <label className="text-sm text-gray-400">
-                    Enter <strong>{data?.user?.email}</strong> to continue:
-                  </label>
-                  <input
-                    className="px-3 py-2 border rounded bg-transparent"
-                    disabled={isSubmitting}
-                    onChange={handleVerifyEmailChange}
-                    type="email"
-                    value={verifyEmail}
-                  />
-                </div>
-                <div className="flex flex-col items-stretch">
-                  <Button
-                    className="text-white bg-red-600 hover:bg-red-500"
-                    disabled={!verifiedEmail || isSubmitting}
-                    onClick={deactivateAccount}
-                  >
-                    <span>Deactivate Personal Account</span>
-                  </Button>
-                </div>
-              </Menu.Items>
-            </Transition>
-          </Menu>
+          />
+          <Card.Footer>
+            <small>This action is not reversible, so please continue with caution</small>
+            <Button className="text-white bg-red-600 hover:bg-red-500" onClick={toggleModal}>
+              Deactivate Personal Account
+            </Button>
+          </Card.Footer>
         </Card>
       </Content.Container>
     </Fragment>

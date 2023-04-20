@@ -11,18 +11,15 @@ export const SearchFilter = ({ prop }) => {
   const [showVisibility, setVisibility] = useState(false); //true
   const [keyword, setKeyword] = useState('');
 
-  const addKeyword = useCallback(
-    (idx) => {
-      setProject(() =>
-        produce((draft) => {
-          // @ts-ignore
-          draft.state.properties[`${prop.axis}`].filter.keywords.push(keyword);
-        })
-      );
-      setKeyword('');
-    },
-    [keyword, prop.axis, setProject]
-  );
+  const addKeyword = useCallback(() => {
+    setProject(
+      produce((draft) => {
+        // @ts-ignore
+        draft.state.properties[`${prop.axis}`].filter.keywords.push(keyword);
+      })
+    );
+    setKeyword('');
+  }, [keyword, prop.axis, setProject]);
 
   const deleteKeyword = useCallback(
     (idx) => {
@@ -46,6 +43,12 @@ export const SearchFilter = ({ prop }) => {
             type="text"
             name="keyword"
             id="name"
+            onKeyPress={(ev) => {
+              if (ev.key === 'Enter') {
+                ev.preventDefault();
+                addKeyword();
+              }
+            }}
             autoComplete="off"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}

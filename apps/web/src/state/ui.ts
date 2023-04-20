@@ -1,4 +1,4 @@
-import { atom } from 'recoil';
+import { atom, selector } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
 // SHOW/HIDE UI ELEMENTS
 // SHOW = TRUE
@@ -28,14 +28,17 @@ export const showQtViewerAtom = atom<boolean>({
   default: false,
 });
 
-export const showHorizontalOrientationAtom = atom<boolean>({
-  key: 'showHorizontalOrientationAtom',
-  default: false,
-});
-
-export const showAddProjectAtom = atom<boolean>({
-  key: 'showAddProjectAtom',
-  default: false,
+export const showModalAtom = atom<{
+  type: webTypes.ModalContent;
+  isSubmitting: boolean;
+  data: Record<string, unknown>;
+}>({
+  key: 'showModalAtom',
+  default: {
+    type: false,
+    isSubmitting: false,
+    data: {},
+  },
 });
 
 export const showDataGridLoadingAtom = atom<boolean>({
@@ -46,18 +49,4 @@ export const showDataGridLoadingAtom = atom<boolean>({
 export const showModelCreationLoadingAtom = atom<boolean>({
   key: 'modelCreationLoading',
   default: false,
-});
-
-/**
- * Required to position the Qt Glyph Viewer
- */
-
-export const viewerPositionAtom = atom<webTypes.IViewerPosition>({
-  key: 'viewerPositionAtom',
-  default: {
-    x: 0, // w-MainSidebar + w-ProjectSidebar
-    y: 0, // h-Projectheader
-    w: 0, // window.innerWidth - (w-MainSidebar + w-ProjectSidebar + w-RightSidebar)
-    h: 0, // window.innerHeight - h-Projectheader
-  },
 });

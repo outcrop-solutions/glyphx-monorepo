@@ -22,12 +22,12 @@ export const Files = () => {
 
   return (
     <React.Fragment>
-      <details open className="group">
+      <div className="group appearance-none">
         <summary
           onClick={() => {
             setCollapsed(!isCollapsed);
           }}
-          className="flex h-8 items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight hover:border-b-white truncate border-b border-gray"
+          className="flex h-8 cursor-pointer items-center justify-between w-full text-gray hover:text-white hover:bg-secondary-midnight hover:border-b-white truncate border-b border-gray appearance-none"
         >
           <div className="flex ml-2 items-center">
             <span className="">
@@ -60,16 +60,18 @@ export const Files = () => {
             <input {...getInputProps()} />
           </div>
         </summary>
-        <div className={`lg:block py-1 border-b border-gray`}>
-          <div>
-            {files && files?.length > 0 ? (
-              files?.map((file, idx) => <File key={`${file}-${idx}`} fileName={file} idx={idx} />)
-            ) : (
-              <SidebarDropzone />
-            )}
+        {!isCollapsed && (
+          <div className={`lg:block py-1 border-b border-gray`}>
+            <div>
+              {files && files?.length > 0 ? (
+                files?.map((file, idx) => <File key={`${file}-${idx}`} fileName={file} idx={idx} />)
+              ) : (
+                <SidebarDropzone />
+              )}
+            </div>
           </div>
-        </div>
-      </details>
+        )}
+      </div>
     </React.Fragment>
   );
 };

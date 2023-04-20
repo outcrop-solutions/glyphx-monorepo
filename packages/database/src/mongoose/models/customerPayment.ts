@@ -22,6 +22,7 @@ const SCHEMA = new Schema<
     enum: databaseTypes.constants.SUBSCRIPTION_TYPE,
     default: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
   },
+  deletedAt: {type: Date, required: false},
   createdAt: {type: Date, required: true},
   updatedAt: {type: Date, required: true},
   customer: {type: Schema.Types.ObjectId, required: true, ref: 'user'},

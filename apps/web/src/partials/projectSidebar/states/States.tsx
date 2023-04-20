@@ -24,12 +24,12 @@ export const States = () => {
 
   return (
     <React.Fragment>
-      <details className="group">
+      <div className="group">
         <summary
           onClick={() => {
             setCollapsed(!isCollapsed);
           }}
-          className="flex h-8 items-center justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray"
+          className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray"
         >
           <div className="flex ml-2 items-center">
             <span className="">
@@ -60,7 +60,7 @@ export const States = () => {
           />
         </summary>
         {/* {states && states.length > 0 && !isCollapsed && <StateList />} */}
-      </details>
+      </div>
     </React.Fragment>
   );
 };

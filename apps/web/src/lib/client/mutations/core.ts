@@ -1,5 +1,4 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes, database as databaseTypes } from '@glyphx/types';
-import { getUrl } from 'config/constants';
+import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 
 /******************** INGESTION *********************/
 /**
@@ -53,6 +52,35 @@ export const _getDataGrid = (workspaceId: string, projectId: string, tableName: 
       },
     },
     successMsg: 'File successfully loaded',
+  };
+};
+
+/**
+ * @note I know it's not great form to put body on a get but we will refactor the query param / routing later
+ * @param workpaceId
+ * @param projectId
+ * @param tableName
+ * @param rowIds
+ * @returns config
+ */
+export const _getRowIds = (
+  workspaceId: string,
+  projectId: string,
+  tableName: string,
+  rowIds: string[]
+): webTypes.IFetchConfig => {
+  return {
+    url: `/api/data/rows`,
+    options: {
+      method: 'POST',
+      body: {
+        workspaceId: workspaceId,
+        projectId: projectId,
+        tableName: tableName,
+        rowIds: rowIds,
+      },
+    },
+    successMsg: 'Rows successfully selected',
   };
 };
 

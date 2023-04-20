@@ -8,6 +8,7 @@ import Header from 'components/Header';
 import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
 import { useWorkspace } from 'lib';
+import { Modals } from 'partials/layout/Modals';
 
 const WorkspaceLayout = ({ children }) => {
   const { data } = useSession();
@@ -21,14 +22,17 @@ const WorkspaceLayout = ({ children }) => {
   }, [data, router]);
 
   return (
-    <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(result.workspace?.slug)} />
-      <Content.Workspace>
-        <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
-        <Header breadcrumbs={['My Workspace']} />
-        {children}
-      </Content.Workspace>
-    </main>
+    <>
+      <Modals />
+      <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
+        <Sidebar menu={menu(result.workspace?.slug)} />
+        <Content.Workspace>
+          <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
+          <Header breadcrumbs={['My Workspace']} />
+          {children}
+        </Content.Workspace>
+      </main>
+    </>
   );
 };
 

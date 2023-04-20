@@ -1,23 +1,30 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../network';
-import { _getDataGrid } from '../mutations';
+import { _getDataGrid, _getRowIds } from '../mutations';
+import { rowIdsAtom } from 'state';
+import { useRecoilState } from 'recoil';
 
 const useDataGrid = (workspaceId, projectId, tableName) => {
   const [data, setData] = useState(null);
+  const [rowIds, setRowIds] = useRecoilState(rowIdsAtom);
 
   const fetchData = useCallback(async () => {
     if (!tableName) {
-      console.log('no selected file');
       return;
+    } else if (rowIds) {
+      const data = await api({
+        ..._getRowIds(workspaceId, projectId, tableName, rowIds),
+        returnData: true,
+      });
+      setData(data);
     } else {
-      console.log('else block');
       const data = await api({
         ..._getDataGrid(workspaceId, projectId, tableName),
         returnData: true,
       });
       setData(data);
     }
-  }, [projectId, tableName, workspaceId]);
+  }, [projectId, rowIds, tableName, workspaceId]);
 
   useEffect(() => {
     fetchData();

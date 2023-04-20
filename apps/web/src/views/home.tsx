@@ -7,12 +7,11 @@ import { PinnedProjects } from 'partials';
 import { Templates } from 'partials';
 import { TableView } from 'partials';
 import { GridView } from 'partials';
-import { AddProjectModal } from 'partials';
 // import { ProjectDetails } from 'partials';
 
 // Hooks
 import { useRecoilValue } from 'recoil';
-import { showProjectsGridViewAtom, showAddProjectAtom, workspaceAtom, projectAtom } from 'state';
+import { showProjectsGridViewAtom, workspaceAtom } from 'state';
 
 export default function Home() {
   const isGridView = useRecoilValue(showProjectsGridViewAtom);

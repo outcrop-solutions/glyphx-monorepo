@@ -16,7 +16,6 @@ export const RangeFilter = ({ prop }) => {
     (e, filterProp) => {
       setProject(
         produce((draft) => {
-          // @ts-ignore
           draft.state.properties[`${prop.axis}`].filter[`${filterProp}`] = e.target.value;
         })
       );

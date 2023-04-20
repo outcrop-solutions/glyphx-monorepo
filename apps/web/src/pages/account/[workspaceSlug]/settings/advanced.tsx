@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import Meta from 'components/Meta/index';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
@@ -7,15 +7,23 @@ import { AccountLayout } from 'layouts/index';
 
 import { _deleteWorkspace, useWorkspace } from 'lib/client';
 import { workspaceAtom } from 'state';
-import { useRecoilValue } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 
 const Advanced = () => {
-  const workspace = useRecoilValue(workspaceAtom);
+  const { data, isLoading } = useWorkspace();
+  const setWorkspace = useSetRecoilState(workspaceAtom);
+
+  useEffect(() => {
+    if (!isLoading && data) {
+      setWorkspace(data?.workspace);
+    }
+  }, [data, isLoading, setWorkspace]);
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[]} onReset={() => {}}>
       <Suspense fallback={SuspenseFallback}>
         <AccountLayout>
-          <Meta title={`Glyphx - ${workspace?.name} | Advanced Settings`} />
+          <Meta title={`Glyphx - ${data?.workspace?.name} | Advanced Settings`} />
           <AdvancedView />
         </AccountLayout>
       </Suspense>

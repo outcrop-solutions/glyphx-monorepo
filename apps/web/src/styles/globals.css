@@ -14,7 +14,7 @@ div[class='react-grid-Header'] {
   @apply bg-transparent shadow-none;
 }
 div[class='react-grid-Container'] {
-  @apply bg-primary-dark-blue text-white rounded text-center;
+  @apply w-full bg-primary-dark-blue text-white rounded text-center;
 }
 div[class='react-grid-Canvas'] {
   @apply bg-primary-dark-blue text-white rounded w-full p-0 h-screen text-center;
@@ -109,4 +109,60 @@ div[role='gridcell'] {
 /* FOR SUSPENSE LOADER */
 div[aria-colindex='1'] {
   @apply bg-secondary-dark-blue;
+}
+
+div.Pane.vertical.Pane2 {
+  @apply bg-primary-dark-blue;
+}
+
+.Resizer {
+  background: rgb(31, 39, 58); /*PRIMARY DARK BLUE*/
+  opacity: 1;
+  z-index: 1;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding;
+  background-clip: padding-box;
+}
+
+.Resizer:hover {
+  -webkit-transition: all 2s ease;
+  transition: all 0s ease;
+}
+
+.Resizer.horizontal {
+  height: 4px;
+  margin: -0px 0;
+  border-top: 2px solid rgba(89, 94, 104, 1);
+  border-bottom: 2px solid rgba(89, 94, 104, 1);
+  cursor: row-resize;
+  width: 100%;
+}
+
+.Resizer.horizontal:hover {
+  border-top: 2px solid rgba(89, 94, 104, 1);
+  border-bottom: 2px solid rgba(89, 94, 104, 1);
+}
+
+.Resizer.vertical {
+  width: 4px;
+  margin: 0 -0px;
+  border-left: 2px solid rgba(89, 94, 104, 1);
+  border-right: 2px solid rgba(89, 94, 104, 1);
+  cursor: col-resize;
+}
+
+.Resizer.vertical:hover {
+  border-left: 2px solid rgba(89, 94, 104, 1);
+  border-right: 2px solid rgba(89, 94, 104, 1);
+}
+
+.Resizer.disabled {
+  cursor: not-allowed;
+}
+
+.Resizer.disabled:hover {
+  border-color: transparent;
 }
