@@ -13,11 +13,11 @@ import { Modals } from 'partials/layout/Modals';
 const AccountLayout = ({ children }) => {
   const { data } = useSession();
   const router = useRouter();
-  const { data: workspace, isWorkspaceLoading } = useWorkspace();
+  const { data: workspace } = useWorkspace();
 
   useEffect(() => {
     if (!data) {
-      // router.replace('/auth/login');
+      router.replace('/auth/login');
     }
   }, [data, router]);
 
