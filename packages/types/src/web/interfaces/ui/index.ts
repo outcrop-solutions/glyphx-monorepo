@@ -1,7 +1,4 @@
-import {SplitPaneOrientation} from '../../types';
-
-export interface IOrientation {
-  orientation: SplitPaneOrientation;
-  verticalOffset: number;
-  horizontalOffset: number;
+export interface IWindowSize {
+  width: number | false;
+  height: number | false;
 }

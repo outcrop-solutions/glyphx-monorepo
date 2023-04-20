@@ -2,7 +2,7 @@ import React from 'react';
 import HorizontalIcon from 'public/svg/horizontal-layout.svg';
 import VerticalIcon from 'public/svg/vertical-layout.svg';
 import { useRecoilState } from 'recoil';
-import { orientationAtom, viewerPositionAtom } from 'state';
+import { orientationAtom, viewerPositionSelector } from 'state';
 import produce from 'immer';
 
 const btnClass =
