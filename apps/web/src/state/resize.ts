@@ -24,9 +24,10 @@ export const orientationAtom = atom<webTypes.SplitPaneOrientation>({
   default: 'horizontal',
 });
 
-export const splitPaneSizeAtom = atom<false | number>({
+// corresponds to the size of the pane containing the data grid
+export const splitPaneSizeAtom = atom<number>({
   key: 'splitPaneSizeAtom',
-  default: false,
+  default: 400,
 });
 
 export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>({

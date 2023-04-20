@@ -5,38 +5,45 @@ import { coordinatesAtom, orientationAtom, splitPaneSizeAtom, viewerPositionSele
 
 export const useResize = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
-  const window = useRecoilValue(windowSizeAtom);
   const orientation = useRecoilValue(orientationAtom);
-  const viewer = useRecoilValue(viewerPositionSelector);
 
+  // sane default to show column headers at minimum
   const minSize = () => 70;
-  const maxSize = () => {
-    if (window.width && window.height && viewer) {
-      if (orientation === 'horizontal') {
-        return window.height - viewer.y;
-      } else {
-        return window.width - viewer.x;
-      }
-    } else {
-      return 1000; // sane default
-    }
-  };
-
+  // sane default to allow resize
+  const maxSize = () => 7000;
+  // corresponds to splitPaneSizeAtom default intialization,
+  // they must be === for this to work so change them simultaneously
+  const defaultSize = () => 400;
   const split = () => orientation;
 
-  const divisor = 2;
+  // TODO: uncomment upon further inspection to limit resize when model footer is present
+  // const window = useRecoilValue(windowSizeAtom);
+  // const viewer = useRecoilValue(viewerPositionSelector);
 
-  const defaultSize = () => {
-    if (window.width && window.height) {
-      if (orientation === 'horizontal') {
-        return window.height / divisor;
-      } else {
-        return window.width / divisor;
-      }
-    } else {
-      return 0;
-    }
-  };
+  // const divisor = 2;,
+
+  // const maxSize = () => {
+  //   if (window.width && window.height && viewer) {
+  //     if (orientation === 'horizontal') {
+  //       return window.height - viewer.y;
+  //     } else {
+  //       return window.width - viewer.x;
+  //     }
+  //   } else {
+  //     return 1000; // sane default
+  //   }
+  // };
+  // const defaultSize = () => {
+  //   if (window.width && window.height) {
+  //     if (orientation === 'horizontal') {
+  //       return window.height / divisor;
+  //     } else {
+  //       return window.width / divisor;
+  //     }
+  //   } else {
+  //     return 0;
+  //   }
+  // };
   // const maxSize = () => (window ? (orientation === 'horizontal' ? window.height - 250 : window.width - 250) : 0);
   // const defaultSize = () => (orientation === 'vertical' ? viewer.h : viewer.w);
 

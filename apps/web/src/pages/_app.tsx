@@ -4,7 +4,7 @@ import 'styles/globals.css';
 import { useEffect, useState, Suspense } from 'react';
 import type { AppProps } from 'next/app';
 import { Session } from 'next-auth';
-import Router from 'next/router';
+import Router, from 'next/router';
 import { SessionProvider } from 'next-auth/react';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -22,6 +22,7 @@ import { RecoilRoot } from 'recoil';
 // Partials
 import { ErrorFallback } from 'partials/fallback';
 import { SuspenseFallback } from 'partials/fallback';
+import useToggleViewerOnRouteChange from 'services/useToggleViewerOnRouteChange';
 
 declare global {
   interface Window {
@@ -63,7 +64,9 @@ export default function App({
   Router.events.on('routeChangeStart', () => setProgress(true));
   Router.events.on('routeChangeComplete', () => setProgress(false));
   TopBarProgress.config(progressBarConfig());
-
+  
+  // closes the glyph viewer on route change
+  useToggleViewerOnRouteChange()
   /* 
     TO ENABLE SENTRY (ERROR LOGGING) WHEN THIS BRANCH GOES LIVE, 
     MAKE SURE TO DISABLE PREVIOUS BRANCH IF IT IS STILL HOSTED
@@ -74,8 +77,12 @@ export default function App({
   // });
 
   useEffect(() => {
-    window.core = window.core || {};
+    window.core = window.core || {
+      ToggleDrawer: (open: boolean) => {console.log({function: 'ToggleDrawer', open})},
+      OpenProject: (object) => {console.log('Open Project Called', object)},
+    };
   }, []);
+  
 
   return (
     <SessionProvider session={pageProps.session}>

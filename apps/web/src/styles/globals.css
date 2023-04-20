@@ -111,6 +111,10 @@ div[aria-colindex='1'] {
   @apply bg-secondary-dark-blue;
 }
 
+div.Pane.vertical.Pane2 {
+  @apply bg-primary-dark-blue;
+}
+
 .Resizer {
   background: rgb(31, 39, 58); /*PRIMARY DARK BLUE*/
   opacity: 1;

@@ -8,8 +8,8 @@ import { dataGridAtom, projectAtom, workspaceAtom } from 'state';
 import { useProject, useWorkspace } from 'lib/client/hooks';
 import Meta from 'components/Meta';
 import ProjectLayout from 'layouts/ProjectLayout';
-import Content from 'components/Content';
 import { useSendPosition, useSocket, useWindowSize } from 'services';
+import { useCloseViewerOnEmptyDataGrid } from 'services/useCloseViewerOnEmptyDataGrid';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -22,6 +22,7 @@ export default function Project() {
   // resize setup
   useWindowSize();
   useSendPosition();
+  useCloseViewerOnEmptyDataGrid();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);
