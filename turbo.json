@@ -69,20 +69,19 @@
     "SENDGRID_API_KEY",
     "EMAIL_FROM",
     "EMAIL_SERVER",
-    "SMTP_HOST",
-    "SMTP_PORT",
-    "SMTP_USERNAME",
-    "SMTP_PASSWORD",
     "NODE_ENV",
     "AWS_KEY",
     "AWS_BUCKET",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_DEFAULT_REGION",
+    "AWS_ACCESS_KEY_ID",
     "SIGNER_URL",
     "AWS_SECRET",
     "AWS_REGION",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
     "NEXT_PUBLIC_PUBLISHABLE_KEY",
-    "PAYMENTS_SIGNING_SECRET"
+    "PAYMENTS_SECRET_KEY"
   ],
   "globalDependencies": ["tsconfig.json"]
 }
