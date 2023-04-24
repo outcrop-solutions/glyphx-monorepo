@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { projectAtom, fileStatsSelector, matchingFilesAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
@@ -22,6 +22,10 @@ export const useFileSystem = () => {
   // const { fetchData } = useDataGrid();
   // const existingFileStats = useRecoilValue(fileStatsSelector);
   // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
+
+  useEffect(() => {
+    console.dir({ project });
+  }, [project]);
 
   const selectFile = useCallback(
     (idx: number) => {
