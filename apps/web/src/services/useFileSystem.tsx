@@ -106,7 +106,7 @@ export const useFileSystem = () => {
       await Promise.all(
         keys.map(async (key, idx) => {
           // upload raw file data to s3
-          api({
+          await api({
             ..._uploadFile(
               await acceptedFiles[idx].arrayBuffer(),
               key,

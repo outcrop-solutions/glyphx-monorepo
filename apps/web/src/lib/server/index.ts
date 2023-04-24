@@ -1,6 +1,5 @@
 export * from './etl/processFiles';
 export * from './etl/createModel';
-export * from './files';
 export * from './mongodb';
 export * from './stripe';
 export * from './project';
