@@ -39,7 +39,6 @@ export const uploadFile = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const fullKey = `client/${workspaceId}/${projectId}/input/${cleanTableName}/${cleanFileName}.csv`;
 
-    console.log({ fullKey });
     // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
     if (!s3Manager.inited) {

@@ -39,18 +39,12 @@ export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>
     const resize = get(splitPaneSizeAtom);
     const isControlOpen = get(rightSidebarControlAtom);
 
-    console.log({ coords, window, orientation, resize, isControlOpen });
     if (coords && window.width) {
       const x = calcX(coords, resize, orientation);
       const y = calcY(coords, resize, orientation);
       const w = calcW(coords, resize, orientation, isControlOpen, window);
       const h = calcH(coords, resize, orientation);
-      console.log({
-        x: x,
-        y: y,
-        w: w,
-        h: h,
-      });
+
       return {
         x: x,
         y: y,

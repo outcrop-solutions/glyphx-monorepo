@@ -212,7 +212,6 @@ describe('#fileProcessing/FileReconciliator', () => {
       assert.isOk(table3);
       assert.strictEqual(table3?.numberOfRows, numberOfRows3);
       assert.strictEqual(table3?.fileSize, fileSize3);
-      console.log(reconciledResults);
     });
   });
 });

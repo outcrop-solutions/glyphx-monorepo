@@ -61,7 +61,6 @@ export const useFileSystem = () => {
 
   const closeFile = useCallback(
     (idx: number) => {
-      console.log('called closeFile');
       // close file
       setProject(
         produce((draft) => {

@@ -149,7 +149,6 @@ export class WorkspaceService {
             deletedAt: new Date(),
           }
         );
-        console.log('deleted-workspace');
 
         // remove workspace and membership from user
         await mongoDbConnection.models.UserModel.removeWorkspaces(id, [
