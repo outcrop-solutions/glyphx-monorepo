@@ -25,10 +25,6 @@ export const useFileSystem = () => {
   // const existingFileStats = useRecoilValue(fileStatsSelector);
   // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
 
-  useEffect(() => {
-    console.dir({ project });
-  }, [project]);
-
   const selectFile = useCallback(
     (idx: number) => {
       // select file
