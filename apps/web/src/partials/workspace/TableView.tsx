@@ -53,31 +53,33 @@ export const TableView = () => {
                   <th className="text-right pr-2">Actions</th>
                 </tr>
               </thead>
-              {workspace.projects.map((project) => (
-                <tr
-                  onClick={() => {
-                    router.push(`/account/${workspaceSlug}/${project._id.toString()}`);
-                  }}
-                  className="bg-secondary-space-blue rounded py-2 px-6 border border-transparent hover:border-white hover:bg-secondary-midnight hover:cursor-pointer font-roboto font-normal text-[14px] leading-[16px] tracking-[0.01em] text-light-gray hover:text-white"
-                >
-                  <td title="Project Name" className="pl-2">
-                    {project?.name}
-                  </td>
-                  <td title="Last Updated" className="p-2">
-                    {/* @ts-ignore */}
-                    {new Date(project?.updatedAt).toLocaleDateString('en-US', dateOptions)}
-                  </td>
-                  <td title="Data Used" className="p-2">
-                    {`${formatFileSize(sumFileSizes(project.files))}`}
-                  </td>
-                  <td className="pr-2 py-2 flex flex-row items-center justify-end space-x-1">
-                    {/* info button */}
-                    <TableItemInfoIcon />
-                    {/* delete button */}
-                    <DeleteProjectIcon />
-                  </td>
-                </tr>
-              ))}
+              {workspace.projects
+                .filter((proj) => !proj.deletedAt)
+                .map((project) => (
+                  <tr
+                    onClick={() => {
+                      router.push(`/account/${workspaceSlug}/${project._id.toString()}`);
+                    }}
+                    className="bg-secondary-space-blue rounded py-2 px-6 border border-transparent hover:border-white hover:bg-secondary-midnight hover:cursor-pointer font-roboto font-normal text-[14px] leading-[16px] tracking-[0.01em] text-light-gray hover:text-white"
+                  >
+                    <td title="Project Name" className="pl-2">
+                      {project?.name}
+                    </td>
+                    <td title="Last Updated" className="p-2">
+                      {/* @ts-ignore */}
+                      {new Date(project?.updatedAt).toLocaleDateString('en-US', dateOptions)}
+                    </td>
+                    <td title="Data Used" className="p-2">
+                      {`${formatFileSize(sumFileSizes(project.files))}`}
+                    </td>
+                    <td className="pr-2 py-2 flex flex-row items-center justify-end space-x-1">
+                      {/* info button */}
+                      <TableItemInfoIcon />
+                      {/* delete button */}
+                      <DeleteProjectIcon />
+                    </td>
+                  </tr>
+                ))}
             </table>
           </div>
         </div>
