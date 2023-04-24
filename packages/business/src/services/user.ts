@@ -63,8 +63,6 @@ export class UserService {
         }
       );
 
-      // console.log('deleted memberships');
-
       // if (paymentId) {
       //   // delete associated customerPayments
       await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(

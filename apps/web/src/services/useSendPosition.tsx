@@ -7,15 +7,12 @@ export const useSendPosition = () => {
   useEffect(() => {
     try {
       if (viewer) {
-        console.log({ viewer });
         window?.core?.SendDrawerPosition(
           JSON.stringify({
             ...viewer,
           })
         );
       }
-    } catch (error) {
-      console.log({ error });
-    }
+    } catch (error) {}
   }, [viewer]);
 };

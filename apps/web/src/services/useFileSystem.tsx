@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
-import { projectAtom, fileStatsSelector, matchingFilesAtom } from 'state';
+import { projectAtom, fileStatsSelector, matchingFilesAtom, selectedFileIndexSelector, filesOpenSelector } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { compareStats, parsePayload } from 'lib/client/files/transforms';
 import produce, { current } from 'immer';
@@ -19,6 +19,8 @@ import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } fr
 
 export const useFileSystem = () => {
   const [project, setProject] = useRecoilState(projectAtom);
+  const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
+  const openFiles = useRecoilValue(filesOpenSelector);
   // const { fetchData } = useDataGrid();
   // const existingFileStats = useRecoilValue(fileStatsSelector);
   // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
@@ -28,13 +30,17 @@ export const useFileSystem = () => {
       // select file
       setProject(
         produce((draft) => {
+          if (selectedFileIndex !== -1) {
+            // @ts-ignore
+            draft.files[selectedFileIndex].selected = false;
+          }
           // @ts-ignore
           draft.files[idx].selected = true;
         })
       );
       // fetchData(idx);
     },
-    [setProject]
+    [selectedFileIndex, setProject]
   );
 
   /**
@@ -45,6 +51,10 @@ export const useFileSystem = () => {
       // open file
       setProject(
         produce((draft) => {
+          if (selectedFileIndex !== -1) {
+            // @ts-ignore
+            draft.files[selectedFileIndex].selected = false;
+          }
           // @ts-ignore
           draft.files[idx].open = true;
           // @ts-ignore
@@ -52,15 +62,18 @@ export const useFileSystem = () => {
         })
       );
     },
-    [setProject]
+    [selectedFileIndex, setProject]
   );
 
   const closeFile = useCallback(
     (idx: number) => {
-      console.log('called closeFile');
       // close file
       setProject(
         produce((draft) => {
+          if (openFiles?.length > 0) {
+            // @ts-ignore
+            draft.files[openFiles[0].fileIndex].selected = true;
+          }
           // @ts-ignore
           draft.files[idx].open = false;
           // @ts-ignore
@@ -68,7 +81,7 @@ export const useFileSystem = () => {
         })
       );
     },
-    [setProject]
+    [openFiles, setProject]
   );
 
   /**
@@ -81,6 +94,8 @@ export const useFileSystem = () => {
         produce((draft) => {
           // @ts-ignore
           draft.files[idx].open = false;
+          // @ts-ignore
+          draft.files[idx].selected = false;
         })
       );
     },

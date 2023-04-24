@@ -7,6 +7,17 @@ html {
   font-size: 200%;
 }*/
 
+div[class='react-grid-Row react-grid-Row--even'] {
+  @apply bg-primary-dark-blue hover:bg-secondary-deep-blue hover:text-secondary-deep-blue;
+}
+div[class='react-grid-Row react-grid-Row--odd'] {
+  @apply bg-primary-dark-blue hover:bg-secondary-deep-blue hover:text-secondary-deep-blue;
+}
+
+div[class='react-grid-Row"'] {
+  @apply bg-primary-dark-blue hover:bg-secondary-deep-blue text-secondary-deep-blue;
+}
+
 div[class='react-grid-HeaderCell'] {
   @apply bg-primary-dark-blue text-white border-none py-0 px-1 rounded text-center;
 }
@@ -16,6 +27,7 @@ div[class='react-grid-Header'] {
 div[class='react-grid-Container'] {
   @apply w-full bg-primary-dark-blue text-white rounded text-center;
 }
+
 div[class='react-grid-Canvas'] {
   @apply bg-primary-dark-blue text-white rounded w-full p-0 h-screen text-center;
 }
@@ -27,8 +39,14 @@ div[class='react-grid-Container'] > div > div > div:nth-child(2) > div > div > d
   @apply h-full;
 }
 div[class='react-grid-Cell'] {
-  @apply bg-primary-dark-blue first:bg-secondary-deep-blue;
+  @apply bg-primary-dark-blue hover:bg-primary-dark-blue first:bg-secondary-deep-blue;
 }
+
+/* 
+.rdg-row {
+  background-color: #000;  or any other color value 
+} */
+
 div[class='react-grid-Grid'] {
   @apply bg-primary-dark-blue h-full border border-none text-white outline-none rounded text-center;
 }

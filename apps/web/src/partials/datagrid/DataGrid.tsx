@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
-
 import dynamic from 'next/dynamic';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
 import { dataGridPayloadSelector } from 'state';
