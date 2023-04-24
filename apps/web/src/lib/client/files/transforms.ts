@@ -25,7 +25,10 @@ export const formatGridData = (data): webTypes.IRenderableDataGrid => {
     };
   });
   // Generates first column
-  const rows = data.map((row, idx) => ({ ...row, id: idx }));
+  const rows = data.map((row, idx) => ({
+    ...row,
+    id: idx,
+  }));
   return { columns: cols, rows };
 };
 
