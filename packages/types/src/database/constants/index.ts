@@ -5,4 +5,5 @@ export {SESSION_STATE} from './sessionState';
 export {ROLE} from './role';
 export {INVITATION_STATUS} from './invitationStatus';
 export {SUBSCRIPTION_TYPE} from './subscriptionType';
+export {MEMBERSHIP_TYPE} from './membershipType';
 export {PROCESS_STATUS} from './processStatus';

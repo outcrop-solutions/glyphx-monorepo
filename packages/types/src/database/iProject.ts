@@ -4,6 +4,7 @@ import {IWorkspace} from './iWorkspace';
 import {IProjectType} from './iProjectType';
 import {IUser} from './iUser';
 import {IState} from './iState';
+import {IMember} from './iMember';
 
 export interface IProject {
   _id?: mongooseTypes.ObjectId;
@@ -18,6 +19,7 @@ export interface IProject {
   slug?: string;
   isTemplate: Boolean;
   type?: IProjectType;
+  members: IMember[];
   owner: IUser;
   currentVersion?: number;
   // when filters and properties change, sent to create model call on filter apply or change in properties (given 3 props are dropped)

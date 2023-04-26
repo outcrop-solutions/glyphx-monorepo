@@ -53,8 +53,6 @@ export const DeleteFileModal = () => {
     });
   }, [deleteModal.data.fileName, project._id, project.files, project.workspace._id, setDeleteModal, setProject]);
 
-  console.log(deleteModal.data.fileName);
-
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">
       <p className="flex flex-col">
