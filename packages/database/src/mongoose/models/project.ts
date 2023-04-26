@@ -9,6 +9,7 @@ import {
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
+import {MemberModel} from './member';
 import {ProjectTypeModel} from './projectType';
 import {fileStatsSchema} from '../schemas';
 import {embeddedStateSchema} from '../schemas/embeddedState';
@@ -48,6 +49,16 @@ const SCHEMA = new Schema<
   type: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
   owner: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   state: {type: embeddedStateSchema, required: false, default: {}},
+  stateHistory: {
+    type: [Schema.Types.ObjectId],
+    default: [],
+    ref: 'stateHistory',
+  },
+  members: {
+    type: [Schema.Types.ObjectId],
+    default: [],
+    ref: 'member',
+  },
   files: {type: [fileStatsSchema], required: true, default: []},
   viewName: {type: String, required: true},
 });
@@ -106,6 +117,160 @@ SCHEMA.static(
       }
     }
     return true;
+  }
+);
+
+SCHEMA.static(
+  'validateMembers',
+  async (
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const memberIds: mongooseTypes.ObjectId[] = [];
+    members.forEach(m => {
+      if (m instanceof mongooseTypes.ObjectId) memberIds.push(m);
+      else memberIds.push(m._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await MemberModel.allMemberIdsExist(memberIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more member ids do not exisit in the database.  See the inner error for additional information',
+          'member',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return memberIds;
+  }
+);
+
+SCHEMA.static(
+  'addMembers',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one memberId',
+          'members',
+          members
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${projectId} cannot be found`,
+          'user._id',
+          projectId
+        );
+
+      const reconciledIds = await PROJECT_MODEL.validateMembers(members);
+      let dirty = false;
+
+      reconciledIds.forEach(m => {
+        if (
+          !projectDocument.members.find(
+            mhId => mhId.toString() === m.toString()
+          )
+        ) {
+          dirty = true;
+          projectDocument.members.push(m as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await projectDocument.save();
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the Members. See the innner error for additional information',
+          'mongoDb',
+          'project.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeMembers',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one memberId',
+          'memebrship',
+          members
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          `A User Document with _id : ${projectId} cannot be found`,
+          'user._id',
+          projectId
+        );
+
+      const reconciledIds = members.map(i =>
+        //istanbul ignore next
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedMemberships = projectDocument.members.filter(w => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (w as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        projectDocument.members =
+          updatedMemberships as unknown as databaseTypes.IMember[];
+        await projectDocument.save();
+      }
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the members. See the innner error for additional information',
+          'mongoDb',
+          'project.removeMember',
+          err
+        );
+      }
+    }
   }
 );
 
@@ -313,9 +478,10 @@ SCHEMA.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
 
     try {
-      const [workspace, owner] = await Promise.all([
+      const [workspace, owner, members] = await Promise.all([
         PROJECT_MODEL.validateWorkspace(input.workspace),
         PROJECT_MODEL.validateOwner(input.owner),
+        PROJECT_MODEL.validateMembers(input.members),
       ]);
 
       const createDate = new Date();
@@ -328,6 +494,7 @@ SCHEMA.static(
         sdtPath: input.sdtPath,
         currentVersion: input.currentVersion ?? 0,
         state: input.state,
+        members: members ?? [],
         workspace: workspace,
         slug: input.slug,
         isTemplate: input.isTemplate,

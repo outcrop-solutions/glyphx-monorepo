@@ -3,7 +3,7 @@ import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import {IProjectMethods} from './iProjectMethods';
 import {IProjectCreateInput} from './iProjectCreateInput';
 export interface IProjectStaticMethods
-  extends Model<databaseTypes.IAccount, {}, IProjectMethods> {
+  extends Model<databaseTypes.IProject, {}, IProjectMethods> {
   projectIdExists(projectId: mongooseTypes.ObjectId): Promise<boolean>;
   allProjectIdsExist(projectIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createProject(input: IProjectCreateInput): Promise<databaseTypes.IProject>;
@@ -23,6 +23,14 @@ export interface IProjectStaticMethods
     projectId: mongooseTypes.ObjectId,
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<databaseTypes.IProject>;
+  addMembers(
+    projectId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject>;
+  removeMembers(
+    projectId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject>;
   deleteProjectById(projectId: mongooseTypes.ObjectId): Promise<void>;
   validateUpdateObject(
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
@@ -33,6 +41,9 @@ export interface IProjectStaticMethods
   validateWorkspace(
     input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
+  validateMembers(
+    input: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
   validateOwner(
     input: databaseTypes.IUser | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;

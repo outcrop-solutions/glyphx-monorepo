@@ -8,6 +8,7 @@ import {
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {UserModel} from './user';
+import {ProjectModel} from './project';
 import {WorkspaceModel} from './workspace';
 
 const SCHEMA = new Schema<
@@ -23,6 +24,11 @@ const SCHEMA = new Schema<
     default:
       //istanbul ignore next
       () => new Date(),
+  },
+  type: {
+    type: String,
+    required: true,
+    enum: databaseTypes.constants.MEMBERSHIP_TYPE,
   },
   joinedAt: {type: Date, required: false},
   deletedAt: {type: Date, required: false},
@@ -241,6 +247,11 @@ SCHEMA.static(
         ? input.workspace
         : new mongooseTypes.ObjectId(input.workspace._id);
 
+    const projectId =
+      input.project instanceof mongooseTypes.ObjectId
+        ? input.project
+        : new mongooseTypes.ObjectId(input.project._id);
+
     const newMemberExists = await UserModel.userIdExists(memberId);
     if (!newMemberExists)
       throw new error.InvalidArgumentError(
@@ -262,6 +273,14 @@ SCHEMA.static(
         `A workspace with _id : ${workspaceId} cannot be found`,
         'workspace._id',
         workspaceId
+      );
+
+    const projectExists = await ProjectModel.projectIdExists(projectId);
+    if (!projectExists)
+      throw new error.InvalidArgumentError(
+        `A project with _id : ${projectId} cannot be found`,
+        'project._id',
+        projectId
       );
 
     let member;
@@ -286,6 +305,7 @@ SCHEMA.static(
     const transformedDocument: IMemberDocument = {
       email: input.email,
       inviter: input.inviter,
+      type: input.type ?? databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
       invitedAt: createDate,
       createdAt: createDate,
       updatedAt: createDate,
@@ -294,6 +314,7 @@ SCHEMA.static(
       member: memberId,
       invitedBy: invitedById,
       workspace: workspaceId,
+      project: projectId,
     };
 
     try {

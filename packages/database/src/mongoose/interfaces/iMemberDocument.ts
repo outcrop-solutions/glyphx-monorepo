@@ -6,8 +6,12 @@ import {Types as mongooseTypes} from 'mongoose';
  * (the underlying  mongoose types) or the document that is related.
  */
 export interface IMemberDocument
-  extends Omit<databaseTypes.IMember, 'member' | 'invitedBy' | 'workspace'> {
+  extends Omit<
+    databaseTypes.IMember,
+    'member' | 'invitedBy' | 'workspace' | 'project'
+  > {
   member: mongooseTypes.ObjectId;
   invitedBy: mongooseTypes.ObjectId;
   workspace: mongooseTypes.ObjectId;
+  project: mongooseTypes.ObjectId;
 }
