@@ -32,7 +32,6 @@ const WorkspaceLayout = ({ children }) => {
           <Header breadcrumbs={['My Workspace']} />
           {children}
         </Content.Workspace>
-        <RightSidebar />
       </main>
     </>
   );

@@ -56,8 +56,6 @@ export const RightSidebar = () => {
                     return <Notifications />;
                   case 'search':
                     return <></>;
-                  case 'comments':
-                    return <></>;
                   default:
                     return <></>;
                 }
