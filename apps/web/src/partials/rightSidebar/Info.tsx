@@ -32,17 +32,15 @@ export const Info = () => {
 
   return (
     <div className="flex flex-col w-[250px] bg-secondary-space-blue h-full ">
-      <div className="pt-4 pl-4 pr-4  overflow-auto">
-        <div className="flex flex-row justify-between mb-2 items-center">
-          <div className="flex flex-row justify-between space-x-3">
-            <ProjectIcon />
-            <p className="text-light-gray text-[14px] leading-[16px] font-medium font-roboto">
-              {sidebarControl.data ? sidebarControl.data.name : 'My Projects'}
-            </p>
-          </div>
-          <div onClick={handleClose}>
-            <CloseProjectInfoIcon />
-          </div>
+      <div className="flex items-center justify-between border border-gray h-[56px] px-3">
+        <div className="flex flex-row justify-between space-x-3">
+          <ProjectIcon />
+          <p className="text-light-gray text-[14px] leading-[16px] font-medium font-roboto">
+            {sidebarControl.data ? sidebarControl?.data?.name : 'My Projects'}
+          </p>
+        </div>
+        <div onClick={handleClose}>
+          <CloseProjectInfoIcon />
         </div>
       </div>
       <Image width={233} height={169} layout="responsive" src={projectCard} alt="Sample Project" />
@@ -53,13 +51,15 @@ export const Info = () => {
             <div
               className={`rounded-full bg-secondary-cyan h-4 w-4 font-roboto font-medium text-[12px] text-center leading-[14px] tracking-[0.01em] text-white flex items-center justify-center mr-2`}
             >
-              {`${sidebarControl.data.owner.name.charAt(0).toUpperCase()}`}
+              {`${sidebarControl?.data?.owner?.name.charAt(0).toUpperCase()}`}
             </div>
-            <p className="text-light-gray font-roboto text-[10px] leading-[12px]">{sidebarControl.data.owner.name}</p>
+            <p className="text-light-gray font-roboto text-[10px] leading-[12px]">
+              {sidebarControl?.data?.owner?.name}
+            </p>
           </div>
           <div>
             <p className="text-gray font-roboto font-normal text-[10px] leading-[12px]">
-              {new Date(sidebarControl.data.createdAt).toLocaleDateString()}
+              {new Date(sidebarControl?.data?.createdAt).toLocaleDateString()}
             </p>
           </div>
         </div>
