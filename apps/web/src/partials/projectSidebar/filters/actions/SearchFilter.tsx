@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { produce } from 'immer';
 import SearchIcon from 'public/svg/search-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
 import { projectAtom } from 'state';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
+import { useProject } from 'services';
 
 export const SearchFilter = ({ prop }) => {
-  const setProject = useSetRecoilState(projectAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
+  const { handleDrop } = useProject();
   const [showVisibility, setVisibility] = useState(false); //true
   const [keyword, setKeyword] = useState('');
 
@@ -32,6 +34,12 @@ export const SearchFilter = ({ prop }) => {
     },
     [prop.axis, setProject]
   );
+
+  // TODO: verify update works, add validation/disabled
+  const handleApply = useCallback(() => {
+    handleDrop(prop.axis, { key: prop.key, dataType: prop.dataType }, project, true);
+    setVisibility(!showVisibility);
+  }, [handleDrop, project, prop.axis, prop.dataType, prop.key, showVisibility]);
 
   return (
     <div>
@@ -58,9 +66,7 @@ export const SearchFilter = ({ prop }) => {
         </div>
         {/* SHOW/HIDE */}
         <div
-          onClick={() => {
-            setVisibility(!showVisibility);
-          }}
+          onClick={handleApply}
           className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
         >
           {!showVisibility ? <ShowIcon /> : <HideIcon />}

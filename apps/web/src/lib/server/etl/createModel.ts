@@ -4,6 +4,7 @@ import { GlyphEngine } from '@glyphx/glyphengine';
 import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
 import { processTrackingService } from '@glyphx/business';
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { generateFilterQuery } from 'lib/client/helpers';
 /**
  * Call Glyph Engine
  *
@@ -82,7 +83,7 @@ const isValidPayload = (properties) => {
 };
 
 export const createModel = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { axis, column, project } = req.body;
+  const { axis, column, project, isFilter } = req.body;
 
   const deepMerge = {
     ...project,
@@ -127,6 +128,11 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse) => 
       x_direction: properties[webTypes.constants.AXIS.X]['direction'],
       y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
       z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
+      filter: isFilter
+        ? `${generateFilterQuery(properties[webTypes.constants.AXIS.X])} AND ${generateFilterQuery(
+            properties[webTypes.constants.AXIS.Y]
+          )} AND ${generateFilterQuery(properties[webTypes.constants.AXIS.Z])}`
+        : '',
     };
 
     try {
@@ -152,6 +158,7 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse) => 
         ['z_direction', payload['z_direction']],
         ['model_id', payload['model_id']],
         ['client_id', payload['client_id']],
+        ['filter', payload['filter']],
       ]);
 
       // process glyph engine

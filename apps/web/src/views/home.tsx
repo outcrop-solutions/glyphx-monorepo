@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Layout
-import { PinnedProjects } from 'partials';
+import { PinnedProjects, ProjectDetails } from 'partials';
 
 // Project Overiew
 import { Templates } from 'partials';
@@ -11,11 +11,12 @@ import { GridView } from 'partials';
 
 // Hooks
 import { useRecoilValue } from 'recoil';
-import { showProjectsGridViewAtom, workspaceAtom } from 'state';
+import { projectDetailsAtom, showProjectsGridViewAtom, workspaceAtom } from 'state';
 
 export default function Home() {
   const isGridView = useRecoilValue(showProjectsGridViewAtom);
   const workspace = useRecoilValue(workspaceAtom);
+  const projectDetails = useRecoilValue(projectDetailsAtom);
   return (
     <>
       <div className="relative flex flex-col w-full">
@@ -34,9 +35,9 @@ export default function Home() {
           </div>
         </div>
       </div>
-      {/* <div id="right-side-bars" className="">
-      {project ? <ProjectDetails /> : <></>}
-    </div> */}
+      <div id="right-side-bars" className="">
+        {projectDetails ? <ProjectDetails /> : <></>}
+      </div>
     </>
   );
 }

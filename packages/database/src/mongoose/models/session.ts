@@ -15,7 +15,13 @@ const SCHEMA = new Schema<
   ISessionMethods
 >({
   sessionToken: {type: String, required: true},
-  expires: {type: Date, required: true},
+  expires: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   userId: {type: String, required: false},
   user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });

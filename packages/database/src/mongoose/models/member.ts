@@ -17,7 +17,13 @@ const SCHEMA = new Schema<
 >({
   email: {type: String, required: true},
   inviter: {type: String, required: true},
-  invitedAt: {type: Date, required: true},
+  invitedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   joinedAt: {type: Date, required: false},
   deletedAt: {type: Date, required: false},
   updatedAt: {type: Date, required: false},

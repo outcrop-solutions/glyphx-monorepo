@@ -87,8 +87,6 @@ export class WorkspaceService {
         newWorkspace,
       ]);
 
-      // TODO: add workspace to user model
-
       await EmailClient.sendMail({
         html: workspaceCreateHtml({code: workspace.inviteCode, name}),
         subject: `[Glyphx] Workspace created: ${name}`,
@@ -225,7 +223,6 @@ export class WorkspaceService {
     email: string,
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
-    // TODO: add filter to get workspaces where user is a member
     // @jp: we need a clean way to implement filter on related records here
     try {
       const workspaces =
@@ -349,7 +346,6 @@ export class WorkspaceService {
     email: string,
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
-    // TODO: add filter to get workspaces where user is a member
     // @jp: we need a clean way to implement filter on related records here
     try {
       const workspaces =

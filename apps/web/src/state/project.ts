@@ -2,7 +2,6 @@ import { atom, selector, selectorFamily } from 'recoil';
 import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 // import { generateFilterQuery } from 'lib/client/helpers';
 
-// TODO: get rid of x
 /**
  * EXAMPLE PROJECT
  *
@@ -122,6 +121,12 @@ import { database as databaseTypes, web as webTypes, fileIngestion as fileIngest
 /************************  BASE  *************************/
 export const projectAtom = atom<databaseTypes.IProject | null>({
   key: 'projectAtom',
+  default: null,
+});
+
+// right sidebar info
+export const projectDetailsAtom = atom<databaseTypes.IProject | null>({
+  key: 'projectDetailsAtom',
   default: null,
 });
 

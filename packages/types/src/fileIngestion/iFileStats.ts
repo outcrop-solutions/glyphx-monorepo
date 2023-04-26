@@ -1,3 +1,4 @@
+import {IRenderableDataGrid} from '../web';
 import {IColumn} from './iColumn';
 
 export interface IFileStats {
@@ -7,4 +8,6 @@ export interface IFileStats {
   numberOfColumns: number;
   columns: IColumn[];
   fileSize: number;
+  dataGrid?: IRenderableDataGrid;
+  open?: boolean;
 }

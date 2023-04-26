@@ -1,10 +1,9 @@
 import Button from 'components/Button';
 import produce from 'immer';
 import { _deleteProject, _deleteWorkspace, api } from 'lib';
-import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { showModalAtom, workspaceAtom } from 'state';
+import { showModalAtom } from 'state';
 
 export const DeleteProjectModal = () => {
   const [deleteModal, setDeleteModal] = useRecoilState(showModalAtom);

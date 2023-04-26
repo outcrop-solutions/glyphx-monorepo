@@ -16,7 +16,7 @@ import LogIcon from 'public/svg/log-icon.svg';
 import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
 import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 import produce from 'immer';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 export const Property = ({ axis }) => {
   const [project, setProject] = useRecoilState(projectAtom);
@@ -25,7 +25,7 @@ export const Property = ({ axis }) => {
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
-    drop: (item) => handleDrop(axis, item, project),
+    drop: (item) => handleDrop(axis, item, project, false),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
@@ -52,7 +52,17 @@ export const Property = ({ axis }) => {
         };
       })
     );
-  }, [axis, setProject]);
+    handleDrop(
+      axis,
+      {
+        type: 'COLUMN_DRAG',
+        key: `Column ${axis}`,
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+      },
+      project,
+      false
+    );
+  }, [axis, handleDrop, project, setProject]);
 
   const logLin = useCallback(() => {
     setProject(
@@ -63,7 +73,17 @@ export const Property = ({ axis }) => {
             : webTypes.constants.INTERPOLATION_TYPE.LIN;
       })
     );
-  }, [axis, prop.interpolation, setProject]);
+    handleDrop(
+      axis,
+      {
+        type: 'COLUMN_DRAG',
+        key: prop.key,
+        dataType: prop.dataType,
+      },
+      project,
+      false
+    );
+  }, [axis, handleDrop, project, prop.dataType, prop.interpolation, prop.key, setProject]);
 
   const ascDesc = useCallback(() => {
     setProject(

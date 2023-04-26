@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { Axes } from './Axes';
 import { propertiesSelector } from 'state';
-import MenuChevronIcon from 'public/svg/menu-chevron-icon.svg';
 
 export const Filters = () => {
-  // TODO: change this to <summary></summary> html
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
 
@@ -19,7 +17,7 @@ export const Filters = () => {
             }}
             className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:bg-secondary-midnight hover:text-white hover:border-b-white truncate border-b border-gray"
           >
-            <div className="flex ml-2 items-center">
+            <div className="flex items-center w-full mx-2">
               <span className="">
                 {/* @jp-burford it's sinful but it's functional for now so*/}
                 <svg

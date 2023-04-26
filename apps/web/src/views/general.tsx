@@ -9,7 +9,7 @@ import isSlug from 'validator/lib/isSlug';
 import Button from 'components/Button/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
-import { _updateWorkspaceName, _updateWorkspaceSlug, api, useWorkspace } from 'lib/client';
+import { _updateWorkspaceName, _updateWorkspaceSlug, api } from 'lib/client';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';

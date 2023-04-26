@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LinkDropDown } from './LinkDropDown';
 import { MemberList } from './MemberList';
 import { PermissionsDropDown } from './PermissionsDropDown';
-
+import CopyToClipboard from 'public/svg/copy-to-clipboard.svg';
 import { projectAtom } from 'state';
 import { useRecoilValue } from 'recoil';
 
@@ -118,19 +118,7 @@ export const ShareModule = ({ setShare }) => {
           >
             <p className="text-light-gray font-roboto font-medium leading-[16px] text-center text-[14px]">
               <span className="inline-block">
-                <svg
-                  className="mr-2"
-                  width="14"
-                  height="8"
-                  viewBox="0 0 14 8"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M10.3333 0.666626H8.33331C7.96665 0.666626 7.66665 0.966626 7.66665 1.33329C7.66665 1.69996 7.96665 1.99996 8.33331 1.99996H10.3333C11.4333 1.99996 12.3333 2.89996 12.3333 3.99996C12.3333 5.09996 11.4333 5.99996 10.3333 5.99996H8.33331C7.96665 5.99996 7.66665 6.29996 7.66665 6.66663C7.66665 7.03329 7.96665 7.33329 8.33331 7.33329H10.3333C12.1733 7.33329 13.6666 5.83996 13.6666 3.99996C13.6666 2.15996 12.1733 0.666626 10.3333 0.666626ZM4.33331 3.99996C4.33331 4.36663 4.63331 4.66663 4.99998 4.66663H8.99998C9.36665 4.66663 9.66665 4.36663 9.66665 3.99996C9.66665 3.63329 9.36665 3.33329 8.99998 3.33329H4.99998C4.63331 3.33329 4.33331 3.63329 4.33331 3.99996ZM5.66665 5.99996H3.66665C2.56665 5.99996 1.66665 5.09996 1.66665 3.99996C1.66665 2.89996 2.56665 1.99996 3.66665 1.99996H5.66665C6.03331 1.99996 6.33331 1.69996 6.33331 1.33329C6.33331 0.966626 6.03331 0.666626 5.66665 0.666626H3.66665C1.82665 0.666626 0.333313 2.15996 0.333313 3.99996C0.333313 5.83996 1.82665 7.33329 3.66665 7.33329H5.66665C6.03331 7.33329 6.33331 7.03329 6.33331 6.66663C6.33331 6.29996 6.03331 5.99996 5.66665 5.99996Z"
-                    fill="#CECECE"
-                  />
-                </svg>
+                <CopyToClipboard />
               </span>
               Copy Link
             </p>

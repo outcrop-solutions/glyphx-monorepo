@@ -18,8 +18,6 @@ const SCHEMA = new Schema<
   IProjectStaticMethods,
   IProjectMethods
 >({
-  //TODO: make sure that our defaults for dates are set to functions and not
-  //just calling new Date()
   createdAt: {
     type: Date,
     required: true,

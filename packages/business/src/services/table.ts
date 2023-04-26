@@ -10,6 +10,7 @@ export class TableService {
       const databaseName = athenaConnection.connection.databaseName;
 
       //TODO: once we cut over to the new file ingestor and there are no old projects we can consider
+      // @jp-burford we should be about to move to count now right?
       //using max(glyphx_id) instead of count.
       const queryString = `SELECT COUNT(*) as count FROM "${databaseName}"."${tableName}"`;
 

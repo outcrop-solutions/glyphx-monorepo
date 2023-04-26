@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSetRecoilState } from 'recoil';
-import { web as webTypes, fileIngestion as fileIngestionTypes, database as databaseTypes } from '@glyphx/types';
+import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 import { api } from 'lib/client';
 
 import { projectAtom, showModelCreationLoadingAtom } from 'state';
@@ -18,10 +18,10 @@ export const useProject = () => {
   // const setShowQtViewer = useSetRecoilState(showQtViewerAtom);
 
   const callETL = useCallback(
-    async (axis: webTypes.constants.AXIS, column: any, project) => {
+    async (axis: webTypes.constants.AXIS, column: any, project, isFilter: boolean) => {
       // call glyph engine
       await api({
-        ..._createModel(axis, column, project),
+        ..._createModel(axis, column, project, isFilter),
         silentFail: true,
         onSuccess: (data) => {
           api({
@@ -40,9 +40,9 @@ export const useProject = () => {
   );
 
   const handleDrop = useCallback(
-    (axis: webTypes.constants.AXIS, column: any, project: databaseTypes.IProject) => {
+    (axis: webTypes.constants.AXIS, column: any, project: databaseTypes.IProject, isFilter: boolean) => {
       // we can compose these for a one liner
-      callETL(axis, column, project);
+      callETL(axis, column, project, isFilter);
       setProject(updateDrop(axis, column));
     },
     [callETL, setProject]

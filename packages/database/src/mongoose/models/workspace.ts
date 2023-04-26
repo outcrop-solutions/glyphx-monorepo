@@ -20,8 +20,20 @@ const SCHEMA = new Schema<
   inviteCode: {type: String, required: true},
   name: {type: String, required: true},
   slug: {type: String, required: true},
-  createdAt: {type: Date, required: true, default: new Date()},
-  updatedAt: {type: Date, required: true, default: new Date()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   deletedAt: {type: Date, required: false},
   description: {type: String, required: false},
   creator: {type: Schema.Types.ObjectId, required: true, ref: 'user'},

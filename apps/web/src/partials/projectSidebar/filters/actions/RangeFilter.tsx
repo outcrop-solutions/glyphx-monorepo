@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import produce from 'immer';
 
 import { projectAtom } from 'state';
@@ -7,9 +7,11 @@ import { projectAtom } from 'state';
 import FilterTypeIcon from 'public/svg/filter-type-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
+import { useProject } from 'lib';
 
 export const RangeFilter = ({ prop }) => {
-  const setProject = useSetRecoilState(projectAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
+  const { handleDrop } = useProject();
   const [showVisibility, setVisibility] = useState(false); //
 
   const updateRange = useCallback(
@@ -22,6 +24,12 @@ export const RangeFilter = ({ prop }) => {
     },
     [prop.axis, setProject]
   );
+
+  // TODO: verify update works, add validation/disabled
+  const handleApply = useCallback(() => {
+    handleDrop(prop.axis, { key: prop.key, dataType: prop.dataType }, project, true);
+    setVisibility(!showVisibility);
+  }, [handleDrop, project, prop.axis, prop.dataType, prop.key, showVisibility]);
 
   return (
     <div
@@ -58,9 +66,7 @@ export const RangeFilter = ({ prop }) => {
       </div>
       {/* SHOW/HIDE */}
       <div
-        onClick={() => {
-          setVisibility(!showVisibility);
-        }}
+        onClick={handleApply}
         className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
       >
         {!showVisibility ? <ShowIcon /> : <HideIcon />}

@@ -6,8 +6,13 @@ import { calcH, calcW, calcX, calcY } from './utilities';
  * RESIZE LOGIC
  */
 
-export const coordinatesAtom = atom<DOMRectReadOnly | false>({
-  key: 'coordinatesAtom',
+export const leftCoordinatesAtom = atom<DOMRectReadOnly | false>({
+  key: 'leftCoordinatesAtom',
+  default: false,
+});
+
+export const rightCoordinatesAtom = atom<DOMRectReadOnly | false>({
+  key: 'rightCoordinatesAtom',
   default: false,
 });
 
@@ -33,7 +38,7 @@ export const splitPaneSizeAtom = atom<number>({
 export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>({
   key: 'viewerPositionSelector',
   get: ({ get }) => {
-    const coords = get(coordinatesAtom);
+    const coords = get(leftCoordinatesAtom);
     const window = get(windowSizeAtom);
     const orientation = get(orientationAtom);
     const resize = get(splitPaneSizeAtom);

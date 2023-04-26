@@ -45,7 +45,13 @@ interface IClientSidePayload {
   fileStats: fileIngestionTypes.IFileStats[];
   fileInfo: Omit<fileIngestionTypes.IFileInfo, 'fileStream'>[];
 }
-
+/**
+ *
+ * @param workspaceId
+ * @param projectId
+ * @param acceptedFiles
+ * @returns
+ */
 export const parsePayload = async (
   workspaceId: string | mongooseTypes.ObjectId,
   projectId: string | mongooseTypes.ObjectId,
@@ -88,6 +94,43 @@ export const parsePayload = async (
     modelId: projectId.toString(),
     bucketName: S3_BUCKET_NAME,
     fileStats: stats,
+    fileInfo: operations,
+  };
+
+  return payload;
+};
+
+/**
+ *
+ * @param workspaceId
+ * @param projectId
+ * @param projectFiles
+ * @param deletedFile
+ * @returns
+ */
+export const parseDeletePayload = (
+  workspaceId: string | mongooseTypes.ObjectId,
+  projectId: string | mongooseTypes.ObjectId,
+  projectFiles: fileIngestionTypes.IFileStats[],
+  deletedFile: string
+): IClientSidePayload => {
+  const fileStats = projectFiles.filter((file) => file.fileName === `${deletedFile}.csv`);
+
+  const operations = fileStats.map(
+    (file: fileIngestionTypes.IFileStats): Omit<fileIngestionTypes.IFileInfo, 'fileStream'> => {
+      return {
+        fileName: file.fileName,
+        tableName: file.tableName,
+        operation: 0,
+      };
+    }
+  );
+
+  const payload = {
+    clientId: workspaceId.toString(),
+    modelId: projectId.toString(),
+    bucketName: S3_BUCKET_NAME,
+    fileStats: fileStats,
     fileInfo: operations,
   };
 

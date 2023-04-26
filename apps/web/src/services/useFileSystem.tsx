@@ -152,10 +152,6 @@ export const useFileSystem = () => {
           selectFile(0);
         },
       });
-      // },
-      // });
-
-      // ingest files
 
       // TODO: add calculate & compare file stats once error free
       // const matchingStats = await compareStats(newFileStats, existingFileStats);

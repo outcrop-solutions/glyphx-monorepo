@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { debounce } from 'lodash';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { coordinatesAtom, orientationAtom, splitPaneSizeAtom, viewerPositionSelector, windowSizeAtom } from 'state';
+import { leftCoordinatesAtom, orientationAtom, splitPaneSizeAtom, viewerPositionSelector, windowSizeAtom } from 'state';
 
 export const useResize = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);

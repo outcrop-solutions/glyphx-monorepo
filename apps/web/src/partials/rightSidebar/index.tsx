@@ -1,16 +1,10 @@
 import { useRef, useEffect } from 'react';
-
-import { Files } from './files';
-import { Properties as Axes } from './properties';
-import { Filters } from './filters';
-import { States } from './states';
-
 import { usePosition } from 'services/usePosition';
 import { useSendPosition } from 'services';
 import { useSetRecoilState } from 'recoil';
 import { leftCoordinatesAtom } from 'state';
 
-export const ProjectSidebar = () => {
+export const RightSidebar = () => {
   //utilities
   const sidebar = useRef(null);
   // trigger sendPosition when sidebar changes
@@ -27,15 +21,12 @@ export const ProjectSidebar = () => {
 
   return (
     <div
-      id="sidebar"
+      id="right-sidebar"
       ref={sidebar}
       className={`flex grow flex-col bg-secondary-space-blue z-30 border-r border-l border-t border-gray h-full scrollbar-none`}
     >
       <div className="overflow-y-auto w-full scrollbar-none">
-        <Files />
-        <Axes />
-        <Filters />
-        <States />
+        <></>
       </div>
     </div>
   );

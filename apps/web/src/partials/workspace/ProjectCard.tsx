@@ -12,7 +12,7 @@ import AddMemberIcon from 'public/svg/add-member-icon.svg';
 import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 import { useSetRecoilState } from 'recoil';
-import { showModalAtom } from 'state';
+import { projectDetailsAtom, showModalAtom } from 'state';
 import produce from 'immer';
 
 export const ProjectCard = ({ idx, project }) => {
@@ -21,6 +21,7 @@ export const ProjectCard = ({ idx, project }) => {
   const { workspaceSlug } = router.query;
 
   const setShowDeleteProject = useSetRecoilState(showModalAtom);
+  const setProjectDetails = useSetRecoilState(projectDetailsAtom);
 
   const navigate = (slug) => {
     router.push(`/account/${slug}/${project._id}`);
@@ -42,7 +43,7 @@ export const ProjectCard = ({ idx, project }) => {
           {/* add member */}
           <AddMemberIcon />
           {/* info button */}
-          <ProjectInfoIcon />
+          <ProjectInfoIcon onClick={() => setProjectDetails(project)} />
           {/* delete button */}
           <DeleteProjectIcon onClick={() => deleteProject()} />
         </div>

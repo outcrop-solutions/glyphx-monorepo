@@ -87,7 +87,7 @@ export const _getRowIds = (
 /**
  * Ingest files
  * @note implements fileIngestion.process()
- * @param files corresponds to an array of file buffers
+ * @param payload
  */
 export const _ingestFiles = (payload): webTypes.IFetchConfig => {
   return {
@@ -108,12 +108,17 @@ export const _ingestFiles = (payload): webTypes.IFetchConfig => {
  * @param payload corresponds to the glyph engine payload
  */
 
-export const _createModel = (axis, column, project: databaseTypes.IProject): webTypes.IFetchConfig => {
+export const _createModel = (
+  axis,
+  column,
+  project: databaseTypes.IProject,
+  isFilter: boolean
+): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: { axis, column, project },
+      body: { axis, column, project, isFilter },
     },
     successMsg: 'File successfully added',
   };
@@ -163,15 +168,3 @@ export const _createOpenProject = (data, project, session, url) => {
         : session,
   });
 };
-
-// TODO: fix cors error to use this
-// export const _uploadFile = (acceptedFile: File, signedUrl: string): webTypes.IFetchConfig => {
-//   return {
-//     url: signedUrl,
-//     options: {
-//       method: 'POST',
-//       body: acceptedFile,
-//     },
-//     successMsg: 'File successfully added',
-//   };
-// };
