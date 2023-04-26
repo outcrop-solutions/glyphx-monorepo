@@ -1,23 +1,25 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
-
-import { workspaceAtom } from 'state';
+import { web as webTypes } from '@glyphx/types';
+import { rightSidebarControlAtom, showModalAtom, workspaceAtom } from 'state';
 
 import TableItemInfoIcon from 'public/svg/table-item-info.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
+import produce from 'immer';
+import { useCallback } from 'react';
 
 const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
 
 export const TableView = () => {
   dayjs.extend(relativeTime);
-
   const router = useRouter();
   const { workspaceSlug } = router.query;
-
   const workspace = useRecoilValue(workspaceAtom);
+  const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
+  const setShowDeleteProject = useSetRecoilState(showModalAtom);
 
   function sumFileSizes(fileStats: fileIngestionTypes.IFileStats[]): number {
     return fileStats.reduce((totalSize, file) => totalSize + file.fileSize, 0);
@@ -34,6 +36,27 @@ export const TableView = () => {
       return (bytes / 1073741824).toFixed(2) + ' GB';
     }
   }
+
+  const handleControl = (ctrl: webTypes.RightSidebarControl, data) => {
+    setRightSidebarControl(
+      produce((draft) => {
+        draft.type = ctrl;
+        draft.data = data;
+      })
+    );
+  };
+
+  const deleteProject = useCallback(
+    (project) => {
+      setShowDeleteProject(
+        produce((draft) => {
+          draft.type = 'deleteProject';
+          draft.data = { projectId: project._id, projectName: project.name };
+        })
+      );
+    },
+    [setShowDeleteProject]
+  );
 
   return (
     <div className="text-white rounded-sm relative">
@@ -74,9 +97,9 @@ export const TableView = () => {
                     </td>
                     <td className="pr-2 py-2 flex flex-row items-center justify-end space-x-1">
                       {/* info button */}
-                      <TableItemInfoIcon />
+                      <TableItemInfoIcon onClick={() => handleControl('info', project)} />
                       {/* delete button */}
-                      <DeleteProjectIcon />
+                      <DeleteProjectIcon onClick={() => deleteProject(project)} />
                     </td>
                   </tr>
                 ))}

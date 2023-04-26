@@ -1,13 +1,11 @@
 import React from 'react';
 
 // Layout
-import { PinnedProjects, ProjectDetails } from 'partials';
+import { PinnedProjects } from 'partials';
 
 // Project Overiew
-import { Templates } from 'partials';
-import { TableView } from 'partials';
-import { GridView } from 'partials';
-// import { ProjectDetails } from 'partials';
+
+import { Templates, TableView, GridView } from 'partials';
 
 // Hooks
 import { useRecoilValue } from 'recoil';
@@ -34,9 +32,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div>
-      <div id="right-side-bars" className="">
-        {projectDetails ? <ProjectDetails /> : <></>}
       </div>
     </>
   );

@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { useRecoilState } from 'recoil';
-import { projectDetailsAtom } from 'state';
+import { projectDetailsAtom, rightSidebarControlAtom } from 'state';
 import { useSession } from 'next-auth/react';
 
 const tabs = [
@@ -18,12 +18,12 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 export const ProjectDetails = () => {
-  const [projectDetails, setProjectDetails] = useRecoilState(projectDetailsAtom);
+  const [projectDetails, setProjectDetails] = useRecoilState(rightSidebarControlAtom);
   const { data } = useSession();
 
   const [open, setOpen] = useState(true);
-  const [name, setName] = useState(projectDetails.name);
-  const [description, setDescription] = useState(projectDetails.description);
+  const [name, setName] = useState(projectDetails.data.name);
+  const [description, setDescription] = useState(projectDetails.data.description);
   const [members, setMembers] = useState('');
   const [msg, setMsg] = useState(null);
   const [error, setError] = useState(null);
@@ -52,7 +52,7 @@ export const ProjectDetails = () => {
                 <FolderIcon className="h-6 w-6 mr-2 text-white" />
                 <h2 className="text-lg font-medium text-white">
                   <span className="sr-only">Details for </span>
-                  {projectDetails.name}
+                  {projectDetails.data.name}
                 </h2>
               </div>
             )}
@@ -117,15 +117,15 @@ export const ProjectDetails = () => {
           <dl className="mt-2 border-t border-b border-gray divide-y divide-gray">
             <div className="py-3 flex justify-between text-sm font-medium">
               <dt className="text-white mr-2">Owner</dt>
-              <dd className="text-slate-300 truncate">{projectDetails.owner.name}</dd>
+              <dd className="text-slate-300 truncate">{projectDetails.data.owner.name}</dd>
             </div>
             <div className="py-3 flex justify-between text-sm font-medium">
               <dt className="text-white">Created</dt>
-              <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.createdAt))}</dd>
+              <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.data.createdAt))}</dd>
             </div>
             <div className="py-3 flex justify-between text-sm font-medium">
               <dt className="text-white">Last modified</dt>
-              <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.updatedAt))}</dd>
+              <dd className="text-slate-300">{dayjs().to(dayjs(projectDetails.data.updatedAt))}</dd>
             </div>
           </dl>
         </div>
@@ -142,7 +142,7 @@ export const ProjectDetails = () => {
                 className="mt-1 rounded-sm block border-px bg-gray border-gray shadow-sm py-2 px-3 w-5/6 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             ) : (
-              <p className="text-sm text-white italic">{projectDetails.description}</p>
+              <p className="text-sm text-white italic">{projectDetails.data.description}</p>
             )}
             <button
               type="button"

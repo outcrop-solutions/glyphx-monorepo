@@ -47,7 +47,7 @@ export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>
     if (coords && window.width) {
       const x = calcX(coords, resize, orientation);
       const y = calcY(coords, resize, orientation);
-      const w = calcW(coords, resize, orientation, isControlOpen, window);
+      const w = calcW(coords, resize, orientation, isControlOpen.type, window);
       const h = calcH(coords, resize, orientation);
 
       return {

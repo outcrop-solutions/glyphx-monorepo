@@ -1,19 +1,20 @@
 import React, { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import produce from 'immer';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import SharedTag from 'public/svg/shared-tag.svg';
-import { _deleteProject, api } from 'lib/client';
+import { useSetRecoilState } from 'recoil';
+
+import { web as webTypes } from '@glyphx/types';
+import { _deleteProject } from 'lib/client';
 import { ProjectTypeIcons } from '../icons';
 
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
 import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
-import { useSetRecoilState } from 'recoil';
-import { projectDetailsAtom, showModalAtom } from 'state';
-import produce from 'immer';
+import { projectDetailsAtom, rightSidebarControlAtom, showModalAtom } from 'state';
 
 export const ProjectCard = ({ idx, project }) => {
   dayjs.extend(relativeTime);
@@ -21,7 +22,7 @@ export const ProjectCard = ({ idx, project }) => {
   const { workspaceSlug } = router.query;
 
   const setShowDeleteProject = useSetRecoilState(showModalAtom);
-  const setProjectDetails = useSetRecoilState(projectDetailsAtom);
+  const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
 
   const navigate = (slug) => {
     router.push(`/account/${slug}/${project._id}`);
@@ -36,16 +37,25 @@ export const ProjectCard = ({ idx, project }) => {
     );
   }, [project._id, project.name, setShowDeleteProject]);
 
+  const handleControl = (ctrl: webTypes.RightSidebarControl, data) => {
+    setRightSidebarControl(
+      produce((draft) => {
+        draft.type = ctrl;
+        draft.data = data;
+      })
+    );
+  };
+
   return (
     <div className="group aspect-w-4 border border-gray aspect-h-4 relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-md bg-secondary-space-blue hover:cursor-pointer">
       <div className="absolute top-0 right-0 bg-primary-dark-blue p-2 rounded-md z-50 w-10 h-24">
         <div className="flex flex-col items-center justify-between">
           {/* add member */}
-          <AddMemberIcon />
+          <AddMemberIcon onClick={() => handleControl('share', project)} />
           {/* info button */}
-          <ProjectInfoIcon onClick={() => setProjectDetails(project)} />
+          <ProjectInfoIcon onClick={() => handleControl('info', project)} />
           {/* delete button */}
-          <DeleteProjectIcon onClick={() => deleteProject()} />
+          <DeleteProjectIcon onClick={deleteProject} />
         </div>
       </div>
       <div onClick={() => navigate(workspaceSlug)} className="flex flex-col h-full justify-between rounded-md">

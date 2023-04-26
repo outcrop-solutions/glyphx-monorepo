@@ -9,6 +9,7 @@ import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
 import { useWorkspace } from 'lib';
 import { Modals } from 'partials/layout/Modals';
+import { RightSidebar } from 'partials/rightSidebar';
 
 const ProjectLayout = ({ children }) => {
   const { data } = useSession();
@@ -32,10 +33,7 @@ const ProjectLayout = ({ children }) => {
           {children}
         </Content.Project>
         {/* Right Sidebar */}
-        {/* <div id="right-side-bars" className="">
-        {showShareModel ? <ShareModule setShare={setShareModel} /> : <></>}
-        {showInfo ? <Info setInfo={setShowInfo} setShare={setShareModel} /> : <></>}
-      </div> */}
+        <RightSidebar />
       </main>
     </>
   );

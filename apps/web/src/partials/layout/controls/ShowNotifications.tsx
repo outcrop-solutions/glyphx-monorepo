@@ -10,10 +10,11 @@ const btnClass =
 
 export const ShowNotifications = () => {
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
+
   const handleControl = (ctrl: webTypes.RightSidebarControl) => {
     setRightSidebarControl(
       produce((draft) => {
-        draft = ctrl;
+        draft.type = ctrl;
       })
     );
   };

@@ -14,7 +14,7 @@ export const ShowInfo = () => {
   const handleControl = (ctrl: webTypes.RightSidebarControl) => {
     setRightSidebarControl(
       produce((draft) => {
-        draft = ctrl;
+        draft.type = ctrl;
       })
     );
   };
