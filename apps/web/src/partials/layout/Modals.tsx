@@ -9,6 +9,7 @@ import produce from 'immer';
 import { DeleteAccountModal } from 'partials/modals/DeleteAccountModal';
 import { DeleteWorkspaceModal } from 'partials/modals/DeleteWorkspaceModal';
 import { DeleteProjectModal } from 'partials/modals/DeleteProjectModal';
+import { FileErrorsModal } from 'partials/modals/FileErrorsModal';
 
 export const Modals = () => {
   const [modalContent, setModalContent] = useRecoilState(showModalAtom);
@@ -39,6 +40,8 @@ export const Modals = () => {
                     return <DeleteWorkspaceModal />;
                   case 'deleteProject':
                     return <DeleteProjectModal />;
+                  case 'fileErrors':
+                    return <FileErrorsModal />;
                   default:
                     return <></>;
                 }

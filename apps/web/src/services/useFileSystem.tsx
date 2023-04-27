@@ -1,8 +1,15 @@
 import { useCallback, useEffect } from 'react';
 
-import { projectAtom, fileStatsSelector, matchingFilesAtom, selectedFileIndexSelector, filesOpenSelector } from 'state';
+import {
+  projectAtom,
+  fileStatsSelector,
+  matchingFilesAtom,
+  selectedFileIndexSelector,
+  filesOpenSelector,
+  showModalAtom,
+} from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { compareStats, parsePayload } from 'lib/client/files/transforms';
+import { checkPayload, compareStats, parsePayload } from 'lib/client/files/transforms';
 import produce, { current } from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
@@ -21,6 +28,7 @@ export const useFileSystem = () => {
   const [project, setProject] = useRecoilState(projectAtom);
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);
+  const setShowModal = useSetRecoilState(showModalAtom);
   // const { fetchData } = useDataGrid();
   // const existingFileStats = useRecoilValue(fileStatsSelector);
   // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
@@ -112,46 +120,58 @@ export const useFileSystem = () => {
       // parse payload
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
-      // get s3 keys for upload
-      const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
-      // get signed urls
-      // api({
-      // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
-      // onSuccess: ({ signedUrls }) => {
-      await Promise.all(
-        keys.map(async (key, idx) => {
-          // upload raw file data to s3
-          await api({
-            ..._uploadFile(
-              await acceptedFiles[idx].arrayBuffer(),
-              key,
-              project.workspace._id.toString(),
-              project._id.toString()
-            ),
-            upload: true,
-          });
-        })
-      );
+      // check file for issues before upload
+      const errs = checkPayload(payload);
+      if (errs) {
+        // open file modal
+        setShowModal(
+          produce((draft) => {
+            draft.type = 'fileErrors';
+            draft.data = { fileErrors: errs };
+          })
+        );
+      } else {
+        // get s3 keys for upload
+        const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+        // get signed urls
+        // api({
+        // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
+        // onSuccess: ({ signedUrls }) => {
+        await Promise.all(
+          keys.map(async (key, idx) => {
+            // upload raw file data to s3
+            await api({
+              ..._uploadFile(
+                await acceptedFiles[idx].arrayBuffer(),
+                key,
+                project.workspace._id.toString(),
+                project._id.toString()
+              ),
+              upload: true,
+            });
+          })
+        );
 
-      // only call ingest once
-      await api({
-        ..._ingestFiles(payload),
-        onSuccess: (data) => {
-          // update project filesystem
-          setProject(
-            produce((draft) => {
-              // @ts-ignore
-              draft.files = payload.fileStats;
-              // @ts-ignore
-              draft.files[0].dataGrid = data.dataGrid;
-              // @ts-ignore
-              draft.files[0].open = true;
-            })
-          );
-          // open first file
-          selectFile(0);
-        },
-      });
+        // only call ingest once
+        await api({
+          ..._ingestFiles(payload),
+          onSuccess: (data) => {
+            // update project filesystem
+            setProject(
+              produce((draft) => {
+                // @ts-ignore
+                draft.files = payload.fileStats;
+                // @ts-ignore
+                draft.files[0].dataGrid = data.dataGrid;
+                // @ts-ignore
+                draft.files[0].open = true;
+              })
+            );
+            // open first file
+            selectFile(0);
+          },
+        });
+      }
       // },
       // });
 

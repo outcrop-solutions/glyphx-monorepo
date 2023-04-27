@@ -14,6 +14,7 @@ export type ModalContent =
   | 'createWorkspace'
   | 'deleteAccount'
   | 'deleteWorkspace'
-  | 'deleteProject';
+  | 'deleteProject'
+  | 'fileErrors';
 
 export type SplitPaneOrientation = 'vertical' | 'horizontal';
