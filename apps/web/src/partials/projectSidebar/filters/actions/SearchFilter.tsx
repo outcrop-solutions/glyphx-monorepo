@@ -4,20 +4,21 @@ import SearchIcon from 'public/svg/search-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
 import { projectAtom } from 'state';
-import { useRecoilState } from 'recoil';
-import { useProject } from 'services';
+import { useSetRecoilState } from 'recoil';
+import { WritableDraft } from 'immer/dist/internal';
+import { web as webTypes } from '@glyphx/types';
 
 export const SearchFilter = ({ prop }) => {
-  const [project, setProject] = useRecoilState(projectAtom);
-  const { handleDrop } = useProject();
+  const setProject = useSetRecoilState(projectAtom);
   const [showVisibility, setVisibility] = useState(false); //true
   const [keyword, setKeyword] = useState('');
 
   const addKeyword = useCallback(() => {
     setProject(
       produce((draft) => {
-        // @ts-ignore
-        draft.state.properties[`${prop.axis}`].filter.keywords.push(keyword);
+        (
+          draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
+        ).keywords.push(keyword);
       })
     );
     setKeyword('');
@@ -27,19 +28,39 @@ export const SearchFilter = ({ prop }) => {
     (idx) => {
       setProject(
         produce((draft) => {
-          // @ts-ignore
-          draft.state.properties[`${prop.axis}`].filter.keywords.splice(idx, 1);
+          (
+            draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
+          ).keywords.splice(idx, 1);
         })
       );
     },
     [prop.axis, setProject]
   );
 
-  // TODO: verify update works, add validation/disabled
   const handleApply = useCallback(() => {
-    handleDrop(prop.axis, { key: prop.key, dataType: prop.dataType }, project, true);
-    setVisibility(!showVisibility);
-  }, [handleDrop, project, prop.axis, prop.dataType, prop.key, showVisibility]);
+    if (!visibility) {
+      // apply local min/max to project
+      setProject(
+        produce((draft) => {
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min =
+            min;
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max =
+            max;
+        })
+      );
+    } else {
+      // remove local min/max from project (reset to default)
+      setProject(
+        produce((draft) => {
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min = 0;
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max = 0;
+        })
+      );
+    }
+    setVisibility((prev) => !prev);
+    // disable to avoid visibility re-triggering callback
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
