@@ -100,6 +100,7 @@ export class ProjectService {
         isTemplate: false,
         type: projectTypeCastId ?? defaultType,
         files: [],
+        members: [],
         state: {
           properties: {
             X: {

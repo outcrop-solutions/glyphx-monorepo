@@ -3,13 +3,13 @@ import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { Toaster } from 'react-hot-toast';
 
+import { Modals } from 'partials/layout/Modals';
+
 import Content from 'components/Content/index';
 import Header from 'components/Header';
 import Sidebar from 'components/Sidebar/index';
 import menu from 'config/menu/index';
 import { useWorkspace } from 'lib';
-import { Modals } from 'partials/layout/Modals';
-import { RightSidebar } from 'partials/rightSidebar';
 
 const WorkspaceLayout = ({ children }) => {
   const { data } = useSession();

@@ -67,6 +67,7 @@ export class WorkspaceService {
         inviter: email,
         email: email,
         joinedAt: new Date(),
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
         status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
         teamRole: databaseTypes.constants.ROLE.OWNER,
         member: {_id: castCreatorId} as unknown as databaseTypes.IUser,

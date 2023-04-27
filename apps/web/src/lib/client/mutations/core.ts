@@ -4,7 +4,10 @@ import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 /**
  * Gets signed urls to pass to the Qt engine
  * @note implements s3Manager.getSignedDataUrlPromise concurrently
- * @note requires signed body, so no go for nwo
+ * @note requires signed body, so no go for now
+ * @param workpaceId
+ * @param projectId
+ * @param keys
  */
 export const _getSignedUploadUrls = (workspaceId: string, projectId: string, keys: string[]): webTypes.IFetchConfig => {
   return {
@@ -17,6 +20,14 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
   };
 };
 
+/**
+ * @note could potentially be changed to multi-part upload in api Content-Type
+ * @param acceptedFile
+ * @param key
+ * @param workspaceId
+ * @param projectId
+ * @returns
+ */
 export const _uploadFile = (
   acceptedFile: ArrayBuffer,
   key: string,
@@ -34,7 +45,6 @@ export const _uploadFile = (
 };
 
 /**
- * @note I know it's not great form to put body on a get but we will refactor the query param / routing later
  * @param workpaceId
  * @param projectId
  * @param tableName
@@ -144,9 +154,13 @@ export const _getSignedDataUrls = (workspaceId: string, projectId: string): webT
  *
  * @param project
  * @param data
+ * @param project
+ * @param session
+ * @param url
+ * @param camera
  * @returns stringified Qt Open Project payload
  */
-export const _createOpenProject = (data, project, session, url) => {
+export const _createOpenProject = (data, project, session, url, camera) => {
   return JSON.stringify({
     projectId: project?._id,
     workspaceId: project?.workspace._id,
@@ -154,6 +168,7 @@ export const _createOpenProject = (data, project, session, url) => {
     sgnUrl: data.sgnUrl,
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
+    camera: camera,
     apiLocation: `${url}/api`,
     sessionInformation:
       session.status === 'unauthenticated'

@@ -4,6 +4,7 @@ import {IWorkspace} from './iWorkspace';
 import {INVITATION_STATUS, ROLE, MEMBERSHIP_TYPE} from './constants';
 import {IProject} from './iProject';
 
+// if project exists, type: PROJECT
 export interface IMember {
   _id?: mongooseTypes.ObjectId;
   email: string;
@@ -18,6 +19,6 @@ export interface IMember {
   teamRole: ROLE;
   member: IUser;
   invitedBy: IUser;
-  workspace?: IWorkspace;
+  workspace: IWorkspace;
   project?: IProject;
 }

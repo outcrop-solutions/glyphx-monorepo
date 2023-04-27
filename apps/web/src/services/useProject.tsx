@@ -26,9 +26,10 @@ export const useProject = () => {
         onSuccess: (data) => {
           api({
             ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString()),
-            onSuccess: (data) => {
+            onSuccess: async (data) => {
               if (window.core) {
-                window?.core?.OpenProject(_createOpenProject(data, project, session, url));
+                const camera = await window.core.GetCameraPosition(true);
+                window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
               }
             },
           });
