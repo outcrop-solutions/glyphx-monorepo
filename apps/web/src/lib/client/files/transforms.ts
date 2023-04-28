@@ -84,24 +84,43 @@ export const parsePayload = async (
   return payload;
 };
 
+function removePrefix(str: string, prefix: string): string {
+  if (!str.startsWith(prefix)) {
+    return str;
+  }
+  return str.slice(prefix.length);
+}
+
+const hashFileStats = (fileStats, existing) =>
+  fileStats.map(({ fileName, tableName, columns }) => {
+    const columnHashes = columns.map(({ name, fieldType }) => `${name}${fieldType}`).join('');
+    const formattedColHash = existing ? removePrefix(columnHashes, 'glyphx_id__2') : columnHashes;
+    return MD5(`${fileName}${tableName}${formattedColHash}`).toString();
+  });
+
 // Immutable pre-upload file rules
 const FILE_RULES: webTypes.IFileRule[] = [
   {
+    type: 'fileErrors',
     name: 'Duplicate column names',
     desc: 'Your csv has duplicate column names which is not allowed in model generation. Please de-duplicate the following columns and re-upload your file:',
     condition: (
-      payload
+      payload,
+      existingFiles
     ):
       | {
           intraFileDuplicates?: { file: string; column: string }[];
-          interFileDuplicates?: { name: string; types: { fileType: number; fileName: string }[] }[];
+          interFileDuplicates?: { columnName: string; duplicates: { fieldType: string; fileName: string }[] }[];
         }
       | false => {
       const intraFileDuplicates: { file: string; column: string }[] = [];
-      const interFileDuplicates: { name: string; types: { fileType: number; fileName: string }[] }[] = [];
+      const interFileDuplicates: { columnName: string; duplicates: { fieldType: string; fileName: string }[] }[] = [];
       const nameTypes = new Map<string, Map<number, string[]>>();
 
-      for (const fileStat of payload.fileStats) {
+      // Combine payload.fileStats and existingFiles into a new array
+      const allFileStats = [...payload.fileStats, ...existingFiles];
+
+      for (const fileStat of allFileStats) {
         const fileColumnNames = new Set<string>();
 
         for (const column of fileStat.columns) {
@@ -118,23 +137,29 @@ const FILE_RULES: webTypes.IFileRule[] = [
             const types = nameTypes.get(columnName);
             if (types.has(columnType)) {
               types.get(columnType)?.push(fileStat.fileName);
-              continue;
+            } else {
+              types.set(columnType, [fileStat.fileName]);
             }
-            types.set(columnType, [fileStat.fileName]);
-            const typeArr = Array.from(types.entries()).map(([fileType, fileNames]) => ({
-              fileType,
-              fileName: fileNames[0],
-            }));
-            interFileDuplicates.push({ name: columnName, types: typeArr });
           } else {
             nameTypes.set(columnName, new Map<number, string[]>([[columnType, [fileStat.fileName]]]));
           }
         }
       }
 
+      // Populate interFileDuplicates
+      for (const [columnName, types] of nameTypes.entries()) {
+        if (types.size > 1) {
+          const typeArr = Array.from(types.entries()).map(([fieldType, fileNames]) => ({
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE[fieldType],
+            fileName: fileNames.join(', '),
+          }));
+          interFileDuplicates.push({ columnName: columnName, duplicates: typeArr });
+        }
+      }
+
       const result: {
         intraFileDuplicates?: { file: string; column: string }[];
-        interFileDuplicates?: { name: string; types: { fileType: number; fileName: string }[] }[];
+        interFileDuplicates?: { columnName: string; duplicates: { fieldType: string; fileName: string }[] }[];
       } = {};
       if (intraFileDuplicates.length > 0) {
         result.intraFileDuplicates = intraFileDuplicates;
@@ -145,6 +170,32 @@ const FILE_RULES: webTypes.IFileRule[] = [
       return Object.keys(result).length > 0 ? result : false;
     },
   },
+  {
+    type: 'fileDecisions',
+    name: 'Duplicate file structure',
+    desc: 'At least one of your csv looks like a pre-existing upload. If you would like to append data to the existing table, choose APPEND, if you want to create a new table, choose ADD',
+    condition: (payload, existingFileStats): webTypes.IMatchingFileStats[] => {
+      // select and hash relevant values
+      const newHashes = hashFileStats(payload.fileStats, false);
+
+      const existingHashes = hashFileStats(existingFileStats, true);
+
+      // determine matches from hashes
+      const retval = newHashes
+        .map((hash, idx) =>
+          existingHashes.findIndex((existingHash) => existingHash === hash) !== -1
+            ? {
+                newFile: payload.fileStats[idx].fileName,
+                existingFile:
+                  existingFileStats[existingHashes.findIndex((existingHash) => existingHash === hash)].fileName,
+              }
+            : null
+        )
+        .filter((el) => el !== null);
+
+      return retval.length > 0 ? retval : false;
+    },
+  },
 ];
 
 /**
@@ -152,34 +203,14 @@ const FILE_RULES: webTypes.IFileRule[] = [
  * @param payload
  * @returns
  */
-export const checkPayload = (payload: webTypes.IClientSidePayload): webTypes.IFileRule[] | false => {
-  console.log({ payload });
+export const checkPayload = (
+  payload: webTypes.IClientSidePayload,
+  existingFiles: fileIngestionTypes.IFileStats[]
+): webTypes.IFileRule[] | false => {
   const errors = FILE_RULES.flatMap((rule) => {
-    const err = rule.condition(payload);
-    return err ? [{ name: rule.name, desc: rule.desc, data: err }] : [];
+    const err = rule.condition(payload, existingFiles);
+    return err ? [{ ...rule, data: err }] : [];
   });
 
   return errors.length > 0 ? errors : false;
-};
-
-/**
- * Compares fileIngestionTypes.IFileStats across hashes of fileIngestionTypes.IFileStats to determine matching file name/colum/type combos using MD5 to allow user to make a decision
- * @param {fileIngestionTypes.IFileStats[]}
- * @param {fileIngestionTypes.IFileStats[]}
- * @returns {webTypes.IMatchingFileStats[]}
- */
-export const compareStats = (newFileStats, existingFileStats): webTypes.IMatchingFileStats[] => {
-  // TODO: file name collisions
-  // select and hash relevant values
-  const newHashes = newFileStats.map(({ fileName, tableName, columns }) => MD5({ fileName, tableName, columns }));
-  const existingHashes = newFileStats.map(({ fileName, tableName, columns }) => MD5({ fileName, tableName, columns }));
-
-  // determine matches from hashes
-  return newHashes
-    .map((hash, idx) =>
-      existingHashes.findIndex(hash) !== -1
-        ? { new: newFileStats[idx], existing: existingFileStats[existingHashes.findIndex(hash)] }
-        : null
-    )
-    .filter((el) => el !== null);
 };

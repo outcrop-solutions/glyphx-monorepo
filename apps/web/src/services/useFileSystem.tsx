@@ -9,7 +9,7 @@ import {
   showModalAtom,
 } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { checkPayload, compareStats, parsePayload } from 'lib/client/files/transforms';
+import { checkPayload, parsePayload } from 'lib/client/files/transforms';
 import produce, { current } from 'immer';
 import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
 import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
@@ -121,7 +121,7 @@ export const useFileSystem = () => {
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
       // check file for issues before upload
-      const errs = checkPayload(payload);
+      const errs = checkPayload(payload, project.files);
       if (errs) {
         // open file modal
         setShowModal(
@@ -172,24 +172,6 @@ export const useFileSystem = () => {
           },
         });
       }
-      // },
-      // });
-
-      // ingest files
-
-      // TODO: add calculate & compare file stats once error free
-      // const matchingStats = await compareStats(newFileStats, existingFileStats);
-
-      // immutable update to modal state if decision required
-      // if (matchingStats && matchingStats.length > 0) {
-      //   setMatchingStats(
-      //     produce((_) => {
-      //       return matchingStats;
-      //     })
-      //   );
-      // }
-      // if no decision required, default to 'ADD'
-
       // update file system state with processed data based on user decision
     },
     [project, selectFile, setProject]
