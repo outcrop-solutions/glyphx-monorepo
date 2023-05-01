@@ -18,5 +18,9 @@ export * from './filters/iStringFilter';
 export * from './payloads/iCreateModelPayload';
 export * from './payloads/iOpenModelPayload';
 export * from './payloads/iViewerPosition';
+// modals
+export * from './modals/iDeleteProjectData';
+export * from './modals/iFileDecisionData';
+export * from './modals/iModalsAtom';
 
 export * from './ui';

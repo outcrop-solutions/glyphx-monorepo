@@ -14,22 +14,6 @@ import { FileErrorsModal } from 'partials/modals/FileErrorsModal';
 import { FileDecisionModal } from 'partials/modals/FileDecisionModal';
 import { WritableDraft } from 'immer/dist/internal';
 
-// export type ModalProps<T extends webTypes.MODAL_CONTENT_TYPE> = {
-//   modalContent: webTypes.ModalContentForType<T>;
-// };
-
-// const modalComponentMapping: {
-//   [T in webTypes.constants.MODAL_CONTENT_TYPE]: React.FC<ModalProps<T>>;
-// } = {
-//   [webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT]: CreateProjectModal,
-//   [webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE]: CreateWorkspaceModal,
-//   [webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT]: DeleteAccountModal,
-//   [webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE]: DeleteWorkspaceModal,
-//   [webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT]: DeleteProjectModal,
-//   [webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS]: FileDecisionModal,
-//   [webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS]: FileErrorsModal,
-// };
-
 export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) => {
   const setModals = useSetRecoilState(modalsAtom);
 

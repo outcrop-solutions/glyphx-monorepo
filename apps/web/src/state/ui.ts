@@ -28,7 +28,7 @@ export const showQtViewerAtom = atom<boolean>({
   default: false,
 });
 
-export const modalsAtom = atom<webTypes.ModalsAtom>({
+export const modalsAtom = atom<webTypes.IModalsAtom>({
   key: 'modalsAtom',
   default: {
     modals: [],
