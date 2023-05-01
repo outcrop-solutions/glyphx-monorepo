@@ -36,5 +36,6 @@ export const useSocket = () => {
         ws.close();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel]);
 };

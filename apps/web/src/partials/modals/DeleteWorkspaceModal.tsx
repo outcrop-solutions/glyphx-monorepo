@@ -28,13 +28,13 @@ export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceM
       ..._deleteWorkspace(workspace.slug),
       setLoading: (state) =>
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.slice(0, 1);
           })
         );

@@ -16,7 +16,7 @@ export const CreateProject = () => {
 
   const handleNewProject = () => {
     setModals(
-      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT,
           isSubmitting: false,

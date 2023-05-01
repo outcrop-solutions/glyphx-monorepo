@@ -24,13 +24,13 @@ export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceM
       ..._createWorkspace(name),
       setLoading: (state) =>
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft[0].isSubmitting = state;
           })
         ),
       onSuccess: (result) => {
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.slice(0, 1);
           })
         );

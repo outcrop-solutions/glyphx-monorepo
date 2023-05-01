@@ -22,7 +22,7 @@ export const CreateProjectModal = ({ modalContent }: webTypes.CreateProjectModal
   const content = modalContent;
   const handleClickAway = () => {
     setModals(
-      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
         draft.modals.slice(0, 1);
       })
     );

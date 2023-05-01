@@ -20,7 +20,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
   // pop current modal off the stack
   const handleClickAway = () => {
     setModals(
-      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
         draft.modals.splice(0, 1);
       })
     );

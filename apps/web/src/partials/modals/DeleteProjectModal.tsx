@@ -23,13 +23,13 @@ export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModal
       ..._deleteProject(modalContent?.data.projectId as string),
       setLoading: (state) =>
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.slice(0, 1);
           })
         );

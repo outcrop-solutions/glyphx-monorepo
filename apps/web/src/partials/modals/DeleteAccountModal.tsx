@@ -28,13 +28,13 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
       ..._deactivateAccount(),
       setLoading: (state) =>
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
         setModals(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.slice(0, 1);
           })
         );

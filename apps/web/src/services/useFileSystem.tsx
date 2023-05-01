@@ -28,7 +28,7 @@ export const useFileSystem = () => {
     (idx: number) => {
       // select file
       setProject(
-        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           if (selectedFileIndex !== -1) {
             draft.files[selectedFileIndex].selected = false;
           }
@@ -46,7 +46,7 @@ export const useFileSystem = () => {
     (idx: number) => {
       // open file
       setProject(
-        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           if (selectedFileIndex !== -1) {
             draft.files[selectedFileIndex].selected = false;
           }
@@ -62,7 +62,7 @@ export const useFileSystem = () => {
     (idx: number) => {
       // close file
       setProject(
-        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           if (openFiles?.length > 0) {
             draft.files[openFiles[0].fileIndex].selected = true;
           }
@@ -81,7 +81,7 @@ export const useFileSystem = () => {
     async (idx) => {
       // close file
       setProject(
-        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           draft.files[idx].open = false;
           draft.files[idx].selected = false;
         })
@@ -101,11 +101,11 @@ export const useFileSystem = () => {
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
       // check file for issues before upload
-      const modals = checkPayload(payload, project.files);
+      const modals = checkPayload(payload, project.files, acceptedFiles);
 
       // open file modals
       setModals(
-        produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+        produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
           draft.modals = modals;
         })
       );

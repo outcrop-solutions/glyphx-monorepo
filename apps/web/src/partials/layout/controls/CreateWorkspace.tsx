@@ -10,7 +10,7 @@ export const CreateWorkspace = () => {
 
   const handleNewWorkspace = () => {
     setModals(
-      produce((draft: WritableDraft<webTypes.ModalState>) => {
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE,
           isSubmitting: false,

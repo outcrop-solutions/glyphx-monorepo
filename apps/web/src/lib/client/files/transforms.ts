@@ -107,7 +107,8 @@ const FILE_RULES: webTypes.IFileRule[] = [
     desc: 'Your csv has duplicate column names which is not allowed in model generation. Please de-duplicate the following columns and re-upload your file:',
     condition: (
       payload,
-      existingFiles
+      existingFiles,
+      acceptedFiles
     ):
       | {
           intraFileDuplicates?: { file: string; column: string }[];
@@ -175,7 +176,7 @@ const FILE_RULES: webTypes.IFileRule[] = [
     type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS,
     name: 'Duplicate file structure',
     desc: 'At least one of your csv looks like a pre-existing upload. If you would like to append data to the existing table, choose APPEND, if you want to create a new table, choose ADD',
-    condition: (payload, existingFileStats): webTypes.IMatchingFileStats[] => {
+    condition: (payload, existingFileStats, acceptedFiles): webTypes.IMatchingFileStats[] => {
       // select and hash relevant values
       const newColHashes = hashFileStats(payload.fileStats, false);
       const existingColHashes = hashFileStats(existingFileStats, true);
@@ -204,13 +205,29 @@ const FILE_RULES: webTypes.IFileRule[] = [
   },
 ];
 
+// type RuleWithData<T> = {
+//   [K in keyof T]: T[K] extends (
+//     payload: webTypes.IClientSidePayload,
+//     existingFiles: fileIngestionTypes.IFileStats[]
+//   ) => infer R
+//     ? Omit<T[K], 'condition'> & { data: R }
+//     : never;
+// };
+
+// type RuleWithData<T> = {
+//   [K in keyof T]: T[K] extends {
+//     condition: (payload: webTypes.IClientSidePayload, existingFiles: webTypes.IFileStats[]) => infer R;
+//   }
+//     ? Omit<T[K], 'condition'> & { data: R }
+//     : T[K];
+// };
+
 type RuleWithData<T> = {
-  [K in keyof T]: T[K] extends (
-    payload: webTypes.IClientSidePayload,
-    existingFiles: fileIngestionTypes.IFileStats[]
-  ) => infer R
+  [K in keyof T]: T[K] extends {
+    condition: (payload: webTypes.IClientSidePayload, existingFiles: fileIngestionTypes.IFileStats[]) => infer R;
+  }
     ? Omit<T[K], 'condition'> & { data: R }
-    : never;
+    : T[K];
 };
 
 /**
@@ -221,11 +238,12 @@ type RuleWithData<T> = {
  */
 export const checkPayload = (
   payload: webTypes.IClientSidePayload,
-  existingFiles: fileIngestionTypes.IFileStats[]
+  existingFiles: fileIngestionTypes.IFileStats[],
+  acceptedFiles: File[]
 ): RuleWithData<typeof FILE_RULES>[] => {
   const stats = FILE_RULES.flatMap((rule) => {
-    const data = rule.condition(payload, existingFiles);
-    return [{ ...rule, data: data }];
+    const data = rule.condition(payload, existingFiles, acceptedFiles);
+    return [{ ...rule, isSubmitting: false, data: data }];
   });
 
   return stats;
