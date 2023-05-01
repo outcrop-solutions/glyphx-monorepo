@@ -12,7 +12,7 @@ import { useUrl } from 'lib/client/hooks';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 
-export const DeleteAccountModal = ({ modalContent }) => {
+export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModalProps) => {
   const { data } = useSession();
   const url = useUrl();
   const setModals = useSetRecoilState(modalsAtom);

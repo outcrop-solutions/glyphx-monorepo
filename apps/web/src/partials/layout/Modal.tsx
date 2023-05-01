@@ -14,7 +14,23 @@ import { FileErrorsModal } from 'partials/modals/FileErrorsModal';
 import { FileDecisionModal } from 'partials/modals/FileDecisionModal';
 import { WritableDraft } from 'immer/dist/internal';
 
-export const Modal = ({ modalContent }) => {
+// export type ModalProps<T extends webTypes.MODAL_CONTENT_TYPE> = {
+//   modalContent: webTypes.ModalContentForType<T>;
+// };
+
+// const modalComponentMapping: {
+//   [T in webTypes.constants.MODAL_CONTENT_TYPE]: React.FC<ModalProps<T>>;
+// } = {
+//   [webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT]: CreateProjectModal,
+//   [webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE]: CreateWorkspaceModal,
+//   [webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT]: DeleteAccountModal,
+//   [webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE]: DeleteWorkspaceModal,
+//   [webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT]: DeleteProjectModal,
+//   [webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS]: FileDecisionModal,
+//   [webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS]: FileErrorsModal,
+// };
+
+export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) => {
   const setModals = useSetRecoilState(modalsAtom);
 
   // pop current modal off the stack
@@ -35,19 +51,82 @@ export const Modal = ({ modalContent }) => {
               {(() => {
                 switch (modalContent.type) {
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT:
-                    return <CreateProjectModal modalContent={modalContent} />;
+                    return (
+                      <CreateProjectModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT }
+                          >
+                        }
+                      />
+                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE:
-                    return <CreateWorkspaceModal modalContent={modalContent} />;
+                    return (
+                      <CreateWorkspaceModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE }
+                          >
+                        }
+                      />
+                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT:
-                    return <DeleteAccountModal modalContent={modalContent} />;
+                    return (
+                      <DeleteAccountModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT }
+                          >
+                        }
+                      />
+                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE:
-                    return <DeleteWorkspaceModal modalContent={modalContent} />;
+                    return (
+                      <DeleteWorkspaceModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE }
+                          >
+                        }
+                      />
+                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT:
-                    return <DeleteProjectModal modalContent={modalContent} />;
+                    return (
+                      <DeleteProjectModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT }
+                          >
+                        }
+                      />
+                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS:
-                    return <FileDecisionModal modalContent={modalContent} />;
+                    return (
+                      <FileDecisionModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS }
+                          >
+                        }
+                      />
+                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS:
-                    return <FileErrorsModal modalContent={modalContent} />;
+                    return (
+                      <FileErrorsModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS }
+                          >
+                        }
+                      />
+                    );
                   default:
                     return <></>;
                 }

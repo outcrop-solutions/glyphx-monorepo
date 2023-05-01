@@ -5,7 +5,7 @@ import { WritableDraft } from 'immer/dist/internal';
 
 import { checkPayload, parsePayload } from 'lib/client/files/transforms';
 
-import { projectAtom, selectedFileIndexSelector, filesOpenSelector, showModalAtom } from 'state';
+import { projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 
 /**
@@ -22,7 +22,7 @@ export const useFileSystem = () => {
   const [project, setProject] = useRecoilState(projectAtom);
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);
-  const setShowModal = useSetRecoilState(showModalAtom);
+  const setModals = useSetRecoilState(modalsAtom);
 
   const selectFile = useCallback(
     (idx: number) => {
@@ -101,20 +101,17 @@ export const useFileSystem = () => {
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
       // check file for issues before upload
-      const errors = checkPayload(payload, project.files);
+      const modals = checkPayload(payload, project.files);
 
       // open file modals
-      for (const err of errors) {
-        setShowModal(
-          produce((draft: WritableDraft<webTypes.ModalState>) => {
-            draft.type = err.type;
-            draft.data = err.data;
-          })
-        );
-      }
+      setModals(
+        produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          draft.modals = modals;
+        })
+      );
     },
     // update file system state with processed data based on user decision
-    [project, setShowModal]
+    [project, setModals]
   );
 
   return {

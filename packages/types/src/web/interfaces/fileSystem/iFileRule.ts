@@ -4,7 +4,7 @@ import {IFileDecisionData} from '../modals/iFileDecisionData';
 import {IClientSidePayload} from './iClientSidePayload';
 
 export interface IFileRule {
-  type: MODAL_CONTENT_TYPE.FILE_DECISIONS;
+  type: MODAL_CONTENT_TYPE.FILE_DECISIONS | MODAL_CONTENT_TYPE.FILE_ERRORS;
   name: string;
   desc: string;
   condition?: (

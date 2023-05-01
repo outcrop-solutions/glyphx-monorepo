@@ -204,6 +204,15 @@ const FILE_RULES: webTypes.IFileRule[] = [
   },
 ];
 
+type RuleWithData<T> = {
+  [K in keyof T]: T[K] extends (
+    payload: webTypes.IClientSidePayload,
+    existingFiles: fileIngestionTypes.IFileStats[]
+  ) => infer R
+    ? Omit<T[K], 'condition'> & { data: R }
+    : never;
+};
+
 /**
  * @note populates file error modal
  * @param payload
@@ -213,11 +222,11 @@ const FILE_RULES: webTypes.IFileRule[] = [
 export const checkPayload = (
   payload: webTypes.IClientSidePayload,
   existingFiles: fileIngestionTypes.IFileStats[]
-): webTypes.ModalState[] => {
-  const errors = FILE_RULES.flatMap((rule) => {
-    const err = rule.condition(payload, existingFiles);
-    return [{ ...rule, data: err }];
+): RuleWithData<typeof FILE_RULES>[] => {
+  const stats = FILE_RULES.flatMap((rule) => {
+    const data = rule.condition(payload, existingFiles);
+    return [{ ...rule, data: data }];
   });
 
-  return errors;
+  return stats;
 };

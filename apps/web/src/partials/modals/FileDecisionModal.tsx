@@ -11,7 +11,8 @@ import { modalsAtom, projectAtom } from 'state';
 import Button from 'components/Button';
 import { useFileSystem } from 'services';
 
-export const FileDecisionModal = ({ modalContent }) => {
+
+export const FileDecisionModal = ({ modalContent }:  webTypes.FileDecisionsModalProps ) => {
   const [project, setProject] = useRecoilState(projectAtom);
   const setModals = useSetRecoilState(modalsAtom)
   const {selectFile} = useFileSystem()
@@ -28,7 +29,7 @@ export const FileDecisionModal = ({ modalContent }) => {
 
   useCallback(async () => {
     // get s3 keys for upload
-    const keys = modalContent.payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+    const keys = modalContent.data.payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
     // get signed urls
     // api({
     // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
@@ -38,7 +39,7 @@ export const FileDecisionModal = ({ modalContent }) => {
         // upload raw file data to s3
         await api({
           ..._uploadFile(
-            await modalContent.acceptedFiles[idx].arrayBuffer(),
+            await modalContent.data.acceptedFiles[idx].arrayBuffer(),
             key,
             project.workspace._id.toString(),
             project._id.toString()
@@ -50,13 +51,13 @@ export const FileDecisionModal = ({ modalContent }) => {
 
     // only call ingest once
     await api({
-      ..._ingestFiles(modalContent.payload),
+      ..._ingestFiles(modalContent.data.payload),
       onSuccess: (data) => {
         // update project filesystem
         setProject(
           produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.files = modalContent.payload.fileStats;
-            draft.files[0].dataGrid = modalContent.dataGrid;
+            draft.files = modalContent.data.payload.fileStats;
+            draft.files[0].dataGrid = modalContent.data.dataGrid;
             draft.files[0].open = true;
           })
         );
@@ -64,13 +65,13 @@ export const FileDecisionModal = ({ modalContent }) => {
         selectFile(0);
       },
     });
-  }, [modalContent.acceptedFiles, modalContent.payload, project._id, project.workspace._id, setProject]);
+  }, [modalContent.data.acceptedFiles, modalContent.data.payload, project._id, project.workspace._id, setProject]);
 
   return (
     <div
       className={`bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md max-h-[600px] overflow-auto`}
     >
-      {(modalContent.fileErrors as unknown as webTypes.IFileRule[]).map((err, idx) => (
+      {(modalContent.data.fileErrors).map((err, idx) => (
         <div className="flex flex-col space-y-4" key={`${idx}-${err.name}`}>
           <p>
             <span>
@@ -80,7 +81,7 @@ export const FileDecisionModal = ({ modalContent }) => {
           <p>
             <span className="whitespace-wrap text-sm text-light-gray">{err.desc}</span>
           </p>
-            err.modalContent.map(({ newFile, existingFile }, idx) => (
+            err.modalContent.data.map(({ newFile, existingFile }, idx) => (
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white rounded-md shadow-md p-4">
                   <div className="font-bold mb-2">New File:</div>

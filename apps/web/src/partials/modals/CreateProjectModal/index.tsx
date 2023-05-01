@@ -16,14 +16,14 @@ import TemplateLibraryIcon from 'public/svg/template-lib-icon.svg';
 import { WritableDraft } from 'immer/dist/internal';
 import { modalsAtom } from 'state';
 
-export const CreateProjectModal = ({ modalContent }) => {
-  const setShowAddProject = useSetRecoilState(modalsAtom);
+export const CreateProjectModal = ({ modalContent }: webTypes.CreateProjectModalProps) => {
+  const setModals = useSetRecoilState(modalsAtom);
   const [current, setCurrent] = useState(0);
-
+  const content = modalContent;
   const handleClickAway = () => {
-    setShowAddProject(
-      produce((draft: WritableDraft<webTypes.ModalState>) => {
-        draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
+    setModals(
+      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+        draft.modals.slice(0, 1);
       })
     );
   };

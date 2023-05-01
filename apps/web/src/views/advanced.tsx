@@ -1,21 +1,26 @@
 import Button from 'components/Button/index';
 import Card from 'components/Card/index';
 import Content from 'components/Content/index';
-
+import { web as webTypes } from '@glyphx/types';
 import { _deleteWorkspace } from 'lib/client';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
-import { showModalAtom } from 'state';
+import { modalsAtom } from 'state';
 import { useRecoilState } from 'recoil';
 import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
 
 const Advanced = () => {
   const isCreator = useIsTeamOwner();
-  const [deleteModal, setDeleteModal] = useRecoilState(showModalAtom);
+  const [modals, setModals] = useRecoilState(modalsAtom);
 
   const handleDeleteWorkspace = () => {
-    setDeleteModal(
-      produce((draft) => {
-        draft.type = 'deleteWorkspace';
+    setModals(
+      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE,
+          isSubmitting: false,
+          data: false,
+        });
       })
     );
   };
@@ -39,10 +44,10 @@ const Advanced = () => {
             {isCreator && (
               <Button
                 className="text-white bg-red-600 hover:bg-red-500"
-                disabled={deleteModal.isSubmitting}
+                disabled={modals[0]?.isSubmitting}
                 onClick={() => handleDeleteWorkspace()}
               >
-                {deleteModal.isSubmitting ? 'Deleting' : 'Delete'}
+                {modals[0]?.isSubmitting ? 'Deleting' : 'Delete'}
               </Button>
             )}
           </Card.Footer>

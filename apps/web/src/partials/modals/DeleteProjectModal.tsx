@@ -8,7 +8,7 @@ import { _deleteProject, _deleteWorkspace, api } from 'lib';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 
-export const DeleteProjectModal = ({ modalContent }) => {
+export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyProject, setVerifyProject] = useState('');

@@ -11,7 +11,7 @@ import { modalsAtom, projectAtom } from 'state';
 import Button from 'components/Button';
 import { ObjectRenderer } from './ObjectRenderer';
 
-export const FileErrorsModal = ({ modalContent }) => {
+export const FileErrorsModal = ({ modalContent }: webTypes.FileErrorsModalProps) => {
   const [project, setProject] = useRecoilState(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const [toggle, setToggle] = useState();

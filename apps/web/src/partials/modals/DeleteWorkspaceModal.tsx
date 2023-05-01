@@ -11,7 +11,7 @@ import Button from 'components/Button';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
 
-export const DeleteWorkspaceModal = ({ modalContent }) => {
+export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceModalProps) => {
   const router = useRouter();
   const setModals = useSetRecoilState(modalsAtom);
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);

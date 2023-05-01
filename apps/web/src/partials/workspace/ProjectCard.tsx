@@ -10,7 +10,7 @@ import { _deleteProject } from 'lib/client';
 import { ProjectTypeIcons } from '../icons';
 
 import { useSetRecoilState } from 'recoil';
-import { showModalAtom } from 'state';
+import { modalsAtom } from 'state';
 
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
@@ -23,20 +23,22 @@ export const ProjectCard = ({ idx, project }) => {
   const router = useRouter();
   const { workspaceSlug } = router.query;
 
-  const setShowDeleteProject = useSetRecoilState(showModalAtom);
+  const setModals = useSetRecoilState(modalsAtom);
 
   const navigate = (slug) => {
     router.push(`/account/${slug}/${project._id}`);
   };
 
   const deleteProject = useCallback(() => {
-    setShowDeleteProject(
-      produce((draft: WritableDraft<webTypes.ModalState>) => {
-        draft.type = webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT;
-        draft.data = { projectId: project._id, projectName: project.name };
+    setModals(
+      produce((draft: WritableDraft<webTypes.ModalAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT,
+          data: { projectId: project._id, projectName: project.name },
+        });
       })
     );
-  }, [project._id, project.name, setShowDeleteProject]);
+  }, [project, setModals]);
 
   return (
     <div className="group aspect-w-4 border border-gray aspect-h-4 relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-md bg-secondary-space-blue hover:cursor-pointer">

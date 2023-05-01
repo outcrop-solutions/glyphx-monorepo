@@ -1,22 +1,26 @@
 import { useState, Fragment, useEffect } from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 import { signOut, useSession } from 'next-auth/react';
-import { Transition, Menu } from '@headlessui/react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
-import isEmail from 'validator/lib/isEmail';
+
+import { useSetRecoilState } from 'recoil';
+import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
+
+import { web as webTypes } from '@glyphx/types';
 
 import Button from 'components/Button';
 import Card from 'components/Card';
 import Content from 'components/Content';
+
+import isEmail from 'validator/lib/isEmail';
 import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
-import { useSetRecoilState } from 'recoil';
-import { showModalAtom } from 'state';
-import produce from 'immer';
+import { modalsAtom } from 'state';
 
 export default function Settings() {
   const { data } = useSession();
-  const setShowDeleteModal = useSetRecoilState(showModalAtom);
+  const setModals = useSetRecoilState(modalsAtom);
 
   const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
@@ -49,9 +53,13 @@ export default function Settings() {
 
   // open delete confirmation modal
   const toggleModal = () => {
-    setShowDeleteModal(
-      produce((draft) => {
-        draft.type = 'deleteAccount';
+    setModals(
+      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT,
+          isSubmitting: false,
+          data: false,
+        });
       })
     );
   };

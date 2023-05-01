@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 
-export const CreateWorkspaceModal = ({ modalContent }) => {
+export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceModalProps) => {
   const router = useRouter();
   const setModals = useSetRecoilState(modalsAtom);
   const [name, setName] = useState('');
