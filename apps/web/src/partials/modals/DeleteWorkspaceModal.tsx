@@ -8,13 +8,13 @@ import { WritableDraft } from 'immer/dist/internal';
 import { _deleteWorkspace, api } from 'lib';
 import Button from 'components/Button';
 
-import { useRecoilState } from 'recoil';
-import { showModalAtom, workspaceAtom } from 'state';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { modalsAtom, workspaceAtom } from 'state';
 
-export const DeleteWorkspaceModal = () => {
+export const DeleteWorkspaceModal = ({ modalContent }) => {
   const router = useRouter();
+  const setModals = useSetRecoilState(modalsAtom);
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
-  const [deleteModal, setDeleteModal] = useRecoilState(showModalAtom);
 
   const [verifyWorkspace, setVerifyWorkspace] = useState('');
   const verifiedWorkspace = verifyWorkspace === workspace?.slug;
@@ -27,15 +27,15 @@ export const DeleteWorkspaceModal = () => {
     api({
       ..._deleteWorkspace(workspace.slug),
       setLoading: (state) =>
-        setDeleteModal(
+        setModals(
           produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
-            draft.isSubmitting = state;
+            draft[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
-        setDeleteModal(
+        setModals(
           produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
-            draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
+            draft.modals.slice(0, 1);
           })
         );
         setWorkspace(null);
@@ -59,7 +59,7 @@ export const DeleteWorkspaceModal = () => {
         </label>
         <input
           className="px-3 py-2 border rounded bg-transparent"
-          disabled={deleteModal.isSubmitting}
+          disabled={modalContent.isSubmitting}
           onChange={handleVerifyWorkspaceChange}
           type="text"
           value={verifyWorkspace}
@@ -68,7 +68,7 @@ export const DeleteWorkspaceModal = () => {
       <div className="flex flex-col items-stretch">
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
-          disabled={!verifiedWorkspace || deleteModal.isSubmitting}
+          disabled={!verifiedWorkspace || modalContent.isSubmitting}
           onClick={deleteWorkspace}
         >
           <span>Delete Workspace</span>

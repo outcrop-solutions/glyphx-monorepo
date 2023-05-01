@@ -106,7 +106,7 @@ export const useFileSystem = () => {
       // open file modals
       for (const err of errors) {
         setShowModal(
-          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+          produce((draft: WritableDraft<webTypes.ModalState>) => {
             draft.type = err.type;
             draft.data = err.data;
           })

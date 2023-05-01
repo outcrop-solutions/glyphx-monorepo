@@ -14,13 +14,14 @@ import { FileErrorsModal } from 'partials/modals/FileErrorsModal';
 import { FileDecisionModal } from 'partials/modals/FileDecisionModal';
 import { WritableDraft } from 'immer/dist/internal';
 
-export const Modal = ({ modalContent, idx }) => {
+export const Modal = ({ modalContent }) => {
   const setModals = useSetRecoilState(modalsAtom);
 
+  // pop current modal off the stack
   const handleClickAway = () => {
     setModals(
       produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
-        draft.modals.splice(idx, 1);
+        draft.modals.splice(0, 1);
       })
     );
   };
@@ -34,19 +35,19 @@ export const Modal = ({ modalContent, idx }) => {
               {(() => {
                 switch (modalContent.type) {
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT:
-                    return <CreateProjectModal />;
+                    return <CreateProjectModal modalContent={modalContent} />;
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE:
-                    return <CreateWorkspaceModal />;
+                    return <CreateWorkspaceModal modalContent={modalContent} />;
                   case webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT:
-                    return <DeleteAccountModal />;
+                    return <DeleteAccountModal modalContent={modalContent} />;
                   case webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE:
-                    return <DeleteWorkspaceModal />;
+                    return <DeleteWorkspaceModal modalContent={modalContent} />;
                   case webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT:
-                    return <DeleteProjectModal />;
+                    return <DeleteProjectModal modalContent={modalContent} />;
                   case webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS:
-                    return <FileDecisionModal />;
+                    return <FileDecisionModal modalContent={modalContent} />;
                   case webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS:
-                    return <FileErrorsModal />;
+                    return <FileErrorsModal modalContent={modalContent} />;
                   default:
                     return <></>;
                 }

@@ -5,11 +5,6 @@ import {IFileDecisionData} from '../../interfaces/modals/iFileDecisionData';
 
 export type ModalState =
   | {
-      type: MODAL_CONTENT_TYPE.CLOSED;
-      isSubmitting: false;
-      data: false;
-    }
-  | {
       type: MODAL_CONTENT_TYPE.CREATE_PROJECT;
       isSubmitting: boolean;
       data: false;

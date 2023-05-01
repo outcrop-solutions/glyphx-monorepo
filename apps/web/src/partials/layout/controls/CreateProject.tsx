@@ -16,7 +16,7 @@ export const CreateProject = () => {
 
   const handleNewProject = () => {
     setShowCreateProject(
-      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+      produce((draft: WritableDraft<webTypes.ModalState>) => {
         draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT;
       })
     );

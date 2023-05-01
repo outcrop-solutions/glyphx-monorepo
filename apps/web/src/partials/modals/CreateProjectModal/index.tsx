@@ -8,22 +8,21 @@ import ImportProject from './ImportProject';
 import TemplateLibrary from './TemplateLibrary';
 
 import { useSetRecoilState } from 'recoil';
-import { showModalAtom } from 'state';
 
 import BackBtnIcon from 'public/svg/back-btn-icon.svg';
 import ImportProjectIcon from 'public/svg/import-project-icon.svg';
 import BlankProjectIcon from 'public/svg/blank-project-icon.svg';
 import TemplateLibraryIcon from 'public/svg/template-lib-icon.svg';
-import Content from 'components/Content';
 import { WritableDraft } from 'immer/dist/internal';
+import { modalsAtom } from 'state';
 
-export const CreateProjectModal = () => {
-  const setShowAddProject = useSetRecoilState(showModalAtom);
+export const CreateProjectModal = ({ modalContent }) => {
+  const setShowAddProject = useSetRecoilState(modalsAtom);
   const [current, setCurrent] = useState(0);
 
   const handleClickAway = () => {
     setShowAddProject(
-      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+      produce((draft: WritableDraft<webTypes.ModalState>) => {
         draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
       })
     );

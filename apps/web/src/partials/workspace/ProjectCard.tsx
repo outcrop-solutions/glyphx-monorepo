@@ -31,7 +31,7 @@ export const ProjectCard = ({ idx, project }) => {
 
   const deleteProject = useCallback(() => {
     setShowDeleteProject(
-      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+      produce((draft: WritableDraft<webTypes.ModalState>) => {
         draft.type = webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT;
         draft.data = { projectId: project._id, projectName: project.name };
       })

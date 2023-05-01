@@ -5,22 +5,20 @@ import { WritableDraft } from 'immer/dist/internal';
 import { web as webTypes } from '@glyphx/types';
 import { _deleteProject, _deleteWorkspace, _ingestFiles, _uploadFile, api } from 'lib';
 
-import { useRecoilState } from 'recoil';
-import { projectAtom, showModalAtom } from 'state';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { modalsAtom, projectAtom } from 'state';
 
 import Button from 'components/Button';
 import { ObjectRenderer } from './ObjectRenderer';
 
-export const FileErrorsModal = () => {
+export const FileErrorsModal = ({ modalContent }) => {
   const [project, setProject] = useRecoilState(projectAtom);
-  const [errModal, setErrModal] = useRecoilState(showModalAtom);
-  const { data } = errModal;
-
+  const setModals = useSetRecoilState(modalsAtom);
   const [toggle, setToggle] = useState();
 
   const closeModal = () => {
-    setErrModal(
-      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+    setModals(
+      produce((draft: WritableDraft<webTypes.ModalState>) => {
         draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
         draft.data = false;
       })
@@ -29,7 +27,7 @@ export const FileErrorsModal = () => {
 
   useCallback(async () => {
     // get s3 keys for upload
-    const keys = data.payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+    const keys = modalContent.data.payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
     // get signed urls
     // api({
     // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
@@ -39,7 +37,7 @@ export const FileErrorsModal = () => {
         // upload raw file data to s3
         await api({
           ..._uploadFile(
-            await data.acceptedFiles[idx].arrayBuffer(),
+            await modalContent.data.acceptedFiles[idx].arrayBuffer(),
             key,
             project.workspace._id.toString(),
             project._id.toString()
@@ -51,13 +49,13 @@ export const FileErrorsModal = () => {
 
     // only call ingest once
     await api({
-      ..._ingestFiles(data.payload),
+      ..._ingestFiles(modalContent.data.payload),
       onSuccess: (data) => {
         // update project filesystem
         setProject(
           produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.files = data.payload.fileStats;
-            draft.files[0].dataGrid = data.dataGrid;
+            draft.files = modalContent.data.payload.fileStats;
+            draft.files[0].dataGrid = modalContent.data.dataGrid;
             draft.files[0].open = true;
           })
         );
@@ -65,13 +63,13 @@ export const FileErrorsModal = () => {
         selectFile(0);
       },
     });
-  }, [data.acceptedFiles, data.payload, project._id, project.workspace._id, setProject]);
+  }, [modalContent.data.acceptedFiles, modalContent.data.payload, project._id, project.workspace._id, setProject]);
 
   return (
     <div
       className={`bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md max-h-[600px] overflow-auto`}
     >
-      {(data.fileErrors as unknown as webTypes.IFileRule[]).map((err, idx) => (
+      {(modalContent.data.fileErrors as unknown as webTypes.IFileRule[]).map((err, idx) => (
         <div className="flex flex-col space-y-4" key={`${idx}-${err.name}`}>
           <p>
             <span>

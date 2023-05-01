@@ -9,14 +9,13 @@ import Button from 'components/Button';
 import { _deactivateAccount, _deleteWorkspace, api } from 'lib';
 import { useUrl } from 'lib/client/hooks';
 
-import { showModalAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
+import { modalsAtom } from 'state';
 
-export const DeleteAccountModal = () => {
+export const DeleteAccountModal = ({ modalContent }) => {
   const { data } = useSession();
   const url = useUrl();
-  const [deleteModal, setDeleteModal] = useRecoilState(showModalAtom);
-
+  const setModals = useSetRecoilState(modalsAtom);
   const [verifyEmail, setVerifyEmail] = useState('');
 
   const verifiedEmail = verifyEmail === data.user.email;
@@ -28,15 +27,15 @@ export const DeleteAccountModal = () => {
     api({
       ..._deactivateAccount(),
       setLoading: (state) =>
-        setDeleteModal(
+        setModals(
           produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
-            draft.isSubmitting = state;
+            draft[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
-        setDeleteModal(
+        setModals(
           produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
-            draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
+            draft.modals.slice(0, 1);
           })
         );
         signOut({ callbackUrl: `${url}/auth/login` });
@@ -56,7 +55,7 @@ export const DeleteAccountModal = () => {
         </label>
         <input
           className="px-3 py-2 border rounded bg-transparent"
-          disabled={deleteModal.isSubmitting}
+          disabled={modalContent.isSubmitting}
           onChange={handleVerifyEmailChange}
           type="email"
           value={verifyEmail}
@@ -65,7 +64,7 @@ export const DeleteAccountModal = () => {
       <div className="flex flex-col items-stretch">
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
-          disabled={!verifiedEmail || deleteModal.isSubmitting}
+          disabled={!verifiedEmail || modalContent.isSubmitting}
           onClick={deactivateAccount}
         >
           <span>Deactivate Personal Account</span>
