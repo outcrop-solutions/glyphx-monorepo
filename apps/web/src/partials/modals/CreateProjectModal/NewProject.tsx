@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import { _createProject, api } from 'lib/client';
@@ -13,7 +12,6 @@ export const NewProject = ({ exit }) => {
   const router = useRouter();
   const { workspaceSlug } = router.query;
   const workspace = useRecoilValue(workspaceAtom);
-  const { data } = useSession();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 

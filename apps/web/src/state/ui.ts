@@ -28,16 +28,10 @@ export const showQtViewerAtom = atom<boolean>({
   default: false,
 });
 
-export const showModalAtom = atom<{
-  type: webTypes.ModalContent;
-  isSubmitting: boolean;
-  data: Record<string, unknown>;
-}>({
+export const modalsAtom = atom<webTypes.ModalsAtom>({
   key: 'showModalAtom',
   default: {
-    type: false,
-    isSubmitting: false,
-    data: {},
+    modals: [],
   },
 });
 

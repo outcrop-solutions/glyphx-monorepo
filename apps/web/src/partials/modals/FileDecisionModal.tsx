@@ -9,11 +9,12 @@ import { useRecoilState } from 'recoil';
 import { projectAtom, showModalAtom } from 'state';
 
 import Button from 'components/Button';
-import { ObjectRenderer } from './ObjectRenderer';
+import { useFileSystem } from 'services';
 
-export const FileErrorsModal = () => {
+export const FileDecisionModal = () => {
   const [project, setProject] = useRecoilState(projectAtom);
   const [errModal, setErrModal] = useRecoilState(showModalAtom);
+  const {selectFile} = useFileSystem()
   const { data } = errModal;
 
   const [toggle, setToggle] = useState();
@@ -81,7 +82,34 @@ export const FileErrorsModal = () => {
           <p>
             <span className="whitespace-wrap text-sm text-light-gray">{err.desc}</span>
           </p>
-          <ObjectRenderer data={err.data} />
+            err.data.map(({ newFile, existingFile }, idx) => (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white rounded-md shadow-md p-4">
+                  <div className="font-bold mb-2">New File:</div>
+                  <div>{newFile}</div>
+                </div>
+                <div className="bg-white rounded-md shadow-md p-4">
+                  <div className="font-bold mb-2">Existing File:</div>
+                  <div>{existingFile}</div>
+                  <div className="mt-4 flex justify-between">
+                    <div>ADD</div>
+                    <div
+                      className={`bg-gray-300 rounded-full h-6 w-12 flex items-center cursor-pointer transition-colors ${
+                        true ? 'justify-end' : 'justify-start'
+                      }`}
+                      onClick={toggle}
+                    >
+                      <div
+                        className={`rounded-full bg-white h-4 w-4 transition-transform transform ${
+                          true ? 'translate-x-6' : ''
+                        }`}
+                      ></div>
+                    </div>
+                    <div>APPEND</div>
+                  </div>
+                </div>
+              </div>
+            ))
         </div>
       ))}
       <div className="flex flex-col items-stretch">

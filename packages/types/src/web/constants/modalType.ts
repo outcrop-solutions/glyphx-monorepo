@@ -1,0 +1,11 @@
+// determines what to show in the modal utility
+export enum MODAL_CONTENT_TYPE {
+  CLOSED,
+  CREATE_PROJECT,
+  CREATE_WORKSPACE,
+  DELETE_ACCOUNT,
+  DELETE_WORKSPACE,
+  DELETE_PROJECT,
+  FILE_DECISIONS,
+  FILE_ERRORS,
+}

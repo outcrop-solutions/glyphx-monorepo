@@ -1,9 +1,11 @@
 import Button from 'components/Button';
 import produce from 'immer';
-import { _createWorkspace, api, useWorkspace, useWorkspaces } from 'lib';
+import { WritableDraft } from 'immer/dist/internal';
+import { _createWorkspace, api } from 'lib';
+import { web as webTypes } from '@glyphx/types';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { showModalAtom } from 'state';
 
 export const CreateWorkspaceModal = () => {
@@ -22,14 +24,14 @@ export const CreateWorkspaceModal = () => {
       ..._createWorkspace(name),
       setLoading: (state) =>
         setCreateModal(
-          produce((draft) => {
+          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
             draft.isSubmitting = state;
           })
         ),
       onSuccess: (result) => {
         setCreateModal(
-          produce((draft) => {
-            draft.type = false;
+          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+            draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
           })
         );
         router.replace(`/account/${result.slug}`);

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import produce from 'immer';
 import { signOut, useSession } from 'next-auth/react';
-import { useRecoilState } from 'recoil';
+import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
+import { web as webTypes } from '@glyphx/types';
 
 import Button from 'components/Button';
 
 import { _deactivateAccount, _deleteWorkspace, api } from 'lib';
 import { useUrl } from 'lib/client/hooks';
+
 import { showModalAtom } from 'state';
+import { useRecoilState } from 'recoil';
 
 export const DeleteAccountModal = () => {
   const { data } = useSession();
@@ -26,14 +29,14 @@ export const DeleteAccountModal = () => {
       ..._deactivateAccount(),
       setLoading: (state) =>
         setDeleteModal(
-          produce((draft) => {
+          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
             draft.isSubmitting = state;
           })
         ),
       onSuccess: () => {
         setDeleteModal(
-          produce((draft) => {
-            draft.type = false;
+          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+            draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
           })
         );
         signOut({ callbackUrl: `${url}/auth/login` });

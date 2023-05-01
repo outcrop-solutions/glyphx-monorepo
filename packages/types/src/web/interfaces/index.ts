@@ -4,6 +4,8 @@ export * from './api/iFrontendApiReq';
 // fileSystem
 export * from './fileSystem/iClientSidePayload';
 export * from './fileSystem/iFileRule';
+export * from './fileSystem/iHydratedProject';
+export * from './fileSystem/iHydratedFile';
 export * from './fileSystem/iFileSystemItem';
 export * from './fileSystem/iMatchingFileStats';
 export * from './fileSystem/iRenderableDataGrid';

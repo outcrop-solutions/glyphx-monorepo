@@ -1,18 +1,12 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
+import produce from 'immer';
+import { web as webTypes } from '@glyphx/types';
+import { WritableDraft } from 'immer/dist/internal';
 
-import {
-  projectAtom,
-  fileStatsSelector,
-  matchingFilesAtom,
-  selectedFileIndexSelector,
-  filesOpenSelector,
-  showModalAtom,
-} from 'state';
-import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { checkPayload, parsePayload } from 'lib/client/files/transforms';
-import produce, { current } from 'immer';
-import { FILE_OPERATION } from '@glyphx/types/src/fileIngestion/constants';
-import { _getSignedUploadUrls, _ingestFiles, api, useWorkspace, _uploadFile } from 'lib/client';
+
+import { projectAtom, selectedFileIndexSelector, filesOpenSelector, showModalAtom } from 'state';
+import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -29,24 +23,18 @@ export const useFileSystem = () => {
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);
   const setShowModal = useSetRecoilState(showModalAtom);
-  // const { fetchData } = useDataGrid();
-  // const existingFileStats = useRecoilValue(fileStatsSelector);
-  // const setMatchingStats = useSetRecoilState(matchingFilesAtom);
 
   const selectFile = useCallback(
     (idx: number) => {
       // select file
       setProject(
-        produce((draft) => {
+        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
           if (selectedFileIndex !== -1) {
-            // @ts-ignore
             draft.files[selectedFileIndex].selected = false;
           }
-          // @ts-ignore
           draft.files[idx].selected = true;
         })
       );
-      // fetchData(idx);
     },
     [selectedFileIndex, setProject]
   );
@@ -58,14 +46,11 @@ export const useFileSystem = () => {
     (idx: number) => {
       // open file
       setProject(
-        produce((draft) => {
+        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
           if (selectedFileIndex !== -1) {
-            // @ts-ignore
             draft.files[selectedFileIndex].selected = false;
           }
-          // @ts-ignore
           draft.files[idx].open = true;
-          // @ts-ignore
           draft.files[idx].selected = true;
         })
       );
@@ -77,14 +62,11 @@ export const useFileSystem = () => {
     (idx: number) => {
       // close file
       setProject(
-        produce((draft) => {
+        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
           if (openFiles?.length > 0) {
-            // @ts-ignore
             draft.files[openFiles[0].fileIndex].selected = true;
           }
-          // @ts-ignore
           draft.files[idx].open = false;
-          // @ts-ignore
           draft.files[idx].selected = false;
         })
       );
@@ -96,13 +78,11 @@ export const useFileSystem = () => {
    * Manage File data
    */
   const removeFile = useCallback(
-    async (idx, operation: FILE_OPERATION) => {
+    async (idx) => {
       // close file
       setProject(
-        produce((draft) => {
-          // @ts-ignore
+        produce((draft: WritableDraft<webTypes.HydratedProject>) => {
           draft.files[idx].open = false;
-          // @ts-ignore
           draft.files[idx].selected = false;
         })
       );
@@ -121,60 +101,20 @@ export const useFileSystem = () => {
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
       // check file for issues before upload
-      const errs = checkPayload(payload, project.files);
-      if (errs) {
-        // open file modal
-        setShowModal(
-          produce((draft) => {
-            draft.type = 'fileErrors';
-            draft.data = { fileErrors: errs };
-          })
-        );
-      } else {
-        // get s3 keys for upload
-        const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
-        // get signed urls
-        // api({
-        // ..._getSignedUploadUrls(workspace._id.toString(), project._id.toString(), keys),
-        // onSuccess: ({ signedUrls }) => {
-        await Promise.all(
-          keys.map(async (key, idx) => {
-            // upload raw file data to s3
-            await api({
-              ..._uploadFile(
-                await acceptedFiles[idx].arrayBuffer(),
-                key,
-                project.workspace._id.toString(),
-                project._id.toString()
-              ),
-              upload: true,
-            });
-          })
-        );
+      const errors = checkPayload(payload, project.files);
 
-        // only call ingest once
-        await api({
-          ..._ingestFiles(payload),
-          onSuccess: (data) => {
-            // update project filesystem
-            setProject(
-              produce((draft) => {
-                // @ts-ignore
-                draft.files = payload.fileStats;
-                // @ts-ignore
-                draft.files[0].dataGrid = data.dataGrid;
-                // @ts-ignore
-                draft.files[0].open = true;
-              })
-            );
-            // open first file
-            selectFile(0);
-          },
-        });
+      // open file modals
+      for (const err of errors) {
+        setShowModal(
+          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+            draft.type = err.type;
+            draft.data = err.data;
+          })
+        );
       }
-      // update file system state with processed data based on user decision
     },
-    [project, selectFile, setProject]
+    // update file system state with processed data based on user decision
+    [project, setShowModal]
   );
 
   return {

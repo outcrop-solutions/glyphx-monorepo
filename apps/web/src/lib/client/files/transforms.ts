@@ -84,6 +84,7 @@ export const parsePayload = async (
   return payload;
 };
 
+// handles rowId prefix
 function removePrefix(str: string, prefix: string): string {
   if (!str.startsWith(prefix)) {
     return str;
@@ -92,16 +93,16 @@ function removePrefix(str: string, prefix: string): string {
 }
 
 const hashFileStats = (fileStats, existing) =>
-  fileStats.map(({ fileName, tableName, columns }) => {
+  fileStats.map(({ columns }) => {
     const columnHashes = columns.map(({ name, fieldType }) => `${name}${fieldType}`).join('');
     const formattedColHash = existing ? removePrefix(columnHashes, 'glyphx_id__2') : columnHashes;
-    return MD5(`${fileName}${tableName}${formattedColHash}`).toString();
+    return MD5(`${formattedColHash}`).toString();
   });
 
 // Immutable pre-upload file rules
 const FILE_RULES: webTypes.IFileRule[] = [
   {
-    type: 'fileErrors',
+    type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS,
     name: 'Duplicate column names',
     desc: 'Your csv has duplicate column names which is not allowed in model generation. Please de-duplicate the following columns and re-upload your file:',
     condition: (
@@ -171,29 +172,34 @@ const FILE_RULES: webTypes.IFileRule[] = [
     },
   },
   {
-    type: 'fileDecisions',
+    type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS,
     name: 'Duplicate file structure',
     desc: 'At least one of your csv looks like a pre-existing upload. If you would like to append data to the existing table, choose APPEND, if you want to create a new table, choose ADD',
     condition: (payload, existingFileStats): webTypes.IMatchingFileStats[] => {
       // select and hash relevant values
-      const newHashes = hashFileStats(payload.fileStats, false);
+      const newColHashes = hashFileStats(payload.fileStats, false);
+      const existingColHashes = hashFileStats(existingFileStats, true);
 
-      const existingHashes = hashFileStats(existingFileStats, true);
+      // CASES (show modal if 1-3 is present in array)
+      // 0 - fileName different + cols different => [ADD] = [2]
+      // 1 - fileName different + cols same => [ADD|APPEND] = [2|1]
+      // 2 - fileName same + cols different => [REPLACE|CANCEL] = [3|-]
+      // 3 - fileName same + cols same => [REPLACE] = [3]
 
-      // determine matches from hashes
-      const retval = newHashes
+      // determine column matches from hashes
+      const retval = newColHashes
         .map((hash, idx) =>
-          existingHashes.findIndex((existingHash) => existingHash === hash) !== -1
+          existingColHashes.findIndex((existingHash) => existingHash === hash) !== -1
             ? {
                 newFile: payload.fileStats[idx].fileName,
                 existingFile:
-                  existingFileStats[existingHashes.findIndex((existingHash) => existingHash === hash)].fileName,
+                  existingFileStats[existingColHashes.findIndex((existingHash) => existingHash === hash)].fileName,
               }
             : null
         )
         .filter((el) => el !== null);
 
-      return retval.length > 0 ? retval : false;
+      return retval;
     },
   },
 ];
@@ -201,16 +207,17 @@ const FILE_RULES: webTypes.IFileRule[] = [
 /**
  * @note populates file error modal
  * @param payload
+ * @param existingFiles
  * @returns
  */
 export const checkPayload = (
   payload: webTypes.IClientSidePayload,
   existingFiles: fileIngestionTypes.IFileStats[]
-): webTypes.IFileRule[] | false => {
+): webTypes.ModalState[] => {
   const errors = FILE_RULES.flatMap((rule) => {
     const err = rule.condition(payload, existingFiles);
-    return err ? [{ ...rule, data: err }] : [];
+    return [{ ...rule, data: err }];
   });
 
-  return errors.length > 0 ? errors : false;
+  return errors;
 };

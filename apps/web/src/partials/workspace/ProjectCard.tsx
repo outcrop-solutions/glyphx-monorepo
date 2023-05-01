@@ -3,17 +3,20 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import SharedTag from 'public/svg/shared-tag.svg';
-import { _deleteProject, api } from 'lib/client';
+import produce from 'immer';
+
+import { web as webTypes } from '@glyphx/types';
+import { _deleteProject } from 'lib/client';
 import { ProjectTypeIcons } from '../icons';
+
+import { useSetRecoilState } from 'recoil';
+import { showModalAtom } from 'state';
 
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
 import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
-import { useSetRecoilState } from 'recoil';
-import { showModalAtom } from 'state';
-import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const ProjectCard = ({ idx, project }) => {
   dayjs.extend(relativeTime);
@@ -28,8 +31,8 @@ export const ProjectCard = ({ idx, project }) => {
 
   const deleteProject = useCallback(() => {
     setShowDeleteProject(
-      produce((draft) => {
-        draft.type = 'deleteProject';
+      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+        draft.type = webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT;
         draft.data = { projectId: project._id, projectName: project.name };
       })
     );

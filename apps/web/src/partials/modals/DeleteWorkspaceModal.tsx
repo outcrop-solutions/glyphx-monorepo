@@ -1,8 +1,13 @@
-import Button from 'components/Button';
-import produce from 'immer';
-import { _deleteWorkspace, api } from 'lib';
-import { useRouter } from 'next/router';
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import { web as webTypes } from '@glyphx/types';
+
+import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
+
+import { _deleteWorkspace, api } from 'lib';
+import Button from 'components/Button';
+
 import { useRecoilState } from 'recoil';
 import { showModalAtom, workspaceAtom } from 'state';
 
@@ -23,14 +28,14 @@ export const DeleteWorkspaceModal = () => {
       ..._deleteWorkspace(workspace.slug),
       setLoading: (state) =>
         setDeleteModal(
-          produce((draft) => {
+          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
             draft.isSubmitting = state;
           })
         ),
       onSuccess: () => {
         setDeleteModal(
-          produce((draft) => {
-            draft.type = false;
+          produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+            draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
           })
         );
         setWorkspace(null);

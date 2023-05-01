@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import produce from 'immer';
+
+import { web as webTypes } from '@glyphx/types';
+
 import { NewProject } from './NewProject';
 import ImportProject from './ImportProject';
 import TemplateLibrary from './TemplateLibrary';
@@ -10,8 +14,8 @@ import BackBtnIcon from 'public/svg/back-btn-icon.svg';
 import ImportProjectIcon from 'public/svg/import-project-icon.svg';
 import BlankProjectIcon from 'public/svg/blank-project-icon.svg';
 import TemplateLibraryIcon from 'public/svg/template-lib-icon.svg';
-import produce from 'immer';
 import Content from 'components/Content';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const CreateProjectModal = () => {
   const setShowAddProject = useSetRecoilState(showModalAtom);
@@ -19,8 +23,8 @@ export const CreateProjectModal = () => {
 
   const handleClickAway = () => {
     setShowAddProject(
-      produce((draft) => {
-        draft.type = false;
+      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+        draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CLOSED;
       })
     );
   };

@@ -1,14 +1,15 @@
 import {IFileStats} from '../../../fileIngestion';
-import {ModalContent} from '../../types';
+import {MODAL_CONTENT_TYPE} from '../../constants';
+import {IFileDecisionData} from '../modals/iFileDecisionData';
 import {IClientSidePayload} from './iClientSidePayload';
 
 export interface IFileRule {
-  type: ModalContent;
+  type: MODAL_CONTENT_TYPE.FILE_DECISIONS;
   name: string;
   desc: string;
   condition?: (
     payload: IClientSidePayload,
     existingFiles: IFileStats[]
-  ) => Record<string, any> | false; // should return relevant data to be displayed in modal
-  data?: Record<string, unknown>;
+  ) => Record<string, any> | false;
+  data?: IFileDecisionData;
 }

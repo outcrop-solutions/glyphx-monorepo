@@ -3,6 +3,8 @@ import NewProjectIcon from 'public/svg/new-project-icon.svg';
 import { useSetRecoilState } from 'recoil';
 import { showModalAtom } from 'state';
 import produce from 'immer';
+import { web as webTypes } from '@glyphx/types';
+import { WritableDraft } from 'immer/dist/internal';
 
 const btnTextPrimary = 'text-black font-roboto font-medium leading-[16px] pl-1';
 
@@ -14,8 +16,8 @@ export const CreateProject = () => {
 
   const handleNewProject = () => {
     setShowCreateProject(
-      produce((draft) => {
-        draft.type = 'createProject';
+      produce((draft: WritableDraft<webTypes.ModalsAtom>) => {
+        draft.type = webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT;
       })
     );
   };
