@@ -11,11 +11,16 @@ export const renameAppend = (
   collisions: webTypes.Collision[]
 ): webTypes.IClientSidePayload => {
   const updatedPayload = { ...payload };
+  const renamedFiles: Record<string, Record<string, string>> = {};
 
   collisions.forEach((collision) => {
     if (collision.operations.includes(1)) {
       updatedPayload.fileInfo = updatedPayload.fileInfo.map((fileInfo) => {
-        if (fileInfo.fileName === collision.newFile) {
+        if (fileInfo.fileName === collision.newFile && fileInfo.operation === 1) {
+          renamedFiles[collision.newFile] = {
+            fileName: collision.existingFile,
+            tableName: cleanColumnName(collision.existingFile.split('.')[0]),
+          };
           return {
             ...fileInfo,
             fileName: collision.existingFile,
@@ -26,11 +31,11 @@ export const renameAppend = (
       });
 
       updatedPayload.fileStats = updatedPayload.fileStats.map((fileStat) => {
-        if (fileStat.fileName === collision.newFile) {
+        if (renamedFiles[fileStat.fileName]) {
           return {
             ...fileStat,
-            fileName: collision.existingFile,
-            tableName: cleanColumnName(collision.existingFile.split('.')[0]),
+            fileName: renamedFiles[fileStat.fileName].fileName,
+            tableName: renamedFiles[fileStat.fileName].tableName,
           };
         }
         return fileStat;

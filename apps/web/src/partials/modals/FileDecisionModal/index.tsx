@@ -70,22 +70,22 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
         ..._ingestFiles(finalPayload),
         onSuccess: (data) => {
           // update project filesystem
-          setProject(
-            produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-              draft.files = finalPayload?.fileStats;
-              draft.files[0].dataGrid = data.dataGrid;
-              draft.files[0].open = true;
-            })
-          );
+          // setProject(
+          //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          //     draft.files = finalPayload?.fileStats;
+          //     draft.files[0].dataGrid = data.dataGrid;
+          //     draft.files[0].open = true;
+          //   })
+          // );
           // open first file
-          selectFile(0);
+          // selectFile(0);
           closeModal();
         },
       });
     } else {
       closeModal();
     }
-  }, [closeModal, data, payload, project, selectFile, setProject]);
+  }, [closeModal, data, payload, project]);
 
   return (
     <div

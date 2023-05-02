@@ -134,11 +134,12 @@ export const useFileSystem = () => {
         await api({
           ..._ingestFiles(payload),
           onSuccess: (data) => {
+            console.log({ data });
             // update project filesystem
             setProject(
               produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-                draft.files = data.payload.fileStats;
-                draft.files[0].dataGrid = data.dataGrid;
+                draft.files = data?.payload?.fileStats;
+                draft.files[0].dataGrid = data?.dataGrid;
                 draft.files[0].open = true;
               })
             );
