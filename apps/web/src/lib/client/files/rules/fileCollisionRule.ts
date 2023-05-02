@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
-import { hashFileStats } from '../hashFileStats';
-import { handleCollisionCase } from '../handleCollisionCase';
-import { handelOperations } from '../handleOperations';
+import { hashFileStats } from '../transforms/hashFileStats';
+import { handleCollisionCase } from '../mappings/handleCollisionCase';
+import { handelOperations } from '../mappings/handleOperations';
 
 export const fileCollisionRule: webTypes.IFileRule = {
   type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS,

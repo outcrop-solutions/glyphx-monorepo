@@ -23,7 +23,6 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
   const { selectFile } = useFileSystem();
 
   const { name, desc, data } = modalContent;
-  console.log({ data });
 
   // mutations
   const closeModal = useCallback(() => {
@@ -49,6 +48,7 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
     const finalPayload = renameAppend(cleanPayload, data.collisions);
     // get s3 keys for upload
     const keys = finalPayload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+
     await Promise.all(
       keys.map(async (key, idx) => {
         // upload raw file data to s3
@@ -65,23 +65,26 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
     );
 
     // only call ingest once
-    await api({
-      ..._ingestFiles(payload),
-      onSuccess: (data) => {
-        // update project filesystem
-        setProject(
-          produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.files = data.payload.fileStats;
-            draft.files[0].dataGrid = data.dataGrid;
-            draft.files[0].open = true;
-          })
-        );
-        // open first file
-        selectFile(0);
-      },
-    });
-
-    closeModal();
+    if (finalPayload.fileInfo.length > 0) {
+      await api({
+        ..._ingestFiles(finalPayload),
+        onSuccess: (data) => {
+          // update project filesystem
+          setProject(
+            produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+              draft.files = finalPayload?.fileStats;
+              draft.files[0].dataGrid = data.dataGrid;
+              draft.files[0].open = true;
+            })
+          );
+          // open first file
+          selectFile(0);
+          closeModal();
+        },
+      });
+    } else {
+      closeModal();
+    }
   }, [closeModal, data, payload, project, selectFile, setProject]);
 
   return (

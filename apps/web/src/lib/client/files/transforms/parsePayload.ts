@@ -13,7 +13,7 @@ const REPLACEABLE_CHARS = [
   // 97-122, //a-z
 ];
 
-const cleanColumnName = (value: string): string => {
+export const cleanColumnName = (value: string): string => {
   const outArray: string[] = [];
   const tempValue = value.toLowerCase();
   for (let i = 0; i < tempValue.length; i++) {
