@@ -3,6 +3,7 @@ import { S3_BUCKET_NAME } from 'config/constants';
 import { Types as mongooseTypes } from 'mongoose';
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 
+// @jp-burford added in here because the class this lives in can't be imported on the client
 const REPLACEABLE_CHARS = [
   32, //space
   40, //(
@@ -76,8 +77,8 @@ export const parsePayload = async (
 
   const operations = acceptedFiles.map((file: File): Omit<fileIngestionTypes.IFileInfo, 'fileStream'> => {
     return {
-      fileName: file.name,
-      tableName: file.name.split('.')[0].trim().toLowerCase(),
+      fileName: `${cleanColumnName(file.name.split('.')[0])}.csv`,
+      tableName: cleanColumnName(file.name.split('.')[0]),
       operation: 2,
     };
   });

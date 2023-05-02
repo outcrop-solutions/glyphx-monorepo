@@ -26,7 +26,6 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
     );
   };
 
-  console.log({ modalContent });
   return (
     <>
       {modalContent?.type ? (

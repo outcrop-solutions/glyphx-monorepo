@@ -31,11 +31,15 @@ export type ModalState =
     }
   | {
       type: MODAL_CONTENT_TYPE.FILE_DECISIONS;
+      name?: string;
+      desc?: string;
       isSubmitting: boolean;
       data: MatchingFileStatsData;
     }
   | {
       type: MODAL_CONTENT_TYPE.FILE_ERRORS;
+      name?: string;
+      desc?: string;
       isSubmitting: boolean;
       data: DuplicateColumnData;
     };

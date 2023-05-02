@@ -10,10 +10,11 @@ import { FILE_RULES } from './fileRules';
  */
 export const checkPayload = (
   payload: webTypes.IClientSidePayload,
-  existingFiles: fileIngestionTypes.IFileStats[]
+  existingFiles: fileIngestionTypes.IFileStats[],
+  acceptedFiles: File[]
 ): webTypes.RuleWithData<webTypes.IFileRule>[] | false => {
   const stats = FILE_RULES.map((rule: webTypes.IFileRule) => {
-    const data = rule.condition(payload, existingFiles);
+    const data = rule.condition(payload, existingFiles, acceptedFiles);
     return { ...rule, isSubmitting: false, data: data };
   });
 

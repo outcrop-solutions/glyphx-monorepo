@@ -19,7 +19,7 @@ import { modalsAtom } from 'state';
 export const CreateProjectModal = ({ modalContent }: webTypes.CreateProjectModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
   const [current, setCurrent] = useState(0);
-  const content = modalContent;
+
   const handleClickAway = () => {
     setModals(
       produce((draft: WritableDraft<webTypes.IModalsAtom>) => {

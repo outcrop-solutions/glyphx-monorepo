@@ -29,7 +29,7 @@ export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceM
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {

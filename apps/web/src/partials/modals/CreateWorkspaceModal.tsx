@@ -1,10 +1,10 @@
+import React, { useState } from 'react';
 import Button from 'components/Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createWorkspace, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 
@@ -25,7 +25,7 @@ export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceM
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state;
           })
         ),
       onSuccess: (result) => {

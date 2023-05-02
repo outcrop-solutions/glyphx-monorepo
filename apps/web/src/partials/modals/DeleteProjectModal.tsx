@@ -24,7 +24,7 @@ export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModal
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
