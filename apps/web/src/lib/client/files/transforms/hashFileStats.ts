@@ -9,6 +9,12 @@ function removePrefix(str: string, prefix: string): string {
   return str.slice(prefix.length);
 }
 
+/**
+ * Performs column/file combination hashing operations
+ * @param fileStats
+ * @param existing
+ * @returns
+ */
 export const hashFileStats = (
   fileStats: fileIngestionTypes.IFileStats[],
   existing: boolean

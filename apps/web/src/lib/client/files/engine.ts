@@ -1,5 +1,5 @@
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { FILE_RULES } from './fileRules';
+import { FILE_RULES } from './rules';
 
 /**
  * @note populates file error modal
@@ -8,7 +8,7 @@ import { FILE_RULES } from './fileRules';
  * @param acceptedFiles
  * @returns
  */
-export const checkPayload = (
+export const runRulesEngine = (
   payload: webTypes.IClientSidePayload,
   existingFiles: fileIngestionTypes.IFileStats[],
   acceptedFiles: File[]

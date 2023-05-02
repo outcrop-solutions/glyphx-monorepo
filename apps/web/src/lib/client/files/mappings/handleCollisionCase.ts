@@ -16,10 +16,10 @@ export const handleCollisionCase = (
   const fileCollision: boolean = fileColumnsHash === existingHashes[idx].fileColumnsHash;
   const colCollision: boolean = columnsHash === existingHashes[idx].columnsHash;
   if (fileCollision && colCollision) {
-    return `${webTypes.constants.COLLISION_CASE.FILE_NAME_COLUMNS}`;
+    return webTypes.constants.COLLISION_CASE.FILE_NAME_COLUMNS;
   } else if (fileCollision) {
-    return `${webTypes.constants.COLLISION_CASE.FILE_NAME}`;
+    return webTypes.constants.COLLISION_CASE.FILE_NAME;
   } else if (colCollision) {
-    return `${webTypes.constants.COLLISION_CASE.COLUMNS}`;
+    return webTypes.constants.COLLISION_CASE.COLUMNS;
   }
 };

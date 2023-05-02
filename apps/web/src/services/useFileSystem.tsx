@@ -6,8 +6,8 @@ import { WritableDraft } from 'immer/dist/internal';
 import { projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { _ingestFiles, _uploadFile, api } from 'lib';
-import { checkPayload } from 'lib/client/files/checkPayload';
-import { parsePayload } from 'lib/client/files/parsePayload';
+import { runRulesEngine } from 'lib/client/files/engine';
+import { parsePayload } from 'lib/client/files/transforms/parsePayload';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -102,7 +102,7 @@ export const useFileSystem = () => {
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
       // check file against FILE_RULES before upload
-      const modals = checkPayload(payload, project.files);
+      const modals = runRulesEngine(payload, project.files, acceptedFiles);
 
       if (modals) {
         // open file error/decision modals
