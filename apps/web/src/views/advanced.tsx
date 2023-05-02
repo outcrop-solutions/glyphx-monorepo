@@ -19,7 +19,7 @@ const Advanced = () => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE,
           isSubmitting: false,
-          data: false,
+          data: {},
         });
       })
     );

@@ -1,9 +1,9 @@
 // determines what to show in right sidebar
 export enum RIGHT_SIDEBAR_CONTROL {
-  CLOSED,
-  NOTIFICATION,
-  INFO,
-  SEARCH,
-  SHARE,
-  COMMENTS,
+  CLOSED = 'CLOSED',
+  NOTIFICATION = 'NOTIFICATION',
+  INFO = 'INFO',
+  SEARCH = 'SEARCH',
+  SHARE = 'SHARE',
+  COMMENTS = 'COMMENTS',
 }

@@ -12,13 +12,13 @@ import { ObjectRenderer } from './ObjectRenderer';
 
 export const FileErrorsModal = ({ modalContent }: webTypes.FileErrorsModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
-
-  const { data } = modalContent;
+  const { name, desc, data } = modalContent;
 
   const closeModal = () => {
     setModals(
       produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-        draft.modals.slice(0, 1);
+        // don't proceed with upload
+        draft.modals = [];
       })
     );
   };
@@ -30,13 +30,13 @@ export const FileErrorsModal = ({ modalContent }: webTypes.FileErrorsModalProps)
       <div className="flex flex-col space-y-4">
         <p>
           <span>
-            File Upload Warning: <strong>{data.name}</strong>
+            File Upload Warning: <strong>{name}</strong>
           </span>
         </p>
         <p>
-          <span className="whitespace-wrap text-sm text-light-gray">{err.desc}</span>
+          <span className="whitespace-wrap text-sm text-light-gray">{desc}</span>
         </p>
-        <ObjectRenderer data={err.data} />
+        <ObjectRenderer data={data} />
       </div>
       <div className="flex flex-col items-stretch">
         <Button className="text-white bg-red-600 hover:bg-red-500" onClick={closeModal}>

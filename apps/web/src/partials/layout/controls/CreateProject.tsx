@@ -20,7 +20,7 @@ export const CreateProject = () => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT,
           isSubmitting: false,
-          data: false,
+          data: {},
         });
       })
     );

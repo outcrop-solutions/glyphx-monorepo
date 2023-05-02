@@ -31,7 +31,7 @@ export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceM
       onSuccess: (result) => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.slice(0, 1);
+            draft.modals.splice(0, 1);
           })
         );
         router.replace(`/account/${result.slug}`);

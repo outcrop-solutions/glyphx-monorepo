@@ -14,7 +14,7 @@ export const CreateWorkspace = () => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE,
           isSubmitting: false,
-          data: false,
+          data: {},
         });
       })
     );

@@ -3,10 +3,11 @@ import produce from 'immer';
 import { web as webTypes } from '@glyphx/types';
 import { WritableDraft } from 'immer/dist/internal';
 
-import { checkPayload, parsePayload } from 'lib/client/files/transforms';
-
 import { projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
+import { _ingestFiles, _uploadFile, api } from 'lib';
+import { checkPayload } from 'lib/client/files/checkPayload';
+import { parsePayload } from 'lib/client/files/parsePayload';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -100,18 +101,55 @@ export const useFileSystem = () => {
       // parse payload
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
-      // check file for issues before upload
-      const modals = checkPayload(payload, project.files, acceptedFiles);
+      // check file against FILE_RULES before upload
+      const modals = checkPayload(payload, project.files);
 
-      // open file modals
-      setModals(
-        produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-          draft.modals = modals;
-        })
-      );
+      if (modals) {
+        // open file error/decision modals
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals = modals;
+          })
+        );
+        return;
+      } else {
+        // get s3 keys for upload
+        const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+        await Promise.all(
+          keys.map(async (key, idx) => {
+            // upload raw file data to s3
+            await api({
+              ..._uploadFile(
+                await acceptedFiles[idx].arrayBuffer(),
+                key,
+                project.workspace._id.toString(),
+                project._id.toString()
+              ),
+              upload: true,
+            });
+          })
+        );
+
+        // only call ingest once
+        await api({
+          ..._ingestFiles(payload),
+          onSuccess: (data) => {
+            // update project filesystem
+            setProject(
+              produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+                draft.files = data.payload.fileStats;
+                draft.files[0].dataGrid = data.dataGrid;
+                draft.files[0].open = true;
+              })
+            );
+            // open first file
+            selectFile(0);
+          },
+        });
+      }
     },
     // update file system state with processed data based on user decision
-    [project, setModals]
+    [project, selectFile, setModals, setProject]
   );
 
   return {

@@ -26,9 +26,10 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
     );
   };
 
+  console.log({ modalContent });
   return (
     <>
-      {modalContent.type ? (
+      {modalContent?.type ? (
         <div className="fixed w-screen h-screen flex justify-center items-center bg-gray bg-opacity-50 z-60">
           <ClickAwayListener onClickAway={handleClickAway}>
             <div>

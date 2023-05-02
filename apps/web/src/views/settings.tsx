@@ -58,7 +58,7 @@ export default function Settings() {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT,
           isSubmitting: false,
-          data: false,
+          data: {},
         });
       })
     );

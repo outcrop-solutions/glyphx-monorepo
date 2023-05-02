@@ -6,3 +6,4 @@ export * from './ingestionType';
 export * from './interpolationType';
 export * from './modalType';
 export * from './rightSidebar';
+export * from './collisionCase';

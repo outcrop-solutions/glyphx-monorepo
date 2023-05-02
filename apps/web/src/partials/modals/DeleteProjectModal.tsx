@@ -30,7 +30,7 @@ export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModal
       onSuccess: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.slice(0, 1);
+            draft.modals.splice(0, 1);
           })
         );
       },
