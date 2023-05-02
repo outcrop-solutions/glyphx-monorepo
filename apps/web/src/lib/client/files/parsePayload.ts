@@ -2,6 +2,46 @@ import { parse } from 'papaparse';
 import { S3_BUCKET_NAME } from 'config/constants';
 import { Types as mongooseTypes } from 'mongoose';
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+
+const REPLACEABLE_CHARS = [
+  32, //space
+  40, //(
+  41, //)
+  45, //-
+  // 65-90, //A-Z
+  // 97-122, //a-z
+];
+
+const cleanColumnName = (value: string): string => {
+  const outArray: string[] = [];
+  const tempValue = value.toLowerCase();
+  for (let i = 0; i < tempValue.length; i++) {
+    const charValue = tempValue.charCodeAt(i);
+    if (i === 0 && !((charValue >= 65 && charValue <= 90) || (charValue >= 97 && charValue <= 122))) {
+      outArray.push('_');
+    } else if (i !== 0 && REPLACEABLE_CHARS.find((c) => c === charValue)) {
+      outArray.push('_');
+    } else if (
+      charValue === 95 || //_
+      (charValue >= 48 && charValue <= 57) || //0-9
+      (charValue >= 97 && charValue <= 122) //a-z
+    ) {
+      outArray.push(String.fromCharCode(charValue));
+    }
+  }
+
+  const ret = outArray.join('');
+
+  const result = ret.split('').reduce((acc, curr) => {
+    if (acc === '' && curr === '_') {
+      return acc;
+    }
+    return acc + curr;
+  }, '');
+
+  return result;
+};
+
 /**
  * Takes in an array of file Blobs and returns the fileIngestionTypes.IFileStats
  * @param {File[]}
@@ -18,8 +58,8 @@ export const parsePayload = async (
       const text = await file.text();
       const { data } = parse(text, { preview: 10 });
       return {
-        fileName: file.name,
-        tableName: file.name.split('.')[0].trim().toLowerCase(),
+        fileName: `${cleanColumnName(file.name.split('.')[0])}.csv`,
+        tableName: cleanColumnName(file.name.split('.')[0]),
         numberOfRows: data?.length,
         numberOfColumns: Object.keys(data[0])?.length,
         columns: data[0].map((item, idx) => ({

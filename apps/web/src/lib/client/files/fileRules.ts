@@ -70,7 +70,7 @@ export const FILE_RULES: webTypes.IFileRule[] = [
   {
     type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS,
     name: 'File Upload Summary',
-    desc: 'At least one of your csv looks like a pre-existing upload. If you would like to append data to the existing table, choose APPEND, if you want to create a new table, choose ADD',
+    desc: 'At least one of your csv looks like a pre-existing upload. Please choose which operations you would like to perform.',
     condition: (payload, existingFileStats): webTypes.MatchingFileStatsData => {
       // select and hash relevant values
       const newHashes = hashFileStats(payload.fileStats, false);
