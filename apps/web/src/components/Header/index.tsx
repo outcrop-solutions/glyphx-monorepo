@@ -20,10 +20,10 @@ const Header = ({ breadcrumbs }) => {
 
   return (
     <div
-      className={`flex flex-row h-[56px] items-center pr-4 ml-8 justify-between ${
+      className={`flex flex-row h-[56px] items-center pr-4 justify-between ${
         project
           ? 'bg-secondary-space-blue border border-gray'
-          : 'bg-transparent pt-4 md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 border-gray'
+          : 'bg-transparent pt-4 md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 ml-8 border-gray'
       }`}
     >
       {project ? (

@@ -10,6 +10,11 @@ export type ModalState =
       data: {};
     }
   | {
+      type: MODAL_CONTENT_TYPE.CREATE_STATE;
+      isSubmitting: boolean;
+      data: any;
+    }
+  | {
       type: MODAL_CONTENT_TYPE.CREATE_WORKSPACE;
       isSubmitting: boolean;
       data: {};

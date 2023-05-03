@@ -5,6 +5,9 @@ import {ModalState} from './modalState';
 export type CreateProjectModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.CREATE_PROJECT}>
 >;
+export type CreateStateModalProps = ModalProps<
+  Extract<ModalState, {type: MODAL_CONTENT_TYPE.CREATE_STATE}>
+>;
 export type CreateWorkspaceModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.CREATE_WORKSPACE}>
 >;
