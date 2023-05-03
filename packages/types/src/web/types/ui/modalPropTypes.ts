@@ -14,6 +14,9 @@ export type DeleteAccountModalProps = ModalProps<
 export type DeleteProjectModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.DELETE_PROJECT}>
 >;
+export type DeleteFileModalProps = ModalProps<
+  Extract<ModalState, {type: MODAL_CONTENT_TYPE.DELETE_FILE}>
+>;
 export type DeleteWorkspaceModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.DELETE_WORKSPACE}>
 >;

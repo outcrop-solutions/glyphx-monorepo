@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 
+import { web as webTypes } from '@glyphx/types';
 import { MemberList } from './Share/MemberList';
 import { rightSidebarControlAtom } from 'state';
 import { useRecoilState } from 'recoil';
@@ -10,22 +11,23 @@ import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
 import produce from 'immer';
 import projectCard from 'public/images/project.png';
 import EditIcon from 'public/svg/edit-icon.svg';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const Info = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
 
   const handleClose = () => {
     setRightSidebarControl(
-      produce((draft) => {
-        draft.type = false;
+      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+        draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED;
       })
     );
   };
 
   const openShare = () => {
     setRightSidebarControl(
-      produce((draft) => {
-        draft.type = 'share';
+      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+        draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.SHARE;
       })
     );
   };

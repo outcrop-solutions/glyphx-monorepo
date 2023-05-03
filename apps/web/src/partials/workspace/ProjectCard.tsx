@@ -45,7 +45,7 @@ export const ProjectCard = ({ idx, project }) => {
 
   const handleControl = (ctrl: webTypes.constants.RIGHT_SIDEBAR_CONTROL, data) => {
     setRightSidebarControl(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
         draft.type = ctrl;
         draft.data = data;
       })

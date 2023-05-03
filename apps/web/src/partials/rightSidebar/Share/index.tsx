@@ -3,7 +3,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import produce from 'immer';
 import toast from 'react-hot-toast';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
+import { web as webTypes } from '@glyphx/types';
 import { LinkDropDown } from './LinkDropDown';
 import { PermissionsDropDown } from './PermissionsDropDown';
 import { MemberList } from './MemberList';
@@ -14,6 +14,7 @@ import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
 import CopyToClipboardIcon from 'public/svg/copy-to-clipboard.svg';
 import ShareIcon from 'public/svg/share-header-icon.svg';
 import GroupIcon from 'public/svg/group-icon.svg';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const Share = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
@@ -34,8 +35,8 @@ export const Share = () => {
 
   const handleClose = () => {
     setRightSidebarControl(
-      produce((draft) => {
-        draft.type = false;
+      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+        draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED;
       })
     );
   };

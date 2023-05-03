@@ -6,11 +6,7 @@ import { web as webTypes } from '@glyphx/types';
 
 // Global
 // Right Sidebar Controls
-export const rightSidebarControlAtom = atom<{
-  type: webTypes.constants.RIGHT_SIDEBAR_CONTROL;
-  isSubmitting: boolean;
-  data: any;
-}>({
+export const rightSidebarControlAtom = atom<webTypes.IRightSidebarAtom>({
   key: 'rightSidebarControlAtom',
   default: {
     type: webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED,

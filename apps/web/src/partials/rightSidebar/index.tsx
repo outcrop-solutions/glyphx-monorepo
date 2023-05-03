@@ -4,9 +4,11 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { rightCoordinatesAtom, rightSidebarControlAtom } from 'state';
 import ClickAwayListener from 'react-click-away-listener';
 import produce from 'immer';
+import { web as webTypes } from '@glyphx/types';
 import { Info } from './Info';
 import { Share } from './Share';
 import { Notifications } from './Notifications';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const RightSidebar = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
@@ -26,15 +28,11 @@ export const RightSidebar = () => {
 
   const handleClickAway = () => {
     setRightSidebarControl(
-      produce((draft) => {
-        draft.type = false;
+      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+        draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED;
       })
     );
   };
-
-  useEffect(() => {
-    console.log({ sidebarControl });
-  }, [sidebarControl]);
 
   return (
     <>

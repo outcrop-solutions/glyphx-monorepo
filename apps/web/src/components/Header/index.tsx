@@ -48,7 +48,7 @@ const Header = ({ breadcrumbs }) => {
           className={`${workspaceSlug && !router.pathname.includes('settings') ? (workspaceSlug ? 'pl-0' : '') : ''}`}
         >
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {`${workspaceSlug} > Recents`}
+            {workspaceSlug ? `${workspaceSlug} > Recents` : 'Account Dashboard'}
           </p>
         </div>
       )}

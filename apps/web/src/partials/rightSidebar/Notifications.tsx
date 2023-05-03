@@ -2,16 +2,18 @@ import React from 'react';
 import { rightSidebarControlAtom } from 'state';
 import { useRecoilState } from 'recoil';
 import produce from 'immer';
+import { web as webTypes } from '@glyphx/types';
 import NotificationIcon from 'public/svg/notif-icon.svg';
 import CloseNotificationsIcon from 'public/svg/close-project-info.svg';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const Notifications = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
 
   const handleClose = () => {
     setRightSidebarControl(
-      produce((draft) => {
-        draft.type = false;
+      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+        draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED;
       })
     );
   };

@@ -4,12 +4,13 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { web as webTypes } from '@glyphx/types';
-import { rightSidebarControlAtom, showModalAtom, workspaceAtom } from 'state';
+import { modalsAtom, rightSidebarControlAtom, workspaceAtom } from 'state';
 
 import TableItemInfoIcon from 'public/svg/table-item-info.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 import produce from 'immer';
 import { useCallback } from 'react';
+import { WritableDraft } from 'immer/dist/internal';
 
 const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
 
@@ -18,8 +19,8 @@ export const TableView = () => {
   const router = useRouter();
   const { workspaceSlug } = router.query;
   const workspace = useRecoilValue(workspaceAtom);
+  const setModals = useSetRecoilState(modalsAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
-  const setShowDeleteProject = useSetRecoilState(showModalAtom);
 
   function sumFileSizes(fileStats: fileIngestionTypes.IFileStats[]): number {
     return fileStats.reduce((totalSize, file) => totalSize + file.fileSize, 0);
@@ -37,9 +38,9 @@ export const TableView = () => {
     }
   }
 
-  const handleControl = (ctrl: webTypes.RightSidebarControl, data) => {
+  const handleControl = (ctrl: webTypes.constants.RIGHT_SIDEBAR_CONTROL, data) => {
     setRightSidebarControl(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
         draft.type = ctrl;
         draft.data = data;
       })
@@ -48,14 +49,17 @@ export const TableView = () => {
 
   const deleteProject = useCallback(
     (project) => {
-      setShowDeleteProject(
-        produce((draft) => {
-          draft.type = 'deleteProject';
-          draft.data = { projectId: project._id, projectName: project.name };
+      setModals(
+        produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+          draft.modals.push({
+            type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT,
+            isSubmitting: false,
+            data: { projectId: project._id, projectName: project.name },
+          });
         })
       );
     },
-    [setShowDeleteProject]
+    [setModals]
   );
 
   return (

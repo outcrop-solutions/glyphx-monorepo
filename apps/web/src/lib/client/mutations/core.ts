@@ -1,4 +1,5 @@
-import { web as webTypes, database as databaseTypes } from '@glyphx/types';
+import { web as webTypes, database as databaseTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { Session } from 'next-auth';
 
 /******************** INGESTION *********************/
 /**
@@ -99,7 +100,7 @@ export const _getRowIds = (
  * @note implements fileIngestion.process()
  * @param payload
  */
-export const _ingestFiles = (payload): webTypes.IFetchConfig => {
+export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/ingest`,
     options: {
@@ -119,8 +120,8 @@ export const _ingestFiles = (payload): webTypes.IFetchConfig => {
  */
 
 export const _createModel = (
-  axis,
-  column,
+  axis: webTypes.constants.AXIS,
+  column: fileIngestionTypes.IColumn,
   project: databaseTypes.IProject,
   isFilter: boolean
 ): webTypes.IFetchConfig => {
@@ -160,7 +161,17 @@ export const _getSignedDataUrls = (workspaceId: string, projectId: string): webT
  * @param camera
  * @returns stringified Qt Open Project payload
  */
-export const _createOpenProject = (data, project, session, url, camera) => {
+export const _createOpenProject = (
+  data: { sdtUrl: string; sgnUrl: string; sgcUrl: string },
+  project: databaseTypes.IProject,
+  session: Omit<Session & { status }, 'jwt' | 'user' | 'expires'>,
+  url: string,
+  camera: {
+    x: number;
+    y: number;
+    z: number;
+  }
+) => {
   return JSON.stringify({
     projectId: project?._id,
     workspaceId: project?.workspace._id,

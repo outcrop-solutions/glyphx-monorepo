@@ -1,28 +1,35 @@
 import React, { useCallback } from 'react';
 import { selectedFileIndexSelector } from 'state/files';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
+import { web as webTypes } from '@glyphx/types';
 import { useFileSystem } from 'services/useFileSystem';
+import { modalsAtom } from 'state';
 
 import StackedDragHandleIcon from 'public/svg/stacked-drag-handle-icon.svg';
 import FileIcon from 'public/svg/file-icon.svg';
 import DeleteFileIcon from 'public/svg/delete-file-icon.svg';
-import { showModalAtom } from 'state';
 import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const File = ({ fileName, idx }) => {
   const { openFile } = useFileSystem();
   const selectedFile = useRecoilValue(selectedFileIndexSelector);
-  const setShowDeleteFileModal = useSetRecoilState(showModalAtom);
+  const setModals = useSetRecoilState(modalsAtom);
 
   const handleDeleteFile = useCallback(() => {
-    setShowDeleteFileModal(
-      produce((draft) => {
-        draft.type = 'deleteFile';
-        draft.data.fileName = fileName;
+    setModals(
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_FILE,
+          isSubmitting: false,
+          data: {
+            fileName: fileName,
+          },
+        });
       })
     );
-  }, [fileName, setShowDeleteFileModal]);
+  }, [fileName, setModals]);
 
   return (
     <div
@@ -47,7 +54,6 @@ export const File = ({ fileName, idx }) => {
         className="truncate col-span-9 text-left cursor-pointer"
       >
         <p className="text-light-gray w-full text-[12px] leading-[14px] font-roboto font-normal truncate pl-1">
-          {/* {node.text[0] === "_" ? node.text.slice(1) : node.text} */}
           {fileName}
         </p>
       </div>

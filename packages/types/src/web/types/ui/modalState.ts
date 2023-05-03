@@ -30,6 +30,11 @@ export type ModalState =
       data: IDeleteProjectData;
     }
   | {
+      type: MODAL_CONTENT_TYPE.DELETE_FILE;
+      isSubmitting: boolean;
+      data: {fileName: string};
+    }
+  | {
       type: MODAL_CONTENT_TYPE.FILE_DECISIONS;
       name?: string;
       desc?: string;
