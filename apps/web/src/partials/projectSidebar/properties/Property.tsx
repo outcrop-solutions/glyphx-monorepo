@@ -17,6 +17,7 @@ import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
 import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 import produce from 'immer';
 import { useCallback } from 'react';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const Property = ({ axis }) => {
   const [project, setProject] = useRecoilState(projectAtom);
@@ -36,8 +37,7 @@ export const Property = ({ axis }) => {
 
   const clearProp = useCallback(() => {
     setProject(
-      produce((draft) => {
-        // @ts-ignore
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`] = {
           axis: axis,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
@@ -66,7 +66,7 @@ export const Property = ({ axis }) => {
 
   const logLin = useCallback(() => {
     setProject(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`].interpolation =
           prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
             ? webTypes.constants.INTERPOLATION_TYPE.LOG
@@ -87,7 +87,7 @@ export const Property = ({ axis }) => {
 
   const ascDesc = useCallback(() => {
     setProject(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`].direction =
           draft.state.properties[`${axis}`].direction === webTypes.constants.DIRECTION_TYPE.ASC
             ? webTypes.constants.DIRECTION_TYPE.DESC

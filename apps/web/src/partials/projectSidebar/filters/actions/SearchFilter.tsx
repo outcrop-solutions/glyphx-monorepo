@@ -10,12 +10,13 @@ import { web as webTypes } from '@glyphx/types';
 
 export const SearchFilter = ({ prop }) => {
   const setProject = useSetRecoilState(projectAtom);
-  const [showVisibility, setVisibility] = useState(false); //true
+  const [visibility, setVisibility] = useState(false);
   const [keyword, setKeyword] = useState('');
+  const [keywords, setKeywords] = useState([]);
 
   const addKeyword = useCallback(() => {
     setProject(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         (
           draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
         ).keywords.push(keyword);
@@ -27,7 +28,7 @@ export const SearchFilter = ({ prop }) => {
   const deleteKeyword = useCallback(
     (idx) => {
       setProject(
-        produce((draft) => {
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           (
             draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
           ).keywords.splice(idx, 1);
@@ -39,23 +40,15 @@ export const SearchFilter = ({ prop }) => {
 
   const handleApply = useCallback(() => {
     if (!visibility) {
-      // apply local min/max to project
+      // apply local keywords to project
       setProject(
-        produce((draft) => {
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min =
-            min;
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max =
-            max;
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords;
         })
       );
     } else {
       // remove local min/max from project (reset to default)
-      setProject(
-        produce((draft) => {
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min = 0;
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max = 0;
-        })
-      );
+      setKeywords([]);
     }
     setVisibility((prev) => !prev);
     // disable to avoid visibility re-triggering callback

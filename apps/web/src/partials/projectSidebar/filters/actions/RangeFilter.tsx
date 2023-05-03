@@ -29,7 +29,7 @@ export const RangeFilter = ({ prop }) => {
     if (!visibility) {
       // apply local min/max to project
       setProject(
-        produce((draft) => {
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min =
             min;
           (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max =
@@ -39,7 +39,7 @@ export const RangeFilter = ({ prop }) => {
     } else {
       // remove local min/max from project (reset to default)
       setProject(
-        produce((draft) => {
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min = 0;
           (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max = 0;
         })
