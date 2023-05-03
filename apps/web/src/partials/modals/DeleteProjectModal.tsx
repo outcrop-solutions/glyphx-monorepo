@@ -1,16 +1,18 @@
+import React, { useState } from 'react';
 import Button from 'components/Button';
 import produce from 'immer';
-import { _deleteProject, _deleteWorkspace, api } from 'lib';
-import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { showModalAtom, workspaceAtom } from 'state';
+import { WritableDraft } from 'immer/dist/internal';
 
-export const DeleteProjectModal = () => {
-  const [deleteModal, setDeleteModal] = useRecoilState(showModalAtom);
+import { web as webTypes } from '@glyphx/types';
+import { _deleteProject, _deleteWorkspace, api } from 'lib';
+import { useSetRecoilState } from 'recoil';
+import { modalsAtom } from 'state';
+
+export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModalProps) => {
+  const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyProject, setVerifyProject] = useState('');
-  const verifiedProject = verifyProject === deleteModal?.data.projectName;
+  const verifiedProject = verifyProject === modalContent?.data.projectName;
 
   // local state
   const handleVerifyProjectChange = (event) => setVerifyProject(event.target.value);
@@ -18,17 +20,17 @@ export const DeleteProjectModal = () => {
   // mutations
   const deleteProject = () => {
     api({
-      ..._deleteProject(deleteModal?.data.projectId as string),
+      ..._deleteProject(modalContent?.data.projectId as string),
       setLoading: (state) =>
-        setDeleteModal(
-          produce((draft) => {
-            draft.isSubmitting = state;
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
-        setDeleteModal(
-          produce((draft) => {
-            draft.type = false;
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals.splice(0, 1);
           })
         );
       },
@@ -46,11 +48,11 @@ export const DeleteProjectModal = () => {
       </p>
       <div className="flex flex-col">
         <label className="text-sm text-gray-400">
-          Enter <strong>{deleteModal?.data?.projectName}</strong> to continue:
+          Enter <strong>{modalContent?.data?.projectName}</strong> to continue:
         </label>
         <input
           className="px-3 py-2 border rounded bg-transparent"
-          disabled={deleteModal.isSubmitting}
+          disabled={modalContent.isSubmitting}
           onChange={handleVerifyProjectChange}
           type="text"
           value={verifyProject}
@@ -59,7 +61,7 @@ export const DeleteProjectModal = () => {
       <div className="flex flex-col items-stretch">
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
-          disabled={!verifiedProject || deleteModal.isSubmitting}
+          disabled={!verifiedProject || modalContent.isSubmitting}
           onClick={deleteProject}
         >
           <span>Delete Project</span>

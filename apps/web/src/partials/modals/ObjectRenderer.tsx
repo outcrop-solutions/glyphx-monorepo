@@ -39,7 +39,7 @@ export const ObjectRenderer = ({ data }) => {
             {isArrayValue && <span>]</span>}
           </div>
           {isOpen && (
-            <div className={`pl-${isTopLevel ? 0 : 8} space-y-4`}>
+            <div className={`pl-${isTopLevel ? 0 : 2} space-y-4`}>
               {isObjectValue
                 ? Object.entries(value).map(([subKey, subValue], i) => (
                     <div key={`${id}-${subKey}`}>{renderValue(subKey, subValue, false, `${id}-${subKey}`)}</div>
@@ -64,7 +64,7 @@ export const ObjectRenderer = ({ data }) => {
   return (
     <div className="border rounded-md shadow-sm">
       {Array.isArray(data) && (
-        <div className="flex items-center p-2 space-x-2 bg-secondary-midnight">
+        <div className="flex items-center p-2 space-x-2 bg-secondary-midnight rounded">
           <span className="font-mono text-white">{`[${data.length}]`}</span>
         </div>
       )}

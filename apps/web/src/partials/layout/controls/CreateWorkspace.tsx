@@ -1,15 +1,21 @@
-import produce from 'immer';
 import React from 'react';
+import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
 import { useSetRecoilState } from 'recoil';
-import { showModalAtom } from 'state';
+import { modalsAtom } from 'state';
+import { web as webTypes } from '@glyphx/types';
 
 export const CreateWorkspace = () => {
-  const setShowCreateWorkspace = useSetRecoilState(showModalAtom);
+  const setModals = useSetRecoilState(modalsAtom);
 
   const handleNewWorkspace = () => {
-    setShowCreateWorkspace(
-      produce((draft) => {
-        draft.type = 'createWorkspace';
+    setModals(
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE,
+          isSubmitting: false,
+          data: {},
+        });
       })
     );
   };

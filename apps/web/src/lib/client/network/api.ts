@@ -49,7 +49,7 @@ export async function api({
     }
   } catch (error) {
     if (!silentFail) {
-      toast.error(error.msg);
+      toast.error(error.msg ? error.msg : String(error));
     }
   }
 }

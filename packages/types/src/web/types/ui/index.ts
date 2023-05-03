@@ -1,20 +1,4 @@
-// determines what to show in right sidebar
-export type RightSidebarControl =
-  | boolean
-  | 'notification'
-  | 'info'
-  | 'search'
-  | 'share'
-  | 'comments';
-
-// determines what to show in the modal utility
-export type ModalContent =
-  | boolean
-  | 'createProject'
-  | 'createWorkspace'
-  | 'deleteAccount'
-  | 'deleteWorkspace'
-  | 'deleteProject'
-  | 'fileErrors';
-
-export type SplitPaneOrientation = 'vertical' | 'horizontal';
+export * from './modalPropTypes';
+export * from './modalProps';
+export * from './modalState';
+export * from './splitPaneOrientation';

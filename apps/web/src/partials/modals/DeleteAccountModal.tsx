@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import produce from 'immer';
 import { signOut, useSession } from 'next-auth/react';
-import { useRecoilState } from 'recoil';
+import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
+import { web as webTypes } from '@glyphx/types';
 
 import Button from 'components/Button';
 
 import { _deactivateAccount, _deleteWorkspace, api } from 'lib';
 import { useUrl } from 'lib/client/hooks';
-import { showModalAtom } from 'state';
 
-export const DeleteAccountModal = () => {
+import { useSetRecoilState } from 'recoil';
+import { modalsAtom } from 'state';
+
+export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModalProps) => {
   const { data } = useSession();
   const url = useUrl();
-  const [deleteModal, setDeleteModal] = useRecoilState(showModalAtom);
-
+  const setModals = useSetRecoilState(modalsAtom);
   const [verifyEmail, setVerifyEmail] = useState('');
 
   const verifiedEmail = verifyEmail === data.user.email;
@@ -25,15 +27,15 @@ export const DeleteAccountModal = () => {
     api({
       ..._deactivateAccount(),
       setLoading: (state) =>
-        setDeleteModal(
-          produce((draft) => {
-            draft.isSubmitting = state;
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals[0].isSubmitting = state;
           })
         ),
       onSuccess: () => {
-        setDeleteModal(
-          produce((draft) => {
-            draft.type = false;
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals.splice(0, 1);
           })
         );
         signOut({ callbackUrl: `${url}/auth/login` });
@@ -53,7 +55,7 @@ export const DeleteAccountModal = () => {
         </label>
         <input
           className="px-3 py-2 border rounded bg-transparent"
-          disabled={deleteModal.isSubmitting}
+          disabled={modalContent.isSubmitting}
           onChange={handleVerifyEmailChange}
           type="email"
           value={verifyEmail}
@@ -62,7 +64,7 @@ export const DeleteAccountModal = () => {
       <div className="flex flex-col items-stretch">
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
-          disabled={!verifiedEmail || deleteModal.isSubmitting}
+          disabled={!verifiedEmail || modalContent.isSubmitting}
           onClick={deactivateAccount}
         >
           <span>Deactivate Personal Account</span>
