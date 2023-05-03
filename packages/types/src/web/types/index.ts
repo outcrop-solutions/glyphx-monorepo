@@ -1,3 +1,8 @@
+// used for file rules engine
+export * from './fileRules/collision';
+export * from './fileRules/duplicateColumnData';
+export * from './fileRules/matchingFileStatsData';
+export * from './fileRules/ruleWithData';
 // used for fileSystem
 export * from './fileSystem/browserInput';
 export * from './fileSystem/fileSystem';

@@ -22,7 +22,7 @@ const Workspace = () => {
     data && (
       <>
         <WorkspaceLayout>
-          <Meta title={`Glyphx - ${data.workspace.name} | Dashboard`} />
+          <Meta title={`Glyphx - ${data?.workspace?.name} | Dashboard`} />
           <Content.Container>
             <Home />
           </Content.Container>

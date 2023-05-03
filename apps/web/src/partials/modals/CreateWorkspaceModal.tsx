@@ -1,14 +1,16 @@
+import React, { useState } from 'react';
 import Button from 'components/Button';
 import produce from 'immer';
-import { _createWorkspace, api, useWorkspace, useWorkspaces } from 'lib';
+import { WritableDraft } from 'immer/dist/internal';
+import { _createWorkspace, api } from 'lib';
+import { web as webTypes } from '@glyphx/types';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { showModalAtom } from 'state';
+import { useSetRecoilState } from 'recoil';
+import { modalsAtom } from 'state';
 
-export const CreateWorkspaceModal = () => {
+export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceModalProps) => {
   const router = useRouter();
-  const [createModal, setCreateModal] = useRecoilState(showModalAtom);
+  const setModals = useSetRecoilState(modalsAtom);
   const [name, setName] = useState('');
   const validName = name.length > 0 && name.length <= 16;
 
@@ -21,15 +23,15 @@ export const CreateWorkspaceModal = () => {
     api({
       ..._createWorkspace(name),
       setLoading: (state) =>
-        setCreateModal(
-          produce((draft) => {
-            draft.isSubmitting = state;
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals[0].isSubmitting = state;
           })
         ),
       onSuccess: (result) => {
-        setCreateModal(
-          produce((draft) => {
-            draft.type = false;
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals.splice(0, 1);
           })
         );
         router.replace(`/account/${result.slug}`);
@@ -48,14 +50,14 @@ export const CreateWorkspaceModal = () => {
         <p className="text-sm text-gray-400">Name your workspace. Keep it simple.</p>
         <input
           className="w-full px-3 py-2 border rounded bg-transparent"
-          disabled={createModal.isSubmitting}
+          disabled={modalContent.isSubmitting}
           onChange={handleNameChange}
           type="text"
           value={name}
         />
       </div>
       <div className="flex flex-col items-stretch">
-        <Button className="" disabled={!validName || createModal.isSubmitting} onClick={createWorkspace}>
+        <Button className="" disabled={!validName || modalContent.isSubmitting} onClick={createWorkspace}>
           <span>Create Workspace</span>
         </Button>
       </div>

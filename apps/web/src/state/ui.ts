@@ -1,4 +1,4 @@
-import { atom, selector } from 'recoil';
+import { atom } from 'recoil';
 import { web as webTypes } from '@glyphx/types';
 // SHOW/HIDE UI ELEMENTS
 // SHOW = TRUE
@@ -6,10 +6,14 @@ import { web as webTypes } from '@glyphx/types';
 
 // Global
 // Right Sidebar Controls
-export const rightSidebarControlAtom = atom<{ type: webTypes.RightSidebarControl; isSubmitting: boolean; data: any }>({
+export const rightSidebarControlAtom = atom<{
+  type: webTypes.constants.RIGHT_SIDEBAR_CONTROL;
+  isSubmitting: boolean;
+  data: any;
+}>({
   key: 'rightSidebarControlAtom',
   default: {
-    type: false,
+    type: webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED,
     isSubmitting: false,
     data: {},
   },
@@ -32,16 +36,10 @@ export const showQtViewerAtom = atom<boolean>({
   default: false,
 });
 
-export const showModalAtom = atom<{
-  type: webTypes.ModalContent;
-  isSubmitting: boolean;
-  data: Record<string, unknown>;
-}>({
-  key: 'showModalAtom',
+export const modalsAtom = atom<webTypes.IModalsAtom>({
+  key: 'modalsAtom',
   default: {
-    type: false,
-    isSubmitting: false,
-    data: {},
+    modals: [],
   },
 });
 
