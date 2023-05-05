@@ -134,7 +134,6 @@ export const useFileSystem = () => {
         await api({
           ..._ingestFiles(payload),
           onSuccess: (data) => {
-            console.log({ data });
             // update project filesystem
             setProject(
               produce((draft: WritableDraft<webTypes.IHydratedProject>) => {

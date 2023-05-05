@@ -1,4 +1,4 @@
 export enum MEMBERSHIP_TYPE {
-  PROJECT = 'Project',
-  WORKSPACE = 'Workspace',
+  PROJECT = 'PROJECT',
+  WORKSPACE = 'WORKSPACE',
 }

@@ -65,6 +65,43 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'allStateIdsExist',
+  async (stateIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await STATE_MODEL.find({_id: {$in: stateIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      stateIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more stateIds cannot be found in the database.',
+          'state._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the projectIds.  See the inner error for additional information',
+          'mongoDb',
+          'allStateIdsExists',
+          {stateIds: stateIds},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
+SCHEMA.static(
   'createState',
   async (input: IStateCreateInput): Promise<databaseTypes.IState> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;

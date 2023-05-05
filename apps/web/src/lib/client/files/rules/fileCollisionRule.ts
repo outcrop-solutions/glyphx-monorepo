@@ -30,12 +30,6 @@ export const fileCollisionRule: webTypes.IFileRule = {
       .map(({ fileColumnsHash, columnsHash }, idx) => {
         const foundIndex = findIndexInExistingHashes(fileColumnsHash, columnsHash);
         if (foundIndex !== -1) {
-          console.log({
-            newFile: payload.fileStats[idx].fileName,
-            existingFile: existingFileStats[foundIndex].fileName,
-            type: handleCollisionCase(fileColumnsHash, columnsHash, existingHashes, idx),
-            operations: handelOperations(fileColumnsHash, columnsHash, existingHashes, idx),
-          });
           return {
             newFile: payload.fileStats[idx].fileName,
             existingFile: existingFileStats[foundIndex].fileName,

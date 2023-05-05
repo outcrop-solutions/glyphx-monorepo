@@ -1,8 +1,8 @@
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { useRouter } from 'next/router';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
-import { useWorkspace, useWorkspaces, api, _createWorkspace } from 'lib/client';
+import { useWorkspace, useWorkspaces } from 'lib/client';
 import { CreateWorkspace } from 'partials/layout/controls/CreateWorkspace';
 
 const Actions = () => {

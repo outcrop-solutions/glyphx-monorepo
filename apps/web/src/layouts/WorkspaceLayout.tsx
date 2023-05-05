@@ -29,7 +29,7 @@ const WorkspaceLayout = ({ children }) => {
         <Sidebar menu={menu(result.workspace?.slug)} />
         <Content.Workspace>
           <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
-          <Header breadcrumbs={['My Workspace']} />
+          <Header />
           {children}
         </Content.Workspace>
       </main>

@@ -38,10 +38,17 @@ export class MembershipService {
     filter?: Record<string, unknown>
   ): Promise<databaseTypes.IMember[] | null> {
     try {
-      const members = await mongoDbConnection.models.MemberModel.queryMembers(
-        filter
-      );
-      return members?.results;
+      const workspaces =
+        await mongoDbConnection.models.WorkspaceModel.queryWorkspaces(filter);
+      if (workspaces) {
+        return (
+          workspaces.results[0].members.filter(
+            m => m.type === databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE
+          ) || null
+        );
+      } else {
+        return null;
+      }
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -124,18 +131,35 @@ export class MembershipService {
 
   public static async toggleRole(
     memberId: mongooseTypes.ObjectId | string,
-    teamRole: databaseTypes.constants.ROLE
+    role: databaseTypes.constants.ROLE | databaseTypes.constants.PROJECT_ROLE
   ): Promise<databaseTypes.IMember | null> {
     try {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
           : new mongooseTypes.ObjectId(memberId);
-      const member =
-        await mongoDbConnection.models.MemberModel.updateMemberById(id, {
-          teamRole,
-        });
-      return member;
+      if (
+        role === databaseTypes.constants.ROLE.MEMBER ||
+        role === databaseTypes.constants.ROLE.OWNER
+      ) {
+        const member =
+          await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+            teamRole: role,
+          });
+        return member;
+      } else if (
+        role === databaseTypes.constants.PROJECT_ROLE.CAN_EDIT ||
+        role === databaseTypes.constants.PROJECT_ROLE.READ_ONLY ||
+        role === databaseTypes.constants.PROJECT_ROLE.OWNER
+      ) {
+        const member =
+          await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+            projectRole: role,
+          });
+        return member;
+      } else {
+        return null;
+      }
     } catch (err: any) {
       if (
         err instanceof error.InvalidArgumentError ||

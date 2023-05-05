@@ -6,7 +6,7 @@ import { Controls } from 'partials/layout/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
 
-const Header = ({ breadcrumbs }) => {
+const Header = () => {
   const project = useRecoilValue(projectAtom);
   const resetProject = useResetRecoilState(projectAtom);
 
@@ -20,10 +20,12 @@ const Header = ({ breadcrumbs }) => {
 
   return (
     <div
-      className={`flex flex-row h-[56px] items-center pr-4 justify-between ${
+      className={`flex flex-row h-[56px] items-center pr-4 ${
+        workspaceSlug && !router.pathname.includes('settings') && !project && 'ml-8'
+      } justify-between ${
         project
           ? 'bg-secondary-space-blue border border-gray'
-          : 'bg-transparent pt-4 md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 ml-8 border-gray'
+          : 'bg-transparent py-4 md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 border-gray'
       }`}
     >
       {project ? (
@@ -48,7 +50,9 @@ const Header = ({ breadcrumbs }) => {
           className={`${workspaceSlug && !router.pathname.includes('settings') ? (workspaceSlug ? 'pl-0' : '') : ''}`}
         >
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {workspaceSlug ? `${workspaceSlug} > Recents` : 'Account Dashboard'}
+            {workspaceSlug && !router.pathname.includes('settings')
+              ? `${workspaceSlug} > Recents`
+              : 'Account Dashboard'}
           </p>
         </div>
       )}

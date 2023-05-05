@@ -7,8 +7,8 @@ import {
   IProjectCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
+import {StateModel} from './state';
 import {MemberModel} from './member';
 import {ProjectTypeModel} from './projectType';
 import {fileStatsSchema} from '../schemas';
@@ -47,10 +47,10 @@ const SCHEMA = new Schema<
   slug: {type: String, required: false},
   isTemplate: {type: Boolean, required: true, default: false},
   type: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
-  owner: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   state: {type: embeddedStateSchema, required: false, default: {}},
   stateHistory: {
     type: [Schema.Types.ObjectId],
+    required: true,
     default: [],
     ref: 'stateHistory',
   },
@@ -174,7 +174,7 @@ SCHEMA.static(
       reconciledIds.forEach(m => {
         if (
           !projectDocument.members.find(
-            mhId => mhId.toString() === m.toString()
+            (mhId: any) => mhId.toString() === m.toString()
           )
         ) {
           dirty = true;
@@ -232,7 +232,7 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedMemberships = projectDocument.members.filter(w => {
+      const updatedMemberships = projectDocument.members.filter((w: any) => {
         let retval = true;
         if (
           reconciledIds.find(
@@ -295,15 +295,6 @@ SCHEMA.static(
 
     const tasks: Promise<void>[] = [];
 
-    if (project.owner)
-      tasks.push(
-        idValidator(
-          project.owner._id as mongooseTypes.ObjectId,
-          'Owner',
-          UserModel.userIdExists
-        )
-      );
-
     if (project.workspace)
       tasks.push(
         idValidator(
@@ -362,11 +353,6 @@ SCHEMA.static(
               : (value._id as mongooseTypes.ObjectId);
         else if (key === 'type')
           transformedObject.type =
-            value instanceof mongooseTypes.ObjectId
-              ? value
-              : (value._id as mongooseTypes.ObjectId);
-        else if (key === 'owner')
-          transformedObject.owner =
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
@@ -453,22 +439,158 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validateOwner',
+  'validateStates',
   async (
-    input: databaseTypes.IUser | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId> => {
-    const userId =
-      input instanceof mongooseTypes.ObjectId
-        ? input
-        : (input._id as mongooseTypes.ObjectId);
-    if (!(await UserModel.userIdExists(userId))) {
-      throw new error.InvalidArgumentError(
-        `The user : ${userId} does not exist`,
-        'userId',
-        userId
-      );
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const stateIds: mongooseTypes.ObjectId[] = [];
+    states.forEach(m => {
+      if (m instanceof mongooseTypes.ObjectId) stateIds.push(m);
+      else stateIds.push(m._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await StateModel.allStateIdsExist(stateIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more state ids do not exisit in the database.  See the inner error for additional information',
+          'state',
+          states,
+          err
+        );
+      else throw err;
     }
-    return userId;
+
+    return stateIds;
+  }
+);
+
+SCHEMA.static(
+  'addStates',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one stateId',
+          'states',
+          states
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          `A Project Document with _id : ${projectId} cannot be found`,
+          'project._id',
+          projectId
+        );
+
+      const reconciledIds = await PROJECT_MODEL.validateStates(states);
+      let dirty = false;
+
+      reconciledIds.forEach(s => {
+        if (
+          !projectDocument.stateHistory.find(
+            (sId: any) => sId.toString() === s.toString()
+          )
+        ) {
+          dirty = true;
+          projectDocument.stateHistory.push(
+            s as unknown as databaseTypes.IState
+          );
+        }
+      });
+
+      if (dirty) await projectDocument.save();
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the States. See the innner error for additional information',
+          'mongoDb',
+          'project.addStates',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeStates',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one stateId',
+          'states',
+          states
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          `A Project Document with _id : ${projectId} cannot be found`,
+          'project._id',
+          projectId
+        );
+
+      const reconciledIds = states.map(i =>
+        //istanbul ignore next
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedStates = projectDocument.stateHistory.filter((s: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (s as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        projectDocument.stateHistory =
+          updatedStates as unknown as databaseTypes.IState[];
+        await projectDocument.save();
+      }
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the states. See the innner error for additional information',
+          'mongoDb',
+          'project.removeStates',
+          err
+        );
+      }
+    }
   }
 );
 
@@ -478,9 +600,8 @@ SCHEMA.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
 
     try {
-      const [workspace, owner, members] = await Promise.all([
+      const [workspace, members] = await Promise.all([
         PROJECT_MODEL.validateWorkspace(input.workspace),
-        PROJECT_MODEL.validateOwner(input.owner),
         PROJECT_MODEL.validateMembers(input.members),
       ]);
 
@@ -495,10 +616,10 @@ SCHEMA.static(
         currentVersion: input.currentVersion ?? 0,
         state: input.state,
         members: members ?? [],
+        stateHistory: [],
         workspace: workspace,
         slug: input.slug,
         isTemplate: input.isTemplate,
-        owner: owner,
         files: input.files ?? [],
         viewName: input.viewName ?? ' ',
       };
@@ -539,10 +660,10 @@ SCHEMA.static(
 SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
   try {
     const projectDocument = (await PROJECT_MODEL.findById(projectId)
-      .populate('owner')
       .populate('workspace')
-      .populate('type')
+      .populate('members')
       .lean()) as databaseTypes.IProject;
+    console.log({projectDocument});
     if (!projectDocument) {
       throw new error.DataNotFoundError(
         `Could not find a project with the _id: ${projectId}`,
@@ -553,8 +674,6 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (projectDocument as any)['__v'];
-    delete (projectDocument as any).owner?.['__v'];
-    delete (projectDocument as any).type?.['__v'];
     delete (projectDocument as any).workspace?.['__v'];
 
     return projectDocument;
@@ -600,7 +719,6 @@ SCHEMA.static(
         limit: itemsPerPage,
       })
         .populate('workspace')
-        .populate('owner')
         .populate('type')
         .lean()) as databaseTypes.IProject[];
 
@@ -609,7 +727,6 @@ SCHEMA.static(
       projectDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any)?.workspace?.__v;
-        delete (doc as any)?.owner?.__v;
         delete (doc as any)?.type?.__v;
       });
 

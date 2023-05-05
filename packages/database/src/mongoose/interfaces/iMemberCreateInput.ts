@@ -17,4 +17,5 @@ export interface IMemberCreateInput
   member: mongooseTypes.ObjectId | databaseTypes.IUser;
   invitedBy: mongooseTypes.ObjectId | databaseTypes.IUser;
   workspace: mongooseTypes.ObjectId | databaseTypes.IWorkspace;
+  project?: mongooseTypes.ObjectId | databaseTypes.IProject;
 }

@@ -31,6 +31,14 @@ export interface IProjectStaticMethods
     projectId: mongooseTypes.ObjectId,
     members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProject>;
+  addStates(
+    projectId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject>;
+  removeStates(
+    projectId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject>;
   deleteProjectById(projectId: mongooseTypes.ObjectId): Promise<void>;
   validateUpdateObject(
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
@@ -44,7 +52,7 @@ export interface IProjectStaticMethods
   validateMembers(
     input: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
-  validateOwner(
-    input: databaseTypes.IUser | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId>;
+  validateStates(
+    input: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
 }

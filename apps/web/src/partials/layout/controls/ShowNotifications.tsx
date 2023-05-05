@@ -21,7 +21,11 @@ export const ShowNotifications = () => {
   };
 
   return (
-    <button className={`${btnClass}`} onClick={() => handleControl('notification')} aria-controls="notifications-modal">
+    <button
+      className={`${btnClass}`}
+      onClick={() => handleControl(webTypes.constants.RIGHT_SIDEBAR_CONTROL.INFO)}
+      aria-controls="notifications-modal"
+    >
       <NotificationIcon />
     </button>
   );

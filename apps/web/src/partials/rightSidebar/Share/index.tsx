@@ -25,7 +25,7 @@ export const Share = () => {
    * Copies Model Link to clipboard
    */
   function copyLinkToClipBoard() {
-    navigator.clipboard.writeText('https://app.glyphx.co/share/' + selectedProject.id);
+    navigator.clipboard.writeText('https://app.glyphx.co/share/' + selectedProject._id);
     setShareText(true);
     setTimeout(() => {
       //take away text after 3 seconds

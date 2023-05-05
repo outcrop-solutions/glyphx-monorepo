@@ -13,5 +13,5 @@ export interface IMemberDocument
   member: mongooseTypes.ObjectId;
   invitedBy: mongooseTypes.ObjectId;
   workspace: mongooseTypes.ObjectId;
-  project: mongooseTypes.ObjectId;
+  project?: mongooseTypes.ObjectId;
 }

@@ -10,4 +10,5 @@ export interface IFileStats {
   fileSize: number;
   dataGrid?: IRenderableDataGrid;
   open?: boolean;
+  selected?: boolean;
 }

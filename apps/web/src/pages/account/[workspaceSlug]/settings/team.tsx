@@ -5,7 +5,7 @@ import Meta from 'components/Meta';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import { AccountLayout } from 'layouts';
 import TeamView from 'views/team';
-import { _createMember, _removeMember, _updateRole, useWorkspace } from 'lib/client';
+import { useWorkspace } from 'lib/client';
 import { useSetRecoilState } from 'recoil';
 import { workspaceAtom } from 'state';
 

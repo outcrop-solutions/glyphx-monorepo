@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { usePosition } from 'services/usePosition';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { rightCoordinatesAtom, rightSidebarControlAtom } from 'state';
@@ -26,14 +26,6 @@ export const RightSidebar = () => {
     }
   }, [setCoords, pos]);
 
-  const handleClickAway = () => {
-    setRightSidebarControl(
-      produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
-        draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED;
-      })
-    );
-  };
-
   return (
     <>
       {sidebarControl.type ? (
@@ -42,24 +34,24 @@ export const RightSidebar = () => {
           ref={sidebar}
           className={`flex grow flex-col bg-secondary-space-blue border-l border-gray h-full scrollbar-none`}
         >
-          <ClickAwayListener onClickAway={handleClickAway}>
-            <div className="w-full h-full grow scrollbar-none">
-              {(() => {
-                switch (sidebarControl.type) {
-                  case 'info':
-                    return <Info />;
-                  case 'share':
-                    return <Share />;
-                  case 'notification':
-                    return <Notifications />;
-                  case 'search':
-                    return <></>;
-                  default:
-                    return <></>;
-                }
-              })()}
-            </div>
-          </ClickAwayListener>
+          {/* <ClickAwayListener onClickAway={handleClickAway}> */}
+          <div className="w-full h-full grow scrollbar-none">
+            {(() => {
+              switch (sidebarControl.type) {
+                case webTypes.constants.RIGHT_SIDEBAR_CONTROL.INFO:
+                  return <Info />;
+                case webTypes.constants.RIGHT_SIDEBAR_CONTROL.SHARE:
+                  return <Share />;
+                case webTypes.constants.RIGHT_SIDEBAR_CONTROL.NOTIFICATION:
+                  return <Notifications />;
+                case webTypes.constants.RIGHT_SIDEBAR_CONTROL.SEARCH:
+                  return <></>;
+                default:
+                  return <></>;
+              }
+            })()}
+          </div>
+          {/* </ClickAwayListener> */}
         </div>
       ) : null}
     </>

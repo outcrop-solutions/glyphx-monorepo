@@ -29,7 +29,7 @@ const ProjectLayout = ({ children }) => {
         <Sidebar menu={menu(result?.workspace?.slug)} />
         <Content.Project>
           <Toaster position="bottom-left" toastOptions={{ duration: 10000 }} />
-          <Header breadcrumbs={['']} />
+          <Header />
           {children}
         </Content.Project>
         {/* Right Sidebar */}

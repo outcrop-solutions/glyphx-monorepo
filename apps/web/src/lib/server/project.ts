@@ -16,7 +16,7 @@ import { projectService } from '@glyphx/business';
 export const createProject = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { name, workspaceId } = req.body;
   try {
-    const project = await projectService.createProject(name, session?.user?.userId, workspaceId);
+    const project = await projectService.createProject(name, workspaceId, session?.user?.userId, session?.user?.email);
     res.status(200).json({ data: project });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
