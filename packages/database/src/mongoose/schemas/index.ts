@@ -5,3 +5,4 @@ export {projectTypeShapeSchema} from './projectTypeShape';
 export {embeddedStateSchema} from './embeddedState';
 export {filterSchema} from './filterSchema';
 export {propertySchema} from './propertySchema';
+export {cameraSchema} from './camera';

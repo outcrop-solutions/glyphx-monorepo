@@ -663,7 +663,6 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
       .populate('workspace')
       .populate('members')
       .lean()) as databaseTypes.IProject;
-    console.log({projectDocument});
     if (!projectDocument) {
       throw new error.DataNotFoundError(
         `Could not find a project with the _id: ${projectId}`,

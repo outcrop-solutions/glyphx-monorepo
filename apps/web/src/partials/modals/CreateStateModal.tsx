@@ -18,14 +18,22 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
   // mutations
   const createState = (event) => {
     event.preventDefault();
+    // const camera = window?.core?.GetCameraPosition();
     api({
-      ..._createState(name),
+      ..._createState(name, modalContent.data._id, { x: 0, y: 0, z: 0 }),
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals[0].isSubmitting = state;
           })
         ),
+      onError: (_: any) => {
+        setModals(
+          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+            draft.modals.splice(0, 1);
+          })
+        );
+      },
       onSuccess: (_: any) => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
@@ -39,7 +47,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
       <div className="space-y-0 text-sm text-gray-600">
-        <p>Create a state snapshot to show your teammates what you have discovered/</p>
+        <p>Create a state snapshot to show your teammates what you have discovered</p>
         <p>You&apos;ll be able to invite everyone later!</p>
       </div>
       <div className="space-y-1">

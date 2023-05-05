@@ -1,13 +1,6 @@
 import {Schema} from 'mongoose';
-import {fileIngestion as fileIngestionTypes} from '@glyphx/types';
 
 const FILTER_SCHEMA = new Schema({
-  type: {
-    type: Number,
-    required: true,
-    enum: fileIngestionTypes.constants.FIELD_TYPE,
-    default: fileIngestionTypes.constants.FIELD_TYPE[0],
-  },
   name: {type: String, required: false},
   keywords: {type: [String], required: false},
   min: {type: Number, required: false},

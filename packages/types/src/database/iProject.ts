@@ -27,8 +27,9 @@ export interface IProject {
 
   // duplicated to new immutable state object when user clicks to add new state
   // stored as 'Json' BSON type in mongo
-  state?: Omit<
+  state: Omit<
     IState,
+    | 'name'
     | 'createdAt'
     | 'updatedAt'
     | 'fileSystemHash'

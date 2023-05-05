@@ -232,6 +232,7 @@ importers:
       '@typescript-eslint/parser': ^5.42.0
       aws-sdk-client-mock: ^2.1.1
       chai: ^4.3.6
+      crypto-js: ^4.1.1
       csv: ^6.2.2
       currency-symbol-map: ^5.1.0
       date-fns: ^2.28.0
@@ -273,6 +274,7 @@ importers:
       '@glyphx/database': link:../database
       '@glyphx/email': link:../email
       '@stripe/stripe-js': 1.52.1
+      crypto-js: 4.1.1
       csv: 6.2.11
       currency-symbol-map: 5.1.0
       date-fns: 2.30.0

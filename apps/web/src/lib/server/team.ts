@@ -15,15 +15,10 @@ import { workspaceService, membershipService } from '@glyphx/business';
  */
 
 export const updateRole = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { memberId } = req.body;
+  const { memberId, role } = req.body;
   try {
     const member = await membershipService.getMember(memberId);
-    await membershipService.toggleRole(
-      memberId,
-      member.teamRole === databaseTypes.constants.ROLE.MEMBER
-        ? databaseTypes.constants.ROLE.OWNER
-        : databaseTypes.constants.ROLE.MEMBER
-    );
+    await membershipService.updateRole(member._id, role);
     res.status(200).json({ data: { updatedAt: new Date() } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });

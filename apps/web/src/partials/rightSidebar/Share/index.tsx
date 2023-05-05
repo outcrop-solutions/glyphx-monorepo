@@ -77,7 +77,7 @@ export const Share = () => {
         <div className="">
           {/* <PermissionsDropDown />
           <LinkDropDown/> */}
-          <MemberList size="large" members={[sidebarControl?.data?.owner] || null} />
+          <MemberList size="large" members={sidebarControl?.data?.members || null} />
         </div>
       </div>
       <div className="absolute bottom-0 mt-5 pl-3 pr-3">

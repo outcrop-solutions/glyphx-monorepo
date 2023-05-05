@@ -55,7 +55,7 @@ const Team = () => {
   };
 
   // mutations
-  const changeRole = (memberId) => {
+  const changeRole = (memberId, role) => {
     api({ ..._updateRole(memberId, role) });
   };
 
@@ -221,16 +221,33 @@ const Team = () => {
                                   <Menu.Items className="absolute right-0 z-40 mt-2 origin-top-right border divide-y divide-gray-100 rounded w-60 bg-secondary-deep-blue">
                                     <div className="p-2">
                                       <Menu.Item>
-                                        <button
-                                          className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white"
-                                          onClick={() => changeRole(member._id)}
-                                        >
+                                        <button className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white">
                                           <span>
                                             Change role to &quot;
-                                            {member?.teamRole === databaseTypes.constants.ROLE.MEMBER
-                                              ? databaseTypes.constants.ROLE.OWNER
-                                              : databaseTypes.constants.ROLE.MEMBER}
-                                            &quot;
+                                            <div className="relative inline-block w-1/2 border border-gray rounded md:w-1/4">
+                                              <select
+                                                className="w-full px-5 py-2 capitalize rounded appearance-none bg-transparent"
+                                                disabled={isSubmitting}
+                                                onChange={(event) =>
+                                                  changeRole(
+                                                    member._id,
+                                                    event.target.value as unknown as
+                                                      | databaseTypes.constants.ROLE
+                                                      | databaseTypes.constants.PROJECT_ROLE
+                                                  )
+                                                }
+                                              >
+                                                <option key={index} value={databaseTypes.constants.ROLE.MEMBER}>
+                                                  {databaseTypes.constants.ROLE.MEMBER.toLowerCase()}
+                                                </option>
+                                                <option key={index} value={databaseTypes.constants.ROLE.OWNER}>
+                                                  {databaseTypes.constants.ROLE.OWNER.toLowerCase()}
+                                                </option>
+                                              </select>
+                                              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                                <ChevronDownIcon className="w-5 h-5" />
+                                              </div>
+                                            </div>
                                           </span>
                                         </button>
                                       </Menu.Item>

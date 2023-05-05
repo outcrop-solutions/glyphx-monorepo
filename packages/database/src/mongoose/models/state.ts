@@ -7,7 +7,7 @@ import {
   IStateCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {fileStatsSchema, propertySchema} from '../schemas';
+import {cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
 
@@ -26,8 +26,9 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
       //istanbul ignore next
       () => new Date(),
   },
+  name: {type: String, required: true, default: 'Untitled'},
   version: {type: Number, required: true, default: 0, min: 0},
-  camera: {type: Number, required: true, default: 0},
+  camera: {type: cameraSchema, required: true},
   static: {type: Boolean, required: true, default: false},
   fileSystemHash: {type: String, required: true},
   project: {
@@ -137,6 +138,7 @@ SCHEMA.static(
       const createDate = new Date();
 
       const resolvedInput: IStateDocument = {
+        name: input.name,
         createdAt: createDate,
         updatedAt: createDate,
         version: input.version,

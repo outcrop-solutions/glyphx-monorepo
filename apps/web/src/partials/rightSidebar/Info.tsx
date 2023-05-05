@@ -53,10 +53,10 @@ export const Info = () => {
             <div
               className={`rounded-full bg-secondary-cyan h-4 w-4 font-roboto font-medium text-[12px] text-center leading-[14px] tracking-[0.01em] text-white flex items-center justify-center mr-2`}
             >
-              {`${sidebarControl?.data?.owner?.name.charAt(0).toUpperCase()}`}
+              {`${sidebarControl?.data?.members[0]?.email?.charAt(0).toUpperCase()}`}
             </div>
             <p className="text-light-gray font-roboto text-[10px] leading-[12px]">
-              {sidebarControl?.data?.owner?.name}
+              {sidebarControl?.data?.members[0]?.email}
             </p>
           </div>
           <div>
@@ -78,7 +78,7 @@ export const Info = () => {
           </div>
         </div>
         <div className="mt-2 border-b-[1px] border-t-[1px] border-gray">
-          <MemberList size="small" members={[sidebarControl.data.owner]} />
+          <MemberList size="small" members={sidebarControl?.data?.members} />
         </div>
       </div>
       <div className="mt-4 pl-4 pr-4 font-roboto">

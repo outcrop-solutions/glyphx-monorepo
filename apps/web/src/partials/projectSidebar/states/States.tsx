@@ -1,26 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { web as webTypes } from '@glyphx/types';
 
 // import { createState } from "graphql/mutations";
 import { v4 as uuid } from 'uuid';
 import { StateList } from './StateList';
 // import { PlusIcon } from "@heroicons/react/outline";
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { projectAtom } from 'state/project';
 import { PlusIcon } from '@heroicons/react/outline';
+import { modalsAtom } from 'state';
+import { WritableDraft } from 'immer/dist/internal';
+import produce from 'immer';
 // import { statesSelector } from 'state/states';
 
 export const States = () => {
   const project = useRecoilValue(projectAtom);
+  const setModals = useSetRecoilState(modalsAtom);
+
   const [isCollapsed, setCollapsed] = useState(false);
 
-  const addState = async () => {
-    if (
-      window
-      //&& window.core
-    ) {
-      //await window?.core?.GetCameraPosition(true);
-    }
-  };
+  const createState = useCallback(() => {
+    setModals(
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE,
+          isSubmitting: false,
+          data: project,
+        });
+      })
+    );
+  }, [setModals]);
 
   return (
     <React.Fragment>
@@ -56,7 +65,7 @@ export const States = () => {
           <PlusIcon
             color="#CECECE"
             className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-            onClick={addState}
+            onClick={createState}
           />
         </summary>
         {/* {states && states.length > 0 && !isCollapsed && <StateList />} */}

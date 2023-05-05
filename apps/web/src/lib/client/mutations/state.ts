@@ -7,11 +7,11 @@ import { web as webTypes } from '@glyphx/types';
  * @note uses stateService.createState() in business package
  * @param name corresponds to state.name in mongoDB
  */
-export const _createState = (name: string): webTypes.IFetchConfig => {
+export const _createState = (name: string, projectId: string, camera: webTypes.Camera): webTypes.IFetchConfig => {
   return {
     url: '/api/state',
     options: {
-      body: { name: name },
+      body: { name: name, projectId: projectId, camera },
       method: 'POST',
     },
     successMsg: 'State successfully created',

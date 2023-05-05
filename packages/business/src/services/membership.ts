@@ -129,7 +129,7 @@ export class MembershipService {
     }
   }
 
-  public static async toggleRole(
+  public static async updateRole(
     memberId: mongooseTypes.ObjectId | string,
     role: databaseTypes.constants.ROLE | databaseTypes.constants.PROJECT_ROLE
   ): Promise<databaseTypes.IMember | null> {

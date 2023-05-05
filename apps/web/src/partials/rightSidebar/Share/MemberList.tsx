@@ -21,14 +21,14 @@ export const MemberList = ({ size, members }) => {
                         idx % 2 === 0 ? 'bg-secondary-cyan' : 'bg-yellow'
                       } h-4 w-4 font-roboto font-medium text-[12px] text-center leading-[14px] tracking-[0.01em] text-white flex items-center justify-center mr-2`}
                     >
-                      {`${mem?.name.charAt(0).toUpperCase()}`}
+                      {`${mem?.email.charAt(0).toUpperCase()}`}
                     </div>
                     <div
                       className={`w-10/12 text-light-gray ${
                         size === 'small' ? 'text-[10px]' : 'text-[12px]'
                       }  font-roboto font-normal leading-[14px]`}
                     >
-                      {mem?.name}
+                      {mem?.email}
                     </div>
                   </div>
                   <PermissionsDropDown align="right" />

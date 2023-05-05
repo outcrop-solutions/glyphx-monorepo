@@ -117,7 +117,7 @@ export const ProjectDetails = () => {
           <dl className="mt-2 border-t border-b border-gray divide-y divide-gray">
             <div className="py-3 flex justify-between text-sm font-medium">
               <dt className="text-white mr-2">Owner</dt>
-              <dd className="text-slate-300 truncate">{projectDetails.data.owner.name}</dd>
+              <dd className="text-slate-300 truncate">J</dd>
             </div>
             <div className="py-3 flex justify-between text-sm font-medium">
               <dt className="text-white">Created</dt>

@@ -14,6 +14,7 @@ import { FileErrorsModal } from 'partials/modals/FileErrorsModal';
 import { FileDecisionModal } from 'partials/modals/FileDecisionModal';
 import { WritableDraft } from 'immer/dist/internal';
 import { DeleteFileModal } from 'partials/modals/DeleteFileModal';
+import { CreateStateModal } from 'partials/modals';
 
 export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) => {
   const setModals = useSetRecoilState(modalsAtom);
@@ -42,6 +43,17 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                           modalContent as Extract<
                             webTypes.ModalState,
                             { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT }
+                          >
+                        }
+                      />
+                    );
+                  case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE:
+                    return (
+                      <CreateStateModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE }
                           >
                         }
                       />
