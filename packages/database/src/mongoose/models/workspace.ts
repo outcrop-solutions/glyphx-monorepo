@@ -10,6 +10,7 @@ import {error} from '@glyphx/core';
 import {UserModel} from './user';
 import {MemberModel} from './member';
 import {ProjectModel} from './project';
+import {StateModel} from './state';
 
 const SCHEMA = new Schema<
   IWorkspaceDocument,
@@ -43,9 +44,13 @@ const SCHEMA = new Schema<
     default: [],
     ref: 'member',
   },
+  states: {
+    type: [Schema.Types.ObjectId],
+    default: [],
+    ref: 'states',
+  },
   projects: {
     type: [Schema.Types.ObjectId],
-    required: true,
     default: [],
     ref: 'project',
   },
@@ -184,13 +189,168 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'validateStates',
+  async (
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const stateIds: mongooseTypes.ObjectId[] = [];
+    states.forEach(m => {
+      if (m instanceof mongooseTypes.ObjectId) stateIds.push(m);
+      else stateIds.push(m._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await StateModel.allStateIdsExist(stateIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more state ids do not exisit in the database.  See the inner error for additional information',
+          'state',
+          states,
+          err
+        );
+      else throw err;
+    }
+
+    return stateIds;
+  }
+);
+
+SCHEMA.static(
+  'addStates',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one stateId',
+          'states',
+          states
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          `A workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = await WORKSPACE_MODEL.validateStates(states);
+      let dirty = false;
+
+      reconciledIds.forEach((s: any) => {
+        if (
+          !workspaceDocument.states.find(
+            (sId: any) => sId.toString() === s.toString()
+          )
+        ) {
+          dirty = true;
+          workspaceDocument.states.push(s as unknown as databaseTypes.IState);
+        }
+      });
+
+      if (dirty) await workspaceDocument.save();
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the States. See the innner error for additional information',
+          'mongoDb',
+          'workspace.addStates',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeStates',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one stateId',
+          'states',
+          states
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          `A Workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = states.map(i =>
+        //istanbul ignore next
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedStates = workspaceDocument.states.filter((s: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (s as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        workspaceDocument.states =
+          updatedStates as unknown as databaseTypes.IState[];
+        await workspaceDocument.save();
+      }
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the states. See the innner error for additional information',
+          'mongoDb',
+          'workspace.removeStates',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
   'createWorkspace',
   async (input: IWorkspaceCreateInput): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const [members, projects, creator] = await Promise.all([
+      const [members, projects, states, creator] = await Promise.all([
         WORKSPACE_MODEL.validateMembers(input.members ?? []),
         WORKSPACE_MODEL.validateProjects(input.projects ?? []),
+        WORKSPACE_MODEL.validateStates(input.states ?? []),
         WORKSPACE_MODEL.validateUser(input.creator),
       ]);
       const createDate = new Date();
@@ -205,6 +365,7 @@ SCHEMA.static(
         description: input.description,
         creator: creator,
         members: members,
+        states: states,
         projects: projects,
       };
       try {

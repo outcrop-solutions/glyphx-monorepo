@@ -127,7 +127,7 @@ export class WorkspaceService {
     userId: mongooseTypes.ObjectId | string,
     email: string,
     slug: string
-  ): Promise<string | null> {
+  ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
@@ -186,7 +186,7 @@ export class WorkspaceService {
           );
         }
 
-        return slug;
+        return workspace;
       } else {
         throw new error.DataNotFoundError(
           'Unable to find workspace',
@@ -504,7 +504,10 @@ export class WorkspaceService {
       teamRole: databaseTypes.constants.ROLE;
     }[],
     slug: string
-  ): Promise<Partial<databaseTypes.IMember>[] | null> {
+  ): Promise<{
+    members: Partial<databaseTypes.IMember>[] | null;
+    workspace: databaseTypes.IWorkspace | null;
+  } | null> {
     try {
       const workspace = await WorkspaceService.getOwnWorkspace(
         userId,
@@ -565,7 +568,7 @@ export class WorkspaceService {
             to: members.map(member => member.email),
           }),
         ]);
-        return createdMembers;
+        return {members: createdMembers, workspace: workspace};
       } else {
         const errMsg = 'No workspace found';
         const e = new error.DataNotFoundError(errMsg, 'getOwnWorkspace', {
@@ -626,7 +629,7 @@ export class WorkspaceService {
   static async joinWorkspace(
     workspaceCode: string,
     email: string
-  ): Promise<Date | null> {
+  ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
@@ -667,12 +670,13 @@ export class WorkspaceService {
           );
       }
 
-      await mongoDbConnection.models.WorkspaceModel.addMembers(
-        workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
-        [member]
-      );
+      const workspace =
+        await mongoDbConnection.models.WorkspaceModel.addMembers(
+          workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
+          [member]
+        );
 
-      return new Date();
+      return workspace;
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||

@@ -17,6 +17,8 @@ export const States = () => {
   const project = useRecoilValue(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
+  console.log({ states: project?.stateHistory });
+
   const [isCollapsed, setCollapsed] = useState(false);
 
   const createState = useCallback(() => {

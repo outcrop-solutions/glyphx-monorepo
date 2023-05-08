@@ -39,6 +39,7 @@ export interface IProject {
     | 'static'
     | 'camera'
     | 'project'
+    | 'workspace'
     | 'createdBy'
     | '_id'
   >;

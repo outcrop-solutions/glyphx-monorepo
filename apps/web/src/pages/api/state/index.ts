@@ -20,7 +20,7 @@ const state = async (req, res) => {
     case webTypes.constants.HTTP_METHOD.POST:
       return createState(req, res, session);
     case webTypes.constants.HTTP_METHOD.PUT:
-      return updateState(req, res);
+      return updateState(req, res, session);
     case webTypes.constants.HTTP_METHOD.DELETE:
       return deleteState(req, res, session);
     default:

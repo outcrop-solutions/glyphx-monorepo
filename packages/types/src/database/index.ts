@@ -12,3 +12,5 @@ export type {IVerificationToken} from './iVerificationToken';
 export type {IWebhook} from './iWebhook';
 export type {IWorkspace} from './iWorkspace';
 export type {IProcessTracking} from './iProcessTracking';
+export type {IActivityLog} from './iActivityLog';
+export type {IUserAgent} from './iUserAgent';

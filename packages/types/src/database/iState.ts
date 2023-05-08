@@ -3,6 +3,7 @@ import {IProject} from './iProject';
 import {IFileStats} from '../fileIngestion';
 import {IUser} from './iUser';
 import {Camera, Property} from '../web';
+import {IWorkspace} from './iWorkspace';
 
 // only created via user input
 // immutable
@@ -20,6 +21,7 @@ export interface IState {
   fileSystemHash: string; // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
   description?: string;
   project: IProject;
+  workspace: IWorkspace;
   fileSystem: IFileStats[];
 }
 

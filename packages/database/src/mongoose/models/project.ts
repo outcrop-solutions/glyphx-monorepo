@@ -50,9 +50,8 @@ const SCHEMA = new Schema<
   state: {type: embeddedStateSchema, required: false, default: {}},
   stateHistory: {
     type: [Schema.Types.ObjectId],
-    required: true,
     default: [],
-    ref: 'stateHistory',
+    ref: 'states',
   },
   members: {
     type: [Schema.Types.ObjectId],
@@ -662,6 +661,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     const projectDocument = (await PROJECT_MODEL.findById(projectId)
       .populate('workspace')
       .populate('members')
+      .populate('stateHistory')
       .lean()) as databaseTypes.IProject;
     if (!projectDocument) {
       throw new error.DataNotFoundError(

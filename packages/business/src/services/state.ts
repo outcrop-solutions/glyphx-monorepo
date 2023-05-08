@@ -41,7 +41,7 @@ export class StateService {
     userId: mongooseTypes.ObjectId | string
   ): Promise<databaseTypes.IState | null> {
     try {
-      const id =
+      const pid =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
           : new mongooseTypes.ObjectId(projectId);
@@ -52,7 +52,15 @@ export class StateService {
           : new mongooseTypes.ObjectId(userId);
 
       const project =
-        await mongoDbConnection.models.ProjectModel.getProjectById(id);
+        await mongoDbConnection.models.ProjectModel.getProjectById(pid);
+
+      const pwid =
+        project.workspace._id instanceof mongooseTypes.ObjectId
+          ? project.workspace._id
+          : new mongooseTypes.ObjectId(project.workspace._id);
+
+      const workspace =
+        await mongoDbConnection.models.ProjectModel.getProjectById(pwid);
 
       const user = await mongoDbConnection.models.UserModel.getUserById(uid);
 
@@ -64,6 +72,7 @@ export class StateService {
         camera: {...camera},
         properties: {...project.state.properties},
         fileSystemHash: hashFileSystem(project.files),
+        workspace: {...workspace},
         project: {...project},
         fileSystem: [...project.files],
       };
@@ -71,6 +80,14 @@ export class StateService {
       const state = await mongoDbConnection.models.StateModel.createState(
         input
       );
+
+      const wid =
+        workspace._id instanceof mongooseTypes.ObjectId
+          ? workspace._id
+          : new mongooseTypes.ObjectId(workspace._id);
+
+      await mongoDbConnection.models.WorkspaceModel.addStates(wid, [state]);
+      await mongoDbConnection.models.ProjectModel.addStates(pid, [state]);
 
       return state;
     } catch (err: any) {

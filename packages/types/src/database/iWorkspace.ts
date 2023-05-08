@@ -2,6 +2,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {IProject} from './iProject';
 import {IUser} from './iUser';
 import {IMember} from './iMember';
+import {IState} from './iState';
 
 export interface IWorkspace {
   _id?: mongooseTypes.ObjectId;
@@ -16,4 +17,5 @@ export interface IWorkspace {
   creator: IUser;
   members: IMember[];
   projects: IProject[];
+  states: IState[];
 }
