@@ -8,6 +8,12 @@ export type CreateProjectModalProps = ModalProps<
 export type CreateStateModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.CREATE_STATE}>
 >;
+export type UpdateStateModalProps = ModalProps<
+  Extract<ModalState, {type: MODAL_CONTENT_TYPE.UPDATE_STATE}>
+>;
+export type DeleteStateModalProps = ModalProps<
+  Extract<ModalState, {type: MODAL_CONTENT_TYPE.DELETE_STATE}>
+>;
 export type CreateWorkspaceModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.CREATE_WORKSPACE}>
 >;

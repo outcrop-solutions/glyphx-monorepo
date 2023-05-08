@@ -60,7 +60,7 @@ export class StateService {
           : new mongooseTypes.ObjectId(project.workspace._id);
 
       const workspace =
-        await mongoDbConnection.models.ProjectModel.getProjectById(pwid);
+        await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(pwid);
 
       const user = await mongoDbConnection.models.UserModel.getUserById(uid);
 

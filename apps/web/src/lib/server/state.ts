@@ -70,7 +70,7 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
 export const updateState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { stateId, name } = req.body;
   try {
-    const state = await stateService.updateName(stateId, name);
+    const state = await stateService.updateState(stateId, name);
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({

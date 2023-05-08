@@ -25,9 +25,10 @@ export const _createState = (name: string, projectId: string, camera: webTypes.C
  */
 export const _deleteState = (id: string): webTypes.IFetchConfig => {
   return {
-    url: `/api/state/${id}`,
+    url: `/api/state`,
     options: {
       method: 'DELETE',
+      body: { stateId: id },
     },
     successMsg: 'State has been deleted',
   };
@@ -41,9 +42,9 @@ export const _deleteState = (id: string): webTypes.IFetchConfig => {
  */
 export const _updateStateName = ({ id, name }: { id: string; name: string }): webTypes.IFetchConfig => {
   return {
-    url: `/api/state/${id}`,
+    url: `/api/state`,
     options: {
-      body: { name },
+      body: { name, stateId: id },
       method: 'PUT',
     },
     successMsg: 'State name successfully updated!',

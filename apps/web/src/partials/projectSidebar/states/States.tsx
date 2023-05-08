@@ -1,24 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { web as webTypes } from '@glyphx/types';
-
-// import { createState } from "graphql/mutations";
-import { v4 as uuid } from 'uuid';
 import { StateList } from './StateList';
-// import { PlusIcon } from "@heroicons/react/outline";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { projectAtom } from 'state/project';
 import { PlusIcon } from '@heroicons/react/outline';
 import { modalsAtom } from 'state';
 import { WritableDraft } from 'immer/dist/internal';
 import produce from 'immer';
-// import { statesSelector } from 'state/states';
 
 export const States = () => {
   const project = useRecoilValue(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
-
-  console.log({ states: project?.stateHistory });
-
   const [isCollapsed, setCollapsed] = useState(false);
 
   const createState = useCallback(() => {
@@ -31,7 +23,7 @@ export const States = () => {
         });
       })
     );
-  }, [setModals]);
+  }, [project, setModals]);
 
   return (
     <React.Fragment>
@@ -70,7 +62,7 @@ export const States = () => {
             onClick={createState}
           />
         </summary>
-        {/* {states && states.length > 0 && !isCollapsed && <StateList />} */}
+        <StateList />
       </div>
     </React.Fragment>
   );

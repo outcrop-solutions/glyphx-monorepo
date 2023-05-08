@@ -51,7 +51,7 @@ const SCHEMA = new Schema<
   stateHistory: {
     type: [Schema.Types.ObjectId],
     default: [],
-    ref: 'states',
+    ref: 'state',
   },
   members: {
     type: [Schema.Types.ObjectId],

@@ -20,6 +20,7 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
       //istanbul ignore next
       () => new Date(),
   },
+  deletedAt: {type: Date, required: false},
   updatedAt: {
     type: Date,
     required: true,
@@ -246,10 +247,22 @@ SCHEMA.static(
         Record<string, unknown> = {updatedAt: updateDate};
       for (const key in state) {
         const value = (state as Record<string, any>)[key];
-        //istanbul ignore else
-        if (key === 'fileSystem' && state.fileSystem?.length)
-          transformedObject.fileSystem = value;
-        else if (key !== 'fileSystem') transformedObject[key] = value;
+        if (key === 'workspace')
+          transformedObject.workspace =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        else if (key === 'project')
+          transformedObject.type =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        else if (key === 'createdBy')
+          transformedObject.type =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        else transformedObject[key] = value;
       }
       transformedObject.updatedAt = updateDate;
 

@@ -18,7 +18,7 @@ export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps)
   const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyFile, setVerifyFile] = useState('');
-  const verifiedProject = verifyFile === modalContent.data.fileName;
+  const verifiedFile = verifyFile === modalContent.data.fileName;
 
   const copyToClipboard = () => toast.success('Copied to clipboard!');
   // local state
@@ -82,7 +82,7 @@ export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps)
       <div className="flex flex-col items-stretch">
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
-          disabled={!verifiedProject || modalContent.isSubmitting}
+          disabled={!verifiedFile || modalContent.isSubmitting}
           onClick={deleteFile}
         >
           <span>Delete File</span>
