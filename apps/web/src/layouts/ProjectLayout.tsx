@@ -10,6 +10,7 @@ import menu from 'config/menu/index';
 import { useWorkspace } from 'lib';
 import { Modals } from 'partials/layout/Modals';
 import { RightSidebar } from 'partials/rightSidebar';
+import { Loading } from 'partials/loaders/Loading';
 
 const ProjectLayout = ({ children }) => {
   const { data } = useSession();
@@ -25,6 +26,7 @@ const ProjectLayout = ({ children }) => {
   return (
     <>
       <Modals />
+      <Loading />
       <main className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
         <Sidebar menu={menu(result?.workspace?.slug)} />
         <Content.Project>

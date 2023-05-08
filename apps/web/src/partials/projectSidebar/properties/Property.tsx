@@ -7,7 +7,6 @@ import { useProject } from 'services';
 import { handleDataType } from 'lib/client/helpers/handleDataType';
 
 // state
-import { showModelCreationLoadingAtom } from 'state/ui';
 import { projectAtom, singlePropertySelectorFamily } from 'state/project';
 
 import ClearIcon from 'public/svg/clear-icon.svg';
@@ -18,6 +17,7 @@ import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 import produce from 'immer';
 import { useCallback } from 'react';
 import { WritableDraft } from 'immer/dist/internal';
+import { showLoadingAtom } from 'state';
 
 export const Property = ({ axis }) => {
   const [project, setProject] = useRecoilState(projectAtom);
@@ -33,7 +33,7 @@ export const Property = ({ axis }) => {
     }),
   });
   const isActive = isOver && canDrop;
-  const isCreatingModel = useRecoilValue(showModelCreationLoadingAtom);
+  const showLoading = useRecoilValue(showLoadingAtom);
 
   const clearProp = useCallback(() => {
     setProject(
@@ -104,7 +104,7 @@ export const Property = ({ axis }) => {
       {/* AXES ICON */}
       <div
         className={`bg-secondary-space-blue border border-transparent ${
-          isCreatingModel ? '' : 'hover:border-white'
+          showLoading ? '' : 'hover:border-white'
         } p-0 rounded`}
       >
         <div className="h-4 group">
@@ -143,7 +143,7 @@ export const Property = ({ axis }) => {
       <div
         onClick={ascDesc}
         className={`flex items-center justify-center bg-secondary-space-blue border border-transparent rounded ${
-          isCreatingModel ? 'opacity-30' : 'opacity-100 hover:border-white hover:cursor-pointer'
+          showLoading ? 'opacity-30' : 'opacity-100 hover:border-white hover:cursor-pointer'
         }`}
       >
         {/* border on same elements as heigh and witg */}

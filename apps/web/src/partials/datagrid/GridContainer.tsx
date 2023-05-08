@@ -5,18 +5,12 @@ import SplitPane from 'react-split-pane';
 import { Datagrid } from './DataGrid';
 import { GridHeader } from './GridHeader';
 import { ModelFooter } from './ModelFooter';
-import { GridLoadingAnimation, LoadingModelAnimation } from 'partials/loaders';
 
 import { filesOpenSelector } from 'state/files';
-import { showDataGridLoadingAtom, showModelCreationLoadingAtom } from 'state/ui';
 import { useResize } from 'services/useResize';
 
 export const GridContainer = () => {
   const openFiles = useRecoilValue(filesOpenSelector);
-  // TODO: Loading animations
-  // const dataGridLoading = useRecoilValue(showDataGridLoadingAtom);
-  // const modelCreationLoading = useRecoilValue(showModelCreationLoadingAtom);
-
   const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
 
   return (

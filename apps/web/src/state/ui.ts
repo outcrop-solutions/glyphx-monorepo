@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 // SHOW/HIDE UI ELEMENTS
 // SHOW = TRUE
 // HIDE = FALSE
@@ -39,12 +39,7 @@ export const modalsAtom = atom<webTypes.IModalsAtom>({
   },
 });
 
-export const showDataGridLoadingAtom = atom<boolean>({
-  key: 'showDataGridLoading',
-  default: false,
-});
-
-export const showModelCreationLoadingAtom = atom<boolean>({
-  key: 'modelCreationLoading',
+export const showLoadingAtom = atom<Partial<Omit<databaseTypes.IProcessTracking, '_id'>> | false>({
+  key: 'showLoadingAtom',
   default: false,
 });
