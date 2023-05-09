@@ -193,6 +193,7 @@ export class GlyphEngine {
       this.cleanupData(data);
       const modelId = data.get('model_id') as string;
       const clientId = data.get('client_id') as string;
+      const fileHash = data.get('file_hash') as string;
 
       const viewName = generalPurposeFunctions.fileIngestion.getViewName(
         clientId,
@@ -217,7 +218,7 @@ export class GlyphEngine {
 
       //bucket/client/workspaceId/ProjectId/output/model.sdt
       const prefix = `client/${clientId}/${modelId}/output`;
-      const sdtFileName = `${prefix}/model.sdt`;
+      const sdtFileName = `${prefix}/${fileHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
       const sdtParser = await SdtParser.parseSdtString(template, viewName);
@@ -237,7 +238,7 @@ export class GlyphEngine {
           `Creating Gyphs and uploading files: ${new Date()}`
         );
 
-        const fileNames = await this.processData(sdtParser, prefix);
+        const fileNames = await this.processData(sdtParser, prefix, fileHash);
         sgnFileName = fileNames.sgnFileName;
         sgcFileName = fileNames.sgcFileName;
       }
@@ -269,12 +270,13 @@ export class GlyphEngine {
 
   private async processData(
     sdtParser: SdtParser,
-    filePrefix: string
+    filePrefix: string,
+    fileHash: string
   ): Promise<{sgcFileName: string; sgnFileName: string}> {
     //bucket/client/workspaceId/ProjectId/output/model.sgc
-    const sgcFileName = `${filePrefix}/model.sgc`;
+    const sgcFileName = `${filePrefix}/${fileHash}.sgc`;
     //bucket/client/workspaceId/ProjectId/output/model.sgn
-    const sgnFileName = `${filePrefix}/model.sgn`;
+    const sgnFileName = `${filePrefix}/${fileHash}.sgn`;
     const resultsStream = new streams.AthenaQueryReadStream(
       this.athenaManager,
       this.queryId as string,

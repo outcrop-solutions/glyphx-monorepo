@@ -3,7 +3,7 @@ import { generalPurposeFunctions } from '@glyphx/core';
 import { Session } from 'next-auth';
 import { GlyphEngine } from '@glyphx/glyphengine';
 import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
-import { processTrackingService, activityLogService } from '@glyphx/business';
+import { processTrackingService, activityLogService, projectService } from '@glyphx/business';
 import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { formatUserAgent } from 'lib/utils';
 import { generateFilterQuery } from 'lib/client/helpers';
@@ -85,7 +85,7 @@ const isValidPayload = (properties) => {
 };
 
 export const createModel = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { axis, column, project, isFilter } = req.body;
+  const { axis, column, project, isFilter, fileHash } = req.body;
 
   const deepMerge = {
     ...project,
@@ -117,6 +117,7 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
 
     const payload = {
       model_id: deepMerge._id,
+      file_hash: fileHash,
       // model_id: `642ae3b1c976ba8cc7ac445e`,
       client_id: deepMerge.workspace._id,
       // client_id: 'testclientid02d78bf6f54f485f81295ec510841742',
@@ -160,11 +161,14 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
         ['z_direction', payload['z_direction']],
         ['model_id', payload['model_id']],
         ['client_id', payload['client_id']],
+        ['file_hash', payload['file_hash']],
         ['filter', payload['filter']],
       ]);
 
       // process glyph engine
       const { sdtFileName, sgnFileName, sgcFileName } = await glyphEngine.process(data);
+
+      const updatedProject = await projectService.updateProjectState(deepMerge._id, deepMerge.state);
 
       const { agentData, location } = formatUserAgent(req);
       await activityLogService.createLog({
@@ -178,7 +182,7 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
         action: databaseTypes.constants.ACTION_TYPE.MODEL_GENERATED,
       });
 
-      res.status(200).json({ data: { sdtFileName, sgnFileName, sgcFileName } });
+      res.status(200).json({ data: { sdtFileName, sgnFileName, sgcFileName, updatedProject } });
     } catch (error) {
       res.status(404).json({ errors: { error: { msg: error.message } } });
     }

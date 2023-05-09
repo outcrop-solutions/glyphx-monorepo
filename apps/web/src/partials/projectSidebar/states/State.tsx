@@ -2,20 +2,24 @@ import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { useCallback } from 'react';
 import StateIcon from 'public/svg/state.svg';
 import { web as webTypes } from '@glyphx/types';
-import { activeStateAtom, modalsAtom } from 'state';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { activeStateAtom, modalsAtom, showLoadingAtom } from 'state';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { WritableDraft } from 'immer/dist/internal';
 import produce from 'immer';
 
 export const State = ({ item, idx }) => {
   const setModals = useSetRecoilState(modalsAtom);
+  const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
 
   const applyState = useCallback(() => {
-    // apply item to project state remote
-    // apply item to project state local
-    // call open project
-    setActiveState(idx);
+    // only apply state if not loading
+    if (Object.keys(loading).length > 0) {
+      // apply item to project state remote
+      // apply item to project state local
+      // call open project
+      setActiveState(idx);
+    }
   }, [idx]);
 
   const deleteState = useCallback(() => {

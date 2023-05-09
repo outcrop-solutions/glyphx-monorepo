@@ -123,13 +123,14 @@ export const _createModel = (
   axis: webTypes.constants.AXIS,
   column: fileIngestionTypes.IColumn,
   project: databaseTypes.IProject,
-  isFilter: boolean
+  isFilter: boolean,
+  fileHash: string
 ): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: { axis, column, project, isFilter },
+      body: { axis, column, project, isFilter, fileHash },
     },
     successMsg: 'File successfully added',
   };

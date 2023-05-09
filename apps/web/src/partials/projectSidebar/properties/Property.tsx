@@ -18,6 +18,7 @@ import produce from 'immer';
 import { useCallback } from 'react';
 import { WritableDraft } from 'immer/dist/internal';
 import { showLoadingAtom } from 'state';
+import { _updateProjectState, api } from 'lib';
 
 export const Property = ({ axis }) => {
   const [project, setProject] = useRecoilState(projectAtom);
@@ -36,7 +37,7 @@ export const Property = ({ axis }) => {
   const showLoadingValue = useRecoilValue(showLoadingAtom);
   const showLoading = Object.keys(showLoadingValue).length > 0 ? true : false;
 
-  const clearProp = useCallback(() => {
+  const clearProp = useCallback(async () => {
     setProject(
       produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`] = {
@@ -53,16 +54,28 @@ export const Property = ({ axis }) => {
         };
       })
     );
-    handleDrop(
-      axis,
-      {
-        type: 'COLUMN_DRAG',
-        key: `Column ${axis}`,
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+
+    const newState = {
+      ...project.state,
+      properties: {
+        ...project.state.properties,
+        [`${axis}`]: {
+          ...project.state.properties[axis],
+          axis: axis,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: `Column ${axis}`, // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
       },
-      project,
-      false
-    );
+    };
+
+    await api({ ..._updateProjectState(project._id, newState) });
   }, [axis, handleDrop, project, setProject]);
 
   const logLin = useCallback(() => {
@@ -74,6 +87,23 @@ export const Property = ({ axis }) => {
             : webTypes.constants.INTERPOLATION_TYPE.LIN;
       })
     );
+
+    const newProject = {
+      ...project,
+      state: {
+        ...project.state,
+        properties: {
+          ...project.state.properties,
+          [`${axis}`]: {
+            ...project.state.properties[axis],
+            interpolation:
+              prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
+                ? webTypes.constants.INTERPOLATION_TYPE.LOG
+                : webTypes.constants.INTERPOLATION_TYPE.LIN,
+          },
+        },
+      },
+    };
     handleDrop(
       axis,
       {
@@ -81,7 +111,7 @@ export const Property = ({ axis }) => {
         key: prop.key,
         dataType: prop.dataType,
       },
-      project,
+      newProject,
       false
     );
   }, [axis, handleDrop, project, prop.dataType, prop.interpolation, prop.key, setProject]);
@@ -95,7 +125,34 @@ export const Property = ({ axis }) => {
             : webTypes.constants.DIRECTION_TYPE.ASC;
       })
     );
-  }, [axis, setProject]);
+
+    const newProject = {
+      ...project,
+      state: {
+        ...project.state,
+        properties: {
+          ...project.state.properties,
+          [`${axis}`]: {
+            ...project.state.properties[axis],
+            direction:
+              prop.direction === webTypes.constants.DIRECTION_TYPE.ASC
+                ? webTypes.constants.DIRECTION_TYPE.DESC
+                : webTypes.constants.DIRECTION_TYPE.ASC,
+          },
+        },
+      },
+    };
+    handleDrop(
+      axis,
+      {
+        type: 'COLUMN_DRAG',
+        key: prop.key,
+        dataType: prop.dataType,
+      },
+      newProject,
+      false
+    );
+  }, [axis, setProject, handleDrop, project, prop.dataType, prop.direction, prop.key]);
 
   return (
     <li

@@ -258,6 +258,7 @@ export class ProjectService {
       | 'updatedAt'
       | 'description'
       | 'fileSystem'
+      | 'fileSystemHash'
       | 'version'
       | 'static'
       | 'camera'

@@ -3,12 +3,12 @@ import { useSession } from 'next-auth/react';
 import { useSetRecoilState } from 'recoil';
 import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 import { api } from 'lib/client';
-
 import { projectAtom, showLoadingAtom } from 'state';
 import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations/core';
 import { useUrl } from 'lib/client/hooks';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
+import { hashFileSystem } from 'lib/utils/hashFileSystem';
 
 export const useProject = () => {
   const session = useSession();
@@ -26,9 +26,10 @@ export const useProject = () => {
           draft.processStartTime = new Date();
         })
       );
+      const fileHash = hashFileSystem(project.files);
       // call glyph engine
       await api({
-        ..._createModel(axis, column, project, isFilter),
+        ..._createModel(axis, column, project, isFilter, fileHash),
         silentFail: true,
         onSuccess: (data) => {
           setLoading(

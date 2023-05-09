@@ -81,7 +81,7 @@ export const updateProjectState = async (req: NextApiRequest, res: NextApiRespon
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const project = await projectService.updateProject(projectId, state);
+    const project = await projectService.updateProjectState(projectId, state);
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
