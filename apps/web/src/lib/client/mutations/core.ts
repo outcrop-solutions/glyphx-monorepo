@@ -97,7 +97,7 @@ export const _getRowIds = (
 
 /**
  * Ingest files
- * @note implements fileIngestion.process()
+ * @note implements processFiles()
  * @param payload
  */
 export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFetchConfig => {
@@ -187,10 +187,10 @@ export const _createOpenProject = (
         ? {
             user: {
               name: 'James Graham',
-              email: 'jp@glyphx.co',
-              userId: '642ed599d2c489175363dd8b',
+              email: 'james@glyphx.co',
+              userId: '645aa1458d6a87808abf59db',
             },
-            expires: '2023-05-10T14:29:38.896Z',
+            expires: '2024-05-10T14:29:38.896Z',
           }
         : session,
   });

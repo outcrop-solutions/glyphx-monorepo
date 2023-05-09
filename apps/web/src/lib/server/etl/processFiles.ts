@@ -5,7 +5,7 @@ import { FileIngestor } from '@glyphx/fileingestion';
 import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
 import { formatUserAgent } from 'lib/utils';
 import { database as databaseTypes } from '@glyphx/types';
-import { processTrackingService, activityLogService } from '@glyphx/business';
+import { processTrackingService, activityLogService, projectService } from '@glyphx/business';
 import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
 /**
  * File Ingestion Key Notes
@@ -81,6 +81,8 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse, se
       })),
     };
 
+    const newProject = projectService.updateProjectFileStats(payload.modelId, payload.fileStats);
+
     // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
     if (!s3Manager.inited) {
@@ -123,7 +125,15 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse, se
 
     // return file information & processID
     res.status(200).json({
-      data: { fileInformation, fileProcessingErrors, joinInformation, viewName, status, processId: PROCESS_ID },
+      data: {
+        fileInformation,
+        fileProcessingErrors,
+        joinInformation,
+        viewName,
+        status,
+        processId: PROCESS_ID,
+        project: newProject,
+      },
     });
     // res.status(200).json({ ok: true });
   } catch (error) {
