@@ -1,5 +1,12 @@
 export type Camera = {
-  x: number;
-  y: number;
-  z: number;
+  pos: {
+    x: number;
+    y: number;
+    z: number;
+  };
+  dir: {
+    x: number;
+    y: number;
+    z: number;
+  };
 };

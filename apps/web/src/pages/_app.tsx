@@ -85,7 +85,7 @@ export default function App({
         console.log('Open Project Called', object);
       },
       GetCameraPosition: (object) => {
-        return { x: 0, y: 0, z: 0 };
+        return { pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } };
       },
     };
   }, []);

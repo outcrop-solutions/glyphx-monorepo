@@ -168,9 +168,16 @@ export const _createOpenProject = (
   session: Omit<Session & { status }, 'jwt' | 'user' | 'expires'>,
   url: string,
   camera?: {
-    x: number;
-    y: number;
-    z: number;
+    pos: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    dir: {
+      x: number;
+      y: number;
+      z: number;
+    };
   }
 ) => {
   return JSON.stringify({
