@@ -16,7 +16,7 @@ export const StateList = () => {
           className={`overflow-auto`}
         >
           {states.map((item, idx) => (
-            <State item={item} idx={idx} />
+            <State key={idx} item={item} idx={idx} />
           ))}
         </ul>
       </div>

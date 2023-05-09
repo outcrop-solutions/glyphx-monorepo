@@ -27,7 +27,7 @@ export default function Project() {
   // resize setup
   useWindowSize();
   useSendPosition();
-  useCloseViewerOnEmptyDataGrid();
+  // useCloseViewerOnEmptyDataGrid();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);

@@ -15,25 +15,26 @@ export const GridContainer = () => {
 
   return (
     <div className="relative h-full w-full">
-      {openFiles?.length > 0 ? (
-        <SplitPane
-          split={split()}
-          allowResize={true}
-          defaultSize={defaultSize()}
-          maxSize={maxSize()} // window.innerHeght - headers
-          minSize={minSize()} // always show col headers
-          onChange={handlePaneResize}
-          primary={'first'}
-        >
-          <div className="flex flex-col w-full">
-            <GridHeader />
-            <Datagrid />
-            {/* <ModelFooter /> */}
-          </div>
-        </SplitPane>
-      ) : (
-        <MainDropzone />
-      )}
+      <SplitPane
+        split={split()}
+        allowResize={true}
+        defaultSize={defaultSize()}
+        maxSize={maxSize()} // window.innerHeght - headers
+        minSize={minSize()} // always show col headers
+        onChange={handlePaneResize}
+        primary={'first'}
+      >
+        <div className="flex flex-col w-full">
+          {openFiles?.length > 0 ? (
+            <>
+              <GridHeader />
+              <Datagrid />
+            </>
+          ) : (
+            <MainDropzone />
+          )}
+        </div>
+      </SplitPane>
     </div>
   );
 };

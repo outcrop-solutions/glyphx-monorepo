@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 
 // ensure viewer doesn't cover resize handles
-const buffer = 10;
+const buffer = 5;
 const hTranslate = 15;
 const vTranslate = 0;
 
@@ -17,12 +17,12 @@ const calcW = (
   coords: DOMRectReadOnly,
   resize: number,
   orientation: webTypes.SplitPaneOrientation,
-  isControlOpen: webTypes.RightSidebarControl,
+  isControlOpen: webTypes.constants.RIGHT_SIDEBAR_CONTROL,
   window: webTypes.IWindowSize
 ) => {
   return Math.round(
     (window.width ? window.width : 0) -
-      (coords.right + (isControlOpen ? coords.width : 0)) -
+      (coords.right + (isControlOpen !== webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED ? coords.width : 0)) -
       (orientation === 'vertical' ? resize + buffer : buffer)
   );
 };

@@ -675,9 +675,14 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     }
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    console.dir({states: projectDocument.stateHistory}, {depth: null});
     delete (projectDocument as any)['__v'];
     delete (projectDocument as any).workspace?.['__v'];
+
+    projectDocument.members?.forEach((m: any) => delete (m as any)['__v']);
+    projectDocument.stateHistory?.forEach((s: any) => {
+      delete (s as any)['__v'];
+      delete (s as any).camera?.__v;
+    });
 
     return projectDocument;
   } catch (err) {
