@@ -22,7 +22,7 @@ export const State = ({ item, idx }) => {
   const applyState = useCallback(async () => {
     setActiveState(idx);
     // only apply state if not loading
-    if (Object.keys(loading).length > 0) {
+    if (!(Object.keys(loading).length > 0)) {
       const fileHash = project.stateHistory[idx].fileSystemHash;
       // apply item to project state remote
       setLoading(
@@ -32,12 +32,15 @@ export const State = ({ item, idx }) => {
           draft.processStartTime = new Date();
         })
       );
+      console.log({ workspaceId: project?.workspace._id.toString(), projectId: project?._id.toString(), fileHash });
+
       api({
         ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), fileHash),
         onSuccess: async (data) => {
           setLoading({});
           if (window?.core) {
             const camera = await window?.core?.GetCameraPosition(true);
+            console.log({ data, project, session, url, camera });
             window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
           }
         },
@@ -88,13 +91,15 @@ export const State = ({ item, idx }) => {
   return (
     <li
       key={item.id}
-      onClick={applyState}
       className="p-2 group-states hover:bg-gray hover:text-white last:mb-0 flex items-center justify-between cursor-pointer"
     >
       <div className="flex items-center justify-center h-6 w-6 group-states-hover:bg-white">
         <StateIcon />
       </div>
-      <div className="block text-gray group-states-hover:text-white transition duration-150 truncate">
+      <div
+        onClick={applyState}
+        className="block text-gray group-states-hover:text-white transition duration-150 truncate"
+      >
         <span className={`text-sm ${activeState === idx ? 'text-white' : ''} font-medium`}>{item.name}</span>
       </div>
       <div className="invisible group-states-hover:visible flex gap-x-2 justify-between items-center">

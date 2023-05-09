@@ -34,7 +34,7 @@ export const Info = () => {
   };
 
   return (
-    <div className="flex flex-col w-[250px] bg-secondary-space-blue h-screen">
+    <div className="flex flex-col w-[250px] bg-secondary-space-blue">
       <div className="flex items-center justify-between border border-gray h-[56px] px-3">
         <div className="flex flex-row justify-between space-x-3">
           <ProjectIcon />

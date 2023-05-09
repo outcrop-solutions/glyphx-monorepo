@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { web as webTypes } from '@glyphx/types';
 import { LinkDropDown } from './LinkDropDown';
-import { PermissionsDropDown } from './PermissionsDropDown';
 import { MemberList } from './MemberList';
 
 import { projectAtom, rightSidebarControlAtom } from 'state';
@@ -69,14 +68,10 @@ export const Share = () => {
           <div>
             <LinkDropDown align="right" />
           </div>
-          <div>
-            <PermissionsDropDown align="right" />
-          </div>
+          <div>{/* <PermissionsDropDown /> */}</div>
         </div>
         <hr className="text-gray" />
         <div className="">
-          {/* <PermissionsDropDown />
-          <LinkDropDown/> */}
           <MemberList size="large" members={sidebarControl?.data?.members || null} />
         </div>
       </div>

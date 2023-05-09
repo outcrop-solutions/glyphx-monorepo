@@ -18,7 +18,9 @@ export const ActivityLog = () => {
         </div>
         <div className="w-full h-full">
           {data?.map(({ action, actor, createdAt, onModel, resource }) => (
-            <p className="text-light-gray font-normal text-[10px] mt-2 leading-[12px]">{`${actor.name} ${action} ${onModel} ${resource.name}`}</p>
+            <p className="text-light-gray font-normal text-[10px] whitespace-nowrap truncate mt-2 leading-[12px]">
+              <b>{actor.name}</b> {action} <b>{onModel}</b> {resource.name}
+            </p>
           ))}
         </div>
       </div>

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { Axes } from './Axes';
-import { propertiesSelector } from 'state';
+import { propertiesSelector, showLoadingAtom } from 'state';
+import Button from 'components/Button';
 
 export const Filters = () => {
   const properties = useRecoilValue(propertiesSelector);
+  const showLoading = useRecoilValue(showLoadingAtom);
   const [isCollapsed, setCollapsed] = useState(false);
 
+  const isLoading = Object.keys(showLoading).length > 0;
   return (
     properties && (
       <React.Fragment>
@@ -40,6 +43,9 @@ export const Filters = () => {
                 </span>
               </a>
             </div>
+            <Button disabled={isLoading} className="h-4 text-xs w-12 mr-2">
+              Apply
+            </Button>
           </summary>
           {!isCollapsed && (
             <div
