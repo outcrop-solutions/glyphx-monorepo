@@ -20,7 +20,6 @@ export const UpdateStateModal = ({ modalContent }: webTypes.UpdateStateModalProp
   // mutations
   const updateState = (event) => {
     event.preventDefault();
-    // const camera = window?.core?.GetCameraPosition();
     api({
       ..._updateStateName({ id: modalContent.data.id, name: name }),
       setLoading: (state) =>

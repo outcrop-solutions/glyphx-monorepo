@@ -42,8 +42,7 @@ export const useProject = () => {
             onSuccess: async (data) => {
               setLoading({});
               if (window?.core) {
-                const camera = await window?.core?.GetCameraPosition(true);
-                window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
+                window?.core?.OpenProject(_createOpenProject(data, project, session, url));
               }
             },
             onError: () => {

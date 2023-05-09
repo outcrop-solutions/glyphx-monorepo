@@ -25,7 +25,6 @@ export const DeleteStateModal = ({ modalContent }: webTypes.DeleteStateModalProp
   // mutations
   const deleteState = (event) => {
     event.preventDefault();
-    // const camera = window?.core?.GetCameraPosition();
     api({
       ..._deleteState(modalContent.data.id),
       setLoading: (state) =>

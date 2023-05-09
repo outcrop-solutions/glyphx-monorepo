@@ -131,7 +131,6 @@ export const useFileSystem = () => {
                 draft.processStartTime = new Date();
               })
             );
-
             await api({
               ..._uploadFile(
                 await acceptedFiles[idx].arrayBuffer(),

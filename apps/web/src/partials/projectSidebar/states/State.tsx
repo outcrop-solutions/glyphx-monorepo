@@ -24,6 +24,7 @@ export const State = ({ item, idx }) => {
     // only apply state if not loading
     if (!(Object.keys(loading).length > 0)) {
       const fileHash = project.stateHistory[idx].fileSystemHash;
+      const camera = project.stateHistory[idx].camera;
       // apply item to project state remote
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -32,15 +33,12 @@ export const State = ({ item, idx }) => {
           draft.processStartTime = new Date();
         })
       );
-      console.log({ workspaceId: project?.workspace._id.toString(), projectId: project?._id.toString(), fileHash });
 
       api({
         ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), fileHash),
         onSuccess: async (data) => {
           setLoading({});
           if (window?.core) {
-            const camera = await window?.core?.GetCameraPosition(true);
-            console.log({ data, project, session, url, camera });
             window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
           }
         },

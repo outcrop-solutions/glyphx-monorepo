@@ -167,7 +167,7 @@ export const _createOpenProject = (
   project: databaseTypes.IProject,
   session: Omit<Session & { status }, 'jwt' | 'user' | 'expires'>,
   url: string,
-  camera: {
+  camera?: {
     x: number;
     y: number;
     z: number;
@@ -180,7 +180,7 @@ export const _createOpenProject = (
     sgnUrl: data.sgnUrl,
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
-    camera: camera,
+    camera: camera ?? undefined,
     apiLocation: `${url}/api`,
     sessionInformation:
       session.status === 'unauthenticated'

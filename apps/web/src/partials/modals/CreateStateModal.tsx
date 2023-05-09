@@ -20,9 +20,12 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
   // mutations
   const createState = (event) => {
     event.preventDefault();
-    // const camera = window?.core?.GetCameraPosition();
+    let camera;
+    if (window?.core) {
+      camera = window?.core?.GetCameraPosition(true);
+    }
     api({
-      ..._createState(name, modalContent.data._id, { x: 0, y: 0, z: 0 }),
+      ..._createState(name, modalContent.data._id, camera),
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
