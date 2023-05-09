@@ -12,6 +12,7 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalsAtom, projectAtom } from 'state';
 import { parseDeletePayload } from 'lib/client/files/transforms/parseDeletePayload';
 import { WritableDraft } from 'immer/dist/internal';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps) => {
   const [project, setProject] = useRecoilState(projectAtom);
@@ -85,7 +86,7 @@ export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps)
           disabled={!verifiedFile || modalContent.isSubmitting}
           onClick={deleteFile}
         >
-          <span>Delete File</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete File</span>}
         </Button>
       </div>
     </div>

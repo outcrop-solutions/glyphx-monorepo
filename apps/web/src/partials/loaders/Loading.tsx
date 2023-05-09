@@ -28,9 +28,7 @@ export const Loading = () => {
     <div className="fixed w-screen h-screen flex flex-col justify-center items-center bg-secondary-midnight z-60">
       <BarLoader loading={loading} width={400} color={'yellow'} />
       {showLoading?.processId && <p className="text-white font-bold mt-5">{`Process ID: ${showLoading?.processId}`}</p>}
-      {showLoading?.processName && (
-        <p className="text-white font-bold mt-5">{`Process Name: ${showLoading?.processName}`}</p>
-      )}
+      {showLoading?.processName && <p className="text-white font-bold mt-5">{`${showLoading?.processName}`}</p>}
       {showLoading?.processStatus && (
         <p className="text-white font-bold mt-5">{`Status: ${showLoading?.processStatus}`}</p>
       )}

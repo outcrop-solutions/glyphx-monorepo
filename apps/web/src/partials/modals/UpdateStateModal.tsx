@@ -6,6 +6,7 @@ import { _createState, _updateStateName, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom, projectAtom } from 'state';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const UpdateStateModal = ({ modalContent }: webTypes.UpdateStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
@@ -74,7 +75,7 @@ export const UpdateStateModal = ({ modalContent }: webTypes.UpdateStateModalProp
       </div>
       <div className="flex flex-col items-stretch">
         <Button className="" disabled={!validName || modalContent.isSubmitting} onClick={updateState}>
-          <span>Rename State Snapshot</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Rename State Snapshot</span>}
         </Button>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { _createProject, api } from 'lib/client';
 import ExitModalIcon from 'public/svg/exit-project-modal-icon.svg';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const NewProject = ({ exit }) => {
   const router = useRouter();
@@ -14,11 +15,13 @@ export const NewProject = ({ exit }) => {
   const workspace = useRecoilValue(workspaceAtom);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const handleCreateProject = useCallback(() => {
+    setLoading(true);
     api({
       ..._createProject(workspace._id.toString(), name, description),
       onSuccess: (data) => {
+        setLoading(false);
         exit();
         router.push(`/account/${workspaceSlug}/${data._id}`);
       },
@@ -59,7 +62,7 @@ export const NewProject = ({ exit }) => {
           onClick={handleCreateProject}
           className="bg-primary-yellow py-2 px-2 font-roboto font-medium text-[14px] leading-[16px] text-secondary-space-blue"
         >
-          Create
+          {loading ? <LoadingDots /> : <span>Create</span>}
         </button>
       </div>
     </div>

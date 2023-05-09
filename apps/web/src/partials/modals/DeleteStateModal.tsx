@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { _deleteState } from 'lib';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const DeleteStateModal = ({ modalContent }: webTypes.DeleteStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
@@ -89,7 +90,7 @@ export const DeleteStateModal = ({ modalContent }: webTypes.DeleteStateModalProp
           disabled={!validName || modalContent.isSubmitting}
           onClick={deleteState}
         >
-          <span>Delete State</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete State</span>}
         </Button>
       </div>
     </div>

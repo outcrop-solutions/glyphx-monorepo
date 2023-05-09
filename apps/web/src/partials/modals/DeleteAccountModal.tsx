@@ -11,6 +11,7 @@ import { useUrl } from 'lib/client/hooks';
 
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModalProps) => {
   const { data } = useSession();
@@ -67,7 +68,7 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
           disabled={!verifiedEmail || modalContent.isSubmitting}
           onClick={deactivateAccount}
         >
-          <span>Deactivate Personal Account</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete Personal Account</span>}
         </Button>
       </div>
     </div>

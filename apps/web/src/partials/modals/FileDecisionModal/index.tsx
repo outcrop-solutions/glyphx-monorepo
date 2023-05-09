@@ -14,6 +14,7 @@ import { DecisionBtns } from './DecisionBtns';
 import { CollisionType } from './CollisionType';
 import { cleanNoOps } from 'lib/client/files/transforms/cleanNoOps';
 import { renameAppend } from 'lib/client/files/transforms/renameAppend';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalProps) => {
   const [payload, setPayload] = useState<webTypes.IClientSidePayload>(modalContent.data.payload);
@@ -135,7 +136,7 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
       </div>
       <div className="flex flex-col items-stretch">
         <Button className="bg-yellow hover:bg-primary-yellow" onClick={upload}>
-          <span>Confirm</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Confirm</span>}
         </Button>
       </div>
     </div>

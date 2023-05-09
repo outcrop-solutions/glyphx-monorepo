@@ -7,6 +7,7 @@ import { web as webTypes } from '@glyphx/types';
 import { _deleteProject, _deleteWorkspace, api } from 'lib';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
@@ -64,7 +65,7 @@ export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModal
           disabled={!verifiedProject || modalContent.isSubmitting}
           onClick={deleteProject}
         >
-          <span>Delete Project</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete Project</span>}
         </Button>
       </div>
     </div>

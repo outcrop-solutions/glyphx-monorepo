@@ -62,7 +62,7 @@ export const States = () => {
             onClick={createState}
           />
         </summary>
-        <StateList />
+        {!isCollapsed && <StateList />}
       </div>
     </React.Fragment>
   );

@@ -7,6 +7,7 @@ import { web as webTypes } from '@glyphx/types';
 import { useRouter } from 'next/router';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceModalProps) => {
   const router = useRouter();
@@ -58,7 +59,7 @@ export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceM
       </div>
       <div className="flex flex-col items-stretch">
         <Button className="" disabled={!validName || modalContent.isSubmitting} onClick={createWorkspace}>
-          <span>Create Workspace</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Create Workspace</span>}
         </Button>
       </div>
     </div>

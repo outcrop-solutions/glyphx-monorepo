@@ -10,6 +10,7 @@ import Button from 'components/Button';
 
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
+import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceModalProps) => {
   const router = useRouter();
@@ -71,7 +72,7 @@ export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceM
           disabled={!verifiedWorkspace || modalContent.isSubmitting}
           onClick={deleteWorkspace}
         >
-          <span>Delete Workspace</span>
+          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete Workspace</span>}
         </Button>
       </div>
     </div>
