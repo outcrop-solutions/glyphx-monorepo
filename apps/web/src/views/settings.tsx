@@ -46,7 +46,7 @@ export default function Settings() {
       api({
         ..._updateUserEmail(email),
         setLoading: setSubmittingState,
-        onSuccess: () => signOut({ callbackUrl: '/auth/login' }),
+        // onSuccess: () => signOut({ callbackUrl: '/auth/login' }),
       });
     }
   };

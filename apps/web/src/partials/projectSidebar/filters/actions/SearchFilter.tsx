@@ -83,7 +83,7 @@ export const SearchFilter = ({ prop }) => {
           onClick={handleApply}
           className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
         >
-          {!showVisibility ? <ShowIcon /> : <HideIcon />}
+          {!visibility ? <ShowIcon /> : <HideIcon />}
         </div>
       </div>
       {/* SEARCH KEYWORD CHIPS */}

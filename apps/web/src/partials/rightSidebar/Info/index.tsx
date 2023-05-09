@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 
 import { web as webTypes } from '@glyphx/types';
-import { MemberList } from './Share/MemberList';
+import { MemberList } from '../Share/MemberList';
 import { rightSidebarControlAtom } from 'state';
 import { useRecoilState } from 'recoil';
 
@@ -12,6 +12,7 @@ import produce from 'immer';
 import projectCard from 'public/images/project.png';
 import EditIcon from 'public/svg/edit-icon.svg';
 import { WritableDraft } from 'immer/dist/internal';
+import { ActivityLog } from './ActivityLog';
 
 export const Info = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
@@ -33,7 +34,7 @@ export const Info = () => {
   };
 
   return (
-    <div className="flex flex-col w-[250px] bg-secondary-space-blue h-full ">
+    <div className="flex flex-col w-[250px] bg-secondary-space-blue h-screen">
       <div className="flex items-center justify-between border border-gray h-[56px] px-3">
         <div className="flex flex-row justify-between space-x-3">
           <ProjectIcon />
@@ -81,12 +82,7 @@ export const Info = () => {
           <MemberList size="small" members={sidebarControl?.data?.members} />
         </div>
       </div>
-      <div className="mt-4 pl-4 pr-4 font-roboto">
-        <p className="text-light-gray  font-medium text-[14px] leading-[16px] border-b-[1px] border-gray pb-2">
-          Activity
-        </p>
-        <p className="text-light-gray font-normal text-[10px] mt-2 leading-[12px]">Under Development :)</p>
-      </div>
+      <ActivityLog />
     </div>
   );
 };

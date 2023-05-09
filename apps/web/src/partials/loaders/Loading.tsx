@@ -17,23 +17,38 @@ import { database as databaseTypes } from '@glyphx/types';
 export const Loading = () => {
   const showLoading = useRecoilValue(showLoadingAtom);
 
-  const loading = showLoading
-    ? showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.COMPLETED &&
-      showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.HUNG &&
-      showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.FAILED
-    : false;
+  const loading =
+    Object.keys(showLoading).length > 0
+      ? showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.COMPLETED &&
+        showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.HUNG &&
+        showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.FAILED
+      : false;
 
-  return showLoading ? (
-    <div className="fixed w-screen h-screen flex justify-center items-center bg-secondary-midnight z-60">
+  return loading ? (
+    <div className="fixed w-screen h-screen flex flex-col justify-center items-center bg-secondary-midnight z-60">
       <BarLoader loading={loading} width={400} color={'yellow'} />
-      <p className="text-white font-bold mt-5">{`Process ID: ${showLoading?.processId}`}</p>
-      <p className="text-white font-bold mt-5">{`Process Name: ${showLoading?.processName}`}</p>
-      <p className="text-white font-bold mt-5">{`Status: ${showLoading?.processStatus}`}</p>
-      <p className="text-white font-bold mt-5">{`Start Time: ${showLoading?.processStartTime}`}</p>
-      <p className="text-white font-bold mt-5">{`End Time: ${showLoading?.processEndTime}`}</p>
-      <p className="text-white font-bold mt-5">{`Messages: ${showLoading?.processMessages.join(' ')}`}</p>
-      <p className="text-white font-bold mt-5">{`Result: ${showLoading?.processResult}`}</p>
-      <p className="text-white font-bold mt-5">{`Heartbeat: ${showLoading?.processHeartbeat}`}</p>
+      {showLoading?.processId && <p className="text-white font-bold mt-5">{`Process ID: ${showLoading?.processId}`}</p>}
+      {showLoading?.processName && (
+        <p className="text-white font-bold mt-5">{`Process Name: ${showLoading?.processName}`}</p>
+      )}
+      {showLoading?.processStatus && (
+        <p className="text-white font-bold mt-5">{`Status: ${showLoading?.processStatus}`}</p>
+      )}
+      {showLoading?.processStartTime && (
+        <p className="text-white font-bold mt-5">{`Start Time: ${showLoading?.processStartTime}`}</p>
+      )}
+      {showLoading?.processEndTime && (
+        <p className="text-white font-bold mt-5">{`End Time: ${showLoading?.processEndTime.toTimeString()}`}</p>
+      )}
+      {showLoading?.processMessages && (
+        <p className="text-white font-bold mt-5">{`Messages: ${showLoading?.processMessages?.join(' ')}`}</p>
+      )}
+      {showLoading?.processResult && (
+        <p className="text-white font-bold mt-5">{`Result: ${showLoading?.processResult}`}</p>
+      )}
+      {showLoading?.processHeartbeat && (
+        <p className="text-white font-bold mt-5">{`Heartbeat: ${showLoading?.processHeartbeat}`}</p>
+      )}
     </div>
   ) : null;
 };

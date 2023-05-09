@@ -33,7 +33,8 @@ export const Property = ({ axis }) => {
     }),
   });
   const isActive = isOver && canDrop;
-  const showLoading = useRecoilValue(showLoadingAtom);
+  const showLoadingValue = useRecoilValue(showLoadingAtom);
+  const showLoading = Object.keys(showLoadingValue).length > 0 ? true : false;
 
   const clearProp = useCallback(() => {
     setProject(

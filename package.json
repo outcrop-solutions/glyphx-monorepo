@@ -7,7 +7,7 @@
     "packages/**"
   ],
   "scripts": {
-    "build": "turbo build",
+    "build": "dotenv -- turbo build",
     "test": "dotenv -- turbo test",
     "integrationTest": "turbo integrationTest",
     "format": "turbo format",

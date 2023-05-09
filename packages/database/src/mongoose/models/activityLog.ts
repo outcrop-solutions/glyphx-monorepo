@@ -39,6 +39,7 @@ const SCHEMA = new Schema<
   actor: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
   userAgent: {type: userAgentSchema, required: true, default: {}},
   workspaceId: {type: Schema.Types.ObjectId, required: false},
+  projectId: {type: Schema.Types.ObjectId, required: false},
   action: {
     type: String,
     required: true,
@@ -342,6 +343,7 @@ SCHEMA.static(
       onModel: input.onModel,
       resource: resourceId,
       workspaceId: workspaceId ?? undefined,
+      projectId: input?.projectId ?? undefined,
     };
 
     try {

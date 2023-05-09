@@ -44,7 +44,7 @@ const Sidebar = ({ menu }) => {
       } md:h-screen`}
     >
       <div
-        className={`relative flex items-center justify-center py-4 px-2 md:mx-8 text-center border-b ${
+        className={`relative flex items-center justify-center py-3 px-2 md:mx-8 text-center border-b ${
           projectId && 'border-b-gray'
         }`}
       >

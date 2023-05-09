@@ -1,9 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-// import { Session } from 'next-auth';
+import { Session } from 'next-auth';
 import { aws, generalPurposeFunctions } from '@glyphx/core';
 import { FileIngestor } from '@glyphx/fileingestion';
 import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
-import { processTrackingService } from '@glyphx/business';
+import { formatUserAgent } from 'lib/utils';
+import { database as databaseTypes } from '@glyphx/types';
+import { processTrackingService, activityLogService } from '@glyphx/business';
 import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
 /**
  * File Ingestion Key Notes
@@ -57,7 +59,7 @@ import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
  *
  */
 
-export const processFiles = async (req: NextApiRequest, res: NextApiResponse) => {
+export const processFiles = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {
     // Extract payload
     const { payload } = req.body;
@@ -105,6 +107,19 @@ export const processFiles = async (req: NextApiRequest, res: NextApiResponse) =>
       await fileIngestor.init();
     }
     const { fileInformation, fileProcessingErrors, joinInformation, viewName, status } = await fileIngestor.process();
+
+    const { agentData, location } = formatUserAgent(req);
+
+    await activityLogService.createLog({
+      actorId: session?.user?.userId,
+      resourceId: newPayload.modelId,
+      workspaceId: newPayload.clientId,
+      projectId: newPayload.modelId,
+      location: location,
+      userAgent: agentData,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
+      action: databaseTypes.constants.ACTION_TYPE.FILES_INGESTED,
+    });
 
     // return file information & processID
     res.status(200).json({

@@ -24,7 +24,7 @@ export default async function glyphengine(req: NextApiRequest, res: NextApiRespo
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
       // return addFile(req, res, session);
-      return await createModel(req, res);
+      return await createModel(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);

@@ -108,11 +108,9 @@ export const useFileSystem = () => {
       if (modals) {
         // open file error/decision modals
         setModals(
-          produce(
-            (draft: WritableDraft<webTypes.IModalsAtom | { modals: webTypes.RuleWithData<webTypes.IFileRule>[] }>) => {
-              draft.modals = modals;
-            }
-          )
+          produce((draft: WritableDraft<any>) => {
+            draft.modals = modals;
+          })
         );
         return;
       } else {
@@ -179,15 +177,15 @@ export const useFileSystem = () => {
               })
             );
             // update project filesystem
-            setProject(
-              produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-                draft.files = data?.payload?.fileStats;
-                draft.files[0].dataGrid = data?.dataGrid;
-                draft.files[0].open = true;
-              })
-            );
+            // setProject(
+            //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+            //     draft.files = data?.payload?.fileStats;
+            //     draft.files[0].dataGrid = data?.dataGrid;
+            //     draft.files[0].open = true;
+            //   })
+            // );
             // open first file
-            selectFile(0);
+            // selectFile(0);
           },
           onError: () => {
             setLoading(
@@ -198,7 +196,7 @@ export const useFileSystem = () => {
             );
           },
         });
-        setLoading(false);
+        setLoading({});
       }
     },
     // update file system state with processed data based on user decision

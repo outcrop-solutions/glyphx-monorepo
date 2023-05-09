@@ -32,7 +32,7 @@ export default async function fileIngest(req: NextApiRequest, res: NextApiRespon
   if (!session.user.userId) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
-      return processFiles(req, res);
+      return processFiles(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);

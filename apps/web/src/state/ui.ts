@@ -39,7 +39,7 @@ export const modalsAtom = atom<webTypes.IModalsAtom>({
   },
 });
 
-export const showLoadingAtom = atom<Partial<Omit<databaseTypes.IProcessTracking, '_id'>> | false>({
+export const showLoadingAtom = atom<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>({
   key: 'showLoadingAtom',
-  default: false,
+  default: {},
 });

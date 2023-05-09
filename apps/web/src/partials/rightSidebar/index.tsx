@@ -1,14 +1,11 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect } from 'react';
 import { usePosition } from 'services/usePosition';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { rightCoordinatesAtom, rightSidebarControlAtom } from 'state';
-import ClickAwayListener from 'react-click-away-listener';
-import produce from 'immer';
 import { web as webTypes } from '@glyphx/types';
 import { Info } from './Info';
 import { Share } from './Share';
 import { Notifications } from './Notifications';
-import { WritableDraft } from 'immer/dist/internal';
 
 export const RightSidebar = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);

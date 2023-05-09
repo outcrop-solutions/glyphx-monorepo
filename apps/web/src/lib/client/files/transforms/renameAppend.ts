@@ -14,7 +14,7 @@ export const renameAppend = (
   const renamedTables: Record<string, string> = {};
 
   collisions.forEach((collision) => {
-    if (collision.operations.includes(1)) {
+    if (collision?.operations?.includes(1)) {
       updatedPayload.fileInfo = updatedPayload.fileInfo.map((fileInfo) => {
         if (fileInfo.fileName === collision.newFile && fileInfo.operation === 1) {
           renamedTables[collision.newFile] = cleanColumnName(collision.existingFile.split('.')[0]);

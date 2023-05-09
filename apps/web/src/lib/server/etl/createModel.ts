@@ -1,9 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { generalPurposeFunctions } from '@glyphx/core';
+import { Session } from 'next-auth';
 import { GlyphEngine } from '@glyphx/glyphengine';
 import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
-import { processTrackingService } from '@glyphx/business';
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { processTrackingService, activityLogService } from '@glyphx/business';
+import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { formatUserAgent } from 'lib/utils';
 import { generateFilterQuery } from 'lib/client/helpers';
 /**
  * Call Glyph Engine
@@ -82,7 +84,7 @@ const isValidPayload = (properties) => {
   return retval;
 };
 
-export const createModel = async (req: NextApiRequest, res: NextApiResponse) => {
+export const createModel = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { axis, column, project, isFilter } = req.body;
 
   const deepMerge = {
@@ -163,6 +165,18 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse) => 
 
       // process glyph engine
       const { sdtFileName, sgnFileName, sgcFileName } = await glyphEngine.process(data);
+
+      const { agentData, location } = formatUserAgent(req);
+      await activityLogService.createLog({
+        actorId: session?.user?.userId,
+        resourceId: payload.model_id,
+        workspaceId: payload.client_id,
+        projectId: payload.model_id,
+        location: location,
+        userAgent: agentData,
+        onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
+        action: databaseTypes.constants.ACTION_TYPE.MODEL_GENERATED,
+      });
 
       res.status(200).json({ data: { sdtFileName, sgnFileName, sgcFileName } });
     } catch (error) {

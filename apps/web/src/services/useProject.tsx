@@ -39,10 +39,10 @@ export const useProject = () => {
           api({
             ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString()),
             onSuccess: async (data) => {
-              setLoading(false);
+              setLoading({});
               if (window.core) {
-                const camera = await window.core.GetCameraPosition(true);
-                window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
+                // const camera = await window?.core?.GetCameraPosition(true);
+                // window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
               }
             },
             onError: () => {
@@ -67,7 +67,7 @@ export const useProject = () => {
         },
       });
 
-      setLoading(false);
+      setLoading({});
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []

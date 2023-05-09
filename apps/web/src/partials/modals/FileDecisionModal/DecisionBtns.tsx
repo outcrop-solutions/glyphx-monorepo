@@ -24,7 +24,7 @@ export const DecisionBtns = (
 ) => {
   return (
     <>
-      {ops.map((op) => (
+      {ops?.map((op) => (
         <>
           {(() => {
             switch (op) {

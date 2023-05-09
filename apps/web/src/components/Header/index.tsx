@@ -20,12 +20,12 @@ const Header = () => {
 
   return (
     <div
-      className={`flex flex-row h-[56px] items-center pr-4 ${
+      className={`flex flex-row h-[56px] items-center justify-between pr-4 ${
         workspaceSlug && !router.pathname.includes('settings') && !project && 'ml-8'
-      } justify-between ${
+      } ${
         project
           ? 'bg-secondary-space-blue border border-gray'
-          : 'bg-transparent py-4 md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 border-gray'
+          : 'bg-transparent md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 border-gray'
       }`}
     >
       {project ? (

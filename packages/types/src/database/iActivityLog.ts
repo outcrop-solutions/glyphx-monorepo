@@ -17,6 +17,7 @@ export interface IActivityLog {
   deletedAt?: Date;
   actor: IUser;
   workspaceId?: string | mongooseTypes.ObjectId;
+  projectId?: string | mongooseTypes.ObjectId;
   location: string; // IP address
   userAgent: IUserAgent;
   action: ACTION_TYPE;

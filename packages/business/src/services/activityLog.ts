@@ -34,17 +34,29 @@ export class ActivityLogService {
   }
 
   public static async getLogs(
-    workspaceId: mongooseTypes.ObjectId | string | undefined
+    resourceId: mongooseTypes.ObjectId | string | undefined,
+    type:
+      | typeof databaseTypes.constants.RESOURCE_MODEL.PROJECT
+      | typeof databaseTypes.constants.RESOURCE_MODEL.WORKSPACE
   ): Promise<databaseTypes.IActivityLog[] | null> {
     try {
       const id =
-        workspaceId instanceof mongooseTypes.ObjectId
-          ? workspaceId
-          : new mongooseTypes.ObjectId(workspaceId);
-      const logs =
-        await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
-          workspaceId: id,
-        });
+        resourceId instanceof mongooseTypes.ObjectId
+          ? resourceId
+          : new mongooseTypes.ObjectId(resourceId);
+
+      let logs;
+      if (type === databaseTypes.constants.RESOURCE_MODEL.PROJECT) {
+        logs =
+          await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
+            projectId: id,
+          });
+      } else {
+        logs =
+          await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
+            workspaceId: id,
+          });
+      }
       return logs?.results;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -55,7 +67,7 @@ export class ActivityLogService {
           'An unexpected error occurred while querying the logs. See the inner error for additional details',
           'log',
           'getLogs',
-          {workspaceId},
+          {resourceId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -68,6 +80,7 @@ export class ActivityLogService {
     actorId,
     resourceId,
     workspaceId,
+    projectId,
     location,
     userAgent,
     onModel,
@@ -80,6 +93,7 @@ export class ActivityLogService {
     onModel: databaseTypes.constants.RESOURCE_MODEL;
     action: databaseTypes.constants.ACTION_TYPE;
     workspaceId?: mongooseTypes.ObjectId | string;
+    projectId?: mongooseTypes.ObjectId | string;
   }): Promise<databaseTypes.IActivityLog | null> {
     try {
       const actorCastId =
@@ -99,6 +113,14 @@ export class ActivityLogService {
             : new mongooseTypes.ObjectId(workspaceId);
       }
 
+      let projCastId;
+      if (projectId) {
+        projCastId =
+          projectId instanceof mongooseTypes.ObjectId
+            ? projectId
+            : new mongooseTypes.ObjectId(projectId);
+      }
+
       const input = {
         actor: actorCastId,
         location,
@@ -107,6 +129,7 @@ export class ActivityLogService {
         action: action,
         resource: resourceCastId,
         workspaceId: spaceCastId,
+        projectId: projCastId,
       };
 
       const log =
