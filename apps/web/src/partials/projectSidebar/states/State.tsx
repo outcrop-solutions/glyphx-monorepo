@@ -23,8 +23,9 @@ export const State = ({ item, idx }) => {
     setActiveState(idx);
     // only apply state if not loading
     if (!(Object.keys(loading).length > 0)) {
-      const fileHash = project.stateHistory[idx].fileSystemHash;
-      const camera = project.stateHistory[idx].camera;
+      const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
+      const fileHash = filteredStates[idx].fileSystemHash;
+      const camera = filteredStates[idx].camera;
       // apply item to project state remote
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {

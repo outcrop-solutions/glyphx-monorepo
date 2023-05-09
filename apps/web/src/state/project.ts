@@ -119,7 +119,7 @@ import { database as databaseTypes, web as webTypes, fileIngestion as fileIngest
  */
 
 /************************  BASE  *************************/
-export const projectAtom = atom<databaseTypes.IProject | null>({
+export const projectAtom = atom<any>({
   key: 'projectAtom',
   default: null,
 });

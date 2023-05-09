@@ -661,7 +661,10 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     const projectDocument = (await PROJECT_MODEL.findById(projectId)
       .populate('workspace')
       .populate('members')
-      .populate('stateHistory')
+      .populate({
+        path: 'stateHistory',
+        populate: {path: 'camera'},
+      })
       .lean()) as databaseTypes.IProject;
     if (!projectDocument) {
       throw new error.DataNotFoundError(
@@ -672,6 +675,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     }
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
+    console.dir({states: projectDocument.stateHistory}, {depth: null});
     delete (projectDocument as any)['__v'];
     delete (projectDocument as any).workspace?.['__v'];
 

@@ -87,6 +87,12 @@ export default function App({
       GetCameraPosition: (object) => {
         return { pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } };
       },
+      SendRowIds: (rowIds) => {
+        console.log('SendRowIds', rowIds);
+      },
+      SendDrawerPosition: (position) => {
+        console.log('SendDrawerPosition', position);
+      },
     };
   }, []);
 
