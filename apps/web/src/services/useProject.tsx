@@ -38,12 +38,12 @@ export const useProject = () => {
             })
           );
           api({
-            ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString()),
+            ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), fileHash),
             onSuccess: async (data) => {
               setLoading({});
-              if (window.core) {
-                // const camera = await window?.core?.GetCameraPosition(true);
-                // window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
+              if (window?.core) {
+                const camera = await window?.core?.GetCameraPosition(true);
+                window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
               }
             },
             onError: () => {

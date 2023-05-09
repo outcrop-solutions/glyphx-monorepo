@@ -141,12 +141,12 @@ export const _createModel = (
  * @note implements s3Manager.getSignedDataUrlPromise concurrently
  */
 
-export const _getSignedDataUrls = (workspaceId: string, projectId: string): webTypes.IFetchConfig => {
+export const _getSignedDataUrls = (workspaceId: string, projectId: string, fileHash: string): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/sign-data-urls`,
     options: {
       method: 'POST',
-      body: { workspaceId, projectId },
+      body: { workspaceId, projectId, fileHash },
     },
     successMsg: 'File successfully added',
   };

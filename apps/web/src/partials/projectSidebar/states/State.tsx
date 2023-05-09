@@ -1,24 +1,57 @@
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { useCallback } from 'react';
 import StateIcon from 'public/svg/state.svg';
-import { web as webTypes } from '@glyphx/types';
-import { activeStateAtom, modalsAtom, showLoadingAtom } from 'state';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { activeStateAtom, modalsAtom, projectAtom, showLoadingAtom } from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { WritableDraft } from 'immer/dist/internal';
 import produce from 'immer';
+import { _createOpenProject, _getSignedDataUrls, api } from 'lib';
+import { useSession } from 'next-auth/react';
+import { useUrl } from 'lib/client/hooks';
 
 export const State = ({ item, idx }) => {
+  const session = useSession();
+  const url = useUrl();
   const setModals = useSetRecoilState(modalsAtom);
+  const project = useRecoilValue(projectAtom);
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
+  const setLoading = useSetRecoilState(showLoadingAtom);
 
-  const applyState = useCallback(() => {
+  const applyState = useCallback(async () => {
+    setActiveState(idx);
     // only apply state if not loading
     if (Object.keys(loading).length > 0) {
+      const fileHash = project.stateHistory[idx].fileSystemHash;
       // apply item to project state remote
-      // apply item to project state local
-      // call open project
-      setActiveState(idx);
+      setLoading(
+        produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+          draft.processName = 'Retreiving State Snapshot...';
+          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+          draft.processStartTime = new Date();
+        })
+      );
+      api({
+        ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), fileHash),
+        onSuccess: async (data) => {
+          setLoading({});
+          if (window?.core) {
+            const camera = await window?.core?.GetCameraPosition(true);
+            window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
+          }
+        },
+        onError: () => {
+          setLoading(
+            produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+              draft.processName = 'Failed to Open State Snapshot';
+              draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+              draft.processEndTime = new Date();
+            })
+          );
+          setActiveState(-1);
+        },
+      });
     }
   }, [idx]);
 

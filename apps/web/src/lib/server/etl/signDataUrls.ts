@@ -12,7 +12,7 @@ import { S3_BUCKET_NAME } from 'config/constants';
  */
 
 export const signDataUrls = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { workspaceId, projectId } = req.body;
+  const { workspaceId, projectId, fileHash } = req.body;
   try {
     // init S3 client
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
@@ -20,9 +20,9 @@ export const signDataUrls = async (req: NextApiRequest, res: NextApiResponse) =>
       await s3Manager.init();
     }
     const urls = [
-      `client/${workspaceId}/${projectId}/output/model.sdt`,
-      `client/${workspaceId}/${projectId}/output/model.sgn`,
-      `client/${workspaceId}/${projectId}/output/model.sgc`,
+      `client/${workspaceId}/${projectId}/output/${fileHash}.sdt`,
+      `client/${workspaceId}/${projectId}/output/${fileHash}.sgn`,
+      `client/${workspaceId}/${projectId}/output/${fileHash}.sgc`,
     ];
 
     // Create an array of promises

@@ -16,3 +16,12 @@ export const stateSnapshotsSelector = selector<databaseTypes.IState[]>({
     return project?.stateHistory.filter((state) => !state.deletedAt);
   },
 });
+
+export const stateSelector = selector({
+  key: 'activeSnapshotSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+    const activeStateIndex = get(activeStateAtom);
+    return project?.stateHistory[activeStateIndex];
+  },
+});
