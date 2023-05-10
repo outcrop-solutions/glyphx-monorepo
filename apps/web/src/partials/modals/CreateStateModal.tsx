@@ -27,10 +27,10 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
   };
 
   useEffect(() => {
-    if (camera) {
+    if (Object.keys(camera).length > 0) {
       console.log({ camera });
       api({
-        ..._createState(name, modalContent.data._id as unknown as string, camera),
+        ..._createState(name, modalContent.data._id as unknown as string, camera as unknown as webTypes.Camera),
         setLoading: (state) =>
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
@@ -38,7 +38,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
             })
           ),
         onError: (_: any) => {
-          setCamera(false);
+          setCamera({});
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
               draft.modals.splice(0, 1);
@@ -46,7 +46,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
           );
         },
         onSuccess: (data: any) => {
-          setCamera(false);
+          setCamera({});
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
               draft.modals.splice(0, 1);

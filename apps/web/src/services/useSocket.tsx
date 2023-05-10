@@ -28,7 +28,9 @@ export const useSocket = () => {
             // @ts-ignore
             setRowIds([...JSON.parse(rowIds)?.rowIds]);
           });
-          window.core.SendCameraPosition.connect((camera) => {
+          window.core.SendCameraPosition.connect((json: string) => {
+            const jsonCamera = `{${json}}`;
+            const { camera } = JSON.parse(jsonCamera);
             const newCamera: webTypes.Camera = {
               pos: {
                 x: camera.position[0],
@@ -43,15 +45,13 @@ export const useSocket = () => {
             };
             setCamera(
               produce((draft: WritableDraft<webTypes.Camera>) => {
-                draft.pos.x = newCamera.pos.x;
-                draft.pos.x = newCamera.pos.x;
-                draft.pos.x = newCamera.pos.x;
-                draft.dir.x = newCamera.dir.x;
-                draft.dir.x = newCamera.dir.x;
-                draft.dir.x = newCamera.dir.x;
+                draft.pos = { x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z };
+                draft.dir = { x: newCamera.dir.x, y: newCamera.dir.y, z: newCamera.dir.z };
               })
             );
-            // setRowIds([...JSON.parse(rowIds)?.rowIds]);
+          });
+          window.core.SendDrawerStatus.connect((status: string) => {
+            console.log({ status });
           });
         });
         setChannel(webChannel);

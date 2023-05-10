@@ -13,7 +13,7 @@ import { useSetRecoilState } from 'recoil';
 import { dataGridAtom, projectAtom, rightSidebarControlAtom, workspaceAtom } from 'state';
 
 import { useSendPosition, useSocket, useWindowSize } from 'services';
-import { useCloseViewerOnEmptyDataGrid } from 'services/useCloseViewerOnEmptyDataGrid';
+import { useCloseViewerOnModalOpen } from 'services/useCloseViewerOnModalOpen';
 import { useProject, useWorkspace } from 'lib/client/hooks';
 
 const DynamicProject = dynamic(() => import('views/project'), {
@@ -27,7 +27,7 @@ export default function Project() {
   // resize setup
   useWindowSize();
   useSendPosition();
-  // useCloseViewerOnEmptyDataGrid();
+  useCloseViewerOnModalOpen();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);

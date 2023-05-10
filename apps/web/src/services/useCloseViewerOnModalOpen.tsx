@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
-import { selectedFileIndexSelector } from 'state';
+import { modalsAtom } from 'state';
 
-export const useCloseViewerOnEmptyDataGrid = () => {
-  const selected = useRecoilValue(selectedFileIndexSelector);
+export const useCloseViewerOnModalOpen = () => {
+  const modals = useRecoilValue(modalsAtom);
 
   // close viewer when datagrid empty
   useEffect(() => {
@@ -11,8 +11,9 @@ export const useCloseViewerOnEmptyDataGrid = () => {
       window?.core?.ToggleDrawer(false);
     };
 
-    if (selected === -1) {
+    console.log({ modals });
+    if (modals.modals.length >= 1) {
       handleCloseViewer();
     }
-  }, [selected]);
+  }, [modals]);
 };

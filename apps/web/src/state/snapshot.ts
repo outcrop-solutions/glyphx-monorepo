@@ -8,9 +8,9 @@ export const activeStateAtom = atom<number>({
   default: -1,
 });
 
-export const cameraAtom = atom<webTypes.Camera | false>({
+export const cameraAtom = atom<webTypes.Camera | {}>({
   key: 'cameraAtom',
-  default: false,
+  default: {},
 });
 
 // populates state list
