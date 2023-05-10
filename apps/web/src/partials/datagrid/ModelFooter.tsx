@@ -28,7 +28,7 @@ export const ModelFooter = () => {
     if (drawer && windowSize.height) {
       console.log({ msg: 'close drawer', data: { drawer, windowSize, orientation } });
       // close drawer
-      setResize(windowSize.height - 60);
+      setResize(windowSize.height - 70);
       setOrientation('horizontal');
 
       setDrawer(false);
