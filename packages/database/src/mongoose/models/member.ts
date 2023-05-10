@@ -616,14 +616,10 @@ SCHEMA.static(
           transformedMember[key] = value;
         }
       }
-      console.log({transformedMember});
       const updateResult = await MEMBER_MODEL.updateOne(
         filter,
         transformedMember
       );
-      console.log({
-        updateResult,
-      });
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
           `No member document with filter: ${filter} was found`,

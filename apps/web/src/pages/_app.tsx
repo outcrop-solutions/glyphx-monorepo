@@ -82,16 +82,16 @@ export default function App({
         console.log({ function: 'ToggleDrawer', open });
       },
       OpenProject: (object) => {
-        console.log('Open Project Called', object);
+        console.log({ function: 'Open Project Called', ...object });
       },
       GetCameraPosition: (object) => {
         return { pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } };
       },
       SendRowIds: (rowIds) => {
-        console.log('SendRowIds', rowIds);
+        console.log({ function: 'SendRowIds', rowIds });
       },
       SendDrawerPosition: (position) => {
-        console.log('SendDrawerPosition', position);
+        console.log({ function: 'SendDrawerPosition', position });
       },
     };
   }, []);

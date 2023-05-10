@@ -42,7 +42,6 @@ export const useProject = () => {
             onSuccess: async (data) => {
               setLoading({});
               if (window?.core) {
-                console.log({ data, project, session, url });
                 window?.core?.OpenProject(_createOpenProject(data, project, session, url));
               }
             },

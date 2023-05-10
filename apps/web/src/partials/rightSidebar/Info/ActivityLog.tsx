@@ -6,7 +6,6 @@ import { rightSidebarControlAtom } from 'state';
 export const ActivityLog = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
   const { isLoading, data } = useProjectLogs(sidebarControl.data._id);
-  console.log({ isLoading, data });
 
   return (
     !isLoading && (

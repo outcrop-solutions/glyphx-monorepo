@@ -67,15 +67,14 @@ export class GlyphStream extends Transform {
     //we will coalesc our x, y, and z values into a string.  This will prevent
     //us from having to do some pointer work to get the values into strongly
     //typed structures.
-
     let retval = '';
     try {
       const xFieldName = this.sdtParser.getInputFields().x.field;
-      const xValue = (chunk[xFieldName] as any).toString();
+      const xValue = (chunk[xFieldName] as any)?.toString() ?? '';
       const yFieldName = this.sdtParser.getInputFields().y.field;
-      const yValue = (chunk[yFieldName] as any).toString();
+      const yValue = (chunk[yFieldName] as any)?.toString() ?? '';
       const zFieldName = this.sdtParser.getInputFields().z.field;
-      const zValue = (chunk[zFieldName] as any).toString();
+      const zValue = (chunk[zFieldName] as any)?.toString() ?? '';
       //Row ids should always be ints, so let's send them across the wire
       //as such
       const rowIdValues = chunk['rowids'] as string;

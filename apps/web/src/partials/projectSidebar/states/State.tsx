@@ -40,7 +40,6 @@ export const State = ({ item, idx }) => {
         onSuccess: async (data) => {
           setLoading({});
           if (window?.core) {
-            console.log({ data, project, session, url, camera });
             window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
           }
         },

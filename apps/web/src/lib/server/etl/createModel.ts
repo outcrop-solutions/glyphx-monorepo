@@ -165,6 +165,7 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
         ['filter', payload['filter']],
       ]);
 
+      console.dir({ data }, { depth: null });
       // process glyph engine
       const { sdtFileName, sgnFileName, sgcFileName } = await glyphEngine.process(data);
 
