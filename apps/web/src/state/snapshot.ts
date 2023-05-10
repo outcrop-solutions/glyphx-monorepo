@@ -1,11 +1,16 @@
 import { atom, selector } from 'recoil';
 import { projectAtom } from './project';
-import { database as databaseTypes } from '@glyphx/types';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 
 // controls styling of state list items
 export const activeStateAtom = atom<number>({
   key: 'activeStateAtom',
   default: -1,
+});
+
+export const cameraAtom = atom<webTypes.Camera | false>({
+  key: 'cameraAtom',
+  default: false,
 });
 
 // populates state list

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { QWebChannel } from 'qwebchannel';
 import { useSetRecoilState } from 'recoil';
-import { rowIdsAtom } from 'state';
+import { cameraAtom, rowIdsAtom } from 'state';
+import { web as webTypes } from '@glyphx/types';
+import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
 /**
  * To handle Socket Connection and Communications with Qt window
  * @param {boolean} isSelected
@@ -10,6 +13,7 @@ import { rowIdsAtom } from 'state';
 export const useSocket = () => {
   const [channel, setChannel] = useState(null);
   const setRowIds = useSetRecoilState(rowIdsAtom);
+  const setCamera = useSetRecoilState(cameraAtom);
 
   useEffect(() => {
     let ws;
@@ -23,6 +27,31 @@ export const useSocket = () => {
           window.core.SendRowIds.connect((rowIds: string) => {
             // @ts-ignore
             setRowIds([...JSON.parse(rowIds)?.rowIds]);
+          });
+          window.core.SendCameraPosition.connect((camera) => {
+            const newCamera: webTypes.Camera = {
+              pos: {
+                x: camera.position[0],
+                y: camera.position[1],
+                z: camera.position[2],
+              },
+              dir: {
+                x: camera.direction[0],
+                y: camera.direction[1],
+                z: camera.direction[2],
+              },
+            };
+            setCamera(
+              produce((draft: WritableDraft<webTypes.Camera>) => {
+                draft.pos.x = newCamera.pos.x;
+                draft.pos.x = newCamera.pos.x;
+                draft.pos.x = newCamera.pos.x;
+                draft.dir.x = newCamera.dir.x;
+                draft.dir.x = newCamera.dir.x;
+                draft.dir.x = newCamera.dir.x;
+              })
+            );
+            // setRowIds([...JSON.parse(rowIds)?.rowIds]);
           });
         });
         setChannel(webChannel);

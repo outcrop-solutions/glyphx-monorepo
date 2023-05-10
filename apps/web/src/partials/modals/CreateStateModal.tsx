@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from 'components/Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom, projectAtom } from 'state';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { cameraAtom, modalsAtom, projectAtom } from 'state';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
+  const [camera, setCamera] = useRecoilState(cameraAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [name, setName] = useState('');
   const validName = name.length > 0 && name.length <= 16;
@@ -18,41 +19,48 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
   const handleNameChange = (event) => setName(event.target.value);
 
   // mutations
-  const createState = (event) => {
+  const createState = async (event) => {
     event.preventDefault();
-    let camera;
     if (window?.core) {
-      camera = window?.core?.GetCameraPosition(true);
+      window?.core?.GetCameraPosition(true);
     }
-    api({
-      ..._createState(name, modalContent.data._id, camera),
-      setLoading: (state) =>
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state;
-          })
-        ),
-      onError: (_: any) => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-      },
-      onSuccess: (data: any) => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-        setProject(
-          produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.stateHistory.push({ ...data });
-          })
-        );
-      },
-    });
   };
+
+  useEffect(() => {
+    if (camera) {
+      console.log({ camera });
+      api({
+        ..._createState(name, modalContent.data._id as unknown as string, camera),
+        setLoading: (state) =>
+          setModals(
+            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+              draft.modals[0].isSubmitting = state;
+            })
+          ),
+        onError: (_: any) => {
+          setCamera(false);
+          setModals(
+            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+              draft.modals.splice(0, 1);
+            })
+          );
+        },
+        onSuccess: (data: any) => {
+          setCamera(false);
+          setModals(
+            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+              draft.modals.splice(0, 1);
+            })
+          );
+          setProject(
+            produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+              draft.stateHistory.push({ ...data });
+            })
+          );
+        },
+      });
+    }
+  }, [camera]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
