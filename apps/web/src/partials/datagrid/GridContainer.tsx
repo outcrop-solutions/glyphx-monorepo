@@ -8,14 +8,19 @@ import { ModelFooter } from './ModelFooter';
 
 import { filesOpenSelector } from 'state/files';
 import { useResize } from 'services/useResize';
+import { splitPaneSizeAtom } from 'state';
 
 export const GridContainer = () => {
   const openFiles = useRecoilValue(filesOpenSelector);
   const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
+  const resize = useRecoilValue(splitPaneSizeAtom);
+  console.log({ resize });
 
   return (
     <div className="relative h-full w-full">
+      <ModelFooter />
       <SplitPane
+        key={resize}
         split={split()}
         allowResize={true}
         defaultSize={defaultSize()}

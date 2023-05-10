@@ -9,12 +9,7 @@ export const StateList = () => {
   return (
     states && (
       <div className="lg:block border-b border-gray">
-        <ul
-          style={{
-            height: '200px',
-          }}
-          className={`overflow-auto`}
-        >
+        <ul className="overflow-auto grow">
           {states.map((item, idx) => (
             <State key={idx} item={item} idx={idx} />
           ))}

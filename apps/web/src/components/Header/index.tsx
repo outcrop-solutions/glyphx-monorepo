@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
-import { projectAtom } from 'state';
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
+import { drawerOpenAtom, projectAtom } from 'state';
+import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
 
 import { Controls } from 'partials/layout/controls';
 
@@ -9,12 +9,15 @@ import BackBtnIcon from 'public/svg/back-button-icon.svg';
 const Header = () => {
   const project = useRecoilValue(projectAtom);
   const resetProject = useResetRecoilState(projectAtom);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const router = useRouter();
   const { workspaceSlug } = router.query;
 
   const backPressed = () => {
     router.push(`/account/${project.workspace.slug}`);
+    setDrawer(false);
+    window?.core?.ToggleDrawer(false);
     resetProject();
   };
 

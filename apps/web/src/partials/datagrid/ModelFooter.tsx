@@ -1,29 +1,71 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import * as dayjs from 'dayjs';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import {
+  drawerOpenAtom,
+  orientationAtom,
+  showLoadingAtom,
+  splitPaneSizeAtom,
+  viewerPositionSelector,
+  windowSizeAtom,
+} from 'state';
+import { PlusIcon, XIcon } from '@heroicons/react/outline';
 // import { PlusIcon } from "@heroicons/react/solid";
 
-export const ModelFooter = () => {
-  const handleOpen = () => {
-    // window?.core?.OpenProject(JSON.stringify(url));
-    //window?.core?.OpenProject({});
-  };
-  const name = '';
+const footerHeight = 44;
+const resizeHandle = 4;
 
-  return (
-    <div className="w-full h-11 border border-gray bg-primary-dark-blue text-xs flex items-center">
-      {name && (
+export const ModelFooter = () => {
+  const viewer = useRecoilValue(viewerPositionSelector);
+  const windowSize = useRecoilValue(windowSizeAtom);
+  const [drawer, setDrawer] = useRecoilState(drawerOpenAtom);
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
+
+  const loading = useRecoilValue(showLoadingAtom);
+  const [orientation, setOrientation] = useRecoilState(orientationAtom);
+
+  const handleOpenClose = useCallback(() => {
+    if (drawer && windowSize.height) {
+      console.log({ msg: 'close drawer', data: { drawer, windowSize, orientation } });
+      // close drawer
+      setResize(windowSize.height - 60);
+      setOrientation('horizontal');
+
+      setDrawer(false);
+      window?.core?.ToggleDrawer(false);
+    } else {
+      console.log({ msg: 'open drawer', data: { drawer, windowSize, orientation } });
+      // open drawer
+      setResize(100);
+      setDrawer(true);
+      window?.core?.ToggleDrawer(true);
+    }
+  }, [drawer, orientation, setDrawer, setOrientation]);
+
+  return viewer && !(Object.keys(loading).length > 0) ? (
+    <div
+      style={{
+        position: 'fixed',
+        left: `${viewer.x - (orientation === 'vertical' ? 0 : 0)}px`,
+        top: `${viewer.y - (footerHeight + resizeHandle)}px`,
+        width: `${viewer.w - (orientation === 'vertical' ? 10 : 0)}px`,
+      }}
+      className={`z-60 h-[44px] ${
+        orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'
+      } bg-primary-dark-blue text-xs flex items-center`}
+    >
+      <div
+        onClick={handleOpenClose}
+        className="flex relative cursor-pointer group hover:bg-gray items-center border-r border-r-gray h-full px-4"
+      >
         <div
-          // onClick={handleOpen}
-          className="flex relative cursor-pointer group hover:bg-gray items-center border-r border-r-gray h-full px-4"
+          className={`${
+            drawer ? 'text-secondary-blue' : 'text-white'
+          } mr-2 text-xs font-roboto font-medium leading-[14px] tracking-[0.01em]`}
         >
-          <div className="text-secondary-blue mr-2 text-xs font-roboto font-medium leading-[14px] tracking-[0.01em]">
-            SDT
-          </div>
-          <p className=" text-light-gray font-roboto font-normal leading-[14px] text-xs">{name}</p>
+          Glyph Viewer
         </div>
-      )}
-      {/* <PlusIcon className="h-5 text-gray mx-2" /> */}
+      </div>
     </div>
-  );
+  ) : null;
 };

@@ -12,11 +12,14 @@ import SmallLogo from 'public/svg/small-logo.svg';
 // hooks
 import { useWorkspace, useWorkspaces } from 'lib/client';
 import { useRouter } from 'next/router';
+import { drawerOpenAtom } from 'state';
+import { useSetRecoilState } from 'recoil';
 
 const staticMenu = sidebarMenu();
 
 const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
   const router = useRouter();
   const { projectId } = router.query;
   const { data, isLoading } = useWorkspaces();
@@ -49,7 +52,13 @@ const Sidebar = ({ menu }) => {
         }`}
       >
         {/* eslint-disable-next-line react/no-string-refs */}
-        <Link href="/account">
+        <Link
+          onClick={() => {
+            setDrawer(false);
+            window?.core?.ToggleDrawer(false);
+          }}
+          href="/account"
+        >
           {projectId ? (
             <div>
               <SmallLogo />

@@ -4,6 +4,7 @@ import { viewerPositionSelector } from 'state';
 
 export const useSendPosition = () => {
   const viewer = useRecoilValue(viewerPositionSelector);
+
   useEffect(() => {
     try {
       if (viewer) {

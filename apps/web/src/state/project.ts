@@ -47,28 +47,6 @@ import { database as databaseTypes, web as webTypes, fileIngestion as fileIngest
  *         }];
  *         fileSize: number;
  *    }];
- *    owner: {
- *         userCode: string;
- *         name: string;
- *         username: string;
- *         gh_username?: string;
- *         email: string;
- *         emailVerified?: Date;
- *         isVerified: boolean;
- *         image?: string;
- *         createdAt: Date;
- *         updatedAt: Date;
- *         deletedAt?: Date;
- *         accounts: [ObjectId];          // IAccount[]
- *         sessions: ISession[];
- *         membership: [ObjectId];        // IMember[];
- *         invitedMembers: [ObjectId];    // IMember[];
- *         createdWorkspaces: [ObjectId]; // IWorkspace[];
- *         projects: [ObjectId];          // IProject[];
- *         customerPayment?: ICustomerPayment;
- *         webhooks: IWebhook[];
- *         apiKey?: string;
- *    }
  *    state: {
  *      properties: {
  *         "X": {
@@ -130,20 +108,12 @@ export const projectDetailsAtom = atom<databaseTypes.IProject | null>({
   default: null,
 });
 
-/************************  Qt  *************************/
-
-// returns a function, which returns a selector partially applied
-export const openModelPayloadSelectorFamily = selectorFamily<webTypes.IOpenModelPayload, string>({
-  key: 'openModelPayloadSelector',
-  get:
-    (url) =>
-    ({ get }) => {
-      const project = get(projectAtom);
-      return {
-        lastOpened: project?.lastOpened,
-        signedUrl: url,
-      };
-    },
+/************************  QT  *************************/
+export const footerLabelSelector = selector({
+  key: 'footerLabelSelector',
+  get: ({ get }) => {
+    const project = get(projectAtom);
+  },
 });
 
 /************************  UI  *************************/

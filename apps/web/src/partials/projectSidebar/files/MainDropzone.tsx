@@ -11,8 +11,10 @@ export const MainDropzone = () => {
   });
 
   return (
-    <div {...getRootProps()} className="text-center h-[600px] flex flex-col justify-center items-center">
-      <DropFileIcon />
+    <div {...getRootProps()} className="text-center h-[400px] flex flex-col justify-center items-center">
+      <div className="w-44">
+        <DropFileIcon />
+      </div>
       <h3 className="mt-2 text-sm font-medium text-white">No files loaded...</h3>
       <p className="mt-1 text-sm text-gray">
         Add a new CSV file to your project or open an existing file form the Files drawer.

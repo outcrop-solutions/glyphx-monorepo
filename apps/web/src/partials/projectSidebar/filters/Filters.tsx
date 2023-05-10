@@ -43,9 +43,12 @@ export const Filters = () => {
                 </span>
               </a>
             </div>
-            <Button disabled={isLoading} className="h-4 text-xs w-12 mr-2">
-              Apply
-            </Button>
+            <button
+              disabled={isLoading}
+              className="flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white"
+            >
+              <span>Apply</span>
+            </button>
           </summary>
           {!isCollapsed && (
             <div

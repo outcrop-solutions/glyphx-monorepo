@@ -1,6 +1,5 @@
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { useCallback } from 'react';
-import StateIcon from 'public/svg/state.svg';
 import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 import { activeStateAtom, modalsAtom, projectAtom, showLoadingAtom } from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -9,6 +8,8 @@ import produce from 'immer';
 import { _createOpenProject, _getSignedDataUrls, api } from 'lib';
 import { useSession } from 'next-auth/react';
 import { useUrl } from 'lib/client/hooks';
+import StateIcon from 'public/svg/state.svg';
+import ActiveStateIcon from 'public/svg/active-state.svg';
 
 export const State = ({ item, idx }) => {
   const session = useSession();
@@ -90,16 +91,20 @@ export const State = ({ item, idx }) => {
   return (
     <li
       key={item.id}
-      className="p-2 group-states hover:bg-gray hover:text-white last:mb-0 flex items-center justify-between cursor-pointer"
+      className="p-2 group-states hover:bg-secondary-midnight hover:text-white last:mb-0 flex items-center justify-between cursor-pointer"
     >
-      <div className="flex items-center justify-center h-6 w-6 group-states-hover:bg-white">
-        <StateIcon />
+      <div className="flex items-center justify-center h-6 w-6">
+        {activeState === idx ? <StateIcon className="" /> : <ActiveStateIcon />}
       </div>
       <div
         onClick={applyState}
-        className="block text-gray group-states-hover:text-white transition duration-150 truncate"
+        className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
-        <span className={`text-sm ${activeState === idx ? 'text-white' : ''} font-medium`}>{item.name}</span>
+        <span
+          className={`w-full text-left text-light-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium`}
+        >
+          {item.name}
+        </span>
       </div>
       <div className="invisible group-states-hover:visible flex gap-x-2 justify-between items-center">
         <PencilIcon onClick={updateState} className="h-4 w-4" />

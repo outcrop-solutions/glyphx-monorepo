@@ -32,7 +32,12 @@ export const orientationAtom = atom<webTypes.SplitPaneOrientation>({
 // corresponds to the size of the pane containing the data grid
 export const splitPaneSizeAtom = atom<number>({
   key: 'splitPaneSizeAtom',
-  default: 400,
+  default: 100,
+});
+
+export const drawerOpenAtom = atom<boolean>({
+  key: 'drawerOpen',
+  default: false,
 });
 
 export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>({
@@ -44,12 +49,12 @@ export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>
     const resize = get(splitPaneSizeAtom);
     const isControlOpen = get(rightSidebarControlAtom);
 
+    // returned when drawer is open
     if (coords && window.width) {
       const x = calcX(coords, resize, orientation);
       const y = calcY(coords, resize, orientation);
       const w = calcW(coords, resize, orientation, isControlOpen.type, window);
       const h = calcH(coords, resize, orientation);
-
       return {
         x: x,
         y: y,

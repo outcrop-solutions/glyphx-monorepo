@@ -9,12 +9,13 @@ import { web as webTypes } from '@glyphx/types';
 import ProjectLayout from 'layouts/ProjectLayout';
 import Meta from 'components/Meta';
 
-import { useSetRecoilState } from 'recoil';
-import { dataGridAtom, projectAtom, rightSidebarControlAtom, workspaceAtom } from 'state';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { dataGridAtom, projectAtom, rightSidebarControlAtom, splitPaneSizeAtom, workspaceAtom } from 'state';
 
 import { useSendPosition, useSocket, useWindowSize } from 'services';
 import { useCloseViewerOnModalOpen } from 'services/useCloseViewerOnModalOpen';
 import { useProject, useWorkspace } from 'lib/client/hooks';
+import { useCloseViewerOnLoading } from 'services/useCloseViewerOnLoading';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -24,10 +25,17 @@ export default function Project() {
   const { data, isLoading } = useProject();
   const { data: result, isLoading: isWorkspaceLoading } = useWorkspace();
 
+  // const resize = useRecoilValue(splitPaneSizeAtom);
+
+  // useEffect(() => {
+  //   console.log({ resize });
+  // }, [resize]);
+
   // resize setup
   useWindowSize();
   useSendPosition();
   useCloseViewerOnModalOpen();
+  useCloseViewerOnLoading();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);
