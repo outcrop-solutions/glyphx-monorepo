@@ -61,7 +61,7 @@ export const Share = () => {
             <span className="inline-block mr-2">
               <GroupIcon />
             </span>
-            Everyone at Notre Dame Idea Center can access this file.
+            Everyone within this workspace can access this file
           </p>
         </div>
         <div className="flex flex-row justify-between mb-3">

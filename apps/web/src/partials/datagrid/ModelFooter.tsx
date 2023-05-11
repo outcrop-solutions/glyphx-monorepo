@@ -34,7 +34,7 @@ export const ModelFooter = () => {
       window?.core?.ToggleDrawer(false);
     } else {
       // open drawer
-      setResize(100);
+      setResize(150);
       setDrawer(true);
       window?.core?.ToggleDrawer(true);
     }

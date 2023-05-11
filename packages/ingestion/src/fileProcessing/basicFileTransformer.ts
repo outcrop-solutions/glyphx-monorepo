@@ -331,7 +331,7 @@ export class BasicFileTransformer extends Transform {
           columnIndex: columnIndex,
           columnName: key,
           columnValue: dirtyValue,
-          message: `The value of collumn ${key} does not appear to be a well formed number string`,
+          message: `The value of column ${key} does not appear to be a well formed number string`,
         });
       }
 

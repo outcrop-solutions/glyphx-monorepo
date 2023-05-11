@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Button from 'components/Button';
+import { useSWRConfig } from 'swr';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, api } from 'lib';
@@ -9,6 +10,7 @@ import { cameraAtom, modalsAtom, projectAtom } from 'state';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProps) => {
+  const { mutate } = useSWRConfig();
   const setModals = useSetRecoilState(modalsAtom);
   const [camera, setCamera] = useRecoilState(cameraAtom);
   const setProject = useSetRecoilState(projectAtom);
@@ -51,15 +53,11 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
               draft.modals.splice(0, 1);
             })
           );
-          setProject(
-            produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-              draft.stateHistory.push({ ...data });
-            })
-          );
+          mutate(`/api/project/${modalContent.data._id}`);
         },
       });
     }
-  }, [camera]);
+  }, [camera, modalContent.data._id, name, setCamera, setModals, setProject, mutate]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">

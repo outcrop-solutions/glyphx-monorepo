@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import produce from 'immer';
 import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 import { WritableDraft } from 'immer/dist/internal';
+import { useSWRConfig } from 'swr';
 
 import { projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom, showLoadingAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
@@ -20,6 +21,7 @@ import { parsePayload } from 'lib/client/files/transforms/parsePayload';
  */
 
 export const useFileSystem = () => {
+  const { mutate } = useSWRConfig();
   const [project, setProject] = useRecoilState(projectAtom);
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);
@@ -175,16 +177,7 @@ export const useFileSystem = () => {
                 draft.processEndTime = new Date();
               })
             );
-            // update project filesystem
-            // setProject(
-            //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            //     draft.files = data?.payload?.fileStats;
-            //     draft.files[0].dataGrid = data?.dataGrid;
-            //     draft.files[0].open = true;
-            //   })
-            // );
-            // open first file
-            // selectFile(0);
+            mutate(`/api/project/${project._id}`);
           },
           onError: () => {
             setLoading(
@@ -199,7 +192,7 @@ export const useFileSystem = () => {
       }
     },
     // update file system state with processed data based on user decision
-    [project, selectFile, setLoading, setModals, setProject]
+    [project, setLoading, setModals, mutate]
   );
 
   return {
