@@ -2,18 +2,27 @@ import React, { useState } from 'react';
 import Button from 'components/Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
-
+import { useSWRConfig } from 'swr';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import toast from 'react-hot-toast';
+import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 import { web as webTypes } from '@glyphx/types';
 import { _deleteProject, _deleteWorkspace, api } from 'lib';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
+import { useRouter } from 'next/router';
 
 export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModalProps) => {
+  const { mutate } = useSWRConfig();
+  const router = useRouter();
+  const { workspaceSlug } = router.query;
   const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyProject, setVerifyProject] = useState('');
   const verifiedProject = verifyProject === modalContent?.data.projectName;
+
+  const copyToClipboard = () => toast.success('Copied to clipboard!');
 
   // local state
   const handleVerifyProjectChange = (event) => setVerifyProject(event.target.value);
@@ -34,6 +43,7 @@ export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModal
             draft.modals.splice(0, 1);
           })
         );
+        mutate(`/api/workspace/${workspaceSlug}`);
       },
     });
   };
@@ -48,9 +58,15 @@ export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModal
         <strong>Warning:</strong> This action is not reversible. Please be certain.
       </p>
       <div className="flex flex-col">
-        <label className="text-sm text-gray-400">
-          Enter <strong>{modalContent?.data?.projectName}</strong> to continue:
-        </label>
+        <span>Enter your project name to continue to continue:</span>
+        <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded my-4">
+          <strong>
+            <span className="overflow-x-auto">{modalContent?.data?.projectName}</span>
+          </strong>
+          <CopyToClipboard onCopy={copyToClipboard} text={modalContent?.data?.projectName}>
+            <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
+          </CopyToClipboard>
+        </div>
         <input
           className="px-3 py-2 border rounded bg-transparent"
           disabled={modalContent.isSubmitting}

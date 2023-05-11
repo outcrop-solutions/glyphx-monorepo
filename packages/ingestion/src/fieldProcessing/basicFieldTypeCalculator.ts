@@ -145,8 +145,11 @@ export class BasicFieldTypeCalculator
    * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | fileIngestion.constants.FIELD_TYPE.STRING}
    */
   private calculateFieldType(): void {
+    const percentNumber =
+      this.numberOfNumbers / (this.numberOfNumbers + this.numberOfStrings);
+
     this.fieldTypeField =
-      this.numberOfStrings >= this.numberOfNumbers
+      percentNumber < 0.65
         ? fileIngestion.constants.FIELD_TYPE.STRING
         : fileIngestion.constants.FIELD_TYPE.NUMBER;
     this.hasProcessedItemsField = true;

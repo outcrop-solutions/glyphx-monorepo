@@ -16,5 +16,5 @@ export const useCloseViewerOnModalOpen = () => {
     if (modals.modals.length >= 1) {
       handleCloseViewer();
     }
-  }, [modals]);
+  }, [modals, setDrawer]);
 };

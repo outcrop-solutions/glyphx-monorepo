@@ -44,12 +44,12 @@ export class BasicHiveQueryPlanner
       const subJoins: string[] = [];
       t.columns.forEach(c => {
         if (c.isSelectedColumn) {
-          selections.push(`${myAlias}.${c.columnName}`);
+          selections.push(`${myAlias}."${c.columnName}"`);
         }
 
         if (c.isJoinColumn) {
           subJoins.push(
-            `${joinAlias}.${c.columnName}=${myAlias}.${c.columnName}`
+            `${joinAlias}."${c.columnName}"=${myAlias}."${c.columnName}"`
           );
         }
       });

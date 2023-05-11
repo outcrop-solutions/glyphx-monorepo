@@ -56,14 +56,12 @@ export class NumberFieldChecker
    * See the interface IFieldChecker for more information. {@link interfaces/fieldProcessing/iFieldChecker!IFieldChecker.checkField | IFieldChecker.checkField}
    */
   public checkField(input: string): boolean {
-    const tempString = this.cleanStringForProcessing(input);
-
     //eslint-disable-next-line no-useless-escape
     const regex =
       //eslint-disable-next-line no-useless-escape
       /^[\-\+]?([0-9]{1,3},([0-9]{3},)*[0-9]{3}|[0-9]+)(\.([0-9]*))?$/;
 
-    const retval = regex.test(tempString);
+    const retval = regex.test(input);
     return retval;
   }
   /**
@@ -80,6 +78,15 @@ export class NumberFieldChecker
     }
 
     tempString = tempString.replace(/,/g, '');
-    return Number(tempString);
+    const retval = Number(tempString);
+
+    if (isNaN(retval)) {
+      throw new error.InvalidArgumentError(
+        `The input value of : ${input} is not a number`,
+        'input',
+        input
+      );
+    }
+    return retval;
   }
 }

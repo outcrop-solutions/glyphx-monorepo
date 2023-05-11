@@ -3,7 +3,9 @@ import { signOut, useSession } from 'next-auth/react';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { web as webTypes } from '@glyphx/types';
-
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import toast from 'react-hot-toast';
+import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 import Button from 'components/Button';
 
 import { _deactivateAccount, _deleteWorkspace, api } from 'lib';
@@ -18,6 +20,8 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
   const url = useUrl();
   const setModals = useSetRecoilState(modalsAtom);
   const [verifyEmail, setVerifyEmail] = useState('');
+
+  const copyToClipboard = () => toast.success('Copied to clipboard!');
 
   const verifiedEmail = verifyEmail === data.user.email;
 
@@ -51,9 +55,15 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
         <strong>Warning:</strong> This action is not reversible. Please be certain.
       </p>
       <div className="flex flex-col">
-        <label className="text-sm text-gray-400">
-          Enter <strong>{data.user.email}</strong> to continue:
-        </label>
+        <span>Enter your email to continue:</span>
+        <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded my-4">
+          <strong>
+            <span className="overflow-x-auto">{data.user.email}</span>
+          </strong>
+          <CopyToClipboard onCopy={copyToClipboard} text={data.user.email}>
+            <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
+          </CopyToClipboard>
+        </div>
         <input
           className="px-3 py-2 border rounded bg-transparent"
           disabled={modalContent.isSubmitting}

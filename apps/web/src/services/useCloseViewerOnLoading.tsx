@@ -16,5 +16,5 @@ export const useCloseViewerOnLoading = () => {
     if (Object.keys(loading).length > 0) {
       handleCloseViewer();
     }
-  }, [loading]);
+  }, [loading, setDrawer]);
 };

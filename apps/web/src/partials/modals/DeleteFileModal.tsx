@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import produce from 'immer';
+import { useSWRConfig } from 'swr';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 import toast from 'react-hot-toast';
@@ -8,14 +9,15 @@ import Button from 'components/Button';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 
 import { _ingestFiles, api } from 'lib';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, projectAtom } from 'state';
 import { parseDeletePayload } from 'lib/client/files/transforms/parseDeletePayload';
 import { WritableDraft } from 'immer/dist/internal';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps) => {
-  const [project, setProject] = useRecoilState(projectAtom);
+  const { mutate } = useSWRConfig();
+  const project = useRecoilValue(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyFile, setVerifyFile] = useState('');
@@ -43,14 +45,10 @@ export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps)
           })
         );
         // update project filesystem
-        setProject(
-          produce((draft: WritableDraft<databaseTypes.IProject>) => {
-            draft.files = project.files.filter((file) => file.fileName !== modalContent.data.fileName);
-          })
-        );
+        mutate(`/api/project/${project._id}`);
       },
     });
-  }, [modalContent.data.fileName, project, setModals, setProject]);
+  }, [modalContent.data.fileName, project, setModals, mutate]);
 
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">
