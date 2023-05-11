@@ -63,16 +63,23 @@ export class WorkspaceService {
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
 
-      const member = await mongoDbConnection.models.MemberModel.createMember({
-        inviter: email,
-        email: email,
-        joinedAt: new Date(),
-        status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
-        member: {_id: castCreatorId} as unknown as databaseTypes.IUser,
-        invitedBy: {_id: castCreatorId} as unknown as databaseTypes.IUser,
-        workspace: {_id: workspace._id} as unknown as databaseTypes.IWorkspace,
-      } as unknown as databaseTypes.IMember);
+      const workspaceId =
+        workspace instanceof mongooseTypes.ObjectId
+          ? workspace
+          : (workspace._id as mongooseTypes.ObjectId);
+
+      const member =
+        await mongoDbConnection.models.MemberModel.createWorkspaceMember({
+          inviter: email,
+          email: email,
+          joinedAt: new Date(),
+          type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+          status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
+          teamRole: databaseTypes.constants.ROLE.OWNER,
+          member: {_id: castCreatorId} as unknown as databaseTypes.IUser,
+          invitedBy: {_id: castCreatorId} as unknown as databaseTypes.IUser,
+          workspace: {_id: workspaceId} as unknown as databaseTypes.IWorkspace,
+        } as unknown as databaseTypes.IMember);
 
       const newWorkspace =
         await mongoDbConnection.models.WorkspaceModel.addMembers(
@@ -120,7 +127,7 @@ export class WorkspaceService {
     userId: mongooseTypes.ObjectId | string,
     email: string,
     slug: string
-  ): Promise<string | null> {
+  ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
@@ -179,7 +186,7 @@ export class WorkspaceService {
           );
         }
 
-        return slug;
+        return workspace;
       } else {
         throw new error.DataNotFoundError(
           'Unable to find workspace',
@@ -223,7 +230,6 @@ export class WorkspaceService {
     email: string,
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
-    // TODO: add filter to get workspaces where user is a member
     // @jp: we need a clean way to implement filter on related records here
     try {
       const workspaces =
@@ -311,6 +317,7 @@ export class WorkspaceService {
           slug,
           deletedAt: undefined,
         });
+
       return workspace.results[0];
     } catch (err: any) {
       if (
@@ -347,7 +354,6 @@ export class WorkspaceService {
     email: string,
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
-    // TODO: add filter to get workspaces where user is a member
     // @jp: we need a clean way to implement filter on related records here
     try {
       const workspaces =
@@ -404,6 +410,8 @@ export class WorkspaceService {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           deletedAt: undefined,
+          // TODO: we need to change our database layer to be able to filter on one/many relations
+          creator: userId,
         });
       const filteredWorkspaces = workspaces.results.filter(
         space =>
@@ -496,7 +504,10 @@ export class WorkspaceService {
       teamRole: databaseTypes.constants.ROLE;
     }[],
     slug: string
-  ): Promise<Partial<databaseTypes.IMember>[] | null> {
+  ): Promise<{
+    members: Partial<databaseTypes.IMember>[] | null;
+    workspace: databaseTypes.IWorkspace | null;
+  } | null> {
     try {
       const workspace = await WorkspaceService.getOwnWorkspace(
         userId,
@@ -557,7 +568,7 @@ export class WorkspaceService {
             to: members.map(member => member.email),
           }),
         ]);
-        return createdMembers;
+        return {members: createdMembers, workspace: workspace};
       } else {
         const errMsg = 'No workspace found';
         const e = new error.DataNotFoundError(errMsg, 'getOwnWorkspace', {
@@ -618,7 +629,7 @@ export class WorkspaceService {
   static async joinWorkspace(
     workspaceCode: string,
     email: string
-  ): Promise<Date | null> {
+  ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspaces =
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
@@ -626,11 +637,16 @@ export class WorkspaceService {
           workspaceCode,
         });
 
-      const memberEmailExists =
-        await mongoDbConnection.models.MemberModel.memberEmailExists(email);
+      const memberExists =
+        await mongoDbConnection.models.MemberModel.memberExists(
+          email,
+          databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+          workspaces[0]._id
+        );
 
       const input = {
         workspace: workspaces.results[0],
+        type: database.constants.MEMBERSHIP_TYPE.WORKSPACE,
         inviter: workspaces.results[0].creator.email,
         invitedAt: new Date(),
         joinedAt: new Date(),
@@ -639,9 +655,12 @@ export class WorkspaceService {
       } as Omit<databaseTypes.IMember, '_id'>;
 
       let member;
-      if (memberEmailExists) {
+      if (memberExists) {
         // create member
-        member = await mongoDbConnection.models.MemberModel.createMember(input);
+        member =
+          await mongoDbConnection.models.MemberModel.createWorkspaceMember(
+            input
+          );
       } else {
         // update member
         member =
@@ -651,12 +670,13 @@ export class WorkspaceService {
           );
       }
 
-      await mongoDbConnection.models.WorkspaceModel.addMembers(
-        workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
-        [member]
-      );
+      const workspace =
+        await mongoDbConnection.models.WorkspaceModel.addMembers(
+          workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
+          [member]
+        );
 
-      return new Date();
+      return workspace;
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||

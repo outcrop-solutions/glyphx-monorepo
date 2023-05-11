@@ -1,27 +1,34 @@
 import { useRouter } from 'next/router';
-import { projectAtom } from 'state';
-import { useRecoilState, useResetRecoilState } from 'recoil';
+import { drawerOpenAtom, projectAtom } from 'state';
+import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
 
 import { Controls } from 'partials/layout/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
 
-const Header = ({ breadcrumbs }) => {
-  const [project, setProject] = useRecoilState(projectAtom);
+const Header = () => {
+  const project = useRecoilValue(projectAtom);
   const resetProject = useResetRecoilState(projectAtom);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const router = useRouter();
   const { workspaceSlug } = router.query;
 
   const backPressed = () => {
     router.push(`/account/${project.workspace.slug}`);
+    setDrawer(false);
+    window?.core?.ToggleDrawer(false);
     resetProject();
   };
 
   return (
     <div
-      className={`flex flex-row h-14 items-center pr-4 justify-between ${
-        project ? 'bg-secondary-space-blue border border-gray' : 'bg-transparent pt-4 md:pt-0'
+      className={`flex flex-row h-[56px] items-center justify-between pr-4 ${
+        workspaceSlug && !router.pathname.includes('settings') && !project && 'ml-8'
+      } ${
+        project
+          ? 'bg-secondary-space-blue border border-gray'
+          : 'bg-transparent md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 border-gray'
       }`}
     >
       {project ? (
@@ -42,9 +49,13 @@ const Header = ({ breadcrumbs }) => {
           />
         </div>
       ) : (
-        <div className={`${workspaceSlug && !router.pathname.includes('settings') ? 'pl-8' : ''}`}>
+        <div
+          className={`${workspaceSlug && !router.pathname.includes('settings') ? (workspaceSlug ? 'pl-0' : '') : ''}`}
+        >
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {breadcrumbs.map((crumb) => crumb)}
+            {workspaceSlug && !router.pathname.includes('settings')
+              ? `${workspaceSlug} > Recents`
+              : 'Account Dashboard'}
           </p>
         </div>
       )}

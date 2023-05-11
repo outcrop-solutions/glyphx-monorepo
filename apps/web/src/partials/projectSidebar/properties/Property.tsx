@@ -7,7 +7,6 @@ import { useProject } from 'services';
 import { handleDataType } from 'lib/client/helpers/handleDataType';
 
 // state
-import { showModelCreationLoadingAtom } from 'state/ui';
 import { projectAtom, singlePropertySelectorFamily } from 'state/project';
 
 import ClearIcon from 'public/svg/clear-icon.svg';
@@ -16,7 +15,10 @@ import LogIcon from 'public/svg/log-icon.svg';
 import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
 import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 import produce from 'immer';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
+import { WritableDraft } from 'immer/dist/internal';
+import { showLoadingAtom } from 'state';
+import { _updateProjectState, api } from 'lib';
 
 export const Property = ({ axis }) => {
   const [project, setProject] = useRecoilState(projectAtom);
@@ -25,19 +27,19 @@ export const Property = ({ axis }) => {
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
-    drop: (item) => handleDrop(axis, item, project),
+    drop: (item) => handleDrop(axis, item, project, false),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
   });
   const isActive = isOver && canDrop;
-  const isCreatingModel = useRecoilValue(showModelCreationLoadingAtom);
+  const showLoadingValue = useRecoilValue(showLoadingAtom);
+  const showLoading = Object.keys(showLoadingValue).length > 0 ? true : false;
 
-  const clearProp = useCallback(() => {
+  const clearProp = useCallback(async () => {
     setProject(
-      produce((draft) => {
-        // @ts-ignore
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`] = {
           axis: axis,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
@@ -52,29 +54,105 @@ export const Property = ({ axis }) => {
         };
       })
     );
-  }, [axis, setProject]);
+
+    const newState = {
+      ...project.state,
+      properties: {
+        ...project.state.properties,
+        [`${axis}`]: {
+          ...project.state.properties[axis],
+          axis: axis,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: `Column ${axis}`, // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+      },
+    };
+
+    await api({ ..._updateProjectState(project._id, newState) });
+  }, [axis, handleDrop, project, setProject]);
 
   const logLin = useCallback(() => {
     setProject(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`].interpolation =
           prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
             ? webTypes.constants.INTERPOLATION_TYPE.LOG
             : webTypes.constants.INTERPOLATION_TYPE.LIN;
       })
     );
-  }, [axis, prop.interpolation, setProject]);
+
+    const newProject = {
+      ...project,
+      state: {
+        ...project.state,
+        properties: {
+          ...project.state.properties,
+          [`${axis}`]: {
+            ...project.state.properties[axis],
+            interpolation:
+              prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
+                ? webTypes.constants.INTERPOLATION_TYPE.LOG
+                : webTypes.constants.INTERPOLATION_TYPE.LIN,
+          },
+        },
+      },
+    };
+    handleDrop(
+      axis,
+      {
+        type: 'COLUMN_DRAG',
+        key: prop.key,
+        dataType: prop.dataType,
+      },
+      newProject,
+      false
+    );
+  }, [axis, handleDrop, project, prop.dataType, prop.interpolation, prop.key, setProject]);
 
   const ascDesc = useCallback(() => {
     setProject(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`].direction =
           draft.state.properties[`${axis}`].direction === webTypes.constants.DIRECTION_TYPE.ASC
             ? webTypes.constants.DIRECTION_TYPE.DESC
             : webTypes.constants.DIRECTION_TYPE.ASC;
       })
     );
-  }, [axis, setProject]);
+
+    const newProject = {
+      ...project,
+      state: {
+        ...project.state,
+        properties: {
+          ...project.state.properties,
+          [`${axis}`]: {
+            ...project.state.properties[axis],
+            direction:
+              prop.direction === webTypes.constants.DIRECTION_TYPE.ASC
+                ? webTypes.constants.DIRECTION_TYPE.DESC
+                : webTypes.constants.DIRECTION_TYPE.ASC,
+          },
+        },
+      },
+    };
+    handleDrop(
+      axis,
+      {
+        type: 'COLUMN_DRAG',
+        key: prop.key,
+        dataType: prop.dataType,
+      },
+      newProject,
+      false
+    );
+  }, [axis, setProject, handleDrop, project, prop.dataType, prop.direction, prop.key]);
 
   return (
     <li
@@ -84,7 +162,7 @@ export const Property = ({ axis }) => {
       {/* AXES ICON */}
       <div
         className={`bg-secondary-space-blue border border-transparent ${
-          isCreatingModel ? '' : 'hover:border-white'
+          showLoading ? '' : 'hover:border-white'
         } p-0 rounded`}
       >
         <div className="h-4 group">
@@ -123,7 +201,7 @@ export const Property = ({ axis }) => {
       <div
         onClick={ascDesc}
         className={`flex items-center justify-center bg-secondary-space-blue border border-transparent rounded ${
-          isCreatingModel ? 'opacity-30' : 'opacity-100 hover:border-white hover:cursor-pointer'
+          showLoading ? 'opacity-30' : 'opacity-100 hover:border-white hover:cursor-pointer'
         }`}
       >
         {/* border on same elements as heigh and witg */}

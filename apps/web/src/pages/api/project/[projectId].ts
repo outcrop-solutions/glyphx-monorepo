@@ -20,7 +20,7 @@ const project = async (req, res) => {
     case webTypes.constants.HTTP_METHOD.POST:
       return createProject(req, res, session);
     case webTypes.constants.HTTP_METHOD.PUT:
-      return updateProjectState(req, res);
+      return updateProjectState(req, res, session);
     case webTypes.constants.HTTP_METHOD.DELETE:
       return deleteProject(req, res, session);
     default:

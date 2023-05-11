@@ -132,6 +132,9 @@ div[aria-colindex='1'] {
 div.Pane.vertical.Pane2 {
   @apply bg-primary-dark-blue;
 }
+div.Pane.horizontal.Pane2 {
+  @apply bg-primary-dark-blue;
+}
 
 .Resizer {
   background: rgb(31, 39, 58); /*PRIMARY DARK BLUE*/

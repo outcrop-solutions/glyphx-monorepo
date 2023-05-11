@@ -14,7 +14,7 @@ Content.Project = ({ children }) => {
 };
 
 Content.Container = ({ children }: { children?: any }) => {
-  return <div className="flex flex-col pb-10 space-y-5 bg-transparent">{children}</div>;
+  return <div className="flex flex-col space-y-5 bg-transparent h-screen">{children}</div>;
 };
 
 Content.Divider = ({ thick }: { thick?: boolean }) => {

@@ -5,6 +5,7 @@ import {IStateCreateInput} from './iStateCreateInput';
 export interface IStateStaticMethods
   extends Model<databaseTypes.IState, {}, IStateMethods> {
   stateIdExists(stateId: mongooseTypes.ObjectId): Promise<boolean>;
+  allStateIdsExist(stateIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createState(input: IStateCreateInput): Promise<databaseTypes.IState>;
   getStateById(stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState>;
   queryStates(

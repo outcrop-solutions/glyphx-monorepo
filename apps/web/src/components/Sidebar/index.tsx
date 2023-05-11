@@ -12,11 +12,14 @@ import SmallLogo from 'public/svg/small-logo.svg';
 // hooks
 import { useWorkspace, useWorkspaces } from 'lib/client';
 import { useRouter } from 'next/router';
+import { drawerOpenAtom } from 'state';
+import { useSetRecoilState } from 'recoil';
 
 const staticMenu = sidebarMenu();
 
 const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
   const router = useRouter();
   const { projectId } = router.query;
   const { data, isLoading } = useWorkspaces();
@@ -44,12 +47,18 @@ const Sidebar = ({ menu }) => {
       } md:h-screen`}
     >
       <div
-        className={`relative flex items-center justify-center py-4 px-2 md:mx-8 text-center border-b ${
+        className={`relative flex items-center justify-center py-3 px-2 md:mx-8 text-center border-b ${
           projectId && 'border-b-gray'
         }`}
       >
         {/* eslint-disable-next-line react/no-string-refs */}
-        <Link href="/account">
+        <Link
+          onClick={() => {
+            setDrawer(false);
+            window?.core?.ToggleDrawer(false);
+          }}
+          href="/account"
+        >
           {projectId ? (
             <div>
               <SmallLogo />

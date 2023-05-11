@@ -6,9 +6,11 @@ import {
   validateUpdateWorkspaceName,
   validateUpdateWorkspaceSlug,
   workspaceService,
+  activityLogService,
 } from '@glyphx/business';
 import slugify from 'slugify';
-
+import { formatUserAgent } from 'lib/utils';
+import { database as databaseTypes } from '@glyphx/types';
 /**
  * Create Workspace
  *
@@ -48,7 +50,20 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
   try {
     await validateCreateWorkspace(req, res);
     const slug = slugify(name.toLowerCase());
-    await workspaceService.createWorkspace(session?.user?.userId, session?.user?.email, name, slug);
+    const workspace = await workspaceService.createWorkspace(session?.user?.userId, session?.user?.email, name, slug);
+
+    const { agentData, location } = formatUserAgent(req);
+
+    await activityLogService.createLog({
+      actorId: session?.user?.userId,
+      resourceId: workspace._id,
+      workspaceId: workspace._id,
+      location: location,
+      userAgent: agentData,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.constants.ACTION_TYPE.CREATED,
+    });
+
     res.status(200).json({ data: { name, slug } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
@@ -76,7 +91,24 @@ export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiRespo
 
   try {
     await validateUpdateWorkspaceSlug(req, res);
-    await workspaceService.updateWorkspaceSlug(session?.user?.userId, session?.user?.email, slug, workspaceSlug);
+    const workspace = await workspaceService.updateWorkspaceSlug(
+      session?.user?.userId,
+      session?.user?.email,
+      slug,
+      workspaceSlug
+    );
+
+    const { agentData, location } = formatUserAgent(req);
+
+    await activityLogService.createLog({
+      actorId: session?.user?.userId,
+      resourceId: workspace._id,
+      workspaceId: workspace._id,
+      location: location,
+      userAgent: agentData,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+    });
 
     res.status(200).json({ data: { slug: slug } });
   } catch (error) {
@@ -105,7 +137,23 @@ export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiRespo
 
   try {
     const updatedName = await validateUpdateWorkspaceName(req, res);
-    workspaceService.updateWorkspaceName(session?.user?.userId, session?.user?.email, name, workspaceSlug);
+    const workspace = workspaceService.updateWorkspaceName(
+      session?.user?.userId,
+      session?.user?.email,
+      name,
+      workspaceSlug
+    );
+    const { agentData, location } = formatUserAgent(req);
+
+    await activityLogService.createLog({
+      actorId: session?.user?.userId,
+      resourceId: workspace._id,
+      workspaceId: workspace._id,
+      location: location,
+      userAgent: agentData,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+    });
     res.status(200).json({ data: { name: updatedName } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
@@ -157,12 +205,25 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
   }
 
   try {
-    const memberData = await workspaceService.inviteUsers(
+    const { members: memberData, workspace } = await workspaceService.inviteUsers(
       session?.user?.userId,
       session?.user?.email,
       members,
       workspaceSlug
     );
+
+    const { agentData, location } = formatUserAgent(req);
+
+    await activityLogService.createLog({
+      actorId: session?.user?.userId,
+      resourceId: workspace._id,
+      workspaceId: workspace._id,
+      location: location,
+      userAgent: agentData,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.constants.ACTION_TYPE.INVITED,
+    });
+
     res.status(200).json({ data: { members: memberData } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
@@ -188,8 +249,19 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
   }
 
   try {
-    const deletedSlug = await workspaceService.deleteWorkspace(session.user.userId, session.user.email, workspaceSlug);
-    res.status(200).json({ data: { slug: deletedSlug } });
+    const workspace = await workspaceService.deleteWorkspace(session.user.userId, session.user.email, workspaceSlug);
+    const { agentData, location } = formatUserAgent(req);
+
+    await activityLogService.createLog({
+      actorId: session?.user?.userId,
+      resourceId: workspace._id,
+      workspaceId: workspace._id,
+      location: location,
+      userAgent: agentData,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.constants.ACTION_TYPE.DELETED,
+    });
+    res.status(200).json({ data: { workspace } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
   }

@@ -1,17 +1,22 @@
 import { web as webTypes, database as databaseTypes } from '@glyphx/types';
-// MEMBERSHIP MUTATIONS
+
+// WORKSPACE MEMBERSHIP MUTATIONS
 
 /**
  * Toggles member role from member to owner
  * @note uses membershipService.toggleRole() in business package
  * @param memberId corresponds to member._id in mongoDB
  */
-export const _updateRole = (memberId: string): webTypes.IFetchConfig => {
+export const _updateRole = (
+  memberId: string,
+  role: databaseTypes.constants.ROLE | databaseTypes.constants.PROJECT_ROLE
+): webTypes.IFetchConfig => {
   return {
     url: `/api/workspace/team/role`,
     options: {
       body: {
         memberId: memberId,
+        role: role,
       },
       method: 'PUT',
     },
@@ -28,15 +33,18 @@ export const _updateRole = (memberId: string): webTypes.IFetchConfig => {
 export const _createMember = ({
   slug,
   members,
+  projectId,
 }: {
   slug: string;
   members: Omit<Partial<databaseTypes.IMember>, 'id'>[];
+  projectId?: string;
 }): webTypes.IFetchConfig => {
   return {
     url: `/api/workspace/${slug}/invite`,
     options: {
       body: {
         members: members,
+        projectId: projectId,
       },
       method: 'POST',
     },

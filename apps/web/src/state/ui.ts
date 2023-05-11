@@ -1,14 +1,18 @@
 import { atom } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 // SHOW/HIDE UI ELEMENTS
 // SHOW = TRUE
 // HIDE = FALSE
 
 // Global
 // Right Sidebar Controls
-export const rightSidebarControlAtom = atom<webTypes.constants.RIGHT_SIDEBAR_CONTROL>({
+export const rightSidebarControlAtom = atom<webTypes.IRightSidebarAtom>({
   key: 'rightSidebarControlAtom',
-  default: webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED,
+  default: {
+    type: webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED,
+    isSubmitting: false,
+    data: {},
+  },
 });
 
 export const showMainSidebarExpandedAtom = atom<boolean>({
@@ -35,12 +39,7 @@ export const modalsAtom = atom<webTypes.IModalsAtom>({
   },
 });
 
-export const showDataGridLoadingAtom = atom<boolean>({
-  key: 'showDataGridLoading',
-  default: false,
-});
-
-export const showModelCreationLoadingAtom = atom<boolean>({
-  key: 'modelCreationLoading',
-  default: false,
+export const showLoadingAtom = atom<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>({
+  key: 'showLoadingAtom',
+  default: {},
 });

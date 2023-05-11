@@ -16,7 +16,7 @@ const accept = async (req, res) => {
   // execute the appropriate handler
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.PUT:
-      return acceptInvitation(req, res);
+      return acceptInvitation(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.PUT]);
       return res.status(405).json({ error: `${req.method} method unsupported` });

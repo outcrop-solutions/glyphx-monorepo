@@ -3,9 +3,6 @@ import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { Property } from './Property';
 import { propertiesSelector } from 'state';
-// import { propertiesSelector } from "state";
-import MenuChevronIcon from 'public/svg/menu-chevron-icon.svg';
-import { ChevronRightIcon } from '@heroicons/react/solid';
 
 export const Properties = () => {
   const properties = useRecoilValue(propertiesSelector);

@@ -48,6 +48,17 @@ export interface IWorkspaceStaticMethods
     workspaceId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IWorkspace>;
+  validateStates(
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
+  addStates(
+    workspaceId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace>;
+  removeStates(
+    workspaceId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace>;
   addMembers(
     workspaceId: mongooseTypes.ObjectId,
     members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]

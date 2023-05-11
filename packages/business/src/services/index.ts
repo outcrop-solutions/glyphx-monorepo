@@ -6,3 +6,5 @@ export {MembershipService as membershipService} from './membership';
 export {CustomerPaymentService as customerPaymentService} from './customer';
 export {ProcessTrackingService as processTrackingService} from './processTracking';
 export {DataService as dataService} from './data';
+export {StateService as stateService} from './state';
+export {ActivityLogService as activityLogService} from './activityLog';

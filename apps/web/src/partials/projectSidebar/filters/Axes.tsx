@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useDrop } from 'react-dnd';
-import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
 
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';
@@ -22,7 +22,7 @@ export const Axes = ({ axis }) => {
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
-    drop: (item) => handleDrop(axis, item, project),
+    drop: (item) => handleDrop(axis, item, project as webTypes.IHydratedProject, false),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),

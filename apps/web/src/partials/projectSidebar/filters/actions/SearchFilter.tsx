@@ -1,21 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { produce } from 'immer';
 import SearchIcon from 'public/svg/search-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
 import { projectAtom } from 'state';
 import { useSetRecoilState } from 'recoil';
+import { WritableDraft } from 'immer/dist/internal';
+import { web as webTypes } from '@glyphx/types';
 
 export const SearchFilter = ({ prop }) => {
   const setProject = useSetRecoilState(projectAtom);
-  const [showVisibility, setVisibility] = useState(false); //true
+  const [visibility, setVisibility] = useState(false);
   const [keyword, setKeyword] = useState('');
+  const [keywords, setKeywords] = useState([]);
 
   const addKeyword = useCallback(() => {
     setProject(
-      produce((draft) => {
-        // @ts-ignore
-        draft.state.properties[`${prop.axis}`].filter.keywords.push(keyword);
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        (
+          draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
+        ).keywords.push(keyword);
       })
     );
     setKeyword('');
@@ -24,14 +28,32 @@ export const SearchFilter = ({ prop }) => {
   const deleteKeyword = useCallback(
     (idx) => {
       setProject(
-        produce((draft) => {
-          // @ts-ignore
-          draft.state.properties[`${prop.axis}`].filter.keywords.splice(idx, 1);
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          (
+            draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
+          ).keywords.splice(idx, 1);
         })
       );
     },
     [prop.axis, setProject]
   );
+
+  const handleApply = useCallback(() => {
+    if (!visibility) {
+      // apply local keywords to project
+      setProject(
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords;
+        })
+      );
+    } else {
+      // remove local min/max from project (reset to default)
+      setKeywords([]);
+    }
+    setVisibility((prev) => !prev);
+    // disable to avoid visibility re-triggering callback
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
@@ -58,12 +80,10 @@ export const SearchFilter = ({ prop }) => {
         </div>
         {/* SHOW/HIDE */}
         <div
-          onClick={() => {
-            setVisibility(!showVisibility);
-          }}
+          onClick={handleApply}
           className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
         >
-          {!showVisibility ? <ShowIcon /> : <HideIcon />}
+          {!visibility ? <ShowIcon /> : <HideIcon />}
         </div>
       </div>
       {/* SEARCH KEYWORD CHIPS */}

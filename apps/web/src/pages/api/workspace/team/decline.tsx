@@ -16,7 +16,7 @@ const decline = async (req, res) => {
   // execute the appropriate handler
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.PUT:
-      return declineInvitation(req, res);
+      return declineInvitation(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.PUT]);
       return res.status(405).json({ error: `${req.method} method unsupported` });

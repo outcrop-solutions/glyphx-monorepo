@@ -6,8 +6,13 @@ import { calcH, calcW, calcX, calcY } from './utilities';
  * RESIZE LOGIC
  */
 
-export const coordinatesAtom = atom<DOMRectReadOnly | false>({
-  key: 'coordinatesAtom',
+export const leftCoordinatesAtom = atom<DOMRectReadOnly | false>({
+  key: 'leftCoordinatesAtom',
+  default: false,
+});
+
+export const rightCoordinatesAtom = atom<DOMRectReadOnly | false>({
+  key: 'rightCoordinatesAtom',
   default: false,
 });
 
@@ -27,24 +32,29 @@ export const orientationAtom = atom<webTypes.SplitPaneOrientation>({
 // corresponds to the size of the pane containing the data grid
 export const splitPaneSizeAtom = atom<number>({
   key: 'splitPaneSizeAtom',
-  default: 400,
+  default: 100,
+});
+
+export const drawerOpenAtom = atom<boolean>({
+  key: 'drawerOpen',
+  default: false,
 });
 
 export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>({
   key: 'viewerPositionSelector',
   get: ({ get }) => {
-    const coords = get(coordinatesAtom);
+    const coords = get(leftCoordinatesAtom);
     const window = get(windowSizeAtom);
     const orientation = get(orientationAtom);
     const resize = get(splitPaneSizeAtom);
     const isControlOpen = get(rightSidebarControlAtom);
 
+    // returned when drawer is open
     if (coords && window.width) {
       const x = calcX(coords, resize, orientation);
       const y = calcY(coords, resize, orientation);
-      const w = calcW(coords, resize, orientation, isControlOpen, window);
+      const w = calcW(coords, resize, orientation, isControlOpen.type, window);
       const h = calcH(coords, resize, orientation);
-
       return {
         x: x,
         y: y,

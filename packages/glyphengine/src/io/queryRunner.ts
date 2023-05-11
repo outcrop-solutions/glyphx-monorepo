@@ -70,7 +70,7 @@ export class QueryRunner {
       this.inited = true;
     }
   }
-  //TODO: need to add the filter
+
   async startQuery() {
     const query = `WITH temp as (SELECT glyphx_id__ as "rowid", "${this.xColumn}","${this.yColumn}","${this.zColumn}" FROM "${this.databaseName}"."${this.viewName}" ${this.filter})  SELECT array_join(array_agg(rowid) , '|') as "rowids", "${this.xColumn}", "${this.yColumn}", SUM("${this.zColumn}") as "${this.zColumn}"  FROM temp GROUP BY "${this.xColumn}", "${this.yColumn}";`;
 

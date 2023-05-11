@@ -64,17 +64,13 @@ export class ProjectService {
 
   public static async createProject(
     name: string,
-    ownerId: mongooseTypes.ObjectId | string,
     workspaceId: mongooseTypes.ObjectId | string,
+    userId: mongooseTypes.ObjectId | string,
+    email: string,
     type?: mongooseTypes.ObjectId | string,
     description?: string
   ): Promise<databaseTypes.IProject> {
     try {
-      const ownerCastId =
-        ownerId instanceof mongooseTypes.ObjectId
-          ? ownerId
-          : new mongooseTypes.ObjectId(ownerId);
-
       const workspaceCastId =
         workspaceId instanceof mongooseTypes.ObjectId
           ? workspaceId
@@ -84,6 +80,11 @@ export class ProjectService {
         type instanceof mongooseTypes.ObjectId
           ? type
           : new mongooseTypes.ObjectId(type);
+
+      const creatorCastId =
+        userId instanceof mongooseTypes.ObjectId
+          ? userId
+          : new mongooseTypes.ObjectId(userId);
 
       const defaultType = {
         name: `${name}-type`,
@@ -96,10 +97,11 @@ export class ProjectService {
         name,
         description: description ?? '',
         workspace: workspaceCastId,
-        owner: ownerCastId,
         isTemplate: false,
         type: projectTypeCastId ?? defaultType,
         files: [],
+        members: [],
+        stateHistory: [],
         state: {
           properties: {
             X: {
@@ -183,10 +185,39 @@ export class ProjectService {
         input
       );
 
-      // connect project to user
-      await mongoDbConnection.models.UserModel.addProjects(ownerCastId, [
-        project,
-      ]);
+      const memberInput = {
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        inviter: email,
+        email: email,
+        invitedAt: new Date(),
+        joinedAt: new Date(),
+        status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
+        projectRole: databaseTypes.constants.PROJECT_ROLE.OWNER,
+        member: {_id: creatorCastId} as unknown as databaseTypes.IUser,
+        invitedBy: {_id: creatorCastId} as unknown as databaseTypes.IUser,
+        project: project as unknown as databaseTypes.IProject,
+        workspace: {
+          _id: workspaceCastId,
+        } as unknown as databaseTypes.IWorkspace,
+      } as unknown as databaseTypes.IMember;
+
+      // create default project membership
+      const member =
+        await mongoDbConnection.models.MemberModel.createProjectMember(
+          memberInput
+        );
+
+      // add member to project
+      await mongoDbConnection.models.ProjectModel.addMembers(
+        project?._id as unknown as mongooseTypes.ObjectId,
+        [member]
+      );
+
+      // add member to user
+      await mongoDbConnection.models.UserModel.addMembership(
+        creatorCastId as unknown as mongooseTypes.ObjectId,
+        [member]
+      );
 
       // connect project to workspace
       await mongoDbConnection.models.WorkspaceModel.addProjects(
@@ -208,7 +239,7 @@ export class ProjectService {
           'An unexpected error occurred while creating the project. See the inner error for additional details',
           'project',
           'createProject',
-          {name, ownerId, workspaceId},
+          {name, workspaceId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -227,6 +258,7 @@ export class ProjectService {
       | 'updatedAt'
       | 'description'
       | 'fileSystem'
+      | 'fileSystemHash'
       | 'version'
       | 'static'
       | 'camera'

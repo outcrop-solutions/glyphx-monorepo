@@ -4,6 +4,12 @@ export type {IAccountDocument} from './iAccountDocument';
 export type {IAccountMethods} from './iAccountMethods';
 export type {IAccountStaticMethods} from './iAccountStaticMethods';
 
+// ActivityLog
+export type {IActivityLogCreateInput} from './iActivityLogCreateInput';
+export type {IActivityLogDocument} from './iActivityLogDocument';
+export type {IActivityLogMethods} from './iActivityLogMethods';
+export type {IActivityLogStaticMethods} from './iActivityLogStaticMethods';
+
 // CustomerPayment
 export type {ICustomerPaymentCreateInput} from './iCustomerPaymentCreateInput';
 export type {ICustomerPaymentDocument} from './iCustomerPaymentDocument';

@@ -24,7 +24,13 @@ const SCHEMA = new mongoose.Schema<
     required: true,
     enum: databaseTypes.constants.PROCESS_STATUS,
   },
-  processStartTime: {type: Date, required: true},
+  processStartTime: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   processEndTime: {type: Date, required: false},
   processMessages: {type: [String], required: true},
   processError: {type: [Object], required: true},

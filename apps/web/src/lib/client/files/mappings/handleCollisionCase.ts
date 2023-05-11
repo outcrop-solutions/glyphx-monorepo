@@ -13,8 +13,8 @@ export const handleCollisionCase = (
   existingHashes: { fileColumnsHash: string; columnsHash: string }[],
   idx: number
 ): webTypes.constants.COLLISION_CASE => {
-  const fileCollision: boolean = fileColumnsHash === existingHashes[idx].fileColumnsHash;
-  const colCollision: boolean = columnsHash === existingHashes[idx].columnsHash;
+  const fileCollision: boolean = fileColumnsHash === existingHashes[idx]?.fileColumnsHash;
+  const colCollision: boolean = columnsHash === existingHashes[idx]?.columnsHash;
   if (fileCollision && colCollision) {
     return webTypes.constants.COLLISION_CASE.FILE_NAME_COLUMNS;
   } else if (fileCollision) {

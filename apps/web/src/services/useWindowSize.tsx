@@ -1,16 +1,18 @@
+import { web as webTypes } from '@glyphx/types';
 import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
 import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { windowSizeAtom } from 'state';
+import { splitPaneSizeAtom, windowSizeAtom } from 'state';
 
 export const useWindowSize = () => {
   // return new callback when window size changes
   const setWindowSize = useSetRecoilState(windowSizeAtom);
-
+  const setPane = useSetRecoilState(splitPaneSizeAtom);
   useEffect(() => {
     function handleResize() {
       setWindowSize(
-        produce((draft) => {
+        produce((draft: WritableDraft<webTypes.IWindowSize>) => {
           draft.width = window.innerWidth;
           draft.height = window.innerHeight;
         })
@@ -18,11 +20,13 @@ export const useWindowSize = () => {
     }
 
     setWindowSize(
-      produce((draft) => {
+      produce((draft: WritableDraft<webTypes.IWindowSize>) => {
         draft.width = window.innerWidth;
         draft.height = window.innerHeight;
       })
     );
+
+    setPane(window.innerHeight - 70);
 
     window.addEventListener('resize', handleResize);
 

@@ -24,8 +24,20 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   emailVerified: {type: Date, required: false},
   isVerified: {type: Boolean, required: true, default: false},
   image: {type: String, required: false},
-  createdAt: {type: Date, required: true, default: Date.now()},
-  updatedAt: {type: Date, required: true, default: Date.now()},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   deletedAt: {type: Date, required: false},
   accounts: {type: [Schema.Types.ObjectId], ref: 'account', default: []},
   sessions: {type: [Schema.Types.ObjectId], ref: 'session', default: []},
@@ -467,7 +479,6 @@ SCHEMA.static(
 );
 
 //give our user some flexibily to pass object ids instead of a full project.
-//TODO: look into our interfaces to allow passing either a full projecty or objectIds.
 SCHEMA.static(
   'validateProjects',
   async (

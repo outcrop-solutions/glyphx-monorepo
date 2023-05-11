@@ -121,10 +121,12 @@ export class UserService {
         {email: previousEmail},
         {email: email}
       );
+
       await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
         {inviter: previousEmail},
         {inviter: email}
       );
+
       await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(
         {email: previousEmail},
         {email: email}

@@ -7,9 +7,10 @@ import {
   IStateCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {fileStatsSchema, propertySchema} from '../schemas';
+import {cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
+import {WorkspaceModel} from './workspace';
 
 const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   createdAt: {
@@ -19,6 +20,7 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
       //istanbul ignore next
       () => new Date(),
   },
+  deletedAt: {type: Date, required: false},
   updatedAt: {
     type: Date,
     required: true,
@@ -26,10 +28,16 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
       //istanbul ignore next
       () => new Date(),
   },
+  name: {type: String, required: true, default: 'Untitled'},
   version: {type: Number, required: true, default: 0, min: 0},
-  camera: {type: Number, required: true, default: 0},
+  camera: {type: cameraSchema, required: true},
   static: {type: Boolean, required: true, default: false},
   fileSystemHash: {type: String, required: true},
+  workspace: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'workspace',
+  },
   project: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -65,19 +73,67 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'allStateIdsExist',
+  async (stateIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await STATE_MODEL.find({_id: {$in: stateIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      stateIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more stateIds cannot be found in the database.',
+          'state._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the stateIds.  See the inner error for additional information',
+          'mongoDb',
+          'allStateIdsExists',
+          {stateIds: stateIds},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
+SCHEMA.static(
   'createState',
   async (input: IStateCreateInput): Promise<databaseTypes.IState> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
+      const workspaceId =
+        input.workspace instanceof mongooseTypes.ObjectId
+          ? input.workspace
+          : new mongooseTypes.ObjectId(input.workspace._id);
+
+      const workspaceExists = await WorkspaceModel.workspaceIdExists(
+        workspaceId
+      );
+      if (!workspaceExists) {
+        throw new error.InvalidArgumentError(
+          `The workspace with the id ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
+        );
+      }
+
       const projectId =
         input.project instanceof mongooseTypes.ObjectId
           ? input.project
           : new mongooseTypes.ObjectId(input.project._id);
-
-      const userId =
-        input.createdBy instanceof mongooseTypes.ObjectId
-          ? input.createdBy
-          : new mongooseTypes.ObjectId(input.createdBy._id);
 
       const projectExists = await ProjectModel.projectIdExists(projectId);
       if (!projectExists) {
@@ -87,6 +143,11 @@ SCHEMA.static(
           projectId
         );
       }
+
+      const userId =
+        input.createdBy instanceof mongooseTypes.ObjectId
+          ? input.createdBy
+          : new mongooseTypes.ObjectId(input.createdBy._id);
 
       const creatorExists = await UserModel.userIdExists(userId);
       if (!creatorExists) {
@@ -100,6 +161,7 @@ SCHEMA.static(
       const createDate = new Date();
 
       const resolvedInput: IStateDocument = {
+        name: input.name,
         createdAt: createDate,
         updatedAt: createDate,
         version: input.version,
@@ -108,6 +170,7 @@ SCHEMA.static(
         properties: input.properties ?? [],
         createdBy: userId,
         fileSystemHash: input.fileSystemHash,
+        workspace: workspaceId,
         project: projectId,
         fileSystem: input.fileSystem,
       };
@@ -165,7 +228,7 @@ SCHEMA.static(
       );
     if ((state as Record<string, unknown>)['_id'])
       throw new error.InvalidOperationError(
-        'The project._id is immutable and cannot be changed',
+        'The state._id is immutable and cannot be changed',
         {_id: (state as Record<string, unknown>)['_id']}
       );
   }
@@ -184,10 +247,22 @@ SCHEMA.static(
         Record<string, unknown> = {updatedAt: updateDate};
       for (const key in state) {
         const value = (state as Record<string, any>)[key];
-        //istanbul ignore else
-        if (key === 'fileSystem' && state.fileSystem?.length)
-          transformedObject.fileSystem = value;
-        else if (key !== 'fileSystem') transformedObject[key] = value;
+        if (key === 'workspace')
+          transformedObject.workspace =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        else if (key === 'project')
+          transformedObject.type =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        else if (key === 'createdBy')
+          transformedObject.type =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        else transformedObject[key] = value;
       }
       transformedObject.updatedAt = updateDate;
 
@@ -259,6 +334,7 @@ SCHEMA.static(
 SCHEMA.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
   try {
     const stateDocument = (await STATE_MODEL.findById(stateId)
+      .populate('workspace')
       .populate('project')
       .populate('createdBy')
       .lean()) as databaseTypes.IState;
@@ -272,6 +348,7 @@ SCHEMA.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
     delete (stateDocument as any)['__v'];
+    delete (stateDocument as any).workspace?.__v;
     delete (stateDocument as any).project?.__v;
     delete (stateDocument as any).createdBy?.__v;
 
@@ -316,6 +393,7 @@ SCHEMA.static(
         skip: skip,
         limit: itemsPerPage,
       })
+        .populate('workspace')
         .populate('project')
         .populate('createdBy')
         .lean()) as databaseTypes.IState[];
@@ -323,6 +401,7 @@ SCHEMA.static(
       //to the user.
       stateDocuments.forEach((doc: any) => {
         delete (doc as any)?.__v;
+        delete (doc as any)?.workspace?.__v;
         delete (doc as any)?.project?.__v;
         delete (doc as any)?.createdBy?.__v;
       });

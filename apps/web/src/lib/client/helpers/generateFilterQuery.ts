@@ -13,6 +13,6 @@ export const generateFilterQuery = (prop: webTypes.Property) => {
       const strFilter = prop.filter as unknown as webTypes.IStringFilter;
       return `MATCH ${name || '-'} AGAINST (${strFilter.keywords.join(' ') || '-'})`;
     default:
-      break;
+      return '';
   }
 };

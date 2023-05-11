@@ -5,7 +5,6 @@ import { ErrorBoundary } from 'react-error-boundary';
 import Meta from 'components/Meta';
 import { ErrorFallback, SuspenseFallback } from 'partials/fallback';
 import { AccountLayout } from 'layouts';
-import { _deactivateAccount, _updateUserName, _updateUserEmail } from 'lib/client';
 
 import SettingsView from 'views/settings';
 

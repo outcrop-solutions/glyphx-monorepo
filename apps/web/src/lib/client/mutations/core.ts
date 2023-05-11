@@ -1,10 +1,14 @@
-import { web as webTypes, database as databaseTypes } from '@glyphx/types';
+import { web as webTypes, database as databaseTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { Session } from 'next-auth';
 
 /******************** INGESTION *********************/
 /**
  * Gets signed urls to pass to the Qt engine
  * @note implements s3Manager.getSignedDataUrlPromise concurrently
- * @note requires signed body, so no go for nwo
+ * @note requires signed body, so no go for now
+ * @param workpaceId
+ * @param projectId
+ * @param keys
  */
 export const _getSignedUploadUrls = (workspaceId: string, projectId: string, keys: string[]): webTypes.IFetchConfig => {
   return {
@@ -17,6 +21,14 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
   };
 };
 
+/**
+ * @note could potentially be changed to multi-part upload in api Content-Type
+ * @param acceptedFile
+ * @param key
+ * @param workspaceId
+ * @param projectId
+ * @returns
+ */
 export const _uploadFile = (
   acceptedFile: ArrayBuffer,
   key: string,
@@ -34,7 +46,6 @@ export const _uploadFile = (
 };
 
 /**
- * @note I know it's not great form to put body on a get but we will refactor the query param / routing later
  * @param workpaceId
  * @param projectId
  * @param tableName
@@ -86,10 +97,10 @@ export const _getRowIds = (
 
 /**
  * Ingest files
- * @note implements fileIngestion.process()
- * @param files corresponds to an array of file buffers
+ * @note implements processFiles()
+ * @param payload
  */
-export const _ingestFiles = (payload): webTypes.IFetchConfig => {
+export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/ingest`,
     options: {
@@ -108,12 +119,18 @@ export const _ingestFiles = (payload): webTypes.IFetchConfig => {
  * @param payload corresponds to the glyph engine payload
  */
 
-export const _createModel = (axis, column, project: databaseTypes.IProject): webTypes.IFetchConfig => {
+export const _createModel = (
+  axis: webTypes.constants.AXIS,
+  column: fileIngestionTypes.IColumn,
+  project: databaseTypes.IProject,
+  isFilter: boolean,
+  fileHash: string
+): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: { axis, column, project },
+      body: { axis, column, project, isFilter, fileHash },
     },
     successMsg: 'File successfully added',
   };
@@ -124,12 +141,12 @@ export const _createModel = (axis, column, project: databaseTypes.IProject): web
  * @note implements s3Manager.getSignedDataUrlPromise concurrently
  */
 
-export const _getSignedDataUrls = (workspaceId: string, projectId: string): webTypes.IFetchConfig => {
+export const _getSignedDataUrls = (workspaceId: string, projectId: string, fileHash: string): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/sign-data-urls`,
     options: {
       method: 'POST',
-      body: { workspaceId, projectId },
+      body: { workspaceId, projectId, fileHash },
     },
     successMsg: 'File successfully added',
   };
@@ -139,9 +156,30 @@ export const _getSignedDataUrls = (workspaceId: string, projectId: string): webT
  *
  * @param project
  * @param data
+ * @param project
+ * @param session
+ * @param url
+ * @param camera
  * @returns stringified Qt Open Project payload
  */
-export const _createOpenProject = (data, project, session, url) => {
+export const _createOpenProject = (
+  data: { sdtUrl: string; sgnUrl: string; sgcUrl: string },
+  project: databaseTypes.IProject,
+  session: Omit<Session & { status }, 'jwt' | 'user' | 'expires'>,
+  url: string,
+  camera?: {
+    pos: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    dir: {
+      x: number;
+      y: number;
+      z: number;
+    };
+  }
+) => {
   return JSON.stringify({
     projectId: project?._id,
     workspaceId: project?.workspace._id,
@@ -149,29 +187,18 @@ export const _createOpenProject = (data, project, session, url) => {
     sgnUrl: data.sgnUrl,
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
+    camera: camera ?? undefined,
     apiLocation: `${url}/api`,
     sessionInformation:
       session.status === 'unauthenticated'
         ? {
             user: {
               name: 'James Graham',
-              email: 'jp@glyphx.co',
-              userId: '642ed599d2c489175363dd8b',
+              email: 'james@glyphx.co',
+              userId: '645aa1458d6a87808abf59db',
             },
-            expires: '2023-05-10T14:29:38.896Z',
+            expires: '2024-05-10T14:29:38.896Z',
           }
         : session,
   });
 };
-
-// TODO: fix cors error to use this
-// export const _uploadFile = (acceptedFile: File, signedUrl: string): webTypes.IFetchConfig => {
-//   return {
-//     url: signedUrl,
-//     options: {
-//       method: 'POST',
-//       body: acceptedFile,
-//     },
-//     successMsg: 'File successfully added',
-//   };
-// };

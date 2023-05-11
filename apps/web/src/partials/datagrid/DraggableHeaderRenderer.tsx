@@ -11,7 +11,7 @@ import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
 
-export function DraggableHeaderRenderer({ onColumnsReorder, column, sortDirection, onSort, priority, isCellSelected }) {
+export function DraggableHeaderRenderer({ column, sortDirection, onSort, priority, isCellSelected }) {
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
 
   const [{ isDragging }, drag] = useDrag({
@@ -23,9 +23,8 @@ export function DraggableHeaderRenderer({ onColumnsReorder, column, sortDirectio
 
   const [{ isOver }, drop] = useDrop({
     accept: 'COLUMN_DRAG',
-    // @ts-ignore
     drop({ key }) {
-      onColumnsReorder(key, column.key);
+      console.log({ key });
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -38,6 +37,8 @@ export function DraggableHeaderRenderer({ onColumnsReorder, column, sortDirectio
     if (match) return match.axis;
     return '';
   };
+
+  const sort = () => {};
 
   function renderColumnTitle(column: webTypes.GridColumn) {
     switch (evalMatch(column.key)) {
@@ -84,13 +85,13 @@ export function DraggableHeaderRenderer({ onColumnsReorder, column, sortDirectio
     <div
       data-type={`${column.dataType}`}
       ref={useCombinedRefs(drag, drop)}
-      className={`${isDragging ? 'opacity-80' : 'opacity-100'} flex items-center justify-center h-[30px] my-1  ${
-        isOver ? 'bg-blue-500' : ''
-      }`}
+      className={`${
+        isDragging ? 'opacity-80' : 'opacity-100'
+      } flex items-center justify-center truncate h-[30px] my-1  ${isOver ? 'bg-blue-500' : ''}`}
     >
       <SortableHeaderCell
         sortDirection={sortDirection}
-        onSort={onSort}
+        onSort={sort}
         priority={priority}
         isCellSelected={isCellSelected}
       >

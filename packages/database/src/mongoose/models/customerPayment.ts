@@ -23,8 +23,20 @@ const SCHEMA = new Schema<
     default: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
   },
   deletedAt: {type: Date, required: false},
-  createdAt: {type: Date, required: true},
-  updatedAt: {type: Date, required: true},
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
   customer: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
 });
 

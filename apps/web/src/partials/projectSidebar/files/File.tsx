@@ -1,22 +1,38 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { selectedFileIndexSelector } from 'state/files';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
+import { web as webTypes } from '@glyphx/types';
 import { useFileSystem } from 'services/useFileSystem';
+import { modalsAtom } from 'state';
 
 import StackedDragHandleIcon from 'public/svg/stacked-drag-handle-icon.svg';
 import FileIcon from 'public/svg/file-icon.svg';
 import DeleteFileIcon from 'public/svg/delete-file-icon.svg';
+import produce from 'immer';
+import { WritableDraft } from 'immer/dist/internal';
 
 export const File = ({ fileName, idx }) => {
   const { openFile } = useFileSystem();
   const selectedFile = useRecoilValue(selectedFileIndexSelector);
+  const setModals = useSetRecoilState(modalsAtom);
+
+  const handleDeleteFile = useCallback(() => {
+    setModals(
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_FILE,
+          isSubmitting: false,
+          data: {
+            fileName: fileName,
+          },
+        });
+      })
+    );
+  }, [fileName, setModals]);
 
   return (
     <div
-      onClick={() => {
-        openFile(idx);
-      }}
       className={`group grid items-center ${
         selectedFile == idx ? 'bg-secondary-midnight' : ''
       } gap-x-2 px-2 h-8 grid-cols-12 hover:bg-secondary-midnight`}
@@ -31,14 +47,22 @@ export const File = ({ fileName, idx }) => {
         </div>
       </div>
       {/* FILE NAME (TRUNCATED) */}
-      <div className="truncate col-span-9 text-left">
+      <div
+        onClick={() => {
+          openFile(idx);
+        }}
+        className="truncate col-span-9 text-left cursor-pointer"
+      >
         <p className="text-light-gray w-full text-[12px] leading-[14px] font-roboto font-normal truncate pl-1">
-          {/* {node.text[0] === "_" ? node.text.slice(1) : node.text} */}
           {fileName}
         </p>
       </div>
-      <div className="hidden group-hover:flex"></div>
-      <DeleteFileIcon />
+      <div
+        onClick={handleDeleteFile}
+        className="hidden col-span-2 group-hover:flex group-hover:items-center group-hover:justify-center"
+      >
+        <DeleteFileIcon />
+      </div>
     </div>
   );
 };

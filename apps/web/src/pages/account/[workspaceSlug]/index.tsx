@@ -3,7 +3,8 @@ import Content from 'components/Content/index';
 import Meta from 'components/Meta/index';
 import WorkspaceLayout from 'layouts/WorkspaceLayout';
 import { useWorkspace } from 'lib';
-import { useEffect } from 'react';
+import { SuspenseFallback } from 'partials/fallback';
+import { Suspense, useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { workspaceAtom } from 'state';
 import Home from 'views/home';
@@ -21,12 +22,14 @@ const Workspace = () => {
   return (
     data && (
       <>
-        <WorkspaceLayout>
-          <Meta title={`Glyphx - ${data?.workspace?.name} | Dashboard`} />
-          <Content.Container>
-            <Home />
-          </Content.Container>
-        </WorkspaceLayout>
+        <Suspense fallback={SuspenseFallback}>
+          <WorkspaceLayout>
+            <Meta title={`Glyphx - ${data?.workspace?.name} | Dashboard`} />
+            <Content.Container>
+              <Home />
+            </Content.Container>
+          </WorkspaceLayout>
+        </Suspense>
       </>
     )
   );
