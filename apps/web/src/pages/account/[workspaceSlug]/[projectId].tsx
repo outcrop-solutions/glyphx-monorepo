@@ -25,12 +25,6 @@ export default function Project() {
   const { data, isLoading } = useProject();
   const { data: result, isLoading: isWorkspaceLoading } = useWorkspace();
 
-  // const resize = useRecoilValue(splitPaneSizeAtom);
-
-  // useEffect(() => {
-  //   console.log({ resize });
-  // }, [resize]);
-
   // resize setup
   useWindowSize();
   useSendPosition();

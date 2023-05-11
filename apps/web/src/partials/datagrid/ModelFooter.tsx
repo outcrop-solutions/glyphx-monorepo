@@ -26,7 +26,6 @@ export const ModelFooter = () => {
 
   const handleOpenClose = useCallback(() => {
     if (drawer && windowSize.height) {
-      console.log({ msg: 'close drawer', data: { drawer, windowSize, orientation } });
       // close drawer
       setResize(windowSize.height - 70);
       setOrientation('horizontal');
@@ -34,13 +33,12 @@ export const ModelFooter = () => {
       setDrawer(false);
       window?.core?.ToggleDrawer(false);
     } else {
-      console.log({ msg: 'open drawer', data: { drawer, windowSize, orientation } });
       // open drawer
       setResize(100);
       setDrawer(true);
       window?.core?.ToggleDrawer(true);
     }
-  }, [drawer, orientation, setDrawer, setOrientation]);
+  }, [drawer, setDrawer, setOrientation, setResize, windowSize.height]);
 
   return viewer && !(Object.keys(loading).length > 0) ? (
     <div

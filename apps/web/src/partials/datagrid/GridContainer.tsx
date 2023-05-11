@@ -14,7 +14,6 @@ export const GridContainer = () => {
   const openFiles = useRecoilValue(filesOpenSelector);
   const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
-  console.log({ resize });
 
   return (
     <div className="relative h-full w-full">

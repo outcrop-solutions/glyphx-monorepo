@@ -28,7 +28,6 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
 
   useEffect(() => {
     if (Object.keys(camera).length > 0) {
-      console.log({ camera });
       api({
         ..._createState(name, modalContent.data._id as unknown as string, camera as unknown as webTypes.Camera),
         setLoading: (state) =>

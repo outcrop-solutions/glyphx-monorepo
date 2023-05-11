@@ -17,16 +17,11 @@ export const OrientationToggle = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const handleOrientation = useCallback(() => {
-    // if moving horizontal => vertical
-    // 1. open drawer
-    // 2. set default size
     if (orientation === 'horizontal') {
-      console.log({ msg: 'toggle drawer', data: { windowSize, orientation } });
       setDrawer(true);
       window?.core?.ToggleDrawer(true);
       setPaneSize(400);
     }
-
     setOrientation(
       produce((draft: WritableDraft<webTypes.SplitPaneOrientation>) => {
         if (draft === 'horizontal') {
@@ -36,7 +31,7 @@ export const OrientationToggle = () => {
         }
       })
     );
-  }, [orientation, setOrientation, setDrawer]);
+  }, [orientation, setOrientation, setDrawer, setPaneSize]);
 
   return (
     <button onClick={() => handleOrientation()} className={`${btnClass}`}>
