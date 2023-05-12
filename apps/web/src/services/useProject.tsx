@@ -13,6 +13,9 @@ import { hashPayload } from 'lib/utils/hashPayload';
 import { isValidPayload } from 'lib/utils/isValidPayload';
 import { deepMergeProject } from 'lib/utils/deepMerge';
 import { useSWRConfig } from 'swr';
+import { callUpdateProject } from 'lib/client/network/reqs/callUpdateProject';
+import { callCreateModel } from 'lib/client/network/reqs/callCreateModel';
+import { callDownloadModel } from 'lib/client/network/reqs/calldownloadModel';
 
 export const useProject = () => {
   const session = useSession();
@@ -26,100 +29,28 @@ export const useProject = () => {
   const callETL = useCallback(
     async (axis: webTypes.constants.AXIS, column: any, project, isFilter: boolean) => {
       const deepMerge = deepMergeProject(axis, column, project);
-
+      const payloadHash = hashPayload(hashFileSystem(project.files), deepMerge);
+      const isCurrentlyLoaded = payloadHash === hashPayload(hashFileSystem(project.files), project);
       // if invalid payload, only update project
       if (!isValidPayload(deepMerge.state.properties)) {
-        console.log('invalid payload', deepMerge);
-        // only update project
-        api({
-          ..._updateProjectState(deepMerge._id, deepMerge.state),
-          onSuccess: () => {
-            mutate(`/api/project/${deepMerge._id}`);
-          },
-        });
-      } else {
-        const payloadHash = hashPayload(hashFileSystem(project.files), deepMerge);
-
-        // if state exists, download immediately, else call glyphengine
-        if (doesStateExist) {
-          setLoading(
-            produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-              draft.processName = 'Fetching Data...';
-            })
-          );
-          console.dir({ msg: 'state already exists call', payloadHash, project }, { depth: null });
-          api({
-            ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
-            onSuccess: async (data) => {
-              mutate(`/api/project/${deepMerge._id}`);
-              setLoading({});
-              if (window?.core) {
-                window?.core?.OpenProject(_createOpenProject(data, project, session, url));
-              }
-            },
-            onError: () => {
-              setLoading(
-                produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                  draft.processName = 'Failed to Open Model';
-                  draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-                  draft.processEndTime = new Date();
-                })
-              );
-            },
-          });
-        } else {
-          // Generate model if doesn't already exist
-          setLoading(
-            produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-              draft.processName = 'Generating Data Model...';
-              draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-              draft.processStartTime = new Date();
-            })
-          );
-          console.dir({ msg: 'create new model call', payloadHash, project }, { depth: null });
-          // call glyph engine
-          await api({
-            ..._createModel(axis, column, project, isFilter, payloadHash),
-            silentFail: true,
-            onSuccess: (data) => {
-              mutate(`/api/project/${deepMerge._id}`);
-              setLoading(
-                produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                  draft.processName = 'Fetching Data...';
-                })
-              );
-              api({
-                ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
-                onSuccess: async (data) => {
-                  mutate(`/api/project/${deepMerge._id}`);
-                  setLoading({});
-                  if (window?.core) {
-                    window?.core?.OpenProject(_createOpenProject(data, project, session, url));
-                  }
-                },
-                onError: () => {
-                  setLoading(
-                    produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                      draft.processName = 'Failed to Open Model';
-                      draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-                      draft.processEndTime = new Date();
-                    })
-                  );
-                },
-              });
-            },
-            onError: () => {
-              setLoading(
-                produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                  draft.processName = 'Failed to Generate Model';
-                  draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-                  draft.processEndTime = new Date();
-                })
-              );
-            },
-          });
+        console.dir({ msg: 'update project call', project }, { depth: null });
+        callUpdateProject(deepMerge, mutate);
+        // if model currently generated and downloaded, open project
+      } else if (isCurrentlyLoaded) {
+        console.log('is currently loaded, nothing to do');
+        if (window?.core) {
+          window?.core?.ToggleDrawer(true);
         }
+      } else if (doesStateExist) {
+        console.dir({ msg: 'download model call', payloadHash, project }, { depth: null });
+        callUpdateProject(deepMerge, mutate);
+        callDownloadModel({ project: deepMerge, payloadHash, session, url, mutate, setLoading });
+      } else {
+        console.dir({ msg: 'create new model call', payloadHash, project }, { depth: null });
+        // creates update in route via deepMerge
+        callCreateModel({ axis, column, isFilter, project, payloadHash, session, url, setLoading, mutate });
       }
+
       setLoading({});
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
