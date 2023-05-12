@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
-import { useRecoilValue } from 'recoil';
+import BarLoader from 'react-spinners/BarLoader';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import dynamic from 'next/dynamic';
-import useDataGrid from 'lib/client/hooks/useDataGrid';
-import { dataGridPayloadSelector } from 'state';
 // import DataGrid from 'react-data-grid';
 const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
@@ -24,16 +22,19 @@ export const Datagrid = ({ data }) => {
       : [];
   }, [data]);
 
-  return (
-    data && (
-      <ReactDataGrid
-        // @ts-ignore
-        columns={draggableColumns}
-        rowGetter={(i) => data.rows[i]}
-        rowsCount={data.rows.length}
-        minHeight={window.innerHeight - 88}
-      />
-    )
+  return data ? (
+    <ReactDataGrid
+      // @ts-ignore
+      columns={draggableColumns}
+      rowGetter={(i) => data.rows[i]}
+      rowsCount={data.rows.length}
+      minHeight={window.innerHeight - 88}
+    />
+  ) : (
+    <div className="h-full w-full flex flex-col justify-center items-center bg-secondary-mignight">
+      <h1 className="text-xl font-bold my-4">Loading Data Grid...</h1>
+      <BarLoader loading={!data} width={400} color={'yellow'} />
+    </div>
   );
 
   // return (

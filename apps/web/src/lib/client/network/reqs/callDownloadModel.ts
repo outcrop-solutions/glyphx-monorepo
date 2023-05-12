@@ -13,6 +13,7 @@ export const callDownloadModel = async ({
   setLoading,
   setDrawer,
   setResize,
+  camera,
 }) => {
   setLoading(
     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -22,17 +23,14 @@ export const callDownloadModel = async ({
   await api({
     ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
     onSuccess: async (data) => {
-      mutate(`/api/project/${project._id}`);
       if (window?.core) {
-        setResize(150);
         console.log({
           msg: 'download project success',
           data: _createOpenProject(data, project, session, url),
           core: window.core,
         });
-
-        // setDrawer(true);
-        // window?.core?.ToggleDrawer(true);
+        setResize(150);
+        setDrawer(true);
         window?.core?.OpenProject(_createOpenProject(data, project, session, url));
         setLoading({});
       }
