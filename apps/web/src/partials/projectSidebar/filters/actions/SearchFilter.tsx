@@ -3,13 +3,14 @@ import { produce } from 'immer';
 import SearchIcon from 'public/svg/search-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
-import { projectAtom } from 'state';
-import { useSetRecoilState } from 'recoil';
+import { isFilterWritableSelector, projectAtom } from 'state';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { WritableDraft } from 'immer/dist/internal';
 import { web as webTypes } from '@glyphx/types';
 
 export const SearchFilter = ({ prop }) => {
   const setProject = useSetRecoilState(projectAtom);
+  const isFilterWritable = useRecoilValue(isFilterWritableSelector);
   const [visibility, setVisibility] = useState(false);
   const [keyword, setKeyword] = useState('');
   const [keywords, setKeywords] = useState([]);
@@ -64,6 +65,7 @@ export const SearchFilter = ({ prop }) => {
           <input
             type="text"
             name="keyword"
+            disabled={isFilterWritable}
             id="name"
             onKeyPress={(ev) => {
               if (ev.key === 'Enter') {

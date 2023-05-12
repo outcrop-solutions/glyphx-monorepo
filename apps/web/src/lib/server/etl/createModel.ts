@@ -7,6 +7,8 @@ import { processTrackingService, activityLogService, projectService } from '@gly
 import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { formatUserAgent } from 'lib/utils';
 import { generateFilterQuery } from 'lib/client/helpers';
+import { isValidPayload } from 'lib/utils/isValidPayload';
+import { deepMergeProject } from 'lib/utils/deepMerge';
 /**
  * Call Glyph Engine
  *
@@ -67,46 +69,10 @@ import { generateFilterQuery } from 'lib/client/helpers';
 //   },
 // });
 
-const isValidPayload = (properties) => {
-  let retval = true;
-  const axisArray = Object.values(webTypes.constants.AXIS);
-  for (const axis of axisArray.slice(0, 3)) {
-    const prop = properties[axis];
-    // check if all props have values and Z is numeric
-    if (
-      prop?.key === '' ||
-      prop?.key.includes('Column ') ||
-      (axis === webTypes.constants.AXIS.Z && prop.dataType !== fileIngestionTypes.constants.FIELD_TYPE.NUMBER)
-    ) {
-      retval = false;
-    }
-  }
-  return retval;
-};
-
 export const createModel = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { axis, column, project, isFilter, fileHash } = req.body;
+  const { axis, column, project, isFilter, payloadHash } = req.body;
 
-  const deepMerge = {
-    ...project,
-    state: {
-      ...project.state,
-      properties: {
-        ...project.state.properties,
-        [axis]: {
-          axis: axis,
-          accepts: column.type, //added by DnD Lib
-          key: column.key,
-          dataType: column.dataType,
-          interpolation: project.state.properties[axis].interpolation,
-          direction: project.state.properties[axis].direction,
-          filter: {
-            ...project.state.properties[axis].filter,
-          },
-        },
-      },
-    },
-  };
+  const deepMerge = deepMergeProject(axis, column, project);
   // console.dir({ deepMerge }, { depth: null });
 
   if (!isValidPayload(deepMerge.state.properties)) {
@@ -117,7 +83,7 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
 
     const payload = {
       model_id: deepMerge._id,
-      file_hash: fileHash,
+      payload_hash: payloadHash,
       // model_id: `642ae3b1c976ba8cc7ac445e`,
       client_id: deepMerge.workspace._id,
       // client_id: 'testclientid02d78bf6f54f485f81295ec510841742',
@@ -161,7 +127,7 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
         ['z_direction', payload['z_direction']],
         ['model_id', payload['model_id']],
         ['client_id', payload['client_id']],
-        ['file_hash', payload['file_hash']],
+        ['payload_hash', payload['payload_hash']],
         ['filter', payload['filter']],
       ]);
 

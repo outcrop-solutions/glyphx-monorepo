@@ -5,7 +5,7 @@ import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { cameraAtom, modalsAtom, projectAtom } from 'state';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
 
@@ -23,9 +23,10 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
   // mutations
   const createState = async (event) => {
     event.preventDefault();
-    if (window?.core) {
-      window?.core?.GetCameraPosition(true);
-    }
+    // if (window?.core) {
+    // window?.core?.GetCameraPosition(true);
+    // }
+    setCamera({ pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } });
   };
 
   useEffect(() => {

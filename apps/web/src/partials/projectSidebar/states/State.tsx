@@ -25,8 +25,9 @@ export const State = ({ item, idx }) => {
     // only apply state if not loading
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
-      const fileHash = filteredStates[idx].fileSystemHash;
+      const payloadHash = filteredStates[idx].payloadHash;
       const camera = filteredStates[idx].camera;
+
       // apply item to project state remote
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -37,7 +38,7 @@ export const State = ({ item, idx }) => {
       );
 
       api({
-        ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), fileHash),
+        ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
         onSuccess: async (data) => {
           setLoading({});
           if (window?.core) {
@@ -56,7 +57,7 @@ export const State = ({ item, idx }) => {
         },
       });
     }
-  }, [idx]);
+  }, [idx, loading, project, session, setActiveState, setLoading, url]);
 
   const deleteState = useCallback(() => {
     setModals(

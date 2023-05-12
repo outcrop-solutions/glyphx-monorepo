@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import produce from 'immer';
+import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 import { useSWRConfig } from 'swr';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 import toast from 'react-hot-toast';
+import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 
 import Button from 'components/Button';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 
 import { _ingestFiles, api } from 'lib';
 import { useRecoilValue, useSetRecoilState } from 'recoil';

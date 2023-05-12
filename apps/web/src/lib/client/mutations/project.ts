@@ -54,6 +54,7 @@ export const _updateProjectState = (
     | 'updatedAt'
     | 'description'
     | 'fileSystemHash'
+    | 'payloadHash'
     | 'fileSystem'
     | 'version'
     | 'static'

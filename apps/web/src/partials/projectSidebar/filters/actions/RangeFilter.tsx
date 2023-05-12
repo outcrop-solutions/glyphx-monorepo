@@ -1,18 +1,18 @@
 import React, { useCallback, useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import produce from 'immer';
 
-import { projectAtom } from 'state';
+import { isFilterWritableSelector, projectAtom } from 'state';
 
 import FilterTypeIcon from 'public/svg/filter-type-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
-import { useProject } from 'lib';
 import { WritableDraft } from 'immer/dist/internal';
 import { web as webTypes } from '@glyphx/types';
 
 export const RangeFilter = ({ prop }) => {
   const setProject = useSetRecoilState(projectAtom);
+  const isFilterWritable = useRecoilValue(isFilterWritableSelector);
   const [visibility, setVisibility] = useState(false);
   const [min, setMin] = useState(0);
   const [max, setMax] = useState(0);
@@ -67,6 +67,7 @@ export const RangeFilter = ({ prop }) => {
           type="number"
           name="min"
           placeholder="MIN"
+          disabled={isFilterWritable}
           id="min"
           onChange={(e) => updateLocalRange(e, 'min')}
           value={prop.filter.min}
@@ -77,6 +78,7 @@ export const RangeFilter = ({ prop }) => {
           onChange={(e) => updateLocalRange(e, 'max')}
           value={prop.filter.max}
           type="number"
+          disabled={isFilterWritable}
           name="max"
           id="max"
           placeholder="MAX"

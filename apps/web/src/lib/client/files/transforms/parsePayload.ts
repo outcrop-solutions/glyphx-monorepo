@@ -65,7 +65,7 @@ export const parsePayload = async (
         numberOfColumns: Object.keys(data[0])?.length,
         columns: data[0].map((item, idx) => ({
           name: item,
-          fieldType: isNaN(Number(data[1][idx]))
+          fieldType: isNaN(Number(data?.[1]?.[idx]))
             ? fileIngestionTypes.constants.FIELD_TYPE.STRING
             : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           longestString: undefined,

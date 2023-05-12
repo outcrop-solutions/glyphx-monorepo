@@ -18,7 +18,8 @@ export interface IState {
   static: boolean;
   camera: Camera;
   properties: Record<string, Property>;
-  fileSystemHash: string; // corresponds to MD5 hash of S3 directory structure (if hash changes, projects templates that attach to a this state  are invalidated)
+  fileSystemHash: string; // corresponds to MD5 hash of S3 directory structure (underlying data) determines whether filtering is available
+  payloadHash: string; // corresponds to unique file path derived from fileSystem hash + payload data. States will share a payloadHash if the underlying data, and payload used to generate the sdt are the same.
   description?: string;
   project: IProject;
   workspace: IWorkspace;
