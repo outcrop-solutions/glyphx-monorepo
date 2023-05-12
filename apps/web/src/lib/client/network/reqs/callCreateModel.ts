@@ -5,14 +5,13 @@ import { WritableDraft } from 'immer/dist/internal';
 import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations';
 
 export const callCreateModel = async ({
-  axis,
-  column,
   isFilter,
   project,
   payloadHash,
   session,
   url,
   setLoading,
+  setDrawer,
   mutate,
 }) => {
   // Generate model if doesn't already exist
@@ -25,7 +24,7 @@ export const callCreateModel = async ({
   );
   // call glyph engine
   await api({
-    ..._createModel(axis, column, project, isFilter, payloadHash),
+    ..._createModel(project, isFilter, payloadHash),
     silentFail: true,
     onSuccess: (data) => {
       mutate(`/api/project/${project._id}`);
@@ -39,7 +38,9 @@ export const callCreateModel = async ({
         onSuccess: async (data) => {
           mutate(`/api/project/${project._id}`);
           setLoading({});
+          console.log({ msg: 'open project create model success', data, project, session, url });
           if (window?.core) {
+            setDrawer(true);
             window?.core?.OpenProject(_createOpenProject(data, project, session, url));
           }
         },

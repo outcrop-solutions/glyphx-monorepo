@@ -4,7 +4,7 @@ import { WritableDraft } from 'immer/dist/internal';
 import { _createOpenProject, _getSignedDataUrls } from '../../mutations';
 import api from '../api';
 
-export const callDownloadModel = ({ project, payloadHash, session, url, mutate, setLoading }) => {
+export const callDownloadModel = ({ project, payloadHash, session, url, mutate, setLoading, setDrawer }) => {
   setLoading(
     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
       draft.processName = 'Fetching Data...';
@@ -16,6 +16,8 @@ export const callDownloadModel = ({ project, payloadHash, session, url, mutate, 
       mutate(`/api/project/${project._id}`);
       setLoading({});
       if (window?.core) {
+        console.log({ msg: 'download project success', data, project, session, url });
+        setDrawer(true);
         window?.core?.OpenProject(_createOpenProject(data, project, session, url));
       }
     },

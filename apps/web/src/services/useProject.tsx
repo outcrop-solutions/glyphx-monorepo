@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 import { _updateProjectState, api } from 'lib/client';
-import { doesStateExistSelector, projectAtom, showLoadingAtom } from 'state';
+import { doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom } from 'state';
 import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations/core';
 import { useUrl } from 'lib/client/hooks';
 import produce from 'immer';
@@ -22,6 +22,7 @@ export const useProject = () => {
   const { mutate } = useSWRConfig();
   const doesStateExist = useRecoilValue(doesStateExistSelector);
   const setProject = useSetRecoilState(projectAtom);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const url = useUrl();
   // const setShowQtViewer = useSetRecoilState(showQtViewerAtom);
@@ -39,18 +40,27 @@ export const useProject = () => {
       } else if (isCurrentlyLoaded) {
         console.log('is currently loaded, nothing to do');
         if (window?.core) {
+          setDrawer(true);
           window?.core?.ToggleDrawer(true);
         }
       } else if (doesStateExist) {
         console.dir({ msg: 'download model call', payloadHash, project }, { depth: null });
         callUpdateProject(deepMerge, mutate);
-        callDownloadModel({ project: deepMerge, payloadHash, session, url, mutate, setLoading });
+        callDownloadModel({ project: deepMerge, payloadHash, session, url, mutate, setLoading, setDrawer });
       } else {
         console.dir({ msg: 'create new model call', payloadHash, project }, { depth: null });
         // creates update in route via deepMerge
-        callCreateModel({ axis, column, isFilter, project, payloadHash, session, url, setLoading, mutate });
+        await callCreateModel({
+          isFilter,
+          project: deepMerge,
+          payloadHash,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          mutate,
+        });
       }
-
       setLoading({});
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

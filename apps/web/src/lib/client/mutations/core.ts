@@ -124,8 +124,6 @@ export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFe
 // modal state should also include a payload hash in order to uniquely store the data, as subsequent create state calls with the same fileSystem will override privious states with the same file system
 
 export const _createModel = (
-  axis: webTypes.constants.AXIS,
-  column: fileIngestionTypes.IColumn,
   project: databaseTypes.IProject,
   isFilter: boolean,
   payloadHash: string
@@ -134,7 +132,7 @@ export const _createModel = (
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: { axis, column, project, isFilter, payloadHash },
+      body: { project, isFilter, payloadHash },
     },
     successMsg: 'File successfully added',
   };
