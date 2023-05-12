@@ -65,9 +65,9 @@ export const dataGridPayloadSelector = selector({
     const project = get(projectAtom);
     const idx = get(selectedFileIndexSelector);
     return {
-      workspaceId: project.workspace._id.toString(),
-      projectId: project._id,
-      tableName: project.files[idx]?.tableName,
+      workspaceId: project?.workspace._id?.toString(),
+      projectId: project?._id,
+      tableName: project?.files?.[idx]?.tableName,
     };
   },
 });

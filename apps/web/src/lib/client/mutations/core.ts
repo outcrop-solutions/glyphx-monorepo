@@ -119,18 +119,20 @@ export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFe
  * @param payload corresponds to the glyph engine payload
  */
 
+// iState should include a filehash, to determine whether filtering is available via checking against current fileHash
+
+// modal state should also include a payload hash in order to uniquely store the data, as subsequent create state calls with the same fileSystem will override privious states with the same file system
+
 export const _createModel = (
-  axis: webTypes.constants.AXIS,
-  column: fileIngestionTypes.IColumn,
   project: databaseTypes.IProject,
   isFilter: boolean,
-  fileHash: string
+  payloadHash: string
 ): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: { axis, column, project, isFilter, fileHash },
+      body: { project, isFilter, payloadHash },
     },
     successMsg: 'File successfully added',
   };
@@ -141,12 +143,16 @@ export const _createModel = (
  * @note implements s3Manager.getSignedDataUrlPromise concurrently
  */
 
-export const _getSignedDataUrls = (workspaceId: string, projectId: string, fileHash: string): webTypes.IFetchConfig => {
+export const _getSignedDataUrls = (
+  workspaceId: string,
+  projectId: string,
+  payloadHash: string
+): webTypes.IFetchConfig => {
   return {
     url: `/api/etl/sign-data-urls`,
     options: {
       method: 'POST',
-      body: { workspaceId, projectId, fileHash },
+      body: { workspaceId, projectId, payloadHash },
     },
     successMsg: 'File successfully added',
   };

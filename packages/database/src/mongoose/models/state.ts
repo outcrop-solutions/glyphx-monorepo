@@ -33,6 +33,7 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   camera: {type: cameraSchema, required: true},
   static: {type: Boolean, required: true, default: false},
   fileSystemHash: {type: String, required: true},
+  payloadHash: {type: String, required: true},
   workspace: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -170,6 +171,7 @@ SCHEMA.static(
         properties: input.properties ?? [],
         createdBy: userId,
         fileSystemHash: input.fileSystemHash,
+        payloadHash: input.payloadHash,
         workspace: workspaceId,
         project: projectId,
         fileSystem: input.fileSystem,

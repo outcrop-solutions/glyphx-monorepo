@@ -4,6 +4,7 @@ import mongoDbConnection from 'lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {hashFileSystem} from 'util/hashFileSystem';
+import {hashPayload} from 'util/hashPayload';
 
 export class StateService {
   public static async getState(
@@ -72,6 +73,7 @@ export class StateService {
         camera: {...camera},
         properties: {...project.state.properties},
         fileSystemHash: hashFileSystem(project.files),
+        payloadHash: hashPayload(hashFileSystem(project.files), project),
         workspace: {...workspace},
         project: {...project},
         fileSystem: [...project.files],

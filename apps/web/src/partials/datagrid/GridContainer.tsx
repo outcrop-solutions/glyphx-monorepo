@@ -9,8 +9,10 @@ import { ModelFooter } from './ModelFooter';
 import { filesOpenSelector } from 'state/files';
 import { useResize } from 'services/useResize';
 import { splitPaneSizeAtom } from 'state';
+import useDataGrid from 'lib/client/hooks/useDataGrid';
 
 export const GridContainer = () => {
+  const { data } = useDataGrid();
   const openFiles = useRecoilValue(filesOpenSelector);
   const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
@@ -32,7 +34,7 @@ export const GridContainer = () => {
           {openFiles?.length > 0 ? (
             <>
               <GridHeader />
-              <Datagrid />
+              <Datagrid data={data} />
             </>
           ) : (
             <MainDropzone />

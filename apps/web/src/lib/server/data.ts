@@ -4,22 +4,33 @@ import { generalPurposeFunctions as sharedFunctions } from '@glyphx/core';
 import { formatGridData } from 'lib/client/files/transforms/formatGridData';
 
 export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
-  const { workspaceId, projectId, tableName, rowIds } = req.body;
+  const { workspaceId, projectId, tableName, rowIds, page = 1, pageSize = 50 } = req.body;
 
   if (Array.isArray(workspaceId) || Array.isArray(projectId) || Array.isArray(tableName)) {
     res.status(400).end('Invalid Query parameter');
   }
 
   const fullTableName = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
+  try {
+    const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds);
 
-  const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds);
+    const formattedData = formatGridData(data);
 
-  const formattedData = formatGridData(data);
+    if (!formattedData.rows.length) {
+      res.status(404).json({ errors: { error: { msg: `No data found` } } });
+    } else {
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const paginatedRows = formattedData.rows.slice(start, end);
 
-  if (!data.length) {
-    res.status(404).json({ errors: { error: { msg: `No data found` } } });
-  } else {
-    res.status(200).json({ data: formattedData });
+      res.status(200).json({
+        data: { ...formattedData, rows: paginatedRows },
+        totalPages: Math.ceil(formattedData.rows.length / pageSize),
+        currentPage: page,
+      });
+    }
+  } catch (e) {
+    res.status(500).send(e.message);
   }
 };
 
@@ -27,21 +38,33 @@ export const getDataByTableName = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void | NextApiResponse> => {
-  const { workspaceId, projectId, tableName, rowIds } = req.body;
+  const { workspaceId, projectId, tableName, rowIds, page = 1, pageSize = 50 } = req.body;
 
   if (Array.isArray(workspaceId) || Array.isArray(projectId) || Array.isArray(tableName)) {
     res.status(400).end('Invalid Query parameter');
   }
 
-  // const table = generalPurposeFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName as string);
-  const data = await dataService.getDataByTableName(
-    sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName)
-  );
+  try {
+    // const table = generalPurposeFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName as string);
+    const data = await dataService.getDataByTableName(
+      sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName)
+    );
 
-  const formattedData = formatGridData(data);
-  if (!data.length) {
-    res.status(404).json({ errors: { error: { msg: `No data found` } } });
-  } else {
-    res.status(200).json({ data: formattedData });
+    const formattedData = formatGridData(data);
+    if (!formattedData.rows.length) {
+      res.status(404).json({ errors: { error: { msg: `No data found` } } });
+    } else {
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const paginatedRows = formattedData.rows.slice(start, end);
+
+      res.status(200).json({
+        data: { ...formattedData, rows: paginatedRows },
+        totalPages: Math.ceil(formattedData.rows.length / pageSize),
+        currentPage: page,
+      });
+    }
+  } catch (e) {
+    res.status(500).send(e.message);
   }
 };
