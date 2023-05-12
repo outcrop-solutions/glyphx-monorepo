@@ -9,10 +9,7 @@ const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
 });
 
-export const Datagrid = () => {
-  const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
-  const { data } = useDataGrid(workspaceId, projectId, tableName);
-
+export const Datagrid = ({ data }) => {
   // data grid column handling
   const draggableColumns = useMemo(() => {
     function HeaderRenderer(props) {

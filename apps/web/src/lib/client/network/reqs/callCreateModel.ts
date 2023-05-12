@@ -12,6 +12,7 @@ export const callCreateModel = async ({
   url,
   setLoading,
   setDrawer,
+  setResize,
   mutate,
 }) => {
   // Generate model if doesn't already exist
@@ -38,8 +39,12 @@ export const callCreateModel = async ({
         onSuccess: async (data) => {
           mutate(`/api/project/${project._id}`);
           setLoading({});
-          console.log({ msg: 'open project create model success', data, project, session, url });
+          console.log({
+            msg: 'create model success',
+            data: _createOpenProject(data, project, session, url),
+          });
           if (window?.core) {
+            setResize(150);
             setDrawer(true);
             window?.core?.OpenProject(_createOpenProject(data, project, session, url));
           }

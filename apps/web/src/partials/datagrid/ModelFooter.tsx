@@ -1,30 +1,37 @@
-import { useCallback, useEffect } from 'react';
-import * as dayjs from 'dayjs';
+import { useCallback } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   drawerOpenAtom,
   orientationAtom,
+  projectAtom,
   showLoadingAtom,
   splitPaneSizeAtom,
   viewerPositionSelector,
   windowSizeAtom,
 } from 'state';
-import { PlusIcon, XIcon } from '@heroicons/react/outline';
-// import { PlusIcon } from "@heroicons/react/solid";
+import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
+import { hashFileSystem } from 'lib/utils/hashFileSystem';
+import { hashPayload } from 'lib/utils/hashPayload';
+import { useSession } from 'next-auth/react';
+import { useUrl } from 'lib/client/hooks';
+import { useSWRConfig } from 'swr';
 
 const footerHeight = 44;
 const resizeHandle = 4;
 
 export const ModelFooter = () => {
+  const { mutate } = useSWRConfig();
+  const session = useSession();
+  const url = useUrl();
   const viewer = useRecoilValue(viewerPositionSelector);
+  const project = useRecoilValue(projectAtom);
   const windowSize = useRecoilValue(windowSizeAtom);
   const [drawer, setDrawer] = useRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
-
-  const loading = useRecoilValue(showLoadingAtom);
+  const [loading, setLoading] = useRecoilState(showLoadingAtom);
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
 
-  const handleOpenClose = useCallback(() => {
+  const handleOpenClose = useCallback(async () => {
     if (drawer && windowSize.height) {
       // close drawer
       setResize(windowSize.height - 70);
@@ -34,11 +41,10 @@ export const ModelFooter = () => {
       window?.core?.ToggleDrawer(false);
     } else {
       // open drawer
-      setResize(150);
-      setDrawer(true);
-      window?.core?.ToggleDrawer(true);
+      const payloadHash = hashPayload(hashFileSystem(project.files), project);
+      await callDownloadModel({ project, payloadHash, session, url, mutate, setLoading, setDrawer, setResize });
     }
-  }, [drawer, setDrawer, setOrientation, setResize, windowSize.height]);
+  }, [drawer, mutate, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
 
   return viewer && !(Object.keys(loading).length > 0) ? (
     <div

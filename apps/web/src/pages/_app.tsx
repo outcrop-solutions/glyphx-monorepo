@@ -77,23 +77,24 @@ export default function App({
   // });
 
   useEffect(() => {
-    window.core = window.core || {
-      ToggleDrawer: (open: boolean) => {
-        // console.log({ function: 'ToggleDrawer', open });
-      },
-      OpenProject: (object) => {
-        console.log({ function: 'Open Project Called', ...object });
-      },
-      GetCameraPosition: (object) => {
-        return { pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } };
-      },
-      SendRowIds: (rowIds) => {
-        // console.log({ function: 'SendRowIds', rowIds });
-      },
-      SendDrawerPosition: (position) => {
-        // console.log({ function: 'SendDrawerPosition', position });
-      },
-    };
+    // console.log({ core: window.core });
+    // window.core = window.core || {
+    //   ToggleDrawer: (open: boolean) => {
+    //     // console.log({ function: 'ToggleDrawer', open });
+    //   },
+    //   OpenProject: (object) => {
+    //     console.log({ function: 'Open Project Called', ...JSON.parse(object) });
+    //   },
+    //   GetCameraPosition: (object) => {
+    //     return { pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } };
+    //   },
+    //   SendRowIds: (rowIds) => {
+    //     // console.log({ function: 'SendRowIds', rowIds });
+    //   },
+    //   SendDrawerPosition: (position) => {
+    //     // console.log({ function: 'SendDrawerPosition', position });
+    //   },
+    // };
   }, []);
 
   return (

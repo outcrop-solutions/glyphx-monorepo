@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 import { _updateProjectState, api } from 'lib/client';
-import { doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom } from 'state';
+import { doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom } from 'state';
 import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations/core';
 import { useUrl } from 'lib/client/hooks';
 import produce from 'immer';
@@ -15,12 +15,13 @@ import { deepMergeProject } from 'lib/utils/deepMerge';
 import { useSWRConfig } from 'swr';
 import { callUpdateProject } from 'lib/client/network/reqs/callUpdateProject';
 import { callCreateModel } from 'lib/client/network/reqs/callCreateModel';
-import { callDownloadModel } from 'lib/client/network/reqs/calldownloadModel';
+import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
 
 export const useProject = () => {
   const session = useSession();
   const { mutate } = useSWRConfig();
   const doesStateExist = useRecoilValue(doesStateExistSelector);
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setProject = useSetRecoilState(projectAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
@@ -40,13 +41,23 @@ export const useProject = () => {
       } else if (isCurrentlyLoaded) {
         console.log('is currently loaded, nothing to do');
         if (window?.core) {
+          setResize(150);
           setDrawer(true);
           window?.core?.ToggleDrawer(true);
         }
       } else if (doesStateExist) {
         console.dir({ msg: 'download model call', payloadHash, project }, { depth: null });
         callUpdateProject(deepMerge, mutate);
-        callDownloadModel({ project: deepMerge, payloadHash, session, url, mutate, setLoading, setDrawer });
+        await callDownloadModel({
+          project: deepMerge,
+          payloadHash,
+          session,
+          url,
+          mutate,
+          setLoading,
+          setDrawer,
+          setResize,
+        });
       } else {
         console.dir({ msg: 'create new model call', payloadHash, project }, { depth: null });
         // creates update in route via deepMerge
@@ -58,6 +69,7 @@ export const useProject = () => {
           url,
           setLoading,
           setDrawer,
+          setResize,
           mutate,
         });
       }

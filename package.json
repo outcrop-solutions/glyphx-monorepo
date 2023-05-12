@@ -13,7 +13,7 @@
     "format": "turbo format",
     "format:write": "turbo format",
     "dev": "dotenv -- turbo dev",
-    "start": "turbo start",
+    "start": "dotenv -- turbo start",
     "lint": "turbo run lint",
     "fix": "turbo fix",
     "count": "turbo count",
