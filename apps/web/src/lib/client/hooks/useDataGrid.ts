@@ -27,7 +27,6 @@ const useDataGrid = () => {
   );
 
   const fetchData = useCallback(async () => {
-    console.log({ fetch: true, projectId, rowIds, tableName, workspaceId });
     if (!tableName) {
       return;
     } else if (rowIds) {
@@ -37,7 +36,7 @@ const useDataGrid = () => {
       const data = await api(fetchDataGridConfig);
       setData(data);
     }
-  }, [projectId, rowIds, tableName, workspaceId, fetchRowIdsConfig, fetchDataGridConfig]);
+  }, [rowIds, tableName, fetchRowIdsConfig, fetchDataGridConfig]);
 
   useEffect(() => {
     fetchData();

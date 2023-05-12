@@ -16,7 +16,7 @@ export const isNullCamera = (obj: any): obj is webTypes.Camera => {
       return false;
     }
 
-    const subKeys = ['x', 'y', 'z'];
+    const subKeys = ['x', 'y', 'z', '_'];
     for (const subKey of subKeys) {
       if (!subObj.hasOwnProperty(subKey) || typeof subObj[subKey] !== 'number' || subObj[subKey] !== 0) {
         return false;

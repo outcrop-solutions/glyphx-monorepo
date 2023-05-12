@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { generalPurposeFunctions } from '@glyphx/core';
 import { Session } from 'next-auth';
+import dayjs from 'dayjs';
 import { GlyphEngine } from '@glyphx/glyphengine';
 import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
 import { processTrackingService, activityLogService, projectService, stateService } from '@glyphx/business';
@@ -127,15 +128,15 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
         ['filter', payload['filter']],
       ]);
 
-      console.dir({ data }, { depth: null });
       // process glyph engine
       const { sdtFileName, sgnFileName, sgcFileName } = await glyphEngine.process(data);
 
       const updatedProject = await projectService.updateProjectState(project._id, project.state);
 
+      const name = new Date().toISOString();
       // add new state to project to prevent redundant glyphengine runs
       const state = await stateService.createState(
-        payloadHash,
+        name,
         {
           pos: { x: 0, y: 0, z: 0 },
           dir: { x: 0, y: 0, z: 0 },

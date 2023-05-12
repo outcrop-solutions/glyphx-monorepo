@@ -35,18 +35,15 @@ export const useProject = () => {
       const isCurrentlyLoaded = payloadHash === hashPayload(hashFileSystem(project.files), project);
       // if invalid payload, only update project
       if (!isValidPayload(deepMerge.state.properties)) {
-        console.dir({ msg: 'update project call', project }, { depth: null });
         callUpdateProject(deepMerge, mutate);
         // if model currently generated and downloaded, open project
       } else if (isCurrentlyLoaded) {
-        console.log('is currently loaded, nothing to do');
         if (window?.core) {
           setResize(150);
           setDrawer(true);
           window?.core?.ToggleDrawer(true);
         }
       } else if (doesStateExist) {
-        console.dir({ msg: 'download model call', payloadHash, project }, { depth: null });
         callUpdateProject(deepMerge, mutate);
         await callDownloadModel({
           project: deepMerge,
@@ -57,9 +54,9 @@ export const useProject = () => {
           setLoading,
           setDrawer,
           setResize,
+          camera: undefined,
         });
       } else {
-        console.dir({ msg: 'create new model call', payloadHash, project }, { depth: null });
         // creates update in route via deepMerge
         await callCreateModel({
           isFilter,

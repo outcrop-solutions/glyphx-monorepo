@@ -24,11 +24,6 @@ export const callDownloadModel = async ({
     ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
     onSuccess: async (data) => {
       if (window?.core) {
-        console.log({
-          msg: 'download project success',
-          data: _createOpenProject(data, project, session, url),
-          core: window.core,
-        });
         setResize(150);
         setDrawer(true);
         window?.core?.OpenProject(_createOpenProject(data, project, session, url));

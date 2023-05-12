@@ -65,14 +65,6 @@ export class StateService {
 
       const user = await mongoDbConnection.models.UserModel.getUserById(uid);
 
-      console.dir(
-        {
-          msg: 'createState service',
-          payloadHash: hashPayload(hashFileSystem(project.files), project),
-          project,
-        },
-        {depth: null}
-      );
       const input = {
         createdBy: {...user},
         name: name,

@@ -16,45 +16,41 @@ export const SearchFilter = ({ prop }) => {
   const [keywords, setKeywords] = useState([]);
 
   const addKeyword = useCallback(() => {
-    setProject(
-      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-        (
-          draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
-        ).keywords.push(keyword);
+    setKeywords(
+      produce((draft: WritableDraft<string[]>) => {
+        draft.push(keyword);
       })
     );
     setKeyword('');
-  }, [keyword, prop.axis, setProject]);
+  }, [keyword]);
 
-  const deleteKeyword = useCallback(
-    (idx) => {
-      setProject(
-        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          (
-            draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
-          ).keywords.splice(idx, 1);
-        })
-      );
-    },
-    [prop.axis, setProject]
-  );
+  const deleteKeyword = useCallback((idx) => {
+    setKeywords(
+      produce((draft: WritableDraft<string[]>) => {
+        draft.splice(idx, 1);
+      })
+    );
+  }, []);
 
   const handleApply = useCallback(() => {
     if (!visibility) {
       // apply local keywords to project
       setProject(
         produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords;
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords =
+            keywords;
         })
       );
     } else {
-      // remove local min/max from project (reset to default)
-      setKeywords([]);
+      setProject(
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords =
+            [];
+        })
+      );
     }
     setVisibility((prev) => !prev);
-    // disable to avoid visibility re-triggering callback
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [keywords, prop.axis, setProject, visibility]);
 
   return (
     <div>
@@ -89,29 +85,33 @@ export const SearchFilter = ({ prop }) => {
         </div>
       </div>
       {/* SEARCH KEYWORD CHIPS */}
-      <div className="flex flex-wrap gap-y-1 scrollbar-none mx-2 my-1">
-        {prop?.filter?.keywords?.map((keyword, idx) => (
-          <span
-            key={idx}
-            className="px-1 mr-1 rounded-[2px] bg-gray h-3 hover:bg-primary-yellow-hover text-secondary-space-blue font-medium font-roboto text-[10px] flex items-center justify-between gap-x-1 align-middle cursor-pointer"
-          >
-            <p>{keyword}</p>
-            <svg
-              onClick={() => deleteKeyword(idx)}
-              width="8"
-              height="8"
-              viewBox="0 0 8 8"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+      {keywords.length > 0 && (
+        <div className="flex flex-wrap gap-1 scrollbar-none mx-2 my-1">
+          {keywords?.map((keyword, idx) => (
+            <span
+              key={idx}
+              className={`px-1 mr-1 rounded-[2px] ${
+                visibility ? 'bg-primary-yellow' : 'bg-gray'
+              } h-3 hover:bg-primary-yellow-hover text-secondary-space-blue font-medium font-roboto text-[10px] flex items-center justify-between gap-x-1 align-middle cursor-pointer`}
             >
-              <path
-                d="M7.82253 0.183542C7.58589 -0.0530905 7.20364 -0.0530905 6.96701 0.183542L4 3.14448L1.03299 0.177474C0.79636 -0.0591581 0.414107 -0.0591581 0.177474 0.177474C-0.0591581 0.414107 -0.0591581 0.79636 0.177474 1.03299L3.14448 4L0.177474 6.96701C-0.0591581 7.20364 -0.0591581 7.58589 0.177474 7.82253C0.414107 8.05916 0.79636 8.05916 1.03299 7.82253L4 4.85552L6.96701 7.82253C7.20364 8.05916 7.58589 8.05916 7.82253 7.82253C8.05916 7.58589 8.05916 7.20364 7.82253 6.96701L4.85552 4L7.82253 1.03299C8.05309 0.802427 8.05309 0.414107 7.82253 0.183542Z"
-                fill="#151C2D"
-              />
-            </svg>
-          </span>
-        ))}
-      </div>
+              <p>{keyword}</p>
+              <svg
+                onClick={() => deleteKeyword(idx)}
+                width="8"
+                height="8"
+                viewBox="0 0 8 8"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M7.82253 0.183542C7.58589 -0.0530905 7.20364 -0.0530905 6.96701 0.183542L4 3.14448L1.03299 0.177474C0.79636 -0.0591581 0.414107 -0.0591581 0.177474 0.177474C-0.0591581 0.414107 -0.0591581 0.79636 0.177474 1.03299L3.14448 4L0.177474 6.96701C-0.0591581 7.20364 -0.0591581 7.58589 0.177474 7.82253C0.414107 8.05916 0.79636 8.05916 1.03299 7.82253L4 4.85552L6.96701 7.82253C7.20364 8.05916 7.58589 8.05916 7.82253 7.82253C8.05916 7.58589 8.05916 7.20364 7.82253 6.96701L4.85552 4L7.82253 1.03299C8.05309 0.802427 8.05309 0.414107 7.82253 0.183542Z"
+                  fill="#151C2D"
+                />
+              </svg>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

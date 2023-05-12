@@ -39,10 +39,6 @@ export const callCreateModel = async ({
         onSuccess: async (data) => {
           mutate(`/api/project/${project._id}`);
           setLoading({});
-          console.log({
-            msg: 'create model success',
-            data: _createOpenProject(data, project, session, url),
-          });
           if (window?.core) {
             setResize(150);
             setDrawer(true);

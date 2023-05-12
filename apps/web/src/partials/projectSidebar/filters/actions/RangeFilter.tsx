@@ -57,7 +57,8 @@ export const RangeFilter = ({ prop }) => {
           ev.preventDefault();
         }
       }}
-      className="group flex w-full hover:bg-secondary-midnight gap-x-2 my-1 items-center px-2"
+      className={`group flex w-full hover:bg-secondary-midnight ${visibility && 'bg-secondary-midnight'}
+          } gap-x-2 my-1 items-center px-2`}
     >
       {/* FILTER TYPE BTN */}
       <FilterTypeIcon />
@@ -70,19 +71,20 @@ export const RangeFilter = ({ prop }) => {
           disabled={isFilterWritable}
           id="min"
           onChange={(e) => updateLocalRange(e, 'min')}
-          value={prop.filter.min}
-          className="block w-16 h-4 rounded text-center font-roboto font-normal text-[10px] leading-[12px] text-white border-[1px] border-gray bg-transparent hover:border-white ring-none ring-transparent focus:ring-transparent focus:outline-none hover:placeholder-white focus:border-primary-yellow"
+          value={min}
+          className={`block w-16 h-4 rounded text-center font-roboto font-normal text-[10px] leading-[12px] text-white
+          } border-[1px] border-gray bg-transparent hover:border-white ring-none ring-transparent focus:ring-transparent focus:outline-none hover:placeholder-white focus:border-primary-yellow`}
         />
         <p className="text-light-gray font-roboto text-[10px] font-normal leading-[12px] text-center">-</p>
         <input
           onChange={(e) => updateLocalRange(e, 'max')}
-          value={prop.filter.max}
+          value={max}
           type="number"
           disabled={isFilterWritable}
           name="max"
           id="max"
           placeholder="MAX"
-          className="block w-16 h-4 rounded font-roboto font-normal text-[10px] leading-[12px] text-white border-[1px] border-gray bg-transparent hover:border-white focus:outline-none text-center hover:placeholder-white focus:border-primary-yellow"
+          className={`block w-16 h-4 rounded font-roboto font-normal text-[10px] leading-[12px] text-white border-[1px] border-gray bg-transparent hover:border-white focus:outline-none text-center hover:placeholder-white focus:border-primary-yellow`}
         />
       </div>
       {/* SHOW/HIDE */}
