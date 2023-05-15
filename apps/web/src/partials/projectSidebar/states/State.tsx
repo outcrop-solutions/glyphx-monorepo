@@ -1,7 +1,7 @@
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { useCallback } from 'react';
 import { database as databaseTypes, web as webTypes } from '@glyphx/types';
-import { activeStateAtom, modalsAtom, projectAtom, showLoadingAtom } from 'state';
+import { activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom } from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { WritableDraft } from 'immer/dist/internal';
 import produce from 'immer';
@@ -10,10 +10,13 @@ import { useSession } from 'next-auth/react';
 import { useUrl } from 'lib/client/hooks';
 import StateIcon from 'public/svg/state.svg';
 import ActiveStateIcon from 'public/svg/active-state.svg';
+import { isNullCamera } from 'lib/utils/isNullCamera';
 
 export const State = ({ item, idx }) => {
   const session = useSession();
   const url = useUrl();
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const project = useRecoilValue(projectAtom);
   const loading = useRecoilValue(showLoadingAtom);
@@ -25,8 +28,10 @@ export const State = ({ item, idx }) => {
     // only apply state if not loading
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
-      const fileHash = filteredStates[idx].fileSystemHash;
+      const payloadHash = filteredStates[idx].payloadHash;
       const camera = filteredStates[idx].camera;
+      const isNullCam = isNullCamera(camera);
+
       // apply item to project state remote
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -36,12 +41,14 @@ export const State = ({ item, idx }) => {
         })
       );
 
-      api({
-        ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), fileHash),
+      await api({
+        ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
         onSuccess: async (data) => {
-          setLoading({});
           if (window?.core) {
-            window?.core?.OpenProject(_createOpenProject(data, project, session, url, camera));
+            setResize(150);
+            setDrawer(true);
+            window?.core?.OpenProject(_createOpenProject(data, project, session, url, isNullCam ? undefined : camera));
+            setLoading({});
           }
         },
         onError: () => {
@@ -56,7 +63,7 @@ export const State = ({ item, idx }) => {
         },
       });
     }
-  }, [idx]);
+  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url]);
 
   const deleteState = useCallback(() => {
     setModals(

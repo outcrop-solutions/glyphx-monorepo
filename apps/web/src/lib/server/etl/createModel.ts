@@ -1,12 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { generalPurposeFunctions } from '@glyphx/core';
 import { Session } from 'next-auth';
+import dayjs from 'dayjs';
 import { GlyphEngine } from '@glyphx/glyphengine';
 import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
-import { processTrackingService, activityLogService, projectService } from '@glyphx/business';
+import { processTrackingService, activityLogService, projectService, stateService } from '@glyphx/business';
 import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { formatUserAgent } from 'lib/utils';
 import { generateFilterQuery } from 'lib/client/helpers';
+import { isValidPayload } from 'lib/utils/isValidPayload';
 /**
  * Call Glyph Engine
  *
@@ -67,59 +69,20 @@ import { generateFilterQuery } from 'lib/client/helpers';
 //   },
 // });
 
-const isValidPayload = (properties) => {
-  let retval = true;
-  const axisArray = Object.values(webTypes.constants.AXIS);
-  for (const axis of axisArray.slice(0, 3)) {
-    const prop = properties[axis];
-    // check if all props have values and Z is numeric
-    if (
-      prop?.key === '' ||
-      prop?.key.includes('Column ') ||
-      (axis === webTypes.constants.AXIS.Z && prop.dataType !== fileIngestionTypes.constants.FIELD_TYPE.NUMBER)
-    ) {
-      retval = false;
-    }
-  }
-  return retval;
-};
-
 export const createModel = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { axis, column, project, isFilter, fileHash } = req.body;
+  const { project, isFilter, payloadHash } = req.body;
 
-  const deepMerge = {
-    ...project,
-    state: {
-      ...project.state,
-      properties: {
-        ...project.state.properties,
-        [axis]: {
-          axis: axis,
-          accepts: column.type, //added by DnD Lib
-          key: column.key,
-          dataType: column.dataType,
-          interpolation: project.state.properties[axis].interpolation,
-          direction: project.state.properties[axis].direction,
-          filter: {
-            ...project.state.properties[axis].filter,
-          },
-        },
-      },
-    },
-  };
-  // console.dir({ deepMerge }, { depth: null });
-
-  if (!isValidPayload(deepMerge.state.properties)) {
+  if (!isValidPayload(project.state.properties)) {
     // fails silently
     res.status(404).json({ errors: { error: { msg: 'Invalid Payload' } } });
   } else {
-    const properties = deepMerge.state.properties;
+    const properties = project.state.properties;
 
     const payload = {
-      model_id: deepMerge._id,
-      file_hash: fileHash,
+      model_id: project._id,
+      payload_hash: payloadHash,
       // model_id: `642ae3b1c976ba8cc7ac445e`,
-      client_id: deepMerge.workspace._id,
+      client_id: project.workspace._id,
       // client_id: 'testclientid02d78bf6f54f485f81295ec510841742',
       // filter: filter,
       x_axis: properties[webTypes.constants.AXIS.X]['key'],
@@ -161,15 +124,27 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
         ['z_direction', payload['z_direction']],
         ['model_id', payload['model_id']],
         ['client_id', payload['client_id']],
-        ['file_hash', payload['file_hash']],
+        ['payload_hash', payload['payload_hash']],
         ['filter', payload['filter']],
       ]);
 
-      console.dir({ data }, { depth: null });
       // process glyph engine
       const { sdtFileName, sgnFileName, sgcFileName } = await glyphEngine.process(data);
 
-      const updatedProject = await projectService.updateProjectState(deepMerge._id, deepMerge.state);
+      const updatedProject = await projectService.updateProjectState(project._id, project.state);
+
+      const name = new Date().toISOString();
+      // add new state to project to prevent redundant glyphengine runs
+      const state = await stateService.createState(
+        name,
+        {
+          pos: { x: 0, y: 0, z: 0 },
+          dir: { x: 0, y: 0, z: 0 },
+        },
+        updatedProject._id,
+        session.user.userId
+      );
+      await projectService.addStates(updatedProject._id, [state]);
 
       const { agentData, location } = formatUserAgent(req);
       await activityLogService.createLog({

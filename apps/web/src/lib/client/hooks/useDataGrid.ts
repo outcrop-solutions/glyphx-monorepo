@@ -1,30 +1,42 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '../network';
 import { _getDataGrid, _getRowIds } from '../mutations';
-import { rowIdsAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import { dataGridPayloadSelector, rowIdsAtom } from 'state';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
-const useDataGrid = (workspaceId, projectId, tableName) => {
+const useDataGrid = () => {
   const [data, setData] = useState(null);
   const [rowIds, setRowIds] = useRecoilState(rowIdsAtom);
+  const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
+
+  const fetchRowIdsConfig = useMemo(
+    () => ({
+      // @ts-ignore
+      ..._getRowIds(workspaceId, projectId, tableName, rowIds),
+      returnData: true,
+    }),
+    [workspaceId, projectId, tableName, rowIds]
+  );
+
+  const fetchDataGridConfig = useMemo(
+    () => ({
+      ..._getDataGrid(workspaceId, projectId, tableName),
+      returnData: true,
+    }),
+    [workspaceId, projectId, tableName]
+  );
 
   const fetchData = useCallback(async () => {
     if (!tableName) {
       return;
     } else if (rowIds) {
-      const data = await api({
-        ..._getRowIds(workspaceId, projectId, tableName, rowIds),
-        returnData: true,
-      });
+      const data = await api(fetchRowIdsConfig);
       setData(data);
     } else {
-      const data = await api({
-        ..._getDataGrid(workspaceId, projectId, tableName),
-        returnData: true,
-      });
+      const data = await api(fetchDataGridConfig);
       setData(data);
     }
-  }, [projectId, rowIds, tableName, workspaceId]);
+  }, [rowIds, tableName, fetchRowIdsConfig, fetchDataGridConfig]);
 
   useEffect(() => {
     fetchData();

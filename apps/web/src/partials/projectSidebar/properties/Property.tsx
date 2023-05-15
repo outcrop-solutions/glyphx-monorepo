@@ -19,9 +19,11 @@ import { useCallback } from 'react';
 import { WritableDraft } from 'immer/dist/internal';
 import { showLoadingAtom } from 'state';
 import { _updateProjectState, api } from 'lib';
+import { useSWRConfig } from 'swr';
 
 export const Property = ({ axis }) => {
   const [project, setProject] = useRecoilState(projectAtom);
+  const { mutate } = useSWRConfig();
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const { handleDrop } = useProject();
 
@@ -38,22 +40,22 @@ export const Property = ({ axis }) => {
   const showLoading = Object.keys(showLoadingValue).length > 0 ? true : false;
 
   const clearProp = useCallback(async () => {
-    setProject(
-      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-        draft.state.properties[`${axis}`] = {
-          axis: axis,
-          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-          key: `Column ${axis}`, // corresponds to column name
-          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-          direction: webTypes.constants.DIRECTION_TYPE.ASC,
-          filter: {
-            min: 0,
-            max: 0,
-          },
-        };
-      })
-    );
+    // setProject(
+    //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+    //     draft.state.properties[`${axis}`] = {
+    //       axis: axis,
+    //       accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+    //       key: `Column ${axis}`, // corresponds to column name
+    //       dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+    //       interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+    //       direction: webTypes.constants.DIRECTION_TYPE.ASC,
+    //       filter: {
+    //         min: 0,
+    //         max: 0,
+    //       },
+    //     };
+    //   })
+    // );
 
     const newState = {
       ...project.state,
@@ -75,8 +77,13 @@ export const Property = ({ axis }) => {
       },
     };
 
-    await api({ ..._updateProjectState(project._id, newState) });
-  }, [axis, handleDrop, project, setProject]);
+    await api({
+      ..._updateProjectState(project._id, newState),
+      onSuccess: () => {
+        mutate(`/api/project/${project._id}`);
+      },
+    });
+  }, [axis, mutate, project, setProject]);
 
   const logLin = useCallback(() => {
     setProject(

@@ -259,6 +259,7 @@ export class ProjectService {
       | 'description'
       | 'fileSystem'
       | 'fileSystemHash'
+      | 'payloadHash'
       | 'version'
       | 'static'
       | 'camera'

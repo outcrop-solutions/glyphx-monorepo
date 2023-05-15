@@ -20,19 +20,13 @@ export interface IProject {
   type?: IProjectType;
   members: IMember[];
   currentVersion?: number;
-  // CONDITION 1
-  //when filters and properties change, sent to create model call on filter apply or change in properties(given 3 props are dropped)
-  // CONDITION 2
-  // camera position change
-
-  // duplicated to new immutable state object when user clicks to add new state
-  // stored as 'Json' BSON type in mongo
   state: Omit<
     IState,
     | 'name'
     | 'createdAt'
     | 'updatedAt'
     | 'fileSystemHash'
+    | 'payloadHash'
     | 'fileSystem'
     | 'description'
     | 'version'
@@ -47,3 +41,8 @@ export interface IProject {
   files: IFileStats[];
   viewName?: string;
 }
+
+// CONDITION 1
+//when filters and properties change, sent to create model call on filter apply or change in properties(given 3 props are dropped)
+// CONDITION 2
+// camera position change
