@@ -13,7 +13,7 @@ export class Initializer {
     return Initializer.initedField;
   }
 
-  public static async init() {
+  public static async init(): Promise<void> {
     await logging.Logger.init();
     // if (!databaseConnection.inited) {
     await databaseConnection.init();

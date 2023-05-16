@@ -27,13 +27,17 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**", "build/**"],
-      "cache": false
+      "outputs": [".next/**", "dist/**", "build/**"]
     },
     "test": {
       "dependsOn": ["build"],
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "test:web": {
+      "outputs": [],
+      "cache": false,
+      "inputs": ["src/**/*.tsx", "src/**/*.ts"]
     },
     "integrationTest": {
       "dependsOn": ["build"],
@@ -42,6 +46,7 @@
     },
     "web#build": {
       "dependsOn": ["^build"],
+      "inputs": ["./src/**/*.ts", "./src/**/*.tsx"],
       "outputs": [".next/**"]
     },
     "database#build": {
@@ -74,6 +79,11 @@
     "AWS_BUCKET",
     "AWS_SECRET_ACCESS_KEY",
     "AWS_DEFAULT_REGION",
+    "endpoint",
+    "database",
+    "user",
+    "password",
+    "databaseName",
     "AWS_ACCESS_KEY_ID",
     "SIGNER_URL",
     "AWS_SECRET",
