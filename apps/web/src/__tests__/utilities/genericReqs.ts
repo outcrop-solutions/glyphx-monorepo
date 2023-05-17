@@ -16,6 +16,12 @@ export const genericPut = {
     'content-type': 'application/json',
   },
 };
+export const genericPatch = {
+  method: 'PATCH',
+  headers: {
+    'content-type': 'application/json',
+  },
+};
 export const genericDelete = {
   method: 'DELETE',
   headers: {

@@ -33,7 +33,6 @@ export const createProject = async (req: NextApiRequest, res: NextApiResponse, s
     });
 
     res.status(200).json({ data: project });
-    res.status(200).json({ data: true });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
   }

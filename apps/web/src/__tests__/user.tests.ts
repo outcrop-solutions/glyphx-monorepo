@@ -6,10 +6,9 @@ import { createSandbox } from 'sinon';
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
 import { testApiHandler } from 'next-test-api-route-handler';
-import { _deactivateAccount } from 'lib/client/mutations/user';
+import { _deactivateAccount, _updateUserEmail, _updateUserName } from 'lib/client/mutations/user';
 import { wrapConfig } from './utilities/wrapConfig';
-import { genericGet, genericPost, genericPut } from './utilities/genericReqs';
-
+import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
 import { database as databaseTypes } from '@glyphx/types';
 
 // import type { PageConfig } from 'next';
@@ -57,14 +56,27 @@ const MOCK_USER: databaseTypes.IUser = {
 
 describe('USER ROUTES', () => {
   const sandbox = createSandbox();
+  // deactivate
   let deactivateUserRoute;
   let deactivateUserRouteWrapper;
   let deactivateUser;
+  let deactivateUserStub;
+
+  // updateEmail
+  let updateEmailRoute;
+  let updateEmailRouteWrapper;
+  let updateEmail;
+  let updateEmailStub;
+
+  // updateName
+  let updateNameRoute;
+  let updateNameRouteWrapper;
+  let updateName;
+  let updateNameStub;
 
   // route stubs
   let validateSessionStub;
   let initializerStub;
-  let deactivateUserStub;
 
   // handler stubs
   let formatUserAgentStub;
@@ -80,6 +92,8 @@ describe('USER ROUTES', () => {
     initializerStub = { init: sandbox.stub(), initedField: false };
     initializerStub.init.resolves();
     deactivateUserStub = sandbox.stub();
+    updateEmailStub = sandbox.stub();
+    updateNameStub = sandbox.stub();
 
     // handler stubs
     formatUserAgentStub = sandbox.stub();
@@ -88,6 +102,7 @@ describe('USER ROUTES', () => {
     validateUpdateEmailStub = sandbox.stub();
     validateUpdateNameStub = sandbox.stub();
 
+    // DEACTIVATE USER
     // replace handler import resolution
     deactivateUser = proxyquire.load('../lib/server/user', {
       '@glyphx/business': {
@@ -122,6 +137,78 @@ describe('USER ROUTES', () => {
         deactivateUser: deactivateUserStub,
       },
     });
+
+    // UPDATE EMAIL
+    // replace handler import resolution
+    updateEmail = proxyquire.load('../lib/server/user', {
+      '@glyphx/business': {
+        userService: mockUserService,
+        activityLogService: mockActivityLogService,
+        validateUpdateEmail: validateUpdateEmailStub,
+        validateUpdateName: validateUpdateNameStub,
+      },
+      'lib/utils/formatUserAgent': {
+        formatUserAgent: formatUserAgentStub,
+      },
+    }).updateEmail;
+
+    // swap overridden import into handler to be able to call
+    updateEmailRouteWrapper = proxyquire('../pages/api/user/email', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/user': {
+        updateEmail: updateEmail,
+      },
+    });
+
+    // for testing routing
+    updateEmailRoute = proxyquire('../pages/api/user/email', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/user': {
+        updateEmail: updateEmailStub,
+      },
+    });
+
+    // UPDATE NAME
+    // replace handler import resolution
+    updateName = proxyquire.load('../lib/server/user', {
+      '@glyphx/business': {
+        userService: mockUserService,
+        activityLogService: mockActivityLogService,
+        validateUpdateEmail: validateUpdateEmailStub,
+        validateUpdateName: validateUpdateNameStub,
+      },
+      'lib/utils/formatUserAgent': {
+        formatUserAgent: formatUserAgentStub,
+      },
+    }).updateName;
+
+    // swap overridden import into handler to be able to call
+    updateNameRouteWrapper = proxyquire('../pages/api/user/name', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/user': {
+        updateName: updateName,
+      },
+    });
+
+    // for testing routing
+    updateNameRoute = proxyquire('../pages/api/user/name', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/user': {
+        updateName: updateNameStub,
+      },
+    });
   });
 
   afterEach(() => {
@@ -129,7 +216,7 @@ describe('USER ROUTES', () => {
   });
 
   context('/api/user', async function () {
-    describe('DELETE', () => {
+    describe('DELETE handler', () => {
       it('should deactivate a user', async function () {
         mockUserService.deactivate.resolves(MOCK_USER);
         formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
@@ -236,17 +323,18 @@ describe('USER ROUTES', () => {
   });
 
   context('/api/user/email', async function () {
-    describe('PUT', () => {
+    describe('PUT handler', () => {
       it('should update user email', async function () {
-        mockUserService.deactivate.resolves(MOCK_USER);
+        validateUpdateEmailStub.resolves();
+        mockUserService.updateEmail.resolves(MOCK_USER);
         formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
-          handler: deactivateUserRouteWrapper,
-          url: '/api/user',
+          handler: updateEmailRouteWrapper,
+          url: '/api/user/email',
           test: async ({ fetch }) => {
-            const config = wrapConfig(_deactivateAccount());
+            const config = wrapConfig(_updateUserEmail(MOCK_USER.email));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
           },
@@ -260,7 +348,7 @@ describe('USER ROUTES', () => {
 
         await testApiHandler({
           handler: deactivateUserRoute,
-          url: '/api/user',
+          url: '/api/user/email',
           test: async ({ fetch }) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -277,14 +365,14 @@ describe('USER ROUTES', () => {
         validateSessionStub.resolves(MOCK_SESSION);
 
         await testApiHandler({
-          handler: deactivateUserRoute,
-          url: '/api/user',
+          handler: updateEmailRoute,
+          url: '/api/user/email',
           test: async ({ fetch }) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
-            assert.isFalse(deactivateUserStub.calledOnce);
-            assert.strictEqual(res.headers.get('allow'), 'DELETE');
+            assert.isFalse(updateEmailStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'PUT');
             assert.strictEqual(res.status, 405);
             assert.strictEqual(res.statusText, 'Method Not Allowed');
 
@@ -294,46 +382,46 @@ describe('USER ROUTES', () => {
         });
       });
 
-      it('should return 405 for unsupported method PUT', async () => {
-        initializerStub.init.resolves();
-        validateSessionStub.resolves(MOCK_SESSION);
-
-        await testApiHandler({
-          handler: deactivateUserRoute,
-          url: '/api/user',
-          test: async ({ fetch }) => {
-            const res = await fetch(genericPut);
-            assert.isTrue(initializerStub.init.calledOnce);
-            assert.isTrue(validateSessionStub.calledOnce);
-            assert.isFalse(deactivateUserStub.calledOnce);
-            assert.strictEqual(res.headers.get('allow'), 'DELETE');
-            assert.strictEqual(res.status, 405);
-            assert.strictEqual(res.statusText, 'Method Not Allowed');
-
-            const data = await res.json();
-            assert.strictEqual(data.error, 'PUT method unsupported');
-          },
-        });
-      });
-
       it('should return 405 for unsupported method POST', async () => {
         initializerStub.init.resolves();
         validateSessionStub.resolves(MOCK_SESSION);
 
         await testApiHandler({
-          handler: deactivateUserRoute,
-          url: '/api/user',
+          handler: updateEmailRoute,
+          url: '/api/user/email',
           test: async ({ fetch }) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
-            assert.isFalse(deactivateUserStub.calledOnce);
-            assert.strictEqual(res.headers.get('allow'), 'DELETE');
+            assert.isFalse(updateEmailStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'PUT');
             assert.strictEqual(res.status, 405);
             assert.strictEqual(res.statusText, 'Method Not Allowed');
 
             const data = await res.json();
             assert.strictEqual(data.error, 'POST method unsupported');
+          },
+        });
+      });
+
+      it('should return 405 for unsupported method DELETE', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: updateEmailRoute,
+          url: '/api/user/email',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericDelete);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(updateEmailStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'PUT');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'DELETE method unsupported');
           },
         });
       });
@@ -341,17 +429,18 @@ describe('USER ROUTES', () => {
   });
 
   context('/api/user/name', async function () {
-    describe('PUT', () => {
+    describe('PUT Handler', () => {
       it('should change user name', async function () {
-        mockUserService.deactivate.resolves(MOCK_USER);
+        validateUpdateNameStub.resolves();
+        mockUserService.updateName.resolves(MOCK_USER);
         formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
-          handler: deactivateUserRouteWrapper,
-          url: '/api/user',
+          handler: updateNameRouteWrapper,
+          url: '/api/user/name',
           test: async ({ fetch }) => {
-            const config = wrapConfig(_deactivateAccount());
+            const config = wrapConfig(_updateUserName(MOCK_USER.name));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
           },
@@ -364,13 +453,13 @@ describe('USER ROUTES', () => {
         validateSessionStub.resolves('invalid session');
 
         await testApiHandler({
-          handler: deactivateUserRoute,
-          url: '/api/user',
+          handler: updateNameRoute,
+          url: '/api/user/name',
           test: async ({ fetch }) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
-            assert.isFalse(deactivateUserStub.calledOnce);
+            assert.isFalse(updateNameStub.calledOnce);
             assert.strictEqual(res.status, 401);
           },
         });
@@ -382,14 +471,14 @@ describe('USER ROUTES', () => {
         validateSessionStub.resolves(MOCK_SESSION);
 
         await testApiHandler({
-          handler: deactivateUserRoute,
-          url: '/api/user',
+          handler: updateNameRoute,
+          url: '/api/user/name',
           test: async ({ fetch }) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
-            assert.isFalse(deactivateUserStub.calledOnce);
-            assert.strictEqual(res.headers.get('allow'), 'DELETE');
+            assert.isFalse(updateNameStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'PUT');
             assert.strictEqual(res.status, 405);
             assert.strictEqual(res.statusText, 'Method Not Allowed');
 
@@ -399,46 +488,46 @@ describe('USER ROUTES', () => {
         });
       });
 
-      it('should return 405 for unsupported method PUT', async () => {
-        initializerStub.init.resolves();
-        validateSessionStub.resolves(MOCK_SESSION);
-
-        await testApiHandler({
-          handler: deactivateUserRoute,
-          url: '/api/user',
-          test: async ({ fetch }) => {
-            const res = await fetch(genericPut);
-            assert.isTrue(initializerStub.init.calledOnce);
-            assert.isTrue(validateSessionStub.calledOnce);
-            assert.isFalse(deactivateUserStub.calledOnce);
-            assert.strictEqual(res.headers.get('allow'), 'DELETE');
-            assert.strictEqual(res.status, 405);
-            assert.strictEqual(res.statusText, 'Method Not Allowed');
-
-            const data = await res.json();
-            assert.strictEqual(data.error, 'PUT method unsupported');
-          },
-        });
-      });
-
       it('should return 405 for unsupported method POST', async () => {
         initializerStub.init.resolves();
         validateSessionStub.resolves(MOCK_SESSION);
 
         await testApiHandler({
-          handler: deactivateUserRoute,
-          url: '/api/user',
+          handler: updateNameRoute,
+          url: '/api/user/name',
           test: async ({ fetch }) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
-            assert.isFalse(deactivateUserStub.calledOnce);
-            assert.strictEqual(res.headers.get('allow'), 'DELETE');
+            assert.isFalse(updateNameStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'PUT');
             assert.strictEqual(res.status, 405);
             assert.strictEqual(res.statusText, 'Method Not Allowed');
 
             const data = await res.json();
             assert.strictEqual(data.error, 'POST method unsupported');
+          },
+        });
+      });
+
+      it('should return 405 for unsupported method DELETE', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: updateNameRoute,
+          url: '/api/user/name',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericDelete);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(updateNameStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'PUT');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'DELETE method unsupported');
           },
         });
       });
