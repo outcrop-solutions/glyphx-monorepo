@@ -7,10 +7,13 @@ use backtrace::Backtrace;
 use serde_json;
 use serde_derive::{Deserialize, Serialize};
 
-/// The modules that contain our Derived GlyphxError types
-pub mod unexpected_error;
-pub mod invalid_argument_error;
-pub mod invalid_operation_error;
+ mod unexpected_error;
+ mod invalid_argument_error;
+ mod invalid_operation_error;
+
+ pub use unexpected_error::UnexpectedError;
+ pub use invalid_argument_error::InvalidArgumentError;
+ pub use invalid_operation_error::InvalidOperationError;
 
  ///This internal structure is used to coerce the errors
  ///in a JSON friendly format which can then be serialized 

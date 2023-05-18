@@ -1,3 +1,6 @@
+//!This file defines the UnexpectedError type.  
+//!This is a generic error type that can be 
+//!used if another more appropriate error does not exist.
 use crate::error::{GlyphxError, GlyphxErrorData};
 use backtrace::Backtrace;
 ///This structure defines a generic UnexpectedError type

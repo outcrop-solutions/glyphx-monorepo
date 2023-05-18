@@ -1,3 +1,6 @@
+//! This module defines the InvalidArgumentError which should
+//! be used to denote errors that occur because of the value of
+//! the arguments passed to a function.
 use crate::error::{GlyphxError, GlyphxErrorData};
 use backtrace::Backtrace;
 

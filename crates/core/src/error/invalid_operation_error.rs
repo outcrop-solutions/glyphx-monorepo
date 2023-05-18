@@ -1,3 +1,5 @@
+//! This module contains the InvalidOperationError structure 
+//! which is used to define InvalidOperationErrors.
 use crate::error::{GlyphxError, GlyphxErrorData};
 use backtrace::Backtrace;
 
