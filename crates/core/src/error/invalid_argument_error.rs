@@ -1,27 +1,55 @@
 use crate::error::{GlyphxError, GlyphxErrorData};
 use backtrace::Backtrace;
 
-pub struct InvalidArgummentErrorData {
+///This structure defines the internal data that will be used to
+///store information about the the arguments that are in error.
+///This structure will implement the std::fmt::Display trait
+///so that the values can be asily serialized to a json string
+struct InvalidArgummentErrorData {
+    ///The internal data that provides additional context about the
+    ///arguments that caused the error.
     data: serde_json::Value,
 }
 
+///The implementation of the std::fmt::Display trait that serializes
+///the internal data to a json string.
 impl std::fmt::Display for InvalidArgummentErrorData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", serde_json::to_string(&self.data).unwrap())
     }
 }
 
+///This structure defines the InvalidArgumentError which should
+///be used to denote errors that occur because of the value of
+///the arguments passed to a function.  For example a function
+///expects values in the range of 1..=10 and the value passed is 11.  
 pub struct InvalidArgumentError<'a> {
+    ///The internal data structure that contains the error information.
+    ///that will be returned by the implementation of the
+    ///GlyphxError::get_info() method.
     info: GlyphxErrorData<'a, InvalidArgummentErrorData>,
 }
 
+///The implementation of the GlyphxError trait for the InvalidArgumentError
 impl<'a> GlyphxError<'a, InvalidArgummentErrorData> for InvalidArgumentError<'a> {
+    ///The implementation of the GlyphxError::get_info() method that
+    ///returns a reference to the internal error data structure.
     fn get_info(&'a self) -> &'a GlyphxErrorData<InvalidArgummentErrorData> {
         &self.info
     }
 }
+
+///The implementation of our InvalidArgumentError.
 impl<'a> InvalidArgumentError<'a> {
-   pub fn new(
+    ///The constructor for the InvalidArgumentError
+    ///#Arguments
+    ///* message - a message that describes the error.
+    ///* data - optional data that provides additional
+    ///context about the error.  If no data is passed, then pass None.
+    ///* `inner_error` - An optional inner error.  This is useful when an error is
+    ///   wrapped by another error.  If no inner error is provided, then
+    ///   None should be passed.
+    pub fn new(
         message: &String,
         data: Option<serde_json::Value>,
         inner_error: Option<&'a dyn std::fmt::Display>,
@@ -42,7 +70,11 @@ impl<'a> InvalidArgumentError<'a> {
         }
     }
 }
-
+///The implementation of std::fmt::Display for the
+///InvalidArgumentError.  This allows the error to be
+///serialized to a json string.  This implementation
+///uses the GlyphxError::fmt() method to serialize the
+///error.
 impl std::fmt::Display for InvalidArgumentError<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         GlyphxError::fmt(self, f)
