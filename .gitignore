@@ -56,3 +56,5 @@ Session.vim
 
 #rust target directory
 target
+
+output.log
