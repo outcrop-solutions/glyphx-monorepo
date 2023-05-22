@@ -11,7 +11,7 @@ const invite = async (req, res) => {
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  if (!session?.user?.userId) return res.status(401).end();
 
   // execute the appropriate handler
   switch (req.method) {

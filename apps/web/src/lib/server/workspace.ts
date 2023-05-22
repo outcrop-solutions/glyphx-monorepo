@@ -11,6 +11,7 @@ import {
 import slugify from 'slugify';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
 import { database as databaseTypes } from '@glyphx/types';
+
 /**
  * Create Workspace
  *
@@ -21,7 +22,6 @@ import { database as databaseTypes } from '@glyphx/types';
  * @param session - NextAuth.js session
  *
  */
-
 export const getWorkspace = async (req: NextApiRequest, res: NextApiResponse) => {
   const { workspaceSlug } = req.query;
   if (Array.isArray(workspaceSlug)) {
@@ -289,7 +289,9 @@ export const isTeamOwner = async (req: NextApiRequest, res: NextApiResponse, ses
 
     if (workspace) {
       const isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email, workspace);
-      const inviteLink = `${process.env.APP_URL}/teams/invite?code=${encodeURI(workspace?.inviteCode)}`;
+      const inviteLink = `${process.env.APP_URL || 'http://localhost:3000'}/teams/invite?code=${encodeURI(
+        workspace?.inviteCode
+      )}`;
 
       res.status(200).json({ data: { isTeamOwner, inviteLink } });
     }

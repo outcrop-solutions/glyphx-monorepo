@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { updateWorkspaceName } from 'lib/server';
+import { updateWorkspaceName } from 'lib/server/workspace';
 
 const name = async (req, res) => {
   // initialize the business layer
@@ -11,7 +11,7 @@ const name = async (req, res) => {
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  if (!session?.user?.userId) return res.status(401).end();
 
   // execute the appropriate handler
   switch (req.method) {

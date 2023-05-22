@@ -34,11 +34,6 @@
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
     },
-    "test:web": {
-      "outputs": [],
-      "cache": false,
-      "inputs": ["src/**/*.tsx", "src/**/*.ts"]
-    },
     "integrationTest": {
       "dependsOn": ["build"],
       "outputs": [],
