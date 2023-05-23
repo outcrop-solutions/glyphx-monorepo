@@ -6,7 +6,7 @@
 use backtrace::Backtrace;
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
-
+use crate::utility_functions::json_functions::clean_json_string;
 mod invalid_argument_error;
 mod invalid_operation_error;
 mod unexpected_error;
@@ -121,16 +121,7 @@ pub trait GlyphxError<'a, T: 'a + std::fmt::Display>: std::fmt::Display {
 
     fn internal_publish(&'a self) -> String {
         let mut json = self.to_string();
-        println!("json1: {}", json);
-        json = json
-            .replace("{{", "_d_b_")
-            .replace("}}", "_b_d_")
-             .replace("\\", "")
-            .replace("\"{", "{")
-            .replace("}\"", "}")
-            .replace("_d_b_", "{{")
-            .replace("_b_d_", "}}");
-        println!("json2: {}", json);
+        json = clean_json_string(json);
         let json_value = serde_json::from_str::<serde_json::Value>(&json).unwrap();
         let json = serde_json::to_string_pretty(&json_value).unwrap();
         json

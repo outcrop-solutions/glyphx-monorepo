@@ -90,7 +90,7 @@ impl std::fmt::Display for InvalidOperationError<'_> {
 mod invalid_operation_error_tests {
     use super::*;
     use crate::error::invalid_argument_error::InvalidArgumentError;
-    #[ignore]
+    use crate::utility_functions::json_functions::clean_json_string;
     #[test]
     fn build_invalid_operation_error_with_nones() {
         let error =
@@ -104,7 +104,6 @@ mod invalid_operation_error_tests {
         assert!(error.get_info().data.is_none());
         assert!(error.get_info().inner_error.is_none());
     }
-    #[ignore]
     #[test]
     fn build_invalid_operation_error() {
         let data = serde_json::json!({
@@ -127,7 +126,6 @@ mod invalid_operation_error_tests {
         assert_eq!(err_data.data.get("key").unwrap(), "value");
         assert!(error.get_info().inner_error.as_ref().unwrap().to_string() == inner_error);
     }
-    #[ignore]
     #[test]
     fn serialize_invalid_operation_error() {
         let data = serde_json::json!({
@@ -150,6 +148,7 @@ mod invalid_operation_error_tests {
 
         let error = InvalidOperationError::new(&msg, Some(data), Some(&inner_error));
         let json_string = format!("{}", error);
+        let json_string = clean_json_string(json_string);
         let as_json = serde_json::from_str::<serde_json::Value>(&json_string.as_str()).unwrap();
         assert_eq!(*as_json.get("message").unwrap(), msg);
         assert_eq!(*as_json.get("error_code").unwrap(), 402);

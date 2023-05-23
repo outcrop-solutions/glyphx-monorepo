@@ -72,7 +72,7 @@ impl<'a> std::fmt::Display for UnexpectedError<'a> {
 #[cfg(test)]
 mod unexpected_error_tests {
     use super::*;
-    #[ignore]
+    use crate::utility_functions::json_functions::clean_json_string;
     #[test]
     fn build_unexpected_error() {
         let msg = String::from("An unexpected error has occurred");
@@ -94,7 +94,6 @@ mod unexpected_error_tests {
         let vec_trace = err.get_backtrace_as_vec();
         assert!(vec_trace.len() > 0);
     }
-    #[ignore]
     #[test]
     fn serialize_unexpected_error() {
         let msg = String::from("An unexpected error has occurred");
@@ -107,6 +106,7 @@ mod unexpected_error_tests {
         let err = UnexpectedError::new(&msg, Some(String::from("Some data")), Some(&inner_error));
 
         let serilized_as_json_string = format!("{}", err);
+        let serilized_as_json_string = clean_json_string(serilized_as_json_string);
         assert!(!serilized_as_json_string.is_empty());
         let as_json =
             serde_json::from_str::<serde_json::Value>(&serilized_as_json_string.as_str()).unwrap();

@@ -1,26 +1,37 @@
 use crate::error::InvalidOperationError;
-use log::{info, LevelFilter};
+use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
 use log4rs::append::rolling_file::policy::compound::trigger::size::SizeTrigger;
 use log4rs::append::rolling_file::policy::compound::CompoundPolicy;
 use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
+use log4rs::Handle;
 use serde_json::json;
 
-pub struct Logger {
-    application_name: String,
-    file_name: Option<String>,
-    file_size: Option<u32>,
-    level_filter: Option<LevelFilter>,
-}
-
-fn setup_logging(
+pub fn setup_logging(
     application_name: String,
     file_name: Option<String>,
     file_size: Option<u32>,
     level_filter: Option<LevelFilter>,
 ) {
+    configure_logging(
+        application_name,
+        file_name,
+        file_size,
+        level_filter,
+        |config| log4rs::init_config(config),
+    );
+}
+fn configure_logging<T>(
+    application_name: String,
+    file_name: Option<String>,
+    file_size: Option<u32>,
+    level_filter: Option<LevelFilter>,
+    config_fn: T,
+) where
+    T: FnOnce(Config) -> Result<Handle, log::SetLoggerError>,
+{
     let file_name = file_name.as_deref().unwrap_or("output.log");
     let file_size = file_size.unwrap_or(1_000_000);
     let level_filter = level_filter.unwrap_or(LevelFilter::Info);
@@ -75,7 +86,7 @@ fn setup_logging(
         )
         .unwrap();
 
-    log4rs::init_config(config).unwrap_or_else(|err| {
+    config_fn(config).unwrap_or_else(|err| {
         let error = InvalidOperationError::new(
             &format!(
                 "Failed to initialize the log4rs configuration for the app {}",
@@ -99,32 +110,170 @@ fn setup_logging(
 mod logging_tests {
     use super::*;
     use crate::error::GlyphxError;
+    use json5;
+    use log;
+    use serial_test::serial;
+    use std::panic;
+    use crate::utility_functions::json_functions::clean_json_string;
+
+    fn get_mock_init(
+        application_name: String,
+        file_name: String,
+        file_size: u32,
+        level_filter: LevelFilter,
+        force_init: bool,
+    ) -> Box<dyn FnOnce(Config) -> Result<Handle, log::SetLoggerError>> {
+        let retval = move |config: log4rs::config::runtime::Config| {
+            //We expect to appenders, the console and the file
+            assert_eq!(config.appenders().len(), 2);
+
+            //assert our console appender is correct
+            let console_appender = config.appenders().get(0).unwrap();
+            assert!(console_appender.name().eq("console"));
+            let console_appender = format!("{:?}", console_appender.appender());
+            assert!(console_appender.starts_with("ConsoleAppender"));
+
+            let file_appender = config.appenders().get(1).unwrap();
+            let file_appender = format!("{:?}", file_appender.appender());
+            assert!(file_appender.starts_with("RollingFileAppender"));
+            //Remove the RollingFileAppender from the string
+            let idx = file_appender.find('{').unwrap();
+            let file_appender = &file_appender[idx..];
+            //Cleanup the string so we can parse it as json
+            let file_appender = file_appender
+                .replace("PatternEncoder", "")
+                .replace("CompoundPolicy", "")
+                .replace("SizeTrigger", "")
+                .replace("FixedWindowRoller", "")
+                .replace(": None,", ": \"None\",");
+            let file_appender =
+                json5::from_str::<serde_json::Value>(file_appender.as_str()).unwrap();
+            let path = file_appender.get("path").unwrap().as_str().unwrap();
+            assert_eq!(path, file_name);
+
+            let policy = file_appender.get("policy").unwrap();
+            let trigger = policy.get("trigger").unwrap();
+            let limit = trigger.get("limit").unwrap().as_u64().unwrap();
+            assert_eq!(limit, file_size as u64);
+
+            let roller = policy.get("roller").unwrap();
+            let count = roller.get("count").unwrap().as_u64().unwrap();
+            assert_eq!(count, 24);
+
+            assert_eq!(config.root().level(), level_filter);
+            //We are creating an empty config so that any calls to the log crate
+            //will not create any artifacts.
+            let config = Config::builder()
+                .build(Root::builder().build(level_filter))
+                .unwrap();
+
+            if !force_init {
+                if let Some(handle) = unsafe { HANDLE.as_ref() } {
+                    handle.set_config(config);
+                } else {
+                    unsafe { HANDLE = Some(log4rs::init_config(config)?) }
+                }
+            } else {
+
+                    unsafe { HANDLE = Some(log4rs::init_config(config)?) }
+            }
+            let copy = unsafe { HANDLE.as_ref().unwrap().clone() };
+            Ok(copy)
+        };
+
+        Box::new(retval)
+    }
+    static mut HANDLE: Option<Handle> = None;
+
     #[test]
+    #[serial]
     fn setup_logging_with_defaults() {
-        setup_logging(String::from("test"), None, None, None);
-        info!("This is a test");
-        let inner_inner_error = String::from("I am the inner inner error");
-        let ierr = InvalidOperationError::new(
-            &String::from("This is an inner test error"),
-            Some(json!(
-                {
-                    "application_name": "test",
-                    "foo": "bar"
-                }
-
-            )),
-            Some(&inner_inner_error),
+        let mock_init = get_mock_init(
+            String::from("test"),
+            String::from("output.log"),
+            1_000_000,
+            LevelFilter::Info,
+            false
         );
-        let err = InvalidOperationError::new(
-            &String::from("This is a test error"),
-            Some(json!(
-                {
-                    "application_name": "test",
-                }
+        //all of our asserts are run as part of the mock init function
+        configure_logging(String::from("test"), None, None, None, mock_init);
+        assert!(log::log_enabled!(log::Level::Info));
+    }
 
-            )),
-            Some(&ierr),
+    #[test]
+    #[serial]
+    fn setup_logging_with_passed_values() {
+        let output_file_name = String::from("Foo.bar");
+        let file_size = 63_000_000;
+        let level_filter = LevelFilter::Debug;
+        let mock_init = get_mock_init(
+            String::from("test"),
+            output_file_name.clone(),
+            file_size,
+            level_filter,
+            false
         );
-        info!("{}", err.publish());
+        //all of our asserts are run as part of the mock init function
+        configure_logging(
+            String::from("test"),
+            Some(output_file_name),
+            Some(file_size),
+            Some(level_filter),
+            mock_init,
+        );
+
+        assert!(log::log_enabled!(log::Level::Debug));
+    }
+
+    #[test]
+    #[serial]
+    fn setup_logging_panics_on_consecutive_calls() {
+        let application_name = String::from("test");
+        let output_file_name = String::from("Foo.bar");
+        let file_size = 63_000_000;
+        let level_filter = LevelFilter::Debug;
+
+        //If we have not run any logging tests, then we need to run
+        //this setup first to stage the initial logging configuration
+        if unsafe {HANDLE.is_none()} {
+            let mock_init = get_mock_init(
+                application_name.clone(),
+                output_file_name.clone(),
+                file_size,
+                level_filter,
+                false
+            );
+            configure_logging(
+                application_name.clone(),
+                Some(output_file_name.clone()),
+                Some(file_size),
+                Some(level_filter),
+                mock_init,
+            );
+        }
+        //now this should panic
+        let result = panic::catch_unwind(|| {
+            setup_logging(
+                application_name.clone(),
+                Some(output_file_name.clone()),
+                Some(file_size),
+                Some(level_filter),
+            );
+        });
+
+        assert!(result.is_err());
+
+        let error = result.unwrap_err();
+        let error = error.downcast_ref::<String>().unwrap();
+        let error = clean_json_string(String::from(error));
+        let json_value = serde_json::from_str::<serde_json::Value>(error.as_str()).unwrap();
+        let name = json_value.get("name").unwrap().as_str().unwrap();
+        assert_eq!(name,"Invalid Operation Error");
+        let inner_error = json_value.get("inner_error");
+        assert!(inner_error.is_some());
+        let data = json_value.get("data").unwrap();
+        let app_name = data.get("application_name").unwrap().as_str().unwrap();
+        assert_eq!( app_name,application_name);
+
     }
 }
