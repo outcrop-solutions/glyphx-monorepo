@@ -117,8 +117,13 @@ pub trait GlyphxError<'a, T: 'a + std::fmt::Display>: std::fmt::Display {
         }
     }
 
+    ///The publish method is defined in structures that implement this trait. 
+    ///ideally, the implimentor will call internal publish which will return 
+    ///a clean and validated json string. 
     fn publish(&'a self) -> String;
 
+    ///This is the internal function that is called by the publish method.  
+    ///This function will return a clean and validated json string.
     fn internal_publish(&'a self) -> String {
         let mut json = self.to_string();
         json = clean_json_string(json);
@@ -126,6 +131,10 @@ pub trait GlyphxError<'a, T: 'a + std::fmt::Display>: std::fmt::Display {
         let json = serde_json::to_string_pretty(&json_value).unwrap();
         json
     }
+
+    ///Our internal fmt method which will convert a Glyphx error into a string.
+    ///While this string is json like, there are some issues with it, that will 
+    ///need to be cleaned up with the [clean_json_string](../utility_functions/json_functions/fn.clean_json_string.html) function.
     fn fmt(&'a self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let info = self.get_info();
 

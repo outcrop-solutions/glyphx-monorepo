@@ -23,6 +23,7 @@ impl<'a> GlyphxError<'a, String> for UnexpectedError<'a> {
     fn get_info(&'a self) -> &'a GlyphxErrorData<String> {
         &self.info
     }
+    ///The publish method allows us to prtetty print our log messages.
     fn publish(&'a self) -> String {
         GlyphxError::internal_publish(self)
     }

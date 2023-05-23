@@ -1,3 +1,6 @@
+//!This module contains the functions required to configure logging.
+//!Logging is standard across all GlyphX applications.  This module,
+//!will ensure that each application logs its information appropriately.
 use crate::error::InvalidOperationError;
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
@@ -9,6 +12,18 @@ use log4rs::config::{Appender, Config, Root};
 use log4rs::Handle;
 use serde_json::json;
 
+///The setup logging function is used to configure the logging.  An application 
+///should call this function once and only once.
+/// # Arguments
+/// * `application_name` - The name of the application.  This will be used to 
+/// report any errors in the logging configuration. In the future it may be used
+/// better identify the source of the log messages.
+/// * `file_name` - The name of the file to log to.  If this is not provided
+/// then the default file name of output.log will be used.
+/// * `file_size` - The maximum size of the log file.  If this is not provided
+/// then the default size of 1,000,000 bytes will be used.
+/// * `level_filter` - The level of logging that should be used.  If this is not
+/// provided then the default level of info will be used.
 pub fn setup_logging(
     application_name: String,
     file_name: Option<String>,
@@ -23,6 +38,10 @@ pub fn setup_logging(
         |config| log4rs::init_config(config),
     );
 }
+
+///This is the internal implementation of the setup_logging function.
+///We are using dependency injection to allow us to test the logging
+///configuration.
 fn configure_logging<T>(
     application_name: String,
     file_name: Option<String>,

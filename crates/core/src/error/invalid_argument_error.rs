@@ -40,7 +40,7 @@ impl<'a> GlyphxError<'a, InvalidArgummentErrorData> for InvalidArgumentError<'a>
     fn get_info(&'a self) -> &'a GlyphxErrorData<InvalidArgummentErrorData> {
         &self.info
     }
-
+    ///The publish method allows us to pretty print our log messages.
     fn publish(&'a self) -> String {
         GlyphxError::internal_publish(self)
     }
