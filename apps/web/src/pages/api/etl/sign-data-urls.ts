@@ -18,12 +18,12 @@ export default async function signData(req: NextApiRequest, res: NextApiResponse
   }
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  if (!session?.user?.userId) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
       return signDataUrls(req, res);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 }

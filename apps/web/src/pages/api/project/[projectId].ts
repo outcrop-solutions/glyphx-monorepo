@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { getProject, createProject, updateProjectState, deleteProject } from 'lib/server';
+import { getProject, createProject, updateProjectState, deleteProject } from 'lib/server/project';
 
 const project = async (req, res) => {
   // initialize the business layer
@@ -11,7 +11,7 @@ const project = async (req, res) => {
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  if (!session?.user?.userId) return res.status(401).end();
 
   // execute the appropriate handler
   switch (req.method) {
@@ -27,6 +27,7 @@ const project = async (req, res) => {
       res.setHeader('Allow', [
         webTypes.constants.HTTP_METHOD.GET,
         webTypes.constants.HTTP_METHOD.POST,
+        webTypes.constants.HTTP_METHOD.PUT,
         webTypes.constants.HTTP_METHOD.DELETE,
       ]);
       return res.status(405).json({ error: `${req.method} method unsupported` });

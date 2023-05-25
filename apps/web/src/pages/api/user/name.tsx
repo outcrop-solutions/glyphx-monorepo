@@ -2,7 +2,7 @@ import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { updateName } from 'lib/server';
+import { updateName } from 'lib/server/user';
 
 const name = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
@@ -12,7 +12,7 @@ const name = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  if (!session?.user?.userId) return res.status(401).end();
 
   // execute the appropriate handler
   switch (req.method) {

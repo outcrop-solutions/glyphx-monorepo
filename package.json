@@ -9,6 +9,7 @@
   "scripts": {
     "build": "dotenv -- turbo build",
     "test": "dotenv -- turbo test",
+    "test:web": "dotenv -- turbo test:web",
     "integrationTest": "turbo integrationTest",
     "format": "turbo format",
     "format:write": "turbo format",

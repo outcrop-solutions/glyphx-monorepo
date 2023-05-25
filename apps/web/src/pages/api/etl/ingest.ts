@@ -2,7 +2,7 @@ import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
 import { Initializer, validateSession } from '@glyphx/business';
-import { processFiles } from 'lib/server/etl/processFiles';
+import { fileIngestion } from 'lib/server/etl/fileIngestion';
 
 /**
  * UNCOMMENT TO DISABLE BUFFERING OF RESPONSE i.e to read raw data or stream
@@ -29,12 +29,12 @@ export default async function fileIngest(req: NextApiRequest, res: NextApiRespon
   }
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  if (!session?.user?.userId) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
-      return processFiles(req, res, session);
+      return fileIngestion(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 }

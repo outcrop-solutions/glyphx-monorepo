@@ -35,12 +35,12 @@ export function initializer(
       {methodName: initializerValue.methodName}
     );
   }
-  if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
-    throw new InvalidOperationError(
-      'Your initializer function must return a Promise so that it can be awaited',
-      {functionName: propertyKey}
-    );
-  }
+  // if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
+  //   throw new InvalidOperationError(
+  //     'Your initializer function must return a Promise so that it can be awaited',
+  //     {functionName: propertyKey}
+  //   );
+  // }
 
   Reflect.defineMetadata(
     'boundSecrets:initializerFunction',
@@ -277,14 +277,14 @@ function findAndValidateInitializer<T extends {new (...args: any[]): {}}>(
       {}
     );
 
-  if (
-    initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction'
-  ) {
-    throw new InvalidOperationError(
-      'Your initializer function must return a Promise so that it can be awaited',
-      {functionName: initializer.name}
-    );
-  }
+  // if (
+  //   initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction'
+  // ) {
+  //   throw new InvalidOperationError(
+  //     'Your initializer function must return a Promise so that it can be awaited',
+  //     {functionName: initializer.name}
+  //   );
+  // }
 
   const initialInitislizerFunction = initializer.descriptor.value;
   return {initializer, initialInitislizerFunction};

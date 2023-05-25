@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
-// import { Session } from 'next-auth';
 import { aws } from '@glyphx/core';
 import { S3_BUCKET_NAME } from 'config/constants';
 import { PassThrough } from 'stream';
