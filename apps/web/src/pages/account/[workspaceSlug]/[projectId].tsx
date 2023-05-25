@@ -21,6 +21,14 @@ const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
 });
 
+const openFirstFile = (projData) => {
+  const newFiles = projData.files.map((file, idx) => (idx === 0 ? { ...file, selected: true, open: true } : file));
+  return {
+    ...projData,
+    files: [...newFiles],
+  };
+};
+
 export default function Project() {
   const { data, isLoading } = useProject();
   const { data: result, isLoading: isWorkspaceLoading } = useWorkspace();
@@ -38,7 +46,8 @@ export default function Project() {
   // hydrate recoil state
   useEffect(() => {
     if (!isLoading && !isWorkspaceLoading) {
-      setProject(data?.project);
+      const projectData = openFirstFile(data?.project);
+      setProject(projectData);
       setRightSidebarControl(
         produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
           draft.data = data?.project;

@@ -28,6 +28,8 @@ export const useFileSystem = () => {
   const setModals = useSetRecoilState(modalsAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
 
+  console.log({ openFiles, selectedFileIndex, project });
+
   const selectFile = useCallback(
     (idx: number) => {
       // select file
@@ -67,7 +69,7 @@ export const useFileSystem = () => {
       // close file
       setProject(
         produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          if (openFiles?.length > 0) {
+          if (openFiles?.length > 1) {
             draft.files[openFiles[0].fileIndex].selected = true;
           }
           draft.files[idx].open = false;
