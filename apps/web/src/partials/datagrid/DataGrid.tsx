@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import BarLoader from 'react-spinners/BarLoader';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import dynamic from 'next/dynamic';
-// import DataGrid from 'react-data-grid';
 const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
 });

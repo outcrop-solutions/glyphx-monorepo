@@ -4,7 +4,6 @@ export function validateSessionMiddleware() {
   return async (req, res, next) => {
     const session = await getSession({req});
     const errors = [] as any[];
-    console.log('checking mocks');
     if (!session) {
       // errors.push({param: 'session', msg: 'Unauthorized access'});
       return next({

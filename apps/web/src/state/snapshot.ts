@@ -38,7 +38,8 @@ export const doesStateExistSelector = selector<boolean>({
   key: 'doesStateExistSelector',
   get: ({ get }) => {
     const project = get(projectAtom);
-    const currentPayloadHash = hashPayload(hashFileSystem(project?.files), project);
+    if (!project?.files) return false;
+    const currentPayloadHash = hashPayload(hashFileSystem(project.files), project);
     const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
     return exists.length > 0;
   },
