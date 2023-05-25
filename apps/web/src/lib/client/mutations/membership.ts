@@ -66,7 +66,7 @@ export const _removeMember = (memberId: string): webTypes.IFetchConfig => {
       },
       method: 'DELETE',
     },
-    successMsg: 'Removed team member from workspace!',
+    successMsg: 'Removed team member from workspace.',
   };
 };
 
@@ -98,6 +98,6 @@ export const _declineInvitation = (memberId: string): webTypes.IFetchConfig => {
       body: { memberId: memberId },
       method: 'PUT',
     },
-    successMsg: 'Declined invitation!',
+    successMsg: 'Invitation declined',
   };
 };

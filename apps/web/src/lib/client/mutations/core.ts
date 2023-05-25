@@ -41,7 +41,7 @@ export const _uploadFile = (
       method: 'POST',
       body: acceptedFile,
     },
-    successMsg: 'File successfully added',
+    successMsg: 'File successfully uploaded',
   };
 };
 
@@ -107,7 +107,7 @@ export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFe
       method: 'POST',
       body: { payload },
     },
-    successMsg: 'File successfully added',
+    successMsg: 'File successfully ingested',
   };
 };
 
@@ -134,7 +134,7 @@ export const _createModel = (
       method: 'POST',
       body: { project, isFilter, payloadHash },
     },
-    successMsg: 'File successfully added',
+    successMsg: 'Model successfully generated!',
   };
 };
 
@@ -154,7 +154,7 @@ export const _getSignedDataUrls = (
       method: 'POST',
       body: { workspaceId, projectId, payloadHash },
     },
-    successMsg: 'File successfully added',
+    successMsg: 'Signed data packets',
   };
 };
 

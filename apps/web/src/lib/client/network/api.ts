@@ -48,9 +48,7 @@ export async function api({
       }
     }
   } catch (error) {
-    if (!silentFail) {
-      toast.error(error.msg || String(error));
-    }
+    console.log({ error });
   }
 }
 
