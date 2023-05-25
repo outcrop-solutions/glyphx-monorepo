@@ -28,8 +28,6 @@ export const useFileSystem = () => {
   const setModals = useSetRecoilState(modalsAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
 
-  console.log({ openFiles, selectedFileIndex, project });
-
   const selectFile = useCallback(
     (idx: number) => {
       // select file

@@ -33,8 +33,6 @@ export const Filters = () => {
   const showLoading = useRecoilValue(showLoadingAtom);
   const [isCollapsed, setCollapsed] = useState(false);
 
-  console.log({ project });
-
   const handleApplyFilters = useCallback(async () => {
     // project already contains filter state, no deepMerge necessary
     const payloadHash = hashPayload(hashFileSystem(project.files), project);
