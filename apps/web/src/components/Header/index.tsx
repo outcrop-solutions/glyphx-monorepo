@@ -8,7 +8,7 @@ import BackBtnIcon from 'public/svg/back-button-icon.svg';
 
 const Header = () => {
   const project = useRecoilValue(projectAtom);
-  const resetProject = useResetRecoilState(projectAtom);
+  const setProject = useSetRecoilState(projectAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const router = useRouter();
@@ -18,7 +18,7 @@ const Header = () => {
     router.push(`/account/${project.workspace.slug}`);
     setDrawer(false);
     window?.core?.ToggleDrawer(false);
-    resetProject();
+    setProject(null);
   };
 
   return (
