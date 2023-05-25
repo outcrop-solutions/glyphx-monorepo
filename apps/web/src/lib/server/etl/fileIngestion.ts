@@ -3,7 +3,7 @@ import { Session } from 'next-auth';
 import { aws, generalPurposeFunctions } from '@glyphx/core';
 import { FileIngestor } from '@glyphx/fileingestion';
 import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
-import { formatUserAgent } from 'lib/utils';
+import { formatUserAgent } from 'lib/utils/formatUserAgent';
 import { database as databaseTypes } from '@glyphx/types';
 import { processTrackingService, activityLogService, projectService } from '@glyphx/business';
 import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
@@ -59,7 +59,7 @@ import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
  *
  */
 
-export const processFiles = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {
     // Extract payload
     const { payload } = req.body;

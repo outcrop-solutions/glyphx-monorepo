@@ -456,4 +456,38 @@ export class ProjectService {
       }
     }
   }
+
+  public static async addStates(
+    projectId: mongooseTypes.ObjectId | string,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const updatedProject =
+        await mongoDbConnection.models.ProjectModel.addStates(id, states);
+
+      return updatedProject;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding states to the project. See the inner error for additional details',
+          'project',
+          'addStates',
+          {id: projectId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
 }

@@ -3,7 +3,7 @@ import { Session } from 'next-auth';
 import { membershipService, workspaceService } from '@glyphx/business';
 
 /**
- * Get Workspaces 
+ * Get Workspaces
  *
  * @note Fetches & returns all workspaces available.
  * @route GET /api/workspaces

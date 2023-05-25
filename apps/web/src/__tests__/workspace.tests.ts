@@ -58,6 +58,23 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   projects: [],
   states: [],
 };
+const MOCK_WORKSPACE_2: databaseTypes.IWorkspace = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  workspaceCode: 'testWorkspaceCode',
+  inviteCode: 'testInviteCode',
+  name: 'Test Workspace',
+  slug: 'testSlug',
+  description: 'a test workspace',
+  creator: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IUser,
+  members: [],
+  projects: [],
+  states: [],
+};
+
+const MOCK_WORKSPACES = [MOCK_WORKSPACE, MOCK_WORKSPACE_2];
 
 const MOCK_MEMBER_1: databaseTypes.IMember = {
   _id: 'mockMemberId1' as unknown as mongooseTypes.ObjectId,
@@ -167,6 +184,18 @@ describe('WORKSPACE ROUTES', () => {
   let updateRole;
   let updateRoleStub;
 
+  // getWorkspaces for dashboard
+  let getWorkspacesRoute;
+  let getWorkspacesRouteWrapper;
+  let getWorkspaces;
+  let getWorkspacesStub;
+
+  // getPendingInvitations for dashboard
+  let getPendingInvitationsRoute;
+  let getPendingInvitationsRouteWrapper;
+  let getPendingInvitations;
+  let getPendingInvitationsStub;
+
   // route stubs
   let validateSessionStub;
   let initializerStub;
@@ -202,6 +231,8 @@ describe('WORKSPACE ROUTES', () => {
     removeMemberStub = sandbox.stub();
     updateRoleStub = sandbox.stub();
     deleteWorkspaceStub = sandbox.stub();
+    getWorkspacesStub = sandbox.stub();
+    getPendingInvitationsStub = sandbox.stub();
 
     // handler stubs
     formatUserAgentStub = sandbox.stub();
@@ -682,6 +713,74 @@ describe('WORKSPACE ROUTES', () => {
       },
       'lib/server/team': {
         updateRole: updateRoleStub,
+      },
+    });
+    /******************** ROUTE /api/workspaces ********************/
+    // replace handler import resolution
+    getWorkspaces = proxyquire.load('../lib/server/workspaces', {
+      '@glyphx/business': {
+        workspaceService: mockWorkspaceService,
+        activityLogService: mockActivityLogService,
+        membershipService: mockMembershipService,
+      },
+      'lib/utils/formatUserAgent': {
+        formatUserAgent: formatUserAgentStub,
+      },
+    }).getWorkspaces;
+
+    // swap overridden import into handler to be able to call
+    getWorkspacesRouteWrapper = proxyquire('../pages/api/workspaces', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/workspaces': {
+        getWorkspaces: getWorkspaces,
+      },
+    });
+
+    // for testing routing at api/workspace
+    getWorkspacesRoute = proxyquire('../pages/api/workspaces', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/workspaces': {
+        getWorkspaces: getWorkspacesStub,
+      },
+    });
+    /******************** ROUTE /api/workspaces/invitations ********************/
+    // replace handler import resolution
+    getPendingInvitations = proxyquire.load('../lib/server/workspaces', {
+      '@glyphx/business': {
+        workspaceService: mockWorkspaceService,
+        activityLogService: mockActivityLogService,
+        membershipService: mockMembershipService,
+      },
+      'lib/utils/formatUserAgent': {
+        formatUserAgent: formatUserAgentStub,
+      },
+    }).getPendingInvitations;
+
+    // swap overridden import into handler to be able to call
+    getPendingInvitationsRouteWrapper = proxyquire('../pages/api/workspaces/invitations', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/workspaces': {
+        getPendingInvitations: getPendingInvitations,
+      },
+    });
+
+    // for testing routing at api/workspace
+    getPendingInvitationsRoute = proxyquire('../pages/api/workspaces/invitations', {
+      '@glyphx/business': {
+        validateSession: validateSessionStub,
+        Initializer: initializerStub,
+      },
+      'lib/server/workspaces': {
+        getPendingInvitations: getPendingInvitationsStub,
       },
     });
   });
@@ -1514,6 +1613,25 @@ describe('WORKSPACE ROUTES', () => {
       });
     });
 
+    describe('Already Inited', () => {
+      it('should return 401 for invalid session', async () => {
+        initializerStub.inititedField = true;
+        validateSessionStub.resolves('invalid session');
+
+        await testApiHandler({
+          handler: acceptInvitationRoute,
+          url: '/api/workspace/team/accept',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericGet);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(acceptInvitationStub.calledOnce);
+            assert.strictEqual(res.status, 401);
+          },
+        });
+      });
+    });
+
     describe('Authentication', () => {
       it('should return 401 for invalid session', async () => {
         initializerStub.init.resolves();
@@ -2020,6 +2138,212 @@ describe('WORKSPACE ROUTES', () => {
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isFalse(updateRoleStub.calledOnce);
             assert.strictEqual(res.headers.get('allow'), 'PUT');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'POST method unsupported');
+          },
+        });
+      });
+    });
+  });
+  context('/api/workspaces', async function () {
+    describe('GET WORKSPACES handler', () => {
+      it('should get all workspaces', async function () {
+        mockWorkspaceService.getWorkspaces.resolves(MOCK_WORKSPACES);
+
+        await testApiHandler({
+          handler: getWorkspacesRouteWrapper,
+          url: '/api/workspaces',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericGet);
+            assert.strictEqual(res.status, 200);
+          },
+        });
+      });
+    });
+
+    describe('Authentication', () => {
+      it('should return 401 for invalid session', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves('invalid session');
+
+        await testApiHandler({
+          handler: getWorkspacesRoute,
+          url: '/api/workspaces',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericGet);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getWorkspacesStub.calledOnce);
+            assert.strictEqual(res.status, 401);
+          },
+        });
+      });
+    });
+
+    describe('Unsupported Methods', () => {
+      it('should return 405 for unsupported method DELETE', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: getWorkspacesRoute,
+          url: '/api/workspaces',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericDelete);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getWorkspacesStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'GET');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'DELETE method unsupported');
+          },
+        });
+      });
+
+      it('should return 405 for unsupported method PUT', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: getWorkspacesRoute,
+          url: '/api/workspaces',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericPut);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getWorkspacesStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'GET');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'PUT method unsupported');
+          },
+        });
+      });
+
+      it('should return 405 for unsupported method POST', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: getWorkspacesRoute,
+          url: '/api/workspaces',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericPost);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getWorkspacesStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'GET');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'POST method unsupported');
+          },
+        });
+      });
+    });
+  });
+  context('/api/workspaces/invitations', async function () {
+    describe('GET WORKSPACE INVITATIONS handler', () => {
+      it('should get all workspace invitations', async function () {
+        mockMembershipService.getPendingInvitations.resolves(MOCK_MEMBERS);
+
+        await testApiHandler({
+          handler: getPendingInvitationsRouteWrapper,
+          url: '/api/workspaces/invitations',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericGet);
+            assert.strictEqual(res.status, 200);
+          },
+        });
+      });
+    });
+
+    describe('Authentication', () => {
+      it('should return 401 for invalid session', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves('invalid session');
+
+        await testApiHandler({
+          handler: getPendingInvitationsRoute,
+          url: '/api/workspaces/invitations',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericGet);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getPendingInvitationsStub.calledOnce);
+            assert.strictEqual(res.status, 401);
+          },
+        });
+      });
+    });
+
+    describe('Unsupported Methods', () => {
+      it('should return 405 for unsupported method DELETE', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: getPendingInvitationsRoute,
+          url: '/api/workspaces/invitations',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericDelete);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getPendingInvitationsStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'GET');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'DELETE method unsupported');
+          },
+        });
+      });
+
+      it('should return 405 for unsupported method PUT', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: getPendingInvitationsRoute,
+          url: '/api/workspaces/invitations',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericPut);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getPendingInvitationsStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'GET');
+            assert.strictEqual(res.status, 405);
+            assert.strictEqual(res.statusText, 'Method Not Allowed');
+
+            const data = await res.json();
+            assert.strictEqual(data.error, 'PUT method unsupported');
+          },
+        });
+      });
+
+      it('should return 405 for unsupported method POST', async () => {
+        initializerStub.init.resolves();
+        validateSessionStub.resolves(MOCK_SESSION);
+
+        await testApiHandler({
+          handler: getPendingInvitationsRoute,
+          url: '/api/workspaces/invitations',
+          test: async ({ fetch }) => {
+            const res = await fetch(genericPost);
+            assert.isTrue(initializerStub.init.calledOnce);
+            assert.isTrue(validateSessionStub.calledOnce);
+            assert.isFalse(getPendingInvitationsStub.calledOnce);
+            assert.strictEqual(res.headers.get('allow'), 'GET');
             assert.strictEqual(res.status, 405);
             assert.strictEqual(res.statusText, 'Method Not Allowed');
 

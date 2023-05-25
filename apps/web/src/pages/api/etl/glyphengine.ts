@@ -1,8 +1,8 @@
 import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
-import { Initializer, validateSession } from '@glyphx/business';
-import { createModel } from 'lib/server';
+import { validateSession } from '@glyphx/business';
+import { glyphEngine } from 'lib/server/etl/glyphEngine';
 
 /**
  * Implements controller of browser based FILE OPERATIONS
@@ -12,21 +12,16 @@ import { createModel } from 'lib/server';
  * @returns {Promise<void | NextApiResponse>}
  */
 
-export default async function glyphengine(req: NextApiRequest, res: NextApiResponse) {
-  // initialize the glyphengine layer
-  // if (!Initializer.initedField) {
-  // await Initializer.init();
-  // }
+export default async function engine(req: NextApiRequest, res: NextApiResponse) {
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  if (!session?.user?.userId) return res.status(401).end();
 
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
-      // return addFile(req, res, session);
-      return await createModel(req, res, session);
+      return await glyphEngine(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
+      return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 }

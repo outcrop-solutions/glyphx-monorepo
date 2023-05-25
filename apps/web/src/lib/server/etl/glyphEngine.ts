@@ -1,12 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { generalPurposeFunctions } from '@glyphx/core';
 import { Session } from 'next-auth';
-import dayjs from 'dayjs';
 import { GlyphEngine } from '@glyphx/glyphengine';
 import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
 import { processTrackingService, activityLogService, projectService, stateService } from '@glyphx/business';
-import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { formatUserAgent } from 'lib/utils';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { formatUserAgent } from 'lib/utils/formatUserAgent';
 import { generateFilterQuery } from 'lib/client/helpers';
 import { isValidPayload } from 'lib/utils/isValidPayload';
 /**
@@ -69,7 +68,7 @@ import { isValidPayload } from 'lib/utils/isValidPayload';
 //   },
 // });
 
-export const createModel = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { project, isFilter, payloadHash } = req.body;
 
   if (!isValidPayload(project.state.properties)) {
@@ -81,10 +80,7 @@ export const createModel = async (req: NextApiRequest, res: NextApiResponse, ses
     const payload = {
       model_id: project._id,
       payload_hash: payloadHash,
-      // model_id: `642ae3b1c976ba8cc7ac445e`,
       client_id: project.workspace._id,
-      // client_id: 'testclientid02d78bf6f54f485f81295ec510841742',
-      // filter: filter,
       x_axis: properties[webTypes.constants.AXIS.X]['key'],
       y_axis: properties[webTypes.constants.AXIS.Y]['key'],
       z_axis: properties[webTypes.constants.AXIS.Z]['key'],
