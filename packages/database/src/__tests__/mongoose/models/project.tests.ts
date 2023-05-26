@@ -25,11 +25,12 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   type: {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IProjectType,
-  owner: {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
   state: {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IState,
   files: [],
+  members: [],
+  stateHistory: [],
   viewName: 'testView',
 };
 
@@ -118,8 +119,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOwner',
-        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
+        'validateMembers',
+        sandbox.stub().resolves(MOCK_PROJECT.members)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -146,8 +147,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOwner',
-        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
+        'validateMembers',
+        sandbox.stub().resolves(MOCK_PROJECT.members)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -195,8 +196,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOwner',
-        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
+        'validateMembers',
+        sandbox.stub().resolves(MOCK_PROJECT.members)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -227,8 +228,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOwner',
-        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
+        'validateMembers',
+        sandbox.stub().resolves(MOCK_PROJECT.members)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -259,8 +260,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOwner',
-        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
+        'validateMembers',
+        sandbox.stub().resolves(MOCK_PROJECT.members)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -287,8 +288,8 @@ describe('#mongoose/models/project', () => {
       );
       sandbox.replace(
         ProjectModel,
-        'validateOwner',
-        sandbox.stub().resolves(MOCK_PROJECT.owner._id)
+        'validateMembers',
+        sandbox.stub().resolves(MOCK_PROJECT.members)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -936,6 +937,8 @@ describe('#mongoose/models/project', () => {
       sdtPath: 'testsdtpath',
       slug: 'test slug',
       isTemplate: false,
+      stateHistory: [],
+      members: [],
       files: [],
       __v: 1,
       owner: {
@@ -979,7 +982,6 @@ describe('#mongoose/models/project', () => {
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.owner as any).__v);
       assert.isUndefined((doc.type as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
@@ -1076,57 +1078,6 @@ describe('#mongoose/models/project', () => {
     });
   });
 
-  context('validateOwner', () => {
-    const sandbox = createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it('will validate the user', async () => {
-      const userId = new mongoose.Types.ObjectId();
-
-      const idExistsStub = sandbox.stub();
-      idExistsStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', idExistsStub);
-
-      const result = await ProjectModel.validateOwner(userId);
-
-      assert.strictEqual(result.toString(), userId.toString());
-      assert.isTrue(idExistsStub.calledOnce);
-    });
-
-    it('will validate the user passing the user as an IUser', async () => {
-      const userId = new mongoose.Types.ObjectId();
-
-      const idExistsStub = sandbox.stub();
-      idExistsStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', idExistsStub);
-
-      const result = await ProjectModel.validateOwner({
-        _id: userId,
-      } as unknown as databaseTypes.IUser);
-
-      assert.strictEqual(result.toString(), userId.toString());
-      assert.isTrue(idExistsStub.calledOnce);
-    });
-    it('will throw an invalidArgumentError when the user does not exist', async () => {
-      const userId = new mongoose.Types.ObjectId();
-
-      const idExistsStub = sandbox.stub();
-      idExistsStub.resolves(false);
-      sandbox.replace(UserModel, 'userIdExists', idExistsStub);
-      let errored = false;
-      try {
-        await ProjectModel.validateOwner(userId);
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidArgumentError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-  });
-
   context('validateWorkspace', () => {
     const sandbox = createSandbox();
 
@@ -1210,6 +1161,8 @@ describe('#mongoose/models/project', () => {
         slug: 'test slug',
         isTemplate: false,
         files: [],
+        stateHistory: [],
+        members: [],
         __v: 1,
         owner: {
           _id: new mongoose.Types.ObjectId(),
@@ -1244,6 +1197,8 @@ describe('#mongoose/models/project', () => {
         slug: 'test slug2',
         isTemplate: false,
         files: [],
+        stateHistory: [],
+        members: [],
         __v: 1,
         owner: {
           _id: new mongoose.Types.ObjectId(),
@@ -1298,7 +1253,6 @@ describe('#mongoose/models/project', () => {
         assert.isUndefined((doc as any).__v);
         assert.isUndefined((doc.type as any).__v);
         assert.isUndefined((doc.workspace as any).__v);
-        assert.isUndefined((doc.owner as any).__v);
       });
     });
 

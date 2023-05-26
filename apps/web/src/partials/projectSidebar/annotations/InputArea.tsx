@@ -43,7 +43,7 @@ export const InputArea = ({ id, type }) => {
           </div>
         </div>
 
-        <div className="absolute bottom-0 right-auto flex justify-between py-2 pl-3 pr-2">
+        <div className="absolute inset-x-0 bottom-0 right-auto flex justify-between py-2 pl-3 pr-2">
           <div className="flex-shrink-0">
             <button
               onClick={createAnnotation}

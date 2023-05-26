@@ -4,7 +4,6 @@ import {IWorkspace} from './iWorkspace';
 import {IProjectType} from './iProjectType';
 import {IState} from './iState';
 import {IMember} from './iMember';
-import {IAnnotation} from './iAnnotation';
 
 export interface IProject {
   _id?: mongooseTypes.ObjectId;
