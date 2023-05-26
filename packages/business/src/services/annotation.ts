@@ -70,7 +70,7 @@ export class AnnotationService {
     }
   }
 
-  public static async createAnnotation({
+  public static async createStateAnnotation({
     authorId,
     stateId,
     value,
@@ -112,6 +112,55 @@ export class AnnotationService {
           'annotation',
           'createAnnotation',
           {authorId, stateId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+  public static async createProjectAnnotation({
+    authorId,
+    projectId,
+    value,
+  }: {
+    authorId: mongooseTypes.ObjectId | string;
+    projectId: mongooseTypes.ObjectId | string;
+    value: string;
+  }): Promise<databaseTypes.IAnnotation | null> {
+    try {
+      const authorCastId =
+        authorId instanceof mongooseTypes.ObjectId
+          ? authorId
+          : new mongooseTypes.ObjectId(authorId);
+      const projectCastId =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+
+      const input = {
+        author: authorCastId,
+        projectId: projectCastId,
+        value: value,
+      };
+
+      const annotation =
+        await mongoDbConnection.models.AnnotationModel.createAnnotation(input);
+      return annotation;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidOperationError ||
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.DataValidationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while creating thea activity Annotation. See the inner error for additional details',
+          'annotation',
+          'createAnnotation',
+          {authorId, projectId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

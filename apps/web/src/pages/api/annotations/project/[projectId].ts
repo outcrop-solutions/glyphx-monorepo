@@ -1,9 +1,9 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { getStateAnnotations } from 'lib/server/annotation';
+import { getProjectAnnotations, createProjectAnnotation } from 'lib/server/annotation';
 
-const stateAnnotations = async (req, res) => {
+const projectAnnotations = async (req, res) => {
   // initialize the business layer
   if (!Initializer.initedField) {
     await Initializer.init();
@@ -16,11 +16,13 @@ const stateAnnotations = async (req, res) => {
   // execute the appropriate handler
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.GET:
-      return getStateAnnotations(req, res);
+      return getProjectAnnotations(req, res);
+    case webTypes.constants.HTTP_METHOD.POST:
+      return createProjectAnnotation(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.GET]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.GET, webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).json({ error: `${req.method} method unsupported` });
   }
 };
 
-export default stateAnnotations;
+export default projectAnnotations;

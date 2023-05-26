@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { annotationService } from '@glyphx/business';
+import { Session } from 'next-auth';
 /**
  * Get Project Annotations
  *
@@ -41,6 +42,38 @@ export const getStateAnnotations = async (req: NextApiRequest, res: NextApiRespo
   try {
     const annotations = await annotationService.getStateAnnotations(stateId);
     res.status(200).json({ data: annotations });
+  } catch (error) {
+    res.status(404).json({ errors: { error: { msg: error.message } } });
+  }
+};
+
+export const createProjectAnnotation = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+  const { projectId } = req.query;
+  const { value } = req.body;
+  if (Array.isArray(projectId)) {
+    return res.status(400).end('Bad request. Parameter cannot be an array.');
+  }
+  try {
+    const annotation = await annotationService.createProjectAnnotation({
+      authorId: session.user.userId,
+      projectId,
+      value,
+    });
+    res.status(200).json({ data: annotation });
+  } catch (error) {
+    res.status(404).json({ errors: { error: { msg: error.message } } });
+  }
+};
+
+export const createStateAnnotation = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+  const { stateId } = req.query;
+  const { value } = req.body;
+  if (Array.isArray(stateId)) {
+    return res.status(400).end('Bad request. Parameter cannot be an array.');
+  }
+  try {
+    const annotation = await annotationService.createStateAnnotation({ authorId: session.user.userId, stateId, value });
+    res.status(200).json({ data: annotation });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
   }

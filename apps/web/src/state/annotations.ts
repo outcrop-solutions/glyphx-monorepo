@@ -11,12 +11,12 @@ export const annotationResourceIdSelector = selector<{
   key: 'annotationIdSelector',
   get: ({ get }) => {
     const activeStateIndex = get(activeStateAtom);
-    const stateId = get(stateSelector)?._id;
-    const projectId = get(projectAtom)?._id;
-    if (activeStateIndex !== -1) {
-      return { type: databaseTypes.constants.ANNOTATION_TYPE.PROJECT, id: projectId };
+    const state = get(stateSelector);
+    const project = get(projectAtom);
+    if (activeStateIndex === -1) {
+      return { type: databaseTypes.constants.ANNOTATION_TYPE.PROJECT, id: project?._id };
     } else {
-      return { type: databaseTypes.constants.ANNOTATION_TYPE.STATE, id: stateId };
+      return { type: databaseTypes.constants.ANNOTATION_TYPE.STATE, id: state?._id };
     }
   },
 });
