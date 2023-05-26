@@ -14,3 +14,4 @@ export type {IWorkspace} from './iWorkspace';
 export type {IProcessTracking} from './iProcessTracking';
 export type {IActivityLog} from './iActivityLog';
 export type {IUserAgent} from './iUserAgent';
+export type {IAnnotation} from './iAnnotation';
