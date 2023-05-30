@@ -56,12 +56,13 @@ export class NumberFieldChecker
    * See the interface IFieldChecker for more information. {@link interfaces/fieldProcessing/iFieldChecker!IFieldChecker.checkField | IFieldChecker.checkField}
    */
   public checkField(input: string): boolean {
+    const trimmed = input.trim();
     //eslint-disable-next-line no-useless-escape
     const regex =
       //eslint-disable-next-line no-useless-escape
       /^[\-\+]?([0-9]{1,3},([0-9]{3},)*[0-9]{3}|[0-9]+)(\.([0-9]*))?$/;
 
-    const retval = regex.test(input);
+    const retval = regex.test(trimmed);
     return retval;
   }
   /**
