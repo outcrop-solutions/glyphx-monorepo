@@ -140,7 +140,6 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
         updatedProject._id,
         session.user.userId
       );
-      await projectService.addStates(updatedProject._id, [state]);
 
       const { agentData, location } = formatUserAgent(req);
       await activityLogService.createLog({

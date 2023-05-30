@@ -4,13 +4,14 @@ import {UserModel} from '../../../mongoose/models/user';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
-import mongoose from 'mongoose';
+import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 
 const MOCK_MEMBER: databaseTypes.IMember = {
   email: 'jamesmurdockgraham@gmail.com',
   inviter: 'jp@glyphx.co',
   createdAt: new Date(),
+  type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
   updatedAt: new Date(),
   joinedAt: new Date(),
   invitedAt: new Date(),
@@ -25,6 +26,7 @@ const MOCK_NULLISH_MEMBER = {
   email: 'jamesmurdockgraham@gmail.com',
   inviter: 'jp@glyphx.co',
   createdAt: new Date(),
+  type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
   updatedAt: new Date(),
   joinedAt: new Date(),
   invitedAt: new Date(),
@@ -38,6 +40,7 @@ const MOCK_NULLISH_MEMBER = {
 const MOCK_MEMBER_IDS = {
   email: 'jamesmurdockgraham@gmail.com',
   inviter: 'jp@glyphx.co',
+  type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
   createdAt: new Date(),
   updatedAt: new Date(),
   joinedAt: new Date(),
@@ -96,7 +99,7 @@ describe('#mongoose/models/member', () => {
     });
   });
 
-  context('memberEmailExists', () => {
+  context('memberExists', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -105,35 +108,50 @@ describe('#mongoose/models/member', () => {
 
     it('should return true if the member email exists', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
+      const projectId = new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves({email: memberEmail});
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
 
-      const result = await MemberModel.memberEmailExists(memberEmail);
+      const result = await MemberModel.memberExists(
+        memberEmail,
+        databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projectId
+      );
 
       assert.isTrue(result);
     });
 
     it('should return false if the member email does not exist', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
+      const projectId = new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves(null);
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
 
-      const result = await MemberModel.memberEmailExists(memberEmail);
+      const result = await MemberModel.memberExists(
+        memberEmail,
+        databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projectId
+      );
 
       assert.isFalse(result);
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
+      const projectId = new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.rejects('something unexpected has happend');
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
 
       let errorred = false;
       try {
-        await MemberModel.memberEmailExists(memberEmail);
+        await MemberModel.memberExists(
+          memberEmail,
+          databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+          projectId
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -142,7 +160,7 @@ describe('#mongoose/models/member', () => {
     });
   });
 
-  context('createMember', () => {
+  context('createWorkspaceMember', () => {
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -160,7 +178,7 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
 
@@ -176,7 +194,7 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
 
-      const result = await MemberModel.createMember(MOCK_MEMBER);
+      const result = await MemberModel.createWorkspaceMember(MOCK_MEMBER);
       assert.strictEqual(result._id, memberId);
       assert.isTrue(getMemberByIdStub.calledOnce);
     });
@@ -192,7 +210,7 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
 
@@ -218,7 +236,9 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
 
-      const result = await MemberModel.createMember(MOCK_NULLISH_MEMBER);
+      const result = await MemberModel.createWorkspaceMember(
+        MOCK_NULLISH_MEMBER
+      );
       assert.strictEqual(result._id, memberId);
       assert.strictEqual(
         result.status,
@@ -239,7 +259,7 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
 
@@ -261,7 +281,7 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
 
-      const result = await MemberModel.createMember(MOCK_MEMBER_IDS);
+      const result = await MemberModel.createWorkspaceMember(MOCK_MEMBER_IDS);
       assert.strictEqual(result._id, memberId);
       assert.isTrue(getMemberByIdStub.calledOnce);
     });
@@ -281,7 +301,7 @@ describe('#mongoose/models/member', () => {
       );
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -298,7 +318,7 @@ describe('#mongoose/models/member', () => {
       let errorred = false;
 
       try {
-        await MemberModel.createMember(MOCK_MEMBER);
+        await MemberModel.createWorkspaceMember(MOCK_MEMBER);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -320,7 +340,7 @@ describe('#mongoose/models/member', () => {
       );
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -337,7 +357,7 @@ describe('#mongoose/models/member', () => {
       let errorred = false;
 
       try {
-        await MemberModel.createMember(MOCK_MEMBER);
+        await MemberModel.createWorkspaceMember(MOCK_MEMBER);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -358,7 +378,7 @@ describe('#mongoose/models/member', () => {
       );
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(true)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -375,7 +395,7 @@ describe('#mongoose/models/member', () => {
       let errorred = false;
 
       try {
-        await MemberModel.createMember(MOCK_MEMBER);
+        await MemberModel.createWorkspaceMember(MOCK_MEMBER);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -394,7 +414,7 @@ describe('#mongoose/models/member', () => {
       );
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -411,7 +431,7 @@ describe('#mongoose/models/member', () => {
       let errorred = false;
 
       try {
-        await MemberModel.createMember(MOCK_MEMBER);
+        await MemberModel.createWorkspaceMember(MOCK_MEMBER);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -429,7 +449,7 @@ describe('#mongoose/models/member', () => {
       );
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
       sandbox.replace(
@@ -450,7 +470,7 @@ describe('#mongoose/models/member', () => {
       let errorred = false;
 
       try {
-        await MemberModel.createMember(MOCK_MEMBER);
+        await MemberModel.createWorkspaceMember(MOCK_MEMBER);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -468,7 +488,7 @@ describe('#mongoose/models/member', () => {
       );
       sandbox.replace(
         MemberModel,
-        'memberEmailExists',
+        'memberExists',
         sandbox.stub().resolves(false)
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -481,7 +501,7 @@ describe('#mongoose/models/member', () => {
       let errorred = false;
 
       try {
-        await MemberModel.createMember(MOCK_MEMBER);
+        await MemberModel.createWorkspaceMember(MOCK_MEMBER);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -977,6 +997,7 @@ describe('#mongoose/models/member', () => {
     const mockMember: databaseTypes.IMember = {
       _id: new mongoose.Types.ObjectId(),
       email: 'james@glyphx.co',
+      type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
       inviter: 'jg@glyphx.co',
       invitedAt: new Date(),
       joinedAt: new Date(),

@@ -1,10 +1,10 @@
 import useProjectLogs from 'lib/client/hooks/useProjectLogs';
 import React from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { rightSidebarControlAtom } from 'state';
 
 export const ActivityLog = () => {
-  const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
+  const sidebarControl = useRecoilValue(rightSidebarControlAtom);
   const { isLoading, data } = useProjectLogs(sidebarControl.data._id);
 
   return (

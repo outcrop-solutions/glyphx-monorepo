@@ -10,6 +10,12 @@ export type {IActivityLogDocument} from './iActivityLogDocument';
 export type {IActivityLogMethods} from './iActivityLogMethods';
 export type {IActivityLogStaticMethods} from './iActivityLogStaticMethods';
 
+// Annotations
+export type {IAnnotationCreateInput} from './iAnnotationCreateInput';
+export type {IAnnotationDocument} from './iAnnotationDocument';
+export type {IAnnotationMethods} from './iAnnotationMethods';
+export type {IAnnotationStaticMethods} from './iAnnotationStaticMethods';
+
 // CustomerPayment
 export type {ICustomerPaymentCreateInput} from './iCustomerPaymentCreateInput';
 export type {ICustomerPaymentDocument} from './iCustomerPaymentDocument';
