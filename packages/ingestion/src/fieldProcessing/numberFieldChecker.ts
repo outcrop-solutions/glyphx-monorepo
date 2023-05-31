@@ -55,8 +55,8 @@ export class NumberFieldChecker
   /**
    * See the interface IFieldChecker for more information. {@link interfaces/fieldProcessing/iFieldChecker!IFieldChecker.checkField | IFieldChecker.checkField}
    */
-  public checkField(input: string): boolean {
-    const trimmed = input.trim();
+  public checkField(input: string, cleanString = true): boolean {
+    const trimmed = cleanString ? this.cleanStringForProcessing(input) : input;
     //eslint-disable-next-line no-useless-escape
     const regex =
       //eslint-disable-next-line no-useless-escape
@@ -70,7 +70,7 @@ export class NumberFieldChecker
    */
   public convertField(input: string): number {
     let tempString = this.cleanStringForProcessing(input);
-    if (!this.checkField(tempString)) {
+    if (!this.checkField(tempString, false)) {
       throw new error.InvalidArgumentError(
         `The input value of : ${input} is not a number`,
         'input',
