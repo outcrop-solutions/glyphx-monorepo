@@ -6,6 +6,8 @@ const path = require('path');
 function interceptStdout(text) {
   if (text.includes('Duplicate atom key')) {
     return '';
+  } else if (text.includes('Critical dependency: the request of a dependency is an expression')) {
+    return '';
   }
   return text;
 }

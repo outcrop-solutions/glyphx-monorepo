@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
 import { aws } from '@glyphx/core';
 import { S3_BUCKET_NAME } from 'config/constants';
 import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
@@ -13,16 +14,30 @@ import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
  */
 
 export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { workspaceId, projectId, keys } = req.body;
+  const { keys, workspaceId, projectId } = req.body;
+
+  if (Array.isArray(workspaceId) || Array.isArray(projectId)) {
+    return res.status(400).end('Bad request. Parameter cannot be an array.');
+  }
+
   try {
-    // init S3 client
+    const urls = (keys as string[]).map((key) => {
+      const tableName = key.split('/')[0];
+      const fileNamWithoutExt = key.split('/')[1].split('.')[0];
+
+      const cleaner = new BasicColumnNameCleaner();
+      const cleanTableName = cleaner.cleanColumnName(tableName);
+      const cleanFileName = cleaner.cleanColumnName(fileNamWithoutExt);
+
+      console.log({ key: `client/${workspaceId}/${projectId}/input/${cleanTableName}/${cleanFileName}.csv` });
+      return `client/${workspaceId}/${projectId}/input/${cleanTableName}/${cleanFileName}.csv`;
+    });
+
+    // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
     if (!s3Manager.inited) {
       await s3Manager.init();
     }
-
-    const urls = keys.map((key) => `client/${workspaceId}/${projectId}/input/${key}`);
-
     // Create an array of promises
     const promises = urls.map((url) => s3Manager.getSignedUploadUrlPromise(url));
 

@@ -24,21 +24,14 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
 /**
  * @note could potentially be changed to multi-part upload in api Content-Type
  * @param acceptedFile
- * @param key
- * @param workspaceId
- * @param projectId
+ * @param url
  * @returns
  */
-export const _uploadFile = (
-  acceptedFile: ArrayBuffer,
-  key: string,
-  workspaceId: string,
-  projectId: string
-): webTypes.IFetchConfig => {
+export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IFetchConfig => {
   return {
-    url: `/api/etl/upload?workspaceId=${workspaceId}&projectId=${projectId}&key=${key}`,
+    url: url,
     options: {
-      method: 'POST',
+      method: 'PUT',
       body: acceptedFile,
     },
     successMsg: 'File successfully uploaded',
