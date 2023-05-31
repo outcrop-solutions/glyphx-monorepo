@@ -10,8 +10,9 @@ import { uploadFile } from 'lib/server/etl/uploadFile';
  */
 export const config = {
   api: {
-    bodyParser: false,
-    externalResolver: true,
+    bodyParser: {
+      sizeLimit: '1gb',
+    },
   },
 };
 

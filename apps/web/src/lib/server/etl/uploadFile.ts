@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
 import { aws } from '@glyphx/core';
 import { S3_BUCKET_NAME } from 'config/constants';
-import { PassThrough } from 'stream';
+import stream, { PassThrough } from 'stream';
 
 /**
  * Upload Files
@@ -17,6 +17,7 @@ import { PassThrough } from 'stream';
  */
 
 export const uploadFile = async (req: NextApiRequest, res: NextApiResponse) => {
+  console.log({ UPLOAD: true });
   try {
     // key = tableName/fileName (dirty)
     // where tableName is just filesName with whitespace trimmed and no file extension
@@ -45,7 +46,9 @@ export const uploadFile = async (req: NextApiRequest, res: NextApiResponse) => {
     }
     const pStream = new PassThrough();
     const upload = s3Manager.getUploadStream(fullKey, pStream, 'text/csv');
-    req.pipe(pStream);
+    const readableStream = stream.Readable.from(req.body, { encoding: 'utf8' });
+    // Pipe the readable stream into pStream
+    readableStream.pipe(pStream);
 
     await upload.done();
 
