@@ -4,6 +4,11 @@ import { aws } from '@glyphx/core';
 import { S3_BUCKET_NAME } from 'config/constants';
 import { PassThrough } from 'stream';
 
+export const config = {
+  api: {
+    responseLimit: '1024mb',
+  },
+};
 /**
  * Upload Files
  *
