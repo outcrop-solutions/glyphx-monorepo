@@ -13,9 +13,13 @@ function interceptStdout(text) {
 // Intercept in dev and prod
 intercept(interceptStdout);
 
+/** @type {import('next').NextConfig} */
 module.exports = withTM({
   reactStrictMode: true,
   swcMinify: true,
+  serverRuntimeConfig: {
+    maxPayloadSize: 1024 * 1024 * 1024,
+  },
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
