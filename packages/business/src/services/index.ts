@@ -8,3 +8,4 @@ export {ProcessTrackingService as processTrackingService} from './processTrackin
 export {DataService as dataService} from './data';
 export {StateService as stateService} from './state';
 export {ActivityLogService as activityLogService} from './activityLog';
+export {AnnotationService as annotationService} from './annotation';

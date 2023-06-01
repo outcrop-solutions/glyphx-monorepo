@@ -25,8 +25,8 @@ export const useSocket = () => {
         webChannel = new QWebChannel(ws, function (channel) {
           window.core = channel.objects.core; // making it global
           window.core.SendRowIds.connect((rowIds: string) => {
-            // @ts-ignore
-            setRowIds([...JSON.parse(rowIds)?.rowIds]);
+            const ids = JSON.parse(rowIds)?.rowIds;
+            setRowIds(ids.length === 0 ? false : [...ids]);
           });
           window.core.SendCameraPosition.connect((json: string) => {
             const jsonCamera = `{${json}}`;

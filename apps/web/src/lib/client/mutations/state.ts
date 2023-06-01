@@ -1,6 +1,31 @@
-import { web as webTypes } from '@glyphx/types';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 
 // STATE MUTATIONS
+
+export const _createAnnotation = ({
+  id,
+  type,
+  value,
+}: {
+  id: string;
+  type: databaseTypes.constants.ANNOTATION_TYPE;
+  value: string;
+}) => {
+  console.log({ id, type, value });
+  return {
+    url:
+      type === databaseTypes.constants.ANNOTATION_TYPE.PROJECT
+        ? `/api/annotations/project/${id}`
+        : `/api/annotations/state/${id}`,
+    options: {
+      body: {
+        value,
+      },
+      method: 'POST',
+    },
+    successMsg: 'Annotation created!',
+  };
+};
 
 /**
  * Creates a new state
