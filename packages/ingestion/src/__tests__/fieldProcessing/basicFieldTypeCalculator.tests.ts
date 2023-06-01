@@ -114,6 +114,65 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
         done();
       });
     });
+
+    it('will process a stream of dates', done => {
+      const rStream = new Stream.Readable();
+      const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 1);
+
+      fieldCalculator.processItems(rStream);
+
+      for (let i = 0; i < 10000; i++) {
+        rStream.push(new Date().toISOString());
+      }
+
+      rStream.push(null);
+
+      //this is a new pattern for us.  Notice above that the second argument
+      //of it is taking the parameter done. This allows us to control when done
+      //is called.  So now we can wait for our stream to complete and we can
+      //evaluate the results of our BasicFieldTypeCalculator.
+      rStream.once('end', () => {
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.DATE
+        );
+        assert.isTrue(fieldCalculator.allItemsProcessed);
+        assert.strictEqual(fieldCalculator.numberPassed, 10000);
+        assert.strictEqual(fieldCalculator.samplesAnalyzed, 10000);
+        assert.strictEqual(fieldCalculator.fieldName, 'field1');
+        assert.strictEqual(fieldCalculator.fieldIndex, 1);
+        assert.strictEqual(fieldCalculator['numberOfStrings'], 0);
+        assert.strictEqual(fieldCalculator['numberOfDates'], 10000);
+        done();
+      });
+    });
+
+    it('will process a stream of dates and strings more strings', done => {
+      const rStream = new Stream.Readable();
+      const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 1);
+
+      fieldCalculator.processItems(rStream);
+
+      for (let i = 0; i < 10000; i++) {
+        if (i % 2) rStream.push(new Date().toISOString());
+        else rStream.push(`value${1}`);
+      }
+
+      rStream.push('value10001');
+      rStream.push(null);
+
+      //this is a new pattern for us.  Notice above that the second argument
+      //of it is taking the parameter done. This allows us to control when done
+      //is called.  So now we can wait for our stream to complete and we can
+      //evaluate the results of our BasicFieldTypeCalculator.
+      rStream.once('end', () => {
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.STRING
+        );
+        done();
+      });
+    });
     it('will process a stream of numbers and strings more strings', done => {
       const rStream = new Stream.Readable();
       const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 1);
@@ -145,10 +204,90 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 1);
 
       fieldCalculator.processItems(rStream);
-
-      for (let i = 0; i < 10000; i++) {
-        if (i % 2) rStream.push(`${i}`);
+      //The cutoff is .65% so we will need to add
+      for (let i = 0; i < 14286; i++) {
+        if (i % 2 || i >= 10000) rStream.push(`${i}`);
         else rStream.push(`value${1}`);
+      }
+
+      rStream.push('10001');
+      rStream.push(null);
+
+      //this is a new pattern for us.  Notice above that the second argument
+      //of it is taking the parameter done. This allows us to control when done
+      //is called.  So now we can wait for our stream to complete and we can
+      //evaluate the results of our BasicFieldTypeCalculator.
+      rStream.once('end', () => {
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.NUMBER
+        );
+        done();
+      });
+    });
+    it('will process a stream of dates and strings more dates', done => {
+      const rStream = new Stream.Readable();
+      const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 1);
+
+      fieldCalculator.processItems(rStream);
+      //The cutoff is .65% so we will need to add
+      for (let i = 0; i < 14286; i++) {
+        if (i % 2 || i >= 10000) rStream.push(new Date().toISOString());
+        else rStream.push(`value${1}`);
+      }
+
+      rStream.push(new Date().toISOString());
+      rStream.push(null);
+
+      //this is a new pattern for us.  Notice above that the second argument
+      //of it is taking the parameter done. This allows us to control when done
+      //is called.  So now we can wait for our stream to complete and we can
+      //evaluate the results of our BasicFieldTypeCalculator.
+      rStream.once('end', () => {
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.DATE
+        );
+        done();
+      });
+    });
+
+    it('will process a stream of dates and  numbers more dates', done => {
+      const rStream = new Stream.Readable();
+      const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 1);
+
+      fieldCalculator.processItems(rStream);
+      //The cutoff is .65% so we will need to add
+      for (let i = 0; i < 14286; i++) {
+        if (i % 2 || i >= 10000) rStream.push(new Date().toISOString());
+        else rStream.push(`${i}`);
+      }
+
+      rStream.push(new Date().toISOString());
+      rStream.push(null);
+
+      //this is a new pattern for us.  Notice above that the second argument
+      //of it is taking the parameter done. This allows us to control when done
+      //is called.  So now we can wait for our stream to complete and we can
+      //evaluate the results of our BasicFieldTypeCalculator.
+      rStream.once('end', () => {
+        assert.strictEqual(
+          fieldCalculator.fieldType,
+          fileIngestion.constants.FIELD_TYPE.DATE
+        );
+        done();
+      });
+    });
+
+    it('will process a stream of dates and  numbers more numbers', done => {
+      const rStream = new Stream.Readable();
+      const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 1);
+
+      fieldCalculator.processItems(rStream);
+      //The cutoff is .65% so we will need to add
+      for (let i = 0; i < 14286; i++) {
+        if (i % 2 || i >= 10000) rStream.push(`${i}`);
+        else rStream.push(new Date().toISOString());
       }
 
       rStream.push('10001');
@@ -191,6 +330,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
         done();
       });
     });
+
     it('will process a stream of strings strings with sample rate at .5', done => {
       const rStream = new Stream.Readable();
       const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 0.5);
@@ -303,6 +443,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
         done();
       });
     });
+
     it('will process a small stream of strings', done => {
       const rStream = new Stream.Readable();
       const fieldCalculator = new BasicFieldTypeCalculator('field1', 1, 0.5);

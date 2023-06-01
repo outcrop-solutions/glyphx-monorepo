@@ -3,6 +3,8 @@ import {error} from '@glyphx/core';
 import {NumberFieldChecker} from './numberFieldChecker';
 // eslint-disable-next-line node/no-unpublished-import
 import {fileIngestion} from '@glyphx/types';
+import {DateFieldChecker} from './dateFieldChecker';
+
 /**
  * The minumum number of samples to analyze before using the sample rate.
  * This value is also used to determing the frequency at which to publish intermediate results.
@@ -36,11 +38,16 @@ export class BasicFieldTypeCalculator
    * see {@link numberFieldChecker}
    */
   private numberOfNumbers: number;
+
+  private numberOfDates: number;
+
   /**
    * our NumberFieldChecker that will determine if our string can be represeted as
    * as number.
    */
   private numberFieldChecker: NumberFieldChecker;
+  private dateFieldChecker: DateFieldChecker;
+
   /**
    * See the interface IFieldTypeCalculator for more information --
    * {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator.fieldName | IFieldTypeCalculator.fieldName}
@@ -136,7 +143,9 @@ export class BasicFieldTypeCalculator
     this.allItemsProcessedField = false;
     this.numberOfStrings = 0;
     this.numberOfNumbers = 0;
+    this.numberOfDates = 0;
     this.numberFieldChecker = new NumberFieldChecker();
+    this.dateFieldChecker = new DateFieldChecker();
   }
 
   /**
@@ -146,12 +155,18 @@ export class BasicFieldTypeCalculator
    */
   private calculateFieldType(): void {
     const percentNumber =
-      this.numberOfNumbers / (this.numberOfNumbers + this.numberOfStrings);
+      this.numberOfNumbers /
+      (this.numberOfNumbers + this.numberOfStrings + this.numberOfDates);
 
+    const percentDate =
+      this.numberOfDates /
+      (this.numberOfDates + this.numberOfStrings + this.numberOfNumbers);
     this.fieldTypeField =
-      percentNumber < 0.65
+      percentNumber < 0.65 && percentDate < 0.65
         ? fileIngestion.constants.FIELD_TYPE.STRING
-        : fileIngestion.constants.FIELD_TYPE.NUMBER;
+        : percentNumber > percentDate
+        ? fileIngestion.constants.FIELD_TYPE.NUMBER
+        : fileIngestion.constants.FIELD_TYPE.DATE;
     this.hasProcessedItemsField = true;
   }
 
@@ -162,8 +177,11 @@ export class BasicFieldTypeCalculator
    */
   private validateField(value: string): void {
     this.samplesAnalyzedField++;
-    if (this.numberFieldChecker.checkField(value)) this.numberOfNumbers++;
-    else this.numberOfStrings++;
+    const isNumber = this.numberFieldChecker.checkField(value);
+    const isDate = this.dateFieldChecker.checkField(value);
+    if (isNumber) this.numberOfNumbers++;
+    if (isDate) this.numberOfDates++;
+    if (!isNumber && !isDate) this.numberOfStrings++;
 
     if (!(this.samplesAnalyzedField % MINIMUM_NUMBER_OF_SAMPLES))
       this.calculateFieldType();
