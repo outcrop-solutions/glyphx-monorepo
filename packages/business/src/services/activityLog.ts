@@ -50,11 +50,13 @@ export class ActivityLogService {
         logs =
           await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
             projectId: id,
+            onModel: {$ne: 'processTracking'},
           });
       } else {
         logs =
           await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
             workspaceId: id,
+            onModel: {$ne: 'processTracking'},
           });
       }
       return logs?.results;
