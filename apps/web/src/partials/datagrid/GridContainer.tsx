@@ -8,19 +8,21 @@ import { ModelFooter } from './ModelFooter';
 
 import { filesOpenSelector } from 'state/files';
 import { useResize } from 'services/useResize';
-import { splitPaneSizeAtom } from 'state';
+import { splitPaneSizeAtom, windowSizeAtom } from 'state';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
 
 export const GridContainer = () => {
   const { data } = useDataGrid();
   const openFiles = useRecoilValue(filesOpenSelector);
+  const { height } = useRecoilValue(windowSizeAtom);
   const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full border-r border-gray">
       <ModelFooter />
       <SplitPane
+        style={{ overflow: 'scroll', height: `${height && height - 60}px` }}
         key={resize}
         split={split()}
         allowResize={true}
@@ -30,10 +32,10 @@ export const GridContainer = () => {
         onChange={handlePaneResize}
         primary={'first'}
       >
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full h-full">
           {openFiles?.length > 0 ? (
             <>
-              <GridHeader />
+              <GridHeader data={data} />
               <Datagrid data={data} />
             </>
           ) : (
