@@ -11,7 +11,7 @@ export class ProcessTrackingService {
     processName: string,
     processStatus: databaseTypes.constants.PROCESS_STATUS = databaseTypes
       .constants.PROCESS_STATUS.PENDING
-  ): Promise<Pick<databaseTypes.IProcessTracking, 'processId'>> {
+  ): Promise<Pick<databaseTypes.IProcessTracking, '_id' | 'processId'>> {
     try {
       const processTrackingModel =
         mongoDbConnection.models.ProcessTrackingModel;
@@ -28,7 +28,7 @@ export class ProcessTrackingService {
           processTrackingDocument
         );
       const retval = createdDocument.processId;
-      return {processId: retval};
+      return {processId: retval, _id: createdDocument._id};
     } catch (err) {
       if (err instanceof error.DataValidationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);

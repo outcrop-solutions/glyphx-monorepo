@@ -96,7 +96,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     // Setup process tracking
     const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
     const PROCESS_NAME = 'testingProcessUnique';
-    await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
+    const { _id: processDocumentId } = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
     // Create file ingestor
     const fileIngestor = new FileIngestor(newPayload, ATHENA_DB_NAME, PROCESS_ID);
@@ -120,7 +120,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
 
     await activityLogService.createLog({
       actorId: session?.user?.userId,
-      resourceId: PROCESS_ID,
+      resourceId: processDocumentId,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
       location: location,
@@ -129,7 +129,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
       action: databaseTypes.constants.ACTION_TYPE.PROCESS_TRACKING,
     });
     //get the updated project
-    const project = await projectService.getProjectById(newPayload.modelId);
+    const project = await projectService.getProject(newPayload.modelId);
 
     // return file information & processID
     res.status(200).json({
