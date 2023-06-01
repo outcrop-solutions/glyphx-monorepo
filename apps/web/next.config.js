@@ -6,6 +6,8 @@ const path = require('path');
 function interceptStdout(text) {
   if (text.includes('Duplicate atom key')) {
     return '';
+  } else if (text.includes('Critical dependency: the request of a dependency is an expression')) {
+    return '';
   }
   return text;
 }
@@ -13,9 +15,13 @@ function interceptStdout(text) {
 // Intercept in dev and prod
 intercept(interceptStdout);
 
+/** @type {import('next').NextConfig} */
 module.exports = withTM({
   reactStrictMode: true,
   swcMinify: true,
+  serverRuntimeConfig: {
+    maxPayloadSize: 1024 * 1024 * 1024,
+  },
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
