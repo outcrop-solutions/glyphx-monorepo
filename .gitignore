@@ -53,3 +53,9 @@ Session.vim
 
 **/*.pnpm-debug.log
 .pnpm-debug.log
+
+#rust target directory
+target
+
+output.log
+
