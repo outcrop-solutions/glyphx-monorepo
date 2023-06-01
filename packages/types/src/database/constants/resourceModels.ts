@@ -6,4 +6,5 @@ export enum RESOURCE_MODEL {
   MEMBER = 'member',
   WEBHOOK = 'webhook',
   WORKSPACE = 'workspace',
+  PROCESS_TRACKING = 'processTracking',
 }

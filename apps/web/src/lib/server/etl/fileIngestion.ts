@@ -125,7 +125,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
       projectId: newPayload.modelId,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING,
       action: databaseTypes.constants.ACTION_TYPE.PROCESS_TRACKING,
     });
     //get the updated project
