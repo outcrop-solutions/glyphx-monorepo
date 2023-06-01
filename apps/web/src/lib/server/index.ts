@@ -10,3 +10,4 @@ export * from './workspaces';
 export * from './workspace';
 export * from './data';
 export * from './activity';
+export * from './annotation';

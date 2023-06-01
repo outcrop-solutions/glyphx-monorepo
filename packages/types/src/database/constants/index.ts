@@ -10,3 +10,4 @@ export {PROCESS_STATUS} from './processStatus';
 export {PROJECT_ROLE} from './projectRole';
 export {ACTION_TYPE} from './action';
 export {RESOURCE_MODEL} from './resourceModels';
+export {ANNOTATION_TYPE} from './annotationType';

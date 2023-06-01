@@ -6,9 +6,9 @@ import { Filters } from './filters';
 import { States } from './states';
 
 import { usePosition } from 'services/usePosition';
-import { useSendPosition } from 'services';
 import { useSetRecoilState } from 'recoil';
 import { leftCoordinatesAtom } from 'state';
+import { Annotations } from './annotations';
 
 export const ProjectSidebar = () => {
   //utilities
@@ -36,6 +36,7 @@ export const ProjectSidebar = () => {
         <Axes />
         <Filters />
         <States />
+        <Annotations />
       </div>
     </div>
   );

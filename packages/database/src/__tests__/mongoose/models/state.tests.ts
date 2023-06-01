@@ -16,6 +16,23 @@ const MOCK_STATE: databaseTypes.IState = {
   version: 0,
   static: false,
   fileSystemHash: 'hash this',
+  name: 'state',
+  payloadHash: 'hash this',
+  workspace: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IWorkspace,
+  camera: {
+    pos: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    dir: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+  },
   project: {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IProject,
@@ -23,7 +40,6 @@ const MOCK_STATE: databaseTypes.IState = {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IUser,
   fileSystem: [],
-  camera: 400,
   properties: {},
 };
 const MOCK_NULLISH_STATE = {
@@ -32,6 +48,23 @@ const MOCK_NULLISH_STATE = {
   version: 0,
   static: false,
   fileSystemHash: 'hash this',
+  name: 'state',
+  payloadHash: 'hash this',
+  workspace: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IWorkspace,
+  camera: {
+    pos: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    dir: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+  },
   project: {
     _id: new mongoose.Types.ObjectId(),
   } as databaseTypes.IProject,
@@ -39,7 +72,6 @@ const MOCK_NULLISH_STATE = {
     _id: new mongoose.Types.ObjectId(),
   } as databaseTypes.IUser,
   fileSystem: undefined,
-  camera: 400,
   properties: undefined,
 } as unknown as databaseTypes.IState;
 
@@ -52,7 +84,23 @@ const MOCK_STATE_IDS = {
   project: new mongoose.Types.ObjectId(),
   createdBy: new mongoose.Types.ObjectId(),
   fileSystem: [],
-  camera: 400,
+  name: 'state',
+  payloadHash: 'hash this',
+  workspace: {
+    _id: new mongoose.Types.ObjectId(),
+  } as unknown as databaseTypes.IWorkspace,
+  camera: {
+    pos: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    dir: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+  },
   properties: {},
 } as unknown as databaseTypes.IState;
 
@@ -592,6 +640,23 @@ describe('#mongoose/models/state', () => {
       version: 1,
       static: true,
       fileSystemHash: 'I am the hash',
+      name: 'state',
+      payloadHash: 'hash this',
+      workspace: {
+        _id: new mongoose.Types.ObjectId(),
+      } as unknown as databaseTypes.IWorkspace,
+      camera: {
+        pos: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+        dir: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      },
       fileSystem: [],
       __v: 1,
       project: {
@@ -604,7 +669,6 @@ describe('#mongoose/models/state', () => {
         name: 'test user',
         __v: 1,
       } as unknown as databaseTypes.IUser,
-      camera: 400,
       properties: {},
     } as databaseTypes.IState;
     const sandbox = createSandbox();
@@ -702,7 +766,23 @@ describe('#mongoose/models/state', () => {
           _id: new mongoose.Types.ObjectId(),
           __v: 1,
         } as unknown as databaseTypes.IUser,
-        camera: 400,
+        name: 'state',
+        payloadHash: 'hash this',
+        workspace: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IWorkspace,
+        camera: {
+          pos: {
+            x: 0,
+            y: 0,
+            z: 0,
+          },
+          dir: {
+            x: 0,
+            y: 0,
+            z: 0,
+          },
+        },
         properties: {},
       } as databaseTypes.IState,
       {
@@ -723,7 +803,23 @@ describe('#mongoose/models/state', () => {
           _id: new mongoose.Types.ObjectId(),
           __v: 1,
         } as unknown as databaseTypes.IUser,
-        camera: 400,
+        name: 'state',
+        payloadHash: 'hash this',
+        workspace: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IWorkspace,
+        camera: {
+          pos: {
+            x: 0,
+            y: 0,
+            z: 0,
+          },
+          dir: {
+            x: 0,
+            y: 0,
+            z: 0,
+          },
+        },
         properties: {},
       } as databaseTypes.IState,
     ];

@@ -20,6 +20,7 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IUser,
   members: [],
+  states: [],
   projects: [],
 };
 
