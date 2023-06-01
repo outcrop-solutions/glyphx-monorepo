@@ -411,7 +411,7 @@ export class WorkspaceService {
         await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
           deletedAt: undefined,
           // TODO: we need to change our database layer to be able to filter on one/many relations
-          creator: userId,
+          // creator: userId,
         });
       const filteredWorkspaces = workspaces.results.filter(
         space =>

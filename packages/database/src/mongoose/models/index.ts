@@ -12,3 +12,4 @@ export {StateModel} from './state';
 export {WebhookModel} from './webhook';
 export {ProcessTrackingModel} from './processTracking';
 export {ActivityLogModel} from './activityLog';
+export {AnnotationModel} from './annotation';
