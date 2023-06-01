@@ -20,12 +20,13 @@ export async function api({
   } else {
     requestBody = JSON.stringify(body);
   }
+  const header = upload ? { 'Content-Length': requestBody.size } : { 'Content-Type': 'application/json' };
 
   try {
     const res = await fetch(url, {
       body: requestBody,
       headers: {
-        'Content-Type': upload ? 'text/csv' : 'application/json',
+        ...header,
         ...headers,
       },
       ...opts,

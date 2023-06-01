@@ -171,16 +171,13 @@ export class S3Manager {
       Bucket: this.bucketName,
       Key: key,
       ContentType: '', // Set Content-Type header to empty string for unsigned body
-      ContentLength: 0,
     };
     const client = new S3Client({region: 'us-east-2'});
     const command = new PutObjectCommand(putObjectParams);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const url = await getSignedUrl(client, command, {
-      signableHeaders: new Set(['content-type', 'content-length']),
-    });
+    const url = await getSignedUrl(client, command);
     return url;
   }
 

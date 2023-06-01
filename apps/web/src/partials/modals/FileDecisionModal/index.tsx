@@ -3,7 +3,7 @@ import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { _deleteProject, _deleteWorkspace, _ingestFiles, _uploadFile, api } from 'lib';
+import { _deleteProject, _deleteWorkspace, _getSignedUploadUrls, _ingestFiles, _uploadFile, api } from 'lib';
 
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalsAtom, projectAtom } from 'state';
@@ -50,16 +50,16 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
     // get s3 keys for upload
     const keys = finalPayload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
+    const { signedUrls } = await api({
+      ..._getSignedUploadUrls(project.workspace._id.toString(), project._id.toString(), keys),
+      returnData: true,
+    });
+
     await Promise.all(
-      keys.map(async (key, idx) => {
+      signedUrls.map(async (url, idx) => {
         // upload raw file data to s3
         await api({
-          ..._uploadFile(
-            await cleanFiles[idx].arrayBuffer(),
-            key,
-            project.workspace._id.toString(),
-            project._id.toString()
-          ),
+          ..._uploadFile(await cleanFiles[idx].arrayBuffer(), url),
           upload: true,
         });
       })
