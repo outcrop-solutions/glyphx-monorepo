@@ -1,0 +1,15 @@
+{
+  "configurations": {
+    "unit tests": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_core-09d066bf73882b14",
+        "runInTerminal": true,
+        "preRunCommands": ["shell cargo test --no-run --package glyphx_core"]
+      }
+    }
+  }
+}
+
