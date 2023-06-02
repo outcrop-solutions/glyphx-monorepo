@@ -51,7 +51,7 @@ export const ModelFooter = () => {
       style={{
         position: 'fixed',
         left: `${viewer.x - (orientation === 'vertical' ? 0 : 5)}px`,
-        top: `${viewer.y}px`,
+        top: `${viewer.y - 44}px`,
         width: `${viewer.w + 5}px`,
       }}
       className={`z-60 h-[44px] ${

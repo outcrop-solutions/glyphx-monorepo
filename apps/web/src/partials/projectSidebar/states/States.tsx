@@ -26,7 +26,7 @@ export const States = () => {
   }, [project, setModals]);
 
   return (
-    <div className="group flex flex-col grow">
+    <div className="group flex flex-col grow relative">
       <summary
         onClick={() => {
           setCollapsed(!isCollapsed);

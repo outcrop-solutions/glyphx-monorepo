@@ -24,7 +24,7 @@ const Header = () => {
   return (
     <div
       className={`flex flex-row h-[56px] items-center justify-between pr-4 ${
-        workspaceSlug && !router.pathname.includes('settings') && !project && 'ml-8'
+        workspaceSlug && !router.pathname.includes('settings') && !project && 'ml-8 pt-2'
       } ${
         project
           ? 'bg-secondary-space-blue border border-gray'
@@ -32,7 +32,7 @@ const Header = () => {
       }`}
     >
       {project ? (
-        <div className="flex items-center">
+        <div className="flex items-center py-2">
           <button
             onClick={backPressed}
             className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"

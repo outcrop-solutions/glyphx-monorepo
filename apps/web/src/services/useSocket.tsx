@@ -55,7 +55,7 @@ export const useSocket = () => {
             const imageHash = JSON.parse(json);
             setImage(
               produce((draft: WritableDraft<webTypes.ImageHash>) => {
-                draft.imageHash = imageHash;
+                draft.imageHash = imageHash.imageData;
               })
             );
           });
