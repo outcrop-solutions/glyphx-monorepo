@@ -71,20 +71,32 @@ export class GlyphStream extends Transform {
     const inputFields = this.sdtParser.getInputFields();
     try {
       const xFieldName = this.sdtParser.getInputFields().x.field;
-      const xValue =
-        inputFields.x.type !== TYPE.DATE
-          ? (chunk[xFieldName] as any)?.toString()
-          : new Date(chunk[xFieldName] as number).toISOString();
+      let xValue = '';
+      const chunkXvalue = chunk[xFieldName];
+      if (chunkXvalue !== null && chunkXvalue !== undefined) {
+        xValue =
+          inputFields.x.type !== TYPE.DATE
+            ? (chunkXvalue as any)?.toString() ?? ''
+            : new Date(chunkXvalue as number).toISOString();
+      }
       const yFieldName = this.sdtParser.getInputFields().y.field;
-      const yValue =
-        inputFields.y.type !== TYPE.DATE
-          ? (chunk[yFieldName] as any)?.toString()
-          : new Date(chunk[yFieldName] as number).toISOString();
+      let yValue = '';
+      const chunkYvalue = chunk[yFieldName];
+      if (chunkYvalue !== null && chunkYvalue !== undefined) {
+        yValue =
+          inputFields.y.type !== TYPE.DATE
+            ? (chunkYvalue as any)?.toString() ?? ''
+            : new Date(chunkYvalue as number).toISOString();
+      }
       const zFieldName = this.sdtParser.getInputFields().z.field;
-      const zValue =
-        inputFields.z.type !== TYPE.DATE
-          ? (chunk[zFieldName] as any)?.toString()
-          : new Date(chunk[zFieldName] as number).toISOString();
+      let zValue = '';
+      const chunkZvalue = chunk[zFieldName];
+      if (chunkZvalue !== null && chunkZvalue !== undefined) {
+        zValue =
+          inputFields.z.type !== TYPE.DATE
+            ? (chunkZvalue as any)?.toString() ?? ''
+            : new Date(chunkZvalue as number).toISOString();
+      }
       //Row ids should always be ints, so let's send them across the wire
       //as such
       const rowIdValues = chunk['rowids'] as string;
