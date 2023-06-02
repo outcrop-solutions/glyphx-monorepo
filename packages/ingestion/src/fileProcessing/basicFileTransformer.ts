@@ -2,7 +2,7 @@ import {Transform, TransformCallback} from 'node:stream';
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
 import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
 import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
-import {NumberFieldChecker} from '@fieldProcessing';
+import {NumberFieldChecker, DateFieldChecker} from '@fieldProcessing';
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 /**
@@ -146,6 +146,8 @@ export class BasicFileTransformer extends Transform {
    */
   private readonly numberFieldChecker: NumberFieldChecker;
 
+  private readonly dateFieldChecker: DateFieldChecker;
+
   /**
    * Builds a new instance of our BasicFileTransformer class.
    *
@@ -188,6 +190,7 @@ export class BasicFileTransformer extends Transform {
     this.columTypeTrackers = [];
     //TODO: should these be injected/constructable?
     this.numberFieldChecker = new NumberFieldChecker();
+    this.dateFieldChecker = new DateFieldChecker();
     this.columnNameCleaner = new columnNameCleaner();
 
     //when this finishes we need to sendout our file information.
@@ -280,17 +283,23 @@ export class BasicFileTransformer extends Transform {
       encoding: 'PLAIN',
       optional: false,
     };
+
     this.columTypeTrackers.forEach(c => {
       retval[c.columnName] = {
+        //We are going to store our dates as numbers in the database.
         type:
           c.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.NUMBER
+            fileIngestion.constants.FIELD_TYPE.NUMBER ||
+          c.fieldTypeCalculator.fieldType ===
+            fileIngestion.constants.FIELD_TYPE.DATE
             ? 'DOUBLE'
             : 'UTF8',
         encoding: 'PLAIN',
         optional:
           c.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fileIngestion.constants.FIELD_TYPE.NUMBER ||
+          c.fieldTypeCalculator.fieldType ===
+            fileIngestion.constants.FIELD_TYPE.DATE,
       };
     });
 
@@ -317,11 +326,20 @@ export class BasicFileTransformer extends Transform {
       try {
         //not sure why nyc is not seeing us hit the branch on line 135
         //istanbul ignore next
-        value =
+        if (
+          fieldTypeCalculator?.fieldTypeCalculator.fieldType ===
+          fileIngestion.constants.FIELD_TYPE.DATE
+        ) {
+          //convert the date to milliseconds
+          value = this.dateFieldChecker.convertField(dirtyValue).getTime();
+        } else if (
           fieldTypeCalculator?.fieldTypeCalculator.fieldType ===
           fileIngestion.constants.FIELD_TYPE.NUMBER
-            ? this.numberFieldChecker.convertField(dirtyValue)
-            : dirtyValue;
+        ) {
+          value = this.numberFieldChecker.convertField(dirtyValue);
+        } else {
+          value = dirtyValue;
+        }
       } catch (err) {
         value = null;
         this.errorCallback({
