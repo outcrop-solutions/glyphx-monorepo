@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { dataService } from '@glyphx/business';
+import { dataService, projectService } from '@glyphx/business';
 import { generalPurposeFunctions as sharedFunctions } from '@glyphx/core';
 import { formatGridData } from 'lib/client/files/transforms/formatGridData';
 
@@ -13,8 +13,11 @@ export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse):
   const fullTableName = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
   try {
     const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds);
+    const project = await projectService.getProject(projectId);
 
-    const formattedData = formatGridData(data);
+    const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
+
+    const formattedData = formatGridData(data, columns);
 
     if (!formattedData.rows.length) {
       res.status(404).json({ errors: { error: { msg: `No data found` } } });
@@ -45,12 +48,15 @@ export const getDataByTableName = async (
   }
 
   try {
-    // const table = generalPurposeFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName as string);
-    const data = await dataService.getDataByTableName(
-      sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName)
-    );
+    const table = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
 
-    const formattedData = formatGridData(data);
+    const data = await dataService.getDataByTableName(table);
+
+    const project = await projectService.getProject(projectId);
+
+    const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
+
+    const formattedData = formatGridData(data, columns);
     if (!formattedData.rows.length) {
       res.status(404).json({ errors: { error: { msg: `No data found` } } });
     } else {

@@ -7,7 +7,7 @@ export class DateFieldChecker
   checkField(input: string): boolean {
     const trimmedInput = input.trim();
     const dateRegex =
-      /^(?:(?:\d{11}|\d{10})|(?:\d{1,2}\/\d{1,2}\/\d{2}(?:\d{2})?)|(?:\d{1,2}\/\d{1,2}\/\d{4})|(?:\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?)$/;
+      /^(?:(?:\d{13}|\d{11}|\d{10})|(?:\d{1,2}\/\d{1,2}\/\d{2}(?:\d{2})?)|(?:\d{1,2}-\d{1,2}-\d{2}(?:\d{2})?)|(?:\d{1,2}\/\d{1,2}\/\d{4})|(?:\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?)$/;
     const retval = dateRegex.test(trimmedInput);
     return retval;
   }

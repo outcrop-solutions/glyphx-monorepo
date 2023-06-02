@@ -54,7 +54,7 @@ export class AnnotationService {
       return annotations?.results;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
-        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        // err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
         const e = new error.DataServiceError(

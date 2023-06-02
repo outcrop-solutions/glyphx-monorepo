@@ -85,6 +85,10 @@ export class StateService {
         input
       );
 
+      await mongoDbConnection.models.ProjectModel.updateProjectById(pid, {
+        imageHash: imageHash,
+      });
+
       const wid =
         workspace._id instanceof mongooseTypes.ObjectId
           ? workspace._id

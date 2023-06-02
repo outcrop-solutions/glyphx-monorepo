@@ -3,8 +3,6 @@ import { useRecoilValue } from 'recoil';
 import { FileTab } from './FileTab';
 import { CSVLink } from 'react-csv';
 import { DownloadIcon } from '@heroicons/react/outline';
-import useDataGrid from 'lib/client/hooks/useDataGrid';
-// import { PlusIcon } from "@heroicons/react/solid";
 
 export const GridHeader = ({ data }) => {
   const filesOpen = useRecoilValue(filesOpenSelector);

@@ -5,26 +5,32 @@ import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/ty
  * @param {File}
  * @returns {webTypes.RenderableDataGrid}
  */
-export const formatGridData = (data): webTypes.IRenderableDataGrid => {
-  const colNames = Object.keys(data[0]);
-
-  const cols = colNames.map((item, idx) => {
+export const formatGridData = (data, columns): webTypes.IRenderableDataGrid => {
+  const dateFields = [];
+  const cols = columns.map(({ name, fieldType }, idx) => {
+    if (fieldType === 3) {
+      dateFields.push(name);
+    }
     return {
-      key: item,
-      name: item === 'glyphx_id__' ? 'id' : item,
-      dataType: isNaN(Number(data[0][item]))
-        ? fileIngestionTypes.constants.FIELD_TYPE.STRING
-        : fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+      key: name,
+      name: name === 'glyphx_id__' ? 'id' : name,
+      dataType: fieldType,
       width: 120,
       dragable: true,
       resizable: false,
       sortable: false,
     };
   });
-  // Generates first column
-  const rows = data.map((row, idx) => ({
-    ...row,
-    id: idx,
-  }));
+
+  // Modify rows
+  const rows = data.map((row, idx) => {
+    const formattedRow = { ...row, id: idx };
+    dateFields.forEach((dateField) => {
+      const date = new Date(row[dateField]);
+      formattedRow[dateField] = date.toISOString();
+    });
+    return formattedRow;
+  });
+
   return { columns: cols, rows };
 };
