@@ -11,7 +11,7 @@ import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 
 describe('#fileProcessing/basicFileTransformer', () => {
   context('basic processing', () => {
-    it.only('should process 1000 objects and return correct types and information', async () => {
+    it('should process 1000 objects and return correct types and information', async () => {
       const fileName = 'testFileName';
       const outputFileName = `${fileName}.parquet`;
       const outputDirectory = 'dir1/';
