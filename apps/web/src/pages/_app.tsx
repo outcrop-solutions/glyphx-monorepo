@@ -85,6 +85,9 @@ export default function App({
     //   OpenProject: (object) => {
     //     console.log({ function: 'Open Project Called', ...JSON.parse(object) });
     //   },
+    //   TakeScreenShot: (object) => {
+    //     console.log({ function: 'Take Screen Shot Called', ...JSON.parse(object) });
+    //   },
     //   GetCameraPosition: (object) => {
     //     return { pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } };
     //   },

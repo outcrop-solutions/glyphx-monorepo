@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QWebChannel } from 'qwebchannel';
 import { useSetRecoilState } from 'recoil';
-import { cameraAtom, rowIdsAtom } from 'state';
+import { cameraAtom, imageHashAtom, rowIdsAtom } from 'state';
 import { web as webTypes } from '@glyphx/types';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
@@ -13,6 +13,7 @@ import { WritableDraft } from 'immer/dist/internal';
 export const useSocket = () => {
   const [channel, setChannel] = useState(null);
   const setRowIds = useSetRecoilState(rowIdsAtom);
+  const setImage = useSetRecoilState(imageHashAtom);
   const setCamera = useSetRecoilState(cameraAtom);
 
   useEffect(() => {
@@ -47,6 +48,14 @@ export const useSocket = () => {
               produce((draft: WritableDraft<webTypes.Camera>) => {
                 draft.pos = { x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z };
                 draft.dir = { x: newCamera.dir.x, y: newCamera.dir.y, z: newCamera.dir.z };
+              })
+            );
+          });
+          window.core.SendScreenShot.connect((json: string) => {
+            const imageHash = JSON.parse(json);
+            setImage(
+              produce((draft: WritableDraft<webTypes.ImageHash>) => {
+                draft.imageHash = imageHash;
               })
             );
           });

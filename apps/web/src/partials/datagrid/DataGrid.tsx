@@ -26,7 +26,6 @@ export const Datagrid = ({ data }) => {
   }, [data]);
 
   return data ? (
-    // <div className={`${orientation === 'horizontal' ? 'mb-20' : ''}`}>
     <ReactDataGrid
       // @ts-ignore
       columns={draggableColumns}

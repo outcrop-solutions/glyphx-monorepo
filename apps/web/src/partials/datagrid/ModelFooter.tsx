@@ -34,7 +34,7 @@ export const ModelFooter = () => {
   const handleOpenClose = useCallback(async () => {
     if (drawer && windowSize.height) {
       // close drawer
-      setResize(windowSize.height - 70);
+      setResize(windowSize.height - 105);
       setOrientation('horizontal');
 
       setDrawer(false);
@@ -51,9 +51,7 @@ export const ModelFooter = () => {
       style={{
         position: 'fixed',
         left: `${viewer.x - (orientation === 'vertical' ? 0 : 5)}px`,
-        // left: `${viewer.x - (orientation === 'vertical' ? 0 : 0)}px`,
-
-        top: `${viewer.y - (orientation === 'vertical' ? footerHeight + resizeHandle : 0)}px`,
+        top: `${viewer.y}px`,
         width: `${viewer.w + 5}px`,
       }}
       className={`z-60 h-[44px] ${

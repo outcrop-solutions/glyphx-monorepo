@@ -16,6 +16,7 @@ export interface IState {
   updatedAt: Date;
   version: number;
   static: boolean;
+  imageHash?: string;
   camera: Camera;
   properties: Record<string, Property>;
   fileSystemHash: string; // corresponds to MD5 hash of S3 directory structure (underlying data) determines whether filtering is available

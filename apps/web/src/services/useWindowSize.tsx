@@ -26,7 +26,7 @@ export const useWindowSize = () => {
       })
     );
 
-    setPane(window.innerHeight - 70);
+    setPane(window.innerHeight - 104);
 
     window.addEventListener('resize', handleResize);
 

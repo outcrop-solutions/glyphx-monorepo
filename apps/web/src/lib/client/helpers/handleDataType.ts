@@ -3,7 +3,9 @@ export const handleDataType = (prop) => {
     return '';
   } else if (prop.dataType === 0) {
     return 'number';
-  } else {
+  } else if (prop.dataType === 1) {
     return 'string';
+  } else if (prop.dataType === 3) {
+    return 'date';
   }
 };

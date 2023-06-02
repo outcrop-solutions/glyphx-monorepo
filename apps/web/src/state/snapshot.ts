@@ -10,6 +10,13 @@ export const activeStateAtom = atom<number>({
   default: -1,
 });
 
+export const imageHashAtom = atom<webTypes.ImageHash>({
+  key: 'imageHashAtom',
+  default: {
+    imageHash: false,
+  },
+});
+
 export const cameraAtom = atom<webTypes.Camera | {}>({
   key: 'cameraAtom',
   default: {},

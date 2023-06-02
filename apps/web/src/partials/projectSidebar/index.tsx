@@ -16,7 +16,7 @@ export const ProjectSidebar = () => {
   // trigger sendPosition when sidebar changes
   const pos = usePosition(sidebar);
   const setCoords = useSetRecoilState(leftCoordinatesAtom);
-  const { width, height } = useRecoilValue(windowSizeAtom);
+  const { height } = useRecoilValue(windowSizeAtom);
 
   // set projectsSidebar position on transition
   useEffect(() => {

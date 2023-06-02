@@ -79,11 +79,17 @@ div[data-type='number'] {
 div[data-type='string'] {
   @apply bg-blue text-white rounded text-center;
 }
+div[data-type='date'] {
+  @apply bg-primary-yellow text-white rounded text-center;
+}
 div[data-type='0'] {
   @apply bg-cyan text-white rounded text-center;
 }
 div[data-type='1'] {
   @apply bg-blue text-white rounded text-center;
+}
+div[data-type='3'] {
+  @apply bg-primary-yellow text-white rounded text-center;
 }
 
 div div[role='columnheader'] {

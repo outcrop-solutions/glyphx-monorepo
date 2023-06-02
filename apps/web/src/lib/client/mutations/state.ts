@@ -11,7 +11,6 @@ export const _createAnnotation = ({
   type: databaseTypes.constants.ANNOTATION_TYPE;
   value: string;
 }) => {
-  console.log({ id, type, value });
   return {
     url:
       type === databaseTypes.constants.ANNOTATION_TYPE.PROJECT
@@ -32,11 +31,16 @@ export const _createAnnotation = ({
  * @note uses stateService.createState() in business package
  * @param name corresponds to state.name in mongoDB
  */
-export const _createState = (name: string, projectId: string, camera: webTypes.Camera): webTypes.IFetchConfig => {
+export const _createState = (
+  name: string,
+  projectId: string,
+  camera: webTypes.Camera,
+  imageHash: string
+): webTypes.IFetchConfig => {
   return {
     url: '/api/state',
     options: {
-      body: { name: name, projectId: projectId, camera },
+      body: { name: name, projectId: projectId, camera, imageHash },
       method: 'POST',
     },
     successMsg: 'State successfully created',
