@@ -69,19 +69,14 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     // clean fileStats & fileInfo and table names
     const cleanPayload = {
       ...payload,
-      fileStats: payload.fileStats.map((stat) => ({
-        ...stat,
-        fileName: `${cleaner.cleanColumnName(stat.fileName.split('.')[0])}.csv`,
-        tableName: cleaner.cleanColumnName(stat.tableName),
-      })),
+      //File stats are not used in the ingestion process.  It pulls them internally.
+      fileStats: [],
       fileInfo: payload.fileInfo.map((info) => ({
         ...info,
         fileName: `${cleaner.cleanColumnName(info.fileName.split('.')[0])}.csv`,
         tableName: cleaner.cleanColumnName(info.tableName),
       })),
     };
-
-    const newProject = projectService.updateProjectFileStats(payload.modelId, payload.fileStats);
 
     // Add to S3
     const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
@@ -101,7 +96,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     // Setup process tracking
     const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
     const PROCESS_NAME = 'testingProcessUnique';
-    await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
+    const { _id: processDocumentId } = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
     // Create file ingestor
     const fileIngestor = new FileIngestor(newPayload, ATHENA_DB_NAME, PROCESS_ID);
@@ -123,16 +118,28 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
       action: databaseTypes.constants.ACTION_TYPE.FILES_INGESTED,
     });
 
+    await activityLogService.createLog({
+      actorId: session?.user?.userId,
+      resourceId: processDocumentId,
+      workspaceId: newPayload.clientId,
+      projectId: newPayload.modelId,
+      location: location,
+      userAgent: agentData,
+      onModel: databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING,
+      action: databaseTypes.constants.ACTION_TYPE.PROCESS_TRACKING,
+    });
+    //get the updated project
+    const project = await projectService.getProject(newPayload.modelId);
+
     // return file information & processID
     res.status(200).json({
       data: {
         fileInformation,
-        fileProcessingErrors,
         joinInformation,
         viewName,
         status,
         processId: PROCESS_ID,
-        project: newProject,
+        project: project,
       },
     });
     // res.status(200).json({ ok: true });
