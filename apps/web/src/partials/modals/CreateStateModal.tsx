@@ -26,7 +26,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
     event.preventDefault();
     if (window?.core) {
       window?.core?.GetCameraPosition(true);
-      window?.core?.TakeScreenShot();
+      window?.core?.TakeScreenShot('');
     }
   };
 

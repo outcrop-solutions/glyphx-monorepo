@@ -51,10 +51,8 @@ export const useSocket = () => {
               })
             );
           });
-          console.log({ core: window.core });
           window.core.SendScreenShot.connect((json: string) => {
             const imageHash = JSON.parse(json);
-            console.log({ imageHash });
             setImage(
               produce((draft: WritableDraft<webTypes.ImageHash>) => {
                 draft.imageHash = imageHash.imageData;

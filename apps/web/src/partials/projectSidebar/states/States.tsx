@@ -1,39 +1,33 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { web as webTypes } from '@glyphx/types';
 import { StateList } from './StateList';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { projectAtom } from 'state/project';
 import { PlusIcon } from '@heroicons/react/outline';
-import { modalsAtom } from 'state';
+import { imageHashAtom, modalsAtom } from 'state';
 import { WritableDraft } from 'immer/dist/internal';
 import produce from 'immer';
+import { _createState, api } from 'lib';
+import { CreateStateModal } from 'partials/modals';
+import { CreateStateInput } from './CreateStateInput';
 
 export const States = () => {
   const project = useRecoilValue(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
+  const [addState, setAddState] = useState(false);
 
-  const createState = useCallback(() => {
-    setModals(
-      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-        draft.modals.push({
-          type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE,
-          isSubmitting: false,
-          data: project,
-        });
-      })
-    );
-  }, [project, setModals]);
+  const createState = () => setAddState(true);
 
   return (
-    <div className="group flex flex-col grow relative">
-      <summary
-        onClick={() => {
-          setCollapsed(!isCollapsed);
-        }}
-        className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray"
-      >
-        <div className="flex ml-2 items-center">
+    <div className="group flex flex-col grow">
+      <summary className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray z-10">
+        <div
+          onClick={() => {
+            setCollapsed(!isCollapsed);
+          }}
+          className="flex ml-2 items-center"
+        >
           <span className="">
             <svg
               className={`w-5 h-5 ${isCollapsed ? '-rotate-90' : 'rotate-180'}`}
@@ -62,6 +56,7 @@ export const States = () => {
         />
       </summary>
       {!isCollapsed && <StateList />}
+      {addState && <CreateStateInput setAddState={setAddState} project={project} />}
     </div>
   );
 };
