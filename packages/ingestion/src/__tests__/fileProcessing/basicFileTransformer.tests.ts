@@ -34,7 +34,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
           assert.strictEqual(info.parquetFileName, outputFileName);
           assert.strictEqual(info.outputFileDirecotry, outputDirectory);
           assert.strictEqual(info.numberOfRows, numberOfRows);
-          assert.strictEqual(info.numberOfColumns, 2);
+          assert.strictEqual(info.numberOfColumns, 3);
           assert.strictEqual(
             info.fileOperationType,
             fileIngestion.constants.FILE_OPERATION.ADD
@@ -64,6 +64,13 @@ describe('#fileProcessing/basicFileTransformer', () => {
             info.columns[2].fieldType,
             fileIngestion.constants.FIELD_TYPE.NUMBER
           );
+          //Column name cleaner will lcase the name
+          assert.strictEqual(info.columns[3].name, 'somedate');
+          assert.strictEqual(info.columns[3].origionalName, 'someDate');
+          assert.strictEqual(
+            info.columns[3].fieldType,
+            fileIngestion.constants.FIELD_TYPE.DATE
+          );
           done = true;
         },
 
@@ -78,7 +85,11 @@ describe('#fileProcessing/basicFileTransformer', () => {
         objectMode: true,
         read: () => {
           for (let i = 0; i < numberOfRows; i++) {
-            readStream.push({name: `field${i}`, value: i.toString()});
+            readStream.push({
+              name: `field${i}`,
+              value: i.toString(),
+              someDate: new Date().toISOString(),
+            });
           }
 
           readStream.push(null);
@@ -106,11 +117,17 @@ describe('#fileProcessing/basicFileTransformer', () => {
               assert.strictEqual(chunk.value.type, 'DOUBLE');
               assert.strictEqual(chunk.value.encoding, 'PLAIN');
               assert.isTrue(chunk.value.optional);
+              //column name cleaner lcases the column name
+              assert.isDefined(chunk.somedate);
+              assert.strictEqual(chunk.somedate.type, 'DOUBLE');
+              assert.strictEqual(chunk.somedate.encoding, 'PLAIN');
+              assert.isTrue(chunk.somedate.optional);
               firstRow = false;
             } else {
               assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], 100 + seenRows);
               assert.isString(chunk.name);
               assert.isNumber(chunk.value);
+              assert.isNumber(chunk.somedate);
               seenRows++;
             }
             callback();

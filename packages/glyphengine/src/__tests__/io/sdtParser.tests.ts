@@ -18,7 +18,7 @@ describe('SdtParser', () => {
   const modelId = 'testModelName';
   const data = new Map<string, string>([
     ['type_x', 'string'],
-    ['type_y', 'number'],
+    ['type_y', 'date'],
     ['type_z', 'number'],
     ['x_axis', 'columnx'],
     ['y_axis', 'columny'],
@@ -126,7 +126,8 @@ describe('SdtParser', () => {
 
       const sdtParser = (await SdtParser.parseSdtString(
         stringSdt,
-        viewName
+        viewName,
+        data
       )) as any;
 
       assert.instanceOf(sdtParser, SdtParser);
@@ -192,7 +193,11 @@ describe('SdtParser', () => {
         'minMax',
         () => minMaxData
       );
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        stringSdt,
+        viewName,
+        data
+      );
       const dataSource = sdtParser.getDataSource();
 
       assert.strictEqual(dataSource.tableName, viewName);
@@ -243,7 +248,11 @@ describe('SdtParser', () => {
         'minMax',
         () => minMaxData
       );
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        stringSdt,
+        viewName,
+        data
+      );
       const positionX = sdtParser.getGlyphProperty('Position', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.TEXT_INTERPOLATION);
       assert.strictEqual(positionX?.min, 205);
@@ -293,7 +302,11 @@ describe('SdtParser', () => {
         'minMax',
         () => minMaxData
       );
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        stringSdt,
+        viewName,
+        data
+      );
       const positionX = sdtParser.getGlyphProperty('Scale', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(positionX?.min, 1);
@@ -340,7 +353,11 @@ describe('SdtParser', () => {
         'minMax',
         () => minMaxData
       );
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        stringSdt,
+        viewName,
+        data
+      );
       const transparency = sdtParser.getGlyphProperty('Color', 'Transparency');
       assert.strictEqual(transparency?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(transparency?.min, 0);
@@ -373,7 +390,11 @@ describe('SdtParser', () => {
         'minMax',
         () => minMaxData
       );
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        stringSdt,
+        viewName,
+        data
+      );
       const rgb = sdtParser.getGlyphProperty('Color', 'RGB');
       assert.strictEqual(rgb?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(rgb?.min, 0);
@@ -406,7 +427,11 @@ describe('SdtParser', () => {
         'minMax',
         () => minMaxData
       );
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        stringSdt,
+        viewName,
+        data
+      );
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color;
 
@@ -438,7 +463,11 @@ describe('SdtParser', () => {
         'minMax',
         () => minMaxData
       );
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        stringSdt,
+        viewName,
+        data
+      );
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color.RGB;
 
@@ -491,7 +520,8 @@ describe('SdtParser', () => {
 
       const sdtParser = (await SdtParser.parseSdtString(
         stringSdt,
-        viewName
+        viewName,
+        data
       )) as any;
 
       const inputFields = sdtParser.getInputFields();
@@ -509,7 +539,7 @@ describe('SdtParser', () => {
       assert.strictEqual(inputFields.y.min, minMaxData.y.min);
       assert.strictEqual(inputFields.y.max, minMaxData.y.max);
       assert.isNotOk(inputFields.y.text_to_num);
-      assert.strictEqual(inputFields.y.type, TYPE.REAL);
+      assert.strictEqual(inputFields.y.type, TYPE.DATE);
 
       assert.strictEqual(inputFields.z.field, data.get('z_axis'));
       assert.strictEqual(inputFields.z.min, minMaxData.z.min);
