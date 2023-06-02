@@ -65,8 +65,15 @@ export const ProjectCard = ({ idx, project }) => {
         </div>
       </div>
       <div onClick={() => navigate(workspaceSlug)} className="flex flex-col h-full justify-between rounded-md">
-        <Image className="rounded-t-md h-5/6" layout="responsive" src={projectCard} alt="" />
-        <footer className="flex flex-col w-full space-y-2 rounded-md justify-between px-4 py-3">
+        <div className="rounded-t-md overflow-hidde h-5/6">
+          <Image
+            layout="fill"
+            className="object-cover rounded-md"
+            src={project.imageHash ? `data:image/png;base64,${project.imageHash}` : projectCard}
+            alt=""
+          />
+        </div>
+        <footer className="flex flex-col w-full space-y-2 rounded-b justify-between px-4 py-3 z-30 bg-primary-dark-blue">
           <div className="flex items-center justify-between w-full">
             <p className="font-roboto font-medium truncate ellipsis text-sm leading-[16px] text-light-gray">
               {project.name}
