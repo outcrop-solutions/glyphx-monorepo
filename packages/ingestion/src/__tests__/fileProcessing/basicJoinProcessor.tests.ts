@@ -1010,5 +1010,179 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       assert.isFalse(columns2[2].isJoinColumn);
       assert.isTrue(columns2[2].isSelectedColumn);
     });
+
+    it('should not join two tables on a date', () => {
+      const table1 = {
+        tableName: 'table1',
+        backingFileName: 'table1.parquet',
+        fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
+            name: 'field1',
+            origionalName: 'field1',
+            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+          },
+          {
+            name: 'field2',
+            origionalName: 'field2',
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          },
+        ],
+      };
+
+      const table2 = {
+        tableName: 'table2',
+        backingFileName: 'table2.parquet',
+        fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
+            name: 'field1',
+            origionalName: 'field1',
+            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+          },
+          {
+            name: 'field3',
+            origionalName: 'field3',
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          },
+        ],
+      };
+
+      const joinProcessor = new JoinProcessor();
+      joinProcessor.processColumns(
+        table1.tableName,
+        table1.backingFileName,
+        table1.fields
+      );
+      joinProcessor.processColumns(
+        table2.tableName,
+        table2.backingFileName,
+        table2.fields
+      );
+
+      const tables = joinProcessor['processedTables'];
+      assert.strictEqual(tables.length, 2);
+
+      const tableDefinition1 = tables[0];
+      assert.notExists(tableDefinition1.joinTable);
+
+      const tableDefinition2 = tables[1];
+      assert.notExists(tableDefinition2.joinTable);
+
+      const columns1 = tableDefinition1.columns;
+      assert.strictEqual(columns1.length, table1.fields.length);
+
+      columns1.forEach((c: IJoinTableColumnDefinition) => {
+        assert.isTrue(c.isSelectedColumn);
+        assert.isFalse(c.isJoinColumn);
+      });
+      const columns2 = tableDefinition2.columns;
+      assert.strictEqual(columns2.length, table2.fields.length);
+
+      //Our glyphxId
+      assert.isFalse(columns2[0].isJoinColumn);
+      assert.isFalse(columns2[0].isSelectedColumn);
+
+      assert.isFalse(columns2[1].isJoinColumn);
+      assert.isFalse(columns2[1].isSelectedColumn);
+
+      assert.isFalse(columns2[2].isJoinColumn);
+      assert.isTrue(columns2[2].isSelectedColumn);
+    });
+
+    it('should not include date columns in a join', () => {
+      const table1 = {
+        tableName: 'table1',
+        backingFileName: 'table1.parquet',
+        fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
+            name: 'field1',
+            origionalName: 'field1',
+            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+          },
+          {
+            name: 'field2',
+            origionalName: 'field2',
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          },
+        ],
+      };
+
+      const table2 = {
+        tableName: 'table2',
+        backingFileName: 'table2.parquet',
+        fields: [
+          {
+            name: GLYPHX_ID_COLUMN_NAME,
+            origionalName: GLYPHX_ID_COLUMN_NAME,
+            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          },
+          {
+            name: 'field1',
+            origionalName: 'field1',
+            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+          },
+          {
+            name: 'field2',
+            origionalName: 'field2',
+            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          },
+        ],
+      };
+
+      const joinProcessor = new JoinProcessor();
+      joinProcessor.processColumns(
+        table1.tableName,
+        table1.backingFileName,
+        table1.fields
+      );
+      joinProcessor.processColumns(
+        table2.tableName,
+        table2.backingFileName,
+        table2.fields
+      );
+
+      const tables = joinProcessor['processedTables'];
+      assert.strictEqual(tables.length, 2);
+
+      const tableDefinition1 = tables[0];
+      assert.notExists(tableDefinition1.joinTable);
+
+      const tableDefinition2 = tables[1];
+      assert.exists(tableDefinition2.joinTable);
+
+      const columns1 = tableDefinition1.columns;
+      assert.strictEqual(columns1.length, table1.fields.length);
+
+      columns1.forEach((c: IJoinTableColumnDefinition) => {
+        assert.isTrue(c.isSelectedColumn);
+        assert.isFalse(c.isJoinColumn);
+      });
+      const columns2 = tableDefinition2.columns;
+      assert.strictEqual(columns2.length, table2.fields.length);
+
+      //Our glyphxId
+      assert.isFalse(columns2[0].isJoinColumn);
+      assert.isFalse(columns2[0].isSelectedColumn);
+
+      assert.isFalse(columns2[1].isJoinColumn);
+      assert.isFalse(columns2[1].isSelectedColumn);
+
+      assert.isTrue(columns2[2].isJoinColumn);
+      assert.isFalse(columns2[2].isSelectedColumn);
+    });
   });
 });

@@ -2,5 +2,6 @@ export enum FIELD_TYPE {
   NUMBER,
   STRING,
   INTEGER,
+  DATE,
   UNKNOWN = 999,
 }

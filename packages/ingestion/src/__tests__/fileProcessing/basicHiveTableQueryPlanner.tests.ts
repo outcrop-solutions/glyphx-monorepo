@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {BasicHiveTableQueryPlanner} from '@fileProcessing';
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
@@ -10,7 +11,7 @@ function removeDoubleSpaces(input: string): string {
   return retval;
 }
 const REG_EX =
-  /CREATE\s+EXTERNAL\s+TABLE\s+(\w+)\s+\(\s+((?:\w+\s+(?:varchar\(\d+\)|double),\s+)+)(\w+\s+(?:varchar\(\d+\)|double|bigint)\s+)\)\s+STORED\s+AS\s+(PARQUET)\s+LOCATION\s+'(.+)'\s+TBLPROPERTIES\s+\('parquet\.compression'='(\w+)'\);/gim;
+  /CREATE\s+EXTERNAL\s+TABLE\s+(\w+)\s+\(\s+((?:\w+\s+(?:varchar\(\d+\)|double|bigint),\s+)+)(\w+\s+(?:varchar\(\d+\)|double|bigint)\s+)\)\s+STORED\s+AS\s+(PARQUET)\s+LOCATION\s+'(.+)'\s+TBLPROPERTIES\s+\('parquet\.compression'='(\w+)'\);/gim;
 
 describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
   beforeEach(() => {
@@ -60,6 +61,15 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
         isJoinColumn: false,
         isSelectedColumn: true,
       });
+
+      tableDef.columns.push({
+        tableDefinition: tableDef,
+        columnIndex: 2,
+        columnName: 'column4',
+        columnType: fileIngestion.constants.FIELD_TYPE.DATE,
+        isJoinColumn: false,
+        isSelectedColumn: true,
+      });
       const tableQueryBuilder = new BasicHiveTableQueryPlanner(
         bucketName,
         fileStoregeType,
@@ -102,7 +112,8 @@ describe('#fileProcessing/BasicHiveTableQueryPlanner', () => {
             splitColumn[1],
             c.columnType === fileIngestion.constants.FIELD_TYPE.STRING
               ? 'varchar(100)'
-              : c.columnType === fileIngestion.constants.FIELD_TYPE.NUMBER
+              : c.columnType === fileIngestion.constants.FIELD_TYPE.NUMBER ||
+                c.columnType === fileIngestion.constants.FIELD_TYPE.DATE
               ? 'double'
               : 'bigint'
           );

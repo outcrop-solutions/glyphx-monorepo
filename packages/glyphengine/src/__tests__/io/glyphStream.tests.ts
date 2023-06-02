@@ -14,7 +14,7 @@ import {IGlyph} from '../../interfaces/iGlyph';
 describe('#io/GlyphStream', () => {
   const mockInputData = new Map<string, string>([
     ['type_x', 'string'],
-    ['type_y', 'number'],
+    ['type_y', 'date'],
     ['type_z', 'number'],
     ['x_axis', 'columnx'],
     ['y_axis', 'columny'],
@@ -29,31 +29,31 @@ describe('#io/GlyphStream', () => {
   ]);
 
   const mockData = [
-    {rowids: '1', columnx: 'a', columny: 1, columnz: 1},
-    {rowids: '2', columnx: 'b', columny: 2, columnz: 2},
-    {rowids: '3', columnx: 'c', columny: 3, columnz: 3},
-    {rowids: '4', columnx: 'd', columny: 4, columnz: 4},
-    {rowids: '5', columnx: 'e', columny: 5, columnz: 5},
-    {rowids: '6', columnx: 'f', columny: 6, columnz: 6},
-    {rowids: '7', columnx: 'g', columny: 7, columnz: 7},
-    {rowids: '8', columnx: 'h', columny: 8, columnz: 8},
-    {rowids: '9', columnx: 'i', columny: 9, columnz: 9},
-    {rowids: '10', columnx: 'j', columny: 10, columnz: 10},
-    {rowids: '11', columnx: 'k', columny: 11, columnz: 11},
-    {rowids: '12', columnx: 'l', columny: 12, columnz: 12},
-    {rowids: '13', columnx: 'm', columny: 13, columnz: 13},
-    {rowids: '14', columnx: 'n', columny: 14, columnz: 14},
-    {rowids: '15', columnx: 'o', columny: 15, columnz: 15},
-    {rowids: '16', columnx: 'p', columny: 16, columnz: 16},
-    {rowids: '17', columnx: 'q', columny: 17, columnz: 17},
-    {rowids: '18', columnx: 'r', columny: 18, columnz: 18},
-    {rowids: '19|28', columnx: 's', columny: 19, columnz: 19},
-    {rowids: '20', columnx: 't', columny: 20, columnz: 20},
-    {rowids: '21', columnx: 'u', columny: 21, columnz: 21},
-    {rowids: '22', columnx: 'v', columny: 22, columnz: 22},
-    {rowids: '23', columnx: 'w', columny: 23, columnz: 23},
-    {rowids: '24|27', columnx: 'x', columny: 24, columnz: 24},
-    {rowids: '25|26', columnx: 'y', columny: 25, columnz: 25},
+    {rowids: '1', columnx: 'a', columny: new Date().getTime(), columnz: 1},
+    {rowids: '2', columnx: 'b', columny: new Date().getTime(), columnz: 2},
+    {rowids: '3', columnx: 'c', columny: new Date().getTime(), columnz: 3},
+    {rowids: '4', columnx: 'd', columny: new Date().getTime(), columnz: 4},
+    {rowids: '5', columnx: 'e', columny: new Date().getTime(), columnz: 5},
+    {rowids: '6', columnx: 'f', columny: new Date().getTime(), columnz: 6},
+    {rowids: '7', columnx: 'g', columny: new Date().getTime(), columnz: 7},
+    {rowids: '8', columnx: 'h', columny: new Date().getTime(), columnz: 8},
+    {rowids: '9', columnx: 'i', columny: new Date().getTime(), columnz: 9},
+    {rowids: '10', columnx: 'j', columny: new Date().getTime(), columnz: 10},
+    {rowids: '11', columnx: 'k', columny: new Date().getTime(), columnz: 11},
+    {rowids: '12', columnx: 'l', columny: new Date().getTime(), columnz: 12},
+    {rowids: '13', columnx: 'm', columny: new Date().getTime(), columnz: 13},
+    {rowids: '14', columnx: 'n', columny: new Date().getTime(), columnz: 14},
+    {rowids: '15', columnx: 'o', columny: new Date().getTime(), columnz: 15},
+    {rowids: '16', columnx: 'p', columny: new Date().getTime(), columnz: 16},
+    {rowids: '17', columnx: 'q', columny: new Date().getTime(), columnz: 17},
+    {rowids: '18', columnx: 'r', columny: new Date().getTime(), columnz: 18},
+    {rowids: '19|28', columnx: 's', columny: new Date().getTime(), columnz: 19},
+    {rowids: '20', columnx: 't', columny: new Date().getTime(), columnz: 20},
+    {rowids: '21', columnx: 'u', columny: new Date().getTime(), columnz: 21},
+    {rowids: '22', columnx: 'v', columny: new Date().getTime(), columnz: 22},
+    {rowids: '23', columnx: 'w', columny: new Date().getTime(), columnz: 23},
+    {rowids: '24|27', columnx: 'x', columny: new Date().getTime(), columnz: 24},
+    {rowids: '25|26', columnx: 'y', columny: new Date().getTime(), columnz: 25},
   ];
 
   const mockMinMaxData = {
@@ -63,8 +63,8 @@ describe('#io/GlyphStream', () => {
       columnName: 'columnx',
     },
     y: {
-      min: 1,
-      max: 25,
+      min: mockData[0].columny,
+      max: mockData[24].columny,
       columnName: 'columny',
     },
     z: {
@@ -154,7 +154,11 @@ describe('#io/GlyphStream', () => {
       () => mockMinMaxData
     );
 
-    sdtParser = (await SdtParser.parseSdtString(stringSdt, 'viewName')) as any;
+    sdtParser = (await SdtParser.parseSdtString(
+      stringSdt,
+      'viewName',
+      mockInputData
+    )) as any;
   });
 
   after(() => {
@@ -192,7 +196,7 @@ describe('#io/GlyphStream', () => {
           written = true;
           assert.isAbove(chunk.positionX, lastPosx);
           lastPosx = chunk.positionX;
-          assert.isAbove(chunk.positionY, lastPosy);
+          assert.isAtLeast(chunk.positionY, lastPosy);
           lastPosy = chunk.positionY;
           assert.isAbove(chunk.positionZ, lastPosz);
           lastPosz = chunk.positionZ;
@@ -204,7 +208,7 @@ describe('#io/GlyphStream', () => {
 
           const expectedRowId = mockData[rowId].rowids.split('|');
           const expectedX = mockData[rowId].columnx;
-          const expectedY = mockData[rowId].columny;
+          const expectedY = new Date(mockData[rowId].columny).toISOString();
           const expectedZ = mockData[rowId].columnz;
 
           const desc = JSON.parse(chunk.desc);

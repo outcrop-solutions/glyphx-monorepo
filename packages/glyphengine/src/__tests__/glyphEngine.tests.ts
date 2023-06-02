@@ -11,9 +11,37 @@ import {QueryRunner} from '../io/queryRunner';
 import {IQueryResponse} from '../interfaces';
 import {QUERY_STATUS} from '../constants';
 import {SdtParser} from '../io/sdtParser';
-import {Heartbeat, processTrackingService} from '@glyphx/business';
+import {
+  Heartbeat,
+  processTrackingService,
+  projectService,
+} from '@glyphx/business';
 
 describe('GlyphEngine', () => {
+  const mockProject = {
+    files: [
+      {
+        fileName: 'danny_mods.csv',
+        tableName: 'danny_mods',
+        numberOfRows: 10,
+        numberOfColumns: 17,
+        columns: [
+          {
+            name: 'columnx',
+            fieldType: 1,
+          },
+          {
+            name: 'columny',
+            fieldType: 3,
+          },
+          {
+            name: 'columnz',
+            fieldType: 0,
+          },
+        ],
+      },
+    ],
+  };
   context('constructor', () => {
     it('will construct a new GlyphEngineObject', () => {
       const inputBucketName = 'testInputBucketName';
@@ -282,7 +310,7 @@ describe('GlyphEngine', () => {
         },
         {
           columnName: 'columnz',
-          columnType: fileIngestion.constants.FIELD_TYPE.INTEGER,
+          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
         },
       ];
 
@@ -294,6 +322,10 @@ describe('GlyphEngine', () => {
         getTableDescriptionStub
       );
 
+      const projectStub = sandbox.stub();
+      projectStub.resolves(mockProject);
+      sandbox.replace(projectService, 'getProject', projectStub);
+
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
@@ -303,11 +335,11 @@ describe('GlyphEngine', () => {
 
       await (glyphEngine as any).getDataTypes('testViewname', localData);
       assert.strictEqual(localData.get('type_x'), 'string');
-      assert.strictEqual(localData.get('type_y'), 'number');
+      assert.strictEqual(localData.get('type_y'), 'date');
       assert.strictEqual(localData.get('type_z'), 'number');
     });
 
-    it('if the DataDef does not exist, the column type will default to number', async () => {
+    it.only('if the DataDef does not exist, the column type will default to the project', async () => {
       const localData = new Map<string, string>(data);
       const dataDef = [
         {
@@ -332,6 +364,10 @@ describe('GlyphEngine', () => {
         getTableDescriptionStub
       );
 
+      const projectStub = sandbox.stub();
+      projectStub.resolves(mockProject);
+      sandbox.replace(projectService, 'getProject', projectStub);
+
       const glyphEngine = new GlyphEngine(
         inputBucketName,
         outputBucketName,
@@ -340,8 +376,10 @@ describe('GlyphEngine', () => {
       );
 
       await (glyphEngine as any).getDataTypes('testViewname', localData);
-      assert.strictEqual(localData.get('type_x'), 'number');
-      assert.strictEqual(localData.get('type_y'), 'number');
+      assert.strictEqual(localData.get('type_x'), 'string');
+      //This is looked up on the project so there is an
+      //alternate way to map it
+      assert.strictEqual(localData.get('type_y'), 'date');
       assert.strictEqual(localData.get('type_z'), 'number');
     });
 
@@ -355,6 +393,10 @@ describe('GlyphEngine', () => {
         'getTableDescription',
         getTableDescriptionStub
       );
+
+      const projectStub = sandbox.stub();
+      projectStub.resolves(mockProject);
+      sandbox.replace(projectService, 'getProject', projectStub);
 
       const publishStub = sandbox.stub();
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishStub);
@@ -1033,6 +1075,10 @@ describe('GlyphEngine', () => {
         processId
       ) as any;
 
+      const projectStub = sandbox.stub();
+      projectStub.resolves(mockProject);
+      sandbox.replace(projectService, 'getProject', projectStub);
+
       await glyphEngine.processData(prefix, sdtParser);
       assert.isTrue(getUploadStreamStub.calledTwice);
       assert.isTrue(startPipelineStub.calledOnce);
@@ -1059,6 +1105,9 @@ describe('GlyphEngine', () => {
         'startPipeline',
         startPipelineStub
       );
+      const projectStub = sandbox.stub();
+      projectStub.resolves(mockProject);
+      sandbox.replace(projectService, 'getProject', projectStub);
 
       const prefix = 'filePrefix';
       const sdtParser = {} as unknown as SdtParser;

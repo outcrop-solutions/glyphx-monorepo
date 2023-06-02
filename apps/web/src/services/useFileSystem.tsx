@@ -6,7 +6,7 @@ import { useSWRConfig } from 'swr';
 
 import { projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom, showLoadingAtom } from 'state';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { _ingestFiles, _uploadFile, api } from 'lib';
+import { _getSignedUploadUrls, _ingestFiles, _uploadFile, api } from 'lib';
 import { runRulesEngine } from 'lib/client/files/engine';
 import { parsePayload } from 'lib/client/files/transforms/parsePayload';
 
@@ -124,8 +124,14 @@ export const useFileSystem = () => {
         );
         // get s3 keys for upload
         const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+
+        const data = await api({
+          ..._getSignedUploadUrls(project.workspace._id.toString(), project._id.toString(), keys),
+          returnData: true,
+        });
+
         await Promise.all(
-          keys.map(async (key, idx) => {
+          data.signedUrls.map(async (url, idx) => {
             // upload raw file data to s3
             setLoading(
               produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -134,12 +140,7 @@ export const useFileSystem = () => {
               })
             );
             await api({
-              ..._uploadFile(
-                await acceptedFiles[idx].arrayBuffer(),
-                key,
-                project.workspace._id.toString(),
-                project._id.toString()
-              ),
+              ..._uploadFile(await acceptedFiles[idx].arrayBuffer(), url),
               upload: true,
               onError: () => {
                 setLoading(

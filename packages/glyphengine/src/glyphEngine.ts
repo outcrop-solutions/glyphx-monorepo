@@ -14,7 +14,11 @@ import {GlyphStream} from './io/glyphStream';
 import {SgcStream} from './io/sgcStream';
 import {SgnStream} from './io/sgnStream';
 import {PassThrough} from 'stream';
-import {processTrackingService, Heartbeat} from '@glyphx/business';
+import {
+  processTrackingService,
+  Heartbeat,
+  projectService,
+} from '@glyphx/business';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -104,9 +108,17 @@ export class GlyphEngine {
   ): Promise<void> {
     try {
       const tableDef = await this.athenaManager.getTableDescription(viewName);
-      setColType('x', tableDef, data);
-      setColType('y', tableDef, data);
-      setColType('z', tableDef, data);
+      const project = (await projectService.getProject(
+        data.get('model_id') as string
+      )) as databaseTypes.IProject;
+      if (!project) {
+        throw new error.UnexpectedError(
+          `Project ${data.get('model_id')}not found`
+        );
+      }
+      setColType('x', tableDef, data, project);
+      setColType('y', tableDef, data, project);
+      setColType('z', tableDef, data, project);
     } catch (err) {
       const e = new error.UnexpectedError(
         'An unexpected error occurred while getting data types. See the inner error for additional information',
@@ -121,17 +133,32 @@ export class GlyphEngine {
         columnName: string;
         columnType: fileIngestion.constants.FIELD_TYPE;
       }[],
-      data: Map<string, string>
+      data: Map<string, string>,
+      project: databaseTypes.IProject
     ): void {
       const col = data.get(`${prefix}_axis`);
       const colxType =
         tableDef.find(d => d.columnName === col)?.columnType ??
         fileIngestion.constants.FIELD_TYPE.UNKNOWN;
 
-      const colAsString =
-        colxType === fileIngestion.constants.FIELD_TYPE.STRING
-          ? 'string'
-          : 'number';
+      let colAsString = 'string';
+      if (colxType !== fileIngestion.constants.FIELD_TYPE.STRING) {
+        let foundType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+        for (let i = 0; i < project.files.length; i++) {
+          const file = project.files[i];
+          for (let j = 0; j < file.columns.length; j++) {
+            if (file.columns[j].name === col) {
+              foundType = file.columns[j].fieldType;
+              break;
+            }
+          }
+        }
+        if (foundType === fileIngestion.constants.FIELD_TYPE.NUMBER) {
+          colAsString = 'number';
+        } else if (foundType === fileIngestion.constants.FIELD_TYPE.DATE) {
+          colAsString = 'date';
+        }
+      }
       data.set(`type_${prefix}`, colAsString);
     }
   }
@@ -221,7 +248,11 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const sdtParser = await SdtParser.parseSdtString(template, viewName);
+      const sdtParser = await SdtParser.parseSdtString(
+        template,
+        viewName,
+        data
+      );
 
       await processTrackingService.addProcessMessage(
         this.processId,
@@ -364,7 +395,6 @@ export class GlyphEngine {
       (data.get('z_direction') ?? 'ASC') === 'ASC'
         ? '255,-255,-255'
         : '-255,255,255';
-
     const updatedTemplate = template
       .replace('ROOT_ID', data.get('model_id') as string)
       .replace('_HOST_', '_data.csv')

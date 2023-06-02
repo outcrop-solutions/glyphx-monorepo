@@ -15,12 +15,18 @@ export class SdtParser {
   private inputFieldsField?: IInputFields;
   private readonly bindings: {x: string; y: string; z: string};
   private readonly shapeField: SHAPE;
+  private readonly data: Map<string, string>;
 
-  private constructor(parsedDocument: sdt.ISdtDocument, viewName: string) {
+  private constructor(
+    parsedDocument: sdt.ISdtDocument,
+    viewName: string,
+    data: Map<string, string>
+  ) {
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
     this.bindings = this.getBindings();
     this.shapeField = SHAPE.CUBE;
+    this.data = data;
   }
 
   private getBindings() {
@@ -42,12 +48,20 @@ export class SdtParser {
   private async buildInputField(
     fieldName: string,
     sdtInputField: sdt.ISdtInputField,
-    minMax: any
+    minMax: any,
+    stringDataType: string
   ): Promise<IInputField> {
+    let type = TYPE.TEXT;
+    if (stringDataType === 'number') {
+      type = TYPE.REAL;
+    } else if (stringDataType === 'date') {
+      type = TYPE.DATE;
+    }
+
     const retval: IInputField = {
       name: sdtInputField['@_name'],
       id: sdtInputField['@_id'],
-      type: sdtInputField['@_type'] === 'Real' ? TYPE.REAL : TYPE.TEXT,
+      type: type,
       field: sdtInputField['@_field'],
       min: minMax[fieldName].min,
       max: minMax[fieldName].max,
@@ -83,19 +97,22 @@ export class SdtParser {
     const xInputField = await this.buildInputField(
       'x',
       x,
-      minMaxCalculator.minMax
+      minMaxCalculator.minMax,
+      this.data.get('type_x') || 'text'
     );
 
     const yInputField = await this.buildInputField(
       'y',
       y,
-      minMaxCalculator.minMax
+      minMaxCalculator.minMax,
+      this.data.get('type_y') || 'text'
     );
 
     const zInputField = await this.buildInputField(
       'z',
       z,
-      minMaxCalculator.minMax
+      minMaxCalculator.minMax,
+      this.data.get('type_z') || 'text'
     );
 
     this.inputFieldsField = {x: xInputField, y: yInputField, z: zInputField};
@@ -103,7 +120,8 @@ export class SdtParser {
 
   public static async parseSdtString(
     sdtString: string,
-    viewName: string
+    viewName: string,
+    data: Map<string, string>
   ): Promise<SdtParser> {
     const options = {
       ignoreAttributes: false,
@@ -112,7 +130,7 @@ export class SdtParser {
     const parser = new XMLParser(options);
     const parsedDocument = parser.parse(sdtString);
 
-    const sdtParser = new SdtParser(parsedDocument, viewName);
+    const sdtParser = new SdtParser(parsedDocument, viewName, data);
     await sdtParser.loadInputFields();
     return sdtParser;
   }

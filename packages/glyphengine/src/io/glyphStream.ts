@@ -7,7 +7,7 @@ import {
   convertRgbToHsv,
   convertHsvToRgb,
 } from '../util';
-import {FUNCTION, SHAPE} from '../constants';
+import {FUNCTION, SHAPE, TYPE} from '../constants';
 
 export class GlyphStream extends Transform {
   private sdtParser: SdtParser;
@@ -68,13 +68,23 @@ export class GlyphStream extends Transform {
     //us from having to do some pointer work to get the values into strongly
     //typed structures.
     let retval = '';
+    const inputFields = this.sdtParser.getInputFields();
     try {
       const xFieldName = this.sdtParser.getInputFields().x.field;
-      const xValue = (chunk[xFieldName] as any)?.toString() ?? '';
+      const xValue =
+        inputFields.x.type !== TYPE.DATE
+          ? (chunk[xFieldName] as any)?.toString()
+          : new Date(chunk[xFieldName] as number).toISOString();
       const yFieldName = this.sdtParser.getInputFields().y.field;
-      const yValue = (chunk[yFieldName] as any)?.toString() ?? '';
+      const yValue =
+        inputFields.y.type !== TYPE.DATE
+          ? (chunk[yFieldName] as any)?.toString()
+          : new Date(chunk[yFieldName] as number).toISOString();
       const zFieldName = this.sdtParser.getInputFields().z.field;
-      const zValue = (chunk[zFieldName] as any)?.toString() ?? '';
+      const zValue =
+        inputFields.z.type !== TYPE.DATE
+          ? (chunk[zFieldName] as any)?.toString()
+          : new Date(chunk[zFieldName] as number).toISOString();
       //Row ids should always be ints, so let's send them across the wire
       //as such
       const rowIdValues = chunk['rowids'] as string;

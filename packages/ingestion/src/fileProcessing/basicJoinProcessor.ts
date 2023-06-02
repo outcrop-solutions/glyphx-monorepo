@@ -1,6 +1,7 @@
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
 import {error} from '@glyphx/core';
 import {GLYPHX_ID_COLUMN_NAME} from './basicFileTransformer';
+import {fileIngestion} from '@glyphx/types';
 
 /**
  * IJoinData is an internal interface for holding temorary join information.
@@ -184,6 +185,8 @@ export class BasicJoinProcessor
             tableColumn =>
               //we do not want to join on glyphxId ever
               joinTablecolumn.columnName !== GLYPHX_ID_COLUMN_NAME &&
+              joinTablecolumn.columnType !==
+                fileIngestion.constants.FIELD_TYPE.DATE &&
               joinTablecolumn.columnName === tableColumn.columnName &&
               joinTablecolumn.columnType === tableColumn.columnType
           );
@@ -213,12 +216,25 @@ export class BasicJoinProcessor
       });
 
       const joinTable = joinTablesData[0];
+
       const joinTableDefinition = this.processedTables[joinTable.tableIndex];
       table.joinTable = joinTableDefinition;
       table.columns.forEach(c => {
         //we only wan't the left most glyphxId column to be selected
         if (c.columnName === GLYPHX_ID_COLUMN_NAME) {
           c.isSelectedColumn = false;
+        } else if (c.columnType === fileIngestion.constants.FIELD_TYPE.DATE) {
+          //For dates we don't want to join even if they have the same name.
+          //For instance, some databases may have a deletedAt column,
+          //in this case, we will only select the same named column from
+          //the left table.
+          const sameColumn = joinTableDefinition.columns.find(jc => {
+            return (
+              jc.columnName === c.columnName && jc.columnType === c.columnType
+            );
+          });
+          c.isJoinColumn = false;
+          c.isSelectedColumn = sameColumn ? false : true;
         } else if (
           joinTable.columns.find(jc => {
             return (
@@ -231,11 +247,24 @@ export class BasicJoinProcessor
         }
       });
     } else if (this.joinData.length > 1) {
-      const glyphIdColumn = table.columns.find(
-        c => c.columnName === GLYPHX_ID_COLUMN_NAME
-      ) as fileProcessingInterfaces.IJoinTableColumnDefinition;
-
-      glyphIdColumn.isSelectedColumn = false;
+      table.columns.forEach(c => {
+        if (c.columnName === GLYPHX_ID_COLUMN_NAME) {
+          c.isSelectedColumn = false;
+        } else if (c.columnType === fileIngestion.constants.FIELD_TYPE.DATE) {
+          for (let i = this.joinData.length - 2; i >= 0; i--) {
+            const leftTable = this.joinData[i];
+            const sharedColumn = leftTable.columns.find(lc => {
+              return (
+                lc.columnName === c.columnName && lc.columnType === c.columnType
+              );
+            });
+            if (sharedColumn) {
+              c.isSelectedColumn = false;
+              break;
+            }
+          }
+        }
+      });
     }
   }
 }
