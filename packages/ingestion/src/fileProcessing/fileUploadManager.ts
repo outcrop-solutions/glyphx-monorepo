@@ -161,9 +161,9 @@ export class FileUploadManager {
       //Calling done here is important as it
       //will pull all errors into the main thread and
       //so that they can be caught.
-      await splitStream.done();
       //We have to wait for our uploads to finish as they are not part of the forked stream.
       await Promise.all([csvUpload.done(), parquetUpload.done()]);
+
       return {
         fileInformation: processedFileInformation,
         errorInformation: processedFileErrorInformation,

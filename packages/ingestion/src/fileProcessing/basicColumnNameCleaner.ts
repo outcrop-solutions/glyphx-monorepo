@@ -6,6 +6,7 @@ import {error} from '@glyphx/core';
 export class BasicColumnNameCleaner
   implements fileProcessingInterfaces.IColumnNameCleaner
 {
+  invalidCols = 0;
   /**
    * a list of codes that will be replaced with an _ (underscore)
    *
@@ -48,7 +49,7 @@ export class BasicColumnNameCleaner
 
     const ret = outArray.join('');
 
-    const result = ret.split('').reduce((acc, curr) => {
+    let result = ret.split('').reduce((acc, curr) => {
       if (acc === '' && curr === '_') {
         return acc;
       }
@@ -56,11 +57,13 @@ export class BasicColumnNameCleaner
     }, '');
 
     if (result === '') {
-      throw new error.InvalidArgumentError(
-        `The column name ${value} is not valid.  Its clean name is an empty string`,
-        'value',
-        value
-      );
+      result = `invalid_${this.invalidCols}`;
+      this.invalidCols++;
+      // throw new error.InvalidArgumentError(
+      //   `The column name ${value} is not valid.  Its clean name is an empty string`,
+      //   'value',
+      //   value
+      // );
     }
     return result;
   }
