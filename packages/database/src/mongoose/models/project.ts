@@ -35,6 +35,7 @@ const SCHEMA = new Schema<
       () => new Date(),
   },
   name: {type: String, required: true},
+  imageHash: {type: String, required: false},
   description: {type: String, required: false},
   sdtPath: {type: String, required: false},
   currentVersion: {type: Number, required: true, default: 0},

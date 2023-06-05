@@ -8,8 +8,8 @@ export const StateList = () => {
 
   return (
     states && (
-      <div className="lg:block border-b border-gray">
-        <ul className="overflow-auto grow">
+      <div className="lg:block border-b border-gray z-60">
+        <ul className="overflow-visible grow z-60">
           {states.map((item, idx) => (
             <State key={idx} item={item} idx={idx} />
           ))}

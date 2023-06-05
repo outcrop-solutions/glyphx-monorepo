@@ -1,13 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { AnnotationList } from './AnnotationList';
-import { _createAnnotation, api } from 'lib';
 import { useAnnotations } from 'lib/client/hooks';
-import { ArrowRightIcon } from '@heroicons/react/outline';
-import { InputArea } from './InputArea';
 
 export const Annotations = () => {
   const [isCollapsed, setCollapsed] = useState(false);
-  const { data, type, id, isLoading } = useAnnotations();
+  const { isLoading } = useAnnotations();
 
   return (
     <div className="group flex flex-col grow">
@@ -40,8 +37,7 @@ export const Annotations = () => {
           </a>
         </div>
       </summary>
-      {!isCollapsed && data && !isLoading && <AnnotationList data={data} />}
-      <InputArea id={id} type={type} />
+      {!isCollapsed && !isLoading && <AnnotationList />}
     </div>
   );
 };

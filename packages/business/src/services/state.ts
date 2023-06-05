@@ -38,6 +38,7 @@ export class StateService {
   public static async createState(
     name: string,
     camera: webTypes.Camera,
+    imageHash: string,
     projectId: mongooseTypes.ObjectId | string,
     userId: mongooseTypes.ObjectId | string
   ): Promise<databaseTypes.IState | null> {
@@ -70,6 +71,7 @@ export class StateService {
         name: name,
         version: 0,
         static: true,
+        imageHash: imageHash,
         camera: {...camera},
         properties: {...project.state.properties},
         fileSystemHash: hashFileSystem(project.files),
@@ -82,6 +84,10 @@ export class StateService {
       const state = await mongoDbConnection.models.StateModel.createState(
         input
       );
+
+      await mongoDbConnection.models.ProjectModel.updateProjectById(pid, {
+        imageHash: imageHash,
+      });
 
       const wid =
         workspace._id instanceof mongooseTypes.ObjectId

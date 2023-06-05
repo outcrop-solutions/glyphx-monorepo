@@ -1,12 +1,16 @@
+import { web as webTypes } from '@glyphx/types';
 import { useMemo } from 'react';
 import BarLoader from 'react-spinners/BarLoader';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
 import dynamic from 'next/dynamic';
+import { useRecoilValue } from 'recoil';
+import { orientationAtom } from 'state';
 const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
 });
 
 export const Datagrid = ({ data }) => {
+  const orientation = useRecoilValue(orientationAtom);
   // data grid column handling
   const draggableColumns = useMemo(() => {
     function HeaderRenderer(props) {

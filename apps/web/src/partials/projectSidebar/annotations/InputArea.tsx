@@ -2,12 +2,14 @@ import { ArrowRightIcon } from '@heroicons/react/outline';
 import { _createAnnotation, api } from 'lib';
 import { useCallback, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { mutate, useSWRConfig } from 'swr';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
 export const InputArea = ({ id, type }) => {
+  const { mutate } = useSWRConfig();
   const [value, setValue] = useState('');
 
   const createAnnotation = useCallback(() => {
@@ -15,11 +17,18 @@ export const InputArea = ({ id, type }) => {
       toast.success('Please provide a comment to annotate!');
       return;
     }
-    api({ ..._createAnnotation({ id, type, value }), onSuccess: () => setValue('') });
-  }, [id, type, value]);
+    api({
+      ..._createAnnotation({ id, type, value }),
+      onSuccess: () => {
+        setValue('');
+        mutate(`/api/annotations/project/${id}`);
+        mutate(`/api/annotations/state/${id}`);
+      },
+    });
+  }, [id, mutate, type, value]);
   return (
     <div className="min-w-0 flex-1 px-2 py-1">
-      <form className="relative">
+      <div className="relative">
         <div className="overflow-hidden rounded-lg shadow-sm ring-1 ring-inset ring-gray focus-within:ring-2 focus-within:ring-yellow">
           <label htmlFor="comment" className="sr-only">
             Reply to thread
@@ -53,7 +62,7 @@ export const InputArea = ({ id, type }) => {
             </button>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

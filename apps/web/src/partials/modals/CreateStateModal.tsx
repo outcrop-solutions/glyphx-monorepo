@@ -6,13 +6,14 @@ import { WritableDraft } from 'immer/dist/internal';
 import { _createState, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { cameraAtom, modalsAtom, projectAtom } from 'state';
+import { cameraAtom, imageHashAtom, modalsAtom, projectAtom } from 'state';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
 
 export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProps) => {
   const { mutate } = useSWRConfig();
   const setModals = useSetRecoilState(modalsAtom);
   const [camera, setCamera] = useRecoilState(cameraAtom);
+  const [image, setImage] = useRecoilState(imageHashAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [name, setName] = useState('');
   const validName = name.length > 0 && name.length <= 16;
@@ -25,13 +26,19 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
     event.preventDefault();
     if (window?.core) {
       window?.core?.GetCameraPosition(true);
+      window?.core?.TakeScreenShot('');
     }
   };
 
   useEffect(() => {
-    if (Object.keys(camera).length > 0) {
+    if (Object.keys(camera).length > 0 && image.imageHash) {
       api({
-        ..._createState(name, modalContent.data._id as unknown as string, camera as unknown as webTypes.Camera),
+        ..._createState(
+          name,
+          modalContent.data._id as unknown as string,
+          camera as unknown as webTypes.Camera,
+          image.imageHash
+        ),
         setLoading: (state) =>
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
@@ -40,6 +47,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
           ),
         onError: (_: any) => {
           setCamera({});
+          setImage({ imageHash: false });
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
               draft.modals.splice(0, 1);
@@ -48,6 +56,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
         },
         onSuccess: (data: any) => {
           setCamera({});
+          setImage({ imageHash: false });
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
               draft.modals.splice(0, 1);
@@ -57,7 +66,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
         },
       });
     }
-  }, [camera, modalContent.data._id, name, setCamera, setModals, setProject, mutate]);
+  }, [camera, modalContent.data._id, name, setCamera, setModals, setProject, mutate, image, setImage]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">

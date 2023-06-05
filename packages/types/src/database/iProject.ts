@@ -15,6 +15,7 @@ export interface IProject {
   sdtPath?: string;
   workspace: IWorkspace;
   lastOpened?: Date;
+  imageHash?: string;
   slug?: string;
   isTemplate: Boolean;
   type?: IProjectType;

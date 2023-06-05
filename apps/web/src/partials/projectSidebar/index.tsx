@@ -6,8 +6,8 @@ import { Filters } from './filters';
 import { States } from './states';
 
 import { usePosition } from 'services/usePosition';
-import { useSetRecoilState } from 'recoil';
-import { leftCoordinatesAtom } from 'state';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { leftCoordinatesAtom, windowSizeAtom } from 'state';
 import { Annotations } from './annotations';
 
 export const ProjectSidebar = () => {
@@ -16,6 +16,7 @@ export const ProjectSidebar = () => {
   // trigger sendPosition when sidebar changes
   const pos = usePosition(sidebar);
   const setCoords = useSetRecoilState(leftCoordinatesAtom);
+  const { height } = useRecoilValue(windowSizeAtom);
 
   // set projectsSidebar position on transition
   useEffect(() => {
@@ -29,9 +30,14 @@ export const ProjectSidebar = () => {
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex grow flex-col bg-secondary-space-blue z-30 border-r border-l border-t border-gray h-full scrollbar-none`}
+      className={`flex grow flex-col bg-secondary-space-blue z-30 border-r border-l border-t border-gray h-full scrollbar-none w-[250px] shrink-0`}
     >
-      <div className="overflow-y-auto w-full scrollbar-none">
+      <div
+        style={{
+          height: `${height && height - 60}px`,
+        }}
+        className={`overflow-y-auto w-full scrollbar-none`}
+      >
         <Files />
         <Axes />
         <Filters />

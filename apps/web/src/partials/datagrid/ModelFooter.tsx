@@ -20,7 +20,7 @@ const footerHeight = 44;
 const resizeHandle = 4;
 
 export const ModelFooter = () => {
-  const { mutate } = useSWRConfig();
+  // const { mutate } = useSWRConfig();
   const session = useSession();
   const url = useUrl();
   const viewer = useRecoilValue(viewerPositionSelector);
@@ -34,7 +34,7 @@ export const ModelFooter = () => {
   const handleOpenClose = useCallback(async () => {
     if (drawer && windowSize.height) {
       // close drawer
-      setResize(windowSize.height - 70);
+      setResize(windowSize.height - 105);
       setOrientation('horizontal');
 
       setDrawer(false);
@@ -42,17 +42,17 @@ export const ModelFooter = () => {
     } else {
       // open drawer
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      await callDownloadModel({ project, payloadHash, session, url, mutate, setLoading, setDrawer, setResize });
+      await callDownloadModel({ project, payloadHash, session, url, setLoading, setDrawer, setResize });
     }
-  }, [drawer, mutate, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
+  }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
 
   return viewer && !(Object.keys(loading).length > 0) ? (
     <div
       style={{
         position: 'fixed',
-        left: `${viewer.x - (orientation === 'vertical' ? 0 : 0)}px`,
-        top: `${viewer.y - (footerHeight + resizeHandle)}px`,
-        width: `${viewer.w - (orientation === 'vertical' ? 10 : 0)}px`,
+        left: `${viewer.x - (orientation === 'vertical' ? 0 : 5)}px`,
+        top: `${viewer.y - 44}px`,
+        width: `${viewer.w + 5}px`,
       }}
       className={`z-60 h-[44px] ${
         orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'

@@ -10,7 +10,7 @@ Content.Workspace = ({ children }) => {
 };
 
 Content.Project = ({ children }) => {
-  return <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">{children}</div>;
+  return <div className="flex flex-col h-full w-full bg-transparent">{children}</div>;
 };
 
 Content.Container = ({ children }: { children?: any }) => {
