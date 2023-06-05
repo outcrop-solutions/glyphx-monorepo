@@ -21,18 +21,12 @@ export class DateFieldChecker
 {
   checkField(input: string): boolean {
     const trimmedInput = input.trim();
-    let retval = false;
-    for (let i = 0; i < EXPRESSIONS.length; i++) {
-      const exp = EXPRESSIONS[i];
-      //We have to reset our last index between regex calls
-      exp.lastIndex = -1;
-      const res = exp.test(trimmedInput);
-      if (res) {
-        retval = true;
-        break;
-      }
+    if (isNaN(Number(trimmedInput))) {
+      const time = new Date(trimmedInput).getTime();
+      return !isNaN(time);
+    } else {
+      return trimmedInput.length >= 10 && trimmedInput.length <= 13;
     }
-    return retval;
   }
 
   convertField(input: string): Date {
