@@ -339,7 +339,7 @@ describe('GlyphEngine', () => {
       assert.strictEqual(localData.get('type_z'), 'number');
     });
 
-    it.only('if the DataDef does not exist, the column type will default to the project', async () => {
+    it('if the DataDef does not exist, the column type will default to the project', async () => {
       const localData = new Map<string, string>(data);
       const dataDef = [
         {

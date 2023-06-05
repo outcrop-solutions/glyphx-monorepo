@@ -380,4 +380,72 @@ describe('#fileProcessing/basicFileTransformer', () => {
       }
     });
   });
+  it('will emit an error when the basic column name cleaner fails', async () => {
+    const fileName = 'testFileName';
+    const outputFileName = `${fileName}.parquet`;
+    const outputDirectory = 'dir1/';
+    const tableName = fileName;
+    const numberOfRows = 1000;
+    let hasErrors = false;
+    const firstRow = true;
+    let done = false;
+    const fileTransformer = new BasicFileTransformer(
+      fileName,
+      outputFileName,
+      outputDirectory,
+      tableName,
+      fileIngestion.constants.FILE_OPERATION.ADD,
+      (info: fileProcessingInterfaces.IFileInformation) => {
+        done = true;
+      },
+
+      () => {
+        hasErrors = true;
+      },
+      BasicFieldTypeCalculator,
+      BasicColumnNameCleaner,
+      100
+    );
+    const readStream = new Readable({
+      objectMode: true,
+      read: () => {
+        for (let i = 0; i < numberOfRows; i++) {
+          readStream.push({
+            name: `field${i}`,
+            value: i.toString(),
+            someDate: new Date().toISOString(),
+            '0': 'bad column name',
+          });
+        }
+
+        readStream.push(null);
+      },
+    });
+    let seenRows = 0;
+    let errored = false;
+    fileTransformer.on('error', err => {
+      errored = true;
+    });
+
+    let caughtError = false;
+    try {
+      await pipeline(
+        readStream,
+        fileTransformer,
+        new Writable({
+          objectMode: true,
+          write: (chunk, encoding, callback) => {
+            seenRows++;
+          },
+        })
+      );
+    } catch (err) {
+      caughtError = true;
+    }
+    assert.isFalse(hasErrors);
+    assert.strictEqual(seenRows, 0);
+    assert.isFalse(done);
+    assert.isTrue(errored);
+    assert.isTrue(caughtError);
+  });
 });

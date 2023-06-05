@@ -1,5 +1,7 @@
+import 'mocha';
 import {assert} from 'chai';
 import {BasicColumnNameCleaner} from '@fileProcessing';
+import {error} from '@glyphx/core';
 
 describe('#fileProcessing/BasicColumnNameCleaner', () => {
   context('cleanColmnName', () => {
@@ -47,6 +49,14 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
       assert.isTrue(
         charValue !== 95 //_
       );
+    });
+    it('will throw an error when the clean column name equals an empty string', () => {
+      const columnName = '0';
+      const columnNameCleaner = new BasicColumnNameCleaner();
+
+      assert.throws(() => {
+        columnNameCleaner.cleanColumnName(columnName);
+      }, error.InvalidArgumentError);
     });
   });
 });

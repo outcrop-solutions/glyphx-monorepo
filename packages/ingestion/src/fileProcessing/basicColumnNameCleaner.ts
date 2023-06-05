@@ -1,4 +1,5 @@
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import {error} from '@glyphx/core';
 /**
  * Implements {@link interfaces/fileProcessing/iColumnNameCleaner!IColumnNameCleaner} to provide basic column name cleaning.
  */
@@ -54,6 +55,13 @@ export class BasicColumnNameCleaner
       return acc + curr;
     }, '');
 
+    if (result === '') {
+      throw new error.InvalidArgumentError(
+        `The column name ${value} is not valid.  Its clean name is an empty string`,
+        'value',
+        value
+      );
+    }
     return result;
   }
 }
