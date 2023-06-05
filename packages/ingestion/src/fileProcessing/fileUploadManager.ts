@@ -114,51 +114,60 @@ export class FileUploadManager {
     fileOperationType: fileIngestion.constants.FILE_OPERATION,
     s3Manager: aws.S3Manager
   ) {
-    const csvFileName =
-      generalPurposeFunctions.fileIngestion.getTableCsvPath(
-        clientId,
-        modelId,
-        tableName
-      ) + fileName;
-    const splitStream = FileUploadManager.creatBaseStream(fileStream);
-
-    //Create our fork for the csv stream
-    const csvUpload = FileUploadManager.createCsvStream(
-      csvFileName,
-      s3Manager,
-      splitStream
-    );
-
-    //create our fork for our parquet file
-    const {parquetFileName, parquetPath} = FileUploadManager.getParquetFileName(
-      csvFileName,
-      clientId,
-      modelId,
-      tableName
-    );
-
-    const processedFileInformation: IFileInformation = {} as IFileInformation;
-    const processedFileErrorInformation: IFileProcessingError[] = [];
-    const startingRowId =
-      fileOperationType !== fileIngestion.constants.FILE_OPERATION.APPEND
-        ? 0
-        : await FileUploadManager.getMaxRowId(clientId, modelId, tableName);
-    const {parquetUpload} = FileUploadManager.createParquetStream(
-      fileName,
-      parquetFileName,
-      parquetPath,
-      tableName,
-      fileOperationType,
-      splitStream,
-      s3Manager,
-      processedFileInformation,
-      processedFileErrorInformation,
-      startingRowId
-    );
-
-    splitStream.startPipeline();
     try {
+      const csvFileName =
+        generalPurposeFunctions.fileIngestion.getTableCsvPath(
+          clientId,
+          modelId,
+          tableName
+        ) + fileName;
+      const splitStream = FileUploadManager.creatBaseStream(fileStream);
+
+      //Create our fork for the csv stream
+      const csvUpload = FileUploadManager.createCsvStream(
+        csvFileName,
+        s3Manager,
+        splitStream
+      );
+
+      //create our fork for our parquet file
+      const {parquetFileName, parquetPath} =
+        FileUploadManager.getParquetFileName(
+          csvFileName,
+          clientId,
+          modelId,
+          tableName
+        );
+
+      const processedFileInformation: IFileInformation = {} as IFileInformation;
+      const processedFileErrorInformation: IFileProcessingError[] = [];
+      const startingRowId =
+        fileOperationType !== fileIngestion.constants.FILE_OPERATION.APPEND
+          ? 0
+          : await FileUploadManager.getMaxRowId(clientId, modelId, tableName);
+      const {parquetUpload} = FileUploadManager.createParquetStream(
+        fileName,
+        parquetFileName,
+        parquetPath,
+        tableName,
+        fileOperationType,
+        splitStream,
+        s3Manager,
+        processedFileInformation,
+        processedFileErrorInformation,
+        startingRowId
+      );
+      splitStream.startPipeline();
+      //Calling done here is important as it
+      //will pull all errors into the main thread and
+      //so that they can be caught.
+      await splitStream.done();
+      //We have to wait for our uploads to finish as they are not part of the forked stream.
       await Promise.all([csvUpload.done(), parquetUpload.done()]);
+      return {
+        fileInformation: processedFileInformation,
+        errorInformation: processedFileErrorInformation,
+      };
     } catch (err) {
       throw new error.InvalidOperationError(
         'An unexpected error occurred while uploading the file.  See the inner error for additional information',
@@ -166,11 +175,6 @@ export class FileUploadManager {
         err
       );
     }
-
-    return {
-      fileInformation: processedFileInformation,
-      errorInformation: processedFileErrorInformation,
-    };
   }
 
   static async getMaxRowId(

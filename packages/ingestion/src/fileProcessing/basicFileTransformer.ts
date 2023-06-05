@@ -261,9 +261,14 @@ export class BasicFileTransformer extends Transform {
         fieldNumber,
         1
       );
-
+      let columnName = '';
+      try {
+        columnName = this.columnNameCleaner.cleanColumnName(key);
+      } catch (error) {
+        this.emit('error', error);
+      }
       this.columTypeTrackers.push({
-        columnName: this.columnNameCleaner.cleanColumnName(key),
+        columnName: columnName,
         origionalColumnName: key,
         fieldTypeCalculator: fieldTypeCalculator,
         maxFieldLength: 0,
