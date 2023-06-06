@@ -21,7 +21,7 @@ export const UpdateStateModal = ({ modalContent }: webTypes.UpdateStateModalProp
   const updateState = (event) => {
     event.preventDefault();
     api({
-      ..._updateStateName({ id: modalContent.data.id, name: name }),
+      ..._updateStateName({ id: modalContent.data.id.toString(), name: name }),
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {

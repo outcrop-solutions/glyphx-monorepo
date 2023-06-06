@@ -49,7 +49,7 @@ export const useResize = () => {
 
   const debouncedOnChange = debounce((data) => {
     setResize(data);
-  }, 100);
+  }, 50);
 
   const handlePaneResize = useCallback(
     (size) => {

@@ -190,7 +190,7 @@ div.Pane.horizontal.Pane2 {
 }
 
 .Resizer.vertical {
-  width: 4px;
+  width: 5px;
   margin: 0 -0px;
   border-left: 2px solid rgba(89, 94, 104, 1);
   border-right: 2px solid rgba(89, 94, 104, 1);
