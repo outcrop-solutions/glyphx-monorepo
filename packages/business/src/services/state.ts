@@ -38,9 +38,9 @@ export class StateService {
   public static async createState(
     name: string,
     camera: webTypes.Camera,
-    imageHash: string,
     projectId: mongooseTypes.ObjectId | string,
-    userId: mongooseTypes.ObjectId | string
+    userId: mongooseTypes.ObjectId | string,
+    imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
       const pid =
@@ -66,12 +66,14 @@ export class StateService {
 
       const user = await mongoDbConnection.models.UserModel.getUserById(uid);
 
+      const image = imageHash ? {imageHash} : {};
+
       const input = {
+        ...image,
         createdBy: {...user},
         name: name,
         version: 0,
         static: true,
-        imageHash: imageHash,
         camera: {...camera},
         properties: {...project.state.properties},
         fileSystemHash: hashFileSystem(project.files),
@@ -156,7 +158,8 @@ export class StateService {
 
   public static async updateState(
     stateId: mongooseTypes.ObjectId | string,
-    name: string
+    name?: string,
+    imageHash?: string
   ): Promise<databaseTypes.IState> {
     try {
       const id =
@@ -164,10 +167,13 @@ export class StateService {
           ? stateId
           : new mongooseTypes.ObjectId(stateId);
 
+      const image = imageHash ? {imageHash} : {};
+      const nameObj = name ? {name} : {};
       const state = await mongoDbConnection.models.StateModel.updateStateById(
         id,
         {
-          name: name,
+          ...image,
+          ...nameObj,
         }
       );
 

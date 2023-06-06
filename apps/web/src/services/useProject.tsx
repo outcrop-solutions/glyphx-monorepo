@@ -50,11 +50,9 @@ export const useProject = () => {
           payloadHash,
           session,
           url,
-          mutate,
           setLoading,
           setDrawer,
           setResize,
-          camera: undefined,
         });
       } else {
         // creates update in route via deepMerge

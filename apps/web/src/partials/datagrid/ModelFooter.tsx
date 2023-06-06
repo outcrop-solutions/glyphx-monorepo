@@ -14,10 +14,6 @@ import { hashFileSystem } from 'lib/utils/hashFileSystem';
 import { hashPayload } from 'lib/utils/hashPayload';
 import { useSession } from 'next-auth/react';
 import { useUrl } from 'lib/client/hooks';
-import { useSWRConfig } from 'swr';
-
-const footerHeight = 44;
-const resizeHandle = 4;
 
 export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
@@ -30,6 +26,7 @@ export const ModelFooter = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const [loading, setLoading] = useRecoilState(showLoadingAtom);
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
+  const isBrowser = !(window && window?.core);
 
   const handleOpenClose = useCallback(async () => {
     if (drawer && windowSize.height) {
@@ -39,12 +36,15 @@ export const ModelFooter = () => {
 
       setDrawer(false);
       window?.core?.ToggleDrawer(false);
+    } else if (isBrowser) {
+      setResize(150);
+      setDrawer(true);
     } else {
       // open drawer
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
       await callDownloadModel({ project, payloadHash, session, url, setLoading, setDrawer, setResize });
     }
-  }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
+  }, [drawer, isBrowser, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
 
   return viewer && !(Object.keys(loading).length > 0) ? (
     <div

@@ -27,7 +27,12 @@ export const formatGridData = (data, columns): webTypes.IRenderableDataGrid => {
     const formattedRow = { ...row, id: idx };
     dateFields.forEach((dateField) => {
       const date = new Date(row[dateField]);
-      formattedRow[dateField] = date.toISOString();
+      if (!isNaN(date.getTime())) {
+        formattedRow[dateField] = date.toISOString();
+      }
+      // } else {
+      //   throw Error(`${row[dateField]} cannot be parsed into a valid date`);
+      // }
     });
     return formattedRow;
   });

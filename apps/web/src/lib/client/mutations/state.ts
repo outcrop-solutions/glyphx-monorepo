@@ -66,7 +66,7 @@ export const _deleteState = (id: string): webTypes.IFetchConfig => {
 /**
  * Updates a state's name
  * @note uses stateService.updateStateName() in business package
- * @param slug corresponds to state.slug in mongoDB
+ * @param id corresponds to state.slug in mongoDB
  * @param name corresponds to state.name in mongoDB
  */
 export const _updateStateName = ({ id, name }: { id: string; name: string }): webTypes.IFetchConfig => {

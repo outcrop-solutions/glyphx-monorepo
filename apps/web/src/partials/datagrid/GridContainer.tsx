@@ -8,16 +8,19 @@ import { ModelFooter } from './ModelFooter';
 
 import { filesOpenSelector } from 'state/files';
 import { useResize } from 'services/useResize';
-import { orientationAtom, splitPaneSizeAtom, windowSizeAtom } from 'state';
+import { orientationAtom, projectAtom, splitPaneSizeAtom, windowSizeAtom } from 'state';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
+import Image from 'next/image';
 
 export const GridContainer = () => {
   const { data } = useDataGrid();
   const openFiles = useRecoilValue(filesOpenSelector);
+  const project = useRecoilValue(projectAtom);
   const orientation = useRecoilValue(orientationAtom);
   const { height } = useRecoilValue(windowSizeAtom);
   const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
+  const isBrowser = !(window && window?.core);
 
   const getPaneHeight = () => {
     if (height) {
@@ -53,6 +56,16 @@ export const GridContainer = () => {
             <MainDropzone />
           )}
         </div>
+        {isBrowser && project?.imageHash ? (
+          <div className="h-full w-full aspect-video p-20">
+            <Image
+              className="mt-[44px]"
+              src={project.imageHash && `data:image/png;base64,${project.imageHash}`}
+              layout="fill"
+              alt="model"
+            />
+          </div>
+        ) : null}
       </SplitPane>
     </div>
   );

@@ -51,7 +51,6 @@ export const getDataByTableName = async (
     const table = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
 
     const data = await dataService.getDataByTableName(table);
-
     const project = await projectService.getProject(projectId);
 
     const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
@@ -70,7 +69,7 @@ export const getDataByTableName = async (
         currentPage: page,
       });
     }
-  } catch (e) {
-    res.status(500).send(e.message);
+  } catch (error) {
+    res.status(404).json({ errors: { error: { msg: error.message } } });
   }
 };
