@@ -5,6 +5,11 @@ import { DownloadIcon } from '@heroicons/react/outline';
 import { rowIdsAtom } from 'state';
 import { useCallback } from 'react';
 
+const DELIMIT_CHARS = [
+  10, //\n
+  13, ///LF
+  44, //,
+];
 export const GridHeader = ({ data }) => {
   const filesOpen = useRecoilValue(filesOpenSelector);
   const rowIds = useRecoilValue(rowIdsAtom);
@@ -16,7 +21,15 @@ export const GridHeader = ({ data }) => {
     for (const row of data.rows) {
       const line = [];
       for (const key of Object.keys(row)) {
-        line.push(String(row[key]));
+        let value = String(row[key] || '');
+        for (let i = 0; i < value.length; i++) {
+          const charValue = value.charCodeAt(i);
+          if (DELIMIT_CHARS.includes(charValue)) {
+            value = `"${value}"`;
+            break;
+          }
+        }
+        line.push(value);
       }
       csvStrings.push(line.join(','));
     }
@@ -45,7 +58,6 @@ export const GridHeader = ({ data }) => {
           <DownloadIcon className="text-white w-6 ml-2 group-hover:text-black" />
         </div>
       )}
-      {/* <PlusIcon className="h-5 text-gray mx-2" /> */}
     </div>
   );
 };
