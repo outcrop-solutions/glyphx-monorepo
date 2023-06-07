@@ -4,7 +4,7 @@ import {FUNCTION, TYPE, SHAPE} from '../constants';
 import {MinMaxCalculator} from './minMaxCalulator';
 import {TextColumnToNumberConverter} from './textToNumberConverter';
 
-interface IInputFields {
+export interface IInputFields {
   x: IInputField;
   y: IInputField;
   z: IInputField;
@@ -49,7 +49,8 @@ export class SdtParser {
     fieldName: string,
     sdtInputField: sdt.ISdtInputField,
     minMax: any,
-    stringDataType: string
+    //istanbul ignore next
+    stringDataType = 'Text'
   ): Promise<IInputField> {
     let type = TYPE.TEXT;
     if (stringDataType === 'number') {
@@ -98,21 +99,21 @@ export class SdtParser {
       'x',
       x,
       minMaxCalculator.minMax,
-      this.data.get('type_x') || 'text'
+      this.data.get('type_x') as string
     );
 
     const yInputField = await this.buildInputField(
       'y',
       y,
       minMaxCalculator.minMax,
-      this.data.get('type_y') || 'text'
+      this.data.get('type_y') as string
     );
 
     const zInputField = await this.buildInputField(
       'z',
       z,
       minMaxCalculator.minMax,
-      this.data.get('type_z') || 'text'
+      this.data.get('type_z') as string
     );
 
     this.inputFieldsField = {x: xInputField, y: yInputField, z: zInputField};

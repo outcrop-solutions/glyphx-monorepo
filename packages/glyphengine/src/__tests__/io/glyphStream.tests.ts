@@ -233,4 +233,22 @@ describe('#io/GlyphStream', () => {
       assert.isTrue(written);
     });
   });
+  context('getDesc', () => {
+    it('will handle null values in our chunk', () => {
+      const glyphStream = new GlyphStream(sdtParser) as any;
+      const desc = glyphStream.getDesc({rowids: '1|2|3'});
+      assert.isOk(desc);
+      const descAsObject = JSON.parse(desc);
+      assert.isOk(descAsObject);
+      const xColumnName = mockInputData.get('x_axis') as string;
+      assert.isString(descAsObject.x[xColumnName]);
+      assert.isEmpty(descAsObject.x[xColumnName]);
+      const yColumnName = mockInputData.get('y_axis') as string;
+      assert.isString(descAsObject.y[yColumnName]);
+      assert.isEmpty(descAsObject.y[yColumnName]);
+      const zColumnName = mockInputData.get('z_axis') as string;
+      assert.isString(descAsObject.z[zColumnName]);
+      assert.isEmpty(descAsObject.z[zColumnName]);
+    });
+  });
 });

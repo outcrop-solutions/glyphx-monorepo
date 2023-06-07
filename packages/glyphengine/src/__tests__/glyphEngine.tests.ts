@@ -421,6 +421,50 @@ describe('GlyphEngine', () => {
       assert.isTrue(errored);
       assert.isTrue(publishStub.called);
     });
+    it('will throw an unexpected error when the project does not exist', async () => {
+      const localData = new Map<string, string>(data);
+      const dataDef = [
+        {
+          columnName: 'columnx',
+          columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        },
+        {
+          columnName: 'columny',
+          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
+        {
+          columnName: 'columnz',
+          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+        },
+      ];
+
+      const getTableDescriptionStub = sandbox.stub();
+      getTableDescriptionStub.resolves(dataDef);
+      sandbox.replace(
+        aws.AthenaManager.prototype,
+        'getTableDescription',
+        getTableDescriptionStub
+      );
+
+      const projectStub = sandbox.stub();
+      projectStub.resolves(undefined);
+      sandbox.replace(projectService, 'getProject', projectStub);
+
+      const glyphEngine = new GlyphEngine(
+        inputBucketName,
+        outputBucketName,
+        databaseName,
+        processId
+      );
+      let errored = false;
+      try {
+        await (glyphEngine as any).getDataTypes('testViewname', localData);
+      } catch (err) {
+        assert.instanceOf(err, error.UnexpectedError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
   });
 
   context('getTemplateAsString', () => {
