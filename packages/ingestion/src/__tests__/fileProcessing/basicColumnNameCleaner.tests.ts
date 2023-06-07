@@ -1,7 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
 import {BasicColumnNameCleaner} from '@fileProcessing';
-import {error} from '@glyphx/core';
 
 describe('#fileProcessing/BasicColumnNameCleaner', () => {
   context('cleanColmnName', () => {
