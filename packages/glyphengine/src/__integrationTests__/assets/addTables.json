@@ -2,7 +2,7 @@
 	"testDataDirectory": "./testData",
 	"databaseName": "jpstestdatabase",
 	"bucketName": "jps-test-bucket",
-	"inputBucketName": "sampleproject04827-staging",
+	"inputBucketName": "jps-test-bucket",
 	"payload": {
 		"clientId": "testclientid",
 		"modelId": "testmodelid",
