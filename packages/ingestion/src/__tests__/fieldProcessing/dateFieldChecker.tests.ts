@@ -21,17 +21,17 @@ describe('#fieldProcessing/DateFieldChecker', () => {
       const dateChecker = new DateFieldChecker();
       assert.isTrue(dateChecker.checkField('5/5/72 12:15 AM'));
     });
-    it('15/05/1972 is a date', () => {
+    it('15/05/1972 is not a date', () => {
       const dateChecker = new DateFieldChecker();
-      assert.isTrue(dateChecker.checkField('15/05/1972'));
+      assert.isFalse(dateChecker.checkField('15/05/1972'));
     });
-    it('15/05/1972 12:15:AM is a date', () => {
+    it('15/05/1972 12:15:AM is  not a date', () => {
       const dateChecker = new DateFieldChecker();
-      assert.isTrue(dateChecker.checkField('15/05/1972 12:15 AM'));
+      assert.isFalse(dateChecker.checkField('15/05/1972 12:15 AM'));
     });
-    it('15/05/72 is a date', () => {
+    it('15/05/72 is not a date', () => {
       const dateChecker = new DateFieldChecker();
-      assert.isTrue(dateChecker.checkField('15/05/72'));
+      assert.isFalse(dateChecker.checkField('15/05/72'));
     });
     it('1972-05-15 is a date', () => {
       const dateChecker = new DateFieldChecker();

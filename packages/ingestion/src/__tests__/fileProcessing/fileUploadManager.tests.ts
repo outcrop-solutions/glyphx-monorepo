@@ -129,51 +129,6 @@ describe('#fileProcessing/fileUploadManager', () => {
       assert.isTrue(errored);
       assert.isFalse(tableServiceStub.called);
     });
-    it('will throw an error when BasicColumnNameCleaner throws an exception for an invalid column name', async () => {
-      s3Mock.on(PutObjectCommand).resolves(true);
-      s3Mock.on(HeadBucketCommand).resolves(true);
-      sandbox.replace(
-        tableService,
-        'getMaxRowId',
-        sandbox
-          .stub()
-          .rejects('getMaxRowId shouild not be getting called for an add')
-      );
-      const localInputData = [
-        `0,col2,col3,col4
-1,A,flagrant,97683
-2,B,flame,72915
-3,C,nonchalant,1480
-4,D,mailbox,63693
-5,E,magical,96378
-6,F,experience,61234
-7,G,detect,17660
-8,H,yam,99248
-9,I,puny,62435
-10,J,grouchy,foo
-1,K,excellent,47570`,
-      ];
-      const localInputStream = Readable.from(localInputData);
-      const s3Bucket = new aws.S3Manager('testBucket');
-      await s3Bucket.init();
-
-      let errored = false;
-      try {
-        await fileProcessing.FileUploadManager.processAndUploadNewFiles(
-          clientId,
-          modelId,
-          localInputStream,
-          tableName,
-          fileName,
-          fileOperationType,
-          s3Bucket
-        );
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
   });
   context('processAndAppendFiles', () => {
     let s3Mock: any;

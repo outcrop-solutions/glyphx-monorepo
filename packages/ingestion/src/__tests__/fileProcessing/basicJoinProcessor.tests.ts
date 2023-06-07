@@ -965,7 +965,7 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
           },
         ],
       };
@@ -1140,6 +1140,11 @@ describe('#fileProcessing/basicJoinProcessor', () => {
             origionalName: 'field2',
             fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
           },
+          {
+            name: 'field3',
+            origionalName: 'field3',
+            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+          },
         ],
       };
 
@@ -1183,6 +1188,9 @@ describe('#fileProcessing/basicJoinProcessor', () => {
 
       assert.isTrue(columns2[2].isJoinColumn);
       assert.isFalse(columns2[2].isSelectedColumn);
+
+      assert.isFalse(columns2[3].isJoinColumn);
+      assert.isTrue(columns2[3].isSelectedColumn);
     });
   });
 });

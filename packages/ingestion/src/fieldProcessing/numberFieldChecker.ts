@@ -80,14 +80,6 @@ export class NumberFieldChecker
 
     tempString = tempString.replace(/,/g, '');
     const retval = Number(tempString);
-
-    if (isNaN(retval)) {
-      throw new error.InvalidArgumentError(
-        `The input value of : ${input} is not a number`,
-        'input',
-        input
-      );
-    }
     return retval;
   }
 }

@@ -1,4 +1,3 @@
-import {error} from '@glyphx/core';
 interface IConfig {
   processId: string;
 }

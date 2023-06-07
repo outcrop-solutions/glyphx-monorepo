@@ -1,5 +1,4 @@
 import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
-import {error} from '@glyphx/core';
 /**
  * Implements {@link interfaces/fileProcessing/iColumnNameCleaner!IColumnNameCleaner} to provide basic column name cleaning.
  */
