@@ -1,6 +1,6 @@
 import {Transform} from 'stream';
 import {IGlyph, IInputField, IProperty} from '../interfaces';
-import {SdtParser} from './sdtParser';
+import {SdtParser, IInputFields} from './sdtParser';
 import {
   linearInterpolation,
   logaritmicInterpolation,
@@ -69,58 +69,59 @@ export class GlyphStream extends Transform {
     //typed structures.
     let retval = '';
     const inputFields = this.sdtParser.getInputFields();
-    try {
-      const xFieldName = this.sdtParser.getInputFields().x.field;
-      let xValue = '';
-      const chunkXvalue = chunk[xFieldName];
-      if (chunkXvalue !== null && chunkXvalue !== undefined) {
-        xValue =
-          inputFields.x.type !== TYPE.DATE
-            ? (chunkXvalue as any)?.toString() ?? ''
-            : new Date(chunkXvalue as number).toISOString();
-      }
-      const yFieldName = this.sdtParser.getInputFields().y.field;
-      let yValue = '';
-      const chunkYvalue = chunk[yFieldName];
-      if (chunkYvalue !== null && chunkYvalue !== undefined) {
-        yValue =
-          inputFields.y.type !== TYPE.DATE
-            ? (chunkYvalue as any)?.toString() ?? ''
-            : new Date(chunkYvalue as number).toISOString();
-      }
-      const zFieldName = this.sdtParser.getInputFields().z.field;
-      let zValue = '';
-      const chunkZvalue = chunk[zFieldName];
-      if (chunkZvalue !== null && chunkZvalue !== undefined) {
-        zValue =
-          inputFields.z.type !== TYPE.DATE
-            ? (chunkZvalue as any)?.toString() ?? ''
-            : new Date(chunkZvalue as number).toISOString();
-      }
-      //Row ids should always be ints, so let's send them across the wire
-      //as such
-      const rowIdValues = chunk['rowids'] as string;
-      const rowIds = rowIdValues.split('|').map(x => parseInt(x));
+    const {fieldName: xFieldName, value: xValue} = this.getField(
+      'x',
+      chunk,
+      inputFields
+    );
+    const {fieldName: yFieldName, value: yValue} = this.getField(
+      'y',
+      chunk,
+      inputFields
+    );
+    const {fieldName: zFieldName, value: zValue} = this.getField(
+      'z',
+      chunk,
+      inputFields
+    );
+    //Row ids should always be ints, so let's send them across the wire
+    //as such
+    const rowIdValues = chunk['rowids'] as string;
+    const rowIds = rowIdValues.split('|').map(x => parseInt(x));
 
-      const outObj = {
-        x: {},
-        y: {},
-        z: {},
-        rowId: rowIds,
-      };
+    const outObj = {
+      x: {},
+      y: {},
+      z: {},
+      rowId: rowIds,
+    };
 
-      //to try and restrict the amount of data that we are sending across the wire
-      //we will  send the field name and the data as a sting in the format {x : {filedName: value}}
-      outObj.x[xFieldName] = xValue;
-      outObj.y[yFieldName] = yValue;
-      outObj.z[zFieldName] = zValue;
+    //to try and restrict the amount of data that we are sending across the wire
+    //we will  send the field name and the data as a sting in the format {x : {filedName: value}}
+    outObj.x[xFieldName] = xValue;
+    outObj.y[yFieldName] = yValue;
+    outObj.z[zFieldName] = zValue;
 
-      //make it a string so it is easier to pass
-      retval = JSON.stringify(outObj);
-    } catch (e) {
-      console.log(e);
-    }
+    //make it a string so it is easier to pass
+    retval = JSON.stringify(outObj);
     return retval;
+  }
+
+  private getField(
+    field: string,
+    chunk: Record<string, unknown>,
+    inputFields: IInputFields
+  ) {
+    const fieldName = this.sdtParser.getInputFields()[field].field;
+    let value = '';
+    const chunkValue = chunk[fieldName];
+    if (chunkValue !== null && chunkValue !== undefined) {
+      value =
+        inputFields[field].type !== TYPE.DATE
+          ? (chunkValue as any).toString()
+          : new Date(chunkValue as number).toISOString();
+    }
+    return {fieldName: fieldName, value: value};
   }
 
   private getTag(chunk: Record<string, unknown>): string {
