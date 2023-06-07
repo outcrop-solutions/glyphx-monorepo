@@ -50,13 +50,12 @@ describe('#fileProcessing/BasicColumnNameCleaner', () => {
         charValue !== 95 //_
       );
     });
-    it('will throw an error when the clean column name equals an empty string', () => {
+    it('will create a default name when the clean column name equals an empty string', () => {
       const columnName = '0';
       const columnNameCleaner = new BasicColumnNameCleaner();
 
-      assert.throws(() => {
-        columnNameCleaner.cleanColumnName(columnName);
-      }, error.InvalidArgumentError);
+      const result = columnNameCleaner.cleanColumnName(columnName);
+      assert.strictEqual(result, 'invalid_0');
     });
   });
 });

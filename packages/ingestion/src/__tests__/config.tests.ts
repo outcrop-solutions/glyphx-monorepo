@@ -1,7 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
 import {config} from '../config';
-import {error} from '@glyphx/core';
 
 describe('#config', () => {
   context('init', () => {
@@ -14,17 +13,12 @@ describe('#config', () => {
       assert.equal(config.processId, processId);
     });
 
-    it('should throw an error if init is called more than once', () => {
+    it('should not throw an error if init is called more than once', () => {
       const processId = '123';
       config.init({processId});
-      let errored = false;
-      try {
+      assert.doesNotThrow(() => {
         config.init({processId});
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
+      });
     });
   });
 });

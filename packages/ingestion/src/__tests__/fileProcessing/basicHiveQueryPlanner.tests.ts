@@ -76,7 +76,7 @@ export function testSelectResults(
       .forEach(c => {
         assert.isOk(
           selectedFieldsArray.find(
-            s => s === `${t.tableAlias}.${c.columnName}`
+            s => s === `${t.tableAlias}."${c.columnName}"`
           ),
           `${t.tableName} - ${c.columnName}`
         );
@@ -88,7 +88,7 @@ export function testSelectResults(
     assert.strictEqual(split.length, 2);
 
     const alias = split[0];
-    const field = split[1];
+    const field = split[1].replace(/"/g, '');
 
     const tableDef = inputs.find(t => t.tableAlias === alias);
     assert.isOk(tableDef);
@@ -137,7 +137,9 @@ export function testFromJoinSyntax(
       tableDef.tableName,
       tableDef.tableAlias,
       tableDef.joinTable?.tableAlias ?? '',
-      ...tableDef.columns.filter(c => c.isJoinColumn).map(c => c.columnName)
+      ...tableDef.columns
+        .filter(c => c.isJoinColumn)
+        .map(c => `"${c.columnName}"`)
     );
   }
   assert.isTrue(regex.test(query), tableDef.tableName);
@@ -322,7 +324,6 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
       const joinMock = buildSingleJoin();
       const query = queryPlanner.defineQuery(joinMock);
       assert.isOk(query);
-
       testSelectResults(joinMock, query);
       joinMock.forEach(t => {
         testFromJoinSyntax(t, query);
