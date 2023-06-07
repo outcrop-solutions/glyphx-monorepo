@@ -261,12 +261,7 @@ export class BasicFileTransformer extends Transform {
         fieldNumber,
         1
       );
-      let columnName = '';
-      try {
-        columnName = this.columnNameCleaner.cleanColumnName(key);
-      } catch (error) {
-        this.emit('error', error);
-      }
+      const columnName = this.columnNameCleaner.cleanColumnName(key);
       this.columTypeTrackers.push({
         columnName: columnName,
         origionalColumnName: key,
