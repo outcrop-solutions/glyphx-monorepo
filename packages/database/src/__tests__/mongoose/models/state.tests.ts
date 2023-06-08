@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {ProjectModel} from '../../../mongoose/models/project';
 import {UserModel} from '../../../mongoose/models';
-
+import {WorkspaceModel} from '../../../mongoose/models/workspace';
 const MOCK_STATE: databaseTypes.IState = {
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -174,6 +174,12 @@ describe('#mongoose/models/state', () => {
         sandbox.stub().resolves([{_id: stateId}])
       );
 
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
+      );
+
       const getStateByIdStub = sandbox.stub();
       getStateByIdStub.resolves({_id: stateId});
 
@@ -194,6 +200,11 @@ describe('#mongoose/models/state', () => {
         sandbox.stub().resolves(true)
       );
 
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
+      );
       sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
 
       sandbox.replace(
@@ -222,6 +233,11 @@ describe('#mongoose/models/state', () => {
         sandbox.stub().resolves(true)
       );
 
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
+      );
       sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
 
       sandbox.replace(
@@ -247,6 +263,11 @@ describe('#mongoose/models/state', () => {
         ProjectModel,
         'projectIdExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
       );
       sandbox.replace(
         StateModel,
@@ -282,6 +303,11 @@ describe('#mongoose/models/state', () => {
         sandbox.stub().resolves(false)
       );
       sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
         StateModel,
         'create',
         sandbox.stub().resolves([{_id: stateId}])
@@ -309,6 +335,11 @@ describe('#mongoose/models/state', () => {
       sandbox.replace(
         ProjectModel,
         'projectIdExists',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
         sandbox.stub().resolves(true)
       );
 
@@ -344,6 +375,11 @@ describe('#mongoose/models/state', () => {
       sandbox.replace(
         ProjectModel,
         'projectIdExists',
+        sandbox.stub().resolves(true)
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
         sandbox.stub().resolves(true)
       );
       sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));

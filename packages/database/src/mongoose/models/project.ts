@@ -678,6 +678,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     //to the user.
     delete (projectDocument as any)['__v'];
     delete (projectDocument as any).workspace?.['__v'];
+    delete (projectDocument as any).type?.['__v'];
 
     projectDocument.members?.forEach((m: any) => delete (m as any)['__v']);
     projectDocument.stateHistory?.forEach((s: any) => {

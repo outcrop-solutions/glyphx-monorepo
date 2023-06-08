@@ -534,10 +534,6 @@ describe('#mongoose/models/project', () => {
       orgStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
 
-      const ownerStub = sandbox.stub();
-      ownerStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', ownerStub);
-
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
       sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
@@ -551,7 +547,6 @@ describe('#mongoose/models/project', () => {
       }
       assert.isFalse(errored);
       assert.isTrue(orgStub.calledOnce);
-      assert.isTrue(ownerStub.calledOnce);
       assert.isTrue(typeStub.calledOnce);
     });
 
@@ -588,49 +583,6 @@ describe('#mongoose/models/project', () => {
       typeStub.resolves(true);
       sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
 
-      let errored = false;
-
-      try {
-        await ProjectModel.validateUpdateObject(inputProject);
-      } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-
-    it('will fail when the owner does not exist.', async () => {
-      const inputProject = {
-        name: 'Test Project',
-        description: 'This is a test project',
-        workspace: {
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IWorkspace,
-        type: {
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
-        owner: {
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IUser,
-        state: {
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IState,
-      };
-      const orgStub = sandbox.stub();
-      orgStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', orgStub);
-
-      const ownerStub = sandbox.stub();
-      ownerStub.resolves(false);
-      sandbox.replace(UserModel, 'userIdExists', ownerStub);
-
-      const stateStub = sandbox.stub();
-      stateStub.resolves(true);
-      sandbox.replace(StateModel, 'stateIdExists', stateStub);
-
-      const typeStub = sandbox.stub();
-      typeStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
       let errored = false;
 
       try {

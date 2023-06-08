@@ -107,6 +107,12 @@ describe('#mongoose/models/workspace', () => {
         'validateUser',
         sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'validateStates',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
         WorkspaceModel,
@@ -142,6 +148,11 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(
         WorkspaceModel,
         'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
+      sandbox.replace(
+        WorkspaceModel,
+        'validateStates',
         sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
       const objectId = new mongoose.Types.ObjectId();
@@ -190,6 +201,11 @@ describe('#mongoose/models/workspace', () => {
         'validateUser',
         sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
+      sandbox.replace(
+        WorkspaceModel,
+        'validateStates',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
@@ -232,6 +248,12 @@ describe('#mongoose/models/workspace', () => {
         sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
 
+      sandbox.replace(
+        WorkspaceModel,
+        'validateStates',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
+
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
         WorkspaceModel,
@@ -271,6 +293,12 @@ describe('#mongoose/models/workspace', () => {
         'validateUser',
         sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'validateStates',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
         WorkspaceModel,
@@ -304,6 +332,12 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(
         WorkspaceModel,
         'validateUser',
+        sandbox.stub().resolves(new mongoose.Types.ObjectId())
+      );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'validateStates',
         sandbox.stub().resolves(new mongoose.Types.ObjectId())
       );
 

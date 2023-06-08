@@ -182,6 +182,12 @@ describe('#mongoose/models/member', () => {
         sandbox.stub().resolves(false)
       );
 
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
+      );
+
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
         MemberModel,
@@ -212,6 +218,12 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
 
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -261,6 +273,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
 
       sandbox.replace(
@@ -387,6 +404,19 @@ describe('#mongoose/models/member', () => {
         'create',
         sandbox.stub().resolves([{_id: memberId}])
       );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox
+          .stub()
+          .rejects(
+            new error.InvalidArgumentError(
+              'The email already exists',
+              'email',
+              'email'
+            )
+          )
+      );
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -416,6 +446,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
@@ -451,6 +486,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
       sandbox.replace(
         MemberModel,
@@ -490,6 +530,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(MemberModel, 'create', sandbox.stub().rejects('oops'));
