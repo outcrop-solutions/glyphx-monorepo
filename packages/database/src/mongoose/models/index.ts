@@ -5,7 +5,7 @@ export {CustomerPaymentModel} from './customerPayment';
 export {VerificationTokenModel} from './verificationToken';
 export {WorkspaceModel} from './workspace';
 export {ProjectModel} from './project';
-export {ProjectTypeModel} from './projectType';
+export {ProjectTemplateModel} from './projectTemplate';
 export {SessionModel} from './session';
 export {MemberModel} from './member';
 export {StateModel} from './state';

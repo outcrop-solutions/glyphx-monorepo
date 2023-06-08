@@ -8,7 +8,7 @@ import { useSetRecoilState } from 'recoil';
 
 import { web as webTypes } from '@glyphx/types';
 import { _deleteProject } from 'lib/client';
-import { ProjectTypeIcons } from '../icons';
+import { ProjectTemplateIcons } from '../icons';
 
 import { modalsAtom } from 'state';
 
@@ -79,7 +79,7 @@ export const ProjectCard = ({ idx, project }) => {
               {project.name}
             </p>
             <div>
-              <ProjectTypeIcons project={project} />
+              <ProjectTemplateIcons project={project} />
             </div>
           </div>
           <div className="flex items-center justify-between w-full">

@@ -4,7 +4,7 @@ export type {IComment} from './iComment';
 export type {ICustomerPayment} from './iCustomerPayment';
 export type {IMember} from './iMember';
 export type {IProject} from './iProject';
-export type {IProjectType} from './iProjectType';
+export type {IProjectTemplate} from './iProjectTemplate';
 export type {ISession} from './iSession';
 export type {IState} from './iState';
 export type {IUser} from './iUser';

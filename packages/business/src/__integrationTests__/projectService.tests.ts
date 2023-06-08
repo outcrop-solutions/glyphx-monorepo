@@ -68,8 +68,7 @@ const INPUT_DATA = {
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
   organization: {},
   slug: 'testSlug' + UNIQUE_KEY,
-  isTemplate: false,
-  type: {},
+  template: {},
   owner: {},
   state: {},
   files: [],
@@ -78,7 +77,7 @@ const INPUT_DATA = {
 };
 
 const INPUT_PROJECT_TYPE = {
-  name: 'testProjectType' + UNIQUE_KEY,
+  name: 'testProjectTemplate' + UNIQUE_KEY,
   projects: [],
   shape: {field1: {type: 'string', required: true}},
 };
@@ -101,7 +100,7 @@ describe('#ProjectService', () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
       const stateModel = mongoConnection.models.StateModel;
-      const projectTypeModel = mongoConnection.models.ProjectTypeModel;
+      const projectTypeModel = mongoConnection.models.ProjectTemplateModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
@@ -118,12 +117,13 @@ describe('#ProjectService', () => {
       await projectTypeModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
-      const savedProjectTypeDocument = await projectTypeModel
+      const savedProjectTemplateDocument = await projectTypeModel
         .findOne({name: INPUT_PROJECT_TYPE.name})
         .lean();
-      projectTypeId = savedProjectTypeDocument?._id as mongooseTypes.ObjectId;
+      projectTypeId =
+        savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
-      projectTypeDocument = savedProjectTypeDocument;
+      projectTypeDocument = savedProjectTemplateDocument;
 
       assert.isOk(projectTypeId);
 
@@ -164,7 +164,7 @@ describe('#ProjectService', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
 
-      const projectTypeModel = mongoConnection.models.ProjectTypeModel;
+      const projectTypeModel = mongoConnection.models.ProjectTemplateModel;
       await projectTypeModel.findByIdAndDelete(projectTypeId);
 
       const stateModel = mongoConnection.models.StateModel;

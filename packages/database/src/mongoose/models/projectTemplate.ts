@@ -1,18 +1,18 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
-  IProjectTypeMethods,
-  IProjectTypeStaticMethods,
-  IProjectTypeDocument,
+  IProjectTemplateMethods,
+  IProjectTemplateStaticMethods,
+  IProjectTemplateDocument,
 } from '../interfaces';
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
 import {projectTypeShapeValidator} from '../validators';
 
 const SCHEMA = new Schema<
-  IProjectTypeDocument,
-  IProjectTypeStaticMethods,
-  IProjectTypeMethods
+  IProjectTemplateDocument,
+  IProjectTemplateStaticMethods,
+  IProjectTemplateMethods
 >({
   createdAt: {
     type: Date,
@@ -63,14 +63,14 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'getProjectTypeById',
+  'getProjectTemplateById',
   async (projectTypeId: mongooseTypes.ObjectId) => {
     try {
       const projectTypeDocument = (await PROJECT_TYPE_MODEL.findById(
         projectTypeId
       )
         .populate('projects')
-        .lean()) as databaseTypes.IProjectType;
+        .lean()) as databaseTypes.IProjectTemplate;
       if (!projectTypeDocument) {
         throw new error.DataNotFoundError(
           `Could not find a projectType with the _id: ${projectTypeId}`,
@@ -90,7 +90,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while getting the projectType.  See the inner error for additional information',
           'mongoDb',
-          'getProjectTypeById',
+          'getProjectTemplateById',
           err
         );
     }
@@ -98,7 +98,7 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'queryProjectTypes',
+  'queryProjectTemplates',
   async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
     try {
       const count = await PROJECT_TYPE_MODEL.count(filter);
@@ -106,7 +106,7 @@ SCHEMA.static(
       if (!count) {
         throw new error.DataNotFoundError(
           `Could not find projectTypes with the filter: ${filter}`,
-          'queryProjectTypes',
+          'queryProjectTemplates',
           filter
         );
       }
@@ -131,7 +131,7 @@ SCHEMA.static(
         }
       )
         .populate('projects')
-        .lean()) as databaseTypes.IProjectType[];
+        .lean()) as databaseTypes.IProjectTemplate[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
       projectTypeDocuments.forEach((doc: any) => {
@@ -139,7 +139,7 @@ SCHEMA.static(
         doc.projects?.forEach((p: any) => delete (p as any)?.__v);
       });
 
-      const retval: IQueryResult<databaseTypes.IProjectType> = {
+      const retval: IQueryResult<databaseTypes.IProjectTemplate> = {
         results: projectTypeDocuments,
         numberOfItems: count,
         page: page,
@@ -157,7 +157,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while getting the projectTypes.  See the inner error for additional information',
           'mongoDb',
-          'queryProjectTypes',
+          'queryProjectTemplates',
           err
         );
     }
@@ -192,10 +192,10 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'createProjectType',
+  'createProjectTemplate',
   async (
-    input: Omit<databaseTypes.IProjectType, '_id'>
-  ): Promise<databaseTypes.IProjectType> => {
+    input: Omit<databaseTypes.IProjectTemplate, '_id'>
+  ): Promise<databaseTypes.IProjectTemplate> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const projects = await PROJECT_TYPE_MODEL.validateProjects(
@@ -203,7 +203,7 @@ SCHEMA.static(
       );
       const createDate = new Date();
 
-      const resolvedInput: IProjectTypeDocument = {
+      const resolvedInput: IProjectTemplateDocument = {
         createdAt: createDate,
         updatedAt: createDate,
         name: input.name,
@@ -215,7 +215,7 @@ SCHEMA.static(
       } catch (err) {
         throw new error.DataValidationError(
           'An error occurred while validating the document before creating it.  See the inner error for additional information',
-          'IProjectTypeDocument',
+          'IProjectTemplateDocument',
           resolvedInput,
           err
         );
@@ -238,7 +238,7 @@ SCHEMA.static(
         );
       }
     }
-    if (id) return await PROJECT_TYPE_MODEL.getProjectTypeById(id);
+    if (id) return await PROJECT_TYPE_MODEL.getProjectTemplateById(id);
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the project type may not have been created.  I have no other information to provide.'
@@ -248,7 +248,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateUpdateObject',
-  (projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>): void => {
+  (projectType: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>): void => {
     if (projectType.createdAt) {
       throw new error.InvalidOperationError(
         'The createdAt date is set internally and cannot be included in the update set',
@@ -289,10 +289,10 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'updateProjectTypeWithFilter',
+  'updateProjectTemplateWithFilter',
   async (
     filter: Record<string, unknown>,
-    projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>
+    projectType: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<void> => {
     try {
       PROJECT_TYPE_MODEL.validateUpdateObject(projectType);
@@ -332,21 +332,21 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'updateProjectTypeById',
+  'updateProjectTemplateById',
   async (
     projectTypeId: mongooseTypes.ObjectId,
-    projectType: Omit<Partial<databaseTypes.IProjectType>, '_id'>
-  ): Promise<databaseTypes.IProjectType> => {
-    await PROJECT_TYPE_MODEL.updateProjectTypeWithFilter(
+    projectType: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
+  ): Promise<databaseTypes.IProjectTemplate> => {
+    await PROJECT_TYPE_MODEL.updateProjectTemplateWithFilter(
       {_id: projectTypeId},
       projectType
     );
-    return await PROJECT_TYPE_MODEL.getProjectTypeById(projectTypeId);
+    return await PROJECT_TYPE_MODEL.getProjectTemplateById(projectTypeId);
   }
 );
 
 SCHEMA.static(
-  'deleteProjectTypeById',
+  'deleteProjectTemplateById',
   async (projectTypeId: mongooseTypes.ObjectId): Promise<void> => {
     try {
       const results = await PROJECT_TYPE_MODEL.deleteOne({_id: projectTypeId});
@@ -374,7 +374,7 @@ SCHEMA.static(
   async (
     projectTypeId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProjectType> => {
+  ): Promise<databaseTypes.IProjectTemplate> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError(
@@ -387,7 +387,7 @@ SCHEMA.static(
       );
       if (!projectTypeDocument)
         throw new error.DataNotFoundError(
-          `A ProjectType Document with _id : ${projectTypeId} cannot be found`,
+          `A ProjectTemplate Document with _id : ${projectTypeId} cannot be found`,
           'projectType._id',
           projectTypeId
         );
@@ -409,7 +409,7 @@ SCHEMA.static(
 
       if (dirty) await projectTypeDocument.save();
 
-      return await PROJECT_TYPE_MODEL.getProjectTypeById(projectTypeId);
+      return await PROJECT_TYPE_MODEL.getProjectTemplateById(projectTypeId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -434,7 +434,7 @@ SCHEMA.static(
   async (
     projectTypeId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProjectType> => {
+  ): Promise<databaseTypes.IProjectTemplate> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError(
@@ -447,7 +447,7 @@ SCHEMA.static(
       );
       if (!projectTypeDocument)
         throw new error.DataNotFoundError(
-          `An ProjectType Document with _id : ${projectTypeId} cannot be found`,
+          `An ProjectTemplate Document with _id : ${projectTypeId} cannot be found`,
           'projectType ._id',
           projectTypeId
         );
@@ -481,7 +481,7 @@ SCHEMA.static(
         await projectTypeDocument.save();
       }
 
-      return await PROJECT_TYPE_MODEL.getProjectTypeById(projectTypeId);
+      return await PROJECT_TYPE_MODEL.getProjectTemplateById(projectTypeId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -507,8 +507,8 @@ const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 delete MODELS['projecttype'];
 
 const PROJECT_TYPE_MODEL = model<
-  IProjectTypeDocument,
-  IProjectTypeStaticMethods
+  IProjectTemplateDocument,
+  IProjectTemplateStaticMethods
 >('projecttype', SCHEMA);
 
-export {PROJECT_TYPE_MODEL as ProjectTypeModel};
+export {PROJECT_TYPE_MODEL as ProjectTemplateModel};

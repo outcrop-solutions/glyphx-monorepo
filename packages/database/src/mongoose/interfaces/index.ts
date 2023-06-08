@@ -39,10 +39,10 @@ export type {IProjectDocument} from './iProjectDocument';
 export type {IProjectMethods} from './iProjectMethods';
 export type {IProjectStaticMethods} from './iProjectStaticMethods';
 
-// ProjectType
-export type {IProjectTypeDocument} from './iProjectTypeDocument';
-export type {IProjectTypeMethods} from './iProjectTypeMethods';
-export type {IProjectTypeStaticMethods} from './iProjectTypeStaticMethods';
+// ProjectTemplate
+export type {IProjectTemplateDocument} from './iProjectTemplateDocument';
+export type {IProjectTemplateMethods} from './iProjectTemplateMethods';
+export type {IProjectTemplateStaticMethods} from './iProjectTemplateStaticMethods';
 
 // Session
 export type {ISessionCreateInput} from './iSessionCreateInput';

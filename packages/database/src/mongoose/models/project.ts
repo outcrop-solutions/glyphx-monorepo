@@ -10,7 +10,7 @@ import {error} from '@glyphx/core';
 import {WorkspaceModel} from './workspace';
 import {StateModel} from './state';
 import {MemberModel} from './member';
-import {ProjectTypeModel} from './projectType';
+import {ProjectTemplateModel} from './projectTemplate';
 import {fileStatsSchema} from '../schemas';
 import {embeddedStateSchema} from '../schemas/embeddedState';
 
@@ -46,8 +46,7 @@ const SCHEMA = new Schema<
   },
   lastOpened: {type: Date, required: false},
   slug: {type: String, required: false},
-  isTemplate: {type: Boolean, required: true, default: false},
-  type: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
+  template: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
   state: {type: embeddedStateSchema, required: false, default: {}},
   stateHistory: {
     type: [Schema.Types.ObjectId],
@@ -308,8 +307,8 @@ SCHEMA.static(
       tasks.push(
         idValidator(
           project.type._id as mongooseTypes.ObjectId,
-          'ProjectType',
-          ProjectTypeModel.projectTypeIdExists
+          'ProjectTemplate',
+          ProjectTemplateModel.projectTypeIdExists
         )
       );
 
@@ -401,13 +400,13 @@ SCHEMA.static(
 SCHEMA.static(
   'validateType',
   async (
-    input: databaseTypes.IProjectType | mongooseTypes.ObjectId
+    input: databaseTypes.IProjectTemplate | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId> => {
     const projectTypeId =
       input instanceof mongooseTypes.ObjectId
         ? input
         : (input._id as mongooseTypes.ObjectId);
-    if (!(await ProjectTypeModel.projectTypeIdExists(projectTypeId))) {
+    if (!(await ProjectTemplateModel.projectTypeIdExists(projectTypeId))) {
       throw new error.InvalidArgumentError(
         `The project type : ${projectTypeId} does not exist`,
         'projectTypeId',
@@ -619,7 +618,6 @@ SCHEMA.static(
         stateHistory: [],
         workspace: workspace,
         slug: input.slug,
-        isTemplate: input.isTemplate,
         files: input.files ?? [],
         viewName: input.viewName ?? ' ',
       };

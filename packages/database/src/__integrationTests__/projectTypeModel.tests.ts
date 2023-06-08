@@ -10,36 +10,34 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
-  isTemplate: false,
-  type: new mongooseTypes.ObjectId(),
+  template: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };
 
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
-  isTemplate: false,
-  type: new mongooseTypes.ObjectId(),
+  template: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };
 
 const INPUT_DATA = {
-  name: 'testProjectType' + UNIQUE_KEY,
+  name: 'testProjectTemplate' + UNIQUE_KEY,
   projects: [],
   shape: {field1: {type: 'string', required: true}},
 };
 
 const INPUT_DATA2 = {
-  name: 'testProjectType2' + UNIQUE_KEY,
+  name: 'testProjectTemplate2' + UNIQUE_KEY,
   projects: [],
   shape: {field1: {type: 'string', required: true}},
 };
 
-describe('#ProjectTypeModel', () => {
+describe('#ProjectTemplateModel', () => {
   context('test the crud functions of the projectType model', () => {
     const mongoConnection = new MongoDbConnection();
-    const projectTypeModel = mongoConnection.models.ProjectTypeModel;
+    const projectTypeModel = mongoConnection.models.ProjectTemplateModel;
     let projectTypeId: ObjectId;
     let projectTypeId2: ObjectId;
     let projectId: ObjectId;
@@ -85,7 +83,7 @@ describe('#ProjectTypeModel', () => {
     it('add a new projectType ', async () => {
       const projectTypeInput = JSON.parse(JSON.stringify(INPUT_DATA));
       projectTypeInput.projects.push(projectDocument);
-      const projectTypeDocument = await projectTypeModel.createProjectType(
+      const projectTypeDocument = await projectTypeModel.createProjectTemplate(
         projectTypeInput
       );
 
@@ -101,7 +99,7 @@ describe('#ProjectTypeModel', () => {
 
     it('retreive a project type', async () => {
       assert.isOk(projectTypeId);
-      const projectType = await projectTypeModel.getProjectTypeById(
+      const projectType = await projectTypeModel.getProjectTemplateById(
         projectTypeId
       );
 
@@ -113,14 +111,14 @@ describe('#ProjectTypeModel', () => {
       assert.isOk(projectTypeId);
       const projectTypeInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       projectTypeInput.projects.push(projectDocument);
-      const projectTypeDocument = await projectTypeModel.createProjectType(
+      const projectTypeDocument = await projectTypeModel.createProjectTemplate(
         projectTypeInput
       );
 
       assert.isOk(projectTypeDocument);
       projectTypeId2 = projectTypeDocument._id as mongooseTypes.ObjectId;
 
-      const projectTypes = await projectTypeModel.queryProjectTypes();
+      const projectTypes = await projectTypeModel.queryProjectTemplates();
       assert.isArray(projectTypes.results);
       assert.isAtLeast(projectTypes.numberOfItems, 2);
       const expectedDocumentCount =
@@ -132,7 +130,7 @@ describe('#ProjectTypeModel', () => {
 
     it('Get multiple projectTypes with a filter', async () => {
       assert.isOk(projectTypeId2);
-      const results = await projectTypeModel.queryProjectTypes({
+      const results = await projectTypeModel.queryProjectTemplates({
         name: INPUT_DATA.name,
       });
       assert.strictEqual(results.results.length, 1);
@@ -141,12 +139,12 @@ describe('#ProjectTypeModel', () => {
 
     it('page projectTypes', async () => {
       assert.isOk(projectTypeId2);
-      const results = await projectTypeModel.queryProjectTypes({}, 0, 1);
+      const results = await projectTypeModel.queryProjectTemplates({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
       const lastId = results.results[0]?._id;
 
-      const results2 = await projectTypeModel.queryProjectTypes({}, 1, 1);
+      const results2 = await projectTypeModel.queryProjectTemplates({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
       assert.notStrictEqual(
@@ -157,20 +155,18 @@ describe('#ProjectTypeModel', () => {
 
     it('remove a project from the projectType', async () => {
       assert.isOk(projectTypeId);
-      const updatedProjectTypeDocument = await projectTypeModel.removeProjects(
-        projectTypeId,
-        [projectId2]
-      );
-      assert.strictEqual(updatedProjectTypeDocument.projects.length, 1);
+      const updatedProjectTemplateDocument =
+        await projectTypeModel.removeProjects(projectTypeId, [projectId2]);
+      assert.strictEqual(updatedProjectTemplateDocument.projects.length, 1);
       assert.strictEqual(
-        updatedProjectTypeDocument.projects[0]?._id?.toString(),
+        updatedProjectTemplateDocument.projects[0]?._id?.toString(),
         projectId.toString()
       );
     });
     it('modify a project type', async () => {
       assert.isOk(projectTypeId);
       const input = {name: 'testProjectName_modified' + UNIQUE_KEY};
-      const updatedDocument = await projectTypeModel.updateProjectTypeById(
+      const updatedDocument = await projectTypeModel.updateProjectTemplateById(
         projectTypeId,
         input
       );
@@ -179,23 +175,23 @@ describe('#ProjectTypeModel', () => {
 
     it('add a project to the projectType', async () => {
       assert.isOk(projectTypeId);
-      const updatedProjectTypeDocument = await projectTypeModel.addProjects(
+      const updatedProjectTemplateDocument = await projectTypeModel.addProjects(
         projectTypeId,
         [projectId2]
       );
-      assert.strictEqual(updatedProjectTypeDocument.projects.length, 2);
+      assert.strictEqual(updatedProjectTemplateDocument.projects.length, 2);
       assert.strictEqual(
-        updatedProjectTypeDocument.projects[1]?._id?.toString(),
+        updatedProjectTemplateDocument.projects[1]?._id?.toString(),
         projectId2.toString()
       );
     });
 
     it('remove a project type', async () => {
       assert.isOk(projectTypeId);
-      await projectTypeModel.deleteProjectTypeById(projectTypeId);
+      await projectTypeModel.deleteProjectTemplateById(projectTypeId);
       let errored = false;
       try {
-        await projectTypeModel.getProjectTypeById(projectTypeId);
+        await projectTypeModel.getProjectTemplateById(projectTypeId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;

@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {ProjectModel} from '../../..//mongoose/models/project';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
 import {UserModel} from '../../../mongoose/models/user';
-import {ProjectTypeModel} from '../../../mongoose/models/projectType';
+import {ProjectTemplateModel} from '../../../mongoose/models/projectTemplate';
 import {StateModel} from '../../../mongoose/models/state';
 
 import {database, database as databaseTypes} from '@glyphx/types';
@@ -21,10 +21,9 @@ const MOCK_PROJECT: databaseTypes.IProject = {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
-  isTemplate: false,
-  type: {
+  template: {
     _id: new mongoose.Types.ObjectId(),
-  } as unknown as databaseTypes.IProjectType,
+  } as unknown as databaseTypes.IProjectTemplate,
   state: {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IState,
@@ -45,10 +44,9 @@ const MOCK_NULLISH_PROJECT = {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
-  isTemplate: false,
-  type: {
+  template: {
     _id: new mongoose.Types.ObjectId(),
-  } as unknown as databaseTypes.IProjectType,
+  } as unknown as databaseTypes.IProjectTemplate,
   owner: {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
   state: {
     _id: new mongoose.Types.ObjectId(),
@@ -333,7 +331,7 @@ describe('#mongoose/models/project', () => {
         } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
         owner: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
@@ -522,7 +520,7 @@ describe('#mongoose/models/project', () => {
         } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
         owner: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
@@ -540,7 +538,7 @@ describe('#mongoose/models/project', () => {
 
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
+      sandbox.replace(ProjectTemplateModel, 'projectTypeIdExists', typeStub);
 
       let errored = false;
 
@@ -564,7 +562,7 @@ describe('#mongoose/models/project', () => {
         } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
         owner: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
@@ -586,7 +584,7 @@ describe('#mongoose/models/project', () => {
 
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
+      sandbox.replace(ProjectTemplateModel, 'projectTypeIdExists', typeStub);
 
       let errored = false;
 
@@ -608,7 +606,7 @@ describe('#mongoose/models/project', () => {
         } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
         owner: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
@@ -630,7 +628,7 @@ describe('#mongoose/models/project', () => {
 
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
+      sandbox.replace(ProjectTemplateModel, 'projectTypeIdExists', typeStub);
       let errored = false;
 
       try {
@@ -652,7 +650,7 @@ describe('#mongoose/models/project', () => {
         } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
         owner: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
@@ -674,7 +672,7 @@ describe('#mongoose/models/project', () => {
 
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
+      sandbox.replace(ProjectTemplateModel, 'projectTypeIdExists', typeStub);
       let errored = false;
 
       try {
@@ -695,7 +693,7 @@ describe('#mongoose/models/project', () => {
         } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
         owner: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
@@ -718,7 +716,7 @@ describe('#mongoose/models/project', () => {
 
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
+      sandbox.replace(ProjectTemplateModel, 'projectTypeIdExists', typeStub);
       let errored = false;
 
       try {
@@ -739,7 +737,7 @@ describe('#mongoose/models/project', () => {
         } as unknown as databaseTypes.IWorkspace,
         type: {
           _id: new mongoose.Types.ObjectId(),
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
         owner: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IUser,
@@ -762,7 +760,7 @@ describe('#mongoose/models/project', () => {
 
       const typeStub = sandbox.stub();
       typeStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', typeStub);
+      sandbox.replace(ProjectTemplateModel, 'projectTypeIdExists', typeStub);
       let errored = false;
 
       try {
@@ -936,7 +934,6 @@ describe('#mongoose/models/project', () => {
       description: 'this is a test project',
       sdtPath: 'testsdtpath',
       slug: 'test slug',
-      isTemplate: false,
       stateHistory: [],
       members: [],
       files: [],
@@ -955,7 +952,7 @@ describe('#mongoose/models/project', () => {
         _id: new mongoose.Types.ObjectId(),
         name: 'test workspace',
         __v: 1,
-      } as unknown as databaseTypes.IProjectType,
+      } as unknown as databaseTypes.IProjectTemplate,
 
       state: {
         _id: new mongoose.Types.ObjectId(),
@@ -1039,7 +1036,11 @@ describe('#mongoose/models/project', () => {
 
       const idExistsStub = sandbox.stub();
       idExistsStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', idExistsStub);
+      sandbox.replace(
+        ProjectTemplateModel,
+        'projectTypeIdExists',
+        idExistsStub
+      );
 
       const result = await ProjectModel.validateType(projectTypeId);
 
@@ -1047,16 +1048,20 @@ describe('#mongoose/models/project', () => {
       assert.isTrue(idExistsStub.calledOnce);
     });
 
-    it('will validate the type passing type as an IProjectType', async () => {
+    it('will validate the type passing type as an IProjectTemplate', async () => {
       const projectTypeId = new mongoose.Types.ObjectId();
 
       const idExistsStub = sandbox.stub();
       idExistsStub.resolves(true);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', idExistsStub);
+      sandbox.replace(
+        ProjectTemplateModel,
+        'projectTypeIdExists',
+        idExistsStub
+      );
 
       const result = await ProjectModel.validateType({
         _id: projectTypeId,
-      } as unknown as database.IProjectType);
+      } as unknown as database.IProjectTemplate);
 
       assert.strictEqual(result.toString(), projectTypeId.toString());
       assert.isTrue(idExistsStub.calledOnce);
@@ -1066,7 +1071,11 @@ describe('#mongoose/models/project', () => {
 
       const idExistsStub = sandbox.stub();
       idExistsStub.resolves(false);
-      sandbox.replace(ProjectTypeModel, 'projectTypeIdExists', idExistsStub);
+      sandbox.replace(
+        ProjectTemplateModel,
+        'projectTypeIdExists',
+        idExistsStub
+      );
       let errored = false;
       try {
         await ProjectModel.validateType(projectTypeId);
@@ -1159,7 +1168,7 @@ describe('#mongoose/models/project', () => {
         description: 'this is a test project',
         sdtPath: 'testsdtpath',
         slug: 'test slug',
-        isTemplate: false,
+
         stateHistory: [],
         members: [],
         files: [],
@@ -1178,7 +1187,7 @@ describe('#mongoose/models/project', () => {
           _id: new mongoose.Types.ObjectId(),
           name: 'test workspace',
           __v: 1,
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
 
         state: {
           _id: new mongoose.Types.ObjectId(),
@@ -1197,7 +1206,7 @@ describe('#mongoose/models/project', () => {
         stateHistory: [],
         members: [],
         slug: 'test slug2',
-        isTemplate: false,
+
         files: [],
         __v: 1,
         owner: {
@@ -1214,7 +1223,7 @@ describe('#mongoose/models/project', () => {
           _id: new mongoose.Types.ObjectId(),
           name: 'test workspace2',
           __v: 1,
-        } as unknown as databaseTypes.IProjectType,
+        } as unknown as databaseTypes.IProjectTemplate,
 
         state: {
           _id: new mongoose.Types.ObjectId(),

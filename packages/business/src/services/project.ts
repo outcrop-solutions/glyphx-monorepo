@@ -92,13 +92,12 @@ export class ProjectService {
         shape: {},
       };
 
-      // TODO: requires getProjectType service
+      // TODO: requires getProjectTemplate service
       const input = {
         name,
         description: description ?? '',
         workspace: workspaceCastId,
-        isTemplate: false,
-        type: projectTypeCastId ?? defaultType,
+        template: projectTypeCastId ?? defaultType,
         files: [],
         members: [],
         stateHistory: [],

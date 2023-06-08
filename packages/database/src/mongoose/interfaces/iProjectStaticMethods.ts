@@ -44,7 +44,7 @@ export interface IProjectStaticMethods
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<void>;
   validateType(
-    input: databaseTypes.IProjectType | mongooseTypes.ObjectId
+    input: databaseTypes.IProjectTemplate | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
   validateWorkspace(
     input: databaseTypes.IWorkspace | mongooseTypes.ObjectId

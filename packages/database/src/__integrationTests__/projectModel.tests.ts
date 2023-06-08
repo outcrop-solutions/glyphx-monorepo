@@ -51,7 +51,6 @@ const INPUT_DATA = {
   },
   workspace: {},
   slug: 'testSlug' + UNIQUE_KEY,
-  isTemplate: false,
   owner: {},
   files: [],
   viewName: 'testViewName' + UNIQUE_KEY,
@@ -68,15 +67,14 @@ const INPUT_DATA2 = {
     fileSystemHash: 'testFileSystemHash' + UNIQUE_KEY,
   },
   slug: 'testSlug2' + UNIQUE_KEY,
-  isTemplate: false,
-  type: {},
+  template: {},
   owner: {},
   files: [],
   viewName: 'testViewName2' + UNIQUE_KEY,
 };
 
 const INPUT_PROJECT_TYPE = {
-  name: 'testProjectType' + UNIQUE_KEY,
+  name: 'testProjectTemplate' + UNIQUE_KEY,
   projects: [],
   shape: {field1: {type: 'string', required: true}},
 };
@@ -98,7 +96,7 @@ describe('#ProjectModel', () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
-      const projectTypeModel = mongoConnection.models.ProjectTypeModel;
+      const projectTypeModel = mongoConnection.models.ProjectTemplateModel;
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
@@ -126,12 +124,13 @@ describe('#ProjectModel', () => {
       await projectTypeModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
-      const savedProjectTypeDocument = await projectTypeModel
+      const savedProjectTemplateDocument = await projectTypeModel
         .findOne({name: INPUT_PROJECT_TYPE.name})
         .lean();
-      projectTypeId = savedProjectTypeDocument?._id as mongooseTypes.ObjectId;
+      projectTypeId =
+        savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
-      projectTypeDocument = savedProjectTypeDocument;
+      projectTypeDocument = savedProjectTemplateDocument;
 
       assert.isOk(projectTypeId);
     });
@@ -143,7 +142,7 @@ describe('#ProjectModel', () => {
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await workspaceModel.findByIdAndDelete(workspaceId);
 
-      const projectTypeModel = mongoConnection.models.ProjectTypeModel;
+      const projectTypeModel = mongoConnection.models.ProjectTemplateModel;
       await projectTypeModel.findByIdAndDelete(projectTypeId);
 
       if (projectId) {

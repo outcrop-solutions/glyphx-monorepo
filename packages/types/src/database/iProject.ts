@@ -1,7 +1,7 @@
 import {Types as mongooseTypes} from 'mongoose';
 import {IFileStats} from '../fileIngestion';
 import {IWorkspace} from './iWorkspace';
-import {IProjectType} from './iProjectType';
+import {IProjectTemplate as IProjectTemplate} from './iProjectTemplate';
 import {IState} from './iState';
 import {IMember} from './iMember';
 
@@ -17,8 +17,7 @@ export interface IProject {
   lastOpened?: Date;
   imageHash?: string;
   slug?: string;
-  isTemplate: Boolean;
-  type?: IProjectType;
+  template?: IProjectTemplate;
   members: IMember[];
   currentVersion?: number;
   state: Omit<

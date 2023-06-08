@@ -8,5 +8,5 @@ export interface IProjectCreateInput
   > {
   workspace: mongooseTypes.ObjectId | databaseTypes.IWorkspace;
   members: (mongooseTypes.ObjectId | databaseTypes.IMember)[];
-  type?: mongooseTypes.ObjectId | databaseTypes.IProjectType;
+  type?: mongooseTypes.ObjectId | databaseTypes.IProjectTemplate;
 }
