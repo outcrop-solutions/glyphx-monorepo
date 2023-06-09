@@ -13,9 +13,10 @@ export class MongoDbConnection {
   @secretBinders.boundProperty()
   password: string;
 
-  private initedField: boolean;
-  public get inited(): boolean {
-    return this.initedField;
+  private isInitedField: boolean;
+
+  public get isInited(): boolean {
+    return this.isInitedField;
   }
 
   connectionStringField: string;
@@ -31,12 +32,12 @@ export class MongoDbConnection {
     this.database = '';
     this.user = '';
     this.password = '';
-    this.initedField = false;
+    this.isInitedField = false;
     this.connectionStringField = '';
   }
 
   async init(): Promise<void> {
-    if (!this.initedField) {
+    if (!this.isInitedField) {
       this.connectionStringField = `mongodb+srv://${this.user}:${this.password}@${this.database}.${this.endpoint}?retryWrites=true&w=majority`;
       try {
         await mongoose.connect(encodeURI(this.connectionString));
@@ -48,6 +49,7 @@ export class MongoDbConnection {
           err
         );
       }
+      this.isInitedField = true;
     }
   }
 }
