@@ -42,7 +42,7 @@ export const callCreateModel = async ({
           if (window?.core) {
             setResize(150);
             setDrawer(true);
-            window?.core?.OpenProject(_createOpenProject(data, project, session, url));
+            window?.core?.OpenProject(_createOpenProject(data, project, session, url, true));
           }
         },
         onError: () => {

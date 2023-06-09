@@ -24,9 +24,16 @@ export const State = ({ item, idx }) => {
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
+  const isBrowser = !(window && window?.core);
 
   const applyState = useCallback(async () => {
     setActiveState(idx);
+
+    if (isBrowser) {
+      setResize(150);
+      setDrawer(true);
+      return;
+    }
     // only apply state if not loading
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
@@ -49,7 +56,9 @@ export const State = ({ item, idx }) => {
           if (window?.core) {
             setResize(150);
             setDrawer(true);
-            window?.core?.OpenProject(_createOpenProject(data, project, session, url, isNullCam ? undefined : camera));
+            window?.core?.OpenProject(
+              _createOpenProject(data, project, session, url, false, isNullCam ? undefined : camera)
+            );
             setLoading({});
           }
         },

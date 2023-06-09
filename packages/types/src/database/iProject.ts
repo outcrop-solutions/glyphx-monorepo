@@ -4,6 +4,7 @@ import {IWorkspace} from './iWorkspace';
 import {IProjectType} from './iProjectType';
 import {IState} from './iState';
 import {IMember} from './iMember';
+import {Aspect} from '../web';
 
 export interface IProject {
   _id?: mongooseTypes.ObjectId;
@@ -16,6 +17,7 @@ export interface IProject {
   workspace: IWorkspace;
   lastOpened?: Date;
   imageHash?: string;
+  aspectRatio?: Aspect;
   slug?: string;
   isTemplate: Boolean;
   type?: IProjectType;
@@ -33,6 +35,7 @@ export interface IProject {
     | 'version'
     | 'static'
     | 'camera'
+    | 'aspectRatio'
     | 'project'
     | 'workspace'
     | 'createdBy'

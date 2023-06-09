@@ -1,22 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import Button from 'components/Button';
-import { useSWRConfig } from 'swr';
+import React from 'react';
 import StateIcon from 'public/svg/state.svg';
-import { _createState, api } from 'lib';
-import { web as webTypes } from '@glyphx/types';
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { cameraAtom, imageHashAtom, modalsAtom, projectAtom } from 'state';
+import { _createState } from 'lib';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
 import { CameraIcon, SaveIcon } from '@heroicons/react/outline';
 
-export const CreateStateInput = ({ setAddState, project }) => {
-  const { mutate } = useSWRConfig();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [camera, setCamera] = useRecoilState(cameraAtom);
-  const [image, setImage] = useRecoilState(imageHashAtom);
-  const setProject = useSetRecoilState(projectAtom);
-  const [name, setName] = useState('New State');
-  const validName = name.length > 0 && name.length <= 16;
+export const CreateStateInput = ({ isSubmitting, name, setName }) => {
+  const validName = name?.length > 0 && name?.length <= 16;
 
   // local state
   const handleNameChange = (event) => setName(event.target.value);
@@ -29,27 +18,6 @@ export const CreateStateInput = ({ setAddState, project }) => {
       window?.core?.TakeScreenShot('');
     }
   };
-
-  useEffect(() => {
-    console.log({ camera, image });
-    if (Object.keys(camera).length > 0 && image.imageHash) {
-      api({
-        ..._createState(name, project._id as unknown as string, camera as unknown as webTypes.Camera, image.imageHash),
-        setLoading: (state) => setIsSubmitting(state),
-        onError: (_: any) => {
-          setCamera({});
-          setImage({ imageHash: false });
-          setAddState(false);
-        },
-        onSuccess: (data: any) => {
-          setCamera({});
-          setImage({ imageHash: false });
-          setAddState(false);
-          mutate(`/api/project/${project._id}`);
-        },
-      });
-    }
-  }, [camera, name, setCamera, setProject, mutate, image, setImage, project._id, setAddState]);
 
   return (
     <div className="flex justify-between items-center bg-secondary-midnight rounded-md text-white p-2">

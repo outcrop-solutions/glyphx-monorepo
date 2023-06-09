@@ -7,7 +7,12 @@ import {
   IStateCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
+import {
+  aspectSchema,
+  cameraSchema,
+  fileStatsSchema,
+  propertySchema,
+} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
@@ -170,6 +175,7 @@ SCHEMA.static(
         static: input.static,
         camera: input.camera,
         imageHash: input.imageHash,
+        aspectRatio: input.aspectRatio,
         properties: input.properties ?? [],
         createdBy: userId,
         fileSystemHash: input.fileSystemHash,

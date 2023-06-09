@@ -16,7 +16,7 @@ export const callDownloadModel = async ({ project, payloadHash, session, url, se
       if (window?.core) {
         setResize(150);
         setDrawer(true);
-        window?.core?.OpenProject(_createOpenProject(data, project, session, url));
+        window?.core?.OpenProject(_createOpenProject(data, project, session, url, false));
         setLoading({});
       }
     },

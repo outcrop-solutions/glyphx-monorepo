@@ -45,7 +45,7 @@ export function DraggableHeaderRenderer({ column, sortDirection, onSort, priorit
       case 'X':
         return (
           <span className="inline-flex align-middle space-x-1">
-            <p className="text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">
+            <p className="text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase truncate">
               {column.key}
             </p>
             <ColXIcon />
@@ -55,7 +55,7 @@ export function DraggableHeaderRenderer({ column, sortDirection, onSort, priorit
       case 'Y':
         return (
           <span className="inline-flex align-middle space-x-1">
-            <p className="text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">
+            <p className="text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase truncate">
               {column.key}
             </p>
             <ColYIcon />
@@ -65,7 +65,7 @@ export function DraggableHeaderRenderer({ column, sortDirection, onSort, priorit
       case 'Z':
         return (
           <span className="inline-flex align-middle space-x-1">
-            <p className="text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">
+            <p className="text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase truncate">
               {column.key}
             </p>
             <ColZIcon />
@@ -74,7 +74,7 @@ export function DraggableHeaderRenderer({ column, sortDirection, onSort, priorit
 
       default:
         return (
-          <p className="inline-flex align-middle text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase">
+          <p className="inline-flex align-middle text-white font-sans font-medium text-[12px] text-center tracking-[.01em] leading-[14px] uppercase truncate">
             {column.key}
           </p>
         );
