@@ -179,14 +179,15 @@ export const _createOpenProject = (
     };
   }
 ) => {
+  const cam = camera || {};
   return JSON.stringify({
+    ...cam,
     projectId: project?._id,
     workspaceId: project?.workspace._id,
     sdtUrl: data.sdtUrl,
     sgnUrl: data.sgnUrl,
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
-    camera: camera ?? undefined,
     apiLocation: `${url}/api`,
     sessionInformation:
       session.status === 'unauthenticated'
