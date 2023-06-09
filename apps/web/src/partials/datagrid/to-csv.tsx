@@ -51,7 +51,6 @@ export const joiner = (data, separator = ',', enclosingCharacter = '"') => {
         return result;
       });
       row = row.map((column) => `${enclosingCharacter}${column}${enclosingCharacter}`).join(separator);
-      console.log({ row, idx });
       return row;
     })
     .join(`\n`);

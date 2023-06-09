@@ -20,14 +20,9 @@ export const useSocket = () => {
   const setCamera = useSetRecoilState(cameraAtom);
 
   useEffect(() => {
-    console.log({ socket, channel });
-  }, [channel, socket]);
-
-  useEffect(() => {
     if (channel === null && socket === null) {
       const ws = new WebSocket('ws://localhost:12345'); // Replace with your WebSocket server URL and port
       ws.onopen = () => {
-        console.log('socket opened');
         const channel = new QWebChannel(ws, function (channel) {
           window.core = channel.objects.core; // making it global
           window.core.SendRowIds.connect((json: string) => {
@@ -49,7 +44,6 @@ export const useSocket = () => {
                 z: camera.direction[2],
               },
             };
-            console.log({ newCamera });
             setCamera(
               produce((draft: WritableDraft<webTypes.Camera>) => {
                 draft.pos = { x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z };
@@ -86,7 +80,6 @@ export const useSocket = () => {
     }
     return () => {
       if (socket && socket.readyState === WebSocket.OPEN) {
-        console.log('socket closed');
         // socket.close();
       }
     };

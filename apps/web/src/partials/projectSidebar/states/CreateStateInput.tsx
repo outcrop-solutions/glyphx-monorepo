@@ -13,7 +13,6 @@ export const CreateStateInput = ({ isSubmitting, name, setName }) => {
   // mutations
   const createState = async (event) => {
     event.preventDefault();
-    console.log({ event });
     if (window?.core) {
       window?.core?.GetCameraPosition(true);
       window?.core?.TakeScreenShot('');
