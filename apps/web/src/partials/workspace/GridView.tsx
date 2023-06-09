@@ -12,7 +12,7 @@ export const GridView = () => {
     <>
       {/* Page header */}
       {/* <PinnedProjects /> */}
-      <div className="sm:flex sm:justify-between sm:items-center mb-8 bg-primary-blue ">
+      <div className="sm:flex sm:justify-between sm:items-center mb-8 bg-primary-blue">
         <div className="mb-4 sm:mb-0">
           <p className="font-rubik font-light text-lg leading-[21px] tracking-[0.01em] text-white ">
             Recently Viewed Projects
@@ -20,7 +20,7 @@ export const GridView = () => {
         </div>
       </div>
       {/* Cards */}
-      <div className="grid grid-cols-12 gap-6 bg-primary-blue">
+      <div className="grid grid-cols-12 gap-6 bg-primary-blue pb-20">
         {/* <AddProject /> */}
         {workspace.projects
           .filter((proj) => !proj.deletedAt)
