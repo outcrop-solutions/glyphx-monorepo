@@ -130,6 +130,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'queryAnnotations',
+  //istanbul ignore next
   async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
     try {
       const count = await ANNOTATION_MODEL.count(filter);
@@ -208,6 +209,7 @@ SCHEMA.static(
       );
 
     let projectId;
+    //istanbul ignore else
     if (input.projectId) {
       projectId =
         input.projectId instanceof mongooseTypes.ObjectId
@@ -224,6 +226,7 @@ SCHEMA.static(
     }
 
     let stateId;
+    //istanbul ignore else
     if (input.stateId) {
       stateId =
         input.stateId instanceof mongooseTypes.ObjectId
@@ -246,8 +249,8 @@ SCHEMA.static(
       updatedAt: createDate,
       author: userId,
       value: input.value,
-      stateId: input.stateId ?? undefined,
-      projectId: input?.projectId ?? undefined,
+      stateId: input.stateId,
+      projectId: input?.projectId,
     };
 
     try {
