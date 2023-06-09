@@ -11,7 +11,7 @@ import {WorkspaceModel} from './workspace';
 import {StateModel} from './state';
 import {MemberModel} from './member';
 import {ProjectTypeModel} from './projectType';
-import {fileStatsSchema} from '../schemas';
+import {aspectSchema, fileStatsSchema} from '../schemas';
 import {embeddedStateSchema} from '../schemas/embeddedState';
 
 const SCHEMA = new Schema<
@@ -36,6 +36,7 @@ const SCHEMA = new Schema<
   },
   name: {type: String, required: true},
   imageHash: {type: String, required: false},
+  aspectRatio: {type: aspectSchema, required: false},
   description: {type: String, required: false},
   sdtPath: {type: String, required: false},
   currentVersion: {type: Number, required: true, default: 0},

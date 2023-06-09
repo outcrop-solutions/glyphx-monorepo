@@ -33,6 +33,10 @@ const MOCK_STATE: databaseTypes.IState = {
       z: 0,
     },
   },
+  aspectRatio: {
+    height: 100,
+    width: 100,
+  },
   project: {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IProject,
@@ -64,6 +68,10 @@ const MOCK_NULLISH_STATE = {
       y: 0,
       z: 0,
     },
+  },
+  aspectRatio: {
+    height: 100,
+    width: 100,
   },
   project: {
     _id: new mongoose.Types.ObjectId(),
@@ -100,6 +108,10 @@ const MOCK_STATE_IDS = {
       y: 0,
       z: 0,
     },
+  },
+  aspectRatio: {
+    height: 100,
+    width: 100,
   },
   properties: {},
 } as unknown as databaseTypes.IState;
@@ -657,6 +669,10 @@ describe('#mongoose/models/state', () => {
           z: 0,
         },
       },
+      aspectRatio: {
+        height: 100,
+        width: 100,
+      },
       fileSystem: [],
       __v: 1,
       project: {
@@ -783,6 +799,10 @@ describe('#mongoose/models/state', () => {
             z: 0,
           },
         },
+        aspectRatio: {
+          height: 100,
+          width: 100,
+        },
         properties: {},
       } as databaseTypes.IState,
       {
@@ -819,6 +839,10 @@ describe('#mongoose/models/state', () => {
             y: 0,
             z: 0,
           },
+        },
+        aspectRatio: {
+          height: 100,
+          width: 100,
         },
         properties: {},
       } as databaseTypes.IState,

@@ -29,7 +29,7 @@ export const RightSidebar = () => {
         <div
           id="right-sidebar"
           ref={sidebar}
-          className={`flex grow flex-col bg-secondary-space-blue border-l border-gray h-full scrollbar-none`}
+          className={`flex grow flex-col bg-secondary-space-blue border-l border-gray border-r-0 h-full scrollbar-none`}
         >
           {/* <ClickAwayListener onClickAway={handleClickAway}> */}
           <div className="w-full h-full grow scrollbar-none">

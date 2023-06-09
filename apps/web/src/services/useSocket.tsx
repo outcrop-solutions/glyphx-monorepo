@@ -10,23 +10,28 @@ import { WritableDraft } from 'immer/dist/internal';
  * @param {boolean} isSelected
  * @returns {Object}
  */
+const payload = { isSent: false };
+
 export const useSocket = () => {
   const [channel, setChannel] = useState(null);
+  const [socket, setSocket] = useState(null);
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setImage = useSetRecoilState(imageHashAtom);
   const setCamera = useSetRecoilState(cameraAtom);
 
   useEffect(() => {
-    let ws;
-    let webChannel;
+    console.log({ socket, channel });
+  }, [channel, socket]);
 
-    if (!channel) {
+  useEffect(() => {
+    if (channel === null && socket === null) {
       const ws = new WebSocket('ws://localhost:12345'); // Replace with your WebSocket server URL and port
       ws.onopen = () => {
-        webChannel = new QWebChannel(ws, function (channel) {
+        console.log('socket opened');
+        const channel = new QWebChannel(ws, function (channel) {
           window.core = channel.objects.core; // making it global
-          window.core.SendRowIds.connect((rowIds: string) => {
-            const ids = JSON.parse(rowIds)?.rowIds;
+          window.core.SendRowIds.connect((json: string) => {
+            const ids = JSON.parse(json)?.rowIds;
             setRowIds(ids.length === 0 ? false : [...ids]);
           });
           window.core.SendCameraPosition.connect((json: string) => {
@@ -44,6 +49,7 @@ export const useSocket = () => {
                 z: camera.direction[2],
               },
             };
+            console.log({ newCamera });
             setCamera(
               produce((draft: WritableDraft<webTypes.Camera>) => {
                 draft.pos = { x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z };
@@ -62,18 +68,28 @@ export const useSocket = () => {
           window.core.SendDrawerStatus.connect((status: string) => {
             console.log({ status });
           });
+          window.core.OpenProjectComplete.connect((json: string) => {
+            const msg = JSON.parse(json);
+            if (!payload.isSent && msg.isCreate) {
+              payload.isSent = true;
+              window?.core?.GetCameraPosition(true);
+              window?.core?.TakeScreenShot('');
+            }
+          });
         });
-        setChannel(webChannel);
+        setChannel(channel);
       };
       ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
       };
+      setSocket(ws); // Store the WebSocket instance in state
     }
     return () => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        console.log('socket closed');
+        // socket.close();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel]);
+  }, [channel, socket]);
 };

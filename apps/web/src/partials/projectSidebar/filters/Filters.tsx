@@ -45,11 +45,9 @@ export const Filters = () => {
         payloadHash,
         session,
         url,
-        mutate,
         setLoading,
         setDrawer,
         setResize,
-        camera: undefined,
       });
     } else {
       await callCreateModel({
