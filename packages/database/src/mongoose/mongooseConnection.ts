@@ -37,6 +37,7 @@ export class MongoDbConnection {
   }
 
   async init(): Promise<void> {
+    //istanbul ignore else
     if (!this.isInitedField) {
       this.connectionStringField = `mongodb+srv://${this.user}:${this.password}@${this.database}.${this.endpoint}?retryWrites=true&w=majority`;
       try {

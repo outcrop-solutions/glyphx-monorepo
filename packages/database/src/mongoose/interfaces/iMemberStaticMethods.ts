@@ -54,5 +54,5 @@ export interface IMemberStaticMethods
   ): Promise<databaseTypes.IMember>;
   validateUpdateObject(
     member: Omit<Partial<databaseTypes.IMember>, '_id'>
-  ): boolean;
+  ): Promise<boolean>;
 }

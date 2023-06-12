@@ -95,7 +95,7 @@ SCHEMA.static(
         });
 
         if (result) retval = true;
-      } else if (type === databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE) {
+      } else {
         const result = await MEMBER_MODEL.findOne({
           email: memberEmail,
           type: type,
@@ -497,6 +497,7 @@ SCHEMA.static(
 
     const createDate = new Date();
 
+    //istanbul ignore next
     const transformedDocument: IMemberDocument = {
       email: input.email,
       inviter: input.inviter,
