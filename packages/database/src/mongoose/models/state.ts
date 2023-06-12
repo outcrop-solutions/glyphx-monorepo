@@ -257,12 +257,12 @@ SCHEMA.static(
               ? value
               : (value._id as mongooseTypes.ObjectId);
         else if (key === 'project')
-          transformedObject.type =
+          transformedObject.project =
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
         else if (key === 'createdBy')
-          transformedObject.type =
+          transformedObject.createdBy =
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
