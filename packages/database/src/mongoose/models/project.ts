@@ -258,7 +258,6 @@ SCHEMA.static(
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
         err instanceof error.InvalidArgumentError
       )
         throw err;
@@ -607,6 +606,7 @@ SCHEMA.static(
 
       const createDate = new Date();
 
+      //istanbul ignore next
       const resolvedInput: IProjectDocument = {
         createdAt: createDate,
         updatedAt: createDate,
