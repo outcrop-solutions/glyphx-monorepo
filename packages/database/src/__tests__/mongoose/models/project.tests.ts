@@ -2217,7 +2217,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'findById', findProjectByIdStub);
 
       const getProjectByIdStub = sandbox.stub();
-      getProjectByIdStub.resolves({_id: projectId, members: states});
+      getProjectByIdStub.resolves({_id: projectId, stateHistory: states});
       sandbox.replace(ProjectModel, 'getProjectById', getProjectByIdStub);
 
       const res = await ProjectModel.removeStates(projectId, [
@@ -2244,7 +2244,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'findById', findProjectByIdStub);
 
       const getProjectByIdStub = sandbox.stub();
-      getProjectByIdStub.resolves({_id: projectId, members: states});
+      getProjectByIdStub.resolves({_id: projectId, stateHistory: states});
       sandbox.replace(ProjectModel, 'getProjectById', getProjectByIdStub);
 
       let errored = false;
@@ -2267,7 +2267,7 @@ describe('#mongoose/models/project', () => {
       sandbox.replace(ProjectModel, 'findById', findProjectByIdStub);
 
       const getProjectByIdStub = sandbox.stub();
-      getProjectByIdStub.resolves({_id: projectId, members: states});
+      getProjectByIdStub.resolves({_id: projectId, stateHistory: states});
       sandbox.replace(ProjectModel, 'getProjectById', getProjectByIdStub);
 
       let errored = false;
