@@ -3567,7 +3567,7 @@ describe('#mongoose/models/user', () => {
 
       let errored = false;
       try {
-        await UserModel.addWebhooks(userId, [memberId]);
+        await UserModel.addMembership(userId, [memberId]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;

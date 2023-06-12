@@ -71,4 +71,29 @@ describe('#mongoose/mongooseConnection', () => {
       assert.isTrue(errored);
     });
   });
+  context('accessors', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('inited accessor', async () => {
+      const connectStub = sandbox.stub();
+      connectStub.resolves(true);
+      sandbox.replace(mongoose, 'connect', connectStub);
+
+      const secretManagerStub = sandbox.stub();
+      secretManagerStub.resolves(MOCK_DB_SECRETS);
+      sandbox.replace(
+        aws.SecretManager.prototype,
+        'getSecrets',
+        secretManagerStub
+      );
+
+      const connection = new MongoDbConnection();
+      assert.isFalse(connection.isInited);
+      await connection.init();
+      assert.isTrue(connection.isInited);
+    });
+  });
 });

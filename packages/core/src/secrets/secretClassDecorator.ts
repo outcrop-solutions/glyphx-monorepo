@@ -239,7 +239,11 @@ function addSecretNameProperty<T extends {new (...args: any[]): {}}>(
     },
   });
 }
-
+//TODO: this doesn't quite work the way that we want.  inited field gets set the first time that
+//updateInitializer is called.  So, if a class is instantiated twice, the second time it will not
+//be set to false ... it was already called.  What we need to do is to create a field on the class
+//itself, maybe override the constructor?  Then change the call to initedField to true to be
+//this.initedField = true.
 function updateInitializer<T extends {new (...args: any[]): {}}>(
   target: T,
   initializer: any,

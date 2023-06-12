@@ -9,6 +9,7 @@ import {IWorkspace} from './iWorkspace';
 import {IUserAgent} from './iUserAgent';
 import {ACTION_TYPE} from './constants/action';
 import {RESOURCE_MODEL} from './constants';
+import {IProcessTracking} from './iProcessTracking';
 
 export interface IActivityLog {
   _id?: string | mongooseTypes.ObjectId;
@@ -29,5 +30,6 @@ export interface IActivityLog {
     | ICustomerPayment
     | IMember
     | IWebhook
-    | IWorkspace;
+    | IWorkspace
+    | IProcessTracking;
 }

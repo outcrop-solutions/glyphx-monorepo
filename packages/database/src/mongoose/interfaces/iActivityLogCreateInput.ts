@@ -15,5 +15,6 @@ export interface IActivityLogCreateInput
     | databaseTypes.ICustomerPayment
     | databaseTypes.IMember
     | databaseTypes.IWebhook
+    | databaseTypes.IProcessTracking
     | databaseTypes.IWorkspace;
 }

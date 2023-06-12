@@ -259,7 +259,6 @@ SCHEMA.static(
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
         err instanceof error.InvalidArgumentError
       )
         throw err;
@@ -608,6 +607,7 @@ SCHEMA.static(
 
       const createDate = new Date();
 
+      //istanbul ignore next
       const resolvedInput: IProjectDocument = {
         createdAt: createDate,
         updatedAt: createDate,
@@ -679,6 +679,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     //to the user.
     delete (projectDocument as any)['__v'];
     delete (projectDocument as any).workspace?.['__v'];
+    delete (projectDocument as any).type?.['__v'];
 
     projectDocument.members?.forEach((m: any) => delete (m as any)['__v']);
     projectDocument.stateHistory?.forEach((s: any) => {
