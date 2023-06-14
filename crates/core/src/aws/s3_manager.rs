@@ -1,8 +1,8 @@
 use crate::error::{InvalidArgumentError, UnexpectedError};
 use aws_sdk_s3::Client as S3Client;
 use log::warn;
+use serde_json::json;
 use std::future::Future;
-use std::pin::Pin;
 
 #[derive(Clone)]
 pub struct S3Manager {
@@ -10,71 +10,134 @@ pub struct S3Manager {
     bucket: String,
 }
 
-//What I am trying to do is --
-// 1. Create a standard api for the clients to consume
-// 2. Under the covers use dependency injection to inject the actual s3 logic
-//    -- This will allow me to test the logic without having to actually hit s3
-//So here is an example:
-//1. Our new function fully returns an S3Manager Structure
-//    A. As part of that logic we will call head bucket to see if the bucket exists.
-//    B. So we will need to pass a function that return a Result<boolean, InvalidArgumentError>
-//    that actually calls head bucket.
-//
-//fn new(bucket: String) -> Result<S3Manager, InvalidArgumentError> {
-//    new_impl(bucket, |bucket| {
-//
-//}
-//fn new_impl(bucket: String, validator: FnOnce(String) -> Result<bool, InvalidArgumentError>) -> Result<S3Manager, InvalidArgumentError> {
-//
-//}
+pub enum S3ManagerError<'a> {
+    BucketDoesNotExist(InvalidArgumentError<'a>),
+    UnexpectedError(UnexpectedError<'a>),
+}
 
 impl S3Manager {
-    pub async fn new(bucket: String) -> Self {
-        let res = Self::new_impl(bucket.clone(), |s3_manager, bucket| {
-            async move { s3_manager.validate_helper(&bucket).await }
+    /// Our public new function that will return an S3Manager.  This uses our new_impl function
+    /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the new logic with no down stream effects.  This function just wraps our impl call.
+    pub async fn new<'a>(bucket: String) -> Result<Self, S3ManagerError<'a>> {
+        Self::new_impl(bucket.clone(), |s3_client, bucket| async move {
+            Self::bucket_exists_validator(&s3_client, &bucket).await
         })
-        .await;
-
-        match res {
-            Ok(s3_manager) => s3_manager,
-            Err(err) => {
-                println!("Error: {}", err);
-                panic!("Error: {}", err);
-            }
-        }
+        .await
     }
 
-    async fn new_impl<'a, T, Fut>(bucket: String, validator: T) -> Result<Self, String>
+    pub async fn bucket_exists(&self) -> Result<bool, S3ManagerError> {
+        Self::bucket_exists_impl(self.client.clone(), self.bucket.clone(),  |s3_client, bucket| async move {
+            Self::bucket_exists_validator(&s3_client, &bucket).await
+        })
+        .await
+        
+    }
+
+    /// Our private new_impl function that will return an S3Manager.
+    /// # Arguments
+    /// * `bucket` - A String that represents the bucket name that we want to operate on.
+    /// * `validator` - A function that takes an S3Client and a String and returns a Future<bool>.
+    /// This function will make the actual call to the S3Client to see if the bucket exists.
+    async fn new_impl<'a, T, Fut>(
+        bucket: String,
+        validator: T,
+    ) -> Result<Self, S3ManagerError<'a>>
     where
-        T: FnOnce(S3Manager, String) -> Fut + Send + Sync,
-        Fut: Future<Output = bool> + Send + 'a,
+        T: FnOnce(S3Client, String) -> Fut + Send + Sync,
+        Fut: Future<Output = Result<bool, UnexpectedError<'a>>>  + Send + 'a,
     {
         let config = ::aws_config::from_env().region("us-east-2").load().await;
         let client = S3Client::new(&config);
+        let result = validator(client.clone(), bucket.clone()).await;
+        match result {
+            Ok(exists) => {
+                if !exists {
+                    return Err( S3ManagerError::BucketDoesNotExist(InvalidArgumentError::new(
+                        &format!("Bucket {} does not exist", bucket),
+                        Some(json!({ "bucket_name": bucket })),
+                        None,
+                    )));
+                }
+            }
+            Err(e) => {
+                return Err( S3ManagerError::UnexpectedError(UnexpectedError::new(
+                    &format!("Error calling bucket_exists_validator, error: {}", e),
+                    Some(json!({ "bucket_name": bucket }).to_string()),
+                    None,
+                )));
+            }
+        };
         let s3_manager = Self {
             client,
             bucket: bucket.clone(),
         };
-        let exists = validator(s3_manager.clone(), bucket.clone()).await;
-        if !exists {
-            return Err(format!("Bucket {} does not exist", bucket));
-        }
         Ok(s3_manager)
     }
 
-    async fn validate_helper(&self, bucket: &str) -> bool {
-        let head_result = self
-            .client
-            .head_bucket()
-            .bucket(bucket)
-            .send()
-            .await;
 
-        if let Err(ref err) = head_result {
-            println!("Error: {:?}", err);
+    async fn bucket_exists_impl<'a, T, Fut>(
+        client: S3Client,
+        bucket: String,
+        validator: T,
+    ) -> Result<bool, S3ManagerError<'a>> 
+    where
+        T: FnOnce(S3Client, String) -> Fut + Send + Sync,
+        Fut: Future<Output = Result<bool, UnexpectedError<'a>>>  + Send + 'a,
+    {
+
+        let result = validator(client.clone(), bucket.clone()).await;
+        match result {
+            Ok(exists) => {
+                if !exists {
+                    return Err( S3ManagerError::BucketDoesNotExist(InvalidArgumentError::new(
+                        &format!("Bucket {} does not exist", bucket),
+                        Some(json!({ "bucket_name": bucket })),
+                        None,
+                    )));
+                }
+            }
+            Err(e) => {
+                return Err( S3ManagerError::UnexpectedError(UnexpectedError::new(
+                    &format!("Error calling bucket_exists_validator, error: {}", e),
+                    Some(json!({ "bucket_name": bucket }).to_string()),
+                    None,
+                )));
+            }
+        };
+        Ok(true)
+    }
+
+    /// Our private bucket_exists_validator function that will return a boolean if the bucket
+    /// exists and false if it does not.  This can be used by any function which wants
+    /// to determine whether or not a bucket exists.
+    async fn bucket_exists_validator<'a>(
+        client: &S3Client,
+        bucket: &str,
+    ) -> Result<bool, UnexpectedError<'a>> {
+        let head_result = client.head_bucket().bucket(bucket).send().await;
+        if head_result.is_err() {
+            let e = head_result.err().unwrap();
+            let e = e.into_service_error();
+            if e.is_not_found() {
+                return Ok(false);
+            } else {
+                warn!(
+                    "Error calling head_bucket for bucket {}, error : {} ",
+                    bucket, e
+                );
+                Err(UnexpectedError::new(
+                    &format!(
+                        "Error calling head_bucket for bucket {}, error: {}",
+                        bucket, e
+                    ),
+                    Some(json!({ "bucket_name": bucket }).to_string()),
+                    None,
+                ))
+            }
+        } else {
+            Ok(true)
         }
-
-        head_result.is_ok()
     }
 }
 
@@ -83,9 +146,147 @@ mod s3_manager_tests {
     use super::*;
 
     #[tokio::test]
-    async fn new_s3_manager() {
+    async fn new_impl_is_ok() {
         let bucket = "jps-test-bucket".to_string();
-        let _s3_manager = S3Manager::new(bucket).await;
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), |_client, _bucket_name| async move {
+           Ok(true)
+        }).await;
+        assert!(s3_manager_result.is_ok());
+        let s3_manager = s3_manager_result.ok().unwrap(); 
+        assert_eq!(s3_manager.bucket, bucket);
         let _i = 0;
     }
+
+    #[tokio::test]
+    async fn new_impl_bucket_does_not_exist() {
+        let bucket = "jps-test-bucket".to_string();
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), |_client, _bucket_name| async move {
+           Ok(false)
+        }).await;
+        assert!(s3_manager_result.is_err());
+        let s3_manager = s3_manager_result.err().unwrap(); 
+        let is_invalid: bool; 
+        match s3_manager {
+            S3ManagerError::BucketDoesNotExist(e) => {
+                is_invalid = true;
+                
+            
+            },
+            _ => {
+                panic!("Expected BucketDoesNotExist error");
+            }
+        } 
+        assert!(is_invalid);
+    }
+
+    #[tokio::test]
+    async fn new_impl_bucket_unexpected_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), |_client, _bucket_name| async move {
+                Err(UnexpectedError::new(
+                    &format!(
+                        "Error calling head_bucket for bucket {}",
+                        bucket 
+                    ),
+                    Some(json!({ "bucket_name": bucket }).to_string()),
+                    None,
+                ))
+        }).await;
+        assert!(s3_manager_result.is_err());
+        let s3_manager = s3_manager_result.err().unwrap(); 
+        let is_invalid: bool;
+        match s3_manager {
+            S3ManagerError::UnexpectedError(e) => {
+                is_invalid = true;
+                
+            
+            },
+            _ => {
+                panic!("Expected Unexpected error");
+            }
+        } 
+        assert!(is_invalid);
+    }
+
+    #[tokio::test]
+    async fn bucket_exists_impl_is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), |_client, _bucket_name| async move {
+           Ok(true)
+        }).await;
+        assert!(s3_manager_result.is_ok());
+        let s3_manager = s3_manager_result.ok().unwrap(); 
+
+        let bucket_exists_result = S3Manager::bucket_exists_impl(s3_manager.client.clone(), s3_manager.bucket.clone(), |client, bucket| async move {
+            Ok(true)
+        }).await;
+
+        assert!(bucket_exists_result.is_ok());
+        let bucket_exists = bucket_exists_result.ok().unwrap();
+        assert!(bucket_exists);
+    }
+
+    #[tokio::test]
+    async fn bucket_exists_impl_bucket_does_not_exist() {
+        let bucket = "jps-test-bucket".to_string();
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), |_client, _bucket_name| async move {
+           Ok(true)
+        }).await;
+
+        let s3_manager = s3_manager_result.ok().unwrap(); 
+        let bucket_exists_result = S3Manager::bucket_exists_impl(s3_manager.client.clone(), s3_manager.bucket.clone(), |client, bucket| async move {
+            Ok(false)
+        }).await;
+
+        assert!(bucket_exists_result.is_err());
+        let bucket_exists = bucket_exists_result.err().unwrap(); 
+        let is_invalid: bool; 
+        match bucket_exists {
+            S3ManagerError::BucketDoesNotExist(e) => {
+                is_invalid = true;
+                
+            
+            },
+            _ => {
+                panic!("Expected BucketDoesNotExist error");
+            }
+        } 
+        assert!(is_invalid);
+    }
+
+    #[tokio::test]
+    async fn bucket_exists_impl_unexpected_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), |_client, _bucket_name| async move {
+           Ok(true)
+        }).await;
+
+        let s3_manager = s3_manager_result.ok().unwrap(); 
+        let bucket_exists_result = S3Manager::bucket_exists_impl(s3_manager.client.clone(), s3_manager.bucket.clone(), |client, bucket| async move {
+                Err(UnexpectedError::new(
+                    &format!(
+                        "Error calling head_bucket for bucket {}",
+                        bucket 
+                    ),
+                    Some(json!({ "bucket_name": bucket }).to_string()),
+                    None,
+                ))
+        }).await;
+
+        assert!(bucket_exists_result.is_err());
+        let bucket_exists = bucket_exists_result.err().unwrap(); 
+        let is_invalid: bool; 
+        match bucket_exists {
+            S3ManagerError::UnexpectedError(e) => {
+                is_invalid = true;
+                
+            
+            },
+            _ => {
+                panic!("Expected Unexpected error");
+            }
+        } 
+        assert!(is_invalid);
+    }
+
 }
