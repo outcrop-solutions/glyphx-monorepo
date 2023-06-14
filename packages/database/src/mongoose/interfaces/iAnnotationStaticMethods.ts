@@ -5,7 +5,7 @@ import {IAnnotationCreateInput} from './iAnnotationCreateInput';
 
 export interface IAnnotationStaticMethods
   extends Model<databaseTypes.IAnnotation, {}, IAnnotationMethods> {
-  AnnotationIdExists(AnnotationId: mongooseTypes.ObjectId): Promise<boolean>;
+  annotationIdExists(AnnotationId: mongooseTypes.ObjectId): Promise<boolean>;
   allAnnotationIdsExist(
     AnnotationIds: mongooseTypes.ObjectId[]
   ): Promise<boolean>;

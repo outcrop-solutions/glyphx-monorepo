@@ -63,7 +63,22 @@ const INPUT_DATA = {
   static: false,
   fileSystemHash: UNIQUE_KEY,
   fileSystem: [],
-  camera: 400,
+  camera: {
+    pos: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    dir: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+  },
+  aspectRatio: {
+    height: 100,
+    width: 100,
+  },
   properties: [],
   project: {},
   createdBy: {},
@@ -74,7 +89,22 @@ const INPUT_DATA2 = {
   static: false,
   fileSystemHash: 'hash2' + UNIQUE_KEY,
   fileSystem: [],
-  camera: 400,
+  camera: {
+    pos: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    dir: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+  },
+  aspectRatio: {
+    height: 100,
+    width: 100,
+  },
   properties: [],
   project: {},
   createdBy: {},

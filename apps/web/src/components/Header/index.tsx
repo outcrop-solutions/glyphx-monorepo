@@ -23,13 +23,9 @@ const Header = () => {
 
   return (
     <div
-      className={`flex flex-row h-[56px] items-center justify-between pr-4 ${
-        workspaceSlug && !router.pathname.includes('settings') && !project && 'ml-8 pt-2'
-      } ${
-        project
-          ? 'bg-secondary-space-blue border border-gray'
-          : 'bg-transparent md:pt-0 border-1 border-b border-t-0 border-l-0 border-r-0 border-gray'
-      }`}
+      className={`flex flex-row h-[56px] sticky z-60 top-0 items-center bg-secondary-midnight justify-between pr-4 ${
+        workspaceSlug && !router.pathname.includes('settings') && !project && 'pl-8 pt-2 bg-primary-dark-blue'
+      } ${project ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
     >
       {project ? (
         <div className="flex items-center py-2">
@@ -50,7 +46,9 @@ const Header = () => {
         </div>
       ) : (
         <div
-          className={`${workspaceSlug && !router.pathname.includes('settings') ? (workspaceSlug ? 'pl-0' : '') : ''}`}
+          className={`${
+            workspaceSlug && !router.pathname.includes('settings') ? (workspaceSlug ? 'pl-0 py-3' : '') : ''
+          }`}
         >
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
             {workspaceSlug && !router.pathname.includes('settings')

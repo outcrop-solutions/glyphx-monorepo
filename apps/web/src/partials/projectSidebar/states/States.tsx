@@ -1,21 +1,52 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { web as webTypes } from '@glyphx/types';
+import React, { useEffect, useState } from 'react';
 import { StateList } from './StateList';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { projectAtom } from 'state/project';
 import { PlusIcon } from '@heroicons/react/outline';
-import { imageHashAtom, modalsAtom } from 'state';
-import { WritableDraft } from 'immer/dist/internal';
-import produce from 'immer';
 import { _createState, api } from 'lib';
-import { CreateStateModal } from 'partials/modals';
 import { CreateStateInput } from './CreateStateInput';
+import { cameraAtom, imageHashAtom, viewerPositionSelector } from 'state';
+import { useSWRConfig } from 'swr';
+import { web as webTypes } from '@glyphx/types';
 
 export const States = () => {
+  const { mutate } = useSWRConfig();
   const project = useRecoilValue(projectAtom);
-  const setModals = useSetRecoilState(modalsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
+  const [camera, setCamera] = useRecoilState(cameraAtom);
+  const [image, setImage] = useRecoilState(imageHashAtom);
+  const setProject = useSetRecoilState(projectAtom);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState('New State');
+  const viewerPosition = useRecoilValue(viewerPositionSelector);
+
+  useEffect(() => {
+    if (Object.keys(camera).length > 0 && image.imageHash) {
+      api({
+        ..._createState(
+          name,
+          project._id as unknown as string,
+          camera as unknown as webTypes.Camera,
+          { width: viewerPosition?.w || 300, height: viewerPosition?.h || 200 },
+          image.imageHash
+        ),
+        setLoading: (state) => setIsSubmitting(state),
+        onError: (_: any) => {
+          setCamera({});
+          setImage({ imageHash: false });
+          setAddState(false);
+        },
+        onSuccess: (data: any) => {
+          setCamera({});
+          setImage({ imageHash: false });
+          setAddState(false);
+          mutate(`/api/project/${project._id}`);
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?._id, setAddState]);
 
   const createState = () => setAddState(true);
 
@@ -56,7 +87,7 @@ export const States = () => {
         />
       </summary>
       {!isCollapsed && <StateList />}
-      {addState && <CreateStateInput setAddState={setAddState} project={project} />}
+      {addState && <CreateStateInput isSubmitting={isSubmitting} name={name} setName={setName} />}
     </div>
   );
 };

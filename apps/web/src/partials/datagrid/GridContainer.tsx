@@ -8,13 +8,14 @@ import { ModelFooter } from './ModelFooter';
 
 import { filesOpenSelector } from 'state/files';
 import { useResize } from 'services/useResize';
-import { orientationAtom, projectAtom, splitPaneSizeAtom, windowSizeAtom } from 'state';
+import { orientationAtom, projectAtom, splitPaneSizeAtom, stateSelector, windowSizeAtom } from 'state';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
 import Image from 'next/image';
 
 export const GridContainer = () => {
   const { data } = useDataGrid();
   const openFiles = useRecoilValue(filesOpenSelector);
+  const activeState = useRecoilValue(stateSelector);
   const project = useRecoilValue(projectAtom);
   const orientation = useRecoilValue(orientationAtom);
   const { height } = useRecoilValue(windowSizeAtom);
@@ -57,11 +58,22 @@ export const GridContainer = () => {
           )}
         </div>
         {isBrowser && project?.imageHash ? (
-          <div className="h-full w-full aspect-video p-20">
+          <div className={`${orientation === 'vertical' ? 'w-full' : 'h-2/3 w-2/3'} object-scale-down p-20 mx-auto`}>
             <Image
-              className="mt-[44px]"
-              src={project.imageHash && `data:image/png;base64,${project.imageHash}`}
-              layout="fill"
+              src={
+                activeState?.imageHash
+                  ? `data:image/png;base64,${activeState.imageHash}`
+                  : project.imageHash && `data:image/png;base64,${project.imageHash}`
+              }
+              width={
+                activeState?.aspectRatio?.width ? activeState?.aspectRatio?.width : project?.aspectRatio?.width || 300
+              }
+              height={
+                activeState?.aspectRatio?.height
+                  ? activeState?.aspectRatio?.height
+                  : project?.aspectRatio?.height || 200
+              }
+              layout="responsive"
               alt="model"
             />
           </div>

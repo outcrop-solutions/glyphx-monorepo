@@ -15,6 +15,7 @@ import {CustomerPaymentModel} from './customerPayment';
 import {MemberModel} from './member';
 import {WebhookModel} from './webhook';
 import {WorkspaceModel} from './workspace';
+import {ProcessTrackingModel} from './processTracking';
 
 const SCHEMA = new Schema<
   IActivityLogDocument,
@@ -152,6 +153,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'queryActivityLogs',
+  //istanbul ignore next
   async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
     try {
       const count = await ACTIVITY_LOG_MODEL.count(filter);
@@ -238,6 +240,7 @@ SCHEMA.static(
       );
 
     let workspaceId;
+    //istanbul ignore else
     if (input.workspaceId) {
       workspaceId =
         input.workspaceId instanceof mongooseTypes.ObjectId
@@ -309,6 +312,17 @@ SCHEMA.static(
             input.resource._id
           );
         break;
+      case databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING:
+        resourceExists = await ProcessTrackingModel.processTrackingIdExists(
+          resourceId
+        );
+        if (!resourceExists)
+          throw new error.InvalidArgumentError(
+            `A processTracking resource with _id : ${resourceId} cannot be found`,
+            'processTracking._id',
+            input.resource._id
+          );
+        break;
       case databaseTypes.constants.RESOURCE_MODEL.WEBHOOK:
         resourceExists = await WebhookModel.webhookIdExists(resourceId);
         if (!resourceExists)
@@ -327,8 +341,6 @@ SCHEMA.static(
             input.resource._id
           );
         break;
-      default:
-        break;
     }
 
     const createDate = new Date();
@@ -342,7 +354,7 @@ SCHEMA.static(
       action: input.action,
       onModel: input.onModel,
       resource: resourceId,
-      workspaceId: workspaceId ?? undefined,
+      workspaceId: workspaceId,
       projectId: input?.projectId ?? undefined,
     };
 

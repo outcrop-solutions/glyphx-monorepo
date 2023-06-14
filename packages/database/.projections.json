@@ -7,5 +7,13 @@
   "src/__tests__/mongoose/models/*.tests.ts" : {
     "type" : "test",
     "alternate":  "src/mongoose/models/{}.ts"
+  },
+  "src/mongoose/*.ts": {
+    "type": "source",
+    "alternate": "src/__tests__/mongoose/{}.tests.ts"
+  },
+  "src/__tests__/mongoose/*.tests.ts" : {
+    "type" : "test",
+    "alternate":  "src/mongoose/{}.ts"
   }
 }

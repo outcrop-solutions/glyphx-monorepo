@@ -131,15 +131,16 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       const name = new Date().toISOString();
       // add new state to project to prevent redundant glyphengine runs
-      const state = await stateService.createState(
-        name,
-        {
-          pos: { x: 0, y: 0, z: 0 },
-          dir: { x: 0, y: 0, z: 0 },
-        },
-        updatedProject._id,
-        session.user.userId
-      );
+      // const state = await stateService.createState(
+      //   name,
+      //   {
+      //     pos: { x: 0, y: 0, z: 0 },
+      //     dir: { x: 0, y: 0, z: 0 },
+      //   },
+      //   updatedProject._id,
+      //   session.user.userId,
+      //   { height: 300, width: 300 }
+      // );
 
       const { agentData, location } = formatUserAgent(req);
       await activityLogService.createLog({

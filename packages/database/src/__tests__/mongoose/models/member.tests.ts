@@ -2,10 +2,12 @@ import {assert} from 'chai';
 import {MemberModel} from '../../../mongoose/models/member';
 import {UserModel} from '../../../mongoose/models/user';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
+import {ProjectModel} from '../../../mongoose/models/project';
 import {database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
+import {IMemberCreateInput} from '../../../mongoose/interfaces';
 
 const MOCK_MEMBER: databaseTypes.IMember = {
   email: 'jamesmurdockgraham@gmail.com',
@@ -106,7 +108,7 @@ describe('#mongoose/models/member', () => {
       sandbox.restore();
     });
 
-    it('should return true if the member email exists', async () => {
+    it('should return true if the member email exists type === PROJECT', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
       const projectId = new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
@@ -122,7 +124,7 @@ describe('#mongoose/models/member', () => {
       assert.isTrue(result);
     });
 
-    it('should return false if the member email does not exist', async () => {
+    it('should return false if the member email does not exist type === PROJECT', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
       const projectId = new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
@@ -132,6 +134,38 @@ describe('#mongoose/models/member', () => {
       const result = await MemberModel.memberExists(
         memberEmail,
         databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projectId
+      );
+
+      assert.isFalse(result);
+    });
+
+    it('should return true if the member email exists type === WORKSPACE', async () => {
+      const memberEmail = 'testmember@gmail.com' as string;
+      const projectId = new mongooseTypes.ObjectId();
+      const findByEmailStub = sandbox.stub();
+      findByEmailStub.resolves({email: memberEmail});
+      sandbox.replace(MemberModel, 'findOne', findByEmailStub);
+
+      const result = await MemberModel.memberExists(
+        memberEmail,
+        databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+        projectId
+      );
+
+      assert.isTrue(result);
+    });
+
+    it('should return false if the member email does not exist type === WORKSPACE', async () => {
+      const memberEmail = 'testmember@gmail.com' as string;
+      const projectId = new mongooseTypes.ObjectId();
+      const findByEmailStub = sandbox.stub();
+      findByEmailStub.resolves(null);
+      sandbox.replace(MemberModel, 'findOne', findByEmailStub);
+
+      const result = await MemberModel.memberExists(
+        memberEmail,
+        databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
         projectId
       );
 
@@ -182,6 +216,12 @@ describe('#mongoose/models/member', () => {
         sandbox.stub().resolves(false)
       );
 
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
+      );
+
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
         MemberModel,
@@ -212,6 +252,12 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
 
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
@@ -261,6 +307,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
 
       sandbox.replace(
@@ -387,6 +438,19 @@ describe('#mongoose/models/member', () => {
         'create',
         sandbox.stub().resolves([{_id: memberId}])
       );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox
+          .stub()
+          .rejects(
+            new error.InvalidArgumentError(
+              'The email already exists',
+              'email',
+              'email'
+            )
+          )
+      );
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -416,6 +480,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(
@@ -451,6 +520,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
       sandbox.replace(
         MemberModel,
@@ -490,6 +564,11 @@ describe('#mongoose/models/member', () => {
         MemberModel,
         'memberExists',
         sandbox.stub().resolves(false)
+      );
+      sandbox.replace(
+        MemberModel,
+        'validateWorkspaceMember',
+        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(MemberModel, 'create', sandbox.stub().rejects('oops'));
@@ -739,6 +818,9 @@ describe('#mongoose/models/member', () => {
         workspace: {
           _id: new mongoose.Types.ObjectId(),
         } as unknown as databaseTypes.IWorkspace,
+        project: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
       };
       const userExistsStub = sandbox.stub();
       userExistsStub.resolves(true);
@@ -747,6 +829,10 @@ describe('#mongoose/models/member', () => {
       const workspaceExistsStub = sandbox.stub();
       workspaceExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceExistsStub);
+
+      const projectExistsStub = sandbox.stub();
+      projectExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectExistsStub);
 
       await MemberModel.validateUpdateObject(inputMember);
       assert.isTrue(userExistsStub.called);
@@ -817,6 +903,26 @@ describe('#mongoose/models/member', () => {
       }
       assert.isTrue(errorred);
       assert.isTrue(workspaceExistsStub.calledOnce);
+    });
+
+    it('will throw an InvalidOperationError when the project does not exist', async () => {
+      const inputMember = {
+        project: {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IProject,
+      };
+      const projectExistsStub = sandbox.stub();
+      projectExistsStub.resolves(false);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectExistsStub);
+      let errorred = false;
+      try {
+        await MemberModel.validateUpdateObject(inputMember);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+      assert.isTrue(projectExistsStub.calledOnce);
     });
 
     it('will throw an InvalidOperationError when we attempt to supply an _id', async () => {
@@ -1036,6 +1142,44 @@ describe('#mongoose/models/member', () => {
 
       const doc = await MemberModel.getMemberById(
         mockMember._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.member as any).__v);
+      assert.isUndefined((doc.invitedBy as any).__v);
+      assert.isUndefined((doc.workspace as any).__v);
+
+      assert.strictEqual(doc._id, mockMember._id);
+    });
+
+    it('will retreive a member document with the member, invitedBy and workspace populated has project = true', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(mockMember));
+      sandbox.replace(MemberModel, 'findById', findByIdStub);
+
+      const doc = await MemberModel.getMemberById(
+        mockMember._id as mongoose.Types.ObjectId,
+        true
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc.member as any).__v);
+      assert.isUndefined((doc.invitedBy as any).__v);
+      assert.isUndefined((doc.workspace as any).__v);
+
+      assert.strictEqual(doc._id, mockMember._id);
+    });
+
+    it('will retreive a member document with the member, invitedBy and workspace populated has project = false', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(mockMember));
+      sandbox.replace(MemberModel, 'findById', findByIdStub);
+
+      const doc = await MemberModel.getMemberById(
+        mockMember._id as mongoose.Types.ObjectId,
+        false
       );
 
       assert.isTrue(findByIdStub.calledOnce);
@@ -1279,6 +1423,620 @@ describe('#mongoose/models/member', () => {
         errored = true;
       }
 
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validateProject', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will validate the project with id as objectId', async () => {
+      const projectId = new mongoose.Types.ObjectId();
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const res = await MemberModel.validateProject(projectId);
+      assert.strictEqual(res.toString(), projectId.toString());
+      assert.isTrue(projectIdExistsStub.calledOnce);
+    });
+
+    it('will validate the project with id as IProject', async () => {
+      const projectId = new mongoose.Types.ObjectId();
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const res = await MemberModel.validateProject({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      assert.strictEqual(res.toString(), projectId.toString());
+      assert.isTrue(projectIdExistsStub.calledOnce);
+    });
+
+    it('will throw an invalidArgumentError when the projectId does not exist', async () => {
+      const projectId = new mongoose.Types.ObjectId();
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(false);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      let errored = false;
+      try {
+        await MemberModel.validateProject(projectId);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validateProjectMember', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will validate the project member with ids as objectIds', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      const projectId = new mongoose.Types.ObjectId();
+      const workspoaceId = new mongoose.Types.ObjectId();
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const workspaceIdExistsStub = sandbox.stub();
+      workspaceIdExistsStub.resolves(true);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceIdExistsStub
+      );
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: memberId,
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      const res = await MemberModel.validateProjectMember(
+        memberId,
+        workspoaceId,
+        projectId
+      );
+
+      assert.isOk(res);
+      assert.strictEqual(res._id.toString(), memberId.toString());
+      assert.isTrue(userIdExistsStub.calledOnce);
+      assert.isTrue(projectIdExistsStub.calledOnce);
+      assert.isTrue(workspaceIdExistsStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+      assert.isTrue(memberExistsStub.calledOnce);
+    });
+
+    it('will validate the project member with ids as objects ', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      const projectId = new mongoose.Types.ObjectId();
+      const workspoaceId = new mongoose.Types.ObjectId();
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const workspaceIdExistsStub = sandbox.stub();
+      workspaceIdExistsStub.resolves(true);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceIdExistsStub
+      );
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: memberId,
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      const res = await MemberModel.validateProjectMember(
+        {_id: memberId} as unknown as databaseTypes.IUser,
+        {_id: workspoaceId} as unknown as databaseTypes.IWorkspace,
+        {_id: projectId} as unknown as databaseTypes.IProject
+      );
+
+      assert.isOk(res);
+      assert.strictEqual(res._id.toString(), memberId.toString());
+      assert.isTrue(userIdExistsStub.calledOnce);
+      assert.isTrue(projectIdExistsStub.calledOnce);
+      assert.isTrue(workspaceIdExistsStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+      assert.isTrue(memberExistsStub.calledOnce);
+    });
+
+    it('will throw an invalisd argument error when the user does not exist ', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      const projectId = new mongoose.Types.ObjectId();
+      const workspoaceId = new mongoose.Types.ObjectId();
+
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const workspaceIdExistsStub = sandbox.stub();
+      workspaceIdExistsStub.resolves(true);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceIdExistsStub
+      );
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: memberId,
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      let errored = false;
+      try {
+        await MemberModel.validateProjectMember(
+          {_id: memberId} as unknown as databaseTypes.IUser,
+          {_id: workspoaceId} as unknown as databaseTypes.IWorkspace,
+          {_id: projectId} as unknown as databaseTypes.IProject
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalisd argument error when the project does not exist ', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      const projectId = new mongoose.Types.ObjectId();
+      const workspoaceId = new mongoose.Types.ObjectId();
+
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(false);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const workspaceIdExistsStub = sandbox.stub();
+      workspaceIdExistsStub.resolves(true);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceIdExistsStub
+      );
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: memberId,
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      let errored = false;
+      try {
+        await MemberModel.validateProjectMember(
+          {_id: memberId} as unknown as databaseTypes.IUser,
+          {_id: workspoaceId} as unknown as databaseTypes.IWorkspace,
+          {_id: projectId} as unknown as databaseTypes.IProject
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalisd argument error when the workspace does not exist ', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      const projectId = new mongoose.Types.ObjectId();
+      const workspoaceId = new mongoose.Types.ObjectId();
+
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const workspaceIdExistsStub = sandbox.stub();
+      workspaceIdExistsStub.resolves(false);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceIdExistsStub
+      );
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: memberId,
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      let errored = false;
+      try {
+        await MemberModel.validateProjectMember(
+          {_id: memberId} as unknown as databaseTypes.IUser,
+          {_id: workspoaceId} as unknown as databaseTypes.IWorkspace,
+          {_id: projectId} as unknown as databaseTypes.IProject
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the member exists ', async () => {
+      const memberId = new mongoose.Types.ObjectId();
+      const projectId = new mongoose.Types.ObjectId();
+      const workspoaceId = new mongoose.Types.ObjectId();
+
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const projectIdExistsStub = sandbox.stub();
+      projectIdExistsStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
+
+      const workspaceIdExistsStub = sandbox.stub();
+      workspaceIdExistsStub.resolves(true);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceIdExistsStub
+      );
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: memberId,
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(true);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      let errored = false;
+      try {
+        await MemberModel.validateProjectMember(
+          {_id: memberId} as unknown as databaseTypes.IUser,
+          {_id: workspoaceId} as unknown as databaseTypes.IWorkspace,
+          {_id: projectId} as unknown as databaseTypes.IProject
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validateWorkspaceMember', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('will validate a workspace memeber when the ids are objectIds', async () => {
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: new mongoose.Types.ObjectId(),
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      const res = await MemberModel.validateWorkspaceMember(
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId()
+      );
+      assert.isOk(res);
+      assert.isObject(res);
+      assert.isTrue(userIdExistsStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+      assert.isTrue(memberExistsStub.calledOnce);
+    });
+
+    it('will validate a workspace memeber when the ids are objects', async () => {
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: new mongoose.Types.ObjectId(),
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      const res = await MemberModel.validateWorkspaceMember(
+        {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IUser,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.IWorkspace
+      );
+      assert.isOk(res);
+      assert.isObject(res);
+      assert.isTrue(userIdExistsStub.calledOnce);
+      assert.isTrue(getUserByIdStub.calledOnce);
+      assert.isTrue(memberExistsStub.calledOnce);
+    });
+
+    it('will throw an invalid argument error when the user does not exist', async () => {
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: new mongoose.Types.ObjectId(),
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(false);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      let errored = false;
+      try {
+        await MemberModel.validateWorkspaceMember(
+          new mongoose.Types.ObjectId(),
+          new mongoose.Types.ObjectId()
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the member exists', async () => {
+      const userIdExistsStub = sandbox.stub();
+      userIdExistsStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
+
+      const getUserByIdStub = sandbox.stub();
+      getUserByIdStub.resolves({
+        _id: new mongoose.Types.ObjectId(),
+        email: 'foo@email.com',
+      });
+      sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
+
+      const memberExistsStub = sandbox.stub();
+      memberExistsStub.resolves(true);
+      sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
+
+      let errored = false;
+      try {
+        await MemberModel.validateWorkspaceMember(
+          new mongoose.Types.ObjectId(),
+          new mongoose.Types.ObjectId()
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('createProjectMember', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will create a project members', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const validateWorkspaceStub = sandbox.stub();
+      validateWorkspaceStub.resolves(workspaceId);
+      sandbox.replace(MemberModel, 'validateWorkspace', validateWorkspaceStub);
+
+      const invitedById = new mongoose.Types.ObjectId();
+      const memberId = new mongoose.Types.ObjectId();
+      const validateProjectMemberStub = sandbox.stub();
+      validateProjectMemberStub.resolves(memberId);
+      validateProjectMemberStub.onCall(1).resolves(invitedById);
+      sandbox.replace(
+        MemberModel,
+        'validateProjectMember',
+        validateProjectMemberStub
+      );
+
+      const projectId = new mongoose.Types.ObjectId();
+      const validateProjectStub = sandbox.stub();
+      validateProjectStub.resolves(projectId);
+      sandbox.replace(MemberModel, 'validateProject', validateProjectStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves();
+      sandbox.replace(MemberModel, 'validate', validateStub);
+
+      const memberDocumentId = new mongoose.Types.ObjectId();
+      const createStub = sandbox.stub();
+      createStub.resolves([{_id: memberDocumentId}]);
+      sandbox.replace(MemberModel, 'create', createStub);
+
+      const getMemberByIdStub = sandbox.stub();
+      getMemberByIdStub.resolves({_id: memberDocumentId});
+      sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
+
+      const input = {...MOCK_MEMBER} as IMemberCreateInput;
+      input.invitedBy = invitedById;
+      input.workspace = workspaceId;
+      input.member = memberId;
+      input.project = projectId;
+
+      const res = await MemberModel.createProjectMember(input);
+      assert.strictEqual(res._id?.toString(), memberDocumentId.toString());
+      assert.isTrue(validateWorkspaceStub.calledOnce);
+      assert.isTrue(validateProjectMemberStub.calledTwice);
+      assert.isTrue(validateProjectStub.calledOnce);
+      assert.isTrue(validateStub.calledOnce);
+      assert.isTrue(createStub.calledOnce);
+      assert.isTrue(getMemberByIdStub.calledOnce);
+    });
+
+    it('will throw a dataValidationError if the validation call fails', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const validateWorkspaceStub = sandbox.stub();
+      validateWorkspaceStub.resolves(workspaceId);
+      sandbox.replace(MemberModel, 'validateWorkspace', validateWorkspaceStub);
+
+      const invitedById = new mongoose.Types.ObjectId();
+      const memberId = new mongoose.Types.ObjectId();
+      const validateProjectMemberStub = sandbox.stub();
+      validateProjectMemberStub.resolves(memberId);
+      validateProjectMemberStub.onCall(1).resolves(invitedById);
+      sandbox.replace(
+        MemberModel,
+        'validateProjectMember',
+        validateProjectMemberStub
+      );
+
+      const projectId = new mongoose.Types.ObjectId();
+      const validateProjectStub = sandbox.stub();
+      validateProjectStub.resolves(projectId);
+      sandbox.replace(MemberModel, 'validateProject', validateProjectStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.rejects('That is not valid');
+      sandbox.replace(MemberModel, 'validate', validateStub);
+
+      const memberDocumentId = new mongoose.Types.ObjectId();
+      const createStub = sandbox.stub();
+      createStub.resolves([{_id: memberDocumentId}]);
+      sandbox.replace(MemberModel, 'create', createStub);
+
+      const getMemberByIdStub = sandbox.stub();
+      getMemberByIdStub.resolves({_id: memberDocumentId});
+      sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
+
+      const input = {...MOCK_MEMBER} as IMemberCreateInput;
+      input.invitedBy = invitedById;
+      input.workspace = workspaceId;
+      input.member = memberId;
+      input.project = projectId;
+
+      let errored = false;
+      try {
+        await MemberModel.createProjectMember(input);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError if the create call fails', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const validateWorkspaceStub = sandbox.stub();
+      validateWorkspaceStub.resolves(workspaceId);
+      sandbox.replace(MemberModel, 'validateWorkspace', validateWorkspaceStub);
+
+      const invitedById = new mongoose.Types.ObjectId();
+      const memberId = new mongoose.Types.ObjectId();
+      const validateProjectMemberStub = sandbox.stub();
+      validateProjectMemberStub.resolves(memberId);
+      validateProjectMemberStub.onCall(1).resolves(invitedById);
+      sandbox.replace(
+        MemberModel,
+        'validateProjectMember',
+        validateProjectMemberStub
+      );
+
+      const projectId = new mongoose.Types.ObjectId();
+      const validateProjectStub = sandbox.stub();
+      validateProjectStub.resolves(projectId);
+      sandbox.replace(MemberModel, 'validateProject', validateProjectStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves();
+      sandbox.replace(MemberModel, 'validate', validateStub);
+
+      const memberDocumentId = new mongoose.Types.ObjectId();
+      const createStub = sandbox.stub();
+      createStub.rejects('There was a database error');
+      sandbox.replace(MemberModel, 'create', createStub);
+
+      const getMemberByIdStub = sandbox.stub();
+      getMemberByIdStub.resolves({_id: memberDocumentId});
+      sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
+
+      const input = {...MOCK_MEMBER} as IMemberCreateInput;
+      input.invitedBy = invitedById;
+      input.workspace = workspaceId;
+      input.member = memberId;
+      input.project = projectId;
+
+      let errored = false;
+      try {
+        await MemberModel.createProjectMember(input);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
       assert.isTrue(errored);
     });
   });

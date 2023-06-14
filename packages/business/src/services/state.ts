@@ -40,6 +40,7 @@ export class StateService {
     camera: webTypes.Camera,
     projectId: mongooseTypes.ObjectId | string,
     userId: mongooseTypes.ObjectId | string,
+    aspectRatio: webTypes.Aspect,
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
@@ -75,6 +76,7 @@ export class StateService {
         version: 0,
         static: true,
         camera: {...camera},
+        aspectRatio: {...aspectRatio},
         properties: {...project.state.properties},
         fileSystemHash: hashFileSystem(project.files),
         payloadHash: hashPayload(hashFileSystem(project.files), project),
@@ -89,6 +91,7 @@ export class StateService {
 
       await mongoDbConnection.models.ProjectModel.updateProjectById(pid, {
         imageHash: imageHash,
+        aspectRatio: aspectRatio,
       });
 
       const wid =
@@ -109,7 +112,7 @@ export class StateService {
           'An unexpected error occurred while creating the state. See the inner error for additional details',
           'state',
           'createState',
-          {projectId, userId, name, camera},
+          {projectId, userId, name, camera, aspectRatio},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

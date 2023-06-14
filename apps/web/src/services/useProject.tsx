@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { web as webTypes, database as databaseTypes } from '@glyphx/types';
-import { _updateProjectState, api } from 'lib/client';
+import { web as webTypes } from '@glyphx/types';
+import { _updateProjectState } from 'lib/client';
 import { doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom } from 'state';
-import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations/core';
+import { _createModel, _getSignedDataUrls } from 'lib/client/mutations/core';
 import { useUrl } from 'lib/client/hooks';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';

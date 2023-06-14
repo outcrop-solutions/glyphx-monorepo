@@ -60,11 +60,11 @@ const Sidebar = ({ menu }) => {
           href="/account"
         >
           {projectId ? (
-            <div>
+            <div className="py-1">
               <SmallLogo />
             </div>
           ) : (
-            <div>
+            <div className="py-1">
               <FullLogo />
             </div>
           )}

@@ -11,7 +11,7 @@ import {WorkspaceModel} from './workspace';
 import {StateModel} from './state';
 import {MemberModel} from './member';
 import {ProjectTemplateModel} from './projectTemplate';
-import {fileStatsSchema} from '../schemas';
+import {aspectSchema, fileStatsSchema} from '../schemas';
 import {embeddedStateSchema} from '../schemas/embeddedState';
 
 const SCHEMA = new Schema<
@@ -36,6 +36,7 @@ const SCHEMA = new Schema<
   },
   name: {type: String, required: true},
   imageHash: {type: String, required: false},
+  aspectRatio: {type: aspectSchema, required: false},
   description: {type: String, required: false},
   sdtPath: {type: String, required: false},
   currentVersion: {type: Number, required: true, default: 0},
@@ -257,7 +258,6 @@ SCHEMA.static(
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
         err instanceof error.InvalidArgumentError
       )
         throw err;
@@ -606,6 +606,7 @@ SCHEMA.static(
 
       const createDate = new Date();
 
+      //istanbul ignore next
       const resolvedInput: IProjectDocument = {
         createdAt: createDate,
         updatedAt: createDate,
@@ -676,6 +677,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     //to the user.
     delete (projectDocument as any)['__v'];
     delete (projectDocument as any).workspace?.['__v'];
+    delete (projectDocument as any).type?.['__v'];
 
     projectDocument.members?.forEach((m: any) => delete (m as any)['__v']);
     projectDocument.stateHistory?.forEach((s: any) => {

@@ -49,17 +49,23 @@ export const Axes = ({ axis }) => {
         <div
           className={`flex justify-between bg-secondary-dark-blue rounded border border-transparent hover:border-white hover:cursor-pointer`}
         >
-          {showFilter ? <GarbageIcon /> : <PlusIcon />}
+          {showFilter ? (
+            <GarbageIcon onClick={() => setShowFilter(false)} />
+          ) : (
+            <PlusIcon onClick={() => setShowFilter(true)} />
+          )}
         </div>
       </li>
       {/* filtering dropdown */}
-      <>
-        {prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ? (
-          <RangeFilter prop={prop} />
-        ) : (
-          <SearchFilter prop={prop} />
-        )}
-      </>
+      {showFilter && (
+        <>
+          {prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ? (
+            <RangeFilter prop={prop} />
+          ) : (
+            <SearchFilter prop={prop} />
+          )}
+        </>
+      )}
     </>
   );
 };
