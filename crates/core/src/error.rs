@@ -1,157 +1,137 @@
-//!This module contains the base error handiling structures
-//!and traits for Glyphx applications.  It also exposes
-//!a standard set of errors that can be used across all
-//!applications.  Application specific errors should
-//!be defined within the binaries or libraries themselves.
-use backtrace::Backtrace;
-use serde_derive::{Deserialize, Serialize};
 use serde_json;
-use crate::utility_functions::json_functions::clean_json_string;
-mod invalid_argument_error;
-mod invalid_operation_error;
-mod unexpected_error;
-
-pub use invalid_argument_error::InvalidArgumentError;
-pub use invalid_operation_error::InvalidOperationError;
-pub use unexpected_error::UnexpectedError;
-
-///This internal structure is used to coerce the errors
-///in a JSON friendly format which can then be serialized
-///to a JSON string.
-#[derive(Debug, Serialize, Deserialize)]
-struct ErrorAsLog {
-    name: String,
-    error_code: u16,
-    message: String,
-    stack_trace: Vec<String>,
-    data: Option<String>,
-    inner_error: Option<String>,
-}
-
-/// A generlized data structure for storing error information
-/// which defiens common fields so that errors can be logged
-/// in a consistent manner.
-pub struct GlyphxErrorData<'a, T: std::fmt::Display> {
-    ///A message which provides a high level description of the error
+use serde::{Deserialize, Serialize};
+#[derive(Clone,Deserialize, Serialize)]
+pub struct GlyphxErrorData {
     pub message: String,
-    ///A backtrace which provides a stack trace of the error
-    pub back_trace: Backtrace,
-    ///A standardized error code to identify the type of error
-    pub error_code: u16,
-    ///A Human readable description of the error
-    pub error_description: String,
-    ///An optional data field which can be used by implementors to
-    ///provide additional context about the error
-    pub data: Option<T>,
-    ///An optional inner error which can be used to
-    ///provide additional context about the error.  This
-    ///implements the Display trait so that it can be easily
-    ///converted to a string for logging.
-    pub inner_error: Option<Box<dyn std::fmt::Display + 'a>>,
+    pub data: Option<serde_json::Value>,
+    pub inner_error: Option<serde_json::Value>,
 }
 
-impl<'a, T: std::fmt::Display> GlyphxErrorData<'a, T> {
+impl GlyphxErrorData {
     pub fn new(
-        message: &String,
-        error_code: u16,
-        error_description: &String,
-        data: Option<T>,
-        inner_error: Option<Box<dyn std::fmt::Display + 'a>>,
+        message: String,
+        data: Option<serde_json::Value>,
+        inner_error: Option<serde_json::Value>,
     ) -> Self {
         GlyphxErrorData {
-            message: message.clone(),
-            error_code,
-            error_description: error_description.clone(),
+            message,
             data,
             inner_error,
-            back_trace: Backtrace::new(),
         }
     }
 }
 
-///A trait which provides a common interface for working
-///with errors.  Any errors that are generated bt Glyphx
-///programs should implement this trait.
-pub trait GlyphxError<'a, T: 'a + std::fmt::Display>: std::fmt::Display {
-    ///Returns a reference to the error data.  Since this can be
-    ///specific to the type of error, it is
-    ///implemented in the specific error types.
-    fn get_info(&'a self) -> &'a GlyphxErrorData<T>;
-    ///All errors get_info will return a GlyphxErrorData struct
-    ///which contains common fields.  This method returns the
-    ///message field from the GlyphxErrorData struct.
-    fn message(&'a self) -> &'a str {
-        &self.get_info().message
-    }
-    ///All errors get_info will return a GlyphxErrorData struct
-    ///which contains common fields.  This method returns the
-    ///backtrace field from the GlyphxErrorData struct. It is
-    ///the responsibility of the error to generate the backtrace.
-    fn get_back_trace(&'a self) -> &'a Backtrace {
-        &self.get_info().back_trace
-    }
-
-    ///All errors get_info will return a GlyphxErrorData struct
-    ///which contains common fields.  This method returns the
-    ///the backtrace as a string.
-    fn get_backtrace_as_string(&'a self) -> String {
-        format!("{:?}", self.get_back_trace())
-    }
-    ///All errors get_info will return a GlyphxErrorData struct
-    ///which contains common fields.  This method returns the
-    ///the backtrace as a vector of strings.
-    fn get_backtrace_as_vec(&'a self) -> Vec<String> {
-        let str = self.get_backtrace_as_string();
-        str.split("\n").map(|s| s.to_string()).collect()
-    }
-    ///All errors get_info will return a GlyphxErrorData struct
-    ///which contains common fields.  As part of this structure,
-    ///a structure implementing this trait can define data to
-    ///include in the error and subsequent logging.  This data
-    ///must include the std::fmt::Display trait so that it can
-    ///be converted to a string for logging.
-    fn get_data(&'a self) -> Option<String> {
-        match &self.get_info().data {
-            Some(data) => Some(data.to_string()),
-            None => None,
+impl std::fmt::Display for GlyphxErrorData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut json = serde_json::json!({
+            "message": self.message,
+        });
+        if let Some(data) = &self.data {
+            json["data"] = data.clone();
         }
-    }
-
-    ///The publish method is defined in structures that implement this trait. 
-    ///ideally, the implimentor will call internal publish which will return 
-    ///a clean and validated json string. 
-    fn publish(&'a self) -> String;
-
-    ///This is the internal function that is called by the publish method.  
-    ///This function will return a clean and validated json string.
-    fn internal_publish(&'a self) -> String {
-        let mut json = self.to_string();
-        json = clean_json_string(json);
-        let json_value = serde_json::from_str::<serde_json::Value>(&json).unwrap();
-        let json = serde_json::to_string_pretty(&json_value).unwrap();
-        json
-    }
-
-    ///Our internal fmt method which will convert a Glyphx error into a string.
-    ///While this string is json like, there are some issues with it, that will 
-    ///need to be cleaned up with the [clean_json_string](../utility_functions/json_functions/fn.clean_json_string.html) function.
-    fn fmt(&'a self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let info = self.get_info();
-
-        let error_as_log = ErrorAsLog {
-            name: self.get_info().error_description.clone(),
-            error_code: self.get_info().error_code,
-            message: self.get_info().message.clone(),
-            stack_trace: self.get_backtrace_as_vec(),
-            data: self.get_data(),
-            inner_error: match &self.get_info().inner_error {
-                Some(inner_error) => Some(inner_error.to_string()),
-                None => None,
-            },
-        };
-
-        let json = serde_json::to_value(&error_as_log).unwrap().to_string();
-
+        if let Some(inner_error) = &self.inner_error {
+            json["inner_error"] = inner_error.clone();
+        }
         write!(f, "{}", json)
+    }
+}
+
+#[cfg(test)]
+mod glyphx_error_tests {
+    use super::*;
+
+    #[test]
+    fn build_glyphx_error_with_nones() {
+        let msg = String::from("Error");
+        let error = GlyphxErrorData::new(
+            msg.clone(),
+            None,
+            None,
+        );
+        let error = error.to_string();
+
+        let json = serde_json::from_str::<serde_json::Value>(error.as_str());
+        assert!(json.is_ok());
+        let json = json.unwrap();
+        assert_eq!(json["message"], msg);
+
+    }
+    #[test]
+    fn build_glyphx_error_with_data() {
+        let msg = String::from("Error");
+        let data = serde_json::json!({
+            "key": "value",
+            "foo": "bar"
+        });
+        let error = GlyphxErrorData::new(
+            msg.clone(),
+            Some(data.clone()),
+            None,
+        );
+        let error = error.to_string();
+
+        let json = serde_json::from_str::<serde_json::Value>(error.as_str());
+        assert!(json.is_ok());
+        let json = json.unwrap();
+        assert_eq!(json["message"], msg);
+        let err_data = json["data"].as_object().unwrap();
+        assert_eq!(err_data.get("key").unwrap(), data.get("key").unwrap());
+        assert_eq!(err_data.get("foo").unwrap(), data.get("foo").unwrap());
+
+    }
+
+    #[test]
+    fn build_glyphx_error_with_inner_error() {
+        let msg = String::from("Error");
+        let inner_error = serde_json::json!({
+            "key": "value",
+            "foo": "bar"
+        });
+        let error = GlyphxErrorData::new(
+            msg.clone(),
+            None,
+            Some(inner_error.clone()),
+        );
+        let error = error.to_string();
+
+        let json = serde_json::from_str::<serde_json::Value>(error.as_str());
+        assert!(json.is_ok());
+        let json = json.unwrap();
+        assert_eq!(json["message"], msg);
+        let inner_err_data = json["inner_error"].as_object().unwrap();
+        assert_eq!(inner_err_data.get("key").unwrap(), inner_error.get("key").unwrap());
+        assert_eq!(inner_err_data.get("foo").unwrap(), inner_error.get("foo").unwrap());
+
+    }
+
+    #[test]
+    fn build_glyphx_error_with_inner_error_as_glyphx_error_data() {
+        let msg = String::from("Error");
+        let inner_msg = String::from("Inner Error");
+        let data = serde_json::json!({
+            "key": "value",
+            "foo": "bar"
+        });
+        let inner_error = GlyphxErrorData::new(
+            inner_msg.clone(),
+            Some(data.clone()),
+            None,
+        );        
+        let error = GlyphxErrorData::new(
+            msg.clone(),
+            None,
+            Some(serde_json::to_value(inner_error.clone()).unwrap()),
+        );
+        let error = error.to_string();
+
+        let json = serde_json::from_str::<serde_json::Value>(error.as_str());
+        assert!(json.is_ok());
+        let json = json.unwrap();
+        assert_eq!(json["message"], msg);
+        let inner_err_data = json["inner_error"].as_object().unwrap();
+        let inner_err_data = inner_err_data["data"].as_object().unwrap();
+        assert_eq!(inner_err_data.get("key").unwrap(), inner_error.clone().data.unwrap().get("key").unwrap());
+        assert_eq!(inner_err_data.get("foo").unwrap(), inner_error.clone().data.unwrap().get("foo").unwrap());
+
     }
 }

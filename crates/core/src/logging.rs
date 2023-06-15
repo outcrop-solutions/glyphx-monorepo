@@ -1,7 +1,6 @@
 //!This module contains the functions required to configure logging.
 //!Logging is standard across all GlyphX applications.  This module,
 //!will ensure that each application logs its information appropriately.
-use crate::error::InvalidOperationError;
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
@@ -11,6 +10,8 @@ use log4rs::append::rolling_file::RollingFileAppender;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::Handle;
 use serde_json::json;
+
+use crate::error::GlyphxErrorData;
 
 ///The setup logging function is used to configure the logging.  An application 
 ///should call this function once and only once.
@@ -73,8 +74,11 @@ fn configure_logging<T>(
             )),
         )
         .unwrap_or_else(|err| {
-            let error = InvalidOperationError::new(
-                &format!(
+        let inner_error : serde_json::Value = json!(
+            err.to_string()
+           );
+            let error = GlyphxErrorData::new(
+                format!(
                     "Failed to create rolling file appender for the app {}, using the file name : {}, with a file size of {}",
                     application_name, file_name, file_size
                 ),
@@ -86,7 +90,8 @@ fn configure_logging<T>(
                     }
 
                 )),
-                Some(&err),
+                
+                Some(inner_error),
             );
             //We panic here because this is a configuration error
             //which could have downstream effects.
@@ -106,8 +111,11 @@ fn configure_logging<T>(
         .unwrap();
 
     config_fn(config).unwrap_or_else(|err| {
-        let error = InvalidOperationError::new(
-            &format!(
+        let inner_error : serde_json::Value = json!(
+            err.to_string()
+           );
+        let error = GlyphxErrorData::new(
+            format!(
                 "Failed to initialize the log4rs configuration for the app {}",
                 application_name
             ),
@@ -117,7 +125,7 @@ fn configure_logging<T>(
                 }
 
             )),
-            Some(&err),
+            Some(inner_error),
         );
         //We panic here because this is a configuration error
         //which could have downstream effects.
@@ -128,7 +136,6 @@ fn configure_logging<T>(
 #[cfg(test)]
 mod logging_tests {
     use super::*;
-    use crate::error::GlyphxError;
     use json5;
     use log;
     use serial_test::serial;
@@ -204,95 +211,91 @@ mod logging_tests {
     }
     static mut HANDLE: Option<Handle> = None;
 
-    #[test]
-    #[serial]
-    fn setup_logging_with_defaults() {
-        let mock_init = get_mock_init(
-            String::from("test"),
-            String::from("output.log"),
-            1_000_000,
-            LevelFilter::Info,
-            false
-        );
-        //all of our asserts are run as part of the mock init function
-        configure_logging(String::from("test"), None, None, None, mock_init);
-        assert!(log::log_enabled!(log::Level::Info));
-    }
+   #[test]
+   #[serial]
+   fn setup_logging_with_defaults() {
+       let mock_init = get_mock_init(
+           String::from("test"),
+           String::from("output.log"),
+           1_000_000,
+           LevelFilter::Info,
+           false
+       );
+       //all of our asserts are run as part of the mock init function
+       configure_logging(String::from("test"), None, None, None, mock_init);
+       assert!(log::log_enabled!(log::Level::Info));
+   }
 
-    #[test]
-    #[serial]
-    fn setup_logging_with_passed_values() {
-        let output_file_name = String::from("Foo.bar");
-        let file_size = 63_000_000;
-        let level_filter = LevelFilter::Debug;
-        let mock_init = get_mock_init(
-            String::from("test"),
-            output_file_name.clone(),
-            file_size,
-            level_filter,
-            false
-        );
-        //all of our asserts are run as part of the mock init function
-        configure_logging(
-            String::from("test"),
-            Some(output_file_name),
-            Some(file_size),
-            Some(level_filter),
-            mock_init,
-        );
+   #[test]
+   #[serial]
+   fn setup_logging_with_passed_values() {
+       let output_file_name = String::from("Foo.bar");
+       let file_size = 63_000_000;
+       let level_filter = LevelFilter::Debug;
+       let mock_init = get_mock_init(
+           String::from("test"),
+           output_file_name.clone(),
+           file_size,
+           level_filter,
+           false
+       );
+       //all of our asserts are run as part of the mock init function
+       configure_logging(
+           String::from("test"),
+           Some(output_file_name),
+           Some(file_size),
+           Some(level_filter),
+           mock_init,
+       );
 
-        assert!(log::log_enabled!(log::Level::Debug));
-    }
+       assert!(log::log_enabled!(log::Level::Debug));
+   }
 
-    #[test]
-    #[serial]
-    fn setup_logging_panics_on_consecutive_calls() {
-        let application_name = String::from("test");
-        let output_file_name = String::from("Foo.bar");
-        let file_size = 63_000_000;
-        let level_filter = LevelFilter::Debug;
+   #[test]
+   #[serial]
+   fn setup_logging_panics_on_consecutive_calls() {
+       let application_name = String::from("test");
+       let output_file_name = String::from("Foo.bar");
+       let file_size = 63_000_000;
+       let level_filter = LevelFilter::Debug;
 
-        //If we have not run any logging tests, then we need to run
-        //this setup first to stage the initial logging configuration
-        if unsafe {HANDLE.is_none()} {
-            let mock_init = get_mock_init(
-                application_name.clone(),
-                output_file_name.clone(),
-                file_size,
-                level_filter,
-                false
-            );
-            configure_logging(
-                application_name.clone(),
-                Some(output_file_name.clone()),
-                Some(file_size),
-                Some(level_filter),
-                mock_init,
-            );
-        }
-        //now this should panic
-        let result = panic::catch_unwind(|| {
-            setup_logging(
-                application_name.clone(),
-                Some(output_file_name.clone()),
-                Some(file_size),
-                Some(level_filter),
-            );
-        });
+       //If we have not run any logging tests, then we need to run
+       //this setup first to stage the initial logging configuration
+       if unsafe {HANDLE.is_none()} {
+           let mock_init = get_mock_init(
+               application_name.clone(),
+               output_file_name.clone(),
+               file_size,
+               level_filter,
+               false
+           );
+           configure_logging(
+               application_name.clone(),
+               Some(output_file_name.clone()),
+               Some(file_size),
+               Some(level_filter),
+               mock_init,
+           );
+       }
+       //now this should panic
+       let result = panic::catch_unwind(|| {
+           setup_logging(
+               application_name.clone(),
+               Some(output_file_name.clone()),
+               Some(file_size),
+               Some(level_filter),
+           );
+       });
 
-        assert!(result.is_err());
+       assert!(result.is_err());
 
-        let error = result.unwrap_err();
-        let error = error.downcast_ref::<String>().unwrap();
-        let error = clean_json_string(String::from(error));
-        let json_value = serde_json::from_str::<serde_json::Value>(error.as_str()).unwrap();
-        let name = json_value.get("name").unwrap().as_str().unwrap();
-        assert_eq!(name,"Invalid Operation Error");
-        let inner_error = json_value.get("inner_error");
-        assert!(inner_error.is_some());
-        let data = json_value.get("data").unwrap();
-        let app_name = data.get("application_name").unwrap().as_str().unwrap();
-        assert_eq!( app_name,application_name);
+       let error = result.unwrap_err();
+       let error = error.downcast_ref::<String>().unwrap();
+       let json_value : GlyphxErrorData = serde_json::from_str(error).unwrap();
+       assert!(json_value.inner_error.is_some());
+       let data = json_value.data.unwrap();
+       let app_name = data.get("application_name").unwrap().as_str().unwrap();
+       assert_eq!( app_name,application_name);
 
-    }
+   }
 }
