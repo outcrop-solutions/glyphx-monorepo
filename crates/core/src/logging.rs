@@ -134,7 +134,7 @@ fn configure_logging<T>(
 }
 
 #[cfg(test)]
-mod logging_tests {
+mod constructor_tests {
     use super::*;
     use json5;
     use log;
