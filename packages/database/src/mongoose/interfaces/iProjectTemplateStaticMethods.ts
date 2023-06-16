@@ -4,12 +4,17 @@ import {IProjectTemplateMethods} from './iProjectTemplateMethods';
 import {IProjectTemplateCreateInput} from './iProjectTemplateCreateInput';
 export interface IProjectTemplateStaticMethods
   extends Model<databaseTypes.IProjectTemplate, {}, IProjectTemplateMethods> {
-  projectTypeIdExists(projectTypeId: mongooseTypes.ObjectId): Promise<boolean>;
+  projectTemplateIdExists(
+    projectTemplateId: mongooseTypes.ObjectId
+  ): Promise<boolean>;
+  allProjectTemplateIdsExists(
+    projectTemplateIds: mongooseTypes.ObjectId[]
+  ): Promise<boolean>;
   createProjectTemplate(
     input: IProjectTemplateCreateInput
   ): Promise<databaseTypes.IProjectTemplate>;
   getProjectTemplateById(
-    projectTypeId: mongooseTypes.ObjectId
+    projectTemplateId: mongooseTypes.ObjectId
   ): Promise<databaseTypes.IProjectTemplate>;
   queryProjectTemplates(
     filter?: Record<string, unknown>,
@@ -18,27 +23,35 @@ export interface IProjectTemplateStaticMethods
   ): Promise<IQueryResult<databaseTypes.IProjectTemplate>>;
   updateProjectTemplateWithFilter(
     filter: Record<string, unknown>,
-    projectType: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
+    projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<void>;
   updateProjectTemplateById(
-    projectTypeId: mongooseTypes.ObjectId,
-    projectType: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
+    projectTemplateId: mongooseTypes.ObjectId,
+    projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<databaseTypes.IProjectTemplate>;
   deleteProjectTemplateById(
-    projectTypeId: mongooseTypes.ObjectId
+    projectTemplateId: mongooseTypes.ObjectId
   ): Promise<void>;
   validateProjects(
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
   validateUpdateObject(
-    projectType: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
+    projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): void;
   addProjects(
-    projectTypeId: mongooseTypes.ObjectId,
+    projectTemplateId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProjectTemplate>;
   removeProjects(
-    projectTypeId: mongooseTypes.ObjectId,
+    projectTemplateId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate>;
+  addTags(
+    projectTemplateId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate>;
+  removeTags(
+    projectTemplateId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProjectTemplate>;
 }

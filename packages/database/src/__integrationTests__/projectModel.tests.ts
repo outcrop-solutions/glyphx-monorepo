@@ -87,16 +87,16 @@ describe('#ProjectModel', () => {
     let projectId2: ObjectId;
     let userId: ObjectId;
     let workspaceId: ObjectId;
-    let projectTypeId: ObjectId;
+    let projectTemplateId: ObjectId;
     let workspaceDocument: any;
     let userDocument: any;
-    let projectTypeDocument: any;
+    let projectTemplateDocument: any;
 
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
-      const projectTypeModel = mongoConnection.models.ProjectTemplateModel;
+      const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
@@ -121,18 +121,18 @@ describe('#ProjectModel', () => {
 
       assert.isOk(workspaceId);
 
-      await projectTypeModel.create([INPUT_PROJECT_TYPE], {
+      await projectTemplateModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
-      const savedProjectTemplateDocument = await projectTypeModel
+      const savedProjectTemplateDocument = await projectTemplateModel
         .findOne({name: INPUT_PROJECT_TYPE.name})
         .lean();
-      projectTypeId =
+      projectTemplateId =
         savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
-      projectTypeDocument = savedProjectTemplateDocument;
+      projectTemplateDocument = savedProjectTemplateDocument;
 
-      assert.isOk(projectTypeId);
+      assert.isOk(projectTemplateId);
     });
 
     after(async () => {
@@ -142,8 +142,8 @@ describe('#ProjectModel', () => {
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await workspaceModel.findByIdAndDelete(workspaceId);
 
-      const projectTypeModel = mongoConnection.models.ProjectTemplateModel;
-      await projectTypeModel.findByIdAndDelete(projectTypeId);
+      const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
+      await projectTemplateModel.findByIdAndDelete(projectTemplateId);
 
       if (projectId) {
         await projectModel.findByIdAndDelete(projectId);
@@ -158,7 +158,7 @@ describe('#ProjectModel', () => {
       const projectInput = JSON.parse(JSON.stringify(INPUT_DATA));
       projectInput.owner = userDocument;
       projectInput.workspace = workspaceDocument;
-      projectInput.type = projectTypeDocument;
+      projectInput.type = projectTemplateDocument;
 
       const projectDocument = await projectModel.createProject(projectInput);
 
@@ -199,7 +199,7 @@ describe('#ProjectModel', () => {
       const projectInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       projectInput.owner = userDocument;
       projectInput.workspace = workspaceDocument;
-      projectInput.type = projectTypeDocument;
+      projectInput.type = projectTemplateDocument;
 
       const projectDocument = await projectModel.createProject(projectInput);
 

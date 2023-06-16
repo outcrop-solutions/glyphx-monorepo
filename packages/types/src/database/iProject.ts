@@ -5,6 +5,7 @@ import {IProjectTemplate as IProjectTemplate} from './iProjectTemplate';
 import {IState} from './iState';
 import {IMember} from './iMember';
 import {Aspect} from '../web';
+import {ITag} from './iTag';
 
 export interface IProject {
   _id?: mongooseTypes.ObjectId;
@@ -21,6 +22,7 @@ export interface IProject {
   slug?: string;
   template?: IProjectTemplate;
   members: IMember[];
+  tags: ITag[];
   currentVersion?: number;
   state: Omit<
     IState,

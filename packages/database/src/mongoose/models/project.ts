@@ -47,7 +47,11 @@ const SCHEMA = new Schema<
   },
   lastOpened: {type: Date, required: false},
   slug: {type: String, required: false},
-  template: {type: Schema.Types.ObjectId, required: false, ref: 'projecttype'},
+  template: {
+    type: Schema.Types.ObjectId,
+    required: false,
+    ref: 'projecttemplate',
+  },
   state: {type: embeddedStateSchema, required: false, default: {}},
   stateHistory: {
     type: [Schema.Types.ObjectId],
@@ -58,6 +62,11 @@ const SCHEMA = new Schema<
     type: [Schema.Types.ObjectId],
     default: [],
     ref: 'member',
+  },
+  tags: {
+    type: [Schema.Types.ObjectId],
+    default: [],
+    ref: 'tag',
   },
   files: {type: [fileStatsSchema], required: true, default: []},
   viewName: {type: String, required: true},
@@ -303,12 +312,12 @@ SCHEMA.static(
         )
       );
 
-    if (project.type)
+    if (project.template)
       tasks.push(
         idValidator(
-          project.type._id as mongooseTypes.ObjectId,
+          project.template._id as mongooseTypes.ObjectId,
           'ProjectTemplate',
-          ProjectTemplateModel.projectTypeIdExists
+          ProjectTemplateModel.projectTemplateIdExists
         )
       );
 
@@ -350,8 +359,8 @@ SCHEMA.static(
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
-        else if (key === 'type')
-          transformedObject.type =
+        else if (key === 'template')
+          transformedObject.template =
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
@@ -398,22 +407,24 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validateType',
+  'validateTemplate',
   async (
     input: databaseTypes.IProjectTemplate | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId> => {
-    const projectTypeId =
+    const projectTemplateId =
       input instanceof mongooseTypes.ObjectId
         ? input
         : (input._id as mongooseTypes.ObjectId);
-    if (!(await ProjectTemplateModel.projectTypeIdExists(projectTypeId))) {
+    if (
+      !(await ProjectTemplateModel.projectTemplateIdExists(projectTemplateId))
+    ) {
       throw new error.InvalidArgumentError(
-        `The project type : ${projectTypeId} does not exist`,
-        'projectTypeId',
-        projectTypeId
+        `The project template : ${projectTemplateId} does not exist`,
+        'projectTemplateId',
+        projectTemplateId
       );
     }
-    return projectTypeId;
+    return projectTemplateId;
   }
 );
 
@@ -677,7 +688,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     //to the user.
     delete (projectDocument as any)['__v'];
     delete (projectDocument as any).workspace?.['__v'];
-    delete (projectDocument as any).type?.['__v'];
+    delete (projectDocument as any).template?.['__v'];
 
     projectDocument.members?.forEach((m: any) => delete (m as any)['__v']);
     projectDocument.stateHistory?.forEach((s: any) => {
@@ -728,7 +739,7 @@ SCHEMA.static(
         limit: itemsPerPage,
       })
         .populate('workspace')
-        .populate('type')
+        .populate('template')
         .lean()) as databaseTypes.IProject[];
 
       //this is added by mongoose, so we will want to remove it before returning the document
@@ -736,7 +747,7 @@ SCHEMA.static(
       projectDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any)?.workspace?.__v;
-        delete (doc as any)?.type?.__v;
+        delete (doc as any)?.template?.__v;
       });
 
       const retval: IQueryResult<databaseTypes.IProject> = {

@@ -56,6 +56,12 @@ export type {IStateDocument} from './iStateDocument';
 export type {IStateMethods} from './iStateMethods';
 export type {IStateStaticMethods} from './iStateStaticMethods';
 
+// Tags
+export type {ITagCreateInput} from './iTagCreateInput';
+export type {ITagDocument} from './iTagDocument';
+export type {ITagMethods} from './iTagMethods';
+export type {ITagStaticMethods} from './iTagStaticMethods';
+
 // User
 export type {IUserStaticMethods} from './iUserStaticMethods';
 export type {IUserDocument} from './iUserDocument';

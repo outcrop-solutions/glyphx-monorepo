@@ -1,4 +1,4 @@
-export function projectTypeShapeValidator(
+export function projectTemplateShapeValidator(
   input: Record<string, Record<string, any>>
 ): boolean {
   let retval = true;

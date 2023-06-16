@@ -76,7 +76,7 @@ export class ProjectService {
           ? workspaceId
           : new mongooseTypes.ObjectId(workspaceId);
 
-      const projectTypeCastId =
+      const projectTemplateCastId =
         type instanceof mongooseTypes.ObjectId
           ? type
           : new mongooseTypes.ObjectId(type);
@@ -97,7 +97,7 @@ export class ProjectService {
         name,
         description: description ?? '',
         workspace: workspaceCastId,
-        template: projectTypeCastId ?? defaultType,
+        template: projectTemplateCastId ?? defaultType,
         files: [],
         members: [],
         stateHistory: [],

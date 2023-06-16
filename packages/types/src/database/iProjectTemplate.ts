@@ -1,5 +1,6 @@
 import {Types as mongooseTypes} from 'mongoose';
 import {IProject} from './iProject';
+import {ITag} from './iTag';
 
 export interface IProjectTemplate {
   _id?: mongooseTypes.ObjectId;
@@ -7,5 +8,6 @@ export interface IProjectTemplate {
   updatedAt: Date;
   name: string;
   projects: IProject[];
+  tags: ITag[];
   shape: Record<string, {type: string; required: boolean; description: string}>;
 }

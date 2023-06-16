@@ -4,9 +4,9 @@ import {Types as mongooseTypes} from 'mongoose';
 export interface IProjectCreateInput
   extends Omit<
     databaseTypes.IProject,
-    '_id' | 'createdAt' | 'updatedAt' | 'workspace' | 'members' | 'type'
+    '_id' | 'createdAt' | 'updatedAt' | 'workspace' | 'members' | 'template'
   > {
   workspace: mongooseTypes.ObjectId | databaseTypes.IWorkspace;
   members: (mongooseTypes.ObjectId | databaseTypes.IMember)[];
-  type?: mongooseTypes.ObjectId | databaseTypes.IProjectTemplate;
+  template?: mongooseTypes.ObjectId | databaseTypes.IProjectTemplate;
 }

@@ -16,48 +16,48 @@ const MOCK_PROJECT_TYPE: databaseTypes.IProjectTemplate = {
   shape: {foo: {type: 'string', required: true}},
 };
 
-describe('#mongoose/models/projectType', () => {
+describe('#mongoose/models/projectTemplate', () => {
   context('projetTypeIdExists', () => {
     const sandbox = createSandbox();
     afterEach(() => {
       sandbox.restore();
     });
 
-    it('should return true if the projectTypeId exists', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+    it('should return true if the projectTemplateId exists', async () => {
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
-      findByIdStub.resolves({_id: projectTypeId});
+      findByIdStub.resolves({_id: projectTemplateId});
       sandbox.replace(ProjectTemplateModel, 'findById', findByIdStub);
 
-      const result = await ProjectTemplateModel.projectTypeIdExists(
-        projectTypeId
+      const result = await ProjectTemplateModel.projectTemplateIdExists(
+        projectTemplateId
       );
 
       assert.isTrue(result);
     });
 
-    it('should return false if the projectTypeId does not exist', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+    it('should return false if the projectTemplateId does not exist', async () => {
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(ProjectTemplateModel, 'findById', findByIdStub);
 
-      const result = await ProjectTemplateModel.projectTypeIdExists(
-        projectTypeId
+      const result = await ProjectTemplateModel.projectTemplateIdExists(
+        projectTemplateId
       );
 
       assert.isFalse(result);
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(ProjectTemplateModel, 'findById', findByIdStub);
 
       let errorred = false;
       try {
-        await ProjectTemplateModel.projectTypeIdExists(projectTypeId);
+        await ProjectTemplateModel.projectTemplateIdExists(projectTemplateId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -73,18 +73,18 @@ describe('#mongoose/models/projectType', () => {
       sandbox.restore();
     });
 
-    it('will create a projectType document', async () => {
+    it('will create a projectTemplate document', async () => {
       sandbox.replace(
         ProjectTemplateModel,
         'validateProjects',
         sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       sandbox.replace(
         ProjectTemplateModel,
         'create',
-        sandbox.stub().resolves([{_id: projectTypeId}])
+        sandbox.stub().resolves([{_id: projectTemplateId}])
       );
       sandbox.replace(
         ProjectTemplateModel,
@@ -92,12 +92,12 @@ describe('#mongoose/models/projectType', () => {
         sandbox.stub().resolves(true)
       );
       const stub = sandbox.stub();
-      stub.resolves({_id: projectTypeId});
+      stub.resolves({_id: projectTemplateId});
       sandbox.replace(ProjectTemplateModel, 'getProjectTemplateById', stub);
-      const projectTypeDocument =
+      const projectTemplateDocument =
         await ProjectTemplateModel.createProjectTemplate(MOCK_PROJECT_TYPE);
 
-      assert.strictEqual(projectTypeDocument._id, projectTypeId);
+      assert.strictEqual(projectTemplateDocument._id, projectTemplateId);
       assert.isTrue(stub.calledOnce);
     });
 
@@ -115,7 +115,7 @@ describe('#mongoose/models/projectType', () => {
             )
           )
       );
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       sandbox.replace(
         ProjectTemplateModel,
         'validate',
@@ -124,10 +124,10 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(
         ProjectTemplateModel,
         'create',
-        sandbox.stub().resolves([{_id: projectTypeId}])
+        sandbox.stub().resolves([{_id: projectTemplateId}])
       );
       const stub = sandbox.stub();
-      stub.resolves({_id: projectTypeId});
+      stub.resolves({_id: projectTemplateId});
       sandbox.replace(ProjectTemplateModel, 'getProjectTemplateById', stub);
       let hasError = false;
       try {
@@ -146,7 +146,7 @@ describe('#mongoose/models/projectType', () => {
         sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       sandbox.replace(
         ProjectTemplateModel,
         'validate',
@@ -158,7 +158,7 @@ describe('#mongoose/models/projectType', () => {
         sandbox.stub().rejects('oops, something bad has happened')
       );
       const stub = sandbox.stub();
-      stub.resolves({_id: projectTypeId});
+      stub.resolves({_id: projectTemplateId});
       sandbox.replace(ProjectTemplateModel, 'getProjectTemplateById', stub);
       let hasError = false;
       try {
@@ -177,7 +177,7 @@ describe('#mongoose/models/projectType', () => {
         sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       sandbox.replace(
         ProjectTemplateModel,
         'validate',
@@ -189,7 +189,7 @@ describe('#mongoose/models/projectType', () => {
         sandbox.stub().resolves([{}])
       );
       const stub = sandbox.stub();
-      stub.resolves({_id: projectTypeId});
+      stub.resolves({_id: projectTemplateId});
       sandbox.replace(ProjectTemplateModel, 'getProjectTemplateById', stub);
       let hasError = false;
       try {
@@ -208,7 +208,7 @@ describe('#mongoose/models/projectType', () => {
         sandbox.stub().resolves(MOCK_PROJECT_TYPE.projects.map(p => p._id))
       );
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       sandbox.replace(
         ProjectTemplateModel,
         'validate',
@@ -217,10 +217,10 @@ describe('#mongoose/models/projectType', () => {
       sandbox.replace(
         ProjectTemplateModel,
         'create',
-        sandbox.stub().resolves([{_id: projectTypeId}])
+        sandbox.stub().resolves([{_id: projectTemplateId}])
       );
       const stub = sandbox.stub();
-      stub.resolves({_id: projectTypeId});
+      stub.resolves({_id: projectTemplateId});
       sandbox.replace(ProjectTemplateModel, 'getProjectTemplateById', stub);
       let hasError = false;
       try {
@@ -245,14 +245,14 @@ describe('#mongoose/models/projectType', () => {
         name: 'Some random project type',
       };
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(ProjectTemplateModel, 'updateOne', updateStub);
 
       const getProjectTemplateStub = sandbox.stub();
-      getProjectTemplateStub.resolves({_id: projectTypeId});
+      getProjectTemplateStub.resolves({_id: projectTemplateId});
       sandbox.replace(
         ProjectTemplateModel,
         'getProjectTemplateById',
@@ -260,28 +260,28 @@ describe('#mongoose/models/projectType', () => {
       );
 
       const result = await ProjectTemplateModel.updateProjectTemplateById(
-        projectTypeId,
+        projectTemplateId,
         updateProjectTemplate
       );
 
-      assert.strictEqual(result._id, projectTypeId);
+      assert.strictEqual(result._id, projectTemplateId);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getProjectTemplateStub.calledOnce);
     });
 
-    it('Will fail when the projectType does not exist', async () => {
+    it('Will fail when the projectTemplate does not exist', async () => {
       const updateProjectTemplate = {
         name: 'Some random project type',
       };
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(ProjectTemplateModel, 'updateOne', updateStub);
 
       const getProjectTemplateStub = sandbox.stub();
-      getProjectTemplateStub.resolves({_id: projectTypeId});
+      getProjectTemplateStub.resolves({_id: projectTemplateId});
       sandbox.replace(
         ProjectTemplateModel,
         'getProjectTemplateById',
@@ -291,7 +291,7 @@ describe('#mongoose/models/projectType', () => {
       let errorred = false;
       try {
         await ProjectTemplateModel.updateProjectTemplateById(
-          projectTypeId,
+          projectTemplateId,
           updateProjectTemplate
         );
       } catch (err) {
@@ -306,14 +306,14 @@ describe('#mongoose/models/projectType', () => {
         name: 'Some random project type',
       };
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(ProjectTemplateModel, 'updateOne', updateStub);
 
       const getProjectTemplateStub = sandbox.stub();
-      getProjectTemplateStub.resolves({_id: projectTypeId});
+      getProjectTemplateStub.resolves({_id: projectTemplateId});
       sandbox.replace(
         ProjectTemplateModel,
         'getProjectTemplateById',
@@ -330,7 +330,7 @@ describe('#mongoose/models/projectType', () => {
       let errorred = false;
       try {
         await ProjectTemplateModel.updateProjectTemplateById(
-          projectTypeId,
+          projectTemplateId,
           updateProjectTemplate
         );
       } catch (err) {
@@ -345,14 +345,14 @@ describe('#mongoose/models/projectType', () => {
         name: 'Some random project type',
       };
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
       sandbox.replace(ProjectTemplateModel, 'updateOne', updateStub);
 
       const getProjectTemplateStub = sandbox.stub();
-      getProjectTemplateStub.resolves({_id: projectTypeId});
+      getProjectTemplateStub.resolves({_id: projectTemplateId});
       sandbox.replace(
         ProjectTemplateModel,
         'getProjectTemplateById',
@@ -362,7 +362,7 @@ describe('#mongoose/models/projectType', () => {
       let errorred = false;
       try {
         await ProjectTemplateModel.updateProjectTemplateById(
-          projectTypeId,
+          projectTemplateId,
           updateProjectTemplate
         );
       } catch (err) {
@@ -458,28 +458,28 @@ describe('#mongoose/models/projectType', () => {
       sandbox.restore();
     });
 
-    it('should remove a projectType', async () => {
+    it('should remove a projectTemplate', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(ProjectTemplateModel, 'deleteOne', deleteStub);
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
 
-      await ProjectTemplateModel.deleteProjectTemplateById(projectTypeId);
+      await ProjectTemplateModel.deleteProjectTemplateById(projectTemplateId);
 
       assert.isTrue(deleteStub.calledOnce);
     });
 
-    it('should fail with an InvalidArgumentError when the projectType does not exist', async () => {
+    it('should fail with an InvalidArgumentError when the projectTemplate does not exist', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(ProjectTemplateModel, 'deleteOne', deleteStub);
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
 
       let errorred = false;
       try {
-        await ProjectTemplateModel.deleteProjectTemplateById(projectTypeId);
+        await ProjectTemplateModel.deleteProjectTemplateById(projectTemplateId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -493,11 +493,11 @@ describe('#mongoose/models/projectType', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(ProjectTemplateModel, 'deleteOne', deleteStub);
 
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
 
       let errorred = false;
       try {
-        await ProjectTemplateModel.deleteProjectTemplateById(projectTypeId);
+        await ProjectTemplateModel.deleteProjectTemplateById(projectTemplateId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -686,7 +686,7 @@ describe('#mongoose/models/projectType', () => {
       assert.strictEqual(doc._id, mockProjectTemplate._id);
     });
 
-    it('will throw a DataNotFoundError when the projectType does not exist', async () => {
+    it('will throw a DataNotFoundError when the projectTemplate does not exist', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new MockMongooseQuery(null));
       sandbox.replace(ProjectTemplateModel, 'findById', findByIdStub);
@@ -732,7 +732,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.restore();
     });
 
-    it('will add a project to a projectType', async () => {
+    it('will add a project to a projectTemplate', async () => {
       const projTypeId = new mongoose.Types.ObjectId();
       const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType.projects = [];
@@ -781,10 +781,10 @@ describe('#mongoose/models/projectType', () => {
     });
 
     it('will not save when a project is already attached to an project type', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType.projects = [];
-      localMockProjType._id = projectTypeId;
+      localMockProjType._id = projectTemplateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockProjType.projects.push(projectId);
       const findByIdStub = sandbox.stub();
@@ -812,11 +812,11 @@ describe('#mongoose/models/projectType', () => {
       );
 
       const updatedProjectTemplate = await ProjectTemplateModel.addProjects(
-        projectTypeId,
+        projectTemplateId,
         [projectId]
       );
 
-      assert.strictEqual(updatedProjectTemplate._id, projectTypeId);
+      assert.strictEqual(updatedProjectTemplate._id, projectTemplateId);
       assert.strictEqual(
         updatedProjectTemplate.projects[0].toString(),
         projectId.toString()
@@ -829,9 +829,9 @@ describe('#mongoose/models/projectType', () => {
     });
 
     it('will throw a data not found error when the project type does not exist', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
-      localMockProjType._id = projectTypeId;
+      localMockProjType._id = projectTemplateId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
 
@@ -861,7 +861,7 @@ describe('#mongoose/models/projectType', () => {
 
       let errored = false;
       try {
-        await ProjectTemplateModel.addProjects(projectTypeId, [projectId]);
+        await ProjectTemplateModel.addProjects(projectTemplateId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -919,9 +919,9 @@ describe('#mongoose/models/projectType', () => {
     });
 
     it('will throw a data operation error when the underlying connection fails', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
-      localMockProjType._id = projectTypeId;
+      localMockProjType._id = projectTemplateId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
 
@@ -951,7 +951,7 @@ describe('#mongoose/models/projectType', () => {
 
       let errored = false;
       try {
-        await ProjectTemplateModel.addProjects(projectTypeId, [projectId]);
+        await ProjectTemplateModel.addProjects(projectTemplateId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1010,7 +1010,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.restore();
     });
 
-    it('will remove a project from the projectType', async () => {
+    it('will remove a project from the projectTemplate', async () => {
       const projTypeId = new mongoose.Types.ObjectId();
       const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
       localMockProjType._id = projTypeId;
@@ -1120,9 +1120,9 @@ describe('#mongoose/models/projectType', () => {
     });
 
     it('will throw a data operation error when the underlying connection fails', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
-      localMockProjType._id = projectTypeId;
+      localMockProjType._id = projectTemplateId;
       localMockProjType.projects = [];
       const projectId = new mongoose.Types.ObjectId();
       localMockProjType.projects.push(projectId);
@@ -1145,7 +1145,7 @@ describe('#mongoose/models/projectType', () => {
 
       let errored = false;
       try {
-        await ProjectTemplateModel.removeProjects(projectTypeId, [projectId]);
+        await ProjectTemplateModel.removeProjects(projectTemplateId, [projectId]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1155,9 +1155,9 @@ describe('#mongoose/models/projectType', () => {
     });
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
-      const projectTypeId = new mongoose.Types.ObjectId();
+      const projectTemplateId = new mongoose.Types.ObjectId();
       const localMockProjType = JSON.parse(JSON.stringify(MOCK_PROJECT_TYPE));
-      localMockProjType._id = projectTypeId;
+      localMockProjType._id = projectTemplateId;
       const projectId = new mongoose.Types.ObjectId();
       localMockProjType.projects.push(projectId);
 
@@ -1179,7 +1179,7 @@ describe('#mongoose/models/projectType', () => {
 
       let errored = false;
       try {
-        await ProjectTemplateModel.removeProjects(projectTypeId, []);
+        await ProjectTemplateModel.removeProjects(projectTemplateId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1247,7 +1247,7 @@ describe('#mongoose/models/projectType', () => {
       sandbox.restore();
     });
 
-    it('will return the filtered projectTypes', async () => {
+    it('will return the filtered projectTemplates', async () => {
       sandbox.replace(
         ProjectTemplateModel,
         'count',
