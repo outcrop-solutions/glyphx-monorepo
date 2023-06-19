@@ -11,6 +11,7 @@ import {UserModel} from './user';
 import {MemberModel} from './member';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
+import {TagModel} from './tag';
 
 const SCHEMA = new Schema<
   IWorkspaceDocument,
@@ -217,6 +218,32 @@ SCHEMA.static(
     }
 
     return stateIds;
+  }
+);
+SCHEMA.static(
+  'validateTags',
+  async (
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const tagIds: mongooseTypes.ObjectId[] = [];
+    tags.forEach(m => {
+      if (m instanceof mongooseTypes.ObjectId) tagIds.push(m);
+      else tagIds.push(m._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await TagModel.allTagIdsExist(tagIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more state ids do not exisit in the database.  See the inner error for additional information',
+          'state',
+          tags,
+          err
+        );
+      else throw err;
+    }
+
+    return tagIds;
   }
 );
 

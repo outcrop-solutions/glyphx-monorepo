@@ -13,6 +13,7 @@ import {MemberModel} from './member';
 import {ProjectTemplateModel} from './projectTemplate';
 import {aspectSchema, fileStatsSchema} from '../schemas';
 import {embeddedStateSchema} from '../schemas/embeddedState';
+import {TagModel} from './tag';
 
 const SCHEMA = new Schema<
   IProjectDocument,
@@ -472,6 +473,33 @@ SCHEMA.static(
     }
 
     return stateIds;
+  }
+);
+
+SCHEMA.static(
+  'validateTags',
+  async (
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const tagIds: mongooseTypes.ObjectId[] = [];
+    tags.forEach(m => {
+      if (m instanceof mongooseTypes.ObjectId) tagIds.push(m);
+      else tagIds.push(m._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await TagModel.allTagIdsExist(tagIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more tag ids do not exisit in the database.  See the inner error for additional information',
+          'tag',
+          tags,
+          err
+        );
+      else throw err;
+    }
+
+    return tagIds;
   }
 );
 

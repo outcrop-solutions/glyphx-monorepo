@@ -7,7 +7,7 @@ export interface IProjectTemplateStaticMethods
   projectTemplateIdExists(
     projectTemplateId: mongooseTypes.ObjectId
   ): Promise<boolean>;
-  allProjectTemplateIdsExists(
+  allProjectTemplateIdsExist(
     projectTemplateIds: mongooseTypes.ObjectId[]
   ): Promise<boolean>;
   createProjectTemplate(

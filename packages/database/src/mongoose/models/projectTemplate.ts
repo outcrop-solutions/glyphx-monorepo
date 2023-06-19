@@ -240,7 +240,7 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'validatTags',
+  'validateTags',
   async (
     tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
@@ -583,6 +583,140 @@ SCHEMA.static(
           'An unexpected error occurrred while removing the projects. See the innner error for additional information',
           'mongoDb',
           'projectTemplateremoveProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'addTags',
+  async (
+    projectTemplateId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'tags',
+          tags
+        );
+      const projectTemplateDocument = await PROJECT_TEMPLATE_MODEL.findById(
+        projectTemplateId
+      );
+      if (!projectTemplateDocument)
+        throw new error.DataNotFoundError(
+          `A ProjectTemplate Document with _id : ${projectTemplateId} cannot be found`,
+          'projectTemplate._id',
+          projectTemplateId
+        );
+
+      const reconciledIds = await PROJECT_TEMPLATE_MODEL.validateTags(tags);
+      let dirty = false;
+      reconciledIds.forEach(p => {
+        if (
+          !projectTemplateDocument.tags.find(
+            progId => progId.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          projectTemplateDocument.tags.push(p as unknown as databaseTypes.ITag);
+        }
+      });
+
+      if (dirty) await projectTemplateDocument.save();
+
+      return await PROJECT_TEMPLATE_MODEL.getProjectTemplateById(
+        projectTemplateId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the tags. See the innner error for additional information',
+          'mongoDb',
+          'projectTemplate.addTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeTags',
+  async (
+    projectTemplateId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one projectId',
+          'projects',
+          tags
+        );
+      const projectTemplateDocument = await PROJECT_TEMPLATE_MODEL.findById(
+        projectTemplateId
+      );
+      if (!projectTemplateDocument)
+        throw new error.DataNotFoundError(
+          `An ProjectTemplate Document with _id : ${projectTemplateId} cannot be found`,
+          'projectTemplate ._id',
+          projectTemplateId
+        );
+
+      const reconciledIds = tags.map(i =>
+        //istanbul ignore next
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedTags = projectTemplateDocument.tags.filter(p => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        projectTemplateDocument.tags =
+          updatedTags as unknown as databaseTypes.ITag[];
+        await projectTemplateDocument.save();
+      }
+
+      return await PROJECT_TEMPLATE_MODEL.getProjectTemplateById(
+        projectTemplateId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the projects. See the innner error for additional information',
+          'mongoDb',
+          'projectTemplate.removeTags',
           err
         );
       }

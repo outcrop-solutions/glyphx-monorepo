@@ -10,6 +10,7 @@ import {database, database as databaseTypes} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
+import {TagModel} from '../../../mongoose/models';
 
 const MOCK_PROJECT: databaseTypes.IProject = {
   createdAt: new Date(),
@@ -18,6 +19,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   description: 'this is a test description',
   sdtPath: 'sdtPath',
   currentVersion: 0,
+  tags: [],
   workspace: {
     _id: new mongoose.Types.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
@@ -121,6 +123,11 @@ describe('#mongoose/models/project', () => {
         'validateMembers',
         sandbox.stub().resolves(MOCK_PROJECT.members)
       );
+      sandbox.replace(
+        ProjectModel,
+        'validateTags',
+        sandbox.stub().resolves(MOCK_PROJECT.tags)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(
@@ -148,6 +155,11 @@ describe('#mongoose/models/project', () => {
         ProjectModel,
         'validateMembers',
         sandbox.stub().resolves(MOCK_PROJECT.members)
+      );
+      sandbox.replace(
+        ProjectModel,
+        'validateTags',
+        sandbox.stub().resolves(MOCK_PROJECT.tags)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -198,6 +210,11 @@ describe('#mongoose/models/project', () => {
         'validateMembers',
         sandbox.stub().resolves(MOCK_PROJECT.members)
       );
+      sandbox.replace(
+        ProjectModel,
+        'validateTags',
+        sandbox.stub().resolves(MOCK_PROJECT.tags)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
@@ -229,6 +246,11 @@ describe('#mongoose/models/project', () => {
         ProjectModel,
         'validateMembers',
         sandbox.stub().resolves(MOCK_PROJECT.members)
+      );
+      sandbox.replace(
+        ProjectModel,
+        'validateTags',
+        sandbox.stub().resolves(MOCK_PROJECT.tags)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -262,6 +284,11 @@ describe('#mongoose/models/project', () => {
         'validateMembers',
         sandbox.stub().resolves(MOCK_PROJECT.members)
       );
+      sandbox.replace(
+        ProjectModel,
+        'validateTags',
+        sandbox.stub().resolves(MOCK_PROJECT.tags)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
@@ -289,6 +316,11 @@ describe('#mongoose/models/project', () => {
         ProjectModel,
         'validateMembers',
         sandbox.stub().resolves(MOCK_PROJECT.members)
+      );
+      sandbox.replace(
+        ProjectModel,
+        'validateTags',
+        sandbox.stub().resolves(MOCK_PROJECT.tags)
       );
 
       const objectId = new mongoose.Types.ObjectId();
@@ -1152,6 +1184,7 @@ describe('#mongoose/models/project', () => {
         slug: 'test slug',
         stateHistory: [],
         members: [],
+        tags: [],
         files: [],
         __v: 1,
         owner: {
@@ -1185,6 +1218,7 @@ describe('#mongoose/models/project', () => {
         sdtPath: 'testsdtpath2',
         stateHistory: [],
         members: [],
+        tags: [],
         slug: 'test slug2',
 
         files: [],
@@ -1312,6 +1346,95 @@ describe('#mongoose/models/project', () => {
         errored = true;
       }
 
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validateTags', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will validate the tags where the ids are objectIds', async () => {
+      const tagIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.resolves();
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      const res = await ProjectModel.validateTags(tagIds);
+      assert.deepEqual(res, tagIds);
+      assert.isTrue(allTagIdsExistStub.calledOnce);
+    });
+
+    it('will validate the states where the ids are objects', async () => {
+      const tagIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.resolves();
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      const res = await ProjectModel.validateTags(
+        tagIds.map(id => ({_id: id} as databaseTypes.ITag))
+      );
+      assert.deepEqual(res, tagIds);
+      assert.isTrue(allTagIdsExistStub.calledOnce);
+    });
+
+    it('will wrap a DataNotFoundError in a DataValidationError', async () => {
+      const tagIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'The data does not exist',
+          'stateIds',
+          tagIds
+        )
+      );
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      let errored = false;
+      try {
+        await ProjectModel.validateTags(tagIds);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will pass through a DatabaseOperationError', async () => {
+      const tagIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.rejects(
+        new error.DatabaseOperationError(
+          'Something has gone horribly wrong',
+          'mongoDb',
+          ' TagModel.allTagIdsExist',
+          tagIds
+        )
+      );
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      let errored = false;
+      try {
+        await ProjectModel.validateTags(tagIds);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
       assert.isTrue(errored);
     });
   });

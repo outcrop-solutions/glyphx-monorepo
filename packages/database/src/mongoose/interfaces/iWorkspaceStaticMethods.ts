@@ -76,6 +76,6 @@ export interface IWorkspaceStaticMethods
   ): Promise<databaseTypes.IWorkspace>;
   removeTags(
     workspaceId: mongooseTypes.ObjectId,
-    tags: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IWorkspace>;
 }

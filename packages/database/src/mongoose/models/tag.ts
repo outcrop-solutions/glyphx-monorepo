@@ -265,7 +265,7 @@ SCHEMA.static(
       else templateIds.push(p._id as mongooseTypes.ObjectId);
     });
     try {
-      await ProjectTemplateModel.allProjectTemplateIdsExists(templateIds);
+      await ProjectTemplateModel.allProjectTemplateIdsExist(templateIds);
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(
@@ -288,6 +288,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.ITag> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
+      //istanbul ignore next
       const [workspaces, projects, templates] = await Promise.all([
         TAG_MODEL.validateWorkspaces(input.workspaces ?? []),
         TAG_MODEL.validateProjects(input.projects ?? []),
@@ -363,10 +364,22 @@ SCHEMA.static(
       );
     }
 
+    if (tag.workspaces?.length) {
+      throw new error.InvalidOperationError(
+        'Workspaces cannot be updated directly for a tag.  Please use the add/remove workspace functions',
+        {workspaces: tag.workspaces}
+      );
+    }
     if (tag.projects?.length) {
       throw new error.InvalidOperationError(
         'Projects cannot be updated directly for a tag.  Please use the add/remove project functions',
         {projects: tag.projects}
+      );
+    }
+    if (tag.templates?.length) {
+      throw new error.InvalidOperationError(
+        'Templates cannot be updated directly for a tag.  Please use the add/remove templates functions',
+        {templates: tag.templates}
       );
     }
   }
@@ -575,6 +588,7 @@ SCHEMA.static(
     }
   }
 );
+
 SCHEMA.static(
   'addWorkspaces',
   async (
@@ -700,6 +714,7 @@ SCHEMA.static(
     }
   }
 );
+
 SCHEMA.static(
   'addTemplates',
   async (
@@ -730,7 +745,9 @@ SCHEMA.static(
           )
         ) {
           dirty = true;
-          tagDocument.projects.push(p as unknown as databaseTypes.IProject);
+          tagDocument.templates.push(
+            p as unknown as databaseTypes.IProjectTemplate
+          );
         }
       });
 
@@ -763,9 +780,9 @@ SCHEMA.static(
     templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.ITag> => {
     try {
-      if (templates.length)
+      if (!templates.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one projectId',
+          'You must supply at least one templateId',
           'templates',
           templates
         );
@@ -801,8 +818,8 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        tagDocument.projects =
-          updatedTemplates as unknown as databaseTypes.IProject[];
+        tagDocument.templates =
+          updatedTemplates as unknown as databaseTypes.IProjectTemplate[];
         await tagDocument.save();
       }
 
