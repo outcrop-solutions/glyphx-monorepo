@@ -198,6 +198,7 @@ describe('#services/project', () => {
     it('will create a Project and attach to user and workspace models when ownerId is a string', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
 
@@ -247,8 +248,9 @@ describe('#services/project', () => {
 
       const doc = await projectService.createProject(
         projectName,
+        workspaceId,
         userId.toString(),
-        workspaceId
+        userEmail
       );
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
