@@ -8,6 +8,8 @@ import {
 import {error} from '@glyphx/core';
 import {ProjectModel} from './project';
 import {projectTemplateShapeValidator} from '../validators';
+import {IProjectTemplateCreateInput} from '../interfaces/iProjectTemplateCreateInput';
+import {TagModel} from './tag';
 
 const SCHEMA = new Schema<
   IProjectTemplateDocument,
@@ -238,20 +240,49 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
+  'validatTags',
+  async (
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const tagIds: mongooseTypes.ObjectId[] = [];
+    tags.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) tagIds.push(p);
+      else tagIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await TagModel.allTagIdsExist(tagIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more tag ids do not exisit in the database.  See the inner error for additional information',
+          'tags',
+          tags,
+          err
+        );
+      else throw err;
+    }
+
+    return tagIds;
+  }
+);
+
+SCHEMA.static(
   'createProjectTemplate',
   async (
-    input: Omit<databaseTypes.IProjectTemplate, '_id'>
+    input: IProjectTemplateCreateInput
   ): Promise<databaseTypes.IProjectTemplate> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const projects = await PROJECT_TEMPLATE_MODEL.validateProjects(
-        input.projects
-      );
+      const [projects, tags] = await Promise.all([
+        PROJECT_TEMPLATE_MODEL.validateProjects(input.projects),
+        PROJECT_TEMPLATE_MODEL.validateTags(input.tags),
+      ]);
       const createDate = new Date();
 
       const resolvedInput: IProjectTemplateDocument = {
         createdAt: createDate,
         updatedAt: createDate,
+        tags: tags,
         name: input.name,
         shape: input.shape,
         projects: projects,

@@ -101,6 +101,7 @@ export class ProjectService {
         files: [],
         members: [],
         stateHistory: [],
+        tags: [],
         state: {
           properties: {
             X: {

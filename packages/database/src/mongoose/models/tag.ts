@@ -62,6 +62,43 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'allTagIdsExist',
+  async (tagIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await TAG_MODEL.find({_id: {$in: tagIds}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      tagIds.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more tagIds cannot be found in the database.',
+          'tag._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the tagIds.  See the inner error for additional information',
+          'mongoDb',
+          'allProjectIdsExists',
+          {tagIds: tagIds},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
 SCHEMA.static('getTagById', async (tagId: mongooseTypes.ObjectId) => {
   try {
     const tagDocument = (await TAG_MODEL.findById(tagId)
@@ -267,6 +304,7 @@ SCHEMA.static(
         workspaces: workspaces,
         templates: templates,
       };
+
       try {
         await TAG_MODEL.validate(resolvedInput);
       } catch (err) {
@@ -597,7 +635,7 @@ SCHEMA.static(
   'removeWorkspaces',
   async (
     tagId: mongooseTypes.ObjectId,
-    workspaces: (databaseTypes.IWorkspaces | mongooseTypes.ObjectId)[]
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.ITag> => {
     try {
       if (!workspaces.length)
@@ -722,14 +760,14 @@ SCHEMA.static(
   'removeTemplates',
   async (
     tagId: mongooseTypes.ObjectId,
-    templates: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+    templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.ITag> => {
     try {
       if (templates.length)
         throw new error.InvalidArgumentError(
           'You must supply at least one projectId',
-          templates,
-          'templates'
+          'templates',
+          templates
         );
       const tagDocument = await TAG_MODEL.findById(tagId);
       if (!tagDocument)

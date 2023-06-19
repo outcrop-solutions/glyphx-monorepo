@@ -35,6 +35,9 @@ export interface IProjectTemplateStaticMethods
   validateProjects(
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
+  validateTags(
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
   validateUpdateObject(
     projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): void;

@@ -610,9 +610,10 @@ SCHEMA.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
 
     try {
-      const [workspace, members] = await Promise.all([
+      const [workspace, members, tags] = await Promise.all([
         PROJECT_MODEL.validateWorkspace(input.workspace),
         PROJECT_MODEL.validateMembers(input.members),
+        PROJECT_MODEL.validateTags(input.tags),
       ]);
 
       const createDate = new Date();
@@ -627,6 +628,7 @@ SCHEMA.static(
         currentVersion: input.currentVersion ?? 0,
         state: input.state,
         members: members ?? [],
+        tags: tags ?? [],
         stateHistory: [],
         workspace: workspace,
         slug: input.slug,

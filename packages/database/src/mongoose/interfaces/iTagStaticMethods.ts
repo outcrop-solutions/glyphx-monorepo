@@ -5,6 +5,7 @@ import {ITagCreateInput} from './iTagCreateInput';
 export interface ITagStaticMethods
   extends Model<databaseTypes.ITag, {}, ITagMethods> {
   tagIdExists(tagId: mongooseTypes.ObjectId): Promise<boolean>;
+  allTagIdsExist(tagIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createTag(input: ITagCreateInput): Promise<databaseTypes.ITag>;
   getTagById(tagId: mongooseTypes.ObjectId): Promise<databaseTypes.ITag>;
   queryTags(
