@@ -7,7 +7,6 @@ pub struct GlyphxErrorData {
     pub data: Option<serde_json::Value>,
     pub inner_error: Option<serde_json::Value>,
 }
-
 impl GlyphxErrorData {
     pub fn new(
         message: String,

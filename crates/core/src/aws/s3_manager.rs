@@ -1,9 +1,10 @@
 use crate::error::GlyphxErrorData;
 use async_recursion::async_recursion;
-use aws_sdk_s3::{Client as S3Client, primitives::DateTime};
+use aws_sdk_s3::{presigning::PresigningConfig, primitives::DateTime, Client as S3Client};
 use log::warn;
 use serde_json::json;
 use std::future::Future;
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct S3FileInfo {
@@ -41,6 +42,12 @@ pub enum GetFileInformationError {
     KeyDoesNotExist(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
 }
+
+#[derive(Debug)]
+pub enum GetSignedUploadUrlError {
+    UnexpectedError(GlyphxErrorData),
+}
+
 impl S3Manager {
     /// Our public new function that will return an S3Manager.  This uses our new_impl function
     /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
@@ -92,10 +99,20 @@ impl S3Manager {
         .await
     }
 
-    pub async fn get_file_information(&self, key:String) -> Result<S3FileInfo, GetFileInformationError>{
+    pub async fn get_file_information(
+        &self,
+        key: String,
+    ) -> Result<S3FileInfo, GetFileInformationError> {
         Self::get_file_information_operation(&self.client, &self.bucket, key.as_str()).await
     }
 
+    pub async fn get_signed_upload_url(
+        &self,
+        key: &str,
+        content_type: Option<&str>
+    ) -> Result<String, GetSignedUploadUrlError> {
+        Self::get_signed_upload_url_operation(&self.client, &self.bucket, key, content_type, None ).await
+    }
     /// Our private new_impl function that will return an S3Manager.
     /// # Arguments
     /// * `bucket` - A String that represents the bucket name that we want to operate on.
@@ -226,7 +243,6 @@ impl S3Manager {
         }
     }
 
-
     /// Our private bucket_exists_operation function that will return a boolean if the bucket
     /// exists and false if it does not.  This can be used by any function which wants
     /// to determine whether or not a bucket exists.  This operation actaully makes the call to
@@ -258,7 +274,7 @@ impl S3Manager {
         }
     }
 
-    /// Our private get_file_information_operation function that will return an S3FileInfo if the 
+    /// Our private get_file_information_operation function that will return an S3FileInfo if the
     /// file exists and a GetFileInformationErrorif it does not.  This operation actaully makes the call to S3.
     /// # Arguments
     /// * `client` - An S3Client that will be used to make the call to S3.
@@ -292,16 +308,22 @@ impl S3Manager {
                     "Error calling head_object for bucket {}, key {}, error : {} ",
                     bucket, key, e
                 );
-                Err(GetFileInformationError::UnexpectedError(GlyphxErrorData::new(msg, Some(data), None)))
+                Err(GetFileInformationError::UnexpectedError(
+                    GlyphxErrorData::new(msg, Some(data), None),
+                ))
             }
         } else {
-            let info = head_result.unwrap(); 
-            let dt = info.last_modified().unwrap(); 
+            let info = head_result.unwrap();
+            let dt = info.last_modified().unwrap();
             let size = info.content_length();
-            Ok(S3FileInfo { file_name: key.to_string(), file_size: size, last_modified: dt.to_owned() })
-            
+            Ok(S3FileInfo {
+                file_name: key.to_string(),
+                file_size: size,
+                last_modified: dt.to_owned(),
+            })
         }
     }
+
     /// Our private list_objects_operation function that will return a vector of keys and a boolean
     /// indicating whether or not the result is truncated.  This can be used by any function which wants
     /// to list objects in a bucket.  This operation actaully makes the call to S3.
@@ -353,6 +375,41 @@ impl S3Manager {
                         None,
                     )));
                 }
+            }
+        }
+    }
+
+    async fn get_signed_upload_url_operation(
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+        content_type: Option<&str>,
+        lifetime: Option<u64>,
+    ) -> Result<String, GetSignedUploadUrlError> {
+        let expires_in = match lifetime {
+            Some(lifetime) => Duration::from_secs(lifetime),
+            None => Duration::from_secs(60 * 5), // 5 minutes
+        };
+
+        let mut op = client.put_object().bucket(bucket).key(key);
+        if content_type.is_some() {
+            op = op.content_type(content_type.unwrap());
+        }
+
+        let res = op
+            .presigned(PresigningConfig::expires_in(expires_in).unwrap())
+            .await;
+        match res {
+            Ok(url) => {
+                return Ok(url.uri().to_string());
+            }
+            Err(e) => {
+                let e = e.into_service_error();
+                let msg = e.meta().message().unwrap().to_string();
+                let data = json!({ "bucket_name": bucket, "key" : key });
+                return Err(GetSignedUploadUrlError::UnexpectedError(
+                    GlyphxErrorData::new(msg, Some(data), None),
+                ));
             }
         }
     }
@@ -512,8 +569,8 @@ mod bucket_exists {
         assert!(is_invalid);
 
         //test our Debug trait to satisfy code coverage.
-       let debug_fmt = format!("{:?}", bucket_exists);
-       assert!(debug_fmt.len() > 0);
+        let debug_fmt = format!("{:?}", bucket_exists);
+        assert!(debug_fmt.len() > 0);
     }
 
     #[tokio::test]
@@ -727,9 +784,9 @@ mod list_objects {
         }
         assert!(is_invalid);
 
-    //format with debug to satisfy coverage 
-    let err_str = format!("{:?}", err);
-    assert!(err_str.len() > 0);
+        //format with debug to satisfy coverage
+        let err_str = format!("{:?}", err);
+        assert!(err_str.len() > 0);
     }
 
     #[tokio::test]
