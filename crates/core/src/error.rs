@@ -1,5 +1,6 @@
 use serde_json;
 use serde::{Deserialize, Serialize};
+
 #[derive(Clone,Deserialize, Serialize, Debug)]
 pub struct GlyphxErrorData {
     pub message: String,

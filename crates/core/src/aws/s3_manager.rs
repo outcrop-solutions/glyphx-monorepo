@@ -1,9 +1,16 @@
 use crate::error::GlyphxErrorData;
 use async_recursion::async_recursion;
-use aws_sdk_s3::Client as S3Client;
+use aws_sdk_s3::{Client as S3Client, primitives::DateTime};
 use log::warn;
 use serde_json::json;
 use std::future::Future;
+
+#[derive(Debug)]
+pub struct S3FileInfo {
+    pub file_name: String,
+    pub file_size: i64,
+    pub last_modified: DateTime,
+}
 
 #[derive(Clone, Debug)]
 pub struct S3Manager {
@@ -29,6 +36,11 @@ pub enum ListObjectsError {
     UnexpectedError(GlyphxErrorData),
 }
 
+#[derive(Debug)]
+pub enum GetFileInformationError {
+    KeyDoesNotExist(GlyphxErrorData),
+    UnexpectedError(GlyphxErrorData),
+}
 impl S3Manager {
     /// Our public new function that will return an S3Manager.  This uses our new_impl function
     /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
@@ -78,6 +90,10 @@ impl S3Manager {
             },
         )
         .await
+    }
+
+    pub async fn get_file_information(&self, key:String) -> Result<S3FileInfo, GetFileInformationError>{
+        Self::get_file_information_operation(&self.client, &self.bucket, key.as_str()).await
     }
 
     /// Our private new_impl function that will return an S3Manager.
@@ -210,6 +226,7 @@ impl S3Manager {
         }
     }
 
+
     /// Our private bucket_exists_operation function that will return a boolean if the bucket
     /// exists and false if it does not.  This can be used by any function which wants
     /// to determine whether or not a bucket exists.  This operation actaully makes the call to
@@ -238,6 +255,51 @@ impl S3Manager {
             }
         } else {
             Ok(true)
+        }
+    }
+
+    /// Our private get_file_information_operation function that will return an S3FileInfo if the 
+    /// file exists and a GetFileInformationErrorif it does not.  This operation actaully makes the call to S3.
+    /// # Arguments
+    /// * `client` - An S3Client that will be used to make the call to S3.
+    /// * `bucket` - A String that represents the bucket name that we want to operate on.
+    /// * `key` - A String that represents the filename to get the information for.
+    async fn get_file_information_operation(
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<S3FileInfo, GetFileInformationError> {
+        let head_result = client.head_object().bucket(bucket).key(key).send().await;
+        if head_result.is_err() {
+            let e = head_result.err().unwrap();
+            let e = e.into_service_error();
+            if e.is_not_found() {
+                return Err(GetFileInformationError::KeyDoesNotExist(
+                    GlyphxErrorData::new(
+                        String::from(format!(
+                            "The file {} does not exist on the bucket {}",
+                            key.clone(),
+                            bucket.clone()
+                        )),
+                        Some(serde_json::json!({"Bucket": bucket, "Key": key})),
+                        None,
+                    ),
+                ));
+            } else {
+                let msg = e.meta().message().unwrap().to_string();
+                let data = json!({ "bucket_name": bucket, "key" : key });
+                warn!(
+                    "Error calling head_object for bucket {}, key {}, error : {} ",
+                    bucket, key, e
+                );
+                Err(GetFileInformationError::UnexpectedError(GlyphxErrorData::new(msg, Some(data), None)))
+            }
+        } else {
+            let info = head_result.unwrap(); 
+            let dt = info.last_modified().unwrap(); 
+            let size = info.content_length();
+            Ok(S3FileInfo { file_name: key.to_string(), file_size: size, last_modified: dt.to_owned() })
+            
         }
     }
     /// Our private list_objects_operation function that will return a vector of keys and a boolean
@@ -311,7 +373,14 @@ mod constructor {
         assert!(s3_manager_result.is_ok());
         let s3_manager = s3_manager_result.ok().unwrap();
         assert_eq!(s3_manager.bucket, bucket);
-        let _i = 0;
+
+        //test our Debug trait to satisfy code coverage.
+        let debug_fmt = format!("{:?}", s3_manager);
+        assert!(debug_fmt.len() > 0);
+
+        //test our clone trait to satisfy code coverage.
+        let s3_manager_clone = s3_manager.clone();
+        assert_eq!(s3_manager.bucket, s3_manager_clone.bucket);
     }
 
     #[tokio::test]
@@ -326,7 +395,7 @@ mod constructor {
         let s3_manager = s3_manager_result.err().unwrap();
         let is_invalid: bool;
         match s3_manager {
-            ConstructorError::BucketDoesNotExist(e) => {
+            ConstructorError::BucketDoesNotExist(_) => {
                 is_invalid = true;
             }
             _ => {
@@ -334,6 +403,10 @@ mod constructor {
             }
         }
         assert!(is_invalid);
+
+        //test our Debug trait to satisfy code coverage.
+        let debug_fmt = format!("{:?}", s3_manager);
+        assert!(debug_fmt.len() > 0);
     }
 
     #[tokio::test]
@@ -429,7 +502,7 @@ mod bucket_exists {
         let bucket_exists = bucket_exists_result.err().unwrap();
         let is_invalid: bool;
         match bucket_exists {
-            BucketExistsError::BucketDoesNotExist(e) => {
+            BucketExistsError::BucketDoesNotExist(_) => {
                 is_invalid = true;
             }
             _ => {
@@ -437,6 +510,10 @@ mod bucket_exists {
             }
         }
         assert!(is_invalid);
+
+        //test our Debug trait to satisfy code coverage.
+       let debug_fmt = format!("{:?}", bucket_exists);
+       assert!(debug_fmt.len() > 0);
     }
 
     #[tokio::test]
@@ -554,7 +631,61 @@ mod list_objects {
         assert!(res.is_ok());
         let keys = res.unwrap();
         assert_eq!(keys.len(), 10);
-        unsafe {assert_eq!(CALL_COUNT, 2);}
+        unsafe {
+            assert_eq!(CALL_COUNT, 2);
+        }
+    }
+
+    #[tokio::test]
+    async fn truncation_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let s3_manager_result = S3Manager::new_impl(
+            bucket.clone(),
+            |_client, _bucket_name| async move { Ok(true) },
+        )
+        .await;
+
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        static mut CALL_COUNT: u32 = 0;
+        let res = S3Manager::list_objects_impl(
+            s3_manager.client.clone(),
+            s3_manager.bucket.clone(),
+            None,
+            None,
+            |_client, _bucket, _filter, _start_after| async move {
+                unsafe {
+                    CALL_COUNT += 1;
+                    let mut keys = Vec::new();
+                    if CALL_COUNT == 1 {
+                        for i in 0..5 {
+                            keys.push(format!("key-{}", i));
+                        }
+                        Ok((keys, true))
+                    } else {
+                        Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
+                            "Error listing objects".to_string(),
+                            None,
+                            None,
+                        )))
+                    }
+                }
+            },
+        )
+        .await;
+
+        assert!(res.is_err());
+
+        let is_invalid: bool;
+        match res.err().unwrap() {
+            ListObjectsError::UnexpectedError(_) => {
+                is_invalid = true;
+            }
+            _ => {
+                panic!("Expected Unexpected error");
+            }
+        }
+        assert!(is_invalid);
     }
 
     #[tokio::test]
@@ -574,20 +705,20 @@ mod list_objects {
             None,
             None,
             |_client, _bucket, _filter, _start_after| async move {
-                    Err(ListObjectsError::BucketDoesNotExist(GlyphxErrorData::new(
-                        format!("Bucket {} does not exist", _bucket.clone()),
-                        Some(json!({ "bucket_name": _bucket.clone() })),
-                        None,
-                    )))
+                Err(ListObjectsError::BucketDoesNotExist(GlyphxErrorData::new(
+                    format!("Bucket {} does not exist", _bucket.clone()),
+                    Some(json!({ "bucket_name": _bucket.clone() })),
+                    None,
+                )))
             },
         )
         .await;
 
         assert!(res.is_err());
         let err = res.err().unwrap();
-        let is_invalid : bool;
+        let is_invalid: bool;
         match err {
-            ListObjectsError::BucketDoesNotExist(e) => {
+            ListObjectsError::BucketDoesNotExist(_) => {
                 is_invalid = true;
             }
             _ => {
@@ -595,6 +726,10 @@ mod list_objects {
             }
         }
         assert!(is_invalid);
+
+    //format with debug to satisfy coverage 
+    let err_str = format!("{:?}", err);
+    assert!(err_str.len() > 0);
     }
 
     #[tokio::test]
@@ -614,18 +749,18 @@ mod list_objects {
             None,
             None,
             |_client, bucket, _filter, _start_after| async move {
-                    return Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
-                        format!("Unexpected error listing objects in bucket {}", bucket),
-                        Some(json!({ "bucket_name": bucket })),
-                        None,
-                    )));
+                return Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
+                    format!("Unexpected error listing objects in bucket {}", bucket),
+                    Some(json!({ "bucket_name": bucket })),
+                    None,
+                )));
             },
         )
         .await;
 
         assert!(res.is_err());
         let err = res.err().unwrap();
-        let is_invalid : bool;
+        let is_invalid: bool;
         match err {
             ListObjectsError::UnexpectedError(e) => {
                 is_invalid = true;
