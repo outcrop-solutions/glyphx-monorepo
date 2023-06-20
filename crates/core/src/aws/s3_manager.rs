@@ -1,6 +1,10 @@
 use crate::error::GlyphxErrorData;
 use async_recursion::async_recursion;
-use aws_sdk_s3::{presigning::PresigningConfig, primitives::DateTime, Client as S3Client};
+use aws_sdk_s3::primitives::ByteStream;
+use aws_sdk_s3::{
+    operation::get_object::GetObjectError, presigning::PresigningConfig, primitives::DateTime,
+    Client as S3Client,
+};
 use log::warn;
 use serde_json::json;
 use std::future::Future;
@@ -45,6 +49,12 @@ pub enum GetFileInformationError {
 
 #[derive(Debug)]
 pub enum GetSignedUploadUrlError {
+    UnexpectedError(GlyphxErrorData),
+}
+
+pub enum GetObjectStreamError {
+    ObjectUnavailable(GlyphxErrorData),
+    KeyDoesNotExist(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
 }
 
@@ -109,10 +119,19 @@ impl S3Manager {
     pub async fn get_signed_upload_url(
         &self,
         key: &str,
-        content_type: Option<&str>
+        content_type: Option<&str>,
     ) -> Result<String, GetSignedUploadUrlError> {
-        Self::get_signed_upload_url_operation(&self.client, &self.bucket, key, content_type, None ).await
+        Self::get_signed_upload_url_operation(&self.client, &self.bucket, key, content_type, None)
+            .await
     }
+
+    pub async fn get_object_stream(
+        &self,
+        key: &str,
+    ) -> Result<ByteStream, GetObjectStreamError> {
+        Self::get_object_stream_operation(&self.client, &self.bucket, key).await
+    }
+
     /// Our private new_impl function that will return an S3Manager.
     /// # Arguments
     /// * `bucket` - A String that represents the bucket name that we want to operate on.
@@ -410,6 +429,57 @@ impl S3Manager {
                 return Err(GetSignedUploadUrlError::UnexpectedError(
                     GlyphxErrorData::new(msg, Some(data), None),
                 ));
+            }
+        }
+    }
+
+    async fn get_object_stream_operation(
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<ByteStream, GetObjectStreamError> {
+        let res = client.get_object().bucket(bucket).key(key).send().await;
+        match res {
+            Ok(result) => {
+                return Ok(result.body);
+            }
+            Err(e) => {
+                let e = e.into_service_error();
+                match e {
+                    GetObjectError::InvalidObjectState(_) => {
+                        return Err(GetObjectStreamError::ObjectUnavailable(GlyphxErrorData::new(
+                            format!("The object {} exists on the bucket {}, but is archived and cannot be accessed", key, bucket),
+                            Some(json!({ "bucket_name": bucket, "key" : key })),
+                            None,
+                        )));
+                    }
+                    GetObjectError::NoSuchKey(_) => {
+                        return Err(GetObjectStreamError::KeyDoesNotExist(GlyphxErrorData::new(
+                            format!("The object {} does not exist on the bucket {}", key, bucket),
+                            Some(json!({ "bucket_name": bucket, "key" : key })),
+                            None,
+                        )));
+                    }
+
+                    GetObjectError::Unhandled(unhandled) => {
+                        let msg = unhandled.to_string();
+                        let data = json!({ "bucket_name": bucket, "key" : key });
+                        return Err(GetObjectStreamError::UnexpectedError(GlyphxErrorData::new(
+                            msg,
+                            Some(data),
+                            None,
+                        )));
+                    }
+                    _ => {
+                        let msg = e.meta().message().unwrap().to_string();
+                        let data = json!({ "bucket_name": bucket, "key" : key });
+                        return Err(GetObjectStreamError::UnexpectedError(GlyphxErrorData::new(
+                            msg,
+                            Some(data),
+                            None,
+                        )));
+                    }
+                }
             }
         }
     }

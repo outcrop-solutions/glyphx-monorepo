@@ -1,10 +1,14 @@
 pub mod sub_mod;
 use glyphx_core::aws::S3Manager;  
-use glyphx_core::aws::s3_manager::GetFileInformationError;
+use glyphx_core::aws::s3_manager::{GetFileInformationError, GetObjectStreamError};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use reqwest;
 use std::io::Read;
+use aws_smithy_http::byte_stream::{ByteStream, AggregatedBytes};
+use aws_smithy_http::body::SdkBody;
+use bytes::Buf;
+
 const BUCKET_NAME: &str = "jps-test-bucket";
 
 #[tokio::test]
@@ -108,7 +112,43 @@ async fn get_signed_upload_url() {
         
 }
 
+#[tokio::test]
+async fn get_object_stream() {
+    let file_name = "test/testOrgNpis.csv"; 
 
+    let s3_manager = S3Manager::new(String::from(BUCKET_NAME)).await;
+    assert!(s3_manager.is_ok());
+    let s3_manager = s3_manager.unwrap();
+
+    let object_stream = s3_manager.get_object_stream(file_name).await;
+    assert!(object_stream.is_ok());
+    let object_stream = object_stream.ok().unwrap();
+    
+    let bytes = object_stream.collect().await.expect("failed to read the stream");
+    let str_value = String::from_utf8_lossy(bytes.chunk());   
+    
+    assert_eq!(3248, str_value.len());
+}
+
+#[tokio::test]
+async fn get_object_stream_fails() {
+    let file_name = "test/test_".to_owned() + generate_random_file_name(10).as_str() + ".txt"; 
+
+    let s3_manager = S3Manager::new(String::from(BUCKET_NAME)).await;
+    assert!(s3_manager.is_ok());
+    let s3_manager = s3_manager.unwrap();
+
+    let object_stream = s3_manager.get_object_stream(file_name.as_str()).await;
+    assert!(object_stream.is_err());
+    let object_stream = object_stream.err().unwrap();
+
+    let errored:bool;
+    match object_stream {
+        GetObjectStreamError::KeyDoesNotExist(_) => errored = true,
+        _ => panic!("Unexpected error: ")
+    }
+    assert!(errored);
+}
 async fn full_test() {
     //1.  Create a new S3Manager
     //2.  Check if the bucket exists
