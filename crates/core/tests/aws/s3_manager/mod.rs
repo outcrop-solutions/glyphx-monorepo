@@ -1,13 +1,12 @@
 pub mod sub_mod;
 use glyphx_core::aws::S3Manager;  
 use glyphx_core::aws::s3_manager::{GetFileInformationError, GetObjectStreamError};
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
 use reqwest;
 use std::io::Read;
 use aws_smithy_http::byte_stream::{ByteStream, AggregatedBytes};
 use aws_smithy_http::body::SdkBody;
 use bytes::Buf;
+use crate::generate_random_file_name;
 
 const BUCKET_NAME: &str = "jps-test-bucket";
 
@@ -76,15 +75,6 @@ async fn get_file_info_fails() {
     let err_debug = format!("{:?}", err);
     assert!(err_debug.len() > 0);
 
-}
-fn generate_random_file_name(length: usize) -> String {
-    let rng = thread_rng();
-    let file_name: String = rng
-        .sample_iter(&Alphanumeric)
-        .take(length)
-        .map(char::from)
-        .collect();
-    file_name
 }
 #[tokio::test]
 async fn get_signed_upload_url() {

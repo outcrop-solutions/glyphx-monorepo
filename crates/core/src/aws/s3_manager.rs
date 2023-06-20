@@ -77,6 +77,13 @@ impl S3Manager {
         self.bucket.clone()
     }
 
+    /// A Get accesor for the S3Client.  This is just a simple getter. It is probably
+    /// most usefull when testing to get access to the S3Client we have instantiated for.
+    /// aws calls.
+    pub fn get_client(&self) -> S3Client {
+        self.client.clone()
+    }
+
     /// Our public bucket_exists function that will return a bool.  This uses our bucket_exists_impl function
     /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
     /// test the bucket_exists logic with no down stream effects.  This function just wraps our impl call.
@@ -578,6 +585,21 @@ mod accessors {
         assert!(s3_manager_result.is_ok());
 
         let bucket_name = s3_manager_result.ok().unwrap().get_bucket_name();
+        assert_eq!(bucket_name, bucket);
+    }
+
+    #[tokio::test]
+    async fn get_client() {
+        let bucket = "jps-test-bucket".to_string();
+        let s3_manager_result = S3Manager::new_impl(
+            bucket.clone(),
+            |_client, _bucket_name| async move { Ok(true) },
+        )
+        .await;
+        assert!(s3_manager_result.is_ok());
+
+        let _client = s3_manager_result.ok().unwrap().get_client();
+    
     }
 }
 
