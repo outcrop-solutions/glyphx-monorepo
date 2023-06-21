@@ -84,10 +84,9 @@ const MOCK_PROJECT: databaseTypes.IProject = {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
-  isTemplate: false,
-  type: {
+  template: {
     _id: new mongooseTypes.ObjectId(),
-  } as unknown as databaseTypes.IProjectType,
+  } as unknown as databaseTypes.IProjectTemplate,
   stateHistory: [],
   members: [],
   state: {

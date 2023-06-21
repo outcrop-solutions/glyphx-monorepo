@@ -39,12 +39,20 @@ export interface IProjectStaticMethods
     projectId: mongooseTypes.ObjectId,
     states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProject>;
+  addTags(
+    projectId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject>;
+  removeTags(
+    projectId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject>;
   deleteProjectById(projectId: mongooseTypes.ObjectId): Promise<void>;
   validateUpdateObject(
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<void>;
-  validateType(
-    input: databaseTypes.IProjectType | mongooseTypes.ObjectId
+  validateTemplate(
+    input: databaseTypes.IProjectTemplate | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
   validateWorkspace(
     input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
@@ -54,5 +62,8 @@ export interface IProjectStaticMethods
   ): Promise<mongooseTypes.ObjectId[]>;
   validateStates(
     input: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
+  validateTags(
+    input: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
 }

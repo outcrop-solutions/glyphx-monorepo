@@ -4,7 +4,7 @@ import { web as webTypes, database as databaseTypes } from '@glyphx/types';
 
 /**
  * Toggles member role from member to owner
- * @note uses membershipService.toggleRole() in business package
+ * @note uses membershipService.updateRole() in business package
  * @param memberId corresponds to member._id in mongoDB
  */
 export const _updateRole = (

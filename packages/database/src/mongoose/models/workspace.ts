@@ -11,6 +11,7 @@ import {UserModel} from './user';
 import {MemberModel} from './member';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
+import {TagModel} from './tag';
 
 const SCHEMA = new Schema<
   IWorkspaceDocument,
@@ -53,6 +54,11 @@ const SCHEMA = new Schema<
     type: [Schema.Types.ObjectId],
     default: [],
     ref: 'project',
+  },
+  tags: {
+    type: [Schema.Types.ObjectId],
+    default: [],
+    ref: 'tag',
   },
 });
 
@@ -214,6 +220,32 @@ SCHEMA.static(
     return stateIds;
   }
 );
+SCHEMA.static(
+  'validateTags',
+  async (
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const tagIds: mongooseTypes.ObjectId[] = [];
+    tags.forEach(m => {
+      if (m instanceof mongooseTypes.ObjectId) tagIds.push(m);
+      else tagIds.push(m._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await TagModel.allTagIdsExist(tagIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more state ids do not exisit in the database.  See the inner error for additional information',
+          'state',
+          tags,
+          err
+        );
+      else throw err;
+    }
+
+    return tagIds;
+  }
+);
 
 SCHEMA.static(
   'addStates',
@@ -347,7 +379,8 @@ SCHEMA.static(
   async (input: IWorkspaceCreateInput): Promise<databaseTypes.IWorkspace> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
-      const [members, projects, states, creator] = await Promise.all([
+      const [tags, members, projects, states, creator] = await Promise.all([
+        WORKSPACE_MODEL.validateTags(input.tags ?? []),
         WORKSPACE_MODEL.validateMembers(input.members ?? []),
         WORKSPACE_MODEL.validateProjects(input.projects ?? []),
         WORKSPACE_MODEL.validateStates(input.states ?? []),
@@ -367,6 +400,7 @@ SCHEMA.static(
         members: members,
         states: states,
         projects: projects,
+        tags: tags,
       };
       try {
         await WORKSPACE_MODEL.validate(resolvedInput);
@@ -878,6 +912,129 @@ SCHEMA.static(
       if (dirty) {
         workspaceDocument.members =
           updatedMembers as unknown as databaseTypes.IMember[];
+        await workspaceDocument.save();
+      }
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while removing the members. See the innner error for additional information',
+          'mongoDb',
+          'workspace.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
+SCHEMA.static(
+  'addTags',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one tagId',
+          'tags',
+          tags
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          `A Workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = await WORKSPACE_MODEL.validateTags(tags);
+      let dirty = false;
+      reconciledIds.forEach(m => {
+        if (
+          !workspaceDocument.tags.find(
+            (tagsId: any) => tagsId.toString() === m.toString()
+          )
+        ) {
+          dirty = true;
+          workspaceDocument.tags.push(m as unknown as databaseTypes.ITag);
+        }
+      });
+
+      if (dirty) await workspaceDocument.save();
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurrred while adding the tags. See the innner error for additional information',
+          'mongoDb',
+          'workspace.addTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeTags',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one workspaceId',
+          'tags',
+          tags
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          `An Workspace Document with _id : ${workspaceId} cannot be found`,
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = tags.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updatedTags = workspaceDocument.tags.filter((t: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (t as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        workspaceDocument.tags = updatedTags as unknown as databaseTypes.ITag[];
         await workspaceDocument.save();
       }
 

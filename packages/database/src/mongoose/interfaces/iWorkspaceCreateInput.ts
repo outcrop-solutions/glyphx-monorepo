@@ -11,9 +11,11 @@ export interface IWorkspaceCreateInput
     | 'members'
     | 'projects'
     | 'states'
+    | 'tags'
   > {
   creator: mongooseTypes.ObjectId | databaseTypes.IUser;
   members: (mongooseTypes.ObjectId | databaseTypes.IMember)[];
   projects: (mongooseTypes.ObjectId | databaseTypes.IProject)[];
+  tags: (mongooseTypes.ObjectId | databaseTypes.ITag)[];
   states: (mongooseTypes.ObjectId | databaseTypes.IState)[];
 }

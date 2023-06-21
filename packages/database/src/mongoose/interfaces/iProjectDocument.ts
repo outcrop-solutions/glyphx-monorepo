@@ -4,10 +4,11 @@ import {Types as mongooseTypes} from 'mongoose';
 export interface IProjectDocument
   extends Omit<
     databaseTypes.IProject,
-    'workspace' | 'type' | 'members' | 'stateHistory'
+    'workspace' | 'template' | 'members' | 'stateHistory' | 'tags'
   > {
   workspace: mongooseTypes.ObjectId;
   members: mongooseTypes.ObjectId[];
   stateHistory: mongooseTypes.ObjectId[];
-  type?: mongooseTypes.ObjectId;
+  tags: mongooseTypes.ObjectId[];
+  template?: mongooseTypes.ObjectId;
 }

@@ -185,7 +185,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while querying the annotations.  See the inner error for additional information',
           'mongoDb',
-          'queryProjectTypes',
+          'queryProjectTemplates',
           err
         );
     }

@@ -484,7 +484,7 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('toggleRole', () => {
+  context('updateRole', () => {
     it('will update a member teamRole', async () => {
       const memberId = new mongooseTypes.ObjectId();
       const teamRole = databaseTypes.constants.ROLE.MEMBER;
@@ -501,7 +501,7 @@ describe('#services/membership', () => {
         updateMembershipFromModelStub
       );
 
-      await membershipService.toggleRole(memberId, teamRole);
+      await membershipService.updateRole(memberId, teamRole);
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will update a member teamRole when memberId is a string', async () => {
@@ -520,7 +520,7 @@ describe('#services/membership', () => {
         updateMembershipFromModelStub
       );
 
-      await membershipService.toggleRole(memberId.toString(), teamRole);
+      await membershipService.updateRole(memberId.toString(), teamRole);
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
@@ -551,7 +551,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.toggleRole(memberId, teamRole);
+        await membershipService.updateRole(memberId, teamRole);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -589,7 +589,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.toggleRole(memberId, teamRole);
+        await membershipService.updateRole(memberId, teamRole);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -631,7 +631,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.toggleRole(memberId, teamRole);
+        await membershipService.updateRole(memberId, teamRole);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

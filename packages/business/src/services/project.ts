@@ -76,7 +76,7 @@ export class ProjectService {
           ? workspaceId
           : new mongooseTypes.ObjectId(workspaceId);
 
-      const projectTypeCastId =
+      const projectTemplateCastId =
         type instanceof mongooseTypes.ObjectId
           ? type
           : new mongooseTypes.ObjectId(type);
@@ -92,16 +92,16 @@ export class ProjectService {
         shape: {},
       };
 
-      // TODO: requires getProjectType service
+      // TODO: requires getProjectTemplate service
       const input = {
         name,
         description: description ?? '',
         workspace: workspaceCastId,
-        isTemplate: false,
-        type: projectTypeCastId ?? defaultType,
+        template: projectTemplateCastId ?? defaultType,
         files: [],
         members: [],
         stateHistory: [],
+        tags: [],
         state: {
           properties: {
             X: {
