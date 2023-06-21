@@ -943,7 +943,7 @@ SCHEMA.static(
     try {
       if (!tags.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one workspaceId',
+          'You must supply at least one tagId',
           'tags',
           tags
         );
@@ -980,9 +980,9 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the members. See the innner error for additional information',
+          'An unexpected error occurrred while adding the tags. See the innner error for additional information',
           'mongoDb',
-          'workspace.addMembers',
+          'workspace.addTags',
           err
         );
       }

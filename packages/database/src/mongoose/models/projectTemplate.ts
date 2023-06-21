@@ -179,12 +179,14 @@ SCHEMA.static(
         }
       )
         .populate('projects')
+        .populate('tags')
         .lean()) as databaseTypes.IProjectTemplate[];
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
       projectTemplateDocuments.forEach((doc: any) => {
         delete (doc as any)?.__v;
         doc.projects?.forEach((p: any) => delete (p as any)?.__v);
+        doc.tags?.forEach((t: any) => delete (t as any)?.__v);
       });
 
       const retval: IQueryResult<databaseTypes.IProjectTemplate> = {
@@ -338,6 +340,12 @@ SCHEMA.static(
       throw new error.InvalidOperationError(
         'The updatedAt date is set internally and cannot be included in the update set',
         {updatedAt: projectTemplate.updatedAt}
+      );
+    }
+    if (projectTemplate.tags) {
+      throw new error.InvalidOperationError(
+        'Tags cannot be updated directly for a projectTemplate.  Please use the add/remove tag functions',
+        {tags: projectTemplate.tags}
       );
     }
     if ((projectTemplate as Record<string, unknown>)['_id']) {
@@ -599,7 +607,7 @@ SCHEMA.static(
     try {
       if (!tags.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one projectId',
+          'You must supply at least one tagId',
           'tags',
           tags
         );
@@ -659,8 +667,8 @@ SCHEMA.static(
     try {
       if (!tags.length)
         throw new error.InvalidArgumentError(
-          'You must supply at least one projectId',
-          'projects',
+          'You must supply at least one tagId',
+          'tags',
           tags
         );
       const projectTemplateDocument = await PROJECT_TEMPLATE_MODEL.findById(

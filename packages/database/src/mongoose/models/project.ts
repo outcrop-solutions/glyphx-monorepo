@@ -702,6 +702,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     const projectDocument = (await PROJECT_MODEL.findById(projectId)
       .populate('workspace')
       .populate('members')
+      .populate('tags')
       .populate({
         path: 'stateHistory',
         populate: {path: 'camera'},
@@ -721,6 +722,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     delete (projectDocument as any).template?.['__v'];
 
     projectDocument.members?.forEach((m: any) => delete (m as any)['__v']);
+    projectDocument.tags?.forEach((t: any) => delete (t as any)['__v']);
     projectDocument.stateHistory?.forEach((s: any) => {
       delete (s as any)['__v'];
       delete (s as any).camera?.__v;
