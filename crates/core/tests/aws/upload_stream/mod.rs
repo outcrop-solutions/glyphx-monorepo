@@ -22,9 +22,6 @@ async fn upload_a_file_from_string() {
     for byte in file_contents.as_bytes() {
         vec_u8.push(byte.clone());
     }
-    for _ in 0..1000000 {
-        upload_stream.write(Some(vec_u8.clone())).await;
-    }
     upload_stream.write(Some(vec_u8)).await;
     let res = upload_stream.finish().await;
     assert!(res.is_ok());

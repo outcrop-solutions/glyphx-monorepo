@@ -5,7 +5,7 @@
       "filetypes": ["rust"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/../../target/debug/deps/aws-badfad41a2fdf240",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_core-5daa83e9203c2955",
         "runInTerminal": true,
         "preRunCommands": ["shell cargo test --no-run --package glyphx_core"]
       }
