@@ -262,6 +262,21 @@ impl UploadStream {
         Self::new_impl(bucket_name, file_name, client, &UploadStreamImpl {}).await
     }
 
+    pub(super) fn empty(client: Client) -> UploadStream {
+        UploadStream {
+            bucket_name: String::new(),
+            file_name: String::new(),
+            file_size: 0,
+            upload_id: String::new(),
+            client,
+            state: UploadStreamState::Ok,
+            buffer: Vec::new(),
+            part_number: 1,
+            buffer_size: 0,
+            upload_parts: Vec::new(),
+
+        }
+    }
     ///This function is used to submit bytes to the strcture to be uploaded.  This function uses
     ///our impl dependency injection pattern and calls the write_impl function passing it the
     ///UploadStreamOpsImpl structure which implements the UploadStreamOps trait and implements the

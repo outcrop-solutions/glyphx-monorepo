@@ -62,3 +62,10 @@ pub enum GetObjectStreamError {
     /// Is returned for all other error conditions.
     UnexpectedError(GlyphxErrorData),
 }
+
+/// This error is returned by the get_upload_stream function.
+#[derive(Debug)]
+pub enum GetUploadStreamError {
+    /// Any error condition that is reported by AWS is wrapped by this error.
+    UnexpectedError(GlyphxErrorData),
+}

@@ -13,11 +13,13 @@ use aws_sdk_s3::operation::head_object::{HeadObjectError, HeadObjectOutput};
 use aws_sdk_s3::operation::put_object::PutObjectError;
 
 use super::types::s3_manager::*;
+use super::upload_stream::*;
 use http::Request;
 use log::warn;
-use serde_json::json;
+use serde_json::{json, Serializer, Value};
 use std::time::Duration;
 
+use serde::Serialize;
 /// Our S3Manager structure which wraps the AWS S3 api and exposes all of the functions that we need to interact with S3.
 #[derive(Clone, Debug)]
 pub struct S3Manager {
@@ -26,8 +28,8 @@ pub struct S3Manager {
 }
 
 /// this API wrapper uses our impl pattern.  As part of that pattern, we use dependency injection
-/// to inject our third party/external functions. This pattern allows us to mock those functions 
-/// for more efficient and complete unit testing.  This trait defines the functions that 
+/// to inject our third party/external functions. This pattern allows us to mock those functions
+/// for more efficient and complete unit testing.  This trait defines the functions that
 /// can be mocked.
 #[automock]
 #[async_trait]
@@ -67,6 +69,13 @@ trait S3ManagerOps {
         bucket: &str,
         key: &str,
     ) -> Result<GetObjectOutput, SdkError<GetObjectError>>;
+
+    async fn get_upload_stream_operation(
+        &self,
+        client: &S3Client,
+        bucket_name: &str,
+        key: &str,
+    ) -> Result<UploadStream, UploadStreamConstructorError>;
 }
 
 ///Our internal/production implementation of the S3ManagerOps trait.
@@ -214,6 +223,15 @@ impl S3ManagerOps for S3ManagerOpsImpl {
     ) -> Result<GetObjectOutput, SdkError<GetObjectError>> {
         client.get_object().bucket(bucket).key(key).send().await
     }
+
+    async fn get_upload_stream_operation(
+        &self,
+        client: &S3Client,
+        bucket_name: &str,
+        key: &str,
+    ) -> Result<UploadStream, UploadStreamConstructorError> {
+        UploadStream::new(bucket_name, key, client.clone()).await
+    }
 }
 
 impl S3Manager {
@@ -272,7 +290,7 @@ impl S3Manager {
         self.get_file_information_impl(key, &S3ManagerOpsImpl {})
             .await
     }
-    
+
     /// Will return a presigned url for uploading a file.  This uses our get_signed_upload_url_impl function
     /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
     /// test the get_signed_upload_url logic with no down stream effects.  This function just wraps our impl call.
@@ -290,7 +308,7 @@ impl S3Manager {
         self.get_signed_upload_url_impl(key, content_type, lifetime, &S3ManagerOpsImpl {})
             .await
     }
-    
+
     /// Will return a presigned url for downloading a file.  This uses our get_signed_download_url_impl function
     /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
     /// test the get_signed_download_url logic with no down stream effects.  This function just wraps our impl call.
@@ -298,6 +316,19 @@ impl S3Manager {
     /// * `key` - A String that represents the key of the file that we want to get information about.
     pub async fn get_object_stream(&self, key: &str) -> Result<ByteStream, GetObjectStreamError> {
         self.get_object_stream_impl(key, &S3ManagerOpsImpl {}).await
+    }
+
+    /// Will return an UploadStream that wraps the AWs S3 Multipart upload.  This will allow us to 
+    /// write data as we consume it with out having to buffer the entire file in memory.  This uses our
+    /// get_upload_stream_impl function which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the get_upload_stream logic with no down stream effects.  This function just wraps our impl call.
+    /// # Arguments
+    /// * `key` - A String that represents the key of the file that we want to upload.
+    pub async fn get_upload_stream(
+        &self,
+        key: &str,
+    ) -> Result<UploadStream, GetUploadStreamError> {
+        self.get_upload_stream_impl(key, &S3ManagerOpsImpl {}).await
     }
 
     /// Our private new_impl function that will return an S3Manager.
@@ -339,7 +370,7 @@ impl S3Manager {
     /// # Arguments
     /// * `client` - An S3Client that will be used to make the call to S3.
     /// * `bucket` - A String that represents the bucket name that we want to operate on.
-    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3. 
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
     async fn bucket_exists_impl<T: S3ManagerOps>(
         &self,
         aws_operations: &T,
@@ -377,7 +408,7 @@ impl S3Manager {
     ///* `filter` - An optional filter to apply to the list
     ///* `start_after` - An optional key to start listing after -- this is used in our recursive
     ///calls to keep track of our place.
-    ///* `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3. 
+    ///* `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
     async fn list_objects_impl<T: S3ManagerOps + std::marker::Send + std::marker::Sync>(
         &self,
         filter: Option<String>,
@@ -565,6 +596,35 @@ impl S3Manager {
                 }
             }
         }
+    }
+
+    /// The implementation for our get_upload_stream call.  This function will take a
+    /// S3ManagerOps trait to make the actual calls to our upload manager struct.  This function
+    /// will return a Result that contains either an UploadStream or a GetUploadStreamError.
+    /// # Arguments
+    /// * `key` - A String that represents the filename to get the information for.
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make
+    /// external calls.
+    async fn get_upload_stream_impl<T: S3ManagerOps>(
+        &self,
+        key: &str,
+        aws_operations: &T,
+    ) -> Result<UploadStream, GetUploadStreamError> {
+        let res = aws_operations
+            .get_upload_stream_operation(&self.client, &self.bucket, key)
+            .await;
+
+        if res.is_err() {
+            let inner_data = match res.err().unwrap() {
+                UploadStreamConstructorError::UnexpectedError(e) => serde_json::to_value(e).unwrap(),
+            };
+
+            let inner_err = json!({ "unexpected": inner_data });
+
+            return Err(GetUploadStreamError::UnexpectedError(GlyphxErrorData::new(String::from("An error occurred while getting the upload stream.  See the inner error for more information"), Some(json!({"bucket_name": self.bucket, "key": key})), Some(inner_err))));
+        }
+
+        Ok(res.unwrap())
     }
 }
 
@@ -1004,7 +1064,7 @@ mod list_objects {
 #[cfg(test)]
 pub mod get_file_information {
     use super::*;
-    use aws_sdk_s3::primitives::{DateTimeFormat, DateTime};
+    use aws_sdk_s3::primitives::{DateTime, DateTimeFormat};
     use aws_sdk_s3::types::error::NotFound;
     use aws_smithy_http::body::SdkBody;
     use aws_smithy_http::operation::Response;
@@ -1399,6 +1459,69 @@ mod get_object_stream {
         let is_unexpected = match res.err().unwrap() {
             GetObjectStreamError::UnexpectedError(_) => true,
             _ => false,
+        };
+        assert!(is_unexpected);
+    }
+}
+
+#[cfg(test)]
+mod get_upload_stream {
+    use super::*;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_upload_stream_operation()
+            .returning(|client, _, _| {
+                Ok(UploadStream::empty(client.clone()))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.get_upload_stream_impl(&key, &mock_ops).await;
+        assert!(res.is_ok());
+    }
+
+
+    #[tokio::test]
+    async fn is_unexpected_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_upload_stream_operation()
+            .returning(|_, _, _| {
+                Err(UploadStreamConstructorError::UnexpectedError(
+                    GlyphxErrorData::new("an error has occurred".to_string(), Some(json!({"foo": "bar"})), None),
+                ))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.get_upload_stream_impl(&key, &mock_ops).await;
+        assert!(res.is_err());
+        let is_unexpected = match res.as_ref().err().unwrap() {
+            GetUploadStreamError::UnexpectedError(_) => true,
+          
+        };
+        let log_data = match res.err().unwrap() {
+            GetUploadStreamError::UnexpectedError(e) => e,
+          
         };
         assert!(is_unexpected);
     }
