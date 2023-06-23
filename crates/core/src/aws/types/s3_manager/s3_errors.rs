@@ -69,3 +69,10 @@ pub enum GetUploadStreamError {
     /// Any error condition that is reported by AWS is wrapped by this error.
     UnexpectedError(GlyphxErrorData),
 }
+
+/// This error is returned by our delete_object function.
+#[derive(Debug)]
+pub enum RemoveObjectError {
+    /// Is returned for all error conditions.
+    UnexpectedError(GlyphxErrorData),
+}
