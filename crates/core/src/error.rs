@@ -1,6 +1,9 @@
+//! Our error type for glyphx crates.
 use serde_json;
 use serde::{Deserialize, Serialize};
 
+///Our standard error structure.  All Glyphx crates should pass relevant error information in 
+///this structure.
 #[derive(Clone,Deserialize, Serialize, Debug)]
 pub struct GlyphxErrorData {
     pub message: String,
@@ -8,6 +11,11 @@ pub struct GlyphxErrorData {
     pub inner_error: Option<serde_json::Value>,
 }
 impl GlyphxErrorData {
+    /// Creates a new GlyphxErrorData object.
+    /// # Arguments
+    /// * `message` - A string that describes the error.
+    /// * `data` - An optional serde_json::Value object that contains additional information about the error.
+    /// * `inner_error` - An optional serde_json::Value object that contains the inner error.
     pub fn new(
         message: String,
         data: Option<serde_json::Value>,
@@ -20,7 +28,7 @@ impl GlyphxErrorData {
         }
     }
 }
-
+/// Implements the Display trait for GlyphxErrorData so that the data can be logged
 impl std::fmt::Display for GlyphxErrorData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut json = serde_json::json!({

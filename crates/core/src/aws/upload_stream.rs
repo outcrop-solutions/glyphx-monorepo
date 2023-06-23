@@ -657,9 +657,13 @@ mod constructor {
 
         assert!(res.is_err());
         let err = res.err().unwrap();
+        //It seems like we could just check to see if res.is_err() is true, but this pattern 
+        //will trip us up if someone adds an error type to GetSignedUploadUrlError.  In effect 
+        //if we add an error type then our test will pass for any error.  So this will make sure
+        //that we are handling all of the error types.
         let is_error = match err {
             UploadStreamConstructorError::UnexpectedError(_) => true,
-            _ => false,
+            
         };
 
         assert!(is_error);

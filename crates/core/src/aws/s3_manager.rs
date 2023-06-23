@@ -1,83 +1,75 @@
+///! This module holds the S3Manager structure which is used to interact with S3.
 use crate::error::GlyphxErrorData;
-use async_trait::async_trait;
 use async_recursion::async_recursion;
-use mockall::*; 
+use async_trait::async_trait;
+use mockall::*;
 
 use aws_sdk_s3::primitives::ByteStream;
-use aws_sdk_s3::{
-    operation::get_object::GetObjectError, presigning::PresigningConfig, primitives::DateTime,
-    Client as S3Client,
-};
+use aws_sdk_s3::{presigning::PresigningConfig, Client as S3Client};
+
+use aws_sdk_s3::error::SdkError;
+use aws_sdk_s3::operation::get_object::{GetObjectError, GetObjectOutput};
+use aws_sdk_s3::operation::head_object::{HeadObjectError, HeadObjectOutput};
+use aws_sdk_s3::operation::put_object::PutObjectError;
+
+use super::types::s3_manager::*;
+use http::Request;
 use log::warn;
 use serde_json::json;
 use std::time::Duration;
 
-#[derive(Debug)]
-pub struct S3FileInfo {
-    pub file_name: String,
-    pub file_size: i64,
-    pub last_modified: DateTime,
-}
-
+/// Our S3Manager structure which wraps the AWS S3 api and exposes all of the functions that we need to interact with S3.
 #[derive(Clone, Debug)]
 pub struct S3Manager {
     client: S3Client,
     bucket: String,
 }
 
-#[derive(Debug)]
-pub enum ConstructorError {
-    BucketDoesNotExist(GlyphxErrorData),
-    UnexpectedError(GlyphxErrorData),
-}
-
-#[derive(Debug)]
-pub enum BucketExistsError {
-    BucketDoesNotExist(GlyphxErrorData),
-    UnexpectedError(GlyphxErrorData),
-}
-
-#[derive(Debug)]
-pub enum ListObjectsError {
-    BucketDoesNotExist(GlyphxErrorData),
-    UnexpectedError(GlyphxErrorData),
-}
-
-#[derive(Debug)]
-pub enum GetFileInformationError {
-    KeyDoesNotExist(GlyphxErrorData),
-    UnexpectedError(GlyphxErrorData),
-}
-
-#[derive(Debug)]
-pub enum GetSignedUploadUrlError {
-    UnexpectedError(GlyphxErrorData),
-}
-
-pub enum GetObjectStreamError {
-    ObjectUnavailable(GlyphxErrorData),
-    KeyDoesNotExist(GlyphxErrorData),
-    UnexpectedError(GlyphxErrorData),
-}
-
+/// this API wrapper uses our impl pattern.  As part of that pattern, we use dependency injection
+/// to inject our third party/external functions. This pattern allows us to mock those functions 
+/// for more efficient and complete unit testing.  This trait defines the functions that 
+/// can be mocked.
 #[automock]
 #[async_trait]
 trait S3ManagerOps {
-async fn bucket_exists_operation(
+    async fn bucket_exists_operation(
         &self,
         client: &S3Client,
         bucket: &str,
     ) -> Result<bool, GlyphxErrorData>;
 
-async fn list_objects_operation(
+    async fn list_objects_operation(
         &self,
         client: &S3Client,
         bucket: &str,
         filter: Option<String>,
         start_after: Option<String>,
-    ) -> Result<(Vec<String>, bool), ListObjectsError> ;
+    ) -> Result<(Vec<String>, bool), ListObjectsError>;
+
+    async fn get_file_information_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<HeadObjectOutput, SdkError<HeadObjectError>>;
+
+    async fn get_upload_url_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+        expires_in: Duration,
+        content_type: Option<String>,
+    ) -> Result<Request<String>, SdkError<PutObjectError>>;
+    async fn get_object_stream_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<GetObjectOutput, SdkError<GetObjectError>>;
 }
 
+///Our internal/production implementation of the S3ManagerOps trait.
 struct S3ManagerOpsImpl;
 
 #[async_trait]
@@ -170,6 +162,58 @@ impl S3ManagerOps for S3ManagerOpsImpl {
             }
         }
     }
+
+    ///Will handle the calls to head_object to get S3 infromation about a file.
+    /// # Arguments
+    /// * `client` - An S3Client that will be used to make the call to S3.
+    /// * `bucket` - A String that represents the bucket name that we want to operate on.
+    /// * `key` - A String that represents the key of the file that we want to get information about.
+    async fn get_file_information_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<HeadObjectOutput, SdkError<HeadObjectError>> {
+        client.head_object().bucket(bucket).key(key).send().await
+    }
+
+    ///Will handle the calls to put_object to get a presigned url for uploading a file.
+    /// # Arguments
+    /// * `client` - An S3Client that will be used to make the call to S3.
+    /// * `bucket` - A String that represents the bucket name that we want to operate on.
+    /// * `key` - A String that represents the key of the file that we want to get information about.
+    /// * `expires_in` - A Duration that represents how long the presigned url will be valid for
+    /// * `content_type` - An optional String that represents the content type of the file that we want to upload.
+    async fn get_upload_url_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+        expires_in: Duration,
+        content_type: Option<String>,
+    ) -> Result<Request<String>, SdkError<PutObjectError>> {
+        let mut op = client.put_object().bucket(bucket).key(key);
+        if content_type.is_some() {
+            op = op.content_type(content_type.unwrap());
+        }
+
+        let result = op
+            .presigned(PresigningConfig::expires_in(expires_in).unwrap())
+            .await;
+        match result {
+            Ok(request) => Ok(request.to_http_request(String::from("")).unwrap()),
+            Err(e) => Err(e),
+        }
+    }
+    /// Will handle the calls to get_object to get the ByteStream from aws.
+    async fn get_object_stream_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<GetObjectOutput, SdkError<GetObjectError>> {
+        client.get_object().bucket(bucket).key(key).send().await
+    }
 }
 
 impl S3Manager {
@@ -179,8 +223,7 @@ impl S3Manager {
     /// # Arguments
     /// * `bucket` - A String that represents the bucket name that we want to operate on.
     pub async fn new(bucket: String) -> Result<Self, ConstructorError> {
-        Self::new_impl(bucket, &S3ManagerOpsImpl{})
-        .await
+        Self::new_impl(bucket, &S3ManagerOpsImpl {}).await
     }
 
     /// A Get accesor for the bucket name.  This is just a simple getter. It is probably
@@ -199,62 +242,77 @@ impl S3Manager {
     /// Our public bucket_exists function that will return a bool.  This uses our bucket_exists_impl function
     /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
     /// test the bucket_exists logic with no down stream effects.  This function just wraps our impl call.
-    pub async fn bucket_exists(&self) -> Result<bool, BucketExistsError> {
-        self.bucket_exists_impl( &S3ManagerOpsImpl{})
-        .await
+    pub async fn bucket_exists(&self) -> Result<(), BucketExistsError> {
+        self.bucket_exists_impl(&S3ManagerOpsImpl {}).await
     }
 
-    /// Our public list_objects function that will return a Vec<String> of all of the keys in a bucket.
+    /// Our public list_objects function that will return a `Vec<String>` of all of the keys in a bucket.
     /// This uses our list_objects_impl function which uses dependency injection to inject the calls to S3.
     /// In this manner, we can fully test the list_objects logic with no down stream effects.  
     /// This function just wraps our impl call.
     /// # Arguments
-    /// * `filter` - An Option<String> that represents a filter that we want to apply to the list_objects call.
+    /// * `filter` - An `Option<String>` that represents a filter that we want to apply to the list_objects call.
     pub async fn list_objects(
         &self,
         filter: Option<String>,
     ) -> Result<Vec<String>, ListObjectsError> {
-        self.list_objects_impl(
-            filter,
-            None,
-            &S3ManagerOpsImpl{},
-        )
-        .await
-    }
-
-    pub async fn get_file_information(
-        &self,
-        key: String,
-    ) -> Result<S3FileInfo, GetFileInformationError> {
-        Self::get_file_information_operation(&self.client, &self.bucket, key.as_str()).await
-    }
-
-    pub async fn get_signed_upload_url(
-        &self,
-        key: &str,
-        content_type: Option<&str>,
-    ) -> Result<String, GetSignedUploadUrlError> {
-        Self::get_signed_upload_url_operation(&self.client, &self.bucket, key, content_type, None)
+        self.list_objects_impl(filter, None, &S3ManagerOpsImpl {})
             .await
     }
 
-    pub async fn get_object_stream(
+    /// Will return file information for a given key.  This uses our get_file_information_impl function
+    /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the get_file_information logic with no down stream effects.  This function just wraps our impl call.
+    /// # Arguments
+    /// * `key` - A String that represents the key of the file that we want to get information about.
+    pub async fn get_file_information(
         &self,
         key: &str,
-    ) -> Result<ByteStream, GetObjectStreamError> {
-        Self::get_object_stream_operation(&self.client, &self.bucket, key).await
+    ) -> Result<S3FileInfo, GetFileInformationError> {
+        self.get_file_information_impl(key, &S3ManagerOpsImpl {})
+            .await
+    }
+    
+    /// Will return a presigned url for uploading a file.  This uses our get_signed_upload_url_impl function
+    /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the get_signed_upload_url logic with no down stream effects.  This function just wraps our impl call.
+    /// # Arguments
+    /// * `key` - A String that represents the key of the file that we want to get information about.
+    /// * `lifetime` - An `Option<u64>` that represents how long the presigned url will be valid for
+    /// in seconds (the default is 300 seconds).
+    /// * `content_type` - An optional String that represents the content type of the file that we want to upload.
+    pub async fn get_signed_upload_url(
+        &self,
+        key: &str,
+        lifetime: Option<u64>,
+        content_type: Option<String>,
+    ) -> Result<String, GetSignedUploadUrlError> {
+        self.get_signed_upload_url_impl(key, content_type, lifetime, &S3ManagerOpsImpl {})
+            .await
+    }
+    
+    /// Will return a presigned url for downloading a file.  This uses our get_signed_download_url_impl function
+    /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the get_signed_download_url logic with no down stream effects.  This function just wraps our impl call.
+    /// # Arguments
+    /// * `key` - A String that represents the key of the file that we want to get information about.
+    pub async fn get_object_stream(&self, key: &str) -> Result<ByteStream, GetObjectStreamError> {
+        self.get_object_stream_impl(key, &S3ManagerOpsImpl {}).await
     }
 
     /// Our private new_impl function that will return an S3Manager.
     /// # Arguments
     /// * `bucket` - A String that represents the bucket name that we want to operate on.
-    /// * `aws_operation` - A function that takes an S3Client and a String and returns a Future<bool>.
-    /// This function will make the actual call to the S3Client to see if the bucket exists.
-    async fn new_impl<T: S3ManagerOps>(bucket: String, aws_operations: &T) -> Result<Self, ConstructorError>
-    {
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
+    async fn new_impl<T: S3ManagerOps>(
+        bucket: String,
+        aws_operations: &T,
+    ) -> Result<Self, ConstructorError> {
         let config = ::aws_config::from_env().region("us-east-2").load().await;
         let client = S3Client::new(&config);
-        let result = aws_operations.bucket_exists_operation(&client, &bucket).await;
+        let result = aws_operations
+            .bucket_exists_operation(&client, &bucket)
+            .await;
         match result {
             Ok(exists) => {
                 if !exists {
@@ -276,18 +334,19 @@ impl S3Manager {
         Ok(s3_manager)
     }
     ///Our private bucket_exists_operation function that will return a bool indicating if the bucket exists.
-    ///This function takes an aws_operation function that will be used to make the actual call to S3.
+    ///This function takes an aws_operations function that will be used to make the actual call to S3.
     ///This will allow us to inject the call to S3 so that we can fully test this function.
     /// # Arguments
     /// * `client` - An S3Client that will be used to make the call to S3.
     /// * `bucket` - A String that represents the bucket name that we want to operate on.
-    /// * `aws_operation` - A function that takes an S3Client and a String and returns a Future<bool>.
-    async fn bucket_exists_impl< T : S3ManagerOps>(
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3. 
+    async fn bucket_exists_impl<T: S3ManagerOps>(
         &self,
         aws_operations: &T,
-    ) -> Result<bool, BucketExistsError>
-    {
-        let result = aws_operations.bucket_exists_operation(&self.client, &self.bucket).await;
+    ) -> Result<(), BucketExistsError> {
+        let result = aws_operations
+            .bucket_exists_operation(&self.client, &self.bucket)
+            .await;
         match result {
             Ok(exists) => {
                 if !exists {
@@ -302,47 +361,44 @@ impl S3Manager {
                 return Err(BucketExistsError::UnexpectedError(e));
             }
         };
-        Ok(true)
+        Ok(())
     }
 
     #[async_recursion]
-    ///Our internal implimentation of list objects.  This version takes an aws_func which will make
+    ///Our internal implimentation of list objects.  This version takes an S3ManagerOps which will make
     ///the actual call to S3.  This allows us to inject our own function for testing.
-    ///This function will call the aws_func and if the result is truncated, it will call itself
+    ///This function will call the required aws_operations and if the result is truncated, it will call itself
     ///with the last key as the start_after parameter.  It will then append the results of the
     ///recursive call to the results of the original call and return the results.
-    ///If the aws_func returns an error, it will return the error.
+    ///If the aws_operations return an error, it will return the error.
     ///# Arguments
     ///* `client` - The S3Client to use for the call
     ///* `bucket` - The bucket to list objects from
     ///* `filter` - An optional filter to apply to the list
     ///* `start_after` - An optional key to start listing after -- this is used in our recursive
     ///calls to keep track of our place.
-    ///* `aws_operation` - A closure that performs the interaction with S3.
+    ///* `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3. 
     async fn list_objects_impl<T: S3ManagerOps + std::marker::Send + std::marker::Sync>(
         &self,
         filter: Option<String>,
         start_after: Option<String>,
-        aws_operations: &T ,
-    ) -> Result<Vec<String>, ListObjectsError>
-    {
-        let res = aws_operations.list_objects_operation(
-            &self.client,
-            &self.bucket,
-            filter.clone(),
-            start_after.clone()
-        )
-        .await;
+        aws_operations: &T,
+    ) -> Result<Vec<String>, ListObjectsError> {
+        let res = aws_operations
+            .list_objects_operation(
+                &self.client,
+                &self.bucket,
+                filter.clone(),
+                start_after.clone(),
+            )
+            .await;
         match res {
             Ok((mut keys, truncated)) => {
                 if truncated {
                     let last_key = keys.last().unwrap().clone();
-                    let res = self.list_objects_impl(
-                        filter.clone(),
-                        Some(last_key),
-                        aws_operations,
-                    )
-                    .await;
+                    let res = self
+                        .list_objects_impl(filter.clone(), Some(last_key), aws_operations)
+                        .await;
                     match res {
                         Ok(mut new_keys) => {
                             keys.append(&mut new_keys);
@@ -362,19 +418,19 @@ impl S3Manager {
         }
     }
 
-
-    /// Our private get_file_information_operation function that will return an S3FileInfo if the
-    /// file exists and a GetFileInformationErrorif it does not.  This operation actaully makes the call to S3.
+    /// The implementation for our get_file_information call.  This function will take a
+    /// S3ManagerOps trait to make the actual calls to AWS..
     /// # Arguments
-    /// * `client` - An S3Client that will be used to make the call to S3.
-    /// * `bucket` - A String that represents the bucket name that we want to operate on.
     /// * `key` - A String that represents the filename to get the information for.
-    async fn get_file_information_operation(
-        client: &S3Client,
-        bucket: &str,
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
+    async fn get_file_information_impl<T: S3ManagerOps>(
+        &self,
         key: &str,
+        aws_operations: &T,
     ) -> Result<S3FileInfo, GetFileInformationError> {
-        let head_result = client.head_object().bucket(bucket).key(key).send().await;
+        let head_result = aws_operations
+            .get_file_information_operation(&self.client, &self.bucket, key)
+            .await;
         if head_result.is_err() {
             let e = head_result.err().unwrap();
             let e = e.into_service_error();
@@ -383,19 +439,18 @@ impl S3Manager {
                     GlyphxErrorData::new(
                         String::from(format!(
                             "The file {} does not exist on the bucket {}",
-                            key.clone(),
-                            bucket.clone()
+                            key, self.bucket
                         )),
-                        Some(serde_json::json!({"Bucket": bucket, "Key": key})),
+                        Some(serde_json::json!({"Bucket": self.bucket, "Key": key})),
                         None,
                     ),
                 ));
             } else {
                 let msg = e.meta().message().unwrap().to_string();
-                let data = json!({ "bucket_name": bucket, "key" : key });
+                let data = json!({ "bucket_name": self.bucket, "key" : key });
                 warn!(
                     "Error calling head_object for bucket {}, key {}, error : {} ",
-                    bucket, key, e
+                    self.bucket, key, e
                 );
                 Err(GetFileInformationError::UnexpectedError(
                     GlyphxErrorData::new(msg, Some(data), None),
@@ -413,26 +468,28 @@ impl S3Manager {
         }
     }
 
-
-    async fn get_signed_upload_url_operation(
-        client: &S3Client,
-        bucket: &str,
+    /// The implementation for our get_signed_download_url call.  This function will take a
+    /// S3ManagerOps trait to make the actual calls to AWS.
+    /// # Arguments
+    /// * `key` - A String that represents the filename to get the information for.
+    /// * 'content_type' - An optional String that represents the content type of the file.
+    /// * `lifetime` - An optional u64 that represents the lifetime of the url in seconds.  If not
+    /// provided, the default is 5 minutes.
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
+    async fn get_signed_upload_url_impl<T: S3ManagerOps>(
+        &self,
         key: &str,
-        content_type: Option<&str>,
+        content_type: Option<String>,
         lifetime: Option<u64>,
+        aws_operations: &T,
     ) -> Result<String, GetSignedUploadUrlError> {
         let expires_in = match lifetime {
             Some(lifetime) => Duration::from_secs(lifetime),
             None => Duration::from_secs(60 * 5), // 5 minutes
         };
 
-        let mut op = client.put_object().bucket(bucket).key(key);
-        if content_type.is_some() {
-            op = op.content_type(content_type.unwrap());
-        }
-
-        let res = op
-            .presigned(PresigningConfig::expires_in(expires_in).unwrap())
+        let res = aws_operations
+            .get_upload_url_operation(&self.client, &self.bucket, key, expires_in, content_type)
             .await;
         match res {
             Ok(url) => {
@@ -441,7 +498,7 @@ impl S3Manager {
             Err(e) => {
                 let e = e.into_service_error();
                 let msg = e.meta().message().unwrap().to_string();
-                let data = json!({ "bucket_name": bucket, "key" : key });
+                let data = json!({ "bucket_name": self.bucket, "key" : key });
                 return Err(GetSignedUploadUrlError::UnexpectedError(
                     GlyphxErrorData::new(msg, Some(data), None),
                 ));
@@ -449,12 +506,19 @@ impl S3Manager {
         }
     }
 
-    async fn get_object_stream_operation(
-        client: &S3Client,
-        bucket: &str,
+    /// The implementation for our get_object_stream call.  This function will take a
+    /// S3ManagerOps trait to make the actual calls to AWS.
+    /// # Arguments
+    /// * `key` - A String that represents the filename to get the information for.
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
+    async fn get_object_stream_impl<T: S3ManagerOps>(
+        &self,
         key: &str,
+        aws_operations: &T,
     ) -> Result<ByteStream, GetObjectStreamError> {
-        let res = client.get_object().bucket(bucket).key(key).send().await;
+        let res = aws_operations
+            .get_object_stream_operation(&self.client, &self.bucket, key)
+            .await;
         match res {
             Ok(result) => {
                 return Ok(result.body);
@@ -464,22 +528,25 @@ impl S3Manager {
                 match e {
                     GetObjectError::InvalidObjectState(_) => {
                         return Err(GetObjectStreamError::ObjectUnavailable(GlyphxErrorData::new(
-                            format!("The object {} exists on the bucket {}, but is archived and cannot be accessed", key, bucket),
-                            Some(json!({ "bucket_name": bucket, "key" : key })),
+                            format!("The object {} exists on the bucket {}, but is archived and cannot be accessed", key, self.bucket),
+                            Some(json!({ "bucket_name": self.bucket, "key" : key })),
                             None,
                         )));
                     }
                     GetObjectError::NoSuchKey(_) => {
                         return Err(GetObjectStreamError::KeyDoesNotExist(GlyphxErrorData::new(
-                            format!("The object {} does not exist on the bucket {}", key, bucket),
-                            Some(json!({ "bucket_name": bucket, "key" : key })),
+                            format!(
+                                "The object {} does not exist on the bucket {}",
+                                key, self.bucket
+                            ),
+                            Some(json!({ "bucket_name": self.bucket, "key" : key })),
                             None,
                         )));
                     }
 
                     GetObjectError::Unhandled(unhandled) => {
                         let msg = unhandled.to_string();
-                        let data = json!({ "bucket_name": bucket, "key" : key });
+                        let data = json!({ "bucket_name": self.bucket, "key" : key });
                         return Err(GetObjectStreamError::UnexpectedError(GlyphxErrorData::new(
                             msg,
                             Some(data),
@@ -488,7 +555,7 @@ impl S3Manager {
                     }
                     _ => {
                         let msg = e.meta().message().unwrap().to_string();
-                        let data = json!({ "bucket_name": bucket, "key" : key });
+                        let data = json!({ "bucket_name": self.bucket, "key" : key });
                         return Err(GetObjectStreamError::UnexpectedError(GlyphxErrorData::new(
                             msg,
                             Some(data),
@@ -510,13 +577,12 @@ mod constructor {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
 
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
 
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
         assert!(s3_manager_result.is_ok());
         let s3_manager = s3_manager_result.ok().unwrap();
         assert_eq!(s3_manager.bucket, bucket);
@@ -534,12 +600,11 @@ mod constructor {
     async fn does_not_exist() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(false) }).times(1);
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(false))
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
         assert!(s3_manager_result.is_err());
         let s3_manager = s3_manager_result.err().unwrap();
         let is_invalid: bool;
@@ -562,14 +627,17 @@ mod constructor {
     async fn unexpected_error() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Err(GlyphxErrorData::new(
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| {
+                Err(GlyphxErrorData::new(
                     format!("Error calling head_bucket for bucket"),
                     None,
                     None,
-                )) }).times(1);
-        let s3_manager_result =
-            S3Manager::new_impl(bucket.clone(), &mock_ops)
-            .await;
+                ))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
         assert!(s3_manager_result.is_err());
         let s3_manager = s3_manager_result.err().unwrap();
         let is_invalid: bool;
@@ -593,12 +661,11 @@ mod accessors {
     async fn get_bucket_name() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
         assert!(s3_manager_result.is_ok());
 
         let bucket_name = s3_manager_result.ok().unwrap().get_bucket_name();
@@ -609,16 +676,14 @@ mod accessors {
     async fn get_client() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
         assert!(s3_manager_result.is_ok());
 
         let _client = s3_manager_result.ok().unwrap().get_client();
-    
     }
 }
 
@@ -630,43 +695,36 @@ mod bucket_exists {
     async fn is_ok() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(2);
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(2);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
         assert!(s3_manager_result.is_ok());
         let s3_manager = s3_manager_result.ok().unwrap();
 
-        let bucket_exists_result = s3_manager.bucket_exists_impl(
-            &mock_ops
-        )
-        .await;
+        let bucket_exists_result = s3_manager.bucket_exists_impl(&mock_ops).await;
 
         assert!(bucket_exists_result.is_ok());
-        let bucket_exists = bucket_exists_result.ok().unwrap();
-        assert!(bucket_exists);
     }
 
     #[tokio::test]
     async fn does_not_exist() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().times(1).returning(|_, _| { Ok(true) });
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        mock_ops
+            .expect_bucket_exists_operation()
+            .times(1)
+            .returning(|_, _| Ok(true));
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
 
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().times(1).returning(|_, _| { Ok(false) });
+        mock_ops
+            .expect_bucket_exists_operation()
+            .times(1)
+            .returning(|_, _| Ok(false));
         let s3_manager = s3_manager_result.ok().unwrap();
-        let bucket_exists_result = s3_manager.bucket_exists_impl(
-            &mock_ops
-        )
-        .await;
+        let bucket_exists_result = s3_manager.bucket_exists_impl(&mock_ops).await;
 
         assert!(bucket_exists_result.is_err());
         let bucket_exists = bucket_exists_result.err().unwrap();
@@ -690,24 +748,25 @@ mod bucket_exists {
     async fn unexpected_error() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().times(1).returning(|_, _| { Ok(true) });
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        mock_ops
+            .expect_bucket_exists_operation()
+            .times(1)
+            .returning(|_, _| Ok(true));
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
 
         let s3_manager = s3_manager_result.ok().unwrap();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().times(1).returning(|_, _| { Err(GlyphxErrorData::new(
+        mock_ops
+            .expect_bucket_exists_operation()
+            .times(1)
+            .returning(|_, _| {
+                Err(GlyphxErrorData::new(
                     format!("Error calling head_bucket for bucket "),
                     None,
                     None,
-                )) });
-        let bucket_exists_result = s3_manager.bucket_exists_impl(
-            &mock_ops
-        )
-        .await;
+                ))
+            });
+        let bucket_exists_result = s3_manager.bucket_exists_impl(&mock_ops).await;
 
         assert!(bucket_exists_result.is_err());
         let bucket_exists = bucket_exists_result.err().unwrap();
@@ -732,29 +791,26 @@ mod list_objects {
     async fn return_10_keys() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
-       
-        mock_ops.expect_list_objects_operation().returning(|_, _, _, _| {
-            let mut keys = Vec::new();
-            for i in 0..10 {
-                keys.push(format!("key-{}", i));
-            }
-            Ok((keys, false))
-        }).times(1);
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
-       
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_list_objects_operation()
+            .returning(|_, _, _, _| {
+                let mut keys = Vec::new();
+                for i in 0..10 {
+                    keys.push(format!("key-{}", i));
+                }
+                Ok((keys, false))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+
         let s3_manager = s3_manager_result.ok().unwrap();
 
-        let res = s3_manager.list_objects_impl(
-            None,
-            None,
-            &mock_ops            
-        )
-        .await;
+        let res = s3_manager.list_objects_impl(None, None, &mock_ops).await;
 
         assert!(res.is_ok());
         let keys = res.unwrap();
@@ -765,40 +821,41 @@ mod list_objects {
     async fn truncation() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
-        
-        mock_ops.expect_list_objects_operation().returning(|_, _, _, _| {
-            let mut keys = Vec::new();
-            for i in 0..5 {
-                keys.push(format!("key-{}", i));
-            }
-            Ok((keys, true))
-        }).times(1);
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
 
-        mock_ops.expect_list_objects_operation().returning(|_, _, _, _| {
-            let mut keys = Vec::new();
-            for i in 5..10 {
-                keys.push(format!("key-{}", i));
-            }
-            Ok((keys, false))
-        }).withf(|_, _, _, start_after| {
-            start_after.is_some() && start_after.as_ref().unwrap() == "key-4"
-        }).times(1);
+        mock_ops
+            .expect_list_objects_operation()
+            .returning(|_, _, _, _| {
+                let mut keys = Vec::new();
+                for i in 0..5 {
+                    keys.push(format!("key-{}", i));
+                }
+                Ok((keys, true))
+            })
+            .times(1);
 
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        mock_ops
+            .expect_list_objects_operation()
+            .returning(|_, _, _, _| {
+                let mut keys = Vec::new();
+                for i in 5..10 {
+                    keys.push(format!("key-{}", i));
+                }
+                Ok((keys, false))
+            })
+            .withf(|_, _, _, start_after| {
+                start_after.is_some() && start_after.as_ref().unwrap() == "key-4"
+            })
+            .times(1);
+
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
 
         let s3_manager = s3_manager_result.ok().unwrap();
 
-        let res = s3_manager.list_objects_impl(
-            None,
-            None,
-            &mock_ops
-        )
-        .await;
+        let res = s3_manager.list_objects_impl(None, None, &mock_ops).await;
 
         assert!(res.is_ok());
         let keys = res.unwrap();
@@ -809,18 +866,25 @@ mod list_objects {
     async fn truncation_error() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
 
-        mock_ops.expect_list_objects_operation().returning(|_, _, _, _| {
-            let mut keys = Vec::new();
-            for i in 0..5 {
-                keys.push(format!("key-{}", i));
-            }
-            Ok((keys, true))
-        }).times(1);
+        mock_ops
+            .expect_list_objects_operation()
+            .returning(|_, _, _, _| {
+                let mut keys = Vec::new();
+                for i in 0..5 {
+                    keys.push(format!("key-{}", i));
+                }
+                Ok((keys, true))
+            })
+            .times(1);
 
-        mock_ops.expect_list_objects_operation().returning(|_, _, _, _| {
-          
+        mock_ops
+            .expect_list_objects_operation()
+            .returning(|_, _, _, _| {
                 Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
                     "Error listing objects".to_string(),
                     None,
@@ -836,12 +900,7 @@ mod list_objects {
 
         let s3_manager = s3_manager_result.ok().unwrap();
 
-        let res = s3_manager.list_objects_impl(
-            None,
-            None,
-            &mock_ops
-        )
-        .await;
+        let res = s3_manager.list_objects_impl(None, None, &mock_ops).await;
 
         assert!(res.is_err());
 
@@ -861,29 +920,27 @@ mod list_objects {
     async fn bucket_does_not_exist() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
 
-        mock_ops.expect_list_objects_operation().returning(|_, _, _, _| {
+        mock_ops
+            .expect_list_objects_operation()
+            .returning(|_, _, _, _| {
                 Err(ListObjectsError::BucketDoesNotExist(GlyphxErrorData::new(
                     format!("Bucket does not exist"),
                     None,
-                    None,)))
-        }).times(1);
+                    None,
+                )))
+            })
+            .times(1);
 
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
 
         let s3_manager = s3_manager_result.ok().unwrap();
 
-        let res = s3_manager.list_objects_impl(
-            None,
-            None,
-            &mock_ops
-        )
-        .await;
+        let res = s3_manager.list_objects_impl(None, None, &mock_ops).await;
 
         assert!(res.is_err());
         let err = res.err().unwrap();
@@ -907,31 +964,27 @@ mod list_objects {
     async fn unexpected_error() {
         let bucket = "jps-test-bucket".to_string();
         let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops.expect_bucket_exists_operation().returning(|_, _| { Ok(true) }).times(1);
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
 
-
-        mock_ops.expect_list_objects_operation().returning(|_, _, _, _| {
-Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
+        mock_ops
+            .expect_list_objects_operation()
+            .returning(|_, _, _, _| {
+                Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
                     format!("Unexpected error listing objects in bucket "),
                     None,
                     None,
                 )))
-        }).times(1);
+            })
+            .times(1);
 
-        let s3_manager_result = S3Manager::new_impl(
-            bucket.clone(),
-            &mock_ops
-        )
-        .await;
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
 
         let s3_manager = s3_manager_result.ok().unwrap();
 
-        let res = s3_manager.list_objects_impl(
-            None,
-            None,
-            &mock_ops
-        )
-        .await;
+        let res = s3_manager.list_objects_impl(None, None, &mock_ops).await;
 
         assert!(res.is_err());
         let err = res.err().unwrap();
@@ -945,5 +998,408 @@ Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
             }
         }
         assert!(is_invalid);
+    }
+}
+
+#[cfg(test)]
+pub mod get_file_information {
+    use super::*;
+    use aws_sdk_s3::primitives::{DateTimeFormat, DateTime};
+    use aws_sdk_s3::types::error::NotFound;
+    use aws_smithy_http::body::SdkBody;
+    use aws_smithy_http::operation::Response;
+    use aws_smithy_types::error::metadata::ErrorMetadata;
+    use aws_smithy_types::error::Unhandled;
+    use http;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let file_size = 6300;
+        let modified_date =
+            DateTime::from_str("1972-05-15T00:00:00Z", DateTimeFormat::DateTime).unwrap();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_file_information_operation()
+            .returning(move |_, _, _| {
+                Ok(HeadObjectOutput::builder()
+                    .content_length(file_size.clone() as i64)
+                    .last_modified(modified_date.clone())
+                    .build())
+            })
+            .times(1);
+
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager
+            .get_file_information_impl(&key.clone(), &mock_ops)
+            .await;
+        assert!(res.is_ok());
+        let file_info = res.unwrap();
+        assert_eq!(file_info.file_size, file_size);
+        assert_eq!(file_info.last_modified, modified_date);
+        assert_eq!(file_info.file_name, key);
+    }
+
+    #[tokio::test]
+    async fn bucket_does_not_exist() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_file_information_operation()
+            .returning(move |_, _, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let not_found = NotFound::builder().message("not found").meta(meta).build();
+                let err = HeadObjectError::NotFound(not_found);
+                let inner = http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "application/json")
+                    .body(SdkBody::empty())
+                    .unwrap();
+                Err(SdkError::service_error(err, Response::new(inner)))
+            })
+            .times(1);
+
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager
+            .get_file_information_impl(&key.clone(), &mock_ops)
+            .await;
+        assert!(res.is_err());
+        let is_not_found = match res.err().unwrap() {
+            GetFileInformationError::KeyDoesNotExist(_) => true,
+            _ => false,
+        };
+        assert!(is_not_found);
+    }
+
+    #[tokio::test]
+    async fn unhandled_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_file_information_operation()
+            .returning(move |_, _, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let unhandled = Unhandled::builder().source("not found").meta(meta).build();
+                let err = HeadObjectError::Unhandled(unhandled);
+                let inner = http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "application/json")
+                    .body(SdkBody::empty())
+                    .unwrap();
+                Err(SdkError::service_error(err, Response::new(inner)))
+            })
+            .times(1);
+
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager
+            .get_file_information_impl(&key.clone(), &mock_ops)
+            .await;
+        assert!(res.is_err());
+        let is_unhandled = match res.err().unwrap() {
+            GetFileInformationError::UnexpectedError(_) => true,
+            _ => false,
+        };
+        assert!(is_unhandled);
+    }
+}
+
+#[cfg(test)]
+mod get_signed_upload_url {
+    use super::*;
+    use aws_smithy_http::body::SdkBody;
+    use aws_smithy_http::operation::Response;
+    use aws_smithy_types::error::metadata::ErrorMetadata;
+    use http;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        //The underlying call to Request::builder() adds a trailing slash to the uri, so adding
+        //when we define it will allow the asserts to pass.
+        let uri = "https://www.example.com/".to_string();
+        // we need to clone the uri because the mock_ops takes ownership of the uri
+        // and we want to use it again in the assertion
+        let url = uri.clone();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_upload_url_operation()
+            .returning(move |_, _, _, _, _| {
+                Ok(Request::builder()
+                    .method("PUT")
+                    .uri(url.clone())
+                    .body(String::from(""))
+                    .unwrap())
+            })
+            .withf(|_, _, _, expires_in, _| {
+                // 5 minutes the default
+                expires_in.as_secs() == 300
+            })
+            .times(1);
+
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager
+            .get_signed_upload_url_impl(&key, None, None, &mock_ops)
+            .await;
+        assert!(res.is_ok());
+        let url = res.unwrap();
+        assert_eq!(url, uri);
+    }
+    #[tokio::test]
+    async fn unhandled_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        //The underlying call to Request::builder() adds a trailing slash to the uri, so adding
+        //when we define it will allow the asserts to pass.
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_upload_url_operation()
+            .returning(move |_, _, _, _, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let err = PutObjectError::generic(meta);
+                let inner = http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "application/json")
+                    .body(SdkBody::empty())
+                    .unwrap();
+                Err(SdkError::service_error(err, Response::new(inner)))
+            })
+            .times(1);
+
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager
+            .get_signed_upload_url_impl(&key, None, None, &mock_ops)
+            .await;
+        assert!(res.is_err());
+        //It seems like we could just check to see if res.is_err() is true, but this pattern
+        //will trip us up if someone adds an error type to GetSignedUploadUrlError.  In effect
+        //if we add an error type then our test will pass for any error.  So this will make sure
+        //that we are handling all of the error types.
+        let is_unhandled = match res.err().unwrap() {
+            GetSignedUploadUrlError::UnexpectedError(_) => true,
+        };
+        assert!(is_unhandled);
+    }
+}
+
+#[cfg(test)]
+mod get_object_stream {
+    use super::*;
+    use aws_sdk_s3::types::error::{InvalidObjectState, NoSuchKey};
+    use aws_smithy_http::body::SdkBody;
+    use aws_smithy_http::operation::Response;
+    use aws_smithy_types::error::metadata::ErrorMetadata;
+    use aws_smithy_types::error::Unhandled;
+    use http;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let file_contents = String::from("These are my test file contents");
+        let file_contents_clone = file_contents.clone();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_object_stream_operation()
+            .returning(move |_, _, _| {
+                let mut vec_u8 = Vec::new();
+                for byte in file_contents_clone.as_bytes() {
+                    vec_u8.push(byte.clone());
+                }
+
+                Ok(GetObjectOutput::builder()
+                    .body(ByteStream::from(vec_u8))
+                    .build())
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.get_object_stream_impl(&key, &mock_ops).await;
+        assert!(res.is_ok());
+        let stream = res.unwrap();
+
+        let buf = stream.collect().await.unwrap().to_vec();
+
+        let result = String::from_utf8(buf).unwrap();
+        assert_eq!(result, file_contents);
+    }
+
+    #[tokio::test]
+    async fn is_invalid_state_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_object_stream_operation()
+            .returning(move |_, _, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let invalid_state = InvalidObjectState::builder()
+                    .message("an error has occurred")
+                    .meta(meta)
+                    .build();
+                let err = GetObjectError::InvalidObjectState(invalid_state);
+                let inner = http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "application/json")
+                    .body(SdkBody::empty())
+                    .unwrap();
+                Err(SdkError::service_error(err, Response::new(inner)))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.get_object_stream_impl(&key, &mock_ops).await;
+        assert!(res.is_err());
+        let is_invalid_state = match res.err().unwrap() {
+            GetObjectStreamError::ObjectUnavailable(_) => true,
+            _ => false,
+        };
+        assert!(is_invalid_state);
+    }
+
+    #[tokio::test]
+    async fn is_object_not_found_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_object_stream_operation()
+            .returning(move |_, _, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let not_found = NoSuchKey::builder()
+                    .message("an error has occurred")
+                    .meta(meta)
+                    .build();
+                let err = GetObjectError::NoSuchKey(not_found);
+                let inner = http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "application/json")
+                    .body(SdkBody::empty())
+                    .unwrap();
+                Err(SdkError::service_error(err, Response::new(inner)))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.get_object_stream_impl(&key, &mock_ops).await;
+        assert!(res.is_err());
+        let is_not_found = match res.err().unwrap() {
+            GetObjectStreamError::KeyDoesNotExist(_) => true,
+            _ => false,
+        };
+        assert!(is_not_found);
+    }
+
+    #[tokio::test]
+    async fn is_unexpected_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_object_stream_operation()
+            .returning(move |_, _, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let unhandled = Unhandled::builder()
+                    .meta(meta)
+                    .source("an error has occurred")
+                    .build();
+                let err = GetObjectError::Unhandled(unhandled);
+                let inner = http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "application/json")
+                    .body(SdkBody::empty())
+                    .unwrap();
+                Err(SdkError::service_error(err, Response::new(inner)))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.get_object_stream_impl(&key, &mock_ops).await;
+        assert!(res.is_err());
+        let is_unexpected = match res.err().unwrap() {
+            GetObjectStreamError::UnexpectedError(_) => true,
+            _ => false,
+        };
+        assert!(is_unexpected);
     }
 }
