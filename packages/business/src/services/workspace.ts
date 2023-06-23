@@ -800,4 +800,38 @@ export class WorkspaceService {
       }
     }
   }
+
+  public static async addTags(
+    workspaceId: mongooseTypes.ObjectId | string,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> {
+    try {
+      const id =
+        workspaceId instanceof mongooseTypes.ObjectId
+          ? workspaceId
+          : new mongooseTypes.ObjectId(workspaceId);
+      const updatedWorkspace =
+        await mongoDbConnection.models.WorkspaceModel.addTags(id, tags);
+
+      return updatedWorkspace;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding tags to the workspace. See the inner error for additional details',
+          'workspace',
+          'addTags',
+          {id: workspaceId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
 }
