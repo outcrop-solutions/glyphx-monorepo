@@ -10,16 +10,14 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
-  isTemplate: false,
-  type: new mongooseTypes.ObjectId(),
+  template: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };
 
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
-  isTemplate: false,
-  type: new mongooseTypes.ObjectId(),
+  template: new mongooseTypes.ObjectId(),
   owner: new mongooseTypes.ObjectId(),
   files: [],
 };

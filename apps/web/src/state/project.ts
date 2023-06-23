@@ -15,8 +15,7 @@ import { database as databaseTypes, web as webTypes, fileIngestion as fileIngest
  *    lastOpened?: Date;
  *    currentVersion: number;
  *    slug?: string;
- *    isTemplate: Boolean;
- *    type?: {
+ *    template?: {
  *          createdAt: Date;
  *          updatedAt: Date;
  *          name: string;
