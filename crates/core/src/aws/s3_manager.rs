@@ -8,6 +8,7 @@ use aws_sdk_s3::primitives::ByteStream;
 use aws_sdk_s3::{presigning::PresigningConfig, Client as S3Client};
 
 use aws_sdk_s3::error::SdkError;
+use aws_sdk_s3::operation::delete_object::{DeleteObjectError, DeleteObjectOutput};
 use aws_sdk_s3::operation::get_object::{GetObjectError, GetObjectOutput};
 use aws_sdk_s3::operation::head_object::{HeadObjectError, HeadObjectOutput};
 use aws_sdk_s3::operation::put_object::PutObjectError;
@@ -76,6 +77,13 @@ trait S3ManagerOps {
         bucket_name: &str,
         key: &str,
     ) -> Result<UploadStream, UploadStreamConstructorError>;
+
+    async fn remove_object_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<DeleteObjectOutput, SdkError<DeleteObjectError>>;
 }
 
 ///Our internal/production implementation of the S3ManagerOps trait.
@@ -224,6 +232,7 @@ impl S3ManagerOps for S3ManagerOpsImpl {
         client.get_object().bucket(bucket).key(key).send().await
     }
 
+    ///Makes the call to the UploadConstructor::new to get a new UploadStream.
     async fn get_upload_stream_operation(
         &self,
         client: &S3Client,
@@ -231,6 +240,16 @@ impl S3ManagerOps for S3ManagerOpsImpl {
         key: &str,
     ) -> Result<UploadStream, UploadStreamConstructorError> {
         UploadStream::new(bucket_name, key, client.clone()).await
+    }
+
+    ///Will handle the calls to delete_object to delete an object from S3.
+    async fn remove_object_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<DeleteObjectOutput, SdkError<DeleteObjectError>> {
+        client.delete_object().bucket(bucket).key(key).send().await
     }
 }
 
@@ -318,17 +337,23 @@ impl S3Manager {
         self.get_object_stream_impl(key, &S3ManagerOpsImpl {}).await
     }
 
-    /// Will return an UploadStream that wraps the AWs S3 Multipart upload.  This will allow us to 
+    /// Will return an UploadStream that wraps the AWs S3 Multipart upload.  This will allow us to
     /// write data as we consume it with out having to buffer the entire file in memory.  This uses our
     /// get_upload_stream_impl function which uses dependency injection to inject the calls to S3.  In this manner, we can fully
     /// test the get_upload_stream logic with no down stream effects.  This function just wraps our impl call.
     /// # Arguments
     /// * `key` - A String that represents the key of the file that we want to upload.
-    pub async fn get_upload_stream(
-        &self,
-        key: &str,
-    ) -> Result<UploadStream, GetUploadStreamError> {
+    pub async fn get_upload_stream(&self, key: &str) -> Result<UploadStream, GetUploadStreamError> {
         self.get_upload_stream_impl(key, &S3ManagerOpsImpl {}).await
+    }
+
+    /// Will remove a file from the S3 bucket.  This uses our remove_file_impl function
+    /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the remove_file logic with no down stream effects.  This function just wraps our impl call.
+    /// # Arguments
+    /// * `key` - A String that represents the key of the file that we want to remove.
+    pub async fn remove_object(&self, key: &str) -> Result<(), RemoveObjectError> {
+        self.remove_object_impl(key, &S3ManagerOpsImpl {}).await
     }
 
     /// Our private new_impl function that will return an S3Manager.
@@ -616,7 +641,9 @@ impl S3Manager {
 
         if res.is_err() {
             let inner_data = match res.err().unwrap() {
-                UploadStreamConstructorError::UnexpectedError(e) => serde_json::to_value(e).unwrap(),
+                UploadStreamConstructorError::UnexpectedError(e) => {
+                    serde_json::to_value(e).unwrap()
+                }
             };
 
             let inner_err = json!({ "unexpected": inner_data });
@@ -625,6 +652,36 @@ impl S3Manager {
         }
 
         Ok(res.unwrap())
+    }
+
+    /// The implementation for our delete_object call.  This function will take a
+    /// S3ManagerOps trait to make the actual calls to AWS.
+    /// # Arguments
+    /// * `key` - A String that represents the filename to delete.
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
+    async fn remove_object_impl<T: S3ManagerOps>(
+        &self,
+        key: &str,
+        aws_operations: &T,
+    ) -> Result<(), RemoveObjectError> {
+        let res = aws_operations
+            .remove_object_operation(&self.client, &self.bucket, key)
+            .await;
+        match res {
+            Ok(_) => {
+                return Ok(());
+            }
+            Err(e) => {
+                let e = e.into_service_error();
+                let msg = e.meta().to_string();
+                let data = json!({ "bucket_name": self.bucket, "key" : key });
+                return Err(RemoveObjectError::UnexpectedError(GlyphxErrorData::new(
+                    msg,
+                    Some(data),
+                    None,
+                )));
+            }
+        }
     }
 }
 
@@ -1480,9 +1537,7 @@ mod get_upload_stream {
 
         mock_ops
             .expect_get_upload_stream_operation()
-            .returning(|client, _, _| {
-                Ok(UploadStream::empty(client.clone()))
-            })
+            .returning(|client, _, _| Ok(UploadStream::empty(client.clone())))
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
         let s3_manager = s3_manager_result.ok().unwrap();
@@ -1490,7 +1545,6 @@ mod get_upload_stream {
         let res = s3_manager.get_upload_stream_impl(&key, &mock_ops).await;
         assert!(res.is_ok());
     }
-
 
     #[tokio::test]
     async fn is_unexpected_error() {
@@ -1506,7 +1560,11 @@ mod get_upload_stream {
             .expect_get_upload_stream_operation()
             .returning(|_, _, _| {
                 Err(UploadStreamConstructorError::UnexpectedError(
-                    GlyphxErrorData::new("an error has occurred".to_string(), Some(json!({"foo": "bar"})), None),
+                    GlyphxErrorData::new(
+                        "an error has occurred".to_string(),
+                        Some(json!({"foo": "bar"})),
+                        None,
+                    ),
                 ))
             })
             .times(1);
@@ -1517,11 +1575,71 @@ mod get_upload_stream {
         assert!(res.is_err());
         let is_unexpected = match res.as_ref().err().unwrap() {
             GetUploadStreamError::UnexpectedError(_) => true,
-          
         };
         let log_data = match res.err().unwrap() {
             GetUploadStreamError::UnexpectedError(e) => e,
-          
+        };
+        assert!(is_unexpected);
+    }
+}
+
+#[cfg(test)]
+mod remove_object {
+    use super::*;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_remove_object_operation()
+            .returning(|_, _, _| Ok(DeleteObjectOutput::builder().build()))
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.remove_object_impl(&key, &mock_ops).await;
+        assert!(res.is_ok());
+    }
+
+    #[tokio::test]
+    async fn is_unexpected_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_get_upload_stream_operation()
+            .returning(|_, _, _| {
+                Err(UploadStreamConstructorError::UnexpectedError(
+                    GlyphxErrorData::new(
+                        "an error has occurred".to_string(),
+                        Some(json!({"foo": "bar"})),
+                        None,
+                    ),
+                ))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.get_upload_stream_impl(&key, &mock_ops).await;
+        assert!(res.is_err());
+        let is_unexpected = match res.as_ref().err().unwrap() {
+            GetUploadStreamError::UnexpectedError(_) => true,
+        };
+        let log_data = match res.err().unwrap() {
+            GetUploadStreamError::UnexpectedError(e) => e,
         };
         assert!(is_unexpected);
     }
