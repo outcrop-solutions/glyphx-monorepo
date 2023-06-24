@@ -23,6 +23,15 @@ pub enum BucketExistsError {
     UnexpectedError(GlyphxErrorData),
 }
 
+/// The file_exists method returns Ok(()) if the file exists.  
+/// If it does not exist or an error occurres, then this error is returned.
+#[derive(Debug)]
+pub enum FileExistsError {
+    /// is retruned if the file does not exist.
+    FileDoesNotExist(GlyphxErrorData),
+    /// is returned for all other error conditions.
+    UnexpectedError(GlyphxErrorData),
+}
 ///This list_objects method returns the list of objects and this error should an error condition
 ///arise.
 #[derive(Debug)]

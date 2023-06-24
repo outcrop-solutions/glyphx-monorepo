@@ -40,6 +40,13 @@ trait S3ManagerOps {
         bucket: &str,
     ) -> Result<bool, GlyphxErrorData>;
 
+    async fn file_exists_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<bool, GlyphxErrorData>;
+
     async fn list_objects_operation(
         &self,
         client: &S3Client,
@@ -63,6 +70,7 @@ trait S3ManagerOps {
         expires_in: Duration,
         content_type: Option<String>,
     ) -> Result<Request<String>, SdkError<PutObjectError>>;
+
     async fn get_object_stream_operation(
         &self,
         client: &S3Client,
@@ -122,6 +130,40 @@ impl S3ManagerOps for S3ManagerOpsImpl {
         }
     }
 
+    /// Our private file_exists_operation function that will return a boolean if the file
+    /// exists and false if it does not.  This can be used by any function which wants
+    /// to determine whether or not a file exists.  This operation actaully makes the call to
+    /// S3.
+    /// # Arguments
+    /// * `client` - An S3Client that will be used to make the call to S3.
+    /// * `bucket` - A String that represents the bucket name that we want to operate on.
+    /// * `key` - A String that represents the key name that we want to operate on.
+    async fn file_exists_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+    ) -> Result<bool, GlyphxErrorData> {
+        let head_result = client.head_object().bucket(bucket).key(key).send().await;
+        if head_result.is_err() {
+            let e = head_result.err().unwrap();
+            let e = e.into_service_error();
+            if e.is_not_found() {
+                return Ok(false);
+            } else {
+                let msg = e.meta().message().unwrap().to_string();
+                let data = json!({ "bucket_name": bucket, "key": key });
+                warn!(
+                    "Error calling head_bucket for bucket {}, error : {} ",
+                    bucket, e
+                );
+                Err(GlyphxErrorData::new(msg, Some(data), None))
+            }
+        } else {
+            Ok(true)
+        }
+    }
+    
     /// Our private list_objects_operation function that will return a vector of keys and a boolean
     /// indicating whether or not the result is truncated.  This can be used by any function which wants
     /// to list objects in a bucket.  This operation actaully makes the call to S3.
@@ -275,11 +317,18 @@ impl S3Manager {
         self.client.clone()
     }
 
-    /// Our public bucket_exists function that will return a bool.  This uses our bucket_exists_impl function
+    /// Our public bucket_exists function that will return Ok(()) .  This uses our bucket_exists_impl function
     /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
     /// test the bucket_exists logic with no down stream effects.  This function just wraps our impl call.
     pub async fn bucket_exists(&self) -> Result<(), BucketExistsError> {
         self.bucket_exists_impl(&S3ManagerOpsImpl {}).await
+    }
+
+    /// Our public file_exists function that will return a Ok(()).  This uses our file_exists_impl function
+    /// which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the bucket_exists logic with no down stream effects.  This function just wraps our impl call.
+    pub async fn file_exists(&self, key: &str) -> Result<(), FileExistsError> {
+        self.file_exists_impl(key, &S3ManagerOpsImpl {}).await
     }
 
     /// Our public list_objects function that will return a `Vec<String>` of all of the keys in a bucket.
@@ -388,12 +437,10 @@ impl S3Manager {
         };
         Ok(s3_manager)
     }
-    ///Our private bucket_exists_operation function that will return a bool indicating if the bucket exists.
+    ///Our private bucket_exists_impl function that will return a bool indicating if the bucket exists.
     ///This function takes an aws_operations function that will be used to make the actual call to S3.
     ///This will allow us to inject the call to S3 so that we can fully test this function.
     /// # Arguments
-    /// * `client` - An S3Client that will be used to make the call to S3.
-    /// * `bucket` - A String that represents the bucket name that we want to operate on.
     /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
     async fn bucket_exists_impl<T: S3ManagerOps>(
         &self,
@@ -414,6 +461,37 @@ impl S3Manager {
             }
             Err(e) => {
                 return Err(BucketExistsError::UnexpectedError(e));
+            }
+        };
+        Ok(())
+    }
+
+    ///Our private file_exists_impl function that will return a bool indicating if the file exists.
+    ///This function takes an aws_operations function that will be used to make the actual call to S3.
+    ///This will allow us to inject the call to S3 so that we can fully test this function.
+    /// # Arguments
+    /// * `key` - A String that represents the key of the file that we want to check.
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
+    async fn file_exists_impl<T: S3ManagerOps>(
+        &self,
+        key: &str,
+        aws_operations: &T,
+    ) -> Result<(), FileExistsError> {
+        let result = aws_operations
+            .file_exists_operation(&self.client, &self.bucket, key)
+            .await;
+        match result {
+            Ok(exists) => {
+                if !exists {
+                    return Err(FileExistsError::FileDoesNotExist(GlyphxErrorData::new(
+                        format!("Bucket {} does not exist", self.bucket),
+                        Some(json!({ "bucket_name": self.bucket, "key": key })),
+                        None,
+                    )));
+                }
+            }
+            Err(e) => {
+                return Err(FileExistsError::UnexpectedError(e));
             }
         };
         Ok(())
@@ -889,6 +967,109 @@ mod bucket_exists {
         let is_invalid: bool;
         match bucket_exists {
             BucketExistsError::UnexpectedError(_) => {
+                is_invalid = true;
+            }
+            _ => {
+                panic!("Expected Unexpected error");
+            }
+        }
+        assert!(is_invalid);
+    }
+}
+
+#[cfg(test)]
+mod file_exists {
+    use super::*;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+        mock_ops
+            .expect_file_exists_operation()
+            .returning(|_, _, _| Ok(true))
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        assert!(s3_manager_result.is_ok());
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let file_exists_result = s3_manager.file_exists_impl(&key, &mock_ops).await;
+
+        assert!(file_exists_result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn does_not_exist() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .times(1)
+            .returning(|_, _| Ok(true));
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_file_exists_operation()
+            .times(1)
+            .returning(|_, _, _| Ok(false));
+        let s3_manager = s3_manager_result.ok().unwrap();
+        let file_exists_result = s3_manager.file_exists_impl(&key, &mock_ops).await;
+
+        assert!(file_exists_result.is_err());
+        let file_exists = file_exists_result.err().unwrap();
+        let is_invalid: bool;
+        match file_exists {
+            FileExistsError::FileDoesNotExist(_) => {
+                is_invalid = true;
+            }
+            _ => {
+                panic!("Expected FileDoesNotExist error");
+            }
+        }
+        assert!(is_invalid);
+
+        //test our Debug trait to satisfy code coverage.
+        let debug_fmt = format!("{:?}", file_exists);
+        assert!(debug_fmt.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn unexpected_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .times(1)
+            .returning(|_, _| Ok(true));
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+
+        let s3_manager = s3_manager_result.ok().unwrap();
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_file_exists_operation()
+            .times(1)
+            .returning(|_, _, _| {
+                Err(GlyphxErrorData::new(
+                    format!("Error calling head_object for key "),
+                    None,
+                    None,
+                ))
+            });
+        let file_exists_result = s3_manager.file_exists_impl(&key, &mock_ops).await;
+
+        assert!(file_exists_result.is_err());
+        let file_exists = file_exists_result.err().unwrap();
+        let is_invalid: bool;
+        match file_exists {
+            FileExistsError::UnexpectedError(_) => {
                 is_invalid = true;
             }
             _ => {
@@ -1574,9 +1755,6 @@ mod get_upload_stream {
         assert!(res.is_err());
         let is_unexpected = match res.as_ref().err().unwrap() {
             GetUploadStreamError::UnexpectedError(_) => true,
-        };
-        let log_data = match res.err().unwrap() {
-            GetUploadStreamError::UnexpectedError(e) => e,
         };
         assert!(is_unexpected);
     }
