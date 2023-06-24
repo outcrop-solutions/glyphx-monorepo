@@ -39,10 +39,10 @@ export type {IProjectDocument} from './iProjectDocument';
 export type {IProjectMethods} from './iProjectMethods';
 export type {IProjectStaticMethods} from './iProjectStaticMethods';
 
-// ProjectType
-export type {IProjectTypeDocument} from './iProjectTypeDocument';
-export type {IProjectTypeMethods} from './iProjectTypeMethods';
-export type {IProjectTypeStaticMethods} from './iProjectTypeStaticMethods';
+// ProjectTemplate
+export type {IProjectTemplateDocument} from './iProjectTemplateDocument';
+export type {IProjectTemplateMethods} from './iProjectTemplateMethods';
+export type {IProjectTemplateStaticMethods} from './iProjectTemplateStaticMethods';
 
 // Session
 export type {ISessionCreateInput} from './iSessionCreateInput';
@@ -55,6 +55,12 @@ export type {IStateCreateInput} from './iStateCreateInput';
 export type {IStateDocument} from './iStateDocument';
 export type {IStateMethods} from './iStateMethods';
 export type {IStateStaticMethods} from './iStateStaticMethods';
+
+// Tags
+export type {ITagCreateInput} from './iTagCreateInput';
+export type {ITagDocument} from './iTagDocument';
+export type {ITagMethods} from './iTagMethods';
+export type {ITagStaticMethods} from './iTagStaticMethods';
 
 // User
 export type {IUserStaticMethods} from './iUserStaticMethods';

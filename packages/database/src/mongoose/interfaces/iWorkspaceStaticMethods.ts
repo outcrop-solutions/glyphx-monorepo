@@ -51,6 +51,9 @@ export interface IWorkspaceStaticMethods
   validateStates(
     states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
+  validateTags(
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
   addStates(
     workspaceId: mongooseTypes.ObjectId,
     states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
@@ -66,5 +69,13 @@ export interface IWorkspaceStaticMethods
   removeMembers(
     workspaceId: mongooseTypes.ObjectId,
     members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace>;
+  addTags(
+    workspaceId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace>;
+  removeTags(
+    workspaceId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IWorkspace>;
 }

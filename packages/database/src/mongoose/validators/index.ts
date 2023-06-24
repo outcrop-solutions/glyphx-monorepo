@@ -1,1 +1,1 @@
-export {projectTypeShapeValidator} from './projectTypeShapeValidator';
+export {projectTemplateShapeValidator} from './projectTemplateShapeValidator';

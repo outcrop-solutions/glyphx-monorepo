@@ -10,7 +10,7 @@ import { _createDefaultProject, _deleteProject, _updateProjectState } from 'lib/
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericGet, genericPatch } from './utilities/genericReqs';
 import { database as databaseTypes, fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
-import {Types as mongooseTypes} from 'mongoose';
+import { Types as mongooseTypes } from 'mongoose';
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
 // const handler: typeof deactivate & { config?: PageConfig } = deactivate;
@@ -144,10 +144,9 @@ const MOCK_PROJECT: databaseTypes.IProject = {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
-  isTemplate: false,
-  type: {
+  template: {
     _id: new mongooseTypes.ObjectId(),
-  } as unknown as databaseTypes.IProjectType,
+  } as unknown as databaseTypes.IProjectTemplate,
   stateHistory: [],
   members: [],
   state: {

@@ -8,6 +8,7 @@ import {UserModel} from '../../../mongoose/models/user';
 import {MemberModel} from '../../../mongoose/models/member';
 import {ProjectModel} from '../../../mongoose/models/project';
 import {StateModel} from '../../../mongoose/models/state';
+import {TagModel} from '../../../mongoose/models';
 
 const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   createdAt: new Date(),
@@ -22,6 +23,7 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   } as unknown as databaseTypes.IUser,
   members: [],
   states: [],
+  tags: [],
   projects: [],
 };
 
@@ -95,6 +97,11 @@ describe('#mongoose/models/workspace', () => {
     it('will create an workspace document', async () => {
       sandbox.replace(
         WorkspaceModel,
+        'validateTags',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves([])
       );
@@ -138,6 +145,11 @@ describe('#mongoose/models/workspace', () => {
     it('will create an workspace document with nullish coallesce', async () => {
       sandbox.replace(
         WorkspaceModel,
+        'validateTags',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves([])
       );
@@ -178,6 +190,12 @@ describe('#mongoose/models/workspace', () => {
       assert.isTrue(stub.calledOnce);
     });
     it('will rethrow a DataValidationError when a validator throws one', async () => {
+      sandbox.replace(
+        WorkspaceModel,
+        'validateTags',
+        sandbox.stub().resolves([])
+      );
+
       sandbox.replace(
         WorkspaceModel,
         'validateProjects',
@@ -234,6 +252,11 @@ describe('#mongoose/models/workspace', () => {
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       sandbox.replace(
         WorkspaceModel,
+        'validateTags',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves()
       );
@@ -281,6 +304,11 @@ describe('#mongoose/models/workspace', () => {
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
       sandbox.replace(
         WorkspaceModel,
+        'validateTags',
+        sandbox.stub().resolves([])
+      );
+      sandbox.replace(
+        WorkspaceModel,
         'validateProjects',
         sandbox.stub().resolves()
       );
@@ -320,6 +348,11 @@ describe('#mongoose/models/workspace', () => {
       assert.isTrue(hasError);
     });
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
+      sandbox.replace(
+        WorkspaceModel,
+        'validateTags',
+        sandbox.stub().resolves([])
+      );
       sandbox.replace(
         WorkspaceModel,
         'validateProjects',
@@ -924,6 +957,105 @@ describe('#mongoose/models/workspace', () => {
       let errored = false;
       try {
         await WorkspaceModel.validateMembers(inputMembers);
+      } catch (err: any) {
+        assert.strictEqual(err.name, errorText);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('validate tags', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return an array of ids when the tags can be validated', async () => {
+      const inputTags = [
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ITag,
+        {
+          _id: new mongoose.Types.ObjectId(),
+        } as unknown as databaseTypes.ITag,
+      ];
+
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.resolves(true);
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      const results = await WorkspaceModel.validateTags(inputTags);
+
+      assert.strictEqual(results.length, inputTags.length);
+      results.forEach(r => {
+        const foundId = inputTags.find(p => p._id?.toString() === r.toString());
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should return an array of ids when the tagIds can be validated ', async () => {
+      const inputTags = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.resolves(true);
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      const results = await WorkspaceModel.validateTags(inputTags);
+
+      assert.strictEqual(results.length, inputTags.length);
+      results.forEach(r => {
+        const foundId = inputTags.find(p => p._id?.toString() === r.toString());
+        assert.isOk(foundId);
+      });
+    });
+
+    it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
+      const inputTags = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'the user ids cannot be found',
+          'userIds',
+          inputTags
+        )
+      );
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.validateTags(inputTags);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataValidationError);
+        assert.instanceOf(err.innerError, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('should rethrow an error from the underlying connection', async () => {
+      const inputTags = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const errorText = 'something bad has happened';
+
+      const allTagIdsExistStub = sandbox.stub();
+      allTagIdsExistStub.rejects(errorText);
+      sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.validateTags(inputTags);
       } catch (err: any) {
         assert.strictEqual(err.name, errorText);
         errored = true;
@@ -1985,6 +2117,408 @@ describe('#mongoose/models/workspace', () => {
       let errored = false;
       try {
         await WorkspaceModel.removeMembers(orgId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('addTags', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add a tag to an workspace', async () => {
+      const orgId = new mongoose.Types.ObjectId();
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockOrg._id = orgId;
+      const tagId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockOrg);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const validateTagsStub = sandbox.stub();
+      validateTagsStub.resolves([tagId]);
+      sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockOrg);
+      localMockOrg.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockOrg);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      const updatedWorkspace = await WorkspaceModel.addTags(orgId, [tagId]);
+
+      assert.strictEqual(updatedWorkspace._id, orgId);
+      assert.strictEqual(updatedWorkspace.tags[0].toString(), tagId.toString());
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateTagsStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
+    });
+
+    it('will not save when a tag is already attached to a workspace', async () => {
+      const orgId = new mongoose.Types.ObjectId();
+      const localMockOrg = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockOrg._id = orgId;
+      const tagId = new mongoose.Types.ObjectId();
+      localMockOrg.tags.push(tagId);
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockOrg);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const validateTagsStub = sandbox.stub();
+      validateTagsStub.resolves([tagId]);
+      sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockOrg);
+      localMockOrg.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockOrg);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      const updatedWorkspace = await WorkspaceModel.addTags(orgId, [tagId]);
+
+      assert.strictEqual(updatedWorkspace._id, orgId);
+      assert.strictEqual(updatedWorkspace.tags[0].toString(), tagId.toString());
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(validateTagsStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the workspace does not exist', async () => {
+      const orgId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = orgId;
+      const tagId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const validateTagsStub = sandbox.stub();
+      validateTagsStub.resolves([tagId]);
+      sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getOrgByIdStub = sandbox.stub();
+      getOrgByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getOrgByIdStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.addTags(orgId, [tagId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data validation error when tag id does not exist', async () => {
+      const orgId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = orgId;
+      const tagId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const validateTagsStub = sandbox.stub();
+      validateTagsStub.rejects(
+        new error.DataValidationError(
+          'The projects id does not exist',
+          'projectId',
+          tagId
+        )
+      );
+      sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.addTags(orgId, [tagId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = workspaceId;
+      const tagId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const validateTagsStub = sandbox.stub();
+      validateTagsStub.resolves([tagId]);
+      sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.addTags(workspaceId, [tagId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the tags array is empty', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = workspaceId;
+      const tagId = new mongoose.Types.ObjectId();
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const validateTagsStub = sandbox.stub();
+      validateTagsStub.resolves([tagId]);
+      sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.addTags(workspaceId, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('removeTags', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will remove a tag from the workspace', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = workspaceId;
+      const tagId = new mongoose.Types.ObjectId();
+      localMockWorkspace.tags.push(tagId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      const updatedWorkspace = await WorkspaceModel.removeTags(workspaceId, [
+        tagId,
+      ]);
+
+      assert.strictEqual(updatedWorkspace._id, workspaceId);
+      assert.strictEqual(updatedWorkspace.tags.length, 0);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
+    });
+
+    it('will remove a tag from the workspace passing in an ITag', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = workspaceId;
+      const tagId = new mongoose.Types.ObjectId();
+      localMockWorkspace.tags.push(tagId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      const updatedWorkspace = await WorkspaceModel.removeTags(workspaceId, [
+        {_id: tagId} as unknown as databaseTypes.ITag,
+      ]);
+
+      assert.strictEqual(updatedWorkspace._id, workspaceId);
+      assert.strictEqual(updatedWorkspace.tags.length, 0);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
+    });
+    it('will not modify the tags if the tagids are not on the workspaces tags', async () => {
+      const orgId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = orgId;
+      const tagId = new mongoose.Types.ObjectId();
+      localMockWorkspace.tags.push(tagId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      const updatedWorkspace = await WorkspaceModel.removeTags(orgId, [
+        new mongoose.Types.ObjectId(),
+      ]);
+
+      assert.strictEqual(updatedWorkspace._id, orgId);
+      assert.strictEqual(updatedWorkspace.tags.length, 1);
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isFalse(saveStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdStub.calledOnce);
+    });
+
+    it('will throw a data not found error when the workspace does not exist', async () => {
+      const orgId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = orgId;
+      const tagId = new mongoose.Types.ObjectId();
+      localMockWorkspace.tags.push(tagId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.removeTags(orgId, [tagId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a data operation error when the underlying connection fails', async () => {
+      const workspaceId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = workspaceId;
+      const tagId = new mongoose.Types.ObjectId();
+      localMockWorkspace.tags.push(tagId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.rejects('Something bad has happened');
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.removeTags(workspaceId, [tagId]);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an invalid argument error when the tags array is empty', async () => {
+      const orgId = new mongoose.Types.ObjectId();
+      const localMockWorkspace = JSON.parse(JSON.stringify(MOCK_WORKSPACE));
+      localMockWorkspace._id = orgId;
+      const tagId = new mongoose.Types.ObjectId();
+      localMockWorkspace.tags.push(tagId);
+
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves(localMockWorkspace);
+      localMockWorkspace.save = saveStub;
+
+      const getWorkspaceByIdStub = sandbox.stub();
+      getWorkspaceByIdStub.resolves(localMockWorkspace);
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
+
+      let errored = false;
+      try {
+        await WorkspaceModel.removeTags(orgId, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;

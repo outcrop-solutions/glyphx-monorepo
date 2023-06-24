@@ -68,8 +68,7 @@ const INPUT_DATA = {
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
   organization: {},
   slug: 'testSlug' + UNIQUE_KEY,
-  isTemplate: false,
-  type: {},
+  template: {},
   owner: {},
   state: {},
   files: [],
@@ -78,7 +77,7 @@ const INPUT_DATA = {
 };
 
 const INPUT_PROJECT_TYPE = {
-  name: 'testProjectType' + UNIQUE_KEY,
+  name: 'testProjectTemplate' + UNIQUE_KEY,
   projects: [],
   shape: {field1: {type: 'string', required: true}},
 };
@@ -90,18 +89,18 @@ describe('#ProjectService', () => {
     let projectId: ObjectId;
     let userId: ObjectId;
     let stateId: ObjectId;
-    let projectTypeId: ObjectId;
+    let projectTemplateId: ObjectId;
     let workspaceId: ObjectId;
     let userDocument: any;
     let stateDocument: any;
-    let projectTypeDocument: any;
+    let projectTemplateDocument: any;
     let workspaceDocument: any;
 
     before(async () => {
       await mongoConnection.init();
       const userModel = mongoConnection.models.UserModel;
       const stateModel = mongoConnection.models.StateModel;
-      const projectTypeModel = mongoConnection.models.ProjectTypeModel;
+      const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
@@ -115,17 +114,18 @@ describe('#ProjectService', () => {
 
       assert.isOk(userId);
 
-      await projectTypeModel.create([INPUT_PROJECT_TYPE], {
+      await projectTemplateModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
-      const savedProjectTypeDocument = await projectTypeModel
+      const savedProjectTemplateDocument = await projectTemplateModel
         .findOne({name: INPUT_PROJECT_TYPE.name})
         .lean();
-      projectTypeId = savedProjectTypeDocument?._id as mongooseTypes.ObjectId;
+      projectTemplateId =
+        savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
-      projectTypeDocument = savedProjectTypeDocument;
+      projectTemplateDocument = savedProjectTemplateDocument;
 
-      assert.isOk(projectTypeId);
+      assert.isOk(projectTemplateId);
 
       await stateModel.create([INPUT_STATE], {validateBeforeSave: false});
       const savedStateDocument = await stateModel
@@ -149,7 +149,7 @@ describe('#ProjectService', () => {
 
       assert.isOk(workspaceId);
       INPUT_DATA.owner = userDocument;
-      INPUT_DATA.type = projectTypeDocument;
+      INPUT_DATA.type = projectTemplateDocument;
       INPUT_DATA.state = stateDocument;
       INPUT_DATA.workspace = workspaceDocument;
 
@@ -164,8 +164,8 @@ describe('#ProjectService', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
 
-      const projectTypeModel = mongoConnection.models.ProjectTypeModel;
-      await projectTypeModel.findByIdAndDelete(projectTypeId);
+      const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
+      await projectTemplateModel.findByIdAndDelete(projectTemplateId);
 
       const stateModel = mongoConnection.models.StateModel;
       await stateModel.findByIdAndDelete(stateId);

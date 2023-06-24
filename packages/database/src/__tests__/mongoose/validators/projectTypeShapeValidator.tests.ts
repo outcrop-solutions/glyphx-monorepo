@@ -1,9 +1,9 @@
 import 'mocha';
 import {assert} from 'chai';
-import {projectTypeShapeValidator} from '../../../mongoose/validators';
+import {projectTemplateShapeValidator} from '../../../mongoose/validators';
 
-describe('#mongoose/validators/projectTypeShape', () => {
-  context('projectTypeShapeValidator', () => {
+describe('#mongoose/validators/projectTemplateShape', () => {
+  context('projectTemplateShapeValidator', () => {
     it('Should return true for a valid type', () => {
       const shape = {
         one: {
@@ -16,7 +16,7 @@ describe('#mongoose/validators/projectTypeShape', () => {
         },
       };
 
-      assert.isTrue(projectTypeShapeValidator(shape));
+      assert.isTrue(projectTemplateShapeValidator(shape));
     });
 
     it('should fail when type is missing from one of the fields', () => {
@@ -30,7 +30,7 @@ describe('#mongoose/validators/projectTypeShape', () => {
         },
       };
 
-      assert.isFalse(projectTypeShapeValidator(shape));
+      assert.isFalse(projectTemplateShapeValidator(shape));
     });
 
     it('should fail when type is not a string on one of the fields', () => {
@@ -45,7 +45,7 @@ describe('#mongoose/validators/projectTypeShape', () => {
         },
       };
 
-      assert.isFalse(projectTypeShapeValidator(shape));
+      assert.isFalse(projectTemplateShapeValidator(shape));
     });
 
     it('Should fail when required is missing on one of the fields', () => {
@@ -59,7 +59,7 @@ describe('#mongoose/validators/projectTypeShape', () => {
         },
       };
 
-      assert.isFalse(projectTypeShapeValidator(shape));
+      assert.isFalse(projectTemplateShapeValidator(shape));
     });
 
     it('Should fail when required is not a boolean on one of the fields', () => {
@@ -74,7 +74,7 @@ describe('#mongoose/validators/projectTypeShape', () => {
         },
       };
 
-      assert.isFalse(projectTypeShapeValidator(shape));
+      assert.isFalse(projectTemplateShapeValidator(shape));
     });
 
     it('Should fail when an extra field is included in the shape', () => {
@@ -90,7 +90,7 @@ describe('#mongoose/validators/projectTypeShape', () => {
         },
       };
 
-      assert.isFalse(projectTypeShapeValidator(shape));
+      assert.isFalse(projectTemplateShapeValidator(shape));
     });
   });
 });

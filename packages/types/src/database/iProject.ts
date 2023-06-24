@@ -1,10 +1,11 @@
 import {Types as mongooseTypes} from 'mongoose';
 import {IFileStats} from '../fileIngestion';
 import {IWorkspace} from './iWorkspace';
-import {IProjectType} from './iProjectType';
+import {IProjectTemplate as IProjectTemplate} from './iProjectTemplate';
 import {IState} from './iState';
 import {IMember} from './iMember';
 import {Aspect} from '../web';
+import {ITag} from './iTag';
 
 export interface IProject {
   _id?: mongooseTypes.ObjectId;
@@ -19,9 +20,9 @@ export interface IProject {
   imageHash?: string;
   aspectRatio?: Aspect;
   slug?: string;
-  isTemplate: Boolean;
-  type?: IProjectType;
+  template?: IProjectTemplate;
   members: IMember[];
+  tags: ITag[];
   currentVersion?: number;
   state: Omit<
     IState,
