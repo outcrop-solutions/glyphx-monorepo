@@ -14,6 +14,7 @@ use aws_sdk_s3::operation::head_object::{HeadObjectError, HeadObjectOutput};
 use aws_sdk_s3::operation::put_object::{PutObjectError, PutObjectOutput};
 
 use super::types::s3_manager::*;
+use super::types::upload_stream::*;
 use super::upload_stream::*;
 use http::Request;
 use log::warn;
