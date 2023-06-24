@@ -1575,6 +1575,9 @@ mod get_upload_stream {
         let is_unexpected = match res.as_ref().err().unwrap() {
             GetUploadStreamError::UnexpectedError(_) => true,
         };
+        let log_data = match res.err().unwrap() {
+            GetUploadStreamError::UnexpectedError(e) => e,
+        };
         assert!(is_unexpected);
     }
 }
@@ -1637,7 +1640,6 @@ mod remove_object {
                     .body(SdkBody::empty())
                     .unwrap();
                 Err(SdkError::service_error(err, Response::new(inner)))
-
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
