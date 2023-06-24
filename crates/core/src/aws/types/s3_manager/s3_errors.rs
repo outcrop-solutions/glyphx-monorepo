@@ -85,3 +85,10 @@ pub enum RemoveObjectError {
     /// Is returned for all error conditions.
     UnexpectedError(GlyphxErrorData),
 }
+
+/// This error is returned by our upload_object function.
+#[derive(Debug)]
+pub enum UploadObjectError {
+    /// Is returned for all error conditions.
+    UnexpectedError(GlyphxErrorData),
+}

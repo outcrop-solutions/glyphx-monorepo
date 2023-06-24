@@ -11,7 +11,7 @@ use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::operation::delete_object::{DeleteObjectError, DeleteObjectOutput};
 use aws_sdk_s3::operation::get_object::{GetObjectError, GetObjectOutput};
 use aws_sdk_s3::operation::head_object::{HeadObjectError, HeadObjectOutput};
-use aws_sdk_s3::operation::put_object::PutObjectError;
+use aws_sdk_s3::operation::put_object::{PutObjectError, PutObjectOutput};
 
 use super::types::s3_manager::*;
 use super::upload_stream::*;
@@ -91,6 +91,15 @@ trait S3ManagerOps {
         bucket: &str,
         key: &str,
     ) -> Result<DeleteObjectOutput, SdkError<DeleteObjectError>>;
+
+    async fn put_object_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+        body: ByteStream,
+        content_type: Option<String>,
+    ) -> Result<PutObjectOutput, SdkError<PutObjectError>>;
 }
 
 ///Our internal/production implementation of the S3ManagerOps trait.
@@ -163,7 +172,7 @@ impl S3ManagerOps for S3ManagerOpsImpl {
             Ok(true)
         }
     }
-    
+
     /// Our private list_objects_operation function that will return a vector of keys and a boolean
     /// indicating whether or not the result is truncated.  This can be used by any function which wants
     /// to list objects in a bucket.  This operation actaully makes the call to S3.
@@ -292,6 +301,22 @@ impl S3ManagerOps for S3ManagerOpsImpl {
     ) -> Result<DeleteObjectOutput, SdkError<DeleteObjectError>> {
         client.delete_object().bucket(bucket).key(key).send().await
     }
+
+    ///Will handle the calls to the put_object to upload a file to S3.
+    async fn put_object_operation(
+        &self,
+        client: &S3Client,
+        bucket: &str,
+        key: &str,
+        body: ByteStream,
+        content_type: Option<String>,
+    ) -> Result<PutObjectOutput, SdkError<PutObjectError>> {
+        let mut op = client.put_object().bucket(bucket).key(key).body(body);
+        if content_type.is_some() {
+            op = op.content_type(content_type.unwrap());
+        }
+        op.send().await
+    }
 }
 
 impl S3Manager {
@@ -402,6 +427,28 @@ impl S3Manager {
     /// * `key` - A String that represents the key of the file that we want to remove.
     pub async fn remove_object(&self, key: &str) -> Result<(), RemoveObjectError> {
         self.remove_object_impl(key, &S3ManagerOpsImpl {}).await
+    }
+
+    /// Will upload a file to the S3 bucket.  This upload does not use the multipart upload.  This uses our
+    /// upload_object_impl function which uses dependency injection to inject the calls to S3.  In this manner, we can fully
+    /// test the upload_object logic with no down stream effects.  This function just wraps our impl call.
+    /// # Arguments
+    /// * `key` - A String that represents the key of the file that we want to upload.
+    /// * `data` - A Vec<u8> that represents the data that we want to upload.
+    /// * `content_type` - An optional String that represents the content type of the file that we want to upload.
+    pub async fn upload_object(
+        &self,
+        key: &str,
+        data: Vec<u8>,
+        content_type: Option<String>,
+    ) -> Result<(), UploadObjectError> {
+        self.upload_object_impl(
+            key,
+            ByteStream::from(data),
+            content_type,
+            &S3ManagerOpsImpl {},
+        )
+        .await
     }
 
     /// Our private new_impl function that will return an S3Manager.
@@ -753,6 +800,40 @@ impl S3Manager {
                 let msg = e.meta().to_string();
                 let data = json!({ "bucket_name": self.bucket, "key" : key });
                 return Err(RemoveObjectError::UnexpectedError(GlyphxErrorData::new(
+                    msg,
+                    Some(data),
+                    None,
+                )));
+            }
+        }
+    }
+
+    /// The private implementation for our upload_object call.  This function will take a
+    /// S3ManagerOps trait to make the actual calls to AWS.
+    /// # Arguments
+    /// * `key` - A String that represents the filename to upload.
+    /// * `body` - A ByteStream that represents the body of the file to upload.
+    /// * `content_type` - An optional String that represents the content type of the file to upload.
+    /// * `aws_operations` - An implementation of the S3ManagerOps trait that will be used to make calls to S3.
+    async fn upload_object_impl<T: S3ManagerOps>(
+        &self,
+        key: &str,
+        body: ByteStream,
+        content_type: Option<String>,
+        aws_operations: &T,
+    ) -> Result<(), UploadObjectError> {
+        let res = aws_operations
+            .put_object_operation(&self.client, &self.bucket, key, body, content_type)
+            .await;
+        match res {
+            Ok(_) => {
+                return Ok(());
+            }
+            Err(e) => {
+                let e = e.into_service_error();
+                let msg = e.meta().to_string();
+                let data = json!({ "bucket_name": self.bucket, "key" : key });
+                return Err(UploadObjectError::UnexpectedError(GlyphxErrorData::new(
                     msg,
                     Some(data),
                     None,
@@ -1827,6 +1908,81 @@ mod remove_object {
         assert!(res.is_err());
         let is_unexpected = match res.as_ref().err().unwrap() {
             RemoveObjectError::UnexpectedError(_) => true,
+        };
+        assert!(is_unexpected);
+    }
+}
+
+
+#[cfg(test)]
+mod upload_object {
+    use super::*;
+    use aws_smithy_http::body::SdkBody;
+    use aws_smithy_http::operation::Response;
+    use aws_smithy_types::error::metadata::ErrorMetadata;
+    use aws_smithy_types::error::Unhandled;
+    use http;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let bytes = vec![0, 1, 2, 3, 4];
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_put_object_operation()
+            .returning(|_, _, _, _, _| Ok(PutObjectOutput::builder().build()))
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.upload_object_impl(&key, ByteStream::from(bytes), None, &mock_ops).await;
+        assert!(res.is_ok());
+    }
+
+    #[tokio::test]
+    async fn is_unexpected_error() {
+        let bucket = "jps-test-bucket".to_string();
+        let key = "jps-test-key".to_string();
+        let bytes = vec![0, 1, 2, 3, 4];
+        let mut mock_ops = MockS3ManagerOps::new();
+        mock_ops
+            .expect_bucket_exists_operation()
+            .returning(|_, _| Ok(true))
+            .times(1);
+
+        mock_ops
+            .expect_put_object_operation()
+            .returning(|_, _, _, _, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let unhandled = Unhandled::builder()
+                    .meta(meta)
+                    .source("an error has occurred")
+                    .build();
+                let err = PutObjectError::Unhandled(unhandled);
+                let inner = http::Response::builder()
+                    .status(200)
+                    .header("Content-Type", "application/json")
+                    .body(SdkBody::empty())
+                    .unwrap();
+                Err(SdkError::service_error(err, Response::new(inner)))
+            })
+            .times(1);
+        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
+        let s3_manager = s3_manager_result.ok().unwrap();
+
+        let res = s3_manager.upload_object_impl(&key, ByteStream::from(bytes), None, &mock_ops).await;
+        assert!(res.is_err());
+        let is_unexpected = match res.as_ref().err().unwrap() {
+            UploadObjectError::UnexpectedError(_) => true,
         };
         assert!(is_unexpected);
     }
