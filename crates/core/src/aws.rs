@@ -8,3 +8,5 @@ pub mod upload_stream;
 /// Our S3Manager Struct which is the primary interface for working with S3.
 #[cfg(feature = "s3_manager")]
 pub use s3_manager::S3Manager;
+#[cfg(feature = "athena_manager")]
+pub mod athena_manager;

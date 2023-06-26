@@ -14,6 +14,7 @@ test = true
 async-recursion = "1.0.4"
 async-trait = "0.1.68"
 aws-config = "0.55.3"
+aws-sdk-athena = "0.28.0"
 aws-sdk-s3 = "0.28.0"
 aws-smithy-http = "0.55.3"
 aws-smithy-types = "0.55.3"
@@ -35,6 +36,8 @@ serial_test = "2.0.0"
 tokio = { version = "1", features = ["full"] }
 
 [features]
+default=["aws"]
 test=["aws"]
-aws=["s3_manager"]
+aws=["s3_manager", "athena_manager"]
 s3_manager=[]
+athena_manager=[]

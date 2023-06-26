@@ -66,3 +66,7 @@ nnoremap <silent> <C-b><C-o> :%bd<Bar>e#<cr>
 :command BuildBusiness :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/business
 " Build our @glyphx/glyphEngine 
 :command BuildGlyphEngine :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/glyphengine
+
+let g:coc_settings = {
+\   "rust-analyzer.cargo.features": ["test"]
+\}
