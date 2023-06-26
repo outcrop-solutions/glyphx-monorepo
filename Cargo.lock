@@ -844,6 +844,7 @@ dependencies = [
  "backtrace",
  "bytes",
  "chrono",
+ "glyphx_types",
  "http",
  "json5",
  "log",
@@ -856,6 +857,16 @@ dependencies = [
  "serde_json",
  "serial_test",
  "tokio",
+]
+
+[[package]]
+name = "glyphx_types"
+version = "0.1.0"
+dependencies = [
+ "aws-sdk-s3",
+ "serde",
+ "serde_derive",
+ "serde_json",
 ]
 
 [[package]]
