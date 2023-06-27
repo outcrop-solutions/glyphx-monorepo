@@ -12,3 +12,9 @@ pub enum StartQueryError {
     RequestWasThrottled(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
 }
+
+#[derive(Debug, Clone)]
+pub enum GetQueryStatusError {
+    QueryDoesNotExist(GlyphxErrorData),
+    UnexpectedError(GlyphxErrorData),
+}
