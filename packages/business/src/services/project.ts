@@ -6,7 +6,6 @@ import {
 import {error, constants} from '@glyphx/core';
 import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from 'lib/databaseConnection';
-import {cleanProject} from 'lib/cleanProject';
 
 export class ProjectService {
   public static async getProject(
@@ -241,43 +240,6 @@ export class ProjectService {
           'project',
           'createProject',
           {name, workspaceId},
-          err
-        );
-        e.publish('', constants.ERROR_SEVERITY.ERROR);
-        throw e;
-      }
-    }
-  }
-
-  public static async createTemplateFromProject(
-    projectId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IProjectTemplate | null> {
-    try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const project =
-        await mongoDbConnection.models.ProjectModel.getProjectById(id);
-
-      const cleanProjectTemplate = cleanProject(project);
-
-      const template =
-        await mongoDbConnection.models.ProjectTemplateModel.create({
-          ...cleanProjectTemplate,
-        });
-
-      return template;
-    } catch (err: any) {
-      if (err instanceof error.DataNotFoundError) {
-        err.publish('', constants.ERROR_SEVERITY.WARNING);
-        return null;
-      } else {
-        const e = new error.DataServiceError(
-          'An unexpected error occurred while getting the project. See the inner error for additional details',
-          'project',
-          'getProject',
-          {id: projectId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -551,9 +513,42 @@ export class ProjectService {
         throw err;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while adding states to the project. See the inner error for additional details',
+          'An unexpected error occurred while adding tags to the project. See the inner error for additional details',
           'project',
-          'addStates',
+          'addTags',
+          {id: projectId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+  public static async removeTags(
+    projectId: mongooseTypes.ObjectId | string,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const updatedProject =
+        await mongoDbConnection.models.ProjectModel.removeTags(id, tags);
+
+      return updatedProject;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while removing tags from the project. See the inner error for additional details',
+          'project',
+          'removeTags',
           {id: projectId},
           err
         );

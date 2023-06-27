@@ -23,6 +23,7 @@ const SCHEMA = new Schema<
       //istanbul ignore next
       () => new Date(),
   },
+  deletedAt: {type: Date, required: false},
   updatedAt: {
     type: Date,
     required: true,

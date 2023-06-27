@@ -6,6 +6,7 @@ export interface IProjectTemplate {
   _id?: mongooseTypes.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
   name: string;
   projects: IProject[];
   tags: ITag[];
