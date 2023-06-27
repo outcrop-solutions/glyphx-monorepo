@@ -292,7 +292,7 @@ export class ProjectTemplateService {
 
   static async cleanProject(
     project: databaseTypes.IProject
-  ): Promise<databaseTypes.IProjectTemplate> {
+  ): Promise<Partial<databaseTypes.IProjectTemplate>> {
     return {
       name: `${project.name}-template`,
       projects: [project],
@@ -302,13 +302,15 @@ export class ProjectTemplateService {
           key: project?.state?.properties['X']?.key || 'Column X',
           type:
             project?.state?.properties['X']?.dataType ||
-            fileIngestionTypes.constants.NUMBER,
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           required: true,
           description: '',
         },
         Y: {
           key: project?.state?.properties['Y']?.key || 'Column Y',
-          type: project?.state?.properties['Y']?.dataType || 'Column Z',
+          type:
+            project?.state?.properties['Y']?.dataType ||
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           required: true,
           description: '',
         },
@@ -316,7 +318,7 @@ export class ProjectTemplateService {
           key: project?.state?.properties['Z']?.key || 'Column Z',
           type:
             project?.state?.properties['Z']?.dataType ||
-            fileIngestionTypes.constants.NUMBER,
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           required: true,
           description: '',
         },
@@ -324,7 +326,7 @@ export class ProjectTemplateService {
           key: project?.state?.properties['A']?.key || 'Column A',
           type:
             project?.state?.properties['A']?.dataType ||
-            fileIngestionTypes.constants.NUMBER,
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           required: false,
           description: '',
         },
@@ -332,7 +334,7 @@ export class ProjectTemplateService {
           key: project?.state?.properties['B']?.key || 'Column B',
           type:
             project?.state?.properties['B']?.dataType ||
-            fileIngestionTypes.constants.NUMBER,
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           required: false,
           description: '',
         },
@@ -340,7 +342,7 @@ export class ProjectTemplateService {
           key: project?.state?.properties['C']?.key || 'Column C',
           type:
             project?.state?.properties['C']?.dataType ||
-            fileIngestionTypes.constants.NUMBER,
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           required: false,
           description: '',
         },
@@ -350,7 +352,7 @@ export class ProjectTemplateService {
 
   static async cleanProjectTemplate(
     projectTemplate: databaseTypes.IProjectTemplate
-  ): Promise<databaseTypes.IProject> {
+  ): Promise<Partial<databaseTypes.IProject>> {
     return {
       name: 'New Project',
       template: projectTemplate,

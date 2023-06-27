@@ -58,6 +58,7 @@
     }
   },
   "globalEnv": [
+    "OPENAI_API_KEY",
     "GITHUB_TOKEN",
     "API_ENV",
     "MONGODB_URI",

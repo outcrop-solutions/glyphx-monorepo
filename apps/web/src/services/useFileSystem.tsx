@@ -9,6 +9,8 @@ import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { _getSignedUploadUrls, _ingestFiles, _uploadFile, api } from 'lib';
 import { runRulesEngine } from 'lib/client/files/engine';
 import { parsePayload } from 'lib/client/files/transforms/parsePayload';
+import { _createCompletion } from 'lib/client/mutations/ai';
+import { completionAtom } from 'state/ai';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -23,6 +25,7 @@ import { parsePayload } from 'lib/client/files/transforms/parsePayload';
 export const useFileSystem = () => {
   const { mutate } = useSWRConfig();
   const [project, setProject] = useRecoilState(projectAtom);
+  const setCompletion = useSetRecoilState(completionAtom);
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);
   const setModals = useSetRecoilState(modalsAtom);
@@ -104,93 +107,99 @@ export const useFileSystem = () => {
       // parse payload
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
+      const result = await api({
+        ..._createCompletion(payload),
+        returnData: true,
+      });
+      setCompletion(result);
+
       // check file against FILE_RULES before upload
-      const modals = runRulesEngine(payload, project.files, acceptedFiles);
+      // const modals = runRulesEngine(payload, project.files, acceptedFiles);
 
-      if (modals) {
-        // open file error/decision modals
-        setModals(
-          produce((draft: WritableDraft<any>) => {
-            draft.modals = modals;
-          })
-        );
-        return;
-      } else {
-        setLoading(
-          produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-            draft.processName = 'File Upload';
-            draft.processStatus = databaseTypes.constants.PROCESS_STATUS.PENDING;
-          })
-        );
-        // get s3 keys for upload
-        const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
+      // if (modals) {
+      // open file error/decision modals
+      //   setModals(
+      //     produce((draft: WritableDraft<any>) => {
+      //       draft.modals = modals;
+      //     })
+      //   );
+      //   return;
+      // } else {
+      // setLoading(
+      //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //     draft.processName = 'File Upload';
+      //     draft.processStatus = databaseTypes.constants.PROCESS_STATUS.PENDING;
+      //   })
+      // );
+      // get s3 keys for upload
+      // const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
-        const data = await api({
-          ..._getSignedUploadUrls(project.workspace._id.toString(), project._id.toString(), keys),
-          returnData: true,
-        });
+      // const data = await api({
+      //   ..._getSignedUploadUrls(project.workspace._id.toString(), project._id.toString(), keys),
+      //   returnData: true,
+      // });
 
-        await Promise.all(
-          data.signedUrls.map(async (url, idx) => {
-            // upload raw file data to s3
-            setLoading(
-              produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-                draft.processStartTime = new Date();
-              })
-            );
-            await api({
-              ..._uploadFile(await acceptedFiles[idx].arrayBuffer(), url),
-              upload: true,
-              onError: () => {
-                setLoading(
-                  produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                    draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-                    draft.processEndTime = new Date();
-                  })
-                );
-              },
-              onSuccess: () => {
-                setLoading(
-                  produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                    draft.processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
-                  })
-                );
-              },
-            });
-          })
-        );
+      // await Promise.all(
+      //   data.signedUrls.map(async (url, idx) => {
+      //     // upload raw file data to s3
+      //     setLoading(
+      //       produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //         draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      //         draft.processStartTime = new Date();
+      //       })
+      //     );
+      //     await api({
+      //       ..._uploadFile(await acceptedFiles[idx].arrayBuffer(), url),
+      //       upload: true,
+      //       onError: () => {
+      //         setLoading(
+      //           produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //             draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+      //             draft.processEndTime = new Date();
+      //           })
+      //         );
+      //       },
+      //       onSuccess: () => {
+      //         setLoading(
+      //           produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //             draft.processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+      //           })
+      //         );
+      //       },
+      //     });
+      //   })
+      // );
 
-        setLoading(
-          produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-            draft.processName = 'File Ingestion';
-            draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-          })
-        );
+      // setLoading(
+      //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //     draft.processName = 'File Ingestion';
+      //     draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      //   })
+      // );
 
-        // only call ingest once
-        await api({
-          ..._ingestFiles(payload),
-          onSuccess: (data) => {
-            setLoading(
-              produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                draft.processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
-                draft.processEndTime = new Date();
-              })
-            );
-            mutate(`/api/project/${project._id}`);
-          },
-          onError: () => {
-            setLoading(
-              produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-                draft.processEndTime = new Date();
-              })
-            );
-          },
-        });
-        setLoading({});
-      }
+      // only call ingest once
+      // await api({
+      //   ..._ingestFiles(payload),
+      //   onSuccess: (data) => {
+      //     setLoading(
+      //       produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //         draft.processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+      //         draft.processEndTime = new Date();
+      //       })
+      //     );
+      //     mutate(`/api/project/${project._id}`);
+      //   },
+      //   onError: () => {
+      //     setLoading(
+      //       produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //         draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+      //         draft.processEndTime = new Date();
+      //       })
+      //     );
+      //   },
+      // });
+      // setLoading({});
+      // }
     },
     // update file system state with processed data based on user decision
     [project, setLoading, setModals, mutate]
