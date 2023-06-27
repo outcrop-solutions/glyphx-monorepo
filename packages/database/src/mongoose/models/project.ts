@@ -640,8 +640,8 @@ SCHEMA.static(
     try {
       const [workspace, members, tags] = await Promise.all([
         PROJECT_MODEL.validateWorkspace(input.workspace),
-        PROJECT_MODEL.validateMembers(input.members),
-        PROJECT_MODEL.validateTags(input.tags),
+        PROJECT_MODEL.validateMembers(input.members ?? []),
+        PROJECT_MODEL.validateTags(input.tags ?? []),
       ]);
 
       const createDate = new Date();

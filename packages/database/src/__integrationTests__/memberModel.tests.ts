@@ -129,7 +129,9 @@ describe('#memberModel', () => {
       memberInput.member = userDocument;
       memberInput.invitedBy = userDocument;
       memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createMember(memberInput);
+      const memberDocument = await memberModel.createWorkspaceMember(
+        memberInput
+      );
 
       assert.isOk(memberDocument);
       assert.strictEqual(memberDocument.email, memberInput.email);
@@ -163,7 +165,9 @@ describe('#memberModel', () => {
       memberInput.member = userDocument;
       memberInput.invitedBy = userDocument;
       memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createMember(memberInput);
+      const memberDocument = await memberModel.createWorkspaceMember(
+        memberInput
+      );
 
       assert.isOk(memberDocument);
       memberId2 = memberDocument._id as mongooseTypes.ObjectId;

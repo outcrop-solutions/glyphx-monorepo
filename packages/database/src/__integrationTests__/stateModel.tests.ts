@@ -3,22 +3,188 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
+import {
+  web as webTypes,
+  fileIngestion as fileIngestionTypes,
+} from '@glyphx/types';
 import {error} from '@glyphx/core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
+
+const INPUT_WORKSPACE = {
+  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
+  inviteCode: 'testWorkspace' + UNIQUE_KEY,
+  name: 'testName' + UNIQUE_KEY,
+  slug: 'testSlug' + UNIQUE_KEY,
+  updatedAt: new Date(),
+  createdAt: new Date(),
+  description: 'testDescription',
+  creator: {},
+};
+
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
   template: new mongooseTypes.ObjectId(),
-  owner: new mongooseTypes.ObjectId(),
+  state: {
+    properties: {
+      X: {
+        axis: webTypes.constants.AXIS.X,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column X', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Y: {
+        axis: webTypes.constants.AXIS.Y,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Y', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Z: {
+        axis: webTypes.constants.AXIS.Z,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Z', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      A: {
+        axis: webTypes.constants.AXIS.A,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 1', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      B: {
+        axis: webTypes.constants.AXIS.B,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 2', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      C: {
+        axis: webTypes.constants.AXIS.C,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 3', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+    },
+  },
   files: [],
 };
 
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
   template: new mongooseTypes.ObjectId(),
-  owner: new mongooseTypes.ObjectId(),
+  state: {
+    properties: {
+      X: {
+        axis: webTypes.constants.AXIS.X,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column X', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Y: {
+        axis: webTypes.constants.AXIS.Y,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Y', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Z: {
+        axis: webTypes.constants.AXIS.Z,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Z', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      A: {
+        axis: webTypes.constants.AXIS.A,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 1', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      B: {
+        axis: webTypes.constants.AXIS.B,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 2', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      C: {
+        axis: webTypes.constants.AXIS.C,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 3', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+    },
+  },
   files: [],
 };
 
@@ -61,7 +227,9 @@ const INPUT_USER2 = {
 const INPUT_DATA = {
   version: 1,
   static: false,
+  name: 'state1',
   fileSystemHash: UNIQUE_KEY,
+  payloadHash: 'phash1' + UNIQUE_KEY,
   fileSystem: [],
   camera: {
     pos: {
@@ -79,7 +247,80 @@ const INPUT_DATA = {
     height: 100,
     width: 100,
   },
-  properties: [],
+  properties: {
+    X: {
+      axis: webTypes.constants.AXIS.X,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column X', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    Y: {
+      axis: webTypes.constants.AXIS.Y,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column Y', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    Z: {
+      axis: webTypes.constants.AXIS.Z,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column Z', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    A: {
+      axis: webTypes.constants.AXIS.A,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column 1', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    B: {
+      axis: webTypes.constants.AXIS.B,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column 2', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    C: {
+      axis: webTypes.constants.AXIS.C,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column 3', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+  },
   project: {},
   createdBy: {},
 };
@@ -87,7 +328,9 @@ const INPUT_DATA = {
 const INPUT_DATA2 = {
   version: 1,
   static: false,
+  name: 'state2',
   fileSystemHash: 'hash2' + UNIQUE_KEY,
+  payloadHash: 'phash2' + UNIQUE_KEY,
   fileSystem: [],
   camera: {
     pos: {
@@ -105,7 +348,80 @@ const INPUT_DATA2 = {
     height: 100,
     width: 100,
   },
-  properties: [],
+  properties: {
+    X: {
+      axis: webTypes.constants.AXIS.X,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column X', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    Y: {
+      axis: webTypes.constants.AXIS.Y,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column Y', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    Z: {
+      axis: webTypes.constants.AXIS.Z,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column Z', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    A: {
+      axis: webTypes.constants.AXIS.A,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column 1', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    B: {
+      axis: webTypes.constants.AXIS.B,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column 2', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+    C: {
+      axis: webTypes.constants.AXIS.C,
+      accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+      key: 'Column 3', // corresponds to column name
+      dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+      interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+      direction: webTypes.constants.DIRECTION_TYPE.ASC,
+      filter: {
+        min: 0,
+        max: 0,
+      },
+    },
+  },
   project: {},
   createdBy: {},
 };
@@ -118,13 +434,28 @@ describe('#StateModel', () => {
     let stateId2: ObjectId;
     let userId: ObjectId;
     let userId2: ObjectId;
+    let workspaceId: ObjectId;
     let projectId: ObjectId;
     let projectDocument: any;
+    let workspaceDocument: any;
     let userDocument: any;
     let projectId2: ObjectId;
     before(async () => {
       await mongoConnection.init();
+      const workspaceModel = mongoConnection.models.WorkspaceModel;
       const projectModel = mongoConnection.models.ProjectModel;
+
+      await workspaceModel.create([INPUT_WORKSPACE], {
+        validateBeforeSave: false,
+      });
+      const savedWorkspaceDocument = await workspaceModel
+        .findOne({name: INPUT_WORKSPACE.name})
+        .lean();
+      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
+
+      workspaceDocument = savedWorkspaceDocument;
+
+      assert.isOk(workspaceId);
 
       await projectModel.create([INPUT_PROJECT], {validateBeforeSave: false});
       const savedProjectDocument = await projectModel
@@ -181,6 +512,7 @@ describe('#StateModel', () => {
 
     it('add a new state ', async () => {
       const stateInput = JSON.parse(JSON.stringify(INPUT_DATA));
+      stateInput.workspace = workspaceDocument;
       stateInput.project = projectDocument;
       stateInput.createdBy = userDocument;
       const stateDocument = await stateModel.createState(stateInput);
@@ -190,6 +522,7 @@ describe('#StateModel', () => {
         stateDocument.fileSystemHash,
         stateInput.fileSystemHash
       );
+      assert.strictEqual(stateDocument.workspace.name, workspaceDocument.name);
       assert.strictEqual(stateDocument.project.name, projectDocument.name);
       assert.strictEqual(stateDocument.createdBy.name, userDocument.name);
 
@@ -208,6 +541,7 @@ describe('#StateModel', () => {
       assert.isOk(stateId);
       const stateInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       stateInput.project = projectDocument;
+      stateInput.workspace = workspaceDocument;
       stateInput.createdBy = userDocument;
       const stateDocument = await stateModel.createState(stateInput);
 
