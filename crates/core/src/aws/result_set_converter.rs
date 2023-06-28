@@ -105,7 +105,7 @@ fn convert_str_to_json_number(input: &str) -> Value {
 ///`nullable` - A boolean that indicates if the field is nullable. If the field is nullable and the
 ///input is None or cannot be converted to a JSON Boolean, then a JSON Null will be returned.
 ///If the field is not nullable Null will be converted to false.
-pub fn convert_boolean_field(input: &Option<&str>, nullable: bool) -> Value {
+fn convert_boolean_field(input: &Option<&str>, nullable: bool) -> Value {
     if input.is_some() {
         let input = input.unwrap();
         let value = convert_str_to_json_bool(input);
@@ -130,7 +130,7 @@ pub fn convert_boolean_field(input: &Option<&str>, nullable: bool) -> Value {
 ///`nullable` - A boolean that indicates if the field is nullable. If the field is nullable and the
 ///input is None or cannot be converted to a JSON Number, then a JSON Null will be returned.
 ///If the field is not nullable Null will be converted to 0.
-pub fn convert_number_field(input: &Option<&str>, nullable: bool) -> Value {
+fn convert_number_field(input: &Option<&str>, nullable: bool) -> Value {
     if input.is_some() {
         let input = input.unwrap();
         let value = convert_str_to_json_number(input);
@@ -154,7 +154,7 @@ pub fn convert_number_field(input: &Option<&str>, nullable: bool) -> Value {
 ///`nullable` - A boolean that indicates if the field is nullable. If the field is nullable and the
 ///input is None then a JSON Null will be returned.
 ///If the field is not nullable Null will be converted to an empty string.
-pub fn convert_string_field(input: &Option<&str>, nullable: bool) -> Value {
+fn convert_string_field(input: &Option<&str>, nullable: bool) -> Value {
     if input.is_none() && !nullable {
         return Value::String(String::from(""));
     } else if input.is_none() {
@@ -178,6 +178,9 @@ pub fn convert_to_json(result_set: &ResultSet, includes_header_row: Option<bool>
     let column_information = get_column_info(&metadata);
     let mut rows: Vec<Value> = Vec::new();
     let mut first = true;
+    if( result_set.rows().is_none()){
+        return Value::Null;
+    }
     for row in result_set.rows().unwrap() {
         if first && includes_header_row {
             first = false;
@@ -735,5 +738,30 @@ mod convert_to_json{
             assert_eq!(row.get("col1").unwrap(), "cba");
             assert_eq!(row.get("col2").unwrap(), 321);
 
+  }
+
+  #[test]
+  fn convert_result_set_no_rows() {
+        let metadata = ResultSetMetadata::builder()
+            .set_column_info(Some(vec![
+                ColumnInfo::builder()
+                    .name("col1".to_string())
+                    .r#type("varchar".to_string())
+                    .nullable(ColumnNullable::Nullable)
+                    .build(),
+                ColumnInfo::builder()
+                    .name("col2".to_string())
+                    .r#type("bigint".to_string())
+                    .nullable(ColumnNullable::NotNull)
+                    .build(),
+            ]))
+            .build();
+
+        let mut result_set = ResultSet::builder().result_set_metadata(metadata);
+
+            let result_set = result_set.build();
+
+            let result = convert_to_json(&result_set, None);
+            assert!(result.is_null());
   }
 }
