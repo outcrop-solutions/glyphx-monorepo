@@ -25,3 +25,14 @@ pub enum GetQueryResultsError {
     RequestWasThrottled(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
 }
+
+#[derive(Debug, Clone)]
+pub enum RunQueryError {
+    QueryDoesNotExist(GlyphxErrorData),
+    DatabaseDoesNotExist(GlyphxErrorData),
+    RequestWasThrottled(GlyphxErrorData),
+    UnexpectedError(GlyphxErrorData),
+    QueryTimedOut(GlyphxErrorData),
+    QueryFailed(GlyphxErrorData),
+    QueryCancelled(GlyphxErrorData),
+}

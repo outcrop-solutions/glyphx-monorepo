@@ -890,6 +890,7 @@ dependencies = [
 name = "glyphx_types"
 version = "0.1.0"
 dependencies = [
+ "aws-sdk-athena",
  "aws-sdk-s3",
  "serde",
  "serde_derive",
