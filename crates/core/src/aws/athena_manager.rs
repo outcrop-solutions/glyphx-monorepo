@@ -1,5 +1,5 @@
 use aws_sdk_athena::error::ProvideErrorMetadata;
-use aws_sdk_athena::types::{QueryExecutionContext, QueryExecutionState, ResultConfiguration, AthenaError};
+use aws_sdk_athena::types::{QueryExecutionContext, QueryExecutionState, ResultConfiguration};
 use aws_sdk_athena::Client as AthenaClient;
 use aws_sdk_s3::error::SdkError;
 
@@ -17,15 +17,16 @@ use aws_sdk_athena::operation::get_database::{GetDatabaseError, GetDatabaseOutpu
 use super::result_set_converter::convert_to_json;
 use async_trait::async_trait;
 use glyphx_types::aws::athena_manager::athena_manager_errors::{
-    ConstructorError, GetQueryResultsError as GlyphxGetQueryResultsError, GetQueryStatusError,
-    RunQueryError, StartQueryError,
+    ConstructorError, GetQueryPagerError, GetQueryResultsError as GlyphxGetQueryResultsError,
+    GetQueryStatusError, RunQueryError, StartQueryError,
 };
 use glyphx_types::aws::athena_manager::query_status::AthenaQueryStatus;
 use glyphx_types::error::GlyphxErrorData;
 
+use mockall::*;
 use serde_json::{json, Value};
 use std::time::{Duration, Instant};
-use mockall::*;
+use tokio_stream::Stream;
 
 #[automock]
 #[async_trait]
@@ -57,6 +58,13 @@ trait AthenaManagerOps {
         client: &AthenaClient,
         query_id: &str,
     ) -> Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>;
+
+    fn get_query_results_paginator(
+        &self,
+        client: &AthenaClient,
+        query_id: &str,
+        page_size: Option<i32>,
+    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>;
 
     async fn start_query_impl(
         &self,
@@ -137,6 +145,7 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .send()
             .await
     }
+
     async fn get_query_results(
         &self,
         client: &AthenaClient,
@@ -147,6 +156,23 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .query_execution_id(query_id)
             .send()
             .await
+    }
+
+    fn get_query_results_paginator(
+        &self,
+        client: &AthenaClient,
+        query_id: &str,
+        page_size: Option<i32>,
+    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>
+    {
+        Box::new(
+            client
+                .get_query_results()
+                .query_execution_id(query_id)
+                .into_paginator()
+                .page_size(page_size.unwrap_or(1000))
+                .send(),
+        )
     }
 
     async fn start_query_impl(
@@ -233,9 +259,23 @@ impl AthenaManager {
         time_out: Option<i32>,
         results_include_header_row: Option<bool>,
     ) -> Result<Value, RunQueryError> {
-        self.run_query_impl(query, time_out, results_include_header_row, &AthenaManagerOpsImpl)
+        self.run_query_impl(
+            query,
+            time_out,
+            results_include_header_row,
+            &AthenaManagerOpsImpl,
+        )
+        .await
+    }
+
+    pub async fn get_paged_query_results(&self, query_id: &str, page_size: Option<i32> ) -> Result<
+        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin,
+        GetQueryPagerError,
+    > {
+        self.get_paged_query_results_impl(query_id, page_size, &AthenaManagerOpsImpl)
             .await
     }
+
     async fn new_impl<T: AthenaManagerOps>(
         catalog: &str,
         database: &str,
@@ -449,7 +489,9 @@ impl AthenaManager {
                 QueryExecutionState::Queued => AthenaQueryStatus::Queued,
                 QueryExecutionState::Running => AthenaQueryStatus::Running,
                 QueryExecutionState::Succeeded => AthenaQueryStatus::Succeeded,
-                QueryExecutionState::Failed => AthenaQueryStatus::Failed(status.athena_error.unwrap()),
+                QueryExecutionState::Failed => {
+                    AthenaQueryStatus::Failed(status.athena_error.unwrap())
+                }
                 QueryExecutionState::Cancelled => AthenaQueryStatus::Cancelled,
                 _ => AthenaQueryStatus::Unknown,
             };
@@ -567,8 +609,9 @@ impl AthenaManager {
         query: &str,
         query_id: &str,
     ) -> RunQueryError {
-        let data =
-            Some(json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id}));
+        let data = Some(
+            json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id}),
+        );
 
         match error {
             GetQueryStatusError::QueryDoesNotExist(e) => {
@@ -592,14 +635,45 @@ impl AthenaManager {
         }
     }
 
+    fn convert_get_query_status_error_to_get_query_pager_error(
+        &self,
+        error: GetQueryStatusError,
+        query_id: &str,
+    ) -> GetQueryPagerError {
+        let data =
+            Some(json!({"catalog": self.catalog, "database": self.database, "query_id": query_id}));
+
+        match error {
+            GetQueryStatusError::QueryDoesNotExist(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "QueryDoesNotExist": inner_error });
+                GetQueryPagerError::QueryDoesNotExist(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+            GetQueryStatusError::UnexpectedError(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "UnexpectedError": inner_error });
+                GetQueryPagerError::UnexpectedError(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+        }
+    }
+
     fn convert_get_query_results_error_to_run_query_error(
         &self,
         error: GlyphxGetQueryResultsError,
         query: &str,
         query_id: &str,
     ) -> RunQueryError {
-        let data =
-            Some(json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id}));
+        let data = Some(
+            json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id}),
+        );
 
         match error {
             GlyphxGetQueryResultsError::QueryDoesNotExist(e) => {
@@ -639,9 +713,7 @@ impl AthenaManager {
         results_include_header_row: Option<bool>,
         aws_operations: &T,
     ) -> Result<Value, RunQueryError> {
-        let result = aws_operations
-            .start_query_impl(self, query, None)
-            .await;
+        let result = aws_operations.start_query_impl(self, query, None).await;
         if result.is_err() {
             let err = result.err().unwrap();
             return Err(self.convert_start_query_error_to_run_query_error(err, query));
@@ -649,7 +721,7 @@ impl AthenaManager {
 
         let query_id = result.unwrap();
 
-        let time_out = time_out.unwrap_or(60);   //Default to 60 seconds if no timeout is specified.
+        let time_out = time_out.unwrap_or(60); //Default to 60 seconds if no timeout is specified.
         let start_time = Instant::now();
         let desired_duration = Duration::from_secs(time_out as u64);
         //Check our query status until results are ready or we hit our timeout.
@@ -659,41 +731,47 @@ impl AthenaManager {
             if elapsed >= desired_duration {
                 break Err(RunQueryError::QueryTimedOut(GlyphxErrorData::new(
                     String::from("The query timed out."),
-                    Some(json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id, "timeout": time_out})),
+                    Some(
+                        json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id, "timeout": time_out}),
+                    ),
                     None,
                 )));
             }
 
-            let result = aws_operations
-                .get_query_status_impl(self, &query_id)
-                .await;
+            let result = aws_operations.get_query_status_impl(self, &query_id).await;
             if result.is_err() {
                 let err = result.err().unwrap();
-                break Err(self.convert_get_query_status_error_to_run_query_error(
-                    err,
-                    query,
-                    &query_id,
-                ));
+                break Err(
+                    self.convert_get_query_status_error_to_run_query_error(err, query, &query_id)
+                );
             }
 
             let query_status = result.unwrap();
             match query_status {
                 AthenaQueryStatus::Succeeded => break Ok(()),
-                AthenaQueryStatus::Failed(error) => break Err(RunQueryError::QueryFailed(GlyphxErrorData::new(
-                    String::from("The query failed. See the inner error for more details."),
-                    Some(json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id})),
-                    Some(json!({"AthenaError": error.error_message()})),
-                ))),
-                AthenaQueryStatus::Cancelled => break Err(RunQueryError::QueryCancelled(GlyphxErrorData::new(
-                    String::from("The query was cancelled."),
-                    Some(json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id})),
-                    None,
-                ))),
+                AthenaQueryStatus::Failed(error) => {
+                    break Err(RunQueryError::QueryFailed(GlyphxErrorData::new(
+                        String::from("The query failed. See the inner error for more details."),
+                        Some(
+                            json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id}),
+                        ),
+                        Some(json!({"AthenaError": error.error_message()})),
+                    )))
+                }
+                AthenaQueryStatus::Cancelled => {
+                    break Err(RunQueryError::QueryCancelled(GlyphxErrorData::new(
+                        String::from("The query was cancelled."),
+                        Some(
+                            json!({"catalog": self.catalog, "database": self.database, "query": query, "query_id": query_id}),
+                        ),
+                        None,
+                    )))
+                }
                 _ => {}
             }
-         };
+        };
 
-        if query_result.is_err()  {
+        if query_result.is_err() {
             return Err(query_result.err().unwrap());
         }
 
@@ -702,17 +780,85 @@ impl AthenaManager {
             .await;
         if results.is_err() {
             let err = results.err().unwrap();
-            return Err(self.convert_get_query_results_error_to_run_query_error(
-                err,
-                query,
-                &query_id,
-            ));
+            return Err(
+                self.convert_get_query_results_error_to_run_query_error(err, query, &query_id)
+            );
         }
 
         let results = results.unwrap();
         Ok(results)
+    }
 
+    async fn get_paged_query_results_impl<T: AthenaManagerOps>(
+        &self,
+        query_id: &str,
+        page_size: Option<i32>,
+        aws_operations: &T,
+    ) -> Result<
+        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin,
+        GetQueryPagerError,
+    > {
+        let status = aws_operations.get_query_status_impl(self, query_id).await;
+        if status.is_err() {
+            let err = status.err().unwrap();
+            return Err(self.convert_get_query_status_error_to_get_query_pager_error(err, query_id));
+        } else {
+            let status = status.unwrap();
+            let is_finished = match status {
+                AthenaQueryStatus::Succeeded => Ok(()),
+                AthenaQueryStatus::Failed(athena_error) => {
+                    Err(GetQueryPagerError::QueryFailed(GlyphxErrorData::new(
+                        String::from("The query failed. See the inner error for more details."),
+                        Some(
+                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id}),
+                        ),
+                        Some(json!({"AthenaError": athena_error.error_message()})),
+                    )))
+                }
+                AthenaQueryStatus::Cancelled => {
+                    Err(GetQueryPagerError::QueryCancelled(GlyphxErrorData::new(
+                        String::from("The query was cancelled."),
+                        Some(
+                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id}),
+                        ),
+                        None,
+                    )))
+                }
+                AthenaQueryStatus::Running => {
+                    Err(GetQueryPagerError::QueryNotFinished(GlyphxErrorData::new(
+                        String::from("The query is still running."),
+                        Some(
+                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id}),
+                        ),
+                        None,
+                    )))
+                }
+                AthenaQueryStatus::Queued => {
+                    Err(GetQueryPagerError::QueryNotFinished(GlyphxErrorData::new(
+                        String::from("The query is still queued."),
+                        Some(
+                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id}),
+                        ),
+                        None,
+                    )))
+                }
+                AthenaQueryStatus::Unknown => {
+                    Err(GetQueryPagerError::QueryNotFinished(GlyphxErrorData::new(
+                        String::from("The query is still running But I cannot get a status on it."),
+                        Some(
+                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id}),
+                        ),
+                        None,
+                    )))
+                }
+            };
 
+            if is_finished.is_err() {
+                return Err(is_finished.err().unwrap());
+            }
+
+            Ok(aws_operations.get_query_results_paginator(&self.client, query_id, page_size))
+        }
     }
 }
 
@@ -1159,7 +1305,7 @@ pub mod start_query {
 pub mod get_query_status {
     use super::*;
     use aws_sdk_athena::types::error::{InternalServerException, InvalidRequestException};
-    use aws_sdk_athena::types::{QueryExecution, QueryExecutionStatus};
+    use aws_sdk_athena::types::{AthenaError, QueryExecution, QueryExecutionStatus};
     use aws_smithy_http::body::SdkBody;
     use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
@@ -1315,7 +1461,11 @@ pub mod get_query_status {
             .returning(move |_, _| {
                 let query_execution_status = QueryExecutionStatus::builder()
                     .state(QueryExecutionState::Failed)
-                    .athena_error(AthenaError::builder().error_message("Your query has failed").build())
+                    .athena_error(
+                        AthenaError::builder()
+                            .error_message("Your query has failed")
+                            .build(),
+                    )
                     .build();
 
                 let query_execution = QueryExecution::builder()
@@ -1997,13 +2147,12 @@ mod convert_start_query_error_to_run_query_error {
 
         let (error, inner_error) = match &result {
             RunQueryError::DatabaseDoesNotExist(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
         assert!(error.is_some());
 
-        
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("DatabaseDoesNotExist").is_some());
     }
@@ -2035,7 +2184,7 @@ mod convert_start_query_error_to_run_query_error {
 
         let (error, inner_error) = match &result {
             RunQueryError::RequestWasThrottled(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
@@ -2043,8 +2192,6 @@ mod convert_start_query_error_to_run_query_error {
 
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("RequestWasThrottled").is_some());
-
-        
     }
 
     #[tokio::test]
@@ -2074,15 +2221,13 @@ mod convert_start_query_error_to_run_query_error {
 
         let (error, inner_error) = match &result {
             RunQueryError::UnexpectedError(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
         assert!(error.is_some());
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("UnexpectedError").is_some());
-
-        
     }
 }
 
@@ -2110,21 +2255,23 @@ mod convert_get_query_status_error_to_run_query_error {
 
         let error = GetQueryStatusError::QueryDoesNotExist(GlyphxErrorData::new(
             String::from("The query does not exist."),
-            Some(json!({"catalog": catalog, "database": database, query: "query", "query_id": query_id })),
+            Some(
+                json!({"catalog": catalog, "database": database, query: "query", "query_id": query_id }),
+            ),
             None,
         ));
 
-        let result = athena_manager.convert_get_query_status_error_to_run_query_error(error, query, query_id);
+        let result = athena_manager
+            .convert_get_query_status_error_to_run_query_error(error, query, query_id);
 
         let (error, inner_error) = match &result {
             RunQueryError::QueryDoesNotExist(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
         assert!(error.is_some());
 
-        
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("QueryDoesNotExist").is_some());
     }
@@ -2149,23 +2296,24 @@ mod convert_get_query_status_error_to_run_query_error {
 
         let error = GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(
             String::from("Something unexpected has happened."),
-            Some(json!({"catalog": catalog, "database": database, query: "query", "query_id": query_id })),
+            Some(
+                json!({"catalog": catalog, "database": database, query: "query", "query_id": query_id }),
+            ),
             None,
         ));
 
-        let result = athena_manager.convert_get_query_status_error_to_run_query_error(error, query, query_id);
+        let result = athena_manager
+            .convert_get_query_status_error_to_run_query_error(error, query, query_id);
 
         let (error, inner_error) = match &result {
             RunQueryError::UnexpectedError(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
         assert!(error.is_some());
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("UnexpectedError").is_some());
-
-        
     }
 }
 
@@ -2197,17 +2345,17 @@ mod convert_get_query_results_error_to_run_query_error {
             None,
         ));
 
-        let result = athena_manager.convert_get_query_results_error_to_run_query_error(error, query, query_id);
+        let result = athena_manager
+            .convert_get_query_results_error_to_run_query_error(error, query, query_id);
 
         let (error, inner_error) = match &result {
             RunQueryError::QueryDoesNotExist(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
         assert!(error.is_some());
 
-        
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("QueryDoesNotExist").is_some());
     }
@@ -2236,11 +2384,12 @@ mod convert_get_query_results_error_to_run_query_error {
             None,
         ));
 
-        let result = athena_manager.convert_get_query_results_error_to_run_query_error(error, query, query_id);
+        let result = athena_manager
+            .convert_get_query_results_error_to_run_query_error(error, query, query_id);
 
         let (error, inner_error) = match &result {
             RunQueryError::RequestWasThrottled(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
@@ -2248,8 +2397,6 @@ mod convert_get_query_results_error_to_run_query_error {
 
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("RequestWasThrottled").is_some());
-
-        
     }
 
     #[tokio::test]
@@ -2276,21 +2423,19 @@ mod convert_get_query_results_error_to_run_query_error {
             None,
         ));
 
-        let result = athena_manager.convert_get_query_results_error_to_run_query_error(error, query, query_id);
+        let result = athena_manager
+            .convert_get_query_results_error_to_run_query_error(error, query, query_id);
 
         let (error, inner_error) = match &result {
             RunQueryError::UnexpectedError(e) => (Some(e).clone(), e.inner_error.clone()),
-            _ => (None,None)
+            _ => (None, None),
         };
 
         assert!(inner_error.is_some());
         assert!(error.is_some());
         let inner_error = inner_error.unwrap();
         assert!(inner_error.get("UnexpectedError").is_some());
-
-        
     }
-
 }
 
 #[cfg(test)]
@@ -2298,7 +2443,7 @@ mod run_query {
     use super::*;
 
     use aws_sdk_athena::types::{
-        ColumnInfo, ColumnNullable, Datum, ResultSet, ResultSetMetadata, Row,
+        AthenaError, ColumnInfo, ColumnNullable, Datum, ResultSet, ResultSetMetadata, Row,
     };
     fn get_result_set_metadata() -> ResultSetMetadata {
         ResultSetMetadata::builder()
@@ -2363,29 +2508,36 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Ok(query_id_clone.clone())
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| Ok(query_id_clone.clone()));
 
-        mocks.expect_get_query_status_impl().times(1).returning(| _, _| {
-            let output = AthenaQueryStatus::Succeeded;
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Succeeded;
                 Ok(output)
-        });
+            });
 
-        mocks.expect_get_query_results_impl().times(1).returning(|_, _, _| {
+        mocks
+            .expect_get_query_results_impl()
+            .times(1)
+            .returning(|_, _, _| {
+                let output = get_result_set();
 
-            let output = get_result_set();
-
-            Ok(convert_to_json(&output, None))
-        });
-
+                Ok(convert_to_json(&output, None))
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, None, None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, None, None, &mocks)
+            .await;
 
         assert!(result.is_ok());
         let result = result.unwrap();
@@ -2409,34 +2561,44 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Ok(query_id_clone.clone())
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| Ok(query_id_clone.clone()));
 
-        mocks.expect_get_query_status_impl().times(1).returning(| _, _| {
-            let output = AthenaQueryStatus::Running;
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Running;
                 Ok(output)
-        });
+            });
 
-        mocks.expect_get_query_status_impl().times(1).returning(| _, _| {
-            let output = AthenaQueryStatus::Succeeded;
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Succeeded;
                 Ok(output)
-        });
+            });
 
-        mocks.expect_get_query_results_impl().times(1).returning(|_, _, _| {
+        mocks
+            .expect_get_query_results_impl()
+            .times(1)
+            .returning(|_, _, _| {
+                let output = get_result_set();
 
-            let output = get_result_set();
-
-            Ok(convert_to_json(&output, None))
-        });
-
+                Ok(convert_to_json(&output, None))
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, None, None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, None, None, &mocks)
+            .await;
 
         assert!(result.is_ok());
     }
@@ -2455,30 +2617,33 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Ok(query_id_clone.clone())
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| Ok(query_id_clone.clone()));
 
-        mocks.expect_get_query_status_impl().returning(| _, _| {
+        mocks.expect_get_query_status_impl().returning(|_, _| {
             let output = AthenaQueryStatus::Running;
-                Ok(output)
+            Ok(output)
         });
 
+        mocks
+            .expect_get_query_results_impl()
+            .times(0)
+            .returning(|_, _, _| {
+                let output = get_result_set();
 
-        mocks.expect_get_query_results_impl().times(0).returning(|_, _, _| {
-
-            let output = get_result_set();
-
-            Ok(convert_to_json(&output, None))
-        });
-
+                Ok(convert_to_json(&output, None))
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, Some(1), None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, Some(1), None, &mocks)
+            .await;
 
         assert!(result.is_err());
 
@@ -2503,30 +2668,42 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Err(StartQueryError::UnexpectedError(GlyphxErrorData::new(String::from("An Unexpected Error has Occurred"), None, None)))
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| {
+                Err(StartQueryError::UnexpectedError(GlyphxErrorData::new(
+                    String::from("An Unexpected Error has Occurred"),
+                    None,
+                    None,
+                )))
+            });
 
-        mocks.expect_get_query_status_impl().times(0).returning(| _, _| {
-            let output = AthenaQueryStatus::Running;
+        mocks
+            .expect_get_query_status_impl()
+            .times(0)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Running;
                 Ok(output)
-        });
+            });
 
+        mocks
+            .expect_get_query_results_impl()
+            .times(0)
+            .returning(|_, _, _| {
+                let output = get_result_set();
 
-        mocks.expect_get_query_results_impl().times(0).returning(|_, _, _| {
-
-            let output = get_result_set();
-
-            Ok(convert_to_json(&output, None))
-        });
-
+                Ok(convert_to_json(&output, None))
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, Some(1), None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, Some(1), None, &mocks)
+            .await;
 
         assert!(result.is_err());
 
@@ -2553,29 +2730,40 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Ok(query_id_clone.clone())
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| Ok(query_id_clone.clone()));
 
-        mocks.expect_get_query_status_impl().times(1).returning(| _, _| {
-            let output = GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(String::from("An Unexpected Error has Occurred"), None, None)); 
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(
+                    String::from("An Unexpected Error has Occurred"),
+                    None,
+                    None,
+                ));
                 Err(output)
-        });
+            });
 
-        mocks.expect_get_query_results_impl().times(0).returning(|_, _, _| {
+        mocks
+            .expect_get_query_results_impl()
+            .times(0)
+            .returning(|_, _, _| {
+                let output = get_result_set();
 
-            let output = get_result_set();
-
-            Ok(convert_to_json(&output, None))
-        });
-
+                Ok(convert_to_json(&output, None))
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, None, None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, None, None, &mocks)
+            .await;
 
         assert!(result.is_err());
 
@@ -2602,30 +2790,41 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Ok(query_id_clone.clone())
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| Ok(query_id_clone.clone()));
 
-        mocks.expect_get_query_status_impl().times(1).returning(| _, _| {
-                let output = AthenaQueryStatus::Failed(AthenaError::builder().error_message("Your query has failed").build());
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Failed(
+                    AthenaError::builder()
+                        .error_message("Your query has failed")
+                        .build(),
+                );
 
                 Ok(output)
-        });
+            });
 
-        mocks.expect_get_query_results_impl().times(0).returning(|_, _, _| {
+        mocks
+            .expect_get_query_results_impl()
+            .times(0)
+            .returning(|_, _, _| {
+                let output = get_result_set();
 
-            let output = get_result_set();
-
-            Ok(convert_to_json(&output, None))
-        });
-
+                Ok(convert_to_json(&output, None))
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, None, None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, None, None, &mocks)
+            .await;
 
         assert!(result.is_err());
 
@@ -2652,30 +2851,37 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Ok(query_id_clone.clone())
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| Ok(query_id_clone.clone()));
 
-        mocks.expect_get_query_status_impl().times(1).returning(| _, _| {
-                let output = AthenaQueryStatus::Cancelled;;
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Cancelled;
 
                 Ok(output)
-        });
+            });
 
-        mocks.expect_get_query_results_impl().times(0).returning(|_, _, _| {
+        mocks
+            .expect_get_query_results_impl()
+            .times(0)
+            .returning(|_, _, _| {
+                let output = get_result_set();
 
-            let output = get_result_set();
-
-            Ok(convert_to_json(&output, None))
-        });
-
+                Ok(convert_to_json(&output, None))
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, None, None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, None, None, &mocks)
+            .await;
 
         assert!(result.is_err());
 
@@ -2702,29 +2908,40 @@ mod run_query {
             Ok(output)
         });
 
-        mocks.expect_start_query_impl().times(1).returning(move |_, _, _  | {
-            Ok(query_id_clone.clone())
-        });
+        mocks
+            .expect_start_query_impl()
+            .times(1)
+            .returning(move |_, _, _| Ok(query_id_clone.clone()));
 
-        mocks.expect_get_query_status_impl().times(1).returning(| _, _| {
-            let output = AthenaQueryStatus::Succeeded;
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Succeeded;
                 Ok(output)
-        });
+            });
 
-        mocks.expect_get_query_results_impl().times(1).returning(|_, _, _| {
+        mocks
+            .expect_get_query_results_impl()
+            .times(1)
+            .returning(|_, _, _| {
+                let output = GlyphxGetQueryResultsError::UnexpectedError(GlyphxErrorData::new(
+                    String::from("An Unexpected Error has Occurred"),
+                    None,
+                    None,
+                ));
 
-            let output = GlyphxGetQueryResultsError::UnexpectedError(GlyphxErrorData::new(String::from("An Unexpected Error has Occurred"), None, None)); 
-
-            Err(output)
-        });
-
+                Err(output)
+            });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(res.is_ok());
 
         let athena_manager = res.unwrap();
 
-        let result = athena_manager.run_query_impl(query, None, None, &mocks).await;
+        let result = athena_manager
+            .run_query_impl(query, None, None, &mocks)
+            .await;
 
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -2736,3 +2953,431 @@ mod run_query {
     }
 }
 
+#[cfg(test)]
+mod convert_get_query_status_error_to_get_query_pager_error {
+    use super::*;
+
+    #[tokio::test]
+    async fn convert_query_does_not_exist_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = GetQueryStatusError::QueryDoesNotExist(GlyphxErrorData::new(
+            String::from("The query does not exist."),
+            Some(
+                json!({"catalog": catalog, "database": database, query: "query", "query_id": query_id }),
+            ),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_get_query_status_error_to_get_query_pager_error(error,query_id);
+
+        let (error, inner_error) = match &result {
+            GetQueryPagerError::QueryDoesNotExist(e) => (Some(e).clone(), e.inner_error.clone()),
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("QueryDoesNotExist").is_some());
+    }
+
+    #[tokio::test]
+    async fn convert_unexpected_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(
+            String::from("Something unexpected has happened."),
+            Some(
+                json!({"catalog": catalog, "database": database, query: "query", "query_id": query_id }),
+            ),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_get_query_status_error_to_get_query_pager_error(error, query_id);
+
+        let (error, inner_error) = match &result {
+            GetQueryPagerError::UnexpectedError(e) => (Some(e).clone(), e.inner_error.clone()),
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("UnexpectedError").is_some());
+    }
+}
+#[cfg(test)]
+pub mod get_paged_query_results {
+    use super::*;
+    use aws_sdk_athena::types::AthenaError;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let catalog = "catalog";
+        let database = "database";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Succeeded;
+                Ok(output)
+            });
+
+        mocks
+            .expect_get_query_results_paginator()
+            .times(1)
+            .returning(|client, query_id, page_size| {
+                //Currently this function wraps the call to get query
+                //results into the pager without calling out to AWS.
+                //So, there is no harm in just returing the actual
+                //call here.  If this changes we will have to go to the
+                //trouble of mocking the paginator.
+                AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
+            });
+
+        let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(athena_manager.is_ok());
+        let athena_manager = athena_manager.unwrap();
+
+        let result = athena_manager
+            .get_paged_query_results_impl(query_id, None, &mocks)
+            .await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn query_failed() {
+        let catalog = "catalog";
+        let database = "database";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let athena_error = AthenaError::builder()
+                    .error_message("An Unexpected Error has Occurred")
+                    .build();
+                let output = AthenaQueryStatus::Failed(athena_error);
+                Ok(output)
+            });
+
+        mocks
+            .expect_get_query_results_paginator()
+            .times(0)
+            .returning(|client, query_id, page_size| {
+                //Currently this function wraps the call to get query
+                //results into the pager without calling out to AWS.
+                //So, there is no harm in just returing the actual
+                //call here.  If this changes we will have to go to the
+                //trouble of mocking the paginator.
+                AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
+            });
+
+        let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(athena_manager.is_ok());
+        let athena_manager = athena_manager.unwrap();
+
+        let result = athena_manager
+            .get_paged_query_results_impl(query_id, None, &mocks)
+            .await;
+
+        assert!(result.is_err());
+        let is_failed = match result.err().unwrap() {
+            GetQueryPagerError::QueryFailed(_) => true,
+            _ => false,
+        };
+        assert!(is_failed);
+    }
+
+    #[tokio::test]
+    async fn query_cancelled() {
+        let catalog = "catalog";
+        let database = "database";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Cancelled;
+                Ok(output)
+            });
+
+        mocks
+            .expect_get_query_results_paginator()
+            .times(0)
+            .returning(|client, query_id, page_size| {
+                //Currently this function wraps the call to get query
+                //results into the pager without calling out to AWS.
+                //So, there is no harm in just returing the actual
+                //call here.  If this changes we will have to go to the
+                //trouble of mocking the paginator.
+                AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
+            });
+
+        let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(athena_manager.is_ok());
+        let athena_manager = athena_manager.unwrap();
+
+        let result = athena_manager
+            .get_paged_query_results_impl(query_id, None, &mocks)
+            .await;
+
+        assert!(result.is_err());
+        let is_cancelled = match result.err().unwrap() {
+            GetQueryPagerError::QueryCancelled(_) => true,
+            _ => false,
+        };
+        assert!(is_cancelled);
+    }
+
+    #[tokio::test]
+    async fn query_running() {
+        let catalog = "catalog";
+        let database = "database";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Running;
+                Ok(output)
+            });
+
+        mocks
+            .expect_get_query_results_paginator()
+            .times(0)
+            .returning(|client, query_id, page_size| {
+                //Currently this function wraps the call to get query
+                //results into the pager without calling out to AWS.
+                //So, there is no harm in just returing the actual
+                //call here.  If this changes we will have to go to the
+                //trouble of mocking the paginator.
+                AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
+            });
+
+        let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(athena_manager.is_ok());
+        let athena_manager = athena_manager.unwrap();
+
+        let result = athena_manager
+            .get_paged_query_results_impl(query_id, None, &mocks)
+            .await;
+
+        assert!(result.is_err());
+        let is_not_finished = match result.err().unwrap() {
+            GetQueryPagerError::QueryNotFinished(_) => true,
+            _ => false,
+        };
+        assert!(is_not_finished);
+    }
+
+    #[tokio::test]
+    async fn query_queued() {
+        let catalog = "catalog";
+        let database = "database";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Queued;
+                Ok(output)
+            });
+
+        mocks
+            .expect_get_query_results_paginator()
+            .times(0)
+            .returning(|client, query_id, page_size| {
+                //Currently this function wraps the call to get query
+                //results into the pager without calling out to AWS.
+                //So, there is no harm in just returing the actual
+                //call here.  If this changes we will have to go to the
+                //trouble of mocking the paginator.
+                AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
+            });
+
+        let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(athena_manager.is_ok());
+        let athena_manager = athena_manager.unwrap();
+
+        let result = athena_manager
+            .get_paged_query_results_impl(query_id, None, &mocks)
+            .await;
+
+        assert!(result.is_err());
+        let is_not_finished = match result.err().unwrap() {
+            GetQueryPagerError::QueryNotFinished(_) => true,
+            _ => false,
+        };
+        assert!(is_not_finished);
+    }
+
+    #[tokio::test]
+    async fn query_status_unknown() {
+        let catalog = "catalog";
+        let database = "database";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = AthenaQueryStatus::Unknown;
+                Ok(output)
+            });
+
+        mocks
+            .expect_get_query_results_paginator()
+            .times(0)
+            .returning(|client, query_id, page_size| {
+                //Currently this function wraps the call to get query
+                //results into the pager without calling out to AWS.
+                //So, there is no harm in just returing the actual
+                //call here.  If this changes we will have to go to the
+                //trouble of mocking the paginator.
+                AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
+            });
+
+        let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(athena_manager.is_ok());
+        let athena_manager = athena_manager.unwrap();
+
+        let result = athena_manager
+            .get_paged_query_results_impl(query_id, None, &mocks)
+            .await;
+
+        assert!(result.is_err());
+        let is_not_finished = match result.err().unwrap() {
+            GetQueryPagerError::QueryNotFinished(_) => true,
+            _ => false,
+        };
+        assert!(is_not_finished);
+    }
+
+    #[tokio::test]
+    async fn query_status_returns_an_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query_id = "query_id";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_get_query_status_impl()
+            .times(1)
+            .returning(|_, _| {
+                let output = GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(
+                    String::from("An Error has Occurred"),
+                    None,
+                    None,
+                ));
+                Err(output)
+            });
+
+        mocks
+            .expect_get_query_results_paginator()
+            .times(0)
+            .returning(|client, query_id, page_size| {
+                //Currently this function wraps the call to get query
+                //results into the pager without calling out to AWS.
+                //So, there is no harm in just returing the actual
+                //call here.  If this changes we will have to go to the
+                //trouble of mocking the paginator.
+                AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
+            });
+
+        let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(athena_manager.is_ok());
+        let athena_manager = athena_manager.unwrap();
+
+        let result = athena_manager
+            .get_paged_query_results_impl(query_id, None, &mocks)
+            .await;
+
+        assert!(result.is_err());
+        let is_unexpected = match result.err().unwrap() {
+            GetQueryPagerError::UnexpectedError(_) => true,
+            _ => false,
+        };
+        assert!(is_unexpected);
+    }
+}

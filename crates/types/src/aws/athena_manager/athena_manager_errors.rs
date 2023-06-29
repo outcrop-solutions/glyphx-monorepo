@@ -36,3 +36,12 @@ pub enum RunQueryError {
     QueryFailed(GlyphxErrorData),
     QueryCancelled(GlyphxErrorData),
 }
+
+#[derive(Debug, Clone)]
+pub enum GetQueryPagerError {
+    QueryDoesNotExist(GlyphxErrorData),
+    UnexpectedError(GlyphxErrorData),
+    QueryFailed(GlyphxErrorData),
+    QueryCancelled(GlyphxErrorData),
+    QueryNotFinished(GlyphxErrorData),
+}
