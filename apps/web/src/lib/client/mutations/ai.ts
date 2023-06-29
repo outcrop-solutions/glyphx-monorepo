@@ -8,7 +8,7 @@ import { IClientSidePayload } from '@glyphx/types/src/web';
  */
 export const _createCompletion = (payload: IClientSidePayload): webTypes.IFetchConfig => {
   return {
-    url: `/api/chat`,
+    url: `/api/completion`,
     options: {
       method: 'POST',
       body: { payload },

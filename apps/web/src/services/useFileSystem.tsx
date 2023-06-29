@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import produce from 'immer';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { web as webTypes } from '@glyphx/types';
 import { WritableDraft } from 'immer/dist/internal';
 import { useSWRConfig } from 'swr';
 
@@ -107,11 +107,22 @@ export const useFileSystem = () => {
       // parse payload
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
 
-      const result = await api({
-        ..._createCompletion(payload),
-        returnData: true,
-      });
-      setCompletion(result);
+      // const result = await api({
+      //   ..._createCompletion(payload),
+      //   returnData: true,
+      // });
+      // console.log({ result });
+      // setCompletion(result?.choices[0]?.message?.content);
+
+      setModals(
+        produce((draft: WritableDraft<any>) => {
+          draft.modals.push({
+            type: webTypes.constants.MODAL_CONTENT_TYPE.AI_UPLOAD,
+            isSubmitting: false,
+            data: payload,
+          });
+        })
+      );
 
       // check file against FILE_RULES before upload
       // const modals = runRulesEngine(payload, project.files, acceptedFiles);

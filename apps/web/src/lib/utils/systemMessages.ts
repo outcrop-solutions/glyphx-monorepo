@@ -14,6 +14,10 @@ export const systemMessage = (fileStats, templates): ChatCompletionRequestMessag
     tags: ITag[];
     shape: Record<string, {type: string; required: boolean; description: string}>;
   }
+  export interface IRecommendation {
+    name: string;
+    insights: string[]
+  }
   export interface IFileStats {
     fileName: string;
     tableName: string;
@@ -51,7 +55,11 @@ export const systemMessage = (fileStats, templates): ChatCompletionRequestMessag
   {
     role: 'system',
     content:
-      'Please strinctly format the response in the format "Your uploaded file fits the following templates: <project templates>" where <project templates> are the templates you recommend and a quick, three bullet point analysis of what insights you could draw from using each model',
+      'Please strictly format the response as an array of shape IRecommendation[] where name corresponds to the recommended ProjectTemplate.name and insights are three one sentence insights that could be derived from such a model.',
+  },
+  {
+    role: 'system',
+    content: 'Only respond with valid json.',
   },
   {
     role: 'user',

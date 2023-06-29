@@ -1,5 +1,6 @@
 // determines what to show in the modal utility
 export enum MODAL_CONTENT_TYPE {
+  AI_UPLOAD = 'AI_UPLOAD',
   CREATE_PROJECT = 'CREATE_PROJECT',
   CREATE_STATE = 'CREATE_STATE',
   UPDATE_STATE = 'UPDATE_STATE',

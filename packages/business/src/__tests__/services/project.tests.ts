@@ -136,6 +136,7 @@ describe('#services/project', () => {
     it('will create a Project and attach to user and workspace models', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
 
@@ -185,14 +186,14 @@ describe('#services/project', () => {
 
       const doc = await projectService.createProject(
         projectName,
-        userId,
-        workspaceId
+        workspaceId,
+        userId.toString(),
+        userEmail
       );
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(updateWorkspaceStub.calledOnce);
-      assert.isOk(doc.owner.projects);
       assert.isOk(doc.workspace.projects);
     });
     it('will create a Project and attach to user and workspace models when ownerId is a string', async () => {
@@ -256,12 +257,12 @@ describe('#services/project', () => {
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(updateWorkspaceStub.calledOnce);
-      assert.isOk(doc.owner.projects);
       assert.isOk(doc.workspace.projects);
     });
     it('will create a Project and attach to user and workspace models when workspaceId is a string', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
 
@@ -312,13 +313,13 @@ describe('#services/project', () => {
       const doc = await projectService.createProject(
         projectName,
         userId,
-        workspaceId.toString()
+        workspaceId.toString(),
+        userEmail
       );
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(updateWorkspaceStub.calledOnce);
-      assert.isOk(doc.owner.projects);
       assert.isOk(doc.workspace.projects);
     });
 
@@ -326,6 +327,7 @@ describe('#services/project', () => {
     it('will publish and rethrow an DataValidationError when project model throws it', async () => {
       const projectName = 'projectName1';
       const userId = new mongooseTypes.ObjectId();
+      const userEmail = 'tetsinguseremail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
@@ -355,7 +357,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -367,6 +374,7 @@ describe('#services/project', () => {
     it('will publish and throw an DataServiceError when project model throws a DataOperationError', async () => {
       const projectName = 'projectName1';
       const userId = new mongooseTypes.ObjectId();
+      const userEmail = 'tetsinguseremail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
@@ -400,7 +408,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -412,6 +425,7 @@ describe('#services/project', () => {
     it('will publish and throw an DataServiceError when project model throws a UnexpectedError', async () => {
       const projectName = 'projectName1';
       const userId = new mongooseTypes.ObjectId();
+      const userEmail = 'tetsinguseremail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
@@ -445,7 +459,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -459,6 +478,7 @@ describe('#services/project', () => {
     it('will publish and rethrow an InvalidArgumentError when user model throws it', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -508,7 +528,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -522,6 +547,7 @@ describe('#services/project', () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userId = new mongooseTypes.ObjectId();
+      const userEmail = 'tetsinguseremail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
@@ -570,7 +596,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -583,6 +614,7 @@ describe('#services/project', () => {
     it('will publish and throw an DataServiceError when user model throws a DataOperationError', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -632,7 +664,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -647,6 +684,7 @@ describe('#services/project', () => {
     it('will publish and rethrow an InvalidArgumentError when workspace model throws it', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -708,7 +746,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -721,6 +764,7 @@ describe('#services/project', () => {
     it('will publish and rethrow an InvalidOperationError when workspace model throws it', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -782,7 +826,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -795,6 +844,7 @@ describe('#services/project', () => {
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -856,7 +906,12 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId);
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
