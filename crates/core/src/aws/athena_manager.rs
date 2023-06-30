@@ -1,3 +1,13 @@
+//! This model holds our AthenaManager struct for interacting with AWS Athena. 
+//! Since many of the functions in this struct run against AWS services we 
+//! have implemented our impl pattern to inject the AWS calls into the impl methods. 
+//! The purpose of the public functions is to inject the production AWS calls into 
+//! the impl methods.  This allows us to write unit tests against the impl methods and 
+//! to mock the calls -- effectivly allowing us to unit test our logic and not AWS's logic. 
+//! Another thing that you may notice is that we have included some of our impl methods in our
+//! implementation of the AthenaManagerOps trait.  This is because some of our methods call 
+//! other functions on or Athena manager struct.  This also allows us to test those methods.
+//! Full integratiuon tests exist in the tests/aws directory to test theses methods against AWS.
 use aws_sdk_athena::error::ProvideErrorMetadata;
 use aws_sdk_athena::types::{QueryExecutionContext, QueryExecutionState, ResultConfiguration};
 use aws_sdk_athena::Client as AthenaClient;
@@ -29,6 +39,9 @@ use serde_json::{json, Value};
 use std::time::{Duration, Instant};
 use tokio_stream::Stream;
 
+/// This trait defines those methods that we will be mocking in our unit tests.  We will be
+/// mocking these methods because they call AWS services and we want to test our logic and not
+/// AWS's logic.
 #[automock]
 #[async_trait]
 trait AthenaManagerOps {
@@ -96,17 +109,19 @@ trait AthenaManagerOps {
     ) -> Result<Value, RunQueryError>;
 }
 
+///This struct holds our production implementation of the AthenaManagerOps trait.
 #[derive(Debug, Clone)]
 struct AthenaManagerOpsImpl;
 
-fn get_context(catalog: &str, database: &str) -> QueryExecutionContext {
-    QueryExecutionContext::builder()
-        .catalog(catalog)
-        .database(database)
-        .build()
-}
+///The implementation of our AthenaManaerOps trait with our production method calls.
 #[async_trait]
 impl AthenaManagerOps for AthenaManagerOpsImpl {
+    ///This method calls the AWS Athena get_database method to determine whether or not the 
+    ///database exists. 
+    ///# Arguments
+    ///* `client` - The AWS Athena client.
+    ///* `catalog` - The AWS catalog.
+    ///* `database` - The AWS database.
     async fn get_database(
         &self,
         client: &AthenaClient,
@@ -120,7 +135,13 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .send()
             .await
     }
-
+    ///Unlike traditional databases, query execution in Athen is asynchronous.  This method
+    ///calls the AWS Athena start_query_execution method to start the query execution.
+    ///# Arguments
+    ///* `client` - The AWS Athena client.
+    ///* `catalog` - The AWS catalog.
+    ///* `database` - The AWS database.
+    ///* `query` - The query to execute.
     async fn start_query_execution(
         &self,
         client: &AthenaClient,
@@ -129,7 +150,10 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         query: &str,
         output_location: Option<String>,
     ) -> Result<StartQueryExecutionOutput, SdkError<StartQueryExecutionError>> {
-        let context = get_context(catalog, database);
+        let context = QueryExecutionContext::builder()
+        .catalog(catalog)
+        .database(database)
+        .build();
         let mut op = client
             .start_query_execution()
             .query_execution_context(context)
@@ -143,6 +167,11 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         op.send().await
     }
 
+    ///Once a query has been started the AWS Athena get_query_execution method 
+    ///is called to determine the status of the query execution.
+    ///# Arguments
+    ///* `client` - The AWS Athena client.
+    ///* `query_id` - The query id.
     async fn get_query_execution(
         &self,
         client: &AthenaClient,
@@ -155,6 +184,11 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .await
     }
 
+    ///Once a query has completed, the AWS Athena get_query_results method is called
+    ///to retrieve the results of the query.
+    ///# Arguments
+    ///* `client` - The AWS Athena client.
+    ///* `query_id` - The query id.
     async fn get_query_results(
         &self,
         client: &AthenaClient,
@@ -167,6 +201,12 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .await
     }
 
+    ///In some instances/workflows we may not want to return all of query results all at once.
+    ///This method returns a paginator that can be used to retrieve the results in chunks.
+    ///# Arguments
+    ///* `client` - The AWS Athena client.
+    ///* `query_id` - The query id.
+    ///* `page_size` - The number of results to return per page.
     fn get_query_results_paginator(
         &self,
         client: &AthenaClient,
@@ -184,6 +224,13 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         )
     }
 
+    ///Some of our AtenaManager methods call other methods on the AthenaManager.  This method
+    ///wraps calls to start_query_impl so that the methods that call start_query_impl can be
+    ///tested.
+    ///# Arguments
+    ///* `athena_manager` - The AthenaManager.
+    ///* `query` - The query to execute.
+    ///* `output_location` - The output location for the query results.
     async fn start_query_impl(
         &self,
         athena_manager: &AthenaManager,
@@ -194,7 +241,12 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .start_query_impl(query, output_location, &AthenaManagerOpsImpl)
             .await
     }
-
+    ///Some of our AtenaManager methods call other methods on the AthenaManager.  This method
+    ///wraps calls to get_query_status_impl so that the methods that call get_query_status_impl can be
+    ///tested.
+    ///# Arguments
+    ///* `athena_manager` - The AthenaManager.
+    ///* `query_id` - The query id.
     async fn get_query_status_impl(
         &self,
         athena_manager: &AthenaManager,
@@ -204,7 +256,14 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .get_query_status_impl(query_id, &AthenaManagerOpsImpl)
             .await
     }
-
+    ///Some of our AtenaManager methods call other methods on the AthenaManager.  This method
+    ///wraps calls to get_query_results_impl so that the methods that call get_query_results_impl can be
+    ///tested.
+    ///# Arguments
+    ///* `athena_manager` - The AthenaManager.
+    ///* `query_id` - The query id.
+    ///* `results_include_header_row` - Whether or not the results in the query output have a
+    ///header row in addition to the information included in the result_metadata.
     async fn get_query_results_impl(
         &self,
         athena_manager: &AthenaManager,
@@ -215,7 +274,15 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .get_query_results_impl(query_id, results_include_header_row, &AthenaManagerOpsImpl)
             .await
     }
-
+    ///Some of our AtenaManager methods call other methods on the AthenaManager.  This method
+    ///wraps calls to run_query_impl so that the methods that call run_query_impl can be
+    ///tested.
+    ///# Arguments
+    ///* `athena_manager` - The AthenaManager.
+    ///* `query` - The query to execute.
+    ///* `time_out` - The maximum amount of time to wait for the query to complete.
+    ///* `results_include_header_row` - Whether or not the results in the query output have a
+    ///header row in addition to the information included in the result_metadata.
     async fn run_query_impl(
         &self,
         athena_manager: &AthenaManager,
@@ -233,26 +300,42 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
             .await
     }
 }
-
+///The AthenaManager is used to execute queries against AWS Athena.
 pub struct AthenaManager {
     catalog: String,
     database: String,
     client: AthenaClient,
 }
 
+///The impl of the functions for our AthenaManager.  in most cases you will see two versions of the
+///function.  The pub facing part of the API and the private impl.  For example run_query and 
+///run_query_impl.  The pub facing part of the API is what is used by consumers and injects the
+///production AWS calls to the impl which does the actual work.  In this patters, the impls can be
+///fully tested with mocks without having to actually call AWS.
 impl AthenaManager {
+    ///This method is used to create a new AthenaManager.
+    ///# Arguments
+    ///* `catalog` - The name of the data catalog to use for the AthenaManager.
+    ///* `database` - The name of the database to use for the AthenaManager.
     pub async fn new(catalog: &str, database: &str) -> Result<AthenaManager, ConstructorError> {
         AthenaManager::new_impl(catalog, database, &AthenaManagerOpsImpl).await
     }
-
+    ///A get acessor to get a reference to the databse name that was used to create the AthenaManager.
     pub fn get_database(&self) -> &str {
         &self.database
     }
 
+    ///A get acessor to get a reference to the catalog name that was used to create the AthenaManager.
     pub fn get_catalog(&self) -> &str {
         &self.catalog
     }
 
+    ///As noted, Athena runs queries Asynchronously.  This method is used to start a query and
+    ///returns the query id that can be used to track the status of the query execution.
+    ///# Arguments
+    ///* `query` - The query to execute.
+    ///* `output_location` - The output location for the query results.  This is optional each
+    ///database has a default output location defined in AWS.
     pub async fn start_query(
         &self,
         query: &str,
@@ -262,6 +345,10 @@ impl AthenaManager {
             .await
     }
 
+    ///This method is used to get the status of a query execution that was previously started by a
+    ///call to start_query.
+    ///# Arguments
+    ///* `query_id` - The query id.
     pub async fn get_query_status(
         &self,
         query_id: &str,
@@ -269,7 +356,13 @@ impl AthenaManager {
         self.get_query_status_impl(query_id, &AthenaManagerOpsImpl)
             .await
     }
-
+    ///Once a query has been completed, this method can be called to return the results of the
+    ///query.  Keep in mind that calling this method befire the query has completed will result in
+    ///an error.
+    ///# Arguments
+    ///* `query_id` - The query id.
+    ///* `results_include_header_row` - Whether or not the results in the query output have a
+    ///header row in addition to the information included in the result_metadata.
     pub async fn get_query_results(
         &self,
         query_id: &str,
@@ -279,6 +372,16 @@ impl AthenaManager {
             .await
     }
 
+    ///This method effectivly wraps the call to start_query, get_query_status and
+    ///get_query_results.  Additionally, the user may set a time out value that will cause the
+    ///method to return an error if the query has not completed within the specified time.  The
+    ///default is 60 seconds.
+    ///# Arguments
+    ///* `query` - The query to execute.
+    ///* `time_out` - The maximum amount of time to wait for the query to complete in seconds.  The
+    ///default is 60 seconds.
+    ///* `results_include_header_row` - Whether or not the results in the query output have a
+    ///header row in addition to the information included in the result_metadata.
     pub async fn run_query(
         &self,
         query: &str,
@@ -293,7 +396,12 @@ impl AthenaManager {
         )
         .await
     }
-
+    ///Often times it is not desirable to return the enire result set of a query into memory.  This
+    ///method will return a stream of results that can be processed one at a time.  It is important
+    ///to remember to not call this method until the query has completed.
+    ///# Arguments
+    ///* `query_id` - The query id.
+    ///* `page_size` - The number of results to return per page.  The default is 1000.
     pub async fn get_paged_query_results(
         &self,
         query_id: &str,
@@ -306,25 +414,39 @@ impl AthenaManager {
             .await
     }
 
+    ///This method is used to check and see if a table exists in the database.
+    ///# Arguments
+    ///* `table_name` - The name of the table to check for.
     pub async fn table_exists(&self, table_name: &str) -> Result<bool, RunQueryError> {
         self.table_exists_impl(table_name, &AthenaManagerOpsImpl)
             .await
     }
 
+    ///This method is used to check and see if a view exists in the database.
+    ///# Arguments
+    ///* `view_name` - The name of the view to check for.
     pub async fn view_exists(&self, view_name: &str) -> Result<bool, RunQueryError> {
         self.view_exists_impl(view_name, &AthenaManagerOpsImpl)
             .await
     }
 
+    ///This method is used to drop a table from the database.
+    ///# Arguments
+    ///* `table_name` - The name of the table to drop.
     pub async fn drop_table(&self, table_name: &str) -> Result<(), RunQueryError> {
         self.drop_table_impl(table_name, &AthenaManagerOpsImpl)
             .await
     }
-
+   ///This method is used to drop a view from the database.
+   ///# Arguments
+   ///* `view_name` - The name of the view to drop.
     pub async fn drop_view(&self, view_name: &str) -> Result<(), RunQueryError> {
         self.drop_view_impl(view_name, &AthenaManagerOpsImpl).await
     }
 
+    ///This method will return the columns and data types for the specified table.
+    ///# Arguments
+    ///* `table_name` - The name of the table to get the description for.
     pub async fn get_table_description(
         &self,
         table_name: &str,
@@ -333,6 +455,14 @@ impl AthenaManager {
             .await
     }
 
+
+    ///The intrnal implementation of the new method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `catalog` - The name of the data catalog to use to build the AthenaManager.
+    ///* `database` - The name of the database to use to build the AthenaManager.
+    ///* `aws_operations` - The implementation of AthenaManagerOps to use to make or mock the aws calls.
     async fn new_impl<T: AthenaManagerOps>(
         catalog: &str,
         database: &str,
@@ -409,6 +539,13 @@ impl AthenaManager {
         }
     }
 
+    ///The internal implementation of the start_query method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `query` - The query to run.
+    ///* `output_location` - The location to store the results of the query.
+    ///* `aws_operations` - The implementation of AthenaManagerOps to use to make or mock the aws calls.
     async fn start_query_impl<T: AthenaManagerOps>(
         &self,
         query: &str,
@@ -498,6 +635,12 @@ impl AthenaManager {
         }
     }
 
+    ///The internal implementation of the get_query_status method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `query_id` - The id of the query to get the status of.
+    ///* `aws_operations` - The implementation of AthenaManagerOps to use to make or mock the aws calls.
     async fn get_query_status_impl<T: AthenaManagerOps>(
         &self,
         query_id: &str,
@@ -556,6 +699,14 @@ impl AthenaManager {
         }
     }
 
+    ///The internal implementation of the get_query_results method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `query_id` - The id of the query to get the results of.
+    ///* `results_include_header_row` - indicates whether or not to results contain a header row
+    ///that should be excluded from the results.
+    ///* `aws_operations` - The implementation of AthenaManagerOps to use to make or mock the aws calls.
     async fn get_query_results_impl<T: AthenaManagerOps>(
         &self,
         query_id: &str,
@@ -621,6 +772,10 @@ impl AthenaManager {
         }
     }
 
+    ///An internal helper method that will convert StartQueryErrors to RunQueryErrors.
+    ///# Arguments
+    ///* `error` - The StartQueryError to convert.
+    ///* `query` - The query that was attempted to be run.
     fn convert_start_query_error_to_run_query_error(
         &self,
         error: StartQueryError,
@@ -659,7 +814,11 @@ impl AthenaManager {
             }
         }
     }
-
+    ///An internal helper method that will convert GetQueryStatusErrors to RunQueryErrors.
+    ///# Arguments
+    ///* `error` - The GetQueryStatusError to convert.
+    ///* `query` - The query that was attempted to be run.
+    ///* `query_id` - The id of the query that was attempted to be run.
     fn convert_get_query_status_error_to_run_query_error(
         &self,
         error: GetQueryStatusError,
@@ -691,7 +850,10 @@ impl AthenaManager {
             }
         }
     }
-
+    ///An internal helper method that will convert GetQueryStatusErrors to GetQueryPagerErrors.
+    ///# Arguments
+    ///* `error` - The GetQueryStatusError to convert.
+    ///* `query_id` - The id of the query that was attempted to be run.
     fn convert_get_query_status_error_to_get_query_pager_error(
         &self,
         error: GetQueryStatusError,
@@ -721,7 +883,11 @@ impl AthenaManager {
             }
         }
     }
-
+    ///An internal helper method that will convert GetQueryResultsErrors to RunQueryErrors.
+    ///# Arguments
+    ///* `error` - The GetQueryResultsError to convert.
+    ///* `query` - The query that was attempted to be run.
+    ///* `query_id` - The id of the query that was attempted to be run.
     fn convert_get_query_results_error_to_run_query_error(
         &self,
         error: GlyphxGetQueryResultsError,
@@ -763,6 +929,11 @@ impl AthenaManager {
         }
     }
 
+    ///An internal helper method that will convert GetQueryResultsErrors to
+    ///GetTableDescriptionErrors.
+    ///# Arguments
+    ///* `error` - The GetQueryResultsError to convert.
+    ///* `table_name` - The name of the table that was attempted to be described.
     fn convert_run_query_error_to_get_table_description_error(
         &self,
         error: RunQueryError,
@@ -839,6 +1010,15 @@ impl AthenaManager {
             }
         }
     }
+    ///Our internal implementation of run_query. This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `query` - The query to run.
+    ///* `time_out` - The amount of time in seconds to wait for the query to complete.
+    ///* `results_include_header_row` - Indicates whether or not the results include a header row
+    ///which should be excuded from the results. 
+    ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn run_query_impl<T: AthenaManagerOps>(
         &self,
         query: &str,
@@ -922,6 +1102,13 @@ impl AthenaManager {
         Ok(results)
     }
 
+    ///Our internal implementation of get_query_results. This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `query_id` - The id of the query to get the results for.
+    ///* `page_size` - The number of results to return per page.  If None, the default page size(1000) will be used.
+    ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn get_paged_query_results_impl<T: AthenaManagerOps>(
         &self,
         query_id: &str,
@@ -993,7 +1180,13 @@ impl AthenaManager {
             Ok(aws_operations.get_query_results_paginator(&self.client, query_id, page_size))
         }
     }
-
+    
+    ///Our intenal implementation of our table_exists method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `table_name` - The name of the table to check for.
+    ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn table_exists_impl<T: AthenaManagerOps>(
         &self,
         table_name: &str,
@@ -1011,6 +1204,12 @@ impl AthenaManager {
         Ok(results.as_array().unwrap().len() > 0)
     }
 
+    ///Our intenal implementation of our view_exists method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `view_name` - The name of the view to check for.
+    ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn view_exists_impl<T: AthenaManagerOps>(
         &self,
         view_name: &str,
@@ -1028,6 +1227,12 @@ impl AthenaManager {
         Ok(results.as_array().unwrap().len() > 0)
     }
 
+    ///Our intenal implementation of our drop_table method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `table_name` - The name of the table to drop.
+    ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn drop_table_impl<T: AthenaManagerOps>(
         &self,
         table_name: &str,
@@ -1044,6 +1249,12 @@ impl AthenaManager {
         Ok(())
     }
 
+    ///Our intenal implementation of our drop_view method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `view_name` - The name of the view to drop.
+    ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn drop_view_impl<T: AthenaManagerOps>(
         &self,
         view_name: &str,
@@ -1059,7 +1270,12 @@ impl AthenaManager {
         }
         Ok(())
     }
-
+    ///Our intenal implementation of our get_table_description method.  This method will make the actual calls to aws
+    ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
+    ///of AthenaManagerOps can be passed in to simulate the aws calls.
+    ///# Arguments
+    ///* `table_name` - The name of the table to get the description for.
+    ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn get_table_description_impl<T: AthenaManagerOps>(
         &self,
         table_name: &str,

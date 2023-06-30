@@ -178,7 +178,7 @@ pub fn convert_to_json(result_set: &ResultSet, includes_header_row: Option<bool>
     let column_information = get_column_info(&metadata);
     let mut rows: Vec<Value> = Vec::new();
     let mut first = true;
-    if( result_set.rows().is_none()){
+    if result_set.rows().is_none(){
         return Value::Null;
     }
     for row in result_set.rows().unwrap() {
