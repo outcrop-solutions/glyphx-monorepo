@@ -2,7 +2,7 @@ import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { deactivateUser } from 'lib/server/user';
+import { deactivateUser } from 'business/actions/user';
 
 const deactivate = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer

@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { updateWorkspaceName } from 'lib/server/workspace';
+import { updateWorkspaceName } from 'business/actions/workspace';
 
 const name = async (req, res) => {
   // initialize the business layer

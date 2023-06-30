@@ -2,7 +2,7 @@ import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
 import { Initializer, validateSession } from '@glyphx/business';
-import { getWorkspaces } from 'lib/server/workspaces';
+import { getWorkspaces } from 'business/actions/workspaces';
 
 const workspaces = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer

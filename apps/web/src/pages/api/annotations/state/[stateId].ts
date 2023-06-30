@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { getStateAnnotations, createStateAnnotation } from 'lib/server/annotation';
+import { getStateAnnotations, createStateAnnotation } from 'business/actions/annotation';
 
 const stateAnnotations = async (req, res) => {
   // initialize the business layer

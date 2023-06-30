@@ -1,3 +1,4 @@
+'use server';
 export * as constants from './constants';
 export * as logging from './logging';
 export * as error from './error';

@@ -2,7 +2,7 @@ import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
 import { Initializer, validateSession } from '@glyphx/business';
-import { fileIngestion } from 'lib/server/etl/fileIngestion';
+import { fileIngestion } from 'business/actions/etl/fileIngestion';
 
 /**
  * UNCOMMENT TO DISABLE BUFFERING OF RESPONSE i.e to read raw data or stream

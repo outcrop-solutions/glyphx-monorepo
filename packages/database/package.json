@@ -23,12 +23,13 @@
   },
   "dependencies": {
     "@glyphx/core": "workspace:*",
-    "mongoose": "^6.8.1"
+    "mongoose": "^6.8.1",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
-    "@glyphx/types": "workspace:*",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "@glyphx/tsconfig": "workspace:*",
+    "@glyphx/types": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^14.14.37",

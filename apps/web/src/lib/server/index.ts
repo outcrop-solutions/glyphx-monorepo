@@ -1,3 +1,4 @@
+'use server';
 export * from './etl/glyphEngine';
 export * from './etl/fileIngestion';
 export * from './mongodb';

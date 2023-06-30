@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { isTeamOwner } from 'lib/server/workspace';
+import { isTeamOwner } from 'business/actions/workspace';
 
 const isOwner = async (req, res) => {
   // initialize the business layer

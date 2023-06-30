@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { getWorkspaceLogs } from 'lib/server/activity';
+import { getWorkspaceLogs } from 'business/actions/activity';
 
 const workspaceLogs = async (req, res) => {
   // initialize the business layer

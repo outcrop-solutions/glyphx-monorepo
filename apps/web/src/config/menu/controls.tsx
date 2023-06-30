@@ -1,10 +1,10 @@
-import { CreateProject } from 'partials/layout/controls/CreateProject';
-import { GridToggle } from 'partials/layout/controls/GridToggle';
-import { OrientationToggle } from 'partials/layout/controls/OrientationToggle';
-import { SettingsDropdown } from 'partials/layout/controls/SettingsDropdown';
-import { ShareButton } from 'partials/layout/controls/ShareButton';
-import { ShowInfo } from 'partials/layout/controls/ShowInfo';
-import { ShowNotifications } from 'partials/layout/controls/ShowNotifications';
+import { CreateProject } from 'app/[workspaceSlug]/_components/controls/CreateProject';
+import { GridToggle } from 'app/[workspaceSlug]/_components/controls/GridToggle';
+import { OrientationToggle } from 'app/[workspaceSlug]/_components/controls/OrientationToggle';
+import { SettingsDropdown } from 'app/[workspaceSlug]/_components/controls/SettingsDropdown';
+import { ShareButton } from 'app/[workspaceSlug]/_components/controls/ShareButton';
+import { ShowInfo } from 'app/[workspaceSlug]/_components/controls/ShowInfo';
+import { ShowNotifications } from 'app/[workspaceSlug]/_components/controls/ShowNotifications';
 
 export const projectControls = () => [
   {
