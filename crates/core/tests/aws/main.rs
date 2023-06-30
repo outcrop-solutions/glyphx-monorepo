@@ -1,6 +1,5 @@
 mod athena_manager;
 mod s3_manager;
-mod upload_stream;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 

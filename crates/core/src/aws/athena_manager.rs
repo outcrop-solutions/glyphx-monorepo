@@ -1001,7 +1001,7 @@ impl AthenaManager {
     ) -> Result<bool, RunQueryError> {
         let query = format!("SHOW TABLES '{}'", table_name);
         let results = aws_operations
-            .run_query_impl(self, &query, Some(10), Some(true))
+            .run_query_impl(self, &query, Some(10), Some(false))
             .await;
         if results.is_err() {
             let err = results.err().unwrap();
@@ -1018,7 +1018,7 @@ impl AthenaManager {
     ) -> Result<bool, RunQueryError> {
         let query = format!("SHOW VIEWS LIKE '{}'", view_name);
         let results = aws_operations
-            .run_query_impl(self, &query, Some(10), Some(true))
+            .run_query_impl(self, &query, Some(10), Some(false))
             .await;
         if results.is_err() {
             let err = results.err().unwrap();
@@ -1033,7 +1033,7 @@ impl AthenaManager {
         table_name: &str,
         aws_operations: &T,
     ) -> Result<(), RunQueryError> {
-        let query = format!("DROP TABLE IF EXISTS '{}'", table_name);
+        let query = format!("DROP TABLE IF EXISTS `{}`", table_name);
         let results = aws_operations
             .run_query_impl(self, &query, Some(10), Some(false))
             .await;
@@ -1049,7 +1049,7 @@ impl AthenaManager {
         view_name: &str,
         aws_operations: &T,
     ) -> Result<(), RunQueryError> {
-        let query = format!("DROP VIEW IF EXISTS '{}'", view_name);
+        let query = format!("DROP VIEW IF EXISTS \"{}\"", view_name);
         let results = aws_operations
             .run_query_impl(self, &query, Some(10), Some(false))
             .await;
@@ -1067,7 +1067,7 @@ impl AthenaManager {
     ) -> Result<Vec<ColumnDescription>, GetTableDescriptionError> {
         let query = format!("DESCRIBE `{}`", table_name);
         let results = aws_operations
-            .run_query_impl(self, &query, Some(10), Some(true))
+            .run_query_impl(self, &query, Some(10), Some(false))
             .await;
         if results.is_err() {
             let err = self.convert_run_query_error_to_get_table_description_error(
@@ -1082,8 +1082,8 @@ impl AthenaManager {
             let row = row.as_object().unwrap();
             let full_name = row.get("col_name").unwrap().as_str().unwrap();
             let parts = full_name.split("\t").collect::<Vec<&str>>();
-            let name = parts[0];
-            let column_type = match parts[1] {
+            let name = parts[0].trim();
+            let column_type = match parts[1].trim() {
                 s if s == "string" || s.starts_with("varchar(") => ColumnDataType::STRING,
                 "bigint" => ColumnDataType::INTEGER,
                 "double" => ColumnDataType::NUMBER,
