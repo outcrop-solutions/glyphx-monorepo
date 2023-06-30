@@ -45,3 +45,15 @@ pub enum GetQueryPagerError {
     QueryCancelled(GlyphxErrorData),
     QueryNotFinished(GlyphxErrorData),
 }
+
+#[derive(Debug, Clone)]
+pub enum GetTableDescriptionError {
+    QueryDoesNotExist(GlyphxErrorData),
+    DatabaseDoesNotExist(GlyphxErrorData),
+    RequestWasThrottled(GlyphxErrorData),
+    UnexpectedError(GlyphxErrorData),
+    QueryTimedOut(GlyphxErrorData),
+    QueryFailed(GlyphxErrorData),
+    QueryCancelled(GlyphxErrorData),
+    TableDoesNotExist(GlyphxErrorData),
+}

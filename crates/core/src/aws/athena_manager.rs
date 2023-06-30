@@ -18,9 +18,10 @@ use super::result_set_converter::convert_to_json;
 use async_trait::async_trait;
 use glyphx_types::aws::athena_manager::athena_manager_errors::{
     ConstructorError, GetQueryPagerError, GetQueryResultsError as GlyphxGetQueryResultsError,
-    GetQueryStatusError, RunQueryError, StartQueryError,
+    GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError,
 };
 use glyphx_types::aws::athena_manager::query_status::AthenaQueryStatus;
+use glyphx_types::aws::athena_manager::table_description::*;
 use glyphx_types::error::GlyphxErrorData;
 
 use mockall::*;
@@ -92,7 +93,7 @@ trait AthenaManagerOps {
         query: &str,
         time_out: Option<i32>,
         results_include_header_row: Option<bool>,
-    ) -> Result<Value, RunQueryError> ;
+    ) -> Result<Value, RunQueryError>;
 }
 
 #[derive(Debug, Clone)]
@@ -223,7 +224,12 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         results_include_header_row: Option<bool>,
     ) -> Result<Value, RunQueryError> {
         athena_manager
-            .run_query_impl(query, time_out, results_include_header_row, &AthenaManagerOpsImpl)
+            .run_query_impl(
+                query,
+                time_out,
+                results_include_header_row,
+                &AthenaManagerOpsImpl,
+            )
             .await
     }
 }
@@ -288,7 +294,11 @@ impl AthenaManager {
         .await
     }
 
-    pub async fn get_paged_query_results(&self, query_id: &str, page_size: Option<i32> ) -> Result<
+    pub async fn get_paged_query_results(
+        &self,
+        query_id: &str,
+        page_size: Option<i32>,
+    ) -> Result<
         impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin,
         GetQueryPagerError,
     > {
@@ -307,11 +317,20 @@ impl AthenaManager {
     }
 
     pub async fn drop_table(&self, table_name: &str) -> Result<(), RunQueryError> {
-       self.drop_table_impl(table_name, &AthenaManagerOpsImpl).await  
+        self.drop_table_impl(table_name, &AthenaManagerOpsImpl)
+            .await
     }
-    
+
     pub async fn drop_view(&self, view_name: &str) -> Result<(), RunQueryError> {
         self.drop_view_impl(view_name, &AthenaManagerOpsImpl).await
+    }
+
+    pub async fn get_table_description(
+        &self,
+        table_name: &str,
+    ) -> Result<Vec<ColumnDescription>, GetTableDescriptionError> {
+        self.get_table_description_impl(table_name, &AthenaManagerOpsImpl)
+            .await
     }
 
     async fn new_impl<T: AthenaManagerOps>(
@@ -744,6 +763,82 @@ impl AthenaManager {
         }
     }
 
+    fn convert_run_query_error_to_get_table_description_error(
+        &self,
+        error: RunQueryError,
+        table_name: &str,
+    ) -> GetTableDescriptionError {
+        let data = Some(
+            json!({"catalog": self.catalog, "database": self.database, "table_name": table_name}),
+        );
+
+        match error {
+            RunQueryError::QueryDoesNotExist(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "QueryDoesNotExist": inner_error });
+                GetTableDescriptionError::QueryDoesNotExist(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+            RunQueryError::RequestWasThrottled(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "RequestWasThrottled": inner_error });
+                GetTableDescriptionError::RequestWasThrottled(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+            RunQueryError::QueryFailed(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "QueryFailed": inner_error });
+                GetTableDescriptionError::QueryFailed(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+            RunQueryError::QueryTimedOut(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "QueryTimedOut": inner_error });
+                GetTableDescriptionError::QueryTimedOut(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+
+            RunQueryError::DatabaseDoesNotExist(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "DatabaseDoesNotExist": inner_error });
+                GetTableDescriptionError::DatabaseDoesNotExist(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+            RunQueryError::QueryCancelled(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "QueryCancelled": inner_error });
+                GetTableDescriptionError::QueryCancelled(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+            RunQueryError::UnexpectedError(e) => {
+                let inner_error = serde_json::to_value(&e).unwrap();
+                let inner_error = json!({ "UnexpectedError": inner_error });
+                GetTableDescriptionError::UnexpectedError(GlyphxErrorData::new(
+                    e.message,
+                    data,
+                    Some(inner_error),
+                ))
+            }
+        }
+    }
     async fn run_query_impl<T: AthenaManagerOps>(
         &self,
         query: &str,
@@ -899,9 +994,15 @@ impl AthenaManager {
         }
     }
 
-    async fn table_exists_impl<T: AthenaManagerOps>(&self, table_name: &str, aws_operations: &T) -> Result<bool, RunQueryError> {
+    async fn table_exists_impl<T: AthenaManagerOps>(
+        &self,
+        table_name: &str,
+        aws_operations: &T,
+    ) -> Result<bool, RunQueryError> {
         let query = format!("SHOW TABLES '{}'", table_name);
-        let results = aws_operations.run_query_impl(self, &query,Some(10), Some(true)).await;
+        let results = aws_operations
+            .run_query_impl(self, &query, Some(10), Some(true))
+            .await;
         if results.is_err() {
             let err = results.err().unwrap();
             return Err(err);
@@ -910,9 +1011,15 @@ impl AthenaManager {
         Ok(results.as_array().unwrap().len() > 0)
     }
 
-    async fn view_exists_impl<T: AthenaManagerOps>(&self, view_name: &str, aws_operations: &T) -> Result<bool, RunQueryError> {
+    async fn view_exists_impl<T: AthenaManagerOps>(
+        &self,
+        view_name: &str,
+        aws_operations: &T,
+    ) -> Result<bool, RunQueryError> {
         let query = format!("SHOW VIEWS LIKE '{}'", view_name);
-        let results = aws_operations.run_query_impl(self, &query,Some(10), Some(true)).await;
+        let results = aws_operations
+            .run_query_impl(self, &query, Some(10), Some(true))
+            .await;
         if results.is_err() {
             let err = results.err().unwrap();
             return Err(err);
@@ -921,9 +1028,15 @@ impl AthenaManager {
         Ok(results.as_array().unwrap().len() > 0)
     }
 
-    async fn drop_table_impl<T: AthenaManagerOps>(&self, table_name: &str, aws_operations: &T) -> Result<(), RunQueryError> {
+    async fn drop_table_impl<T: AthenaManagerOps>(
+        &self,
+        table_name: &str,
+        aws_operations: &T,
+    ) -> Result<(), RunQueryError> {
         let query = format!("DROP TABLE IF EXISTS '{}'", table_name);
-        let results = aws_operations.run_query_impl(self, &query,Some(10), Some(false)).await;
+        let results = aws_operations
+            .run_query_impl(self, &query, Some(10), Some(false))
+            .await;
         if results.is_err() {
             let err = results.err().unwrap();
             return Err(err);
@@ -931,14 +1044,58 @@ impl AthenaManager {
         Ok(())
     }
 
-    async fn drop_view_impl<T: AthenaManagerOps>(&self, view_name: &str, aws_operations: &T) -> Result<(), RunQueryError> {
+    async fn drop_view_impl<T: AthenaManagerOps>(
+        &self,
+        view_name: &str,
+        aws_operations: &T,
+    ) -> Result<(), RunQueryError> {
         let query = format!("DROP VIEW IF EXISTS '{}'", view_name);
-        let results = aws_operations.run_query_impl(self, &query,Some(10), Some(false)).await;
+        let results = aws_operations
+            .run_query_impl(self, &query, Some(10), Some(false))
+            .await;
         if results.is_err() {
             let err = results.err().unwrap();
             return Err(err);
         }
         Ok(())
+    }
+
+    async fn get_table_description_impl<T: AthenaManagerOps>(
+        &self,
+        table_name: &str,
+        aws_operations: &T,
+    ) -> Result<Vec<ColumnDescription>, GetTableDescriptionError> {
+        let query = format!("DESCRIBE `{}`", table_name);
+        let results = aws_operations
+            .run_query_impl(self, &query, Some(10), Some(true))
+            .await;
+        if results.is_err() {
+            let err = self.convert_run_query_error_to_get_table_description_error(
+                results.err().unwrap(),
+                table_name,
+            );
+            return Err(err);
+        }
+        let results = results.unwrap();
+        let mut columns: Vec<ColumnDescription> = vec![];
+        for row in results.as_array().unwrap() {
+            let row = row.as_object().unwrap();
+            let full_name = row.get("col_name").unwrap().as_str().unwrap();
+            let parts = full_name.split("\t").collect::<Vec<&str>>();
+            let name = parts[0];
+            let column_type = match parts[1] {
+                s if s == "string" || s.starts_with("varchar(") => ColumnDataType::STRING,
+                "bigint" => ColumnDataType::INTEGER,
+                "double" => ColumnDataType::NUMBER,
+                _ => ColumnDataType::UNKNOWN,
+            };
+            let column = ColumnDescription {
+                name: name.to_string(),
+                data_type: column_type,
+            };
+            columns.push(column);
+        }
+        Ok(columns)
     }
 }
 
@@ -3063,8 +3220,8 @@ mod convert_get_query_status_error_to_get_query_pager_error {
             None,
         ));
 
-        let result = athena_manager
-            .convert_get_query_status_error_to_get_query_pager_error(error,query_id);
+        let result =
+            athena_manager.convert_get_query_status_error_to_get_query_pager_error(error, query_id);
 
         let (error, inner_error) = match &result {
             GetQueryPagerError::QueryDoesNotExist(e) => (Some(e).clone(), e.inner_error.clone()),
@@ -3104,8 +3261,8 @@ mod convert_get_query_status_error_to_get_query_pager_error {
             None,
         ));
 
-        let result = athena_manager
-            .convert_get_query_status_error_to_get_query_pager_error(error, query_id);
+        let result =
+            athena_manager.convert_get_query_status_error_to_get_query_pager_error(error, query_id);
 
         let (error, inner_error) = match &result {
             GetQueryPagerError::UnexpectedError(e) => (Some(e).clone(), e.inner_error.clone()),
@@ -3477,11 +3634,14 @@ mod table_exists {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let output = json!([1]);
-            Ok(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let output = json!([1]);
+                Ok(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3490,7 +3650,6 @@ mod table_exists {
         let result = athena_manager.table_exists_impl(table, &mocks).await;
         assert!(result.is_ok());
         assert!(result.unwrap());
-
     }
 
     #[tokio::test]
@@ -3504,11 +3663,14 @@ mod table_exists {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let output = json!([]);
-            Ok(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let output = json!([]);
+                Ok(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3517,7 +3679,6 @@ mod table_exists {
         let result = athena_manager.table_exists_impl(table, &mocks).await;
         assert!(result.is_ok());
         assert!(!result.unwrap());
-
     }
 
     #[tokio::test]
@@ -3531,16 +3692,16 @@ mod table_exists {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let glypx_error_data = GlyphxErrorData::new(
-                String::from("An Error has Occurred"),
-                None,
-                None,
-            );
-            let output = RunQueryError::UnexpectedError(glypx_error_data);
-            Err(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let glypx_error_data =
+                    GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
+                let output = RunQueryError::UnexpectedError(glypx_error_data);
+                Err(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3571,11 +3732,14 @@ mod view_exists {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let output = json!([1]);
-            Ok(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let output = json!([1]);
+                Ok(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3584,7 +3748,6 @@ mod view_exists {
         let result = athena_manager.view_exists_impl(view, &mocks).await;
         assert!(result.is_ok());
         assert!(result.unwrap());
-
     }
 
     #[tokio::test]
@@ -3598,11 +3761,14 @@ mod view_exists {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let output = json!([]);
-            Ok(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let output = json!([]);
+                Ok(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3611,7 +3777,6 @@ mod view_exists {
         let result = athena_manager.view_exists_impl(view, &mocks).await;
         assert!(result.is_ok());
         assert!(!result.unwrap());
-
     }
 
     #[tokio::test]
@@ -3625,16 +3790,16 @@ mod view_exists {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let glypx_error_data = GlyphxErrorData::new(
-                String::from("An Error has Occurred"),
-                None,
-                None,
-            );
-            let output = RunQueryError::UnexpectedError(glypx_error_data);
-            Err(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let glypx_error_data =
+                    GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
+                let output = RunQueryError::UnexpectedError(glypx_error_data);
+                Err(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3665,11 +3830,14 @@ mod drop_table {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let output = json!([1]);
-            Ok(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let output = json!([1]);
+                Ok(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3677,7 +3845,6 @@ mod drop_table {
 
         let result = athena_manager.drop_table_impl(table, &mocks).await;
         assert!(result.is_ok());
-
     }
 
     #[tokio::test]
@@ -3691,16 +3858,16 @@ mod drop_table {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let glypx_error_data = GlyphxErrorData::new(
-                String::from("An Error has Occurred"),
-                None,
-                None,
-            );
-            let output = RunQueryError::UnexpectedError(glypx_error_data);
-            Err(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let glypx_error_data =
+                    GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
+                let output = RunQueryError::UnexpectedError(glypx_error_data);
+                Err(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3730,11 +3897,14 @@ mod drop_view {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let output = json!([1]);
-            Ok(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let output = json!([1]);
+                Ok(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3742,7 +3912,6 @@ mod drop_view {
 
         let result = athena_manager.drop_view_impl(view, &mocks).await;
         assert!(result.is_ok());
-
     }
 
     #[tokio::test]
@@ -3756,16 +3925,16 @@ mod drop_view {
             let output = GetDatabaseOutput::builder().build();
             Ok(output)
         });
-        
-        mocks.expect_run_query_impl().times(1).returning(|_, _, _, _| {
-            let glypx_error_data = GlyphxErrorData::new(
-                String::from("An Error has Occurred"),
-                None,
-                None,
-            );
-            let output = RunQueryError::UnexpectedError(glypx_error_data);
-            Err(output)
-        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let glypx_error_data =
+                    GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
+                let output = RunQueryError::UnexpectedError(glypx_error_data);
+                Err(output)
+            });
 
         let athena_manager = AthenaManager::new_impl(catalog, database, &mocks).await;
         assert!(athena_manager.is_ok());
@@ -3778,5 +3947,413 @@ mod drop_view {
             _ => false,
         };
         assert!(is_unexpected);
+    }
+}
+
+#[cfg(test)]
+mod convert_run_query_error_to_get_table_description_error {
+    use super::*;
+
+    #[tokio::test]
+    async fn convert_database_does_not_exist_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = RunQueryError::DatabaseDoesNotExist(GlyphxErrorData::new(
+            String::from("The database does not exist."),
+            Some(json!({"catalog": catalog, "database": database, query: "query" })),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_run_query_error_to_get_table_description_error(error, table_name);
+
+        let (error, inner_error) = match &result {
+            GetTableDescriptionError::DatabaseDoesNotExist(e) => {
+                (Some(e).clone(), e.inner_error.clone())
+            }
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("DatabaseDoesNotExist").is_some());
+    }
+
+    #[tokio::test]
+    async fn convert_quey_does_not_exist_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = RunQueryError::QueryDoesNotExist(GlyphxErrorData::new(
+            String::from("The database does not exist."),
+            Some(json!({"catalog": catalog, "database": database, query: "query" })),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_run_query_error_to_get_table_description_error(error, table_name);
+
+        let (error, inner_error) = match &result {
+            GetTableDescriptionError::QueryDoesNotExist(e) => {
+                (Some(e).clone(), e.inner_error.clone())
+            }
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("QueryDoesNotExist").is_some());
+    }
+
+    #[tokio::test]
+    async fn convert_request_was_throttled_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = RunQueryError::RequestWasThrottled(GlyphxErrorData::new(
+            String::from("The database does not exist."),
+            Some(json!({"catalog": catalog, "database": database, query: "query" })),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_run_query_error_to_get_table_description_error(error, table_name);
+
+        let (error, inner_error) = match &result {
+            GetTableDescriptionError::RequestWasThrottled(e) => {
+                (Some(e).clone(), e.inner_error.clone())
+            }
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("RequestWasThrottled").is_some());
+    }
+
+    #[tokio::test]
+    async fn convert_unexpected_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = RunQueryError::UnexpectedError(GlyphxErrorData::new(
+            String::from("The database does not exist."),
+            Some(json!({"catalog": catalog, "database": database, query: "query" })),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_run_query_error_to_get_table_description_error(error, table_name);
+
+        let (error, inner_error) = match &result {
+            GetTableDescriptionError::UnexpectedError(e) => {
+                (Some(e).clone(), e.inner_error.clone())
+            }
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("UnexpectedError").is_some());
+    }
+
+    #[tokio::test]
+    async fn convert_query_timed_out_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = RunQueryError::QueryTimedOut(GlyphxErrorData::new(
+            String::from("The database does not exist."),
+            Some(json!({"catalog": catalog, "database": database, query: "query" })),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_run_query_error_to_get_table_description_error(error, table_name);
+
+        let (error, inner_error) = match &result {
+            GetTableDescriptionError::QueryTimedOut(e) => (Some(e).clone(), e.inner_error.clone()),
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("QueryTimedOut").is_some());
+    }
+
+    #[tokio::test]
+    async fn convert_query_failed_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = RunQueryError::QueryFailed(GlyphxErrorData::new(
+            String::from("The database does not exist."),
+            Some(json!({"catalog": catalog, "database": database, query: "query" })),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_run_query_error_to_get_table_description_error(error, table_name);
+
+        let (error, inner_error) = match &result {
+            GetTableDescriptionError::QueryFailed(e) => (Some(e).clone(), e.inner_error.clone()),
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("QueryFailed").is_some());
+    }
+
+    #[tokio::test]
+    async fn convert_query_cancelled_error() {
+        let catalog = "catalog";
+        let database = "database";
+        let query = "SELECT * FROM table";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let error = RunQueryError::QueryCancelled(GlyphxErrorData::new(
+            String::from("The database does not exist."),
+            Some(json!({"catalog": catalog, "database": database, query: "query" })),
+            None,
+        ));
+
+        let result = athena_manager
+            .convert_run_query_error_to_get_table_description_error(error, table_name);
+
+        let (error, inner_error) = match &result {
+            GetTableDescriptionError::QueryCancelled(e) => (Some(e).clone(), e.inner_error.clone()),
+            _ => (None, None),
+        };
+
+        assert!(inner_error.is_some());
+        assert!(error.is_some());
+
+        let inner_error = inner_error.unwrap();
+        assert!(inner_error.get("QueryCancelled").is_some());
+    }
+}
+
+#[cfg(test)]
+mod get_table_description {
+    use super::*;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let catalog = "catalog";
+        let database = "database";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(|_, _, _, _| {
+                let output = json!([
+                    { "col_name" : "col1\tvarchar(50)"},
+                    { "col_name" :"col2\tstring"},
+                    { "col_name" :"col3\tbigint"},
+                    { "col_name" :"col4\tdouble"},
+                    { "col_name" :"col5\tboolean"}
+                ]);
+                Ok(output)
+            });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let result = athena_manager
+            .get_table_description_impl(table_name, &mocks)
+            .await;
+        assert!(result.is_ok());
+        let result = result.unwrap();
+
+        assert_eq!(result.len(), 5);
+        assert_eq!(result[0].name, "col1");
+        let is_string = match &result[0].data_type {
+            ColumnDataType::STRING => true,
+            _ => false,
+        };
+        assert!(is_string);
+
+        assert_eq!(result[1].name, "col2");
+        let is_string = match &result[1].data_type {
+            ColumnDataType::STRING => true,
+            _ => false,
+        };
+        assert!(is_string);
+
+        assert_eq!(result[2].name, "col3");
+        let is_integer = match &result[2].data_type {
+            ColumnDataType::INTEGER => true,
+            _ => false,
+        };
+        assert!(is_integer);
+
+        assert_eq!(result[3].name, "col4");
+        let is_number = match &result[3].data_type {
+            ColumnDataType::NUMBER => true,
+            _ => false,
+        };
+        assert!(is_number);
+
+        assert_eq!(result[4].name, "col5");
+        let is_unknown = match &result[4].data_type {
+            ColumnDataType::UNKNOWN => true,
+            _ => false,
+        };
+        assert!(is_unknown);
+    }
+
+    #[tokio::test]
+    async fn is_err() {
+        let catalog = "catalog";
+        let database = "database";
+        let table_name = "table";
+
+        let mut mocks = MockAthenaManagerOps::new();
+        mocks.expect_get_database().times(1).returning(|_, _, _| {
+            let output = GetDatabaseOutput::builder().build();
+            Ok(output)
+        });
+
+        mocks
+            .expect_run_query_impl()
+            .times(1)
+            .returning(move |_, _, _, _| {
+                let glyphx_data = GlyphxErrorData::new(
+                    String::from("The database does not exist."),
+                    Some(json!({"catalog": catalog, "database": database, "table_name": table_name })),
+                    None,
+                );
+                let output = RunQueryError::DatabaseDoesNotExist(glyphx_data);
+                Err(output)
+            });
+
+        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
+        assert!(res.is_ok());
+
+        let athena_manager = res.unwrap();
+
+        let result = athena_manager
+            .get_table_description_impl(table_name, &mocks)
+            .await;
+        assert!(result.is_err());
+
+        let database_does_exist = match result.err().unwrap() {
+            GetTableDescriptionError::DatabaseDoesNotExist(_) => true,
+            _ => false,
+        };
+
+        assert!(database_does_exist);
     }
 }
