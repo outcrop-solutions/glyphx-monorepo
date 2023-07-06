@@ -4,7 +4,7 @@ import {ErrorCodes} from '../constants';
 /**
  * An {@link error/glyphxError!GlyphxError} for handling invalid operations.
  */
-export class DataNotFoundError extends GlyphxError {
+export class AiProviderError extends GlyphxError {
   /**
    * @param message - the message to be displayed.
    * @param key -- the name of the data that cant be found.
@@ -19,4 +19,4 @@ export class DataNotFoundError extends GlyphxError {
   }
 }
 
-export default DataNotFoundError;
+export default AiProviderError;
