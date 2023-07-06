@@ -3,7 +3,11 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {database as databaseTypes} from '@glyphx/types';
+import {
+  database as databaseTypes,
+  web as webTypes,
+  fileIngestion as fileIngestionTypes,
+} from '@glyphx/types';
 import {error} from '@glyphx/core';
 
 type ObjectId = mongooseTypes.ObjectId;
@@ -21,22 +25,18 @@ const INPUT_WORKSPACE = {
   creator: {},
 };
 
-const INPUT_USER = {
-  userCode: 'testUserCode' + UNIQUE_KEY,
-  name: 'testUser' + UNIQUE_KEY,
-  username: 'testUserName' + UNIQUE_KEY,
-  email: 'testEmail' + UNIQUE_KEY + '@email.com',
-  emailVerified: new Date(),
-  isVerified: true,
-  createdAt: new Date(),
+const INPUT_MEMBER = {
+  email: 'testMember1' + UNIQUE_KEY,
+  inviter: 'testMember1',
+  invitedAt: new Date(),
+  joinedAt: new Date(),
   updatedAt: new Date(),
-  accounts: [],
-  sessions: [],
-  membership: [],
-  invitedMembers: [],
-  createdWorkspaces: [],
-  projects: [],
-  webhooks: [],
+  createdAt: new Date(),
+  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  member: {},
+  invitedBy: {},
+  workspace: {},
 };
 
 const INPUT_DATA = {
@@ -45,13 +45,83 @@ const INPUT_DATA = {
   sdtPath: 'testsdtPath' + UNIQUE_KEY,
   currentVersion: 0,
   state: {
-    files: [],
-    properties: [],
-    fileSystemHash: 'testFileSystemHash' + UNIQUE_KEY,
+    properties: {
+      X: {
+        axis: webTypes.constants.AXIS.X,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column X', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Y: {
+        axis: webTypes.constants.AXIS.Y,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Y', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Z: {
+        axis: webTypes.constants.AXIS.Z,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Z', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      A: {
+        axis: webTypes.constants.AXIS.A,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 1', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      B: {
+        axis: webTypes.constants.AXIS.B,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 2', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      C: {
+        axis: webTypes.constants.AXIS.C,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 3', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+    },
   },
   workspace: {},
   slug: 'testSlug' + UNIQUE_KEY,
-  owner: {},
   files: [],
   viewName: 'testViewName' + UNIQUE_KEY,
 };
@@ -62,13 +132,83 @@ const INPUT_DATA2 = {
   currentVersion: 0,
   workspace: {},
   state: {
-    files: [],
-    properties: [],
-    fileSystemHash: 'testFileSystemHash' + UNIQUE_KEY,
+    properties: {
+      X: {
+        axis: webTypes.constants.AXIS.X,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column X', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Y: {
+        axis: webTypes.constants.AXIS.Y,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Y', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      Z: {
+        axis: webTypes.constants.AXIS.Z,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column Z', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      A: {
+        axis: webTypes.constants.AXIS.A,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 1', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      B: {
+        axis: webTypes.constants.AXIS.B,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 2', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+      C: {
+        axis: webTypes.constants.AXIS.C,
+        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+        key: 'Column 3', // corresponds to column name
+        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+        direction: webTypes.constants.DIRECTION_TYPE.ASC,
+        filter: {
+          min: 0,
+          max: 0,
+        },
+      },
+    },
   },
   slug: 'testSlug2' + UNIQUE_KEY,
   template: {},
-  owner: {},
   files: [],
   viewName: 'testViewName2' + UNIQUE_KEY,
 };
@@ -84,30 +224,19 @@ describe('#ProjectModel', () => {
     const mongoConnection = new MongoDbConnection();
     const projectModel = mongoConnection.models.ProjectModel;
     let projectId: ObjectId;
+    let memberId: ObjectId;
     let projectId2: ObjectId;
-    let userId: ObjectId;
     let workspaceId: ObjectId;
     let projectTemplateId: ObjectId;
     let workspaceDocument: any;
-    let userDocument: any;
+    let memberDocument: any;
     let projectTemplateDocument: any;
 
     before(async () => {
       await mongoConnection.init();
-      const userModel = mongoConnection.models.UserModel;
       const workspaceModel = mongoConnection.models.WorkspaceModel;
+      const memberModel = mongoConnection.models.MemberModel;
       const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
-
-      await userModel.createUser(INPUT_USER as databaseTypes.IUser);
-
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
-      userId = savedUserDocument?._id as mongooseTypes.ObjectId;
-
-      userDocument = savedUserDocument;
-
-      assert.isOk(userId);
 
       await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
@@ -116,10 +245,18 @@ describe('#ProjectModel', () => {
         .findOne({name: INPUT_WORKSPACE.name})
         .lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
-
       workspaceDocument = savedWorkspaceDocument;
-
       assert.isOk(workspaceId);
+
+      await memberModel.create([INPUT_MEMBER], {
+        validateBeforeSave: false,
+      });
+      const savedMemberDocument = await memberModel
+        .findOne({email: INPUT_MEMBER.email})
+        .lean();
+      memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
+      memberDocument = savedMemberDocument;
+      assert.isOk(memberId);
 
       await projectTemplateModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
@@ -136,14 +273,14 @@ describe('#ProjectModel', () => {
     });
 
     after(async () => {
-      const userModel = mongoConnection.models.UserModel;
-      await userModel.findByIdAndDelete(userId);
-
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await workspaceModel.findByIdAndDelete(workspaceId);
 
       const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
       await projectTemplateModel.findByIdAndDelete(projectTemplateId);
+
+      const memberModel = mongoConnection.models.MemberModel;
+      if (memberId) await memberModel.findByIdAndDelete(memberId);
 
       if (projectId) {
         await projectModel.findByIdAndDelete(projectId);
@@ -156,18 +293,13 @@ describe('#ProjectModel', () => {
 
     it('add a new project ', async () => {
       const projectInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      projectInput.owner = userDocument;
       projectInput.workspace = workspaceDocument;
-      projectInput.type = projectTemplateDocument;
+      projectInput.template = projectTemplateDocument;
 
       const projectDocument = await projectModel.createProject(projectInput);
 
       assert.isOk(projectDocument);
       assert.strictEqual(projectDocument.name, projectInput.name);
-      assert.strictEqual(
-        projectDocument.owner._id?.toString(),
-        userId.toString()
-      );
       assert.strictEqual(
         projectDocument.workspace._id?.toString(),
         workspaceId.toString()
@@ -197,7 +329,6 @@ describe('#ProjectModel', () => {
     it('Get multiple projects without a filter', async () => {
       assert.isOk(projectId);
       const projectInput = JSON.parse(JSON.stringify(INPUT_DATA2));
-      projectInput.owner = userDocument;
       projectInput.workspace = workspaceDocument;
       projectInput.type = projectTemplateDocument;
 

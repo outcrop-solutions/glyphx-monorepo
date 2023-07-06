@@ -490,4 +490,71 @@ export class ProjectService {
       }
     }
   }
+
+  public static async addTags(
+    projectId: mongooseTypes.ObjectId | string,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const updatedProject =
+        await mongoDbConnection.models.ProjectModel.addTags(id, tags);
+
+      return updatedProject;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding tags to the project. See the inner error for additional details',
+          'project',
+          'addTags',
+          {id: projectId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+  public static async removeTags(
+    projectId: mongooseTypes.ObjectId | string,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> {
+    try {
+      const id =
+        projectId instanceof mongooseTypes.ObjectId
+          ? projectId
+          : new mongooseTypes.ObjectId(projectId);
+      const updatedProject =
+        await mongoDbConnection.models.ProjectModel.removeTags(id, tags);
+
+      return updatedProject;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while removing tags from the project. See the inner error for additional details',
+          'project',
+          'removeTags',
+          {id: projectId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
 }

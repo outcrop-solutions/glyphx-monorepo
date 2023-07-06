@@ -9,6 +9,8 @@ import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
 import { _getSignedUploadUrls, _ingestFiles, _uploadFile, api } from 'lib';
 import { runRulesEngine } from 'lib/client/files/engine';
 import { parsePayload } from 'lib/client/files/transforms/parsePayload';
+import { _createCompletion } from 'lib/client/mutations/ai';
+import { completionAtom } from 'state/ai';
 
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
@@ -23,6 +25,7 @@ import { parsePayload } from 'lib/client/files/transforms/parsePayload';
 export const useFileSystem = () => {
   const { mutate } = useSWRConfig();
   const [project, setProject] = useRecoilState(projectAtom);
+  const setCompletion = useSetRecoilState(completionAtom);
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);
   const setModals = useSetRecoilState(modalsAtom);
@@ -103,6 +106,13 @@ export const useFileSystem = () => {
     async (acceptedFiles: File[]) => {
       // parse payload
       const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
+
+      const result = await api({
+        ..._createCompletion(payload),
+        returnData: true,
+      });
+      console.log({ result });
+      setCompletion(result?.choices[0]?.message?.content);
 
       // check file against FILE_RULES before upload
       const modals = runRulesEngine(payload, project.files, acceptedFiles);

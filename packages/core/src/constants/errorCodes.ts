@@ -17,6 +17,8 @@ export class ErrorCodes {
     InvalidOperationError: 451,
     DataNotFoundError: 452,
 
+    AiProviderError: 600,
+
     ConfigurationError: 460,
     DataConflictError: 461,
     DataValidationError: 462,

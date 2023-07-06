@@ -2,6 +2,9 @@ import {MODAL_CONTENT_TYPE} from '../../constants';
 import {ModalProps} from './modalProps';
 import {ModalState} from './modalState';
 
+export type AiUploadModalProps = ModalProps<
+  Extract<ModalState, {type: MODAL_CONTENT_TYPE.AI_UPLOAD}>
+>;
 export type CreateProjectModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.CREATE_PROJECT}>
 >;

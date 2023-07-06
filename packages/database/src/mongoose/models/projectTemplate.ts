@@ -23,6 +23,7 @@ const SCHEMA = new Schema<
       //istanbul ignore next
       () => new Date(),
   },
+  deletedAt: {type: Date, required: false},
   updatedAt: {
     type: Date,
     required: true,
@@ -147,8 +148,17 @@ SCHEMA.static(
 
 SCHEMA.static(
   'queryProjectTemplates',
-  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+  async (
+    filter: Record<string, unknown> = {},
+    page = 0,
+    itemsPerPage = 10,
+    tags: mongooseTypes.ObjectId[] = []
+  ) => {
     try {
+      // If tags are provided, modify the filter to include them
+      if (tags.length > 0) {
+        filter.tags = {$in: tags};
+      }
       const count = await PROJECT_TEMPLATE_MODEL.count(filter);
 
       if (!count) {

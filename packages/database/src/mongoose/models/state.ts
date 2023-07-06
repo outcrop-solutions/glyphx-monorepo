@@ -7,12 +7,7 @@ import {
   IStateCreateInput,
 } from '../interfaces';
 import {error} from '@glyphx/core';
-import {
-  aspectSchema,
-  cameraSchema,
-  fileStatsSchema,
-  propertySchema,
-} from '../schemas';
+import {cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
@@ -37,6 +32,7 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   version: {type: Number, required: true, default: 0, min: 0},
   imageHash: {type: String, required: false},
   camera: {type: cameraSchema, required: true},
+  aspectRatio: {type: cameraSchema, required: false},
   static: {type: Boolean, required: true, default: false},
   fileSystemHash: {type: String, required: true},
   payloadHash: {type: String, required: true},
@@ -176,7 +172,7 @@ SCHEMA.static(
         camera: input.camera,
         imageHash: input.imageHash,
         aspectRatio: input.aspectRatio,
-        properties: input.properties ?? [],
+        properties: input.properties ?? {},
         createdBy: userId,
         fileSystemHash: input.fileSystemHash,
         payloadHash: input.payloadHash,

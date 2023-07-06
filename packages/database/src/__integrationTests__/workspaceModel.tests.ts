@@ -225,7 +225,7 @@ describe('#WorkspaceModel', () => {
       inputMember.email = userDocument.email;
 
       const memberModel = mongoConnection.models.MemberModel;
-      await memberModel.createMember(inputMember);
+      await memberModel.createWorkspaceMember(inputMember);
 
       const savedMemberDocument = await memberModel
         .findOne({email: inputMember.email})
@@ -241,7 +241,7 @@ describe('#WorkspaceModel', () => {
       inputMember2.invitedBy = userDocument2 as databaseTypes.IUser;
       inputMember2.workspace = workspaceDocument;
       inputMember2.email = userDocument2.email;
-      await memberModel.createMember(inputMember2);
+      await memberModel.createWorkspaceMember(inputMember2);
 
       const savedMemberDocument2 = await memberModel
         .findOne({email: inputMember2.email})

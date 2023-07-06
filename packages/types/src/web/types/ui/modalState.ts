@@ -1,11 +1,16 @@
 import {IProject} from '../../../database';
 import {MODAL_CONTENT_TYPE} from '../../constants';
-import {MatchingFileStatsData} from '../../interfaces';
+import {IClientSidePayload, MatchingFileStatsData} from '../../interfaces';
 import {IDeleteProjectData} from '../../interfaces/modals/iDeleteProjectData';
 import {DuplicateColumnData} from '../fileRules/duplicateColumnData';
 import {Types as mongooseTypes} from 'mongoose';
 
 export type ModalState =
+  | {
+      type: MODAL_CONTENT_TYPE.AI_UPLOAD;
+      isSubmitting: boolean;
+      data: IClientSidePayload;
+    }
   | {
       type: MODAL_CONTENT_TYPE.CREATE_PROJECT;
       isSubmitting: boolean;
