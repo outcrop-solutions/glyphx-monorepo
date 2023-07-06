@@ -153,6 +153,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-sdk-athena"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e1364d7ac812f511288dc9bc5d3eb4a9baa67fbb65375c15251528ddca008e1"
+dependencies = [
+ "aws-credential-types",
+ "aws-endpoint",
+ "aws-http",
+ "aws-sig-auth",
+ "aws-smithy-async",
+ "aws-smithy-client",
+ "aws-smithy-http",
+ "aws-smithy-http-tower",
+ "aws-smithy-json",
+ "aws-smithy-types",
+ "aws-types",
+ "bytes",
+ "fastrand",
+ "http",
+ "regex",
+ "tokio-stream",
+ "tower",
+ "tracing",
+]
+
+[[package]]
 name = "aws-sdk-s3"
 version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -838,12 +864,14 @@ dependencies = [
  "async-recursion",
  "async-trait",
  "aws-config",
+ "aws-sdk-athena",
  "aws-sdk-s3",
  "aws-smithy-http",
  "aws-smithy-types",
  "backtrace",
  "bytes",
  "chrono",
+ "glyphx_types",
  "http",
  "json5",
  "log",
@@ -856,6 +884,18 @@ dependencies = [
  "serde_json",
  "serial_test",
  "tokio",
+ "tokio-stream",
+]
+
+[[package]]
+name = "glyphx_types"
+version = "0.1.0"
+dependencies = [
+ "aws-sdk-athena",
+ "aws-sdk-s3",
+ "serde",
+ "serde_derive",
+ "serde_json",
 ]
 
 [[package]]

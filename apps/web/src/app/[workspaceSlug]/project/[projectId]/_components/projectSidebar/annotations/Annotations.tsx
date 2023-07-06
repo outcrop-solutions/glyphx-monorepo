@@ -32,7 +32,7 @@ export const Annotations = () => {
           <a>
             <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
               {' '}
-              Annotations{' '}
+              Threads{' '}
             </span>
           </a>
         </div>

@@ -155,12 +155,12 @@ describe('#services/user', () => {
         updateMemberFromModelStub
       );
 
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.resolves();
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.resolves();
       sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectWithFilter',
-        updateProjectFromModelStub
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
       );
 
       const user = await userService.deactivate(userId);
@@ -199,12 +199,12 @@ describe('#services/user', () => {
         updateMemberFromModelStub
       );
 
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.resolves();
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.resolves();
       sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectWithFilter',
-        updateProjectFromModelStub
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
       );
 
       const user = await userService.deactivate(userId.toString());
@@ -214,6 +214,8 @@ describe('#services/user', () => {
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
     });
+
+    // user model fails
     it('will publish and rethrow an InvalidArgumentError when user model throws it ', async () => {
       const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
@@ -333,7 +335,8 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    // TODO: update these tests
+
+    // workspace model fails
     it('will publish and rethrow an InvalidArgumentError when workspace model throws it ', async () => {
       const userId = new mongooseTypes.ObjectId();
       const deletedAt = new Date();
@@ -492,6 +495,8 @@ describe('#services/user', () => {
       assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
+
+    // member model fails
     it('will publish and rethrow an InvalidArgumentError when Member model throws it ', async () => {
       const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
@@ -677,7 +682,9 @@ describe('#services/user', () => {
       assert.isTrue(updateMemberFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an InvalidArgumentError when Project model throws it ', async () => {
+
+    // customer payment model fails
+    it('will publish and rethrow an InvalidArgumentError when Customer Payment model throws it ', async () => {
       const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
@@ -713,12 +720,12 @@ describe('#services/user', () => {
         updateMemberFromModelStub
       );
 
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectWithFilter',
-        updateProjectFromModelStub
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
       );
 
       function fakePublish() {
@@ -746,10 +753,10 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
       assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
       assert.isTrue(updateMemberFromModelStub.calledOnce);
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an InvalidOperationError when Project model throws it ', async () => {
+    it('will publish and rethrow an InvalidOperationError when Customer Payment model throws it ', async () => {
       const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -781,12 +788,12 @@ describe('#services/user', () => {
         updateMemberFromModelStub
       );
 
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectWithFilter',
-        updateProjectFromModelStub
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
       );
 
       function fakePublish() {
@@ -814,10 +821,10 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
       assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
       assert.isTrue(updateMemberFromModelStub.calledOnce);
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when Project throws a DataOperationError ', async () => {
+    it('will publish and throw an DataServiceError when Customer Payment throws a DataOperationError ', async () => {
       const userId = new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
@@ -853,12 +860,12 @@ describe('#services/user', () => {
         updateMemberFromModelStub
       );
 
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+      const updateCustomerPaymentFromModelStub = sandbox.stub();
+      updateCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectWithFilter',
-        updateProjectFromModelStub
+        dbConnection.models.CustomerPaymentModel,
+        'updateCustomerPaymentWithFilter',
+        updateCustomerPaymentFromModelStub
       );
 
       function fakePublish() {
@@ -886,7 +893,7 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
       assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
       assert.isTrue(updateMemberFromModelStub.calledOnce);
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });

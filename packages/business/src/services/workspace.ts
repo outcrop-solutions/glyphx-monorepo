@@ -13,7 +13,7 @@ import {
 } from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
+import {ObjectId, Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 
 export class WorkspaceService {
@@ -637,46 +637,49 @@ export class WorkspaceService {
           workspaceCode,
         });
 
-      const memberExists =
-        await mongoDbConnection.models.MemberModel.memberExists(
+      let memberExists, member;
+      if (workspaces && workspaces.results) {
+        memberExists = await mongoDbConnection.models.MemberModel.memberExists(
           email,
           databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-          workspaces[0]._id
+          workspaces.results[0]._id as unknown as mongooseTypes.ObjectId
         );
 
-      const input = {
-        workspace: workspaces.results[0],
-        type: database.constants.MEMBERSHIP_TYPE.WORKSPACE,
-        inviter: workspaces.results[0].creator.email,
-        invitedAt: new Date(),
-        joinedAt: new Date(),
-        email,
-        status: database.constants.INVITATION_STATUS.ACCEPTED,
-      } as Omit<databaseTypes.IMember, '_id'>;
+        const input = {
+          workspace: workspaces.results[0],
+          type: database.constants.MEMBERSHIP_TYPE.WORKSPACE,
+          inviter: workspaces.results[0].creator.email,
+          invitedAt: new Date(),
+          joinedAt: new Date(),
+          email,
+          status: database.constants.INVITATION_STATUS.ACCEPTED,
+        } as Omit<databaseTypes.IMember, '_id'>;
 
-      let member;
-      if (memberExists) {
-        // create member
-        member =
-          await mongoDbConnection.models.MemberModel.createWorkspaceMember(
-            input
+        if (memberExists) {
+          // create member
+          member =
+            await mongoDbConnection.models.MemberModel.createWorkspaceMember(
+              input
+            );
+        } else {
+          // update member
+          member =
+            await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+              {email},
+              input
+            );
+        }
+
+        const workspace =
+          await mongoDbConnection.models.WorkspaceModel.addMembers(
+            workspaces.results[0]._id as unknown as mongooseTypes.ObjectId,
+            [member]
           );
+
+        return workspace;
       } else {
-        // update member
-        member =
-          await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-            {email},
-            input
-          );
+        return null;
       }
-
-      const workspace =
-        await mongoDbConnection.models.WorkspaceModel.addMembers(
-          workspaces.results![0]._id as unknown as mongooseTypes.ObjectId,
-          [member]
-        );
-
-      return workspace;
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -793,6 +796,40 @@ export class WorkspaceService {
           'workspace',
           'queryWorkspaces',
           {userId, email, newSlug, pathSlug},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async addTags(
+    workspaceId: mongooseTypes.ObjectId | string,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> {
+    try {
+      const id =
+        workspaceId instanceof mongooseTypes.ObjectId
+          ? workspaceId
+          : new mongooseTypes.ObjectId(workspaceId);
+      const updatedWorkspace =
+        await mongoDbConnection.models.WorkspaceModel.addTags(id, tags);
+
+      return updatedWorkspace;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding tags to the workspace. See the inner error for additional details',
+          'workspace',
+          'addTags',
+          {id: workspaceId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

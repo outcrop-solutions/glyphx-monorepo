@@ -1,6 +1,9 @@
 import {ProjectTemplateModel} from '../../../mongoose/models/projectTemplate';
 import {ProjectModel} from '../../../mongoose/models/project';
-import {database as databaseTypes} from '@glyphx/types';
+import {
+  database as databaseTypes,
+  fileIngestion as fileIngestionTypes,
+} from '@glyphx/types';
 import {error} from '@glyphx/core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -15,7 +18,14 @@ const MOCK_PROJECT_TEMPLATE: databaseTypes.IProjectTemplate = {
     {_id: new mongoose.Types.ObjectId()} as unknown as databaseTypes.IProject,
   ],
   tags: [],
-  shape: {foo: {type: 'string', required: true, description: ''}},
+  shape: {
+    foo: {
+      key: '',
+      type: fileIngestionTypes.constants.FIELD_TYPE.STRING,
+      required: true,
+      description: '',
+    },
+  },
 };
 
 describe('#mongoose/models/projectTemplate', () => {
@@ -859,20 +869,23 @@ describe('#mongoose/models/projectTemplate', () => {
     }
 
     const mockProjectTemplate: databaseTypes.IProjectTemplate = {
-      _id: new mongoose.Types.ObjectId(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      name: 'test project type',
-      tags: [],
-      shape: {foo: {type: 'string', required: true, description: ''}},
-      __v: 1,
+      name: 'testProjectTemplate',
       projects: [
         {
           _id: new mongoose.Types.ObjectId(),
-          name: 'test project',
-          __v: 1,
         } as unknown as databaseTypes.IProject,
       ],
+      tags: [],
+      shape: {
+        foo: {
+          key: '',
+          type: fileIngestionTypes.constants.FIELD_TYPE.STRING,
+          required: true,
+          description: '',
+        },
+      },
     } as databaseTypes.IProjectTemplate;
     const sandbox = createSandbox();
 
@@ -1907,36 +1920,42 @@ describe('#mongoose/models/projectTemplate', () => {
 
     const mockProjectTemplates = [
       {
-        _id: new mongoose.Types.ObjectId(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        name: 'test project type',
-        shape: {foo: {type: 'string', required: true, description: ''}},
-        tags: [],
-        __v: 1,
+        name: 'testProjectTemplate',
         projects: [
           {
             _id: new mongoose.Types.ObjectId(),
-            name: 'test project',
-            __v: 1,
           } as unknown as databaseTypes.IProject,
         ],
+        tags: [],
+        shape: {
+          foo: {
+            key: '',
+            type: fileIngestionTypes.constants.FIELD_TYPE.STRING,
+            required: true,
+            description: '',
+          },
+        },
       } as databaseTypes.IProjectTemplate,
       {
-        _id: new mongoose.Types.ObjectId(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        name: 'test project type2',
-        shape: {foo: {type: 'string', required: true, description: ''}},
-        __v: 1,
-        tags: [],
+        name: 'testProjectTemplate',
         projects: [
           {
             _id: new mongoose.Types.ObjectId(),
-            name: 'test project2',
-            __v: 1,
           } as unknown as databaseTypes.IProject,
         ],
+        tags: [],
+        shape: {
+          foo: {
+            key: '',
+            type: fileIngestionTypes.constants.FIELD_TYPE.STRING,
+            required: true,
+            description: '',
+          },
+        },
       } as databaseTypes.IProjectTemplate,
     ];
     const sandbox = createSandbox();

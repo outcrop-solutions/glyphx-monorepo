@@ -33,11 +33,22 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
   return (
     <>
       {modalContent?.type ? (
-        <div className="fixed w-screen h-screen flex justify-center items-center bg-gray bg-opacity-50 z-60">
+        <div className="fixed w-screen h-screen flex justify-center items-center bg-gray bg-opacity-50 z-[90]">
           <ClickAwayListener onClickAway={handleClickAway}>
             <div>
               {(() => {
                 switch (modalContent.type) {
+                  case webTypes.constants.MODAL_CONTENT_TYPE.AI_UPLOAD:
+                    return (
+                      <AIUploadModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.AI_UPLOAD }
+                          >
+                        }
+                      />
+                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT:
                     return (
                       <CreateProjectModal

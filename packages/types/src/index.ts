@@ -1,5 +1,6 @@
 export * as fileIngestion from './fileIngestion';
 export * as aws from './aws';
+export * as ai from './ai';
 export * as web from './web';
 export * as database from './database';
 export type {IQueryResult} from './iQueryResult';

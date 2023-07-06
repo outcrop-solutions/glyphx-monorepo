@@ -133,7 +133,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -244,7 +244,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -355,7 +355,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -644,7 +644,6 @@ describe('#services/workspace', () => {
       const userEmail = 'testemail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
 
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.resolves({
@@ -657,7 +656,8 @@ describe('#services/workspace', () => {
             email: userEmail,
             teamRole: databaseTypes.constants.ROLE.OWNER,
             deletedAt: null,
-          } as unknown as databaseTypes.IUser,
+            member: userId,
+          } as unknown as databaseTypes.IMember,
         ],
       } as unknown as databaseTypes.IWorkspace);
 
@@ -668,45 +668,72 @@ describe('#services/workspace', () => {
       );
 
       const updateWorkspaceFromModelStub = sandbox.stub();
-      updateWorkspaceFromModelStub.resolves({
-        _id: workspaceId,
-        slug: workspaceSlug,
-        name: newWorkspaceName,
-        deletedAt: new Date(),
-        members: [
-          {
-            _id: userId,
-            email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.MEMBER,
-            deletedAt: null,
-          } as unknown as databaseTypes.IUser,
-        ],
-      } as unknown as databaseTypes.IWorkspace);
+      updateWorkspaceFromModelStub.resolves();
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'updateWorkspaceByFilter',
         updateWorkspaceFromModelStub
       );
 
-      const slug = await workspaceService.deleteWorkspace(
+      // remove workspaces from user
+      const removeUserWorkspacesFromModelStub = sandbox.stub();
+      removeUserWorkspacesFromModelStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'removeWorkspaces',
+        removeUserWorkspacesFromModelStub
+      );
+
+      // remove membership from user
+      const removeUserMembershipFromModelStub = sandbox.stub();
+      removeUserMembershipFromModelStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'removeMembership',
+        removeUserMembershipFromModelStub
+      );
+
+      // delete all projects associated with workspace
+      const updateMemberWithFilterStub = sandbox.stub();
+      updateMemberWithFilterStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberWithFilter',
+        updateMemberWithFilterStub
+      );
+
+      // delete all projects associated with workspace
+      const updateProjectWithFilterStub = sandbox.stub();
+      updateProjectWithFilterStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'updateProjectWithFilter',
+        updateProjectWithFilterStub
+      );
+
+      const doc = await workspaceService.deleteWorkspace(
         userId,
         userEmail,
         workspaceSlug
       );
 
-      assert.isOk(slug);
-      assert.strictEqual(slug!.toString(), workspaceSlug.toString());
-
-      assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
+      assert.isOk(doc);
       assert.isTrue(getWorkspaceFromModelStub.calledOnce);
+      assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
+      assert.isTrue(removeUserWorkspacesFromModelStub.calledOnce);
+      assert.isTrue(removeUserMembershipFromModelStub.calledOnce);
+      assert.isTrue(updateMemberWithFilterStub.calledOnce);
     });
     it('should update a workspace deletedAt wehn userId is a string', async () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
-      const newWorkspaceName = 'testName';
 
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.resolves({
@@ -719,7 +746,8 @@ describe('#services/workspace', () => {
             email: userEmail,
             teamRole: databaseTypes.constants.ROLE.OWNER,
             deletedAt: null,
-          } as unknown as databaseTypes.IUser,
+            member: userId,
+          } as unknown as databaseTypes.IMember,
         ],
       } as unknown as databaseTypes.IWorkspace);
 
@@ -730,39 +758,69 @@ describe('#services/workspace', () => {
       );
 
       const updateWorkspaceFromModelStub = sandbox.stub();
-      updateWorkspaceFromModelStub.resolves({
-        _id: workspaceId,
-        slug: workspaceSlug,
-        name: newWorkspaceName,
-        deletedAt: new Date(),
-        members: [
-          {
-            _id: userId,
-            email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.MEMBER,
-            deletedAt: null,
-          } as unknown as databaseTypes.IUser,
-        ],
-      } as unknown as databaseTypes.IWorkspace);
+      updateWorkspaceFromModelStub.resolves();
 
       sandbox.replace(
         dbConnection.models.WorkspaceModel,
-        'updateWorkspaceById',
+        'updateWorkspaceByFilter',
         updateWorkspaceFromModelStub
       );
 
-      const slug = await workspaceService.deleteWorkspace(
+      // remove workspaces from user
+      const removeUserWorkspacesFromModelStub = sandbox.stub();
+      removeUserWorkspacesFromModelStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'removeWorkspaces',
+        removeUserWorkspacesFromModelStub
+      );
+
+      // remove membership from user
+      const removeUserMembershipFromModelStub = sandbox.stub();
+      removeUserMembershipFromModelStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'removeMembership',
+        removeUserMembershipFromModelStub
+      );
+
+      // delete all projects associated with workspace
+      const updateMemberWithFilterStub = sandbox.stub();
+      updateMemberWithFilterStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberWithFilter',
+        updateMemberWithFilterStub
+      );
+
+      // delete all projects associated with workspace
+      const updateProjectWithFilterStub = sandbox.stub();
+      updateProjectWithFilterStub.resolves();
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'updateProjectWithFilter',
+        updateProjectWithFilterStub
+      );
+
+      const doc = await workspaceService.deleteWorkspace(
         userId.toString(),
         userEmail,
         workspaceSlug
       );
 
-      assert.isOk(slug);
-      assert.strictEqual(slug!.toString(), workspaceSlug.toString());
-
-      assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
+      assert.isOk(doc);
       assert.isTrue(getWorkspaceFromModelStub.calledOnce);
+      assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
+      assert.isTrue(removeUserWorkspacesFromModelStub.calledOnce);
+      assert.isTrue(removeUserMembershipFromModelStub.calledOnce);
+      assert.isTrue(updateMemberWithFilterStub.calledOnce);
     });
+
+    // getOwnWorkspace fails
     it('will return null, and publish DataNotFoundError if getOwnWorkspace throws one', async () => {
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
@@ -943,6 +1001,8 @@ describe('#services/workspace', () => {
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
+
+    // delete workspace fails
     it('will return null, and publish InvalidArgumentError if updateWorkspaceByFilter in underlying model throws one', async () => {
       const userId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
@@ -1138,156 +1198,6 @@ describe('#services/workspace', () => {
       assert.isTrue(errored);
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
       assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-    it('will return null, and publish DataNotFoundError if getWorkspaceById in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
-      const userEmail = 'testemail@gmail.com';
-      const workspaceSlug = 'testSlug';
-      const errMessage = 'Cannot find the workspace';
-
-      const err = new error.DataNotFoundError(errMessage, 'slug', {
-        workspaceSlug,
-      });
-
-      const getWorkspaceFromServiceStub = sandbox.stub();
-      getWorkspaceFromServiceStub.resolves({
-        _id: workspaceId,
-        slug: workspaceSlug,
-        name: 'workspace1',
-        members: [
-          {
-            _id: userId,
-            email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
-            deletedAt: new Date(),
-          } as unknown as databaseTypes.IUser,
-        ],
-      } as unknown as databaseTypes.IWorkspace);
-
-      sandbox.replace(
-        workspaceService,
-        'getOwnWorkspace',
-        getWorkspaceFromServiceStub
-      );
-
-      const updateWorkspaceFromModelStub = sandbox.stub();
-      updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
-
-      const getWorkspaceFromModelStub = sandbox.stub();
-      getWorkspaceFromModelStub.rejects(err);
-
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'getWorkspaceById',
-        getWorkspaceFromModelStub
-      );
-
-      function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
-        assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      const slug = await workspaceService.deleteWorkspace(
-        userId,
-        userEmail,
-        workspaceSlug
-      );
-
-      assert.notOk(slug);
-
-      assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
-      assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(getWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-    it('will throw and publish DataServiceError if getWorkspaceById in underlying model throws DatabaseOperationError', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
-      const userEmail = 'testemail@gmail.com';
-      const workspaceSlug = 'testSlug';
-      const errMessage = 'Cannot find the workspace';
-
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongoDb',
-        'updateWorkspaceByFilter',
-        {
-          slug: workspaceSlug,
-        }
-      );
-
-      const getWorkspaceFromServiceStub = sandbox.stub();
-      getWorkspaceFromServiceStub.resolves({
-        _id: workspaceId,
-        slug: workspaceSlug,
-        name: 'workspace1',
-        members: [
-          {
-            _id: userId,
-            email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
-            deletedAt: new Date(),
-          } as unknown as databaseTypes.IUser,
-        ],
-      } as unknown as databaseTypes.IWorkspace);
-
-      sandbox.replace(
-        workspaceService,
-        'getOwnWorkspace',
-        getWorkspaceFromServiceStub
-      );
-
-      const updateWorkspaceFromModelStub = sandbox.stub();
-      updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
-
-      const getWorkspaceFromModelStub = sandbox.stub();
-      getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'getWorkspaceById',
-        getWorkspaceFromModelStub
-      );
-
-      const publishOverride = sandbox.stub();
-      publishOverride.resolves();
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      let errored = false;
-      try {
-        await workspaceService.deleteWorkspace(
-          userId,
-          userEmail,
-          workspaceSlug
-        );
-      } catch (e) {
-        assert.instanceOf(e, error.DataServiceError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-      assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
-      assert.isTrue(updateWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(getWorkspaceFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
@@ -2578,9 +2488,9 @@ describe('#services/workspace', () => {
       assert.isTrue(createMembersFromModel.calledOnce);
       assert.isTrue(addMembersFromWorkspaceModel.calledOnce);
       assert.isTrue(sendStub.calledOnce);
-      assert.strictEqual(result![0]._id, memberId);
-      assert.strictEqual(result![0].email, memberEmail);
-      assert.strictEqual(result!.length, 1);
+      assert.strictEqual(result!.members![0]._id, memberId);
+      assert.strictEqual(result!.members![0].email, memberEmail);
+      assert.strictEqual(result!.members!.length, 1);
     });
     it('should create members if they do not already exist and attach them to the workspace when the userId is a string', async () => {
       const workspaceId = new mongooseTypes.ObjectId();
@@ -2667,9 +2577,9 @@ describe('#services/workspace', () => {
       assert.isTrue(createMembersFromModel.calledOnce);
       assert.isTrue(addMembersFromWorkspaceModel.calledOnce);
       assert.isTrue(sendStub.calledOnce);
-      assert.strictEqual(result![0]._id, memberId);
-      assert.strictEqual(result![0].email, memberEmail);
-      assert.strictEqual(result!.length, 1);
+      assert.strictEqual(result!.members![0]._id, memberId);
+      assert.strictEqual(result!.members![0].email, memberEmail);
+      assert.strictEqual(result!.members!.length, 1);
     });
     // workspace service fails
     it('will publish and rethrow a DataServiceError when workspace service throws it', async () => {
@@ -3524,7 +3434,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -3541,8 +3451,26 @@ describe('#services/workspace', () => {
       } as unknown as databaseTypes.IMember);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
+      );
+
+      // update member
+      const updateMemberFromModelStub = sandbox.stub();
+      updateMemberFromModelStub.resolves({
+        _id: memberId,
+        email: memberEmail,
+        invitedAt: joinedDate,
+        joinedDate: joinedDate,
+        teamRole: databaseTypes.constants.ROLE.OWNER,
+        deletedAt: null,
+        status: memberStatus,
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'updateMemberWithFilter',
+        updateMemberFromModelStub
       );
 
       const addMembersFromWorkspaceModel = sandbox.stub();
@@ -3553,15 +3481,16 @@ describe('#services/workspace', () => {
         addMembersFromWorkspaceModel
       );
 
-      const date = await workspaceService.joinWorkspace(
+      const workspace = await workspaceService.joinWorkspace(
         workspaceCode,
         userEmail
       );
 
-      assert.instanceOf(date, Date);
+      assert.isOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
       assert.isTrue(memberEmailExistsStub.calledOnce);
       assert.isTrue(createMemberFromModelStub.calledOnce);
+      assert.isTrue(addMembersFromWorkspaceModel.calledOnce);
     });
     it('will update member, add it to the workspace, and change their invitation status to accepted when member already exists', async () => {
       const workspaceId = new mongooseTypes.ObjectId();
@@ -3613,7 +3542,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(false);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -3642,12 +3571,12 @@ describe('#services/workspace', () => {
         addMembersFromWorkspaceModel
       );
 
-      const date = await workspaceService.joinWorkspace(
+      const workspace = await workspaceService.joinWorkspace(
         workspaceCode,
         userEmail
       );
 
-      assert.instanceOf(date, Date);
+      assert.isOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
       assert.isTrue(memberEmailExistsStub.calledOnce);
       assert.isTrue(updateMemberFromModelStub.calledOnce);
@@ -3832,7 +3761,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.rejects(err);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -3916,7 +3845,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -3925,7 +3854,7 @@ describe('#services/workspace', () => {
       createMemberFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -4006,7 +3935,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4015,7 +3944,7 @@ describe('#services/workspace', () => {
       createMemberFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -4098,7 +4027,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4107,7 +4036,7 @@ describe('#services/workspace', () => {
       createMemberFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -4194,7 +4123,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(false);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4284,7 +4213,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(false);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4376,7 +4305,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(false);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4474,7 +4403,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4490,7 +4419,7 @@ describe('#services/workspace', () => {
       } as unknown as databaseTypes.IMember);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -4583,7 +4512,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4599,7 +4528,7 @@ describe('#services/workspace', () => {
       } as unknown as databaseTypes.IMember);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -4692,7 +4621,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4708,7 +4637,7 @@ describe('#services/workspace', () => {
       } as unknown as databaseTypes.IMember);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 
@@ -4803,7 +4732,7 @@ describe('#services/workspace', () => {
       memberEmailExistsStub.resolves(true);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'memberEmailExists',
+        'memberExists',
         memberEmailExistsStub
       );
 
@@ -4819,7 +4748,7 @@ describe('#services/workspace', () => {
       } as unknown as databaseTypes.IMember);
       sandbox.replace(
         dbConnection.models.MemberModel,
-        'createMember',
+        'createWorkspaceMember',
         createMemberFromModelStub
       );
 

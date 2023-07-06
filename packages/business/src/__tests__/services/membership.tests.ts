@@ -141,15 +141,20 @@ describe('#services/membership', () => {
       queryMembersFromModelStub.resolves({
         results: [
           {
-            _id: memberId,
-            email: memberEmail,
+            members: [
+              {
+                _id: memberId,
+                email: memberEmail,
+                type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+              },
+            ] as unknown as databaseTypes.IMember[],
           },
-        ],
-      } as unknown as databaseTypes.IMember[]);
+        ] as unknown as databaseTypes.IWorkspace[],
+      });
 
       sandbox.replace(
-        dbConnection.models.MemberModel,
-        'queryMembers',
+        dbConnection.models.WorkspaceModel,
+        'queryWorkspaces',
         queryMembersFromModelStub
       );
 
@@ -171,8 +176,8 @@ describe('#services/membership', () => {
       const getMembershipFromModelStub = sandbox.stub();
       getMembershipFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.MemberModel,
-        'queryMembers',
+        dbConnection.models.WorkspaceModel,
+        'queryWorkspaces',
         getMembershipFromModelStub
       );
       function fakePublish() {
@@ -207,8 +212,8 @@ describe('#services/membership', () => {
       const getMembershipFromModelStub = sandbox.stub();
       getMembershipFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.MemberModel,
-        'queryMembers',
+        dbConnection.models.WorkspaceModel,
+        'queryWorkspaces',
         getMembershipFromModelStub
       );
       function fakePublish() {

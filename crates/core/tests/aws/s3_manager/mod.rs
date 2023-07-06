@@ -1,6 +1,6 @@
 pub mod sub_mod;
 use crate::generate_random_file_name;
-use glyphx_core::aws::types::s3_manager::*;
+use glyphx_types::aws::s3_manager::*;
 use glyphx_core::aws::S3Manager;
 use reqwest;
 

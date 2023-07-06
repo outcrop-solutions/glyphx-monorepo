@@ -1,5 +1,5 @@
 ///! This module holds the S3Manager structure which is used to interact with S3.
-use crate::error::GlyphxErrorData;
+use glyphx_types::error::GlyphxErrorData;
 use async_recursion::async_recursion;
 use async_trait::async_trait;
 use mockall::*;
@@ -13,8 +13,8 @@ use aws_sdk_s3::operation::get_object::{GetObjectError, GetObjectOutput};
 use aws_sdk_s3::operation::head_object::{HeadObjectError, HeadObjectOutput};
 use aws_sdk_s3::operation::put_object::{PutObjectError, PutObjectOutput};
 
-use super::types::s3_manager::*;
-use super::types::upload_stream::*;
+use glyphx_types::aws::s3_manager::*;
+use glyphx_types::aws::upload_stream::*;
 use super::upload_stream::*;
 use http::Request;
 use log::warn;

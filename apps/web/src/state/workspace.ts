@@ -12,6 +12,8 @@ export const workspaceAtom = atom<databaseTypes.IWorkspace>({
     updatedAt: new Date(),
     deletedAt: new Date(),
     description: '',
+    tags: [],
+    states: [],
     creator: {} as unknown as databaseTypes.IUser,
     members: [] as unknown as databaseTypes.IMember[],
     projects: [] as unknown as databaseTypes.IProject[],
