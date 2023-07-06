@@ -10,3 +10,4 @@ export {StateService as stateService} from './state';
 export {ActivityLogService as activityLogService} from './activityLog';
 export {AnnotationService as annotationService} from './annotation';
 export {ProjectTemplateService as projectTemplateService} from './projectTemplate';
+export {TagService as tagService} from './tag';
