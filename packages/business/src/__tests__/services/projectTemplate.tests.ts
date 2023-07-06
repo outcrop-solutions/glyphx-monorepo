@@ -6,15 +6,16 @@ import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from '@glyphx/database';
 import {error} from '@glyphx/core';
 import {projectTemplateService} from '../../services';
+import {ProjectTemplateService} from 'services/projectTemplate';
 
-describe.only('#services/projectTemplate', () => {
+describe('#services/projectTemplate', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
   afterEach(() => {
     sandbox.restore();
   });
 
-  context.only('getProjectTemplate', () => {
+  context('getProjectTemplate', () => {
     it('should get a projectTemplate by id', async () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
 
@@ -257,6 +258,22 @@ describe.only('#services/projectTemplate', () => {
       const projectTemplateName = 'projectTemplateName1';
       const projectId = new mongooseTypes.ObjectId();
 
+      const getProjectFromModelStub = sandbox.stub();
+      getProjectFromModelStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'getProjectById',
+        getProjectFromModelStub
+      );
+
+      const cleanProjectStub = sandbox.stub();
+      cleanProjectStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(ProjectTemplateService, 'cleanProject', cleanProjectStub);
+
       const createProjectTemplateFromModelStub = sandbox.stub();
       createProjectTemplateFromModelStub.resolves({
         _id: projectTemplateId,
@@ -265,7 +282,7 @@ describe.only('#services/projectTemplate', () => {
 
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
+        'create',
         createProjectTemplateFromModelStub
       );
 
@@ -273,10 +290,32 @@ describe.only('#services/projectTemplate', () => {
 
       assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
     });
-    it('will create a ProjectTemplate projectId is a string', async () => {
+
+    // project model fails
+    it('will log the failure and return null if the projectTemplate cannot be found', async () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplateName1';
       const projectId = new mongooseTypes.ObjectId();
+      const errMessage = 'Cannot find the project';
+      const err = new error.DataNotFoundError(
+        errMessage,
+        'projectTemplateId',
+        projectTemplateId
+      );
+
+      const getProjectFromModelStub = sandbox.stub();
+      getProjectFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'getProjectById',
+        getProjectFromModelStub
+      );
+
+      const cleanProjectStub = sandbox.stub();
+      cleanProjectStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(ProjectTemplateService, 'cleanProject', cleanProjectStub);
 
       const createProjectTemplateFromModelStub = sandbox.stub();
       createProjectTemplateFromModelStub.resolves({
@@ -286,35 +325,15 @@ describe.only('#services/projectTemplate', () => {
 
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        createProjectTemplateFromModelStub
-      );
-
-      await projectTemplateService.createTemplateFromProject(projectId);
-
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
-    });
-
-    // projectTemplate model fails
-    it('will publish and rethrow an DataValidationError when projectTemplate model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
-
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      const errMessage = 'Data validation error';
-      const err = new error.DataValidationError(errMessage, '', '');
-
-      createProjectTemplateFromModelStub.rejects(err);
-
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
+        'create',
         createProjectTemplateFromModelStub
       );
 
       function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
-        assert.instanceOf(this, error.DataValidationError);
+        assert.instanceOf(this, error.DataNotFoundError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -324,32 +343,47 @@ describe.only('#services/projectTemplate', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      let errored = false;
-      try {
+      const projectTemplate =
         await projectTemplateService.createTemplateFromProject(projectId);
-      } catch (e) {
-        assert.instanceOf(e, error.DataValidationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
+
+      assert.notOk(projectTemplate);
+      assert.isTrue(getProjectFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError', async () => {
+    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
+      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateName = 'projectTemplateName1';
       const projectId = new mongooseTypes.ObjectId();
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      const errMessage = 'A DataOperationError has occurred';
+      const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
+        'mongoDb',
+        'getProjectTemplateById'
       );
 
-      createProjectTemplateFromModelStub.rejects(err);
+      const getProjectFromModelStub = sandbox.stub();
+      getProjectFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'getProjectById',
+        getProjectFromModelStub
+      );
+
+      const cleanProjectStub = sandbox.stub();
+      cleanProjectStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(ProjectTemplateService, 'cleanProject', cleanProjectStub);
+
+      const createProjectTemplateFromModelStub = sandbox.stub();
+      createProjectTemplateFromModelStub.resolves({
+        _id: projectTemplateId,
+        name: projectTemplateName,
+      } as unknown as databaseTypes.IProjectTemplate);
 
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
+        'create',
         createProjectTemplateFromModelStub
       );
 
@@ -357,6 +391,7 @@ describe.only('#services/projectTemplate', () => {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -374,138 +409,99 @@ describe.only('#services/projectTemplate', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-    it('will publish and throw an DataServiceError when projectTemplate model throws a UnexpectedError', async () => {
-      const projectId = new mongooseTypes.ObjectId();
-
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
-      );
-
-      createProjectTemplateFromModelStub.rejects(err);
-
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        createProjectTemplateFromModelStub
-      );
-
-      function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
-        assert.instanceOf(this, error.DatabaseOperationError);
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      let errored = false;
-      try {
-        await projectTemplateService.createTemplateFromProject(projectId);
-      } catch (e) {
-        assert.instanceOf(e, error.DataServiceError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
+      assert.isTrue(getProjectFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
   context('cloneProjectFromTemplate', () => {
-    it('will create a Project and attach to Template', async () => {
+    it('will clone a Project from a Template', async () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
       const projectId = new mongooseTypes.ObjectId();
-      const projectTemplateName = 'projectTemplateName1';
 
-      const cloneProjectFromTemplateFromModelStub = sandbox.stub();
-      cloneProjectFromTemplateFromModelStub.resolves({
+      const getProjectTemplateFromModelStub = sandbox.stub();
+      getProjectTemplateFromModelStub.resolves({
         _id: projectTemplateId,
-        name: projectTemplateName,
+      } as unknown as databaseTypes.IProjectTemplate);
+      sandbox.replace(
+        dbConnection.models.ProjectTemplateModel,
+        'getProjectTemplateById',
+        getProjectTemplateFromModelStub
+      );
+
+      const cleanProjectTemplateStub = sandbox.stub();
+      cleanProjectTemplateStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(
+        ProjectTemplateService,
+        'cleanProjectTemplate',
+        cleanProjectTemplateStub
+      );
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
       } as unknown as databaseTypes.IProjectTemplate);
 
       sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        cloneProjectFromTemplateFromModelStub
+        dbConnection.models.ProjectModel,
+        'create',
+        createProjectFromModelStub
       );
 
-      await projectTemplateService.createTemplateFromProject(projectId);
+      await projectTemplateService.cloneProjectFromTemplate(projectTemplateId);
 
-      assert.isTrue(cloneProjectFromTemplateFromModelStub.calledOnce);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
     });
-    it('will create a Project when projectTemplateId is a string', async () => {
+    // project model fails
+    it('will log the failure and return null if the projectTemplate cannot be found', async () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
-      const projectTemplateName = 'projectTemplateName1';
+      const projectName = 'projectName1';
       const projectId = new mongooseTypes.ObjectId();
+      const errMessage = 'Cannot find the project';
+      const err = new error.DataNotFoundError(
+        errMessage,
+        'projectTemplateId',
+        projectTemplateId
+      );
 
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      createProjectTemplateFromModelStub.resolves({
-        _id: projectTemplateId,
-        name: projectTemplateName,
+      const getProjectTemplateFromModelStub = sandbox.stub();
+      getProjectTemplateFromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.ProjectTemplateModel,
+        'getProjectTemplateById',
+        getProjectTemplateFromModelStub
+      );
+
+      const cleanProjectTemplateStub = sandbox.stub();
+      cleanProjectTemplateStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(
+        ProjectTemplateService,
+        'cleanProjectTemplate',
+        cleanProjectTemplateStub
+      );
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
       } as unknown as databaseTypes.IProjectTemplate);
 
       sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        createProjectTemplateFromModelStub
-      );
-
-      await projectTemplateService.createTemplateFromProject(projectId);
-
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
-    });
-    it('will create a Project and attach to user and workspace models when workspaceId is a string', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const projectTemplateName = 'projectTemplateName1';
-      const projectId = new mongooseTypes.ObjectId();
-
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      createProjectTemplateFromModelStub.resolves({
-        _id: projectTemplateId,
-        name: projectTemplateName,
-      } as unknown as databaseTypes.IProjectTemplate);
-
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        createProjectTemplateFromModelStub
-      );
-
-      await projectTemplateService.createTemplateFromProject(projectId);
-
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
-    });
-
-    // projectTemplate model fails
-    it('will publish and rethrow an DataValidationError when projectTemplate model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
-
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      const errMessage = 'Data validation error';
-      const err = new error.DataValidationError(errMessage, '', '');
-
-      createProjectTemplateFromModelStub.rejects(err);
-
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        createProjectTemplateFromModelStub
+        dbConnection.models.ProjectModel,
+        'create',
+        createProjectFromModelStub
       );
 
       function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
-        assert.instanceOf(this, error.DataValidationError);
+        assert.instanceOf(this, error.DataNotFoundError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -515,86 +511,62 @@ describe.only('#services/projectTemplate', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      let errored = false;
-      try {
-        await projectTemplateService.createTemplateFromProject(projectId);
-      } catch (e) {
-        assert.instanceOf(e, error.DataValidationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
+      const projectTemplate =
+        await projectTemplateService.cloneProjectFromTemplate(
+          projectTemplateId
+        );
+
+      assert.notOk(projectTemplate);
+      assert.isTrue(getProjectTemplateFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError', async () => {
+    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
+      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
       const projectId = new mongooseTypes.ObjectId();
-
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      const errMessage = 'A DataOperationError has occurred';
+      const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
+        'mongoDb',
+        'getProjectTemplateById'
       );
 
-      createProjectTemplateFromModelStub.rejects(err);
-
+      const getProjectTemplateFromModelStub = sandbox.stub();
+      getProjectTemplateFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        createProjectTemplateFromModelStub
+        'getProjectTemplateById',
+        getProjectTemplateFromModelStub
+      );
+
+      const cleanProjectTemplateStub = sandbox.stub();
+      cleanProjectTemplateStub.resolves({
+        _id: projectId,
+      } as unknown as databaseTypes.IProject);
+      sandbox.replace(
+        ProjectTemplateService,
+        'cleanProjectTemplate',
+        cleanProjectTemplateStub
+      );
+
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+      } as unknown as databaseTypes.IProjectTemplate);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'create',
+        createProjectFromModelStub
       );
 
       function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      let errored = false;
-      try {
-        await projectTemplateService.createTemplateFromProject(projectId);
-      } catch (e) {
-        assert.instanceOf(e, error.DataServiceError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-    it('will publish and throw an DataServiceError when projectTemplate model throws a UnexpectedError', async () => {
-      const projectTemplateName = 'projectTemplateName1';
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
-
-      const createProjectTemplateFromModelStub = sandbox.stub();
-      const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
-      );
-
-      createProjectTemplateFromModelStub.rejects(err);
-
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'createProjectTemplate',
-        createProjectTemplateFromModelStub
-      );
-
-      function fakePublish() {
         /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
-        assert.instanceOf(this, error.DatabaseOperationError);
-        //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
 
@@ -605,17 +577,15 @@ describe.only('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.createTemplateFromProject(
-          projectTemplateName,
-          userId,
-          workspaceId
+        await projectTemplateService.cloneProjectFromTemplate(
+          projectTemplateId
         );
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
+      assert.isTrue(getProjectTemplateFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
@@ -693,7 +663,7 @@ describe.only('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.deactivate(projectTemplateId, viewName);
+        await projectTemplateService.deactivate(projectTemplateId);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -790,7 +760,7 @@ describe.only('#services/projectTemplate', () => {
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
         _id: projectTemplateId,
-        viewName: projName,
+        name: projName,
       } as unknown as databaseTypes.IProjectTemplate);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
@@ -964,51 +934,28 @@ describe.only('#services/projectTemplate', () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
       const tagId = new mongooseTypes.ObjectId();
       const tags = [tagId];
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.resolves({
+
+      const addTagsFromModelStub = sandbox.stub();
+      addTagsFromModelStub.resolves({
         _id: projectTemplateId,
         tags: tags,
       } as unknown as databaseTypes.IProjectTemplate);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'addTags',
+        addTagsFromModelStub
       );
 
       const projectTemplate = await projectTemplateService.addTags(
         projectTemplateId,
         tags
       );
+
       assert.isOk(projectTemplate);
       assert.strictEqual(projectTemplate._id, projectTemplateId);
       // assert.strictEqual(projectTemplate.tags[0], tags[0]);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
-    });
-    it('will add a tag to a project template when the tags ar Ids', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
-      const tags = [tagId];
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.resolves({
-        _id: projectTemplateId,
-        tags: tags,
-      } as unknown as databaseTypes.IProjectTemplate);
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
-      );
-
-      const projectTemplate = await projectTemplateService.addTags(
-        projectTemplateId.toString(),
-        tags
-      );
-      assert.isOk(projectTemplate);
-      assert.strictEqual(projectTemplate._id, projectTemplateId);
-      // assert.strictEqual(projectTemplate.tags, tags);
-
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(addTagsFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when projectTemplate model throws it ', async () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
@@ -1016,12 +963,13 @@ describe.only('#services/projectTemplate', () => {
       const tags = [tagId];
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+
+      const addTagsFromModelStub = sandbox.stub();
+      addTagsFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'addTags',
+        addTagsFromModelStub
       );
 
       function fakePublish() {
@@ -1046,7 +994,7 @@ describe.only('#services/projectTemplate', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(addTagsFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
@@ -1056,12 +1004,13 @@ describe.only('#services/projectTemplate', () => {
       const tags = [tagId];
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+
+      const addTagsFromModelStub = sandbox.stub();
+      addTagsFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'addTags',
+        addTagsFromModelStub
       );
 
       function fakePublish() {
@@ -1086,7 +1035,7 @@ describe.only('#services/projectTemplate', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(addTagsFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError ', async () => {
@@ -1097,14 +1046,15 @@ describe.only('#services/projectTemplate', () => {
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongodDb',
-        'updateProjectTemplateById'
+        'addTags'
       );
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+
+      const addTagsFromModelStub = sandbox.stub();
+      addTagsFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'addTags',
+        addTagsFromModelStub
       );
 
       function fakePublish() {
@@ -1129,60 +1079,37 @@ describe.only('#services/projectTemplate', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(addTagsFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
   context('removeTags', () => {
-    it('will remove a tag from a project', async () => {
+    it('will add a tag to a project template', async () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
       const tagId = new mongooseTypes.ObjectId();
       const tags = [tagId];
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.resolves({
+
+      const removeTagsFromModelStub = sandbox.stub();
+      removeTagsFromModelStub.resolves({
         _id: projectTemplateId,
-        viewName: tags,
+        tags: tags,
       } as unknown as databaseTypes.IProjectTemplate);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'removeTags',
+        removeTagsFromModelStub
       );
 
       const projectTemplate = await projectTemplateService.removeTags(
         projectTemplateId,
         tags
       );
+
       assert.isOk(projectTemplate);
       assert.strictEqual(projectTemplate._id, projectTemplateId);
-      // assert.strictEqual(projectTemplate.tags, tags);
+      // assert.strictEqual(projectTemplate.tags[0], tags[0]);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
-    });
-    it('will remove a tag when the tag._id is a string', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
-      const tags = [tagId];
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.resolves({
-        _id: projectTemplateId,
-        tags: tags,
-      } as unknown as databaseTypes.IProjectTemplate);
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
-      );
-
-      const projectTemplate = await projectTemplateService.removeTags(
-        projectTemplateId.toString(),
-        tags
-      );
-      assert.isOk(projectTemplate);
-      assert.strictEqual(projectTemplate._id, projectTemplateId);
-      // assert.strictEqual(projectTemplate.tags, tags);
-
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(removeTagsFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when projectTemplate model throws it ', async () => {
       const projectTemplateId = new mongooseTypes.ObjectId();
@@ -1190,12 +1117,13 @@ describe.only('#services/projectTemplate', () => {
       const tags = [tagId];
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+
+      const removeTagsFromModelStub = sandbox.stub();
+      removeTagsFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'removeTags',
+        removeTagsFromModelStub
       );
 
       function fakePublish() {
@@ -1220,7 +1148,7 @@ describe.only('#services/projectTemplate', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(removeTagsFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
@@ -1230,12 +1158,13 @@ describe.only('#services/projectTemplate', () => {
       const tags = [tagId];
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+
+      const removeTagsFromModelStub = sandbox.stub();
+      removeTagsFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'removeTags',
+        removeTagsFromModelStub
       );
 
       function fakePublish() {
@@ -1260,7 +1189,7 @@ describe.only('#services/projectTemplate', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(removeTagsFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError ', async () => {
@@ -1271,14 +1200,15 @@ describe.only('#services/projectTemplate', () => {
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongodDb',
-        'updateProjectTemplateById'
+        'removeTags'
       );
-      const updateProjectFromModelStub = sandbox.stub();
-      updateProjectFromModelStub.rejects(err);
+
+      const removeTagsFromModelStub = sandbox.stub();
+      removeTagsFromModelStub.rejects(err);
       sandbox.replace(
         dbConnection.models.ProjectTemplateModel,
-        'updateProjectTemplateById',
-        updateProjectFromModelStub
+        'removeTags',
+        removeTagsFromModelStub
       );
 
       function fakePublish() {
@@ -1303,8 +1233,10 @@ describe.only('#services/projectTemplate', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateProjectFromModelStub.calledOnce);
+      assert.isTrue(removeTagsFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
+  context('cleanProject', () => {});
+  context('cleanProjectTemplate', () => {});
 });

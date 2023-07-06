@@ -105,7 +105,7 @@ export class ProjectTemplateService {
 
   public static async cloneProjectFromTemplate(
     projectTemplateId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IProjectTemplate | null> {
+  ): Promise<databaseTypes.IProject | null> {
     try {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
@@ -118,11 +118,9 @@ export class ProjectTemplateService {
 
       const cleanProjectTemplate = this.cleanProjectTemplate(projectTemplate);
 
-      const template =
-        await mongoDbConnection.models.ProjectTemplateModel.create({
-          ...cleanProjectTemplate,
-        });
-
+      const template = await mongoDbConnection.models.ProjectModel.create({
+        ...cleanProjectTemplate,
+      });
       return template;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -130,7 +128,7 @@ export class ProjectTemplateService {
         return null;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while getting the project. See the inner error for additional details',
+          'An unexpected error occurred while cloning the project template. See the inner error for additional details',
           'projectTemplate',
           'cloneProjectFromTemplate',
           {id: projectTemplateId},

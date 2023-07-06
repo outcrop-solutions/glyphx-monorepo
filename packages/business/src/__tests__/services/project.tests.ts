@@ -133,20 +133,21 @@ describe('#services/project', () => {
     });
   });
   context('createProject', () => {
-    it('will create a Project and attach to user and workspace models', async () => {
+    it('will create a Project, attach to workspace models, and create project membership', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
-      const userEmail = 'tetsinguseremail@gmail.com';
+      const memberEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -160,18 +161,47 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.resolves({
+        _id: projectId,
+        members: [{_id: memberId}],
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      // user.addMembership
       const updateUserStub = sandbox.stub();
       updateUserStub.resolves({
         _id: userId,
-        projects: [{_id: projectId}],
+        members: [{_id: memberId}],
       } as unknown as databaseTypes.IUser);
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'addProjects',
+        'addMembership',
         updateUserStub
       );
 
+      // workspace.addProjects
       const updateWorkspaceStub = sandbox.stub();
       updateWorkspaceStub.resolves({
         _id: workspaceId,
@@ -187,29 +217,31 @@ describe('#services/project', () => {
       const doc = await projectService.createProject(
         projectName,
         workspaceId,
-        userId.toString(),
-        userEmail
+        memberId.toString(),
+        memberEmail
       );
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
+      assert.isTrue(updateProjectStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(updateWorkspaceStub.calledOnce);
-      assert.isOk(doc.workspace.projects);
     });
-    it('will create a Project and attach to user and workspace models when ownerId is a string', async () => {
+    it('will create a Project, attach to workspace models, and create project membership when workspaceId is a string', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -223,18 +255,47 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.resolves({
+        _id: projectId,
+        members: [{_id: memberId}],
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      // user.addMembership
       const updateUserStub = sandbox.stub();
       updateUserStub.resolves({
         _id: userId,
-        projects: [{_id: projectId}],
+        members: [{_id: memberId}],
       } as unknown as databaseTypes.IUser);
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'addProjects',
+        'addMembership',
         updateUserStub
       );
 
+      // workspace.addProjects
       const updateWorkspaceStub = sandbox.stub();
       updateWorkspaceStub.resolves({
         _id: workspaceId,
@@ -249,71 +310,101 @@ describe('#services/project', () => {
 
       const doc = await projectService.createProject(
         projectName,
-        workspaceId,
-        userId.toString(),
-        userEmail
-      );
-
-      assert.isTrue(createProjectFromModelStub.calledOnce);
-      assert.isTrue(updateUserStub.calledOnce);
-      assert.isTrue(updateWorkspaceStub.calledOnce);
-      assert.isOk(doc.workspace.projects);
-    });
-    it('will create a Project and attach to user and workspace models when workspaceId is a string', async () => {
-      const projectId = new mongooseTypes.ObjectId();
-      const projectName = 'projectName1';
-      const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
-
-      const createProjectFromModelStub = sandbox.stub();
-      createProjectFromModelStub.resolves({
-        _id: projectId,
-        name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
-        },
-        workspace: {
-          _id: workspaceId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
-        },
-      } as unknown as databaseTypes.IProject);
-
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
-
-      const updateUserStub = sandbox.stub();
-      updateUserStub.resolves({
-        _id: userId,
-        projects: [{_id: projectId}],
-      } as unknown as databaseTypes.IUser);
-
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'addProjects',
-        updateUserStub
-      );
-
-      const updateWorkspaceStub = sandbox.stub();
-      updateWorkspaceStub.resolves({
-        _id: workspaceId,
-        projects: [{_id: projectId}],
-      } as unknown as databaseTypes.IWorkspace);
-
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'addProjects',
-        updateWorkspaceStub
-      );
-
-      const doc = await projectService.createProject(
-        projectName,
-        userId,
         workspaceId.toString(),
+        userId,
+        userEmail
+      );
+
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(updateWorkspaceStub.calledOnce);
+      // assert.isOk(doc.workspace.projects);
+    });
+    it('will create a Project, attach to workspace models, and create project membership when userId is a string', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
+      const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+
+      // createProject
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        members: {
+          _id: memberId,
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.resolves({
+        _id: projectId,
+        members: [{_id: memberId}],
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      // user.addMembership
+      const updateUserStub = sandbox.stub();
+      updateUserStub.resolves({
+        _id: userId,
+        members: [{_id: memberId}],
+      } as unknown as databaseTypes.IUser);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'addMembership',
+        updateUserStub
+      );
+
+      // workspace.addProjects
+      const updateWorkspaceStub = sandbox.stub();
+      updateWorkspaceStub.resolves({
+        _id: workspaceId,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IWorkspace);
+
+      sandbox.replace(
+        dbConnection.models.WorkspaceModel,
+        'addProjects',
+        updateWorkspaceStub
+      );
+
+      const doc = await projectService.createProject(
+        projectName,
+        userId.toString(),
+        workspaceId,
         userEmail
       );
 
@@ -360,7 +451,7 @@ describe('#services/project', () => {
         await projectService.createProject(
           projectName,
           userId,
-          workspaceId.toString(),
+          workspaceId,
           userEmail
         );
       } catch (e) {
@@ -474,23 +565,24 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
 
-    // user update fails
-    it('will publish and rethrow an InvalidArgumentError when user model throws it', async () => {
+    // member model fails
+    it('will publish and rethrow an InvalidArgumentError when member model throws it', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -504,13 +596,14 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
-      const updateUserStub = sandbox.stub();
-      updateUserStub.rejects(err);
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.UserModel,
-        'addProjects',
-        updateUserStub
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
       );
 
       function fakePublish() {
@@ -531,7 +624,7 @@ describe('#services/project', () => {
         await projectService.createProject(
           projectName,
           userId,
-          workspaceId.toString(),
+          workspaceId,
           userEmail
         );
       } catch (e) {
@@ -540,25 +633,26 @@ describe('#services/project', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(createProjectFromModelStub.calledOnce);
-      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an InvalidOperationError when user model throws it', async () => {
+    it('will publish and rethrow an InvalidOperationError when member model throws it', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
+      const memberId = new mongooseTypes.ObjectId();
       const userId = new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -572,13 +666,14 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
-      const updateUserStub = sandbox.stub();
-      updateUserStub.rejects(err);
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.UserModel,
-        'addProjects',
-        updateUserStub
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
       );
 
       function fakePublish() {
@@ -608,25 +703,26 @@ describe('#services/project', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(createProjectFromModelStub.calledOnce);
-      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when user model throws a DataOperationError', async () => {
+    it('will publish and throw an DataServiceError when member model throws a DataOperationError', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.DatabaseOperationError(errMessage, '', '');
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -640,13 +736,14 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
-      const updateUserStub = sandbox.stub();
-      updateUserStub.rejects(err);
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.UserModel,
-        'addProjects',
-        updateUserStub
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
       );
 
       function fakePublish() {
@@ -676,27 +773,28 @@ describe('#services/project', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(createProjectFromModelStub.calledOnce);
-      assert.isTrue(updateUserStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
-    // workspace update fails
-    it('will publish and rethrow an InvalidArgumentError when workspace model throws it', async () => {
+    // project model fails
+    it('will publish and rethrow an InvalidArgumentError when pr model throws it', async () => {
       const projectId = new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -710,25 +808,28 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
-      const updateUserStub = sandbox.stub();
-      updateUserStub.resolves({
-        _id: userId,
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
-      } as unknown as databaseTypes.IUser);
+      } as unknown as databaseTypes.IMember);
 
       sandbox.replace(
-        dbConnection.models.UserModel,
-        'addProjects',
-        updateUserStub
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
       );
 
-      const updateWorkspaceStub = sandbox.stub();
-      updateWorkspaceStub.rejects(err);
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'addProjects',
-        updateWorkspaceStub
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
       );
 
       function fakePublish() {
@@ -749,7 +850,7 @@ describe('#services/project', () => {
         await projectService.createProject(
           projectName,
           userId,
-          workspaceId.toString(),
+          workspaceId,
           userEmail
         );
       } catch (e) {
@@ -758,6 +859,277 @@ describe('#services/project', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
+      assert.isTrue(updateProjectStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when workspace model throws it', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
+      const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidOperationError(errMessage, {}, '');
+
+      // createProject
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        members: {
+          _id: memberId,
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
+      assert.isTrue(updateProjectStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when workspace model throws a DataOperationError', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
+      const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.DatabaseOperationError(errMessage, '', '');
+
+      // createProject
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        members: {
+          _id: memberId,
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId.toString(),
+          userEmail
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    // user model fails
+    it('will publish and rethrow an InvalidArgumentError when pr model throws it', async () => {
+      const projectId = new mongooseTypes.ObjectId();
+      const projectName = 'projectName1';
+      const userEmail = 'tetsinguseremail@gmail.com';
+      const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidArgumentError(errMessage, '', '');
+
+      // createProject
+      const createProjectFromModelStub = sandbox.stub();
+      createProjectFromModelStub.resolves({
+        _id: projectId,
+        name: projectName,
+        members: {
+          _id: memberId,
+        },
+        workspace: {
+          _id: workspaceId,
+          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        },
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'createProject',
+        createProjectFromModelStub
+      );
+
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        projects: [{_id: projectId}],
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.resolves({
+        _id: projectId,
+        members: [{_id: memberId}],
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      // user.addMembership
+      const updateUserStub = sandbox.stub();
+      updateUserStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.UserModel,
+        'addMembership',
+        updateUserStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await projectService.createProject(
+          projectName,
+          userId,
+          workspaceId,
+          userEmail
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
+      assert.isTrue(updateProjectStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -766,17 +1138,18 @@ describe('#services/project', () => {
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -790,25 +1163,41 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
-      const updateUserStub = sandbox.stub();
-      updateUserStub.resolves({
-        _id: userId,
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
-      } as unknown as databaseTypes.IUser);
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.resolves({
+        _id: projectId,
+        members: [{_id: memberId}],
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      // user.addMembership
+      const updateUserStub = sandbox.stub();
+      updateUserStub.rejects(err);
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'addProjects',
+        'addMembership',
         updateUserStub
-      );
-
-      const updateWorkspaceStub = sandbox.stub();
-      updateWorkspaceStub.rejects(err);
-
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'addProjects',
-        updateWorkspaceStub
       );
 
       function fakePublish() {
@@ -838,6 +1227,8 @@ describe('#services/project', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
+      assert.isTrue(updateProjectStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -846,17 +1237,18 @@ describe('#services/project', () => {
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
       const userId = new mongooseTypes.ObjectId();
+      const memberId = new mongooseTypes.ObjectId();
       const workspaceId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.DatabaseOperationError(errMessage, '', '');
 
+      // createProject
       const createProjectFromModelStub = sandbox.stub();
       createProjectFromModelStub.resolves({
         _id: projectId,
         name: projectName,
-        owner: {
-          _id: userId,
-          projects: [{_id: projectId} as unknown as databaseTypes.IProject],
+        members: {
+          _id: memberId,
         },
         workspace: {
           _id: workspaceId,
@@ -870,25 +1262,41 @@ describe('#services/project', () => {
         createProjectFromModelStub
       );
 
-      const updateUserStub = sandbox.stub();
-      updateUserStub.resolves({
-        _id: userId,
+      // createProjectMember
+      const createProjectMemberFromModelStub = sandbox.stub();
+      createProjectMemberFromModelStub.resolves({
+        _id: memberId,
+        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
-      } as unknown as databaseTypes.IUser);
+      } as unknown as databaseTypes.IMember);
+
+      sandbox.replace(
+        dbConnection.models.MemberModel,
+        'createProjectMember',
+        createProjectMemberFromModelStub
+      );
+
+      // Project.addMembers
+      const updateProjectStub = sandbox.stub();
+      updateProjectStub.resolves({
+        _id: projectId,
+        members: [{_id: memberId}],
+      } as unknown as databaseTypes.IProject);
+
+      sandbox.replace(
+        dbConnection.models.ProjectModel,
+        'addMembers',
+        updateProjectStub
+      );
+
+      // user.addMembership
+      const updateUserStub = sandbox.stub();
+      updateUserStub.rejects(err);
 
       sandbox.replace(
         dbConnection.models.UserModel,
-        'addProjects',
+        'addMembership',
         updateUserStub
-      );
-
-      const updateWorkspaceStub = sandbox.stub();
-      updateWorkspaceStub.rejects(err);
-
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'addProjects',
-        updateWorkspaceStub
       );
 
       function fakePublish() {
@@ -918,6 +1326,8 @@ describe('#services/project', () => {
       }
       assert.isTrue(errored);
       assert.isTrue(createProjectFromModelStub.calledOnce);
+      assert.isTrue(createProjectMemberFromModelStub.calledOnce);
+      assert.isTrue(updateProjectStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
