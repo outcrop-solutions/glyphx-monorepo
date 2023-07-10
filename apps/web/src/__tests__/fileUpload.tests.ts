@@ -38,6 +38,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   description: 'this is a test description',
   sdtPath: 'sdtPath',
   currentVersion: 0,
+  tags: [],
   workspace: {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,

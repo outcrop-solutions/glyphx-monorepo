@@ -15,12 +15,8 @@ export class Initializer {
 
   public static async init(): Promise<void> {
     await logging.Logger.init();
-    // if (!databaseConnection.inited) {
     await databaseConnection.init();
-    // },
-    // if (!athenaConnection.inited) {
     await athenaConnection.init();
-    // }
     await EmailClient.init();
     await StripeClient.init();
     Initializer.initedField = true;

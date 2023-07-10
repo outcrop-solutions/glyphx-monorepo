@@ -2,7 +2,6 @@ import {database as databaseTypes, web as webTypes} from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
-import {v4} from 'uuid';
 import {hashFileSystem} from 'util/hashFileSystem';
 import {hashPayload} from 'util/hashPayload';
 
@@ -194,39 +193,6 @@ export class StateService {
           'state',
           'updateState',
           {stateId},
-          err
-        );
-        e.publish('', constants.ERROR_SEVERITY.ERROR);
-        throw e;
-      }
-    }
-  }
-
-  public static async updateUserCode(
-    userId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IUser> {
-    try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : new mongooseTypes.ObjectId(userId);
-      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
-        userCode: v4().replaceAll('-', ''),
-      });
-      return user;
-    } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
-        err.publish('', constants.ERROR_SEVERITY.WARNING);
-        throw err;
-      } else {
-        const e = new error.DataServiceError(
-          'An unexpected error occurred while updating the user. See the inner error for additional details',
-          'user',
-          'updateUser',
-          {userId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

@@ -13,7 +13,7 @@ import {
 } from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
 import mongoDbConnection from 'lib/databaseConnection';
-import {ObjectId, Types as mongooseTypes} from 'mongoose';
+import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 
 export class WorkspaceService {

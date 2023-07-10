@@ -72,6 +72,7 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   members: [],
   projects: [],
   states: [],
+  tags: [],
 };
 
 const MOCK_DATA: any[] = [
@@ -133,6 +134,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   } as unknown as databaseTypes.IState,
   files: [],
   viewName: 'testView',
+  tags: [],
 };
 
 describe('DATA ROUTES', () => {

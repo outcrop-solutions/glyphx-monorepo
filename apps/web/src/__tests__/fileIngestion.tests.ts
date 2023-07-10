@@ -50,6 +50,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   } as unknown as databaseTypes.IProjectTemplate,
   stateHistory: [],
   members: [],
+  tags: [],
   state: {
     properties: {
       X: {

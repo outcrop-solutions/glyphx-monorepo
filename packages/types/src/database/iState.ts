@@ -28,10 +28,3 @@ export interface IState {
   workspace: IWorkspace;
   fileSystem: IFileStats[];
 }
-
-// <uuid>.sdt
-// <uuid>.sgc
-// <uuid>.sgn
-// <run2uuid>.sdt
-// <run2uuid>.sgc
-// <run2uuid>.sgn
