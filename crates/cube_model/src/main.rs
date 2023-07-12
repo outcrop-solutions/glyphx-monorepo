@@ -1,4 +1,4 @@
 use glyphx_cube_model::run;
 fn main() {
-    run();
+    pollster::block_on(run());
 }

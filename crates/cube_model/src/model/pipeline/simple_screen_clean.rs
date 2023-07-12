@@ -1,6 +1,17 @@
 use wgpu::{Device, Queue, Surface, TextureViewDescriptor};
+use super::pipeline_manager::Pipeline;
 
-pub fn run_pipeline(surface: &Surface, device: &Device, queue: &Queue) -> Result<(), wgpu::SurfaceError> {
+pub struct SimpleScreenClean;
+
+impl SimpleScreenClean {
+    pub fn new(_device: &Device) -> Self {
+        Self
+    }
+}
+
+impl Pipeline for SimpleScreenClean {
+
+    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue) -> Result<(), wgpu::SurfaceError> {
      let output = surface.get_current_texture()?;
      let view = output.texture.create_view(&TextureViewDescriptor::default());
 
@@ -32,5 +43,8 @@ pub fn run_pipeline(surface: &Surface, device: &Device, queue: &Queue) -> Result
         output.present();
         Ok(())
     }
+}
+
+
 
 

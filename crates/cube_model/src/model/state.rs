@@ -2,7 +2,9 @@ use wgpu::{Device, Queue, Surface, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 use winit::event::WindowEvent;
 use winit::window::Window;
+use super::pipeline::pipeline_manager::PipeLines;
 use super::pipeline::simple_screen_clean;
+
 pub struct State {
     surface: wgpu::Surface,
     device: wgpu::Device,
@@ -10,6 +12,7 @@ pub struct State {
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
     window: Window,
+    pipelines: PipeLines,
 }
 
 impl State {
@@ -21,7 +24,10 @@ impl State {
         let (device, queue) = Self::init_device(&adapter).await;
 
         let config = Self::configure_surface(&surface, adapter, size, &device);
+        let mut pipelines = PipeLines::new();
 
+        let screen_clean = Box::new(simple_screen_clean::SimpleScreenClean::new(&device));
+        pipelines.add_pipeline("simple_screen_clean".to_string(), screen_clean);
         Self {
             window,
             surface,
@@ -29,6 +35,7 @@ impl State {
             queue,
             config,
             size,
+            pipelines,
         }
     }
 
@@ -58,7 +65,8 @@ impl State {
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        simple_screen_clean::run_pipeline(&self.surface, &self.device, &self.queue)
+        self.pipelines.run_pipeline("simple_screen_clean", &self.surface, &self.device, &self.queue)
+
     }
 
     fn configure_surface(
