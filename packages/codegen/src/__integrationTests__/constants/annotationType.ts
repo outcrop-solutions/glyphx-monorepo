@@ -1,0 +1,4 @@
+export enum ANNOTATION_TYPE {
+  PROJECT = 'PROJECT',
+  STATE = 'STATE',
+}

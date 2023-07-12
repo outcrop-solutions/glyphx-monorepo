@@ -1,0 +1,194 @@
+import mongoose, {Types as mongooseTypes, Schema, Model} from 'mongoose'; import
+{{interfaceName}}
+from '../interfaces';
+{{#each dependencies}}
+  import
+  {{this}}
+  from './{{this}}';
+{{/each}}
+
+const SCHEMA = new Schema<I{{capitalize this.name}}Document, I{{capitalize this.name}}StaticMethods, I{{capitalize name}}Methods>({
+  createdAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  deletedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+{{#each properties}}
+  {{@key}}: { type:
+  {{this.type}}, required:
+  {{this.required}}, default:
+  {{this.default}},
+  {{#if this.ref}}ref: '{{this.ref}}',{{/if}}
+  },
+{{/each}}
+})
+
+{{#each relationships}}
+SCHEMA.static(add{{capitalize this.referenceTable}}: async (
+    id: mongooseTypes.ObjectId,
+    {{pluralize this.referenceTable}}: (databaseTypes.I{{capitalize this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{capitalize this.sourceTable}}> => {
+    try {
+      if (!{{pluralize this.referenceTable}}.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          '{{pluralize this.referenceTable}}',
+          {{pluralize this.referenceTable}}
+        );
+      const document = await {{capitalize this.sourceTable}}Model.findById(id);
+      if (!document)
+        throw new error.DataNotFoundError(
+          `A Document with _id : ${id} cannot be found`,
+          '{{sourceTable}}._id',
+          id
+        );
+
+      const reconciledIds = await {{capitalize this.sourceTable}}Model.validate{{capitalize this.referenceTable}}({{pluralize this.referenceTable}});
+      let dirty = false;
+      reconciledIds.forEach(p => {
+        if (
+          !document.{{pluralize this.referenceTable}}.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          document.{{pluralize this.referenceTable}}.push(
+            p as unknown as databaseTypes.I{{capitalize this.referenceTable}}
+          );
+        }
+      });
+
+      if (dirty) await document.save();
+
+      return await {{capitalize this.sourceTable}}Model.getById(id);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding. See the inner error for additional information',
+          'mongoDb',
+          '{{sourceTable}}.add{{capitalize this.referenceTable}}',
+          err
+        );
+      }
+    }
+})
+
+SCHEMA.static(
+    remove{{capitalize this.referenceTable}}: async (
+    id: mongooseTypes.ObjectId,
+    {{pluralize this.referenceTable}}: (databaseTypes.I{{capitalize this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{capitalize this.sourceTable}}> => {
+    try {
+      if (!{{pluralize this.referenceTable}}.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          '{{pluralize this.referenceTable}}',
+          {{pluralize this.referenceTable}}
+        );
+      const document = await {{capitalize this.sourceTable}}Model.findById(id);
+      if (!document)
+        throw new error.DataNotFoundError(
+          `A Document with _id : ${id} cannot be found`,
+          '{{sourceTable}}._id',
+          id
+        );
+
+      const reconciledIds = {{pluralize this.referenceTable}}.map(i =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      const updated{{capitalize this.referenceTable}} = document.{{pluralize this.referenceTable}}.filter(p => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            r =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        document.{{pluralize this.referenceTable}} =
+          updated{{capitalize this.referenceTable}} as unknown as databaseTypes.I{{capitalize this.referenceTable}}[];
+        await document.save();
+      }
+
+      return await {{capitalize this.sourceTable}}Model.getById(id);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          '{{sourceTable}}.remove{{capitalize this.referenceTable}}',
+          err
+        );
+      }
+    }
+  }
+)
+
+SCHEMA.static(
+    validate{{capitalize this.referenceTable}}, 
+    async (
+    {{pluralize this.referenceTable}}: (databaseTypes.I{{capitalize this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const {{pluralize this.referenceTable}}Ids: mongooseTypes.ObjectId[] = [];
+    {{pluralize this.referenceTable}}.forEach(p => {
+      if (p instanceof mongooseTypes.ObjectId) {{pluralize this.referenceTable}}Ids.push(p);
+      else {{pluralize this.referenceTable}}Ids.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await {{capitalize this.referenceTable}}Model.all{{capitalize this.referenceTable}}IdsExist({{pluralize this.referenceTable}}Ids);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more project ids do not exist in the database. See the inner error for additional information',
+          '{{pluralize this.referenceTable}}',
+          {{pluralize this.referenceTable}},
+          err
+        );
+      else throw err;
+    }
+
+    return {{pluralize this.referenceTable}}Ids;
+  })
+{{/each}}
+
+
+export default mongoose.model('{{this.name}}', SCHEMA);
