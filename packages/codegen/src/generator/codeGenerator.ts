@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import fs from 'fs-extra';
 import path from 'path';
-import _ from 'lodash';
+import _, { capitalize } from 'lodash';
 import pluralize from 'pluralize';
 import Handlebars from 'handlebars';
 import { database as databaseTypes } from '@glyphx/types';
@@ -162,16 +162,22 @@ export class CodeGenerator {
    */
   private getInterfaceProperties(node: ts.InterfaceDeclaration): databaseTypes.meta.IProperty[] {
     try {
-      const properties = node.members.filter(ts.isPropertySignature).map((property: any) => {
-        const propertyName = property.name.getText();
-        const propertyType = this.checker!.getTypeAtLocation(property.type!);
-        const typeString = this.checker!.typeToString(propertyType);
+      const properties = node.members
+        .filter(ts.isPropertySignature)
+        .filter((p) => p.name.getText() !== '_id')
+        .map((property: any) => {
+          const propertyName = property.name.getText();
+          if (propertyName === 'string') {
+            capitalize(propertyName);
+          }
+          const propertyType = this.checker!.getTypeAtLocation(property.type!);
+          const typeString = this.checker!.typeToString(propertyType);
 
-        // TODO: use type checker for this eventually
-        const isProtected = this.protectedFields.includes(propertyName) || propertyName.startsWith('I');
+          // TODO: use type checker for this eventually
+          const isProtected = this.protectedFields.includes(propertyName) || propertyName.startsWith('I');
 
-        return { name: propertyName, type: typeString, protected: isProtected };
-      });
+          return { name: propertyName, type: typeString, protected: isProtected, required: false };
+        });
 
       return properties;
     } catch (err: any) {
@@ -239,16 +245,16 @@ export class CodeGenerator {
    * @param outputPath
    */
   private async generateModelFromTable(table: databaseTypes.meta.ITable): Promise<void> {
-    const name = table.name;
+    const formattedTable = { ...table, name: table.name.substring(1) };
     const { paths, output, templates } = this.config;
 
     try {
       await Promise.all([
         // generate model
         this.sourceFromTemplate(
-          table,
+          formattedTable,
           `${paths.templates}/${templates.models}`,
-          `${paths.destination}/${output.models}/${name}.ts`
+          `${paths.destination}/${output.models}/${formattedTable.name.toLowerCase()}.ts`
         ),
         // generate interfaces
         // this.sourceFromTemplate(table, templates.interfaces.createInput, `${output.interfaces}/i${name}CreateInput.ts`),

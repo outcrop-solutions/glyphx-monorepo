@@ -1,11 +1,7 @@
-import mongoose, {Types as mongooseTypes, Schema, Model} from 'mongoose'; import
-{{interfaceName}}
-from '../interfaces';
-{{#each dependencies}}
-  import
-  {{this}}
-  from './{{this}}';
-{{/each}}
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
+import {error} from '@glyphx/core';
+import {I{{capitalize this.name}}Document, I{{capitalize this.name}}StaticMethods, I{{capitalize name}}Methods} from '../interfaces';
 
 const SCHEMA = new Schema<I{{capitalize this.name}}Document, I{{capitalize this.name}}StaticMethods, I{{capitalize name}}Methods>({
   createdAt: {
@@ -30,11 +26,10 @@ const SCHEMA = new Schema<I{{capitalize this.name}}Document, I{{capitalize this.
       () => new Date(),
   },
 {{#each properties}}
-  {{@key}}: { type:
-  {{this.type}}, required:
-  {{this.required}}, default:
-  {{this.default}},
-  {{#if this.ref}}ref: '{{this.ref}}',{{/if}}
+  {{this.name}}: { type:
+  {{this.type}}, 
+  required: {{this.required}},
+  {{#if this.default}}default: '{{this.default}}',{{/if}}
   },
 {{/each}}
 })
