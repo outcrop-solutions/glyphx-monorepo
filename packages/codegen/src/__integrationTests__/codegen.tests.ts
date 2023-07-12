@@ -3,16 +3,16 @@ import path from 'node:path';
 import { assert } from 'chai';
 import { createSandbox } from 'sinon';
 import { CodeGenerator } from '../generator/codeGenerator';
+import { DEFAULT_CONFIG } from 'generator/config';
 
 describe('#codegen/generator', () => {
   context('generator', () => {
-    const dbDir = path.resolve(__dirname, './mocks');
     let codeGen: any;
     let sandbox: sinon.SinonSandbox;
 
     before(async () => {
       sandbox = createSandbox();
-      codeGen = new CodeGenerator(dbDir);
+      codeGen = new CodeGenerator(DEFAULT_CONFIG);
     });
 
     afterEach(() => {
@@ -23,7 +23,7 @@ describe('#codegen/generator', () => {
       it('should generate the correct dbSchema', async () => {
         let errored = false;
         try {
-          await codeGen.processFiles(dbDir);
+          await codeGen.generate();
         } catch (error) {
           errored = true;
         }

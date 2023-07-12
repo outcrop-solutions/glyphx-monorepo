@@ -37,14 +37,14 @@ export class CodeGenerator {
   /**
    * Run the codegenerator
    */
-  public async generate() {
+  public async generate(): Promise<void> {
     // STEP 1: extract IR
     await this.processFiles(this.config.paths.source);
 
     // STEP 2: generate source
     for (const table of this.databaseSchemaField.tables) {
       // generate source files from IR
-      await this.generateSourceFromTable(table);
+      await this.generateModelFromTable(table);
     }
   }
 
@@ -57,8 +57,9 @@ export class CodeGenerator {
   private async processFiles(dbDir: string): Promise<void> {
     try {
       const files = await fs.readdir(dbDir);
+      const filteredFiles = files.filter((f) => f !== 'index.ts');
       await Promise.all(
-        files.map(async (file: string) => {
+        filteredFiles.map(async (file: string) => {
           const filePath = path.join(dbDir, file);
           const stat = await fs.stat(filePath);
           if (stat.isDirectory()) {
@@ -73,7 +74,6 @@ export class CodeGenerator {
           }
         })
       );
-      console.log({ schema: this.databaseSchemaField });
     } catch (err: any) {
       if (err instanceof error.TypeCheckError || err instanceof error.FileParseError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -89,7 +89,7 @@ export class CodeGenerator {
   /**
    * Wraps node traversal to be called on a file-by-file basis
    */
-  private parseFile(program: ts.Program, filePath: string) {
+  private parseFile(program: ts.Program, filePath: string): void | null {
     try {
       const sourceFile = program.getSourceFile(filePath);
       if (!sourceFile) {
@@ -112,7 +112,7 @@ export class CodeGenerator {
   /**
    * Recursive AST node traversal utility which orchestrates helper methods to extract interface definitions
    */
-  private extractTypes(filePath: string, node: ts.Node) {
+  private extractTypes(filePath: string, node: ts.Node): void | null {
     try {
       if (ts.isInterfaceDeclaration(node)) {
         const interfaceName = this.getInterfaceName(node);
@@ -238,35 +238,60 @@ export class CodeGenerator {
    * @param templatePath
    * @param outputPath
    */
-  private async generateSourceFromTable(table: databaseTypes.meta.ITable) {
+  private async generateModelFromTable(table: databaseTypes.meta.ITable): Promise<void> {
     const name = table.name;
-    const { output, templates } = this.config;
+    const { paths, output, templates } = this.config;
 
-    await Promise.all([
-      // generate model
-      this.writeFromTemplate(table, templates.models, `${output.models}/${name}.ts`),
-      // generate interfaces
-      this.writeFromTemplate(table, templates.model.createInput, `${output.interfaces}/i${name}CreateInput.ts`),
-      this.writeFromTemplate(table, templates.model.document, `${output.interfaces}/${name}Document.ts`),
-      this.writeFromTemplate(table, templates.model.methods, `${output.interfaces}/${name}Methods.ts`),
-      this.writeFromTemplate(table, templates.model.staticMethods, `${output.interfaces}/${name}StaticMethods.ts`),
-      // generate schemas
-      this.writeFromTemplate(table, templates.schemas, `${output.schemas}/${name}.ts`),
-    ]);
+    try {
+      await Promise.all([
+        // generate model
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.models}`,
+          `${paths.destination}/${output.models}/${name}.ts`
+        ),
+        // generate interfaces
+        // this.sourceFromTemplate(table, templates.interfaces.createInput, `${output.interfaces}/i${name}CreateInput.ts`),
+        // this.sourceFromTemplate(table, templates.interfaces.document, `${output.interfaces}/${name}Document.ts`),
+        // this.sourceFromTemplate(table, templates.interfaces.methods, `${output.interfaces}/${name}Methods.ts`),
+        // this.sourceFromTemplate(
+        //   table,
+        //   templates.interfaces.staticMethods,
+        //   `${output.interfaces}/${name}StaticMethods.ts`
+        // ),
+        // // generate schemas
+        // this.sourceFromTemplate(table, templates.schemas, `${output.schemas}/${name}.ts`),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating source code from templates in generateSourceFromTable, See inner error for details',
+        err
+      );
+    }
   }
 
   /**
    * Takes in arbitrary data and template to generate a new file asynchronously on disk
    * @param data
    */
-  private async writeFromTemplate(data: any, templatePath: string, outputPath: string) {
-    // Read the template file
-    const source = fs.readFile(templatePath, 'utf8');
-    // Create a compiled version of the template
-    const template = Handlebars.compile(source);
-    // Generate the file content by rendering the template with the table data
-    const result = template(data);
-    // Write the content to a new file in the output directory
-    fs.writeFile(`${outputPath}`, result);
+  private async sourceFromTemplate(data: any, templatePath: string, outputPath: string): Promise<void> {
+    try {
+      // Ensure directory exists
+      const dir = path.dirname(outputPath);
+      await fs.mkdir(dir, { recursive: true });
+      // Read the template file
+      const source = await fs.readFile(templatePath, 'utf8');
+      // Create a compiled version of the template
+      const template = Handlebars.compile(source);
+      // Generate the file content by rendering the template with the table data
+      const result = template(data);
+      // Write the content to a new file in the output directory
+      await fs.writeFile(`${outputPath}`, result);
+    } catch (err) {
+      throw new error.CodeGenError(
+        'An error occurred while compiling the handlebar template and writing to disk at sourceFromTemplate, See inner error for details',
+        err
+      );
+    }
   }
 }

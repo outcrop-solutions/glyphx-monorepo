@@ -3,10 +3,14 @@ import { database as databaseTypes } from '@glyphx/types';
 
 // TODO: make these paths customizable from package.json
 export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
+  // base path configuration
   paths: {
-    // base path configuration
-    source: path.resolve(__dirname, './mocks'), // where are your database interfaces defined?
-    destination: './packages/database/src', // which base directory do you want your database layer to live?
+    // where are your database interfaces defined?
+    source: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks',
+    // where do i want to output my database files?
+    destination: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output',
+    // where do my templates with?
+    templates: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/templates',
   },
   output: {
     // base directory configuration
@@ -17,17 +21,17 @@ export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
   },
   templates: {
     //   template file location configuration
-    models: './ModelTemplate.hbs',
-    schemas: './SchemaTemplate.hbs',
+    models: 'ModelTemplate.hbs',
+    schemas: 'SchemaTemplate.hbs',
     interfaces: {
-      createInput: './CreateInputTemplate.hbs',
-      document: './DocumentTemplate.hbs',
-      methods: './MethodsTemplate.hbs',
-      staticMethods: './StaticMethodsTemplate.hbs',
+      createInput: 'CreateInputTemplate.hbs',
+      document: 'DocumentTemplate.hbs',
+      methods: 'MethodsTemplate.hbs',
+      staticMethods: 'StaticMethodsTemplate.hbs',
     },
     tests: {
-      unit: './Model.tests.hbs',
-      integration: './Model.integrationTests.hbs',
+      unit: 'Model.tests.hbs',
+      integration: 'Model.integrationTests.hbs',
     },
   },
 };

@@ -2,6 +2,7 @@ export interface ICodeGenConfig {
   paths: {
     source: string;
     destination: string;
+    templates: string;
   };
   output: {
     models: string;

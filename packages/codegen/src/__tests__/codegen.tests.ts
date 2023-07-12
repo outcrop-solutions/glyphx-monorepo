@@ -3,20 +3,22 @@ import path from 'node:path';
 import ts from 'typescript';
 import fs from 'fs-extra';
 import { assert } from 'chai';
+import Handlebars from 'handlebars';
 import { createSandbox } from 'sinon';
 import { CodeGenerator } from '../generator/codeGenerator';
 import { error } from '@glyphx/core';
 import { database as databaseTypes } from '@glyphx/types';
+import { DEFAULT_CONFIG } from '../generator/config';
 
 describe('#codegen/generator', () => {
   context('generator', () => {
-    const dbDir = path.resolve(__dirname, './mocks');
     let codeGen: any;
     let sandbox: sinon.SinonSandbox;
+    const config = DEFAULT_CONFIG;
 
     before(async () => {
       sandbox = createSandbox();
-      codeGen = new CodeGenerator(dbDir);
+      codeGen = new CodeGenerator(config);
     });
 
     afterEach(() => {
@@ -25,6 +27,7 @@ describe('#codegen/generator', () => {
 
     context('generator/processFiles', () => {
       it('should create a ts program from the db directory when the folder is flat', async () => {
+        const dbDir = path.resolve(__dirname, './mocks');
         const fsReaddirStub = sandbox.stub(fs, 'readdir');
         fsReaddirStub.resolves(['file1', 'file2']);
 
@@ -95,6 +98,7 @@ describe('#codegen/generator', () => {
         assert.isTrue(fsReaddirStub.calledOnce);
       });
       it('should throw a CodeGenError when ts compiler throws', async () => {
+        const dbDir = path.resolve(__dirname, './mocks');
         const fsReaddirStub = sandbox.stub(fs, 'readdir');
         fsReaddirStub.resolves(['file1', 'file2']);
 
@@ -147,6 +151,7 @@ describe('#codegen/generator', () => {
         assert.isTrue(parseFileStub.notCalled);
       });
       it('should publish a FileParseError when underlying function call throws one', async () => {
+        const dbDir = path.resolve(__dirname, './mocks');
         const errMessage = 'An error occurred while parsing the interface file, See inner error for details';
         const err = new error.FileParseError(errMessage, {});
         const fsReaddirStub = sandbox.stub(fs, 'readdir');
@@ -677,6 +682,106 @@ describe('#codegen/generator', () => {
       });
 
       it('should throw a TypeCheckError when the ts compiler throws', () => {});
+    });
+
+    context('generator/generateModelFromTable', () => {
+      it('should generate model source code and write to disk', async () => {
+        const mockTable: databaseTypes.meta.ITable = {
+          name: '',
+          path: '',
+          properties: [] as unknown as databaseTypes.meta.IProperty[],
+          relationships: [] as unknown as databaseTypes.meta.IRelation[],
+        };
+        const sourceFromTemplateStub = sandbox.stub();
+        sourceFromTemplateStub.resolves();
+        sandbox.replace(codeGen, 'sourceFromTemplate', sourceFromTemplateStub);
+
+        let errored = false;
+        try {
+          await codeGen.generateModelFromTable(mockTable);
+        } catch (error) {
+          errored = true;
+        }
+
+        assert.isFalse(errored);
+      });
+
+      it('should throw a CodeGenError when sourceFromTemplate throws one', async () => {
+        const mockTable: databaseTypes.meta.ITable = {
+          name: '',
+          path: '',
+          properties: [] as unknown as databaseTypes.meta.IProperty[],
+          relationships: [] as unknown as databaseTypes.meta.IRelation[],
+        };
+        const sourceFromTemplateStub = sandbox.stub();
+        sourceFromTemplateStub.rejects();
+        sandbox.replace(codeGen, 'sourceFromTemplate', sourceFromTemplateStub);
+
+        let errored = false;
+        try {
+          await codeGen.generateModelFromTable(mockTable);
+        } catch (error) {
+          errored = true;
+        }
+
+        assert.isTrue(errored);
+      });
+    });
+
+    context('generator/sourceFromTemplate', () => {
+      it('should generate model source code and write to disk', async () => {
+        const mockTable: databaseTypes.meta.ITable = {
+          name: '',
+          path: '',
+          properties: [] as unknown as databaseTypes.meta.IProperty[],
+          relationships: [] as unknown as databaseTypes.meta.IRelation[],
+        };
+        const templatePath = '';
+        const outputPath = '';
+
+        const fsReadFileStub = sandbox.stub(fs, 'readFile');
+        fsReadFileStub.resolves('this is a file string');
+
+        const templateStub = sandbox.stub();
+        templateStub.returns(true);
+
+        const handleBarsCompileStub = sandbox.stub(Handlebars, 'compile');
+        handleBarsCompileStub.returns(templateStub);
+
+        const fsWriteFileStub = sandbox.stub(fs, 'writeFile');
+        fsWriteFileStub.resolves();
+
+        let errored = false;
+        try {
+          await codeGen.sourceFromTemplate(mockTable, templatePath, outputPath);
+        } catch (error) {
+          errored = true;
+        }
+
+        assert.isFalse(errored);
+      });
+
+      it('should throw a CodeGenError when underlying call throws one', async () => {
+        const mockTable: databaseTypes.meta.ITable = {
+          name: '',
+          path: '',
+          properties: [] as unknown as databaseTypes.meta.IProperty[],
+          relationships: [] as unknown as databaseTypes.meta.IRelation[],
+        };
+        const templatePath = '';
+        const outputPath = '';
+
+        const fsReadFileStub = sandbox.stub(fs, 'readFile');
+        fsReadFileStub.throws();
+
+        let errored = false;
+        try {
+          await codeGen.sourceFromTemplate(mockTable, templatePath, outputPath);
+        } catch (error) {
+          errored = true;
+        }
+        assert.isTrue(errored);
+      });
     });
   });
 });
