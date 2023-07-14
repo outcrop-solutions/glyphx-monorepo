@@ -1,7 +1,8 @@
 use wgpu::{Device, Surface, Queue};
+use crate::camera::uniform_buffer::CameraUniform;
 
 pub trait Pipeline {
-    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue) -> Result<(), wgpu::SurfaceError>;
+    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue, camera_buffer: Option<&CameraUniform>) -> Result<(), wgpu::SurfaceError>;
 
 }
 
@@ -37,12 +38,12 @@ impl PipeLines {
         });
     }
 
-    pub fn run_pipeline(&self, name: &str, surface: &Surface, device: &Device, queue: &Queue) -> Result<(), wgpu::SurfaceError> {
+    pub fn run_pipeline(&self, name: &str, surface: &Surface, device: &Device, queue: &Queue, camera_uniform: Option<&CameraUniform>) -> Result<(), wgpu::SurfaceError> {
         let pipeline = self.get_pipeline(name);
         if pipeline.is_none() {
             return Err(wgpu::SurfaceError::Lost);
         } else {
-            return pipeline.unwrap().run_pipeline(surface, device, queue);
+            return pipeline.unwrap().run_pipeline(surface, device, queue, camera_uniform);
         }
     }
 }

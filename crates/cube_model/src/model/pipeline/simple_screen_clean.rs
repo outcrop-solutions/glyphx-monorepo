@@ -1,6 +1,7 @@
 use wgpu::{Device, Queue, Surface, TextureViewDescriptor};
 use super::pipeline_manager::Pipeline;
 
+use crate::camera::uniform_buffer::CameraUniform;
 pub struct SimpleScreenClean;
 
 impl SimpleScreenClean {
@@ -11,7 +12,7 @@ impl SimpleScreenClean {
 
 impl Pipeline for SimpleScreenClean {
 
-    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue) -> Result<(), wgpu::SurfaceError> {
+    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue,_: Option<&CameraUniform>) -> Result<(), wgpu::SurfaceError> {
      let output = surface.get_current_texture()?;
      let view = output.texture.create_view(&TextureViewDescriptor::default());
 

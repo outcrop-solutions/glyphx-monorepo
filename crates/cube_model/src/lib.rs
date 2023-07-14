@@ -1,4 +1,5 @@
 mod model;
+mod camera;
 
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoop};

@@ -1,9 +1,12 @@
+use super::pipeline::pipeline_manager::PipeLines;
+use super::pipeline::{basic_triangle, model_artifacts, simple_screen_clean};
+use crate::camera::camera_controller;
+use crate::camera::{uniform_buffer::CameraUniform, Camera, camera_controller::CameraController};
+use wgpu::util::DeviceExt;
 use wgpu::{Device, Queue, Surface, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
 use winit::event::WindowEvent;
 use winit::window::Window;
-use super::pipeline::pipeline_manager::PipeLines;
-use super::pipeline::simple_screen_clean;
 
 pub struct State {
     surface: wgpu::Surface,
@@ -13,6 +16,10 @@ pub struct State {
     size: winit::dpi::PhysicalSize<u32>,
     window: Window,
     pipelines: PipeLines,
+    camera: Camera,
+    camera_buffer: wgpu::Buffer,
+    camera_uniform: CameraUniform,
+    camera_controller: CameraController,
 }
 
 impl State {
@@ -24,10 +31,10 @@ impl State {
         let (device, queue) = Self::init_device(&adapter).await;
 
         let config = Self::configure_surface(&surface, adapter, size, &device);
-        let mut pipelines = PipeLines::new();
 
-        let screen_clean = Box::new(simple_screen_clean::SimpleScreenClean::new(&device));
-        pipelines.add_pipeline("simple_screen_clean".to_string(), screen_clean);
+        let (camera, camera_buffer, camera_uniform, camera_controller) = Self::configure_camera(&config, &device);
+        let pipelines = Self::build_pipelines(&device, &config, &camera_uniform);
+
         Self {
             window,
             surface,
@@ -36,6 +43,10 @@ impl State {
             config,
             size,
             pipelines,
+            camera,
+            camera_buffer,
+            camera_uniform,
+            camera_controller,
         }
     }
 
@@ -57,16 +68,17 @@ impl State {
     }
 
     pub fn input(&mut self, event: &WindowEvent) -> bool {
-        false
+        self.camera_controller.process_events(event)
     }
 
     pub fn update(&mut self) {
-
+        self.camera_controller.update_camera(&mut self.camera);
+        self.camera_uniform.update_view_proj(&self.camera);
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        self.pipelines.run_pipeline("simple_screen_clean", &self.surface, &self.device, &self.queue)
-
+        self.pipelines
+            .run_pipeline("model_artifacts", &self.surface, &self.device, &self.queue, Some(&self.camera_uniform))
     }
 
     fn configure_surface(
@@ -108,7 +120,7 @@ impl State {
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
-                    features: wgpu::Features::empty(),
+                    features: wgpu::Features::default(),
                     // WebGL doesn't support all of wgpu's features, so if
                     // we're building for the web we'll have to disable some.
                     limits: if cfg!(target_arch = "wasm32") {
@@ -150,5 +162,34 @@ impl State {
             .await
             .unwrap();
         (surface, adapter)
+    }
+
+    fn build_pipelines(device: &Device, config: &SurfaceConfiguration, camera_uniform: &CameraUniform) -> PipeLines {
+        let mut pipelines = PipeLines::new();
+
+        let screen_clean = Box::new(simple_screen_clean::SimpleScreenClean::new(device));
+        pipelines.add_pipeline("simple_screen_clean".to_string(), screen_clean);
+
+        let basic_triangle = Box::new(basic_triangle::BasicTriangle::new(device, config));
+        pipelines.add_pipeline("basic_triangle".to_string(), basic_triangle);
+
+        let model_artifacts = Box::new(model_artifacts::ModelArtifacts::new(device, config, camera_uniform));
+        pipelines.add_pipeline("model_artifacts".to_string(), model_artifacts);
+
+        pipelines
+    }
+
+    fn configure_camera(config: &SurfaceConfiguration, device: &Device) -> (Camera, wgpu::Buffer, CameraUniform, CameraController) {
+        let camera = Camera::new(config);
+        let mut camera_uniform = CameraUniform::new();
+        camera_uniform.update_view_proj(&camera);
+
+        let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Camera Buffer"),
+            contents: bytemuck::cast_slice(&[camera_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+        let camera_controller = CameraController::new(0.2);
+        (camera, camera_buffer, camera_uniform, camera_controller)
     }
 }
