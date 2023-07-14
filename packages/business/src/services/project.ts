@@ -67,7 +67,7 @@ export class ProjectService {
     workspaceId: mongooseTypes.ObjectId | string,
     userId: mongooseTypes.ObjectId | string,
     email: string,
-    type?: mongooseTypes.ObjectId | string,
+    template?: databaseTypes.IProjectTemplate,
     description?: string
   ): Promise<databaseTypes.IProject> {
     try {
@@ -76,10 +76,14 @@ export class ProjectService {
           ? workspaceId
           : new mongooseTypes.ObjectId(workspaceId);
 
-      const projectTemplateCastId =
-        type instanceof mongooseTypes.ObjectId
-          ? type
-          : new mongooseTypes.ObjectId(type);
+      let projectTemplateCastId;
+
+      if (template) {
+        projectTemplateCastId =
+          template?._id instanceof mongooseTypes.ObjectId
+            ? template._id
+            : new mongooseTypes.ObjectId(template._id);
+      }
 
       const creatorCastId =
         userId instanceof mongooseTypes.ObjectId
@@ -103,7 +107,7 @@ export class ProjectService {
         stateHistory: [],
         tags: [],
         state: {
-          properties: {
+          properties: template?.shape || {
             X: {
               axis: webTypes.constants.AXIS.X,
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
@@ -179,6 +183,8 @@ export class ProjectService {
           },
         },
       };
+
+      console.log({input});
 
       // create project
       const project = await mongoDbConnection.models.ProjectModel.createProject(

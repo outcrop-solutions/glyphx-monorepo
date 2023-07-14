@@ -99,43 +99,6 @@ export class ProjectTemplateService {
     }
   }
 
-  public static async cloneProjectFromTemplate(
-    projectTemplateId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IProject | null> {
-    try {
-      const id =
-        projectTemplateId instanceof mongooseTypes.ObjectId
-          ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
-      const projectTemplate =
-        await mongoDbConnection.models.ProjectTemplateModel.getProjectTemplateById(
-          id
-        );
-
-      const cleanProjectTemplate = this.cleanProjectTemplate(projectTemplate);
-
-      const template = await mongoDbConnection.models.ProjectModel.create({
-        ...cleanProjectTemplate,
-      });
-      return template;
-    } catch (err: any) {
-      if (err instanceof error.DataNotFoundError) {
-        err.publish('', constants.ERROR_SEVERITY.WARNING);
-        return null;
-      } else {
-        const e = new error.DataServiceError(
-          'An unexpected error occurred while cloning the project template. See the inner error for additional details',
-          'projectTemplate',
-          'cloneProjectFromTemplate',
-          {id: projectTemplateId},
-          err
-        );
-        e.publish('', constants.ERROR_SEVERITY.ERROR);
-        throw e;
-      }
-    }
-  }
-
   public static async deactivate(
     projectTemplateId: mongooseTypes.ObjectId | string
   ): Promise<databaseTypes.IProjectTemplate> {

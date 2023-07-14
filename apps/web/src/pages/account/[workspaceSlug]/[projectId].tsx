@@ -9,15 +9,8 @@ import { web as webTypes } from '@glyphx/types';
 import ProjectLayout from 'layouts/ProjectLayout';
 import Meta from 'components/Meta';
 
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import {
-  dataGridAtom,
-  projectAtom,
-  rightSidebarControlAtom,
-  splitPaneSizeAtom,
-  templatesAtom,
-  workspaceAtom,
-} from 'state';
+import { useSetRecoilState } from 'recoil';
+import { dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom } from 'state';
 
 import { useSendPosition, useSocket, useWindowSize } from 'services';
 import { useCloseViewerOnModalOpen } from 'services/useCloseViewerOnModalOpen';
@@ -55,7 +48,7 @@ export default function Project() {
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   // hydrate recoil state
   useEffect(() => {
-    if (!isLoading && !isWorkspaceLoading) {
+    if (!isLoading && !isWorkspaceLoading && !templateLoading) {
       const projectData = openFirstFile(data?.project);
       setProject(projectData);
       setTemplates(templateData);

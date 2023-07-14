@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 /**
  * Creates Project Template from a project
  * @param id
@@ -18,5 +18,25 @@ export const _createProjectTemplate = (
       method: 'POST',
     },
     successMsg: 'New project template successfully created',
+  };
+};
+
+/**
+ * Creates Project from a ProjectTemplate
+ * @param workspaceId
+ * @param template
+ * @returns
+ */
+export const _createProjectFromTemplate = (
+  workspaceId: string,
+  template: databaseTypes.IProjectTemplate
+): webTypes.IFetchConfig => {
+  return {
+    url: '/api/template/clone',
+    options: {
+      body: { workspaceId, template },
+      method: 'POST',
+    },
+    successMsg: 'New project successfully created',
   };
 };

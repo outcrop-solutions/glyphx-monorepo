@@ -8,6 +8,7 @@ export interface IProjectTemplate {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
+  community?: boolean;
   name: string;
   description: string;
   projects: IProject[];

@@ -3,6 +3,7 @@ import { Session } from 'next-auth';
 import { projectTemplateService, activityLogService } from '@glyphx/business';
 import { database as databaseTypes } from '@glyphx/types';
 import { formatUserAgent } from 'lib/utils';
+import { projectService } from '@glyphx/business';
 /**
  * Create Default ProjectTemplate
  *
@@ -40,6 +41,48 @@ export const createProjectTemplate = async (req: NextApiRequest, res: NextApiRes
     // });
 
     res.status(200).json({ data: template });
+  } catch (error) {
+    res.status(404).json({ errors: { error: { msg: error.message } } });
+  }
+};
+
+/**
+ * Create Default ProjectTemplate
+ *
+ * @note Creates a std default template
+ * @route POST /api/template
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+export const createProjectFromTemplate = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+  const { workspaceId, template } = req.body;
+  try {
+    const result = await projectService.createProject(
+      `${template.name}`,
+      workspaceId,
+      session?.user?.userId,
+      session?.user?.email,
+      template,
+      template.description
+    );
+
+    // const { agentData, location } = formatUserAgent(req);
+
+    // await activityLogService.createLog({
+    //   actorId: session?.user?.userId,
+    //   resourceId: template._id,
+    //   templateId: template._id,
+    //   workspaceId: template.workspace._id,
+    //   location: location,
+    //   userAgent: agentData,
+    //   onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
+    //   action: databaseTypes.constants.ACTION_TYPE.CREATED,
+    // });
+
+    res.status(200).json({ data: result });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
   }
