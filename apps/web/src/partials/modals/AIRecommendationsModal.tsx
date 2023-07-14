@@ -5,31 +5,10 @@ import { useCompletion } from 'ai/react';
 
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { WritableDraft } from 'immer/dist/internal';
-import { modalsAtom } from 'state';
+import { modalsAtom, templatesAtom } from 'state';
 import { completionAtom } from 'state/ai';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
-const projects = [
-  {
-    name: 'Days Sales Outstanding',
-  },
-  {
-    name: 'Logistics by Distribution center',
-  },
-  {
-    name: 'Inventory Count by Warehouse',
-  },
-  {
-    name: 'Purchasing by Raw Material',
-  },
-  {
-    name: 'Manufacturing Production by Raw Facility',
-  },
-];
-
-export const AIUploadModal = ({ modalContent }: webTypes.CreateProjectModalProps) => {
+export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendationsModalProps) => {
   // const completion = useRecoilValue(completionAtom);
   const completion = `It looks like the "Days Sales Outstanding" template is for you. Based on the uploaded fileStats, the
         "customer_no" column maps to the "X" key in the template, which represents the name of the customer account or
@@ -47,6 +26,10 @@ export const AIUploadModal = ({ modalContent }: webTypes.CreateProjectModalProps
   };
 
   const recommended = formatCompletion(completion);
+
+  const { templates } = useRecoilValue(templatesAtom);
+
+  console.log({ templates });
 
   // formatCompletion(completion);
   // const handleClickAway = () => {
@@ -79,20 +62,21 @@ export const AIUploadModal = ({ modalContent }: webTypes.CreateProjectModalProps
       <div className="relative py-4">
         <p className="font-rubik font-light text-[18px] text-white text-xl">Templates</p>
         <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {projects.map((project) => (
-            <li
-              key={project.name}
-              className={`group col-span-1 flex shadow-sm rounded border  ${'border-transparent'} bg-secondary-space-blue hover:cursor-pointer hover:border-white p-2`}
-            >
-              <div className="flex-1 flex items-center justify-between border-t border-r border-b border-transparent  rounded-r-md whitespace-wrap">
-                <div className="flex-1 px-4 py-2 text-sm">
-                  <div className="font-roboto font-medium text-[14px] leading-[16px] text-light-gray  group-hover:text-white">
-                    {project.name}
+          {templates &&
+            templates?.map((template) => (
+              <li
+                key={template.name}
+                className={`group col-span-1 flex shadow-sm rounded border  ${'border-transparent'} bg-secondary-space-blue hover:cursor-pointer hover:border-white p-2`}
+              >
+                <div className="flex-1 flex items-center justify-between border-t border-r border-b border-transparent  rounded-r-md whitespace-wrap">
+                  <div className="flex-1 px-4 py-2 text-sm">
+                    <div className="font-roboto font-medium text-[14px] leading-[16px] text-light-gray  group-hover:text-white">
+                      {template.name}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            ))}
         </ul>
       </div>
     </div>

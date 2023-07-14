@@ -15,4 +15,5 @@ export type Property = {
   interpolation: INTERPOLATION_TYPE;
   direction: DIRECTION_TYPE;
   filter: Filter;
+  description?: string;
 };

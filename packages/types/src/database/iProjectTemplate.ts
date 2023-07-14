@@ -1,7 +1,7 @@
 import {Types as mongooseTypes} from 'mongoose';
 import {IProject} from './iProject';
 import {ITag} from './iTag';
-import {FIELD_TYPE} from '../fileIngestion/constants';
+import {Property} from '../web';
 
 export interface IProjectTemplate {
   _id?: mongooseTypes.ObjectId;
@@ -9,10 +9,8 @@ export interface IProjectTemplate {
   updatedAt: Date;
   deletedAt?: Date;
   name: string;
+  description: string;
   projects: IProject[];
   tags: ITag[];
-  shape: Record<
-    string,
-    {key: string; type: FIELD_TYPE; required: boolean; description: string}
-  >;
+  shape: Record<string, Property>;
 }

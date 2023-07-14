@@ -3,10 +3,18 @@ import { GridToggle } from 'partials/layout/controls/GridToggle';
 import { OrientationToggle } from 'partials/layout/controls/OrientationToggle';
 import { SettingsDropdown } from 'partials/layout/controls/SettingsDropdown';
 import { ShareButton } from 'partials/layout/controls/ShareButton';
+import { CreateTemplateButton } from 'partials/layout/controls/CreateTemplateButton';
+import { AIButton } from 'partials/layout/controls/AIButton';
 import { ShowInfo } from 'partials/layout/controls/ShowInfo';
 import { ShowNotifications } from 'partials/layout/controls/ShowNotifications';
 
 export const projectControls = () => [
+  {
+    component: () => <AIButton />,
+  },
+  {
+    component: () => <CreateTemplateButton />,
+  },
   {
     component: () => <ShareButton />,
   },
@@ -16,9 +24,9 @@ export const projectControls = () => [
   {
     component: () => <ShowInfo />,
   },
-  {
-    component: () => <ShowNotifications />,
-  },
+  // {
+  //   component: () => <ShowNotifications />,
+  // },
   {
     component: () => <SettingsDropdown />,
   },

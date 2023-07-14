@@ -7,9 +7,14 @@ import {Types as mongooseTypes} from 'mongoose';
 
 export type ModalState =
   | {
-      type: MODAL_CONTENT_TYPE.AI_UPLOAD;
+      type: MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS;
       isSubmitting: boolean;
-      data: IClientSidePayload;
+      data: IProject;
+    }
+  | {
+      type: MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE;
+      isSubmitting: boolean;
+      data: IProject;
     }
   | {
       type: MODAL_CONTENT_TYPE.CREATE_PROJECT;
