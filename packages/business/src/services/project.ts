@@ -184,8 +184,6 @@ export class ProjectService {
         },
       };
 
-      console.log({input});
-
       // create project
       const project = await mongoDbConnection.models.ProjectModel.createProject(
         input
