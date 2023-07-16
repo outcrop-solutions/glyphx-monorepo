@@ -1,80 +1,42 @@
 use bytemuck;
+use crate::assets::glyph::{Vertex, build_x_oriented_glyph, build_y_oriented_glyph, build_z_oriented_glyph};
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct Vertex {
-    position: [f32; 3],
-    color: [f32; 3],
+pub struct VertexData {
+    pub verticies: Vec<Vertex>,
+    pub indicies: Vec<u16>,
 }
 
-impl Vertex {
-    pub fn desc() -> wgpu::VertexBufferLayout<'static> {
-        wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-                wgpu::VertexAttribute {
-                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-            ],
+impl VertexData {
+    pub fn get_verticies(&self) -> &[Vertex] {
+        &self.verticies
+    }
+
+    pub fn get_indicies(&self) -> &[u16] {
+        &self.indicies
+    }
+
+    pub fn new() -> VertexData {
+        let mut verticies: Vec<Vertex> = Vec::new();
+        let mut indicies: Vec<u16> = Vec::new();
+        let (x_verticies, x_indicies) = build_x_oriented_glyph(0.9, -0.9, -1.0, -1.0, 0.01, &[1.0, 0.0, 0.0]);
+        verticies.extend(x_verticies);
+        indicies.extend(x_indicies);
+
+        let (y_verticies, y_indicies) = build_y_oriented_glyph(0.9,-0.9, -1.0, -1.0, 0.01, &[0.0, 1.0, 0.0]);
+
+        let offset = verticies.len() as u16;
+        verticies.extend(y_verticies);
+        indicies.extend(y_indicies.iter().map(|x| x + offset));
+
+        let (z_verticies, z_indicies) = build_z_oriented_glyph(0.0,1.0 , -1.0, -1.0, 0.21, &[1.0, 0.0, 1.0]);
+        verticies.extend(z_verticies);
+        let offset = verticies.len() as u16;
+        indicies.extend(z_indicies.iter().map(|x| x + offset));
+
+
+        VertexData {
+            verticies,
+            indicies,
         }
     }
 }
-pub const VERTICES: &[Vertex] = &[
-    // Front face
-    Vertex {
-        position: [-0.5, -0.5, 0.5],
-        color: [1.0, 0.0, 0.0],
-    }, // Vertex 0
-    Vertex {
-        position: [0.5, -0.5, 0.5],
-        color: [1.0, 1.0, 0.0],
-    }, // Vertex 1
-    Vertex {
-        position: [0.5, 0.5, 0.5],
-        color: [1.0, 1.0, 1.0],
-    }, // Vertex 2
-    Vertex {
-        position: [-0.5, 0.5, 0.5],
-        color: [0.0, 0.0, 0.0],
-    }, // Vertex 3
-    // Back face
-    Vertex {
-        position: [-0.5, -0.5, -0.5],
-        color: [1.0, 0.0, 0.0],
-    }, // Vertex 4
-    Vertex {
-        position: [0.5, -0.5, -0.5],
-        color: [1.0, 0.0, 0.0],
-    }, // Vertex 5
-    Vertex {
-        position: [0.5, 0.5, -0.5],
-        color: [1.0, 0.0, 0.0],
-    }, // Vertex 6
-    Vertex {
-        position: [-0.5, 0.5, -0.5],
-        color: [1.0, 0.0, 0.0],
-    }, // Vertex 7
-];
-
-pub const INDICES: &[u16] = &[
-    0, 1, 
-    1, 2, 
-    2, 3, 
-    3, 0, 
-    1, 5, 
-    5, 6, 
-    6, 2,  
-    7, 6,  
-    5, 4,  
-    4, 0, 
-    3, 7, 
-    7, 4, 
-];

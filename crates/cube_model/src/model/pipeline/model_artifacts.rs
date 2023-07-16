@@ -3,7 +3,8 @@ mod vertex_buffer;
 use super::pipeline_manager::Pipeline;
 use crate::camera::uniform_buffer::CameraUniform;
 use bytemuck;
-use vertex_buffer::{Vertex, INDICES, VERTICES};
+use vertex_buffer::VertexData;
+use crate::assets::glyph::Vertex;
 use wgpu::util::DeviceExt;
 use wgpu::{
     BindGroup, Buffer, Device, Queue, RenderPipeline, Surface, SurfaceConfiguration,
@@ -15,6 +16,7 @@ pub struct ModelArtifacts {
     index_buffer: Buffer,
     camera_buffer: Buffer,
     camera_bind_group: BindGroup,
+    vertex_data: VertexData,
 }
 
 impl ModelArtifacts {
@@ -23,18 +25,19 @@ impl ModelArtifacts {
         config: &SurfaceConfiguration,
         camera_uniform: &CameraUniform,
     ) -> Self {
+        let vertex_data = VertexData::new();
         let shader =
             device.create_shader_module(wgpu::include_wgsl!("model_artifacts/shader.wgsl").into());
 
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(VERTICES),
+            contents: bytemuck::cast_slice(vertex_data.get_verticies()),
             usage: wgpu::BufferUsages::VERTEX,
         });
 
         let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(INDICES),
+            contents: bytemuck::cast_slice(vertex_data.get_indicies()),
             usage: wgpu::BufferUsages::INDEX,
         });
 
@@ -104,10 +107,10 @@ impl ModelArtifacts {
                 })],
             }),
             primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::LineList,
+                topology: wgpu::PrimitiveTopology::TriangleList,
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
-                cull_mode: None,
+                cull_mode: Some(wgpu::Face::Back),
                 // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
                 polygon_mode: wgpu::PolygonMode::Fill,
                 ..Default::default()
@@ -127,6 +130,7 @@ impl ModelArtifacts {
             index_buffer,
             camera_buffer,
             camera_bind_group,
+            vertex_data,
         }
     }
 }
@@ -173,7 +177,7 @@ impl Pipeline for ModelArtifacts {
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-        render_pass.draw_indexed(0..INDICES.len() as u32, 0, 0..1);
+        render_pass.draw_indexed(0..self.vertex_data.get_indicies().len() as u32, 0, 0..1);
         drop(render_pass);
         queue.submit(std::iter::once(encoder.finish()));
         output.present();
