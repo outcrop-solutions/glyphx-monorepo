@@ -85,6 +85,7 @@ impl CameraController {
         if self.is_left_pressed {
             camera.eye = camera.target - (forward - right * self.speed).normalize() * forward_mag;
         }
+        println!("Camera: {:?}", camera);
     }
 }
 

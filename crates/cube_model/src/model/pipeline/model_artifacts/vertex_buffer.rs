@@ -33,7 +33,7 @@ impl VertexData {
         indicies.extend(y_indicies.iter().map(|x| x + offset));
 
         let (z_verticies, z_indicies) =
-            build_z_oriented_glyph(-1.0, 1.0, -1.0, -1.0, 0.01, &[0.0, 0.0, 1.0]);
+            build_z_oriented_glyph(-1.0, -0.3, -1.0, -1.0, 0.01, &[0.0, 0.0, 1.0]);
         let offset = verticies.len() as u16;
         verticies.extend(z_verticies);
         indicies.extend(z_indicies.iter().map(|x| x + offset));
