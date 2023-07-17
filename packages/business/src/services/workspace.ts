@@ -42,9 +42,11 @@ export class WorkspaceService {
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
       let newSlug = slug;
-      const count = await WorkspaceService.countWorkspaces(slug);
-      if (count > 0) {
+      let count = await WorkspaceService.countWorkspaces(newSlug);
+
+      while (count > 0) {
         newSlug = `${slug}-${count}`;
+        count = await WorkspaceService.countWorkspaces(newSlug);
       }
 
       const castCreatorId =
@@ -408,11 +410,15 @@ export class WorkspaceService {
   ): Promise<databaseTypes.IWorkspace[] | null> {
     try {
       const workspaces =
-        await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: undefined,
-          // TODO: we need to change our database layer to be able to filter on one/many relations
-          // creator: userId,
-        });
+        await mongoDbConnection.models.WorkspaceModel.queryWorkspaces(
+          {
+            deletedAt: undefined,
+            // TODO: we need to change our database layer to be able to filter on one/many relations
+            // creator: userId,
+          },
+          0,
+          100
+        );
       const filteredWorkspaces = workspaces.results.filter(
         space =>
           space.members.filter(
