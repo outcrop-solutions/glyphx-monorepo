@@ -25,11 +25,11 @@ impl Camera {
         Camera {
             // position the camera one unit up and 2 units back
             // +z is out of the screen
-            eye: (0.0, 2.0, 4.0).into(),
+            eye: (0.0, 1.0, 2.0).into(),
             // have it look at the origin
             target: (0.0, 0.0, 0.0).into(),
             // which way is "up"
-            up: cgmath::Vector3::unit_y(),
+            up: cgmath::Vector3::unit_z(),
             aspect: config.width as f32 / config.height as f32,
             fovy: 45.0,
             znear: 0.1,
