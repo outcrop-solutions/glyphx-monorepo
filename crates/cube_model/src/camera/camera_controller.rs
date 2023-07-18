@@ -20,6 +20,18 @@ impl CameraController {
         }
     }
 
+    pub fn move_right(&mut self, on_or_off: bool) {
+        self.is_right_pressed = on_or_off ;
+    }
+    pub fn move_left(&mut self, on_or_off: bool) {
+        self.is_left_pressed = on_or_off ;
+    }
+    pub fn move_forward(&mut self, on_or_off: bool) {
+        self.is_forward_pressed =on_or_off;
+    }
+    pub fn move_backward(&mut self, on_or_off: bool) {
+        self.is_backward_pressed = on_or_off;
+    }
     pub fn process_events(&mut self, event: &WindowEvent) -> bool {
         match event {
             WindowEvent::KeyboardInput {
@@ -85,7 +97,6 @@ impl CameraController {
         if self.is_left_pressed {
             camera.eye = camera.target - (forward - right * self.speed).normalize() * forward_mag;
         }
-        println!("Camera: {:?}", camera);
     }
 }
 

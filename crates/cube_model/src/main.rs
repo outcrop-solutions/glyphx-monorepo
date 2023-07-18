@@ -1,4 +1,5 @@
-use glyphx_cube_model::run;
+use glyphx_cube_model::ModelRunner;
 fn main() {
-    pollster::block_on(run());
+    let mut runner = ModelRunner::new();
+    pollster::block_on(runner.run());
 }

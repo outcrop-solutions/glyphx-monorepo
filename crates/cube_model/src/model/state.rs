@@ -71,6 +71,18 @@ impl State {
         self.camera_controller.process_events(event)
     }
 
+    pub fn move_camera( &mut self, direction: &str, on_or_off: bool ) {
+        if direction == "forward"  {
+            self.camera_controller.move_forward(on_or_off);
+        } else if direction == "backward"  {
+            self.camera_controller.move_backward(on_or_off);
+        } else if direction == "left"  {
+            self.camera_controller.move_left(on_or_off);
+        } else if direction == "right"  {
+            self.camera_controller.move_right(on_or_off);
+        }
+        self.update();
+    }
     pub fn update(&mut self) {
         self.camera_controller.update_camera(&mut self.camera);
         self.camera_uniform.update_view_proj(&self.camera);
