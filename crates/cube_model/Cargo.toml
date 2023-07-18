@@ -16,6 +16,7 @@ wgpu = "0.16"
 pollster = "0.3"
 bytemuck = { version = "1.12", features = [ "derive" ] }
 cgmath = "0.18"
+serde = { version = "1.0", features = ["derive"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1.6"
@@ -27,5 +28,7 @@ web-sys = { version = "0.3", features = [
     "Document",
     "Window",
     "Element",
+    "CustomEvent",
+    "CustomEventInit",
 ]}
-
+serde-wasm-bindgen = "0.4"

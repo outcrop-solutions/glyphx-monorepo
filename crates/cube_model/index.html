@@ -55,6 +55,12 @@
 
           modelRunner.move_back();
         });
+
+	window.addEventListener('model-event', (event)=>{
+	  console.log('Model Event Received');
+	  console.log({event}); 
+
+	});
         await modelRunner.run();
       }
       run();

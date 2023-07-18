@@ -4,12 +4,12 @@ mod model;
 mod model_event;
 
 use model::state::State;
-use winit::event::*;
-use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
-use winit::window::{Window, WindowBuilder};
 use model_event::{ModelEvent, ModelMoveDirection};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+use winit::event::*;
+use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
+use winit::window::{Window, WindowBuilder};
 
 cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {
@@ -24,8 +24,6 @@ extern "C" {
 const WEB_ELEMENT_NAME: &str = "glyphx-cube-model";
 static mut EVENT_LOOP_PROXY: Option<EventLoopProxy<ModelEvent>> = None;
 
-
-
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub struct ModelRunner {}
 
@@ -36,14 +34,31 @@ impl ModelRunner {
         ModelRunner {}
     }
 
+    fn emit_event(&self, event: &ModelEvent) {
+        cfg_if::cfg_if! {
+            if #[cfg(target_arch="wasm32")] {
+                let window = web_sys::window().unwrap();
+                let js_value = serde_wasm_bindgen::to_value(event).unwrap();
+                let event = web_sys::CustomEvent::new_with_event_init_dict(
+                    "model-event",
+                    web_sys::CustomEventInit::new().detail(&js_value)
+                ).unwrap();
+                window
+                    .dispatch_event(&event)
+                    .expect("Unable to dispatch custom event");
+            }
+        }
+    }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn move_left(&self) {
         unsafe {
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Left(true));
+            self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Left(true)))
+                    .send_event(event)
                     .unwrap();
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -57,11 +72,13 @@ impl ModelRunner {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn move_right(&self) {
         unsafe {
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Right(true));
+            self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Right(true)))
+                    .send_event(event)
                     .unwrap();
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -76,10 +93,11 @@ impl ModelRunner {
     pub fn move_forward(&self) {
         unsafe {
             if EVENT_LOOP_PROXY.is_some() {
+                let event = ModelEvent::ModelMove(ModelMoveDirection::Forward(true));
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Forward(true)))
+                    .send_event(event)
                     .unwrap();
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -94,10 +112,11 @@ impl ModelRunner {
     pub fn move_back(&self) {
         unsafe {
             if EVENT_LOOP_PROXY.is_some() {
+                let event = ModelEvent::ModelMove(ModelMoveDirection::Left(true));
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Backward(true)))
+                    .send_event(event)
                     .unwrap();
                 EVENT_LOOP_PROXY
                     .as_ref()
