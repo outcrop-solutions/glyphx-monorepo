@@ -1,12 +1,13 @@
 mod assets;
 mod camera;
 mod model;
+mod model_event;
 
 use model::state::State;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
 use winit::window::{Window, WindowBuilder};
-
+use model_event::{ModelEvent, ModelMoveDirection};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
@@ -23,18 +24,7 @@ extern "C" {
 const WEB_ELEMENT_NAME: &str = "glyphx-cube-model";
 static mut EVENT_LOOP_PROXY: Option<EventLoopProxy<ModelEvent>> = None;
 
-#[derive(Debug, Clone)]
-pub enum ModelMoveDirection {
-    Left(bool),
-    Right(bool),
-    Forward(bool),
-    Backward(bool),
-}
 
-#[derive(Debug, Clone)]
-pub enum ModelEvent {
-    ModelMove(ModelMoveDirection),
-}
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub struct ModelRunner {}
