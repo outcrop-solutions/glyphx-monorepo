@@ -559,6 +559,7 @@ describe('#/secrets/secretClassDecorator', () => {
 
       const testClass2 = new BoundClass();
       assert.isFalse((testClass2 as any)['__secretInitalized__']);
+      assert.isTrue((testClass as any)['__secretInitalized__']);
     });
     it('will throw an InvalidOperationError becuase our init function is not async', async () => {
       const secretName = 'testSecret';
