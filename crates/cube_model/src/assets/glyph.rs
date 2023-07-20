@@ -44,10 +44,6 @@ pub fn build_x_oriented_glyph(
         z_pos - width
     };
 
-    //I know that there is overlap with these verticies, but I can't figure out why when I combine
-    //some of them it causes the glyph to not render correctly.  Take for instance, vertex 12. It
-    //is the same as 1, but if I change 12 to one then the left side does not render correctly.  So
-    //for now, we will just do things long hand
     let vertex_data = [
         Vertex {
             position: [start_x, y_pos, z_offset],
@@ -115,10 +111,6 @@ pub fn build_y_oriented_glyph(
         z_pos - width
     };
 
-    //I know that there is overlap with these verticies, but I can't figure out why when I combine
-    //some of them it causes the glyph to not render correctly.  Take for instance, vertex 12. It
-    //is the same as 1, but if I change 12 to one then the left side does not render correctly.  So
-    //for now, we will just do things long hand
     let vertex_data = [
         Vertex {
             position: [x_pos, start_y, z_offset],

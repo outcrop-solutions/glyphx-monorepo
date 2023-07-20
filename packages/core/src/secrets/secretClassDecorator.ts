@@ -35,12 +35,12 @@ export function initializer(
       {methodName: initializerValue.methodName}
     );
   }
-  // if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
-  //   throw new InvalidOperationError(
-  //     'Your initializer function must return a Promise so that it can be awaited',
-  //     {functionName: propertyKey}
-  //   );
-  // }
+  if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
+    throw new InvalidOperationError(
+      'Your initializer function must return a Promise so that it can be awaited',
+      {functionName: propertyKey}
+    );
+  }
 
   Reflect.defineMetadata(
     'boundSecrets:initializerFunction',
@@ -249,13 +249,17 @@ function updateInitializer<T extends {new (...args: any[]): {}}>(
   initializer: any,
   initialInitislizerFunction: any
 ) {
-  let initedField = false;
+  Object.defineProperty(target.prototype, '__secretInitalized__', {
+    value: false,
+    writable: true,
+    enumerable: false,
+  });
   Object.defineProperty(target.prototype, initializer.name, {
     value: async function () {
       //eslint-disable-next-line
       //@ts-ignore
       const boundFunction = secretInitializer.bind(this);
-      initedField = true;
+      this.__secretInitalized__ = true;
       const result = await boundFunction(initialInitislizerFunction);
 
       return result;
@@ -265,7 +269,7 @@ function updateInitializer<T extends {new (...args: any[]): {}}>(
   //Define an inited property so we can access the value of initied field later
   Object.defineProperty(target.prototype, 'inited', {
     get: function (): boolean {
-      return initedField;
+      return this.__secretInitalized__;
     },
   });
 }
@@ -281,14 +285,14 @@ function findAndValidateInitializer<T extends {new (...args: any[]): {}}>(
       {}
     );
 
-  // if (
-  //   initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction'
-  // ) {
-  //   throw new InvalidOperationError(
-  //     'Your initializer function must return a Promise so that it can be awaited',
-  //     {functionName: initializer.name}
-  //   );
-  // }
+  if (
+    initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction'
+  ) {
+    throw new InvalidOperationError(
+      'Your initializer function must return a Promise so that it can be awaited',
+      {functionName: initializer.name}
+    );
+  }
 
   const initialInitislizerFunction = initializer.descriptor.value;
   return {initializer, initialInitislizerFunction};

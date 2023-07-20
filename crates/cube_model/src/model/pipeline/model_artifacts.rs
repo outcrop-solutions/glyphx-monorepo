@@ -144,7 +144,6 @@ impl Pipeline for ModelArtifacts {
         camera_uniform: Option<&CameraUniform>,
     ) -> Result<(), wgpu::SurfaceError> {
 
-        println!("Running Model Artifacts Pipeline");
         let camera_uniform = camera_uniform.unwrap();        queue.write_buffer(&self.camera_buffer, 0,bytemuck::cast_slice(&[*camera_uniform]));
 
         let output = surface.get_current_texture()?;
