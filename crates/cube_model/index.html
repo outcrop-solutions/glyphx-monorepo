@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Learn WGPU</title>
+    <style>
+      canvas {
+        background-color: black;
+      }
+    </style>
+  </head>
+
+  <body id="glyphx-cube-model">
+    <button id="move-left-button">Move Left</button>
+    <button id="move-right-button">Move Right</button>
+    <button id="move-forward-button">Move Forward</button>
+    <button id="move-backward-button">Move Backward</button>
+    <script type="module">
+      import init, { ModelRunner} from './pkg/glyphx_cube_model.js';
+      async function run() {
+        await init();
+        console.log('WASM Loaded');
+         const modelRunner = new ModelRunner();
+
+        console.log('ModelRunner created');
+        // Get the button element
+
+        const moveLeftButton = document.getElementById('move-left-button');
+        const moveRightButton = document.getElementById('move-right-button');
+        const moveForwardButton = document.getElementById('move-forward-button');
+        const moveBackwardButton = document.getElementById('move-backward-button');
+
+        moveLeftButton.addEventListener('click', function onClick() {
+	  console.log('Move Left Button Clicked');
+
+          modelRunner.move_left();
+        });
+
+        moveRightButton.addEventListener('click', function onClick() {
+	  console.log('Move Right Button Clicked');
+
+          modelRunner.move_right();
+        });
+
+        moveForwardButton.addEventListener('click', function onClick() {
+	  console.log('Move Forward Button Clicked');
+
+          modelRunner.move_forward();
+        });
+
+        moveBackwardButton.addEventListener('click', function onClick() {
+	  console.log('Move Backward Button Clicked');
+
+          modelRunner.move_back();
+        });
+
+	window.addEventListener('model-event', (event)=>{
+	  console.log('Model Event Received');
+	  console.log({event}); 
+
+	});
+        await modelRunner.run();
+      }
+      run();
+    </script>
+  </body>
+</html>

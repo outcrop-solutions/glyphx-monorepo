@@ -73,17 +73,17 @@ export class S3Manager {
    * @throws InvalidArgumentError if the bucket does not exist, or you do not have access to it.
    */
   public async init() {
-    // try {
-    await this.bucketField.headBucket({Bucket: this.bucketName});
-    this.initedField = true;
-    // } catch (err) {
-    //   throw new error.InvalidArgumentError(
-    //     `An error occurred while checking for the existance of the bucket : ${this.bucketName}.  See the inner error for additional details`,
-    //     'bucketName',
-    //     this.bucketName,
-    //     err
-    //   );
-    // }
+    try {
+      await this.bucketField.headBucket({Bucket: this.bucketName});
+      this.initedField = true;
+    } catch (err) {
+      throw new error.InvalidArgumentError(
+        `An error occurred while checking for the existance of the bucket : ${this.bucketName}.  See the inner error for additional details`,
+        'bucketName',
+        this.bucketName,
+        err
+      );
+    }
   }
 
   /**
