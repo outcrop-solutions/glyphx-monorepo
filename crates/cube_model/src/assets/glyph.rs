@@ -32,7 +32,7 @@ pub fn build_x_oriented_glyph(
     z_pos: f32,
     width: f32,
     color: &[f32; 3],
-) -> ([Vertex; 24], [u16; 36]) {
+) -> ([Vertex; 8], [u16; 36]) {
     let y_offset = if y_pos < 0.0 {
         y_pos + width
     } else {
@@ -49,7 +49,6 @@ pub fn build_x_oriented_glyph(
     //is the same as 1, but if I change 12 to one then the left side does not render correctly.  So
     //for now, we will just do things long hand
     let vertex_data = [
-        // top (0, 0, 1)
         Vertex {
             position: [start_x, y_pos, z_offset],
             color: *color,
@@ -66,7 +65,6 @@ pub fn build_x_oriented_glyph(
             position: [start_x, y_offset, z_offset],
             color: *color,
         }, //3
-        // bottom (0, 0, -1)
         Vertex {
             position: [start_x, y_offset, z_pos],
             color: *color,
@@ -83,83 +81,15 @@ pub fn build_x_oriented_glyph(
             position: [start_x, y_pos, z_pos],
             color: *color,
         }, //7
-        // right (1, 0, 0)
-        Vertex {
-            position: [end_x, y_pos, z_pos],
-            color: *color,
-        }, //8
-        Vertex {
-            position: [end_x, y_offset, z_pos],
-            color: *color,
-        }, //9
-        Vertex {
-            position: [end_x, y_offset, z_offset],
-            color: *color,
-        }, //10
-        Vertex {
-            position: [end_x, y_pos, z_offset],
-            color: *color,
-        }, //11
-        // left (-1, 0, 0)
-        Vertex {
-            position: [start_x, y_pos, z_offset],
-            color: *color,
-        }, //12 
-        Vertex {
-            position: [start_x, y_offset, z_offset],
-            color: *color,
-        }, //13
-        Vertex {
-            position: [start_x, y_offset, z_pos],
-            color: *color,
-        }, //14
-        Vertex {
-            position: [start_x, y_pos, z_pos],
-            color: *color,
-        }, //15
-        // front (0, 1, 0)
-        Vertex {
-            position: [end_x, y_offset, z_pos],
-            color: *color,
-        }, //16
-        Vertex {
-            position: [start_x, y_offset, z_pos],
-            color: *color,
-        }, //17
-        Vertex {
-            position: [start_x, y_offset, z_offset],
-            color: *color,
-        }, //18
-        Vertex {
-            position: [end_x, y_offset, z_offset],
-            color: *color,
-        }, //19
-        // back (0, -1, 0)
-        Vertex {
-            position: [end_x, y_pos, z_offset],
-            color: *color,
-        }, //20
-        Vertex {
-            position: [start_x, y_pos, z_offset],
-            color: *color,
-        }, //21  
-        Vertex {
-            position: [start_x, y_pos, z_pos],
-            color: *color,
-        }, //22
-        Vertex {
-            position: [end_x, y_pos, z_pos],
-            color: *color,
-        }, //23
     ];
 
     let index_data: [u16; 36] = [
         0, 1, 2, 2, 3, 0, // top
         4, 5, 6, 6, 7, 4, // bottom
-        8, 9, 10, 10, 11, 8, // right
-        12, 13, 14, 14, 15, 12, // left
-        16, 17, 18, 18, 19, 16, // front
-        20, 21, 22, 22, 23, 20, // back
+        6, 5, 2, 2, 1, 6, // right
+        0, 3, 4, 4, 7, 0, // left
+        5, 4, 3, 3, 2, 5, // front
+        1, 0, 7, 7, 6, 1, // back
     ];
 
 
@@ -173,7 +103,7 @@ pub fn build_y_oriented_glyph(
     z_pos: f32,
     width: f32,
     color: &[f32; 3],
-) -> ([Vertex; 24], [u16; 36]) {
+) -> ([Vertex; 8], [u16; 36]) {
     let x_offset = if x_pos < 0.0 {
         x_pos + width
     } else {
@@ -190,7 +120,6 @@ pub fn build_y_oriented_glyph(
     //is the same as 1, but if I change 12 to one then the left side does not render correctly.  So
     //for now, we will just do things long hand
     let vertex_data = [
-        // top (0, 0, 1)
         Vertex {
             position: [x_pos, start_y, z_offset],
             color: *color,
@@ -207,7 +136,6 @@ pub fn build_y_oriented_glyph(
             position: [x_pos, end_y, z_offset],
             color: *color,
         }, //3
-        // bottom (0, 0, -1)
         Vertex {
             position: [x_pos, end_y, z_pos],
             color: *color,
@@ -224,83 +152,15 @@ pub fn build_y_oriented_glyph(
             position: [x_pos, start_y, z_pos],
             color: *color,
         }, //7
-        // right (1, 0, 0)
-        Vertex {
-            position: [x_offset, start_y, z_pos],
-            color: *color,
-        }, //8
-        Vertex {
-            position: [x_offset, end_y, z_pos],
-            color: *color,
-        }, //9
-        Vertex {
-            position: [x_offset, end_y, z_offset],
-            color: *color,
-        }, //10
-        Vertex {
-            position: [x_offset, start_y, z_offset],
-            color: *color,
-        }, //11
-        // left (-1, 0, 0)
-        Vertex {
-            position: [x_pos, start_y, z_offset],
-            color: *color,
-        }, //12 
-        Vertex {
-            position: [x_pos, end_y, z_offset],
-            color: *color,
-        }, //13
-        Vertex {
-            position: [x_pos, end_y, z_pos],
-            color: *color,
-        }, //14
-        Vertex {
-            position: [x_pos, start_y, z_pos],
-            color: *color,
-        }, //15
-        // front (0, 1, 0)
-        Vertex {
-            position: [x_offset, end_y, z_pos],
-            color: *color,
-        }, //16
-        Vertex {
-            position: [x_pos, end_y, z_pos],
-            color: *color,
-        }, //17
-        Vertex {
-            position: [x_pos, end_y, z_offset],
-            color: *color,
-        }, //18
-        Vertex {
-            position: [x_offset, end_y, z_offset],
-            color: *color,
-        }, //19
-        // back (0, -1, 0)
-        Vertex {
-            position: [x_offset, start_y, z_offset],
-            color: *color,
-        }, //20
-        Vertex {
-            position: [x_pos, start_y, z_offset],
-            color: *color,
-        }, //21  
-        Vertex {
-            position: [x_pos, start_y, z_pos],
-            color: *color,
-        }, //22
-        Vertex {
-            position: [x_offset, start_y, z_pos],
-            color: *color,
-        }, //23
     ];
 
     let index_data: [u16; 36] = [
         0, 1, 2, 2, 3, 0, // top
         4, 5, 6, 6, 7, 4, // bottom
-        8, 9, 10, 10, 11, 8, // right
-        12, 13, 14, 14, 15, 12, // left
-        16, 17, 18, 18, 19, 16, // front
-        20, 21, 22, 22, 23, 20, // back
+        6, 5, 2, 2, 1, 6, // right
+        0, 3, 4, 4, 7, 0, // left
+        5, 4, 3, 3, 2, 5, // front
+        1, 0, 7, 7, 6, 1, // back
     ];
 
 
@@ -314,7 +174,7 @@ pub fn build_z_oriented_glyph(
     start_y: f32,
     width: f32,
     color: &[f32; 3],
-) -> ([Vertex; 24], [u16; 36]) {
+) -> ([Vertex; 8], [u16; 36]) {
     let x_offset = if x_pos < 0.0 {
         x_pos + width
     } else {
@@ -365,83 +225,15 @@ pub fn build_z_oriented_glyph(
             position: [x_pos, start_y, z_pos],
             color: *color,
         }, //7
-        // right (1, 0, 0)
-        Vertex {
-            position: [x_offset, start_y, z_pos],
-            color: *color,
-        }, //8
-        Vertex {
-            position: [x_offset, end_y, z_pos],
-            color: *color,
-        }, //9
-        Vertex {
-            position: [x_offset, end_y, z_offset],
-            color: *color,
-        }, //10
-        Vertex {
-            position: [x_offset, start_y, z_offset],
-            color: *color,
-        }, //11
-        // left (-1, 0, 0)
-        Vertex {
-            position: [x_pos, start_y, z_offset],
-            color: *color,
-        }, //12 
-        Vertex {
-            position: [x_pos, end_y, z_offset],
-            color: *color,
-        }, //13
-        Vertex {
-            position: [x_pos, end_y, z_pos],
-            color: *color,
-        }, //14
-        Vertex {
-            position: [x_pos, start_y, z_pos],
-            color: *color,
-        }, //15
-        // front (0, 1, 0)
-        Vertex {
-            position: [x_offset, end_y, z_pos],
-            color: *color,
-        }, //16
-        Vertex {
-            position: [x_pos, end_y, z_pos],
-            color: *color,
-        }, //17
-        Vertex {
-            position: [x_pos, end_y, z_offset],
-            color: *color,
-        }, //18
-        Vertex {
-            position: [x_offset, end_y, z_offset],
-            color: *color,
-        }, //19
-        // back (0, -1, 0)
-        Vertex {
-            position: [x_offset, start_y, z_offset],
-            color: *color,
-        }, //20
-        Vertex {
-            position: [x_pos, start_y, z_offset],
-            color: *color,
-        }, //21  
-        Vertex {
-            position: [x_pos, start_y, z_pos],
-            color: *color,
-        }, //22
-        Vertex {
-            position: [x_offset, start_y, z_pos],
-            color: *color,
-        }, //23
     ];
 
     let index_data: [u16; 36] = [
         0, 1, 2, 2, 3, 0, // top
         4, 5, 6, 6, 7, 4, // bottom
-        8, 9, 10, 10, 11, 8, // right
-        12, 13, 14, 14, 15, 12, // left
-        16, 17, 18, 18, 19, 16, // front
-        20, 21, 22, 22, 23, 20, // back
+        6, 5, 2, 2, 1, 6, // right
+        0, 3, 4, 4, 7, 0, // left
+        5, 4, 3, 3, 2, 5, // front
+        1, 0, 7, 7, 6, 1, // back
     ];
 
 
