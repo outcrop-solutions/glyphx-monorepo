@@ -1,6 +1,6 @@
-import { CodeGenerator } from 'generator/codeGenerator';
+import { CodeGenerator } from './generator/codeGenerator';
 
 (async () => {
-  const codeGen = new CodeGenerator('../../types/src/database');
+  const codeGen = new CodeGenerator(undefined);
   await codeGen.generate();
 })();

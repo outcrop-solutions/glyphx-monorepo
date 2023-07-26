@@ -7,6 +7,8 @@ import Handlebars from 'handlebars';
 import { database as databaseTypes } from '@glyphx/types';
 import { error, constants } from '@glyphx/core';
 import { DEFAULT_CONFIG } from './config';
+import prettier from 'prettier';
+import type { Options } from 'prettier';
 
 /**
  * Constraints & Assumptions:
@@ -18,33 +20,67 @@ export class CodeGenerator {
   private config: databaseTypes.meta.ICodeGenConfig;
   private handlebars = Handlebars;
   private protectedFields: string[] = ['createdAt', 'updatedAt', '_id'];
+  private prettierConfigField: Options = {};
 
   // internal IR between file processing => code generation
   private databaseSchemaField: databaseTypes.meta.IDatabaseSchema;
   private checker: ts.TypeChecker | null = null;
 
-  constructor(config: databaseTypes.meta.ICodeGenConfig) {
+  constructor(config: databaseTypes.meta.ICodeGenConfig | undefined) {
     this.databaseSchemaField = { tables: [] };
     this.config = config || DEFAULT_CONFIG;
-
     // Registering template helper functions
+    this.handlebars.registerHelper('stripLeadingI', (value: string) =>
+      value.startsWith('I') || value.startsWith('i') ? value.substring(1) : value
+    );
+    this.handlebars.registerHelper('wrapSingleQuotes', (value: string) => `'${value}'`);
+    this.handlebars.registerHelper('isEnum', (value: string) => value === 'ENUM');
+    this.handlebars.registerHelper('isOneToOne', (value: string) => value === 'ONE_TO_ONE');
+    this.handlebars.registerHelper('isOneToMany', (value: string) => value === 'ONE_TO_MANY');
     this.handlebars.registerHelper('capitalize', (value: string) => _.capitalize(value));
     this.handlebars.registerHelper('pluralize', (value: string) => pluralize.plural(value));
-    this.handlebars.registerHelper('lowercase', (value: string) => value.toLowerCase());
+    this.handlebars.registerHelper('lowercase', (value: string) => (value ? value.toLowerCase() : value));
     this.handlebars.registerHelper('pascalcase', (value: string) => _.upperFirst(_.camelCase(value)));
+    this.handlebars.registerHelper('camelCase', (value: string) => _.camelCase(value));
+  }
+
+  public async init(): Promise<void> {
+    // Retrieve Prettier configuration
+    const options = await prettier.resolveConfig(this.config.paths.prettier);
+    this.prettierConfigField = options || {
+      bracketSpacing: false,
+      singleQuote: true,
+      trailingComma: 'es5',
+      parser: 'typescript',
+      arrowParens: 'avoid',
+    };
   }
 
   /**
    * Run the codegenerator
    */
   public async generate(): Promise<void> {
-    // STEP 1: extract IR
-    await this.processFiles(this.config.paths.source);
+    try {
+      // STEP 1: extract IR
+      await this.processFiles(this.config.paths.source);
 
-    // STEP 2: generate source
-    for (const table of this.databaseSchemaField.tables) {
-      // generate source files from IR
-      await this.generateModelFromTable(table);
+      // STEP 2: generate source
+      for (const table of this.databaseSchemaField.tables) {
+        // generate source files from IR
+        await this.generateModelFromTable(table);
+      }
+
+      // STEP 3: FORMAT OUTPUT
+      await this.formatDirectory(`${this.config.paths.destination}`);
+    } catch (err: any) {
+      if (err instanceof error.TypeCheckError || err instanceof error.FileParseError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+      } else {
+        throw new error.CodeGenError(
+          'An error occurred while generating the db boilerplate, See inner error for details',
+          err
+        );
+      }
     }
   }
 
@@ -257,16 +293,28 @@ export class CodeGenerator {
           `${paths.destination}/${output.models}/${formattedTable.name.toLowerCase()}.ts`
         ),
         // generate interfaces
-        // this.sourceFromTemplate(table, templates.interfaces.createInput, `${output.interfaces}/i${name}CreateInput.ts`),
-        // this.sourceFromTemplate(table, templates.interfaces.document, `${output.interfaces}/${name}Document.ts`),
-        // this.sourceFromTemplate(table, templates.interfaces.methods, `${output.interfaces}/${name}Methods.ts`),
-        // this.sourceFromTemplate(
-        //   table,
-        //   templates.interfaces.staticMethods,
-        //   `${output.interfaces}/${name}StaticMethods.ts`
-        // ),
-        // // generate schemas
-        // this.sourceFromTemplate(table, templates.schemas, `${output.schemas}/${name}.ts`),
+        this.sourceFromTemplate(
+          formattedTable,
+          `${paths.templates}/${templates.interfaces.createInput}`,
+          `${paths.destination}/${output.interfaces}/i${formattedTable.name}CreateInput.ts`
+        ),
+        this.sourceFromTemplate(
+          formattedTable,
+          `${paths.templates}/${templates.interfaces.document}`,
+          `${paths.destination}/${output.interfaces}/i${formattedTable.name}Document.ts`
+        ),
+        this.sourceFromTemplate(
+          formattedTable,
+          `${paths.templates}/${templates.interfaces.methods}`,
+          `${paths.destination}/${output.interfaces}/i${formattedTable.name}Methods.ts`
+        ),
+        this.sourceFromTemplate(
+          formattedTable,
+          `${paths.templates}/${templates.interfaces.staticMethods}`,
+          `${paths.destination}/${output.interfaces}/i${formattedTable.name}StaticMethods.ts`
+        ),
+        // generate schemas
+        // this.sourceFromTemplate(formattedTable, templates.schemas, `${output.schemas}/${name}.ts`),
       ]);
     } catch (err: any) {
       throw new error.CodeGenError(
@@ -296,6 +344,45 @@ export class CodeGenerator {
     } catch (err) {
       throw new error.CodeGenError(
         'An error occurred while compiling the handlebar template and writing to disk at sourceFromTemplate, See inner error for details',
+        err
+      );
+    }
+  }
+
+  private async formatFile(filePath: string) {
+    try {
+      const content = await fs.readFile(filePath, 'utf8');
+      const formatted = await prettier.format(content, { ...this.prettierConfigField, parser: 'typescript' });
+      fs.writeFile(filePath, formatted);
+      console.log(`Formatted ${filePath}`);
+    } catch (err) {
+      throw new error.CodeGenError(
+        'An error occurred while formatting the file at formatFile, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Function to format a directory
+  private async formatDirectory(fileDir: string) {
+    try {
+      const dir = await fs.readdir(fileDir);
+
+      const promises = dir.map(async (file: string) => {
+        const filePath = path.join(fileDir, file);
+        const stat = await fs.stat(filePath);
+
+        if (stat.isFile()) {
+          return this.formatFile(filePath);
+        } else if (stat.isDirectory()) {
+          return this.formatDirectory(filePath); // Recurse if directory
+        }
+      });
+      // Wait for all promises to resolve
+      await Promise.all(promises);
+    } catch (err) {
+      throw new error.CodeGenError(
+        'An error occurred while formatting the file at formatDirectory, See inner error for details',
         err
       );
     }

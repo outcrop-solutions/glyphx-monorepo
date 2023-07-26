@@ -3,6 +3,7 @@ export interface ICodeGenConfig {
     source: string;
     destination: string;
     templates: string;
+    prettier: string;
   };
   output: {
     models: string;

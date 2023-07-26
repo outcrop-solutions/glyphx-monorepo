@@ -1,4 +1,3 @@
-import path from 'path';
 import { database as databaseTypes } from '@glyphx/types';
 
 // TODO: make these paths customizable from package.json
@@ -11,6 +10,7 @@ export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
     destination: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output',
     // where do my templates with?
     templates: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/templates',
+    prettier: 'gts/.prettierrc.json',
   },
   output: {
     // base directory configuration

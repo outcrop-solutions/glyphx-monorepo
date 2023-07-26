@@ -1,5 +1,4 @@
 import 'mocha';
-import path from 'node:path';
 import { assert } from 'chai';
 import { createSandbox } from 'sinon';
 import { CodeGenerator } from '../generator/codeGenerator';
@@ -13,6 +12,7 @@ describe('#codegen/generator', () => {
     before(async () => {
       sandbox = createSandbox();
       codeGen = new CodeGenerator(DEFAULT_CONFIG);
+      await codeGen.init();
     });
 
     afterEach(() => {

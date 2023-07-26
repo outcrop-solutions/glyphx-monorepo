@@ -1,1 +1,59 @@
-const hello = {}
+import {Types as mongooseTypes, Model} from 'mongoose';
+import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {I{{this.name}}Methods} from './i{{this.name}}Methods';
+import {I{{this.name}}CreateInput} from './i{{this.name}}CreateInput';
+
+export interface I{{this.name}}StaticMethods
+  extends Model<databaseTypes.I{{this.name}}, {}, I{{this.name}}Methods> {
+  {{lowercase this.name}}IdExists({{lowercase this.name}}Id: mongooseTypes.ObjectId): Promise<boolean>;
+  all{{this.name}}IdsExist({{lowercase this.name}}Ids: mongooseTypes.ObjectId[]): Promise<boolean>;
+  create{{this.name}}(input: I{{this.name}}CreateInput): Promise<databaseTypes.I{{this.name}}>;
+  get{{this.name}}ById(
+    {{lowercase this.name}}Id: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.I{{this.name}}>;
+  query{{this.name}}s(
+    filter?: Record<string, unknown>,
+    page?: number,
+    itemsPerPage?: number
+  ): Promise<IQueryResult<databaseTypes.I{{this.name}}>>;
+  update{{this.name}}WithFilter(
+    filter: Record<string, unknown>,
+    {{lowercase this.name}}: Omit<Partial<databaseTypes.I{{this.name}}>, '_id'>
+  ): Promise<databaseTypes.I{{this.name}}>;
+  update{{this.name}}ById(
+    {{lowercase this.name}}Id: mongooseTypes.ObjectId,
+    {{lowercase this.name}}: Omit<Partial<databaseTypes.I{{this.name}}>, '_id'>
+  ): Promise<databaseTypes.I{{this.name}}>;
+  delete{{this.name}}ById({{lowercase this.name}}Id: mongooseTypes.ObjectId): Promise<void>;
+  validateUpdateObject(
+    {{lowercase this.name}}: Omit<Partial<databaseTypes.I{{this.name}}>, '_id'>
+  ): Promise<void>;
+   {{~#each relationships}}
+    {{#if (isOneToMany this.type)}}
+       add{{pluralize (stripLeadingI this.referenceTable)}}(
+        {{lowercase ../this.name}}Id: mongooseTypes.ObjectId,
+        {{lowercase (pluralize this.referenceTable)}}: (databaseTypes.I{{this.referenceTable}} | mongooseTypes.ObjectId)[]
+        ): Promise<databaseTypes.I{{../this.name}}>;
+        remove{{pluralize (stripLeadingI this.referenceTable)}}(
+        {{lowercase ../this.name}}Id: mongooseTypes.ObjectId,
+        {{lowercase pluralize this.referenceTable}}: (databaseTypes.I{{this.referenceTable}} | mongooseTypes.ObjectId)[]
+        ): Promise<databaseTypes.I{{../this.name}}>;
+         validate{{pluralize (stripLeadingI this.referenceTable)}}(
+       {{lowercase (pluralize this.referenceTable)}}: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+        ): Promise<mongooseTypes.ObjectId[]>;
+     {{else}}{{#if (isOneToOne this.type)}}
+     add{{pluralize (stripLeadingI this.referenceTable)}}(
+    {{lowercase ../this.name}}Id: mongooseTypes.ObjectId,
+    {{lowercase (pluralize (stripLeadingI this.referenceTable))}}: (databaseTypes.{{this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{../this.name}}>;
+    remove{{pluralize (stripLeadingI this.referenceTable)}}(
+    {{lowercase ../this.name}}Id: mongooseTypes.ObjectId,
+    {{lowercase (pluralize  (stripLeadingI this.referenceTable))}}: (databaseTypes.{{this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{../this.name}}>;
+     validate{{pluralize (stripLeadingI this.referenceTable)}}(
+   {{lowercase (pluralize (stripLeadingI this.referenceTable))}}: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]>;
+     {{/if}}
+    {{/if}}
+   {{/each~}}
+}
