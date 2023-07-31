@@ -29,17 +29,6 @@ export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendati
 
   const { templates } = useRecoilValue(templatesAtom);
 
-  console.log({ templates });
-
-  // formatCompletion(completion);
-  // const handleClickAway = () => {
-  //   setModals(
-  //     produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-  //       draft.modals.splice(0, 1);
-  //     })
-  //   );
-  // };
-
   return (
     <div className="rounded-lg px-20 py-10 bg-secondary-midnight w-[1000px] h-[800px] z-60">
       <div className="text-white text-xl py-4">Recommendations</div>

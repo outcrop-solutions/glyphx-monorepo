@@ -25,12 +25,6 @@ export const AIButton = () => {
         });
       })
     );
-    // const result = await api({
-    //   ..._createCompletion(payload),
-    //   returnData: true,
-    // });
-    // console.log({ result });
-    // setCompletion(result?.choices[0]?.message?.content);
   };
 
   return (
