@@ -56,7 +56,7 @@ Session.vim
 
 #rust target directory
 target
-
+pkg
 output.log
 
 #artifacts from logging tests

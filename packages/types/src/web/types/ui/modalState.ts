@@ -1,6 +1,6 @@
 import {IProject} from '../../../database';
 import {MODAL_CONTENT_TYPE} from '../../constants';
-import {IClientSidePayload, MatchingFileStatsData} from '../../interfaces';
+import {MatchingFileStatsData} from '../../interfaces';
 import {IDeleteProjectData} from '../../interfaces/modals/iDeleteProjectData';
 import {DuplicateColumnData} from '../fileRules/duplicateColumnData';
 import {Types as mongooseTypes} from 'mongoose';
