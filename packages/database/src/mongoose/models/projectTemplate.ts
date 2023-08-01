@@ -32,6 +32,7 @@ const SCHEMA = new Schema<
       () => new Date(),
   },
   name: {type: String, required: true},
+  description: {type: String, required: true},
   projects: {
     type: [mongooseTypes.ObjectId],
     required: true,
@@ -47,7 +48,6 @@ const SCHEMA = new Schema<
   shape: {
     type: Schema.Types.Mixed,
     required: true,
-    validate: projectTemplateShapeValidator,
   },
 });
 
@@ -286,8 +286,8 @@ SCHEMA.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
     try {
       const [projects, tags] = await Promise.all([
-        PROJECT_TEMPLATE_MODEL.validateProjects(input.projects),
-        PROJECT_TEMPLATE_MODEL.validateTags(input.tags),
+        PROJECT_TEMPLATE_MODEL.validateProjects(input.projects ?? []),
+        PROJECT_TEMPLATE_MODEL.validateTags(input.tags ?? []),
       ]);
       const createDate = new Date();
 
@@ -296,6 +296,7 @@ SCHEMA.static(
         updatedAt: createDate,
         tags: tags,
         name: input.name,
+        description: input.description,
         shape: input.shape,
         projects: projects,
       };

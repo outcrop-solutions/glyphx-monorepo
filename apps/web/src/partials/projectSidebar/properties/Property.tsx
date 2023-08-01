@@ -164,7 +164,7 @@ export const Property = ({ axis }) => {
   return (
     <li
       ref={drop}
-      className="py-0 px-2 group-props last:mb-0 flex gap-x-2 items-center bg-transparent hover:bg-secondary-midnight h-5"
+      className="relative group/axes py-0 px-2 group-props last:mb-0 flex gap-x-2 items-center bg-transparent hover:bg-secondary-midnight h-5"
     >
       {/* AXES ICON */}
       <div
@@ -189,11 +189,14 @@ export const Property = ({ axis }) => {
       ) : (
         <div
           data-type={handleDataType(prop)}
-          className={`flex min-w-[8rem] grow text-white uppercase justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
+          className={`flex min-w-[8rem] grow text-white justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
         >
-          <span className="inline-flex align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">
+          <span className="inline-flex uppercase align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">
             {prop?.key}
           </span>
+          <div className="hidden group-hover/axes:flex absolute top-8 z-40 px-2 py-1right-2 bg-primary-dark-blue text-white">
+            {'description'}
+          </div>
         </div>
       )}
 

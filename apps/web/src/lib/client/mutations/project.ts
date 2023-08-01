@@ -17,7 +17,6 @@ export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfi
     successMsg: 'New project successfully created',
   };
 };
-
 /**
  * Creates Project
  * @note not active
