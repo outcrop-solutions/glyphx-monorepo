@@ -142,7 +142,7 @@ impl ModelRunner {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
         use winit::dpi::PhysicalSize;
-        window.set_inner_size(PhysicalSize::new(450, 400));
+        window.set_inner_size(PhysicalSize::new(1500, 1000));
 
         use winit::platform::web::WindowExtWebSys;
         web_sys::window()
@@ -161,7 +161,7 @@ impl ModelRunner {
         self.init_logger();
 
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
-        let window = WindowBuilder::new().build(&el).unwrap();
+        let window = WindowBuilder::new().with_inner_size(winit::dpi::LogicalSize{width:1500, height: 1000}).build(&el).unwrap();
 
         cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {

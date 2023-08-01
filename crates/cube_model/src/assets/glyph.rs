@@ -102,6 +102,43 @@ pub fn build_long_plane(
 pub fn build_end_plane(density: u16, width: f32) -> (Vec<Vector2<f32>>, Vec<u32>) {
     build_long_plane(density, density, width, width)
 }
+
+fn remove_duplicate_verticies(vertexs: &Vec<cgmath::Vector3<f32>>, indexes: &mut Vec<u32> ) -> Vec<cgmath::Vector3<f32>>  {
+  let mut vertex_number = 0;
+  let mut new_vertexs: Vec<cgmath::Vector3<f32>> = Vec::new();
+  let mut dup_vertextes: Vec<usize> = Vec::new();
+  while vertex_number < vertexs.len() {
+    let vertex = vertexs[vertex_number];
+      if dup_vertextes.contains(&vertex_number) {
+        vertex_number += 1;
+        continue;
+      }
+    let mut sub_vertex_number = vertex_number + 1;
+    while sub_vertex_number < vertexs.len() {
+
+      let sub_vertex = vertexs[sub_vertex_number];
+      if vertex == sub_vertex {
+        dup_vertextes.push(sub_vertex_number);
+        let mut index_number = 0;
+        while index_number < indexes.len() {
+          if indexes[index_number] == sub_vertex_number as u32 {
+            indexes[index_number] = vertex_number as u32;
+          } else if indexes[index_number] > sub_vertex_number as u32 {
+            indexes[index_number] -= 1;
+          }
+          index_number += 1;
+        }
+      }
+      sub_vertex_number += 1;
+    }
+
+    new_vertexs.push(vertex);
+    vertex_number += 1;
+  }
+
+  new_vertexs
+}
+
 pub fn build_x_oriented_glyph(
     start_x: f32,
     end_x: f32,
@@ -109,113 +146,7 @@ pub fn build_x_oriented_glyph(
     z_pos: f32,
     width: f32,
     color: &[f32; 3],
-) -> (Vec<Vertex>, Vec<u32>) {
-    const LENGTH_DENSITY:u16 = 4000;
-    let (long_plane_vertex_buffer, long_plane_index_buffer) =
-        build_long_plane(LENGTH_DENSITY, 10, end_x - start_x, width);
-    let (end_plane_vertex_buffer, end_plane_index_buffer) = build_end_plane(1, width);
-
-    let long_vertex_count = long_plane_vertex_buffer.len();
-    let long_vertex_cull_trigger = long_vertex_count - LENGTH_DENSITY as usize;
-    //four long sides plus 2 ends
-    let vertex_size = (long_plane_index_buffer.len() * 4) + (end_plane_index_buffer.len() * 2);
-    let index_size = (long_plane_index_buffer.len() * 4) + (end_plane_index_buffer.len() * 4);
-
-    //These are a fixed size so we can preallocate.  One thing that we will want to look at is the
-    //overlap of verticies -- there will be duplicates.  We can prune those out later.
-    let mut vertex_buffer: Vec<cgmath::Vector3<f32>> = Vec::with_capacity(vertex_size);
-    let mut index_buffer: Vec<u32> = Vec::with_capacity(index_size);
-
-    //build the bottom -- x,y,z
-    let x_offset = start_x - -1.0;
-    let y_offset = y_pos - -1.0;
-    for x_and_y in &long_plane_vertex_buffer {
-        vertex_buffer.push(cgmath::Vector3::new(
-            x_and_y.x + x_offset,
-            x_and_y.y + y_offset,
-            z_pos,
-        ));
-    }
-    for index in &long_plane_index_buffer {
-        index_buffer.push(*index);
-    }
-
-    //build the top x,y, z + width
-    let z_offset = z_pos + width;
-    let index_offset = vertex_buffer.len() as u32;
-    let current_vertex_number = 0;
-    for x_and_y in &long_plane_vertex_buffer {
-        vertex_buffer.push(cgmath::Vector3::new(
-            x_and_y.x + x_offset,
-            x_and_y.y + y_offset,
-            z_offset,
-        ));
-    }
-    for index in &long_plane_index_buffer {
-        index_buffer.push(index + index_offset);
-    }
-
-    //build the back x, y_pos, z=y
-    let index_offset = vertex_buffer.len() as u32;
-    for x_and_y in &long_plane_vertex_buffer {
-        vertex_buffer.push(cgmath::Vector3::new(
-            x_and_y.x + x_offset,
-            y_pos,
-            x_and_y.y + z_offset,
-        ));
-    }
-    for index in &long_plane_index_buffer {
-        index_buffer.push(*index + index_offset);
-    }
-
-    //build the front x, y_pos, z=y
-    let y_offset = y_pos + width;
-    let index_offset = vertex_buffer.len() as u32;
-    for x_and_y in &long_plane_vertex_buffer {
-        vertex_buffer.push(cgmath::Vector3::new(
-            x_and_y.x + x_offset,
-            y_offset,
-            x_and_y.y + z_offset,
-        ));
-    }
-    for index in &long_plane_index_buffer {
-        index_buffer.push(*index + index_offset);
-    }
-
-    //build the left
-    let index_offset = vertex_buffer.len() as u32;
-    for x_and_y in &end_plane_vertex_buffer {
-        vertex_buffer.push(cgmath::Vector3::new(
-            start_x,
-            x_and_y.x + y_offset,
-            x_and_y.y + z_offset,
-        ));
-    }
-    for index in &end_plane_index_buffer {
-        index_buffer.push(*index + index_offset);
-    }
-
-    //build the right
-    let index_offset = vertex_buffer.len() as u32;
-    for x_and_y in &end_plane_vertex_buffer {
-        vertex_buffer.push(cgmath::Vector3::new(
-            end_x,
-            x_and_y.x + y_offset,
-            x_and_y.y + z_offset,
-        ));
-    }
-    for index in &end_plane_index_buffer {
-        index_buffer.push(*index + index_offset);
-    }
-    //This enumeration is temporary until I get the color buffer stoodup
-    let mut vertex_data: Vec<Vertex> = Vec::with_capacity(vertex_buffer.len());
-    for vertex in vertex_buffer {
-        vertex_data.push(Vertex {
-            position: [vertex.x, vertex.y, vertex.z],
-            color: *color,
-        });
-    }
-
+) -> ([Vertex; 8], [u16; 36]) {
     let y_offset = if y_pos < 0.0 {
         y_pos + width
     } else {
@@ -227,7 +158,52 @@ pub fn build_x_oriented_glyph(
         z_pos - width
     };
 
-    (vertex_data, index_buffer)
+    let vertex_data = [
+        Vertex {
+            position: [start_x, y_pos, z_offset],
+            color: *color,
+        }, //0
+        Vertex {
+            position: [end_x, y_pos, z_offset],
+            color: *color,
+        }, //1
+        Vertex {
+            position: [end_x, y_offset, z_offset],
+            color: *color,
+        }, //2
+        Vertex {
+            position: [start_x, y_offset, z_offset],
+            color: *color,
+        }, //3
+        Vertex {
+            position: [start_x, y_offset, z_pos],
+            color: *color,
+        }, //4
+        Vertex {
+            position: [end_x, y_offset, z_pos],
+            color: *color,
+        }, //5
+        Vertex {
+            position: [end_x, y_pos, z_pos],
+            color: *color,
+        }, //6
+        Vertex {
+            position: [start_x, y_pos, z_pos],
+            color: *color,
+        }, //7
+    ];
+
+    let index_data: [u16; 36] = [
+        0, 1, 2, 2, 3, 0, // top
+        4, 5, 6, 6, 7, 4, // bottom
+        6, 5, 2, 2, 1, 6, // right
+        0, 3, 4, 4, 7, 0, // left
+        5, 4, 3, 3, 2, 5, // front
+        1, 0, 7, 7, 6, 1, // back
+    ];
+
+
+    (vertex_data, index_data)
 }
 
 pub fn build_y_oriented_glyph(
@@ -456,5 +432,23 @@ pub mod build_long_plane {
         assert_eq!(index_buffer[21], 7);
         assert_eq!(index_buffer[22], 8);
         assert_eq!(index_buffer[23], 5);
+    }
+}
+
+#[cfg(test)]
+pub mod remove_duplicate_verticies {
+    use super::*;
+    #[test]
+    fn removes_duplicates() {
+        let vertex_buffer = vec![cgmath::Vector3::new(0.0, 0.0, 0.0), cgmath::Vector3::new(0.0, 0.0, 0.0), cgmath::Vector3::new(0.0, 0.0, 1.0)];
+        let mut index_buffer = vec![0, 1, 2];
+        let clean_vertexes = remove_duplicate_verticies(&vertex_buffer, &mut index_buffer);
+        assert_eq!(clean_vertexes.len(), 2);
+        assert_eq!(index_buffer.len(), 3);
+        assert_eq!(clean_vertexes[0], cgmath::Vector3::new(0.0, 0.0, 0.0));
+        assert_eq!(clean_vertexes[1], cgmath::Vector3::new(0.0, 0.0, 1.0));
+        assert_eq!(index_buffer[0], 0);
+        assert_eq!(index_buffer[1], 0);
+        assert_eq!(index_buffer[2], 1);
     }
 }
