@@ -21,7 +21,7 @@ export const useSocket = () => {
 
   useEffect(() => {
     if (channel === null && socket === null) {
-      const ws = new WebSocket('ws://localhost:12345'); // Replace with your WebSocket server URL and port
+      const ws = new WebSocket('ws://localhost:63630'); // Replace with your WebSocket server URL and port
       ws.onopen = () => {
         const channel = new QWebChannel(ws, function (channel) {
           window.core = channel.objects.core; // making it global
