@@ -5,7 +5,7 @@ use bytemuck;
 
 pub struct VertexData {
     pub verticies: Vec<Vertex>,
-    pub indicies: Vec<u16>,
+    pub indicies: Vec<u32>,
 }
 
 impl VertexData {
@@ -13,30 +13,30 @@ impl VertexData {
         &self.verticies
     }
 
-    pub fn get_indicies(&self) -> &[u16] {
+    pub fn get_indicies(&self) -> &[u32] {
         &self.indicies
     }
 
     pub fn new() -> VertexData {
         let mut verticies: Vec<Vertex> = Vec::new();
-        let mut indicies: Vec<u16> = Vec::new();
+        let mut indicies: Vec<u32> = Vec::new();
         let (x_verticies, x_indicies) =
             build_x_oriented_glyph(-1.0, 1.0, -1.0, -1.0, 0.01, &[1.0, 0.0, 0.0]);
         verticies.extend(x_verticies);
         indicies.extend(x_indicies);
 
-        let (y_verticies, y_indicies) =
-            build_y_oriented_glyph(-1.0, 1.0, -1.0, -1.0, 0.01, &[0.0, 1.0, 0.0]);
+        // let (y_verticies, y_indicies) =
+        //     build_y_oriented_glyph(-1.0, 1.0, -1.0, -1.0, 0.01, &[0.0, 1.0, 0.0]);
 
-        let offset = verticies.len() as u16;
-        verticies.extend(y_verticies);
-        indicies.extend(y_indicies.iter().map(|x| x + offset));
+        // let offset = verticies.len() as u16;
+        // verticies.extend(y_verticies);
+        // indicies.extend(y_indicies.iter().map(|x| x + offset));
 
-        let (z_verticies, z_indicies) =
-            build_z_oriented_glyph(-1.0, -0.3, -1.0, -1.0, 0.01, &[0.0, 0.0, 1.0]);
-        let offset = verticies.len() as u16;
-        verticies.extend(z_verticies);
-        indicies.extend(z_indicies.iter().map(|x| x + offset));
+        // let (z_verticies, z_indicies) =
+        //     build_z_oriented_glyph(-1.0, -0.3, -1.0, -1.0, 0.01, &[0.0, 0.0, 1.0]);
+        // let offset = verticies.len() as u16;
+        // verticies.extend(z_verticies);
+        // indicies.extend(z_indicies.iter().map(|x| x + offset));
 
         VertexData {
             verticies,
