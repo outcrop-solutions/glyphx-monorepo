@@ -16,7 +16,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [properties, setProperties] = useState(modalContent.data.state.properties);
-  const validName = name.length > 0 && name.length <= 16;
+  const validName = name.length > 0 && name.length <= 30;
   const axes = ['X', 'Y', 'Z'];
   // local state
   const handleNameChange = (event) => setName(event.target.value);
@@ -86,7 +86,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
       </div>
       {!validName && (
         <div className="py-1 px-2 text-white bg-red-500 rounded mb-1">
-          Please keep template names under 16 characters
+          Please keep template names under 30 characters
         </div>
       )}
       <div className="space-y-4">
@@ -103,7 +103,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
         <div>
           <h3 className="text-sm font-bold">Template Description</h3>
           <input
-            className="w-full px-3 py-2 border rounded bg-transparent"
+            className="w-full px-2 py-1 border rounded bg-transparent"
             disabled={modalContent.isSubmitting}
             onChange={handleDescChange}
             type="text"
@@ -125,7 +125,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
                 </span>
               </div>
               <input
-                className="w-full px-3 py-2 border border-gray rounded bg-transparent"
+                className="w-full px-2 py-1 border border-gray rounded bg-transparent"
                 disabled={modalContent.isSubmitting}
                 onChange={(e) => handleUpdatePropertyName(axis, e)}
                 type="text"
