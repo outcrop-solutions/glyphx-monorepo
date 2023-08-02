@@ -16,7 +16,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [properties, setProperties] = useState(modalContent.data.state.properties);
-  const validName = name.length > 0 && name.length <= 30;
+  const validName = name.length > 0 && name.length <= 50;
   const axes = ['X', 'Y', 'Z'];
   // local state
   const handleNameChange = (event) => setName(event.target.value);
