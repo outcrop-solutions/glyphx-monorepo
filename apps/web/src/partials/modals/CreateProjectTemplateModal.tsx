@@ -93,7 +93,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
         <div>
           <h3 className="text-sm font-bold">Template Name</h3>
           <input
-            className="w-full px-3 py-2 border rounded bg-transparent"
+            className="w-full px-3 py-2 border rounded bg-transparent text-[12px]"
             disabled={modalContent.isSubmitting}
             onChange={handleNameChange}
             type="text"
@@ -103,7 +103,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
         <div>
           <h3 className="text-sm font-bold">Template Description</h3>
           <input
-            className="w-full px-2 py-1 border rounded bg-transparent"
+            className="w-full px-2 py-1 border rounded bg-transparent text-[12px]"
             disabled={modalContent.isSubmitting}
             onChange={handleDescChange}
             type="text"
@@ -125,14 +125,14 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
                 </span>
               </div>
               <input
-                className="w-full px-2 py-1 border border-gray rounded bg-transparent"
+                className="w-full px-2 py-1 border border-gray rounded bg-transparent text-[12px]"
                 disabled={modalContent.isSubmitting}
                 onChange={(e) => handleUpdatePropertyName(axis, e)}
                 type="text"
                 value={properties[axis]?.key}
               />
               <textarea
-                className="w-full px-2 py-1 border border-gray rounded bg-transparent"
+                className="w-full px-2 py-1 border border-gray rounded bg-transparent text-[12px]"
                 disabled={modalContent.isSubmitting}
                 onChange={(e) => handleUpdatePropertyDesc(axis, e)}
                 placeholder="Give axis a description"
