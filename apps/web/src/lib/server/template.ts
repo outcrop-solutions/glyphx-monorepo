@@ -27,19 +27,6 @@ export const createProjectTemplate = async (req: NextApiRequest, res: NextApiRes
       session?.user?.email
     );
 
-    // const { agentData, location } = formatUserAgent(req);
-
-    // await activityLogService.createLog({
-    //   actorId: session?.user?.userId,
-    //   resourceId: template._id,
-    //   templateId: template._id,
-    //   workspaceId: template.workspace._id,
-    //   location: location,
-    //   userAgent: agentData,
-    //   onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
-    //   action: databaseTypes.constants.ACTION_TYPE.CREATED,
-    // });
-
     res.status(200).json({ data: template });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });

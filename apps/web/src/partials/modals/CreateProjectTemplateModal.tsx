@@ -84,6 +84,11 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
       <div className="space-y-0 text-xl text-gray-600">
         <p>Create a Project Template</p>
       </div>
+      {!validName && (
+        <div className="py-1 px-2 text-white bg-red-500 rounded mb-1">
+          Please keep template names under 16 characters
+        </div>
+      )}
       <div className="space-y-4">
         <div>
           <h3 className="text-sm font-bold">Template Name</h3>
@@ -127,7 +132,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
                 value={properties[axis]?.key}
               />
               <textarea
-                className="w-full px-3 py-2 border border-gray rounded bg-transparent"
+                className="w-full px-2 py-1 border border-gray rounded bg-transparent"
                 disabled={modalContent.isSubmitting}
                 onChange={(e) => handleUpdatePropertyDesc(axis, e)}
                 placeholder="Give axis a description"

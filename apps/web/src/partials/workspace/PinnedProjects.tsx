@@ -18,7 +18,7 @@ export const PinnedProjects = () => {
 
   const createProjectFromTemplate = (template) => {
     api({
-      ..._createProjectFromTemplate(_id, template),
+      ..._createProjectFromTemplate(_id.toString(), template),
       setLoading: (state) => {
         setLoading(state);
       },
