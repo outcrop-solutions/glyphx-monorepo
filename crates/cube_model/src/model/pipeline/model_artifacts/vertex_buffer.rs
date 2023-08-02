@@ -1,3 +1,4 @@
+use crate::assets::color::build_color_table;
 use crate::assets::glyph::{
     build_x_oriented_glyph, build_y_oriented_glyph, build_z_oriented_glyph, Vertex,
 };
@@ -39,6 +40,7 @@ impl VertexData {
         verticies.extend(z_verticies);
         indicies.extend(z_indicies.iter().map(|x| x + offset));
 
+        let color_table = build_color_table([0.0, 255.0, 255.0, 1.0], [255.0, 0.0, 0.0, 1.0], 60);
         let mut x = -0.9;
         let glyph_off = 0.1;
         let glyph_size = 0.015;
@@ -47,10 +49,17 @@ impl VertexData {
         while x <= 1.0 {
             let mut y = -0.9;
             while y <= 1.0 {
-                let random_number: f32 = rng.gen_range(0.0..=0.7);
+                let random_number: f32 = rng.gen_range(0.0..=0.6);
                 let mapped_number: f32 = -1.0 + random_number * 0.7; // Map [0, 0.7] to [-1, -0.3]
-                let (z_verticies, z_indicies) =
-                    build_z_oriented_glyph(-1.0, mapped_number as f32, x, y, glyph_size, &[0.0, 0.0, 1.0]);
+                let color = color_table[(random_number*100.0).floor() as usize];
+                let (z_verticies, z_indicies) = build_z_oriented_glyph(
+                    -1.0,
+                    mapped_number as f32,
+                    x,
+                    y,
+                    glyph_size,
+                    &[color[0], color[1], color[2]],
+                );
                 let offset = verticies.len() as u16;
                 verticies.extend(z_verticies);
                 indicies.extend(z_indicies.iter().map(|x| x + offset));
