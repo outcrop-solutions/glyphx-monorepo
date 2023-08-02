@@ -195,7 +195,7 @@ export const Property = ({ axis }) => {
             {prop?.key}
           </span>
           <div className="hidden group-hover/axes:flex absolute top-8 z-40 px-2 py-1right-2 bg-primary-dark-blue text-white">
-            {'description'}
+            {prop?.description || 'description'}
           </div>
         </div>
       )}

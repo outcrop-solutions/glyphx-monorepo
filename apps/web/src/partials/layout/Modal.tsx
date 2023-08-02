@@ -17,6 +17,7 @@ import { DeleteFileModal } from 'partials/modals/DeleteFileModal';
 import { CreateStateModal, DeleteStateModal, UpdateStateModal } from 'partials/modals';
 import { AIRecommendationsModal } from 'partials/modals/AIRecommendationsModal';
 import { CreateProjectTemplateModal } from 'partials/modals/CreateProjectTemplateModal';
+import { TemplatePreviewModal } from 'partials/modals/TemplatePreviewModal';
 
 export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) => {
   const setModals = useSetRecoilState(modalsAtom);
@@ -45,6 +46,17 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                           modalContent as Extract<
                             webTypes.ModalState,
                             { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS }
+                          >
+                        }
+                      />
+                    );
+                  case webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW:
+                    return (
+                      <TemplatePreviewModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW }
                           >
                         }
                       />

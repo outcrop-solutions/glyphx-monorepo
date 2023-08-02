@@ -3,15 +3,19 @@ import useTemplates from 'lib/client/hooks/useTemplates';
 import Button from 'components/Button';
 import PinnedIcon from 'public/svg/pinned-icon.svg';
 import { useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { workspaceAtom } from 'state';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { modalsAtom, workspaceAtom } from 'state';
 import { LoadingDots } from 'partials/loaders/LoadingDots';
 import { useRouter } from 'next/router';
+import { WritableDraft } from 'immer/dist/internal';
+import { web as webTypes } from '@glyphx/types';
+import produce from 'immer';
 
 export const PinnedProjects = () => {
   const router = useRouter();
   const { workspaceSlug } = router.query;
   const { data } = useTemplates();
+  const setModals = useSetRecoilState(modalsAtom);
   const [loading, setLoading] = useState(false);
   const { _id } = useRecoilValue(workspaceAtom);
   const { templates } = data;
@@ -41,7 +45,7 @@ export const PinnedProjects = () => {
               key={template._id}
               className="relative group col-span-1 shadow-sm rounded border border-transparent bg-secondary-space-blue hover:cursor-pointer hover:border-white flex items-center justify-between"
             >
-              <div className="flex items-center">
+              <div className="flex items-center max-w-full">
                 <div className="flex items-center justify-center w-16 h-16 text-white">
                   <PinnedIcon />
                 </div>
@@ -50,8 +54,22 @@ export const PinnedProjects = () => {
                 </div>
               </div>
               <div className="hidden group-hover:flex absolute right-2">
-                <Button className="" disabled={loading} onClick={() => createProjectFromTemplate(template)}>
-                  {loading ? <LoadingDots /> : <span>Get Template</span>}
+                <Button
+                  className=""
+                  disabled={loading}
+                  onClick={() =>
+                    setModals(
+                      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                        draft.modals.push({
+                          type: webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW,
+                          isSubmitting: false,
+                          data: template,
+                        });
+                      })
+                    )
+                  }
+                >
+                  <span>View</span>
                 </Button>
               </div>
             </li>

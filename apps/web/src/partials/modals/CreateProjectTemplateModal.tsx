@@ -86,7 +86,7 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
       </div>
       {!validName && (
         <div className="py-1 px-2 text-white bg-red-500 rounded mb-1">
-          Please keep template names under 30 characters
+          Please keep template names under 50 characters
         </div>
       )}
       <div className="space-y-4">
