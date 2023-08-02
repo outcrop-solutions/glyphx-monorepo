@@ -38,7 +38,7 @@ export const Axes = ({ axis }) => {
         <AxesIcons property={axis} />
         {/* PROPERTY CHIP */}
         <div
-          data-type={handleDataType(prop)}
+          data-type={handleDataType(prop, project)}
           className={`flex grow justify-center bg-gray h-4 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex align-middle items-center text-center text-white leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium uppercase lg:opacity-100 2xl:opacity-100 transition duration-150 truncate">

@@ -90,18 +90,12 @@ export class ProjectService {
           ? userId
           : new mongooseTypes.ObjectId(userId);
 
-      const defaultType = {
-        name: `${name}-type`,
-        projects: [],
-        shape: {},
-      };
-
       // TODO: requires getProjectTemplate service
       const input = {
         name,
         description: description ?? '',
         workspace: workspaceCastId,
-        template: projectTemplateCastId ?? defaultType,
+        template: projectTemplateCastId,
         files: [],
         members: [],
         stateHistory: [],
