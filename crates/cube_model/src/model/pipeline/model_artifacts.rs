@@ -1,5 +1,6 @@
 mod vertex_buffer;
-
+pub(crate) mod model_configuration;
+pub(crate) mod color_table_uniform;
 use super::pipeline_manager::Pipeline;
 use crate::camera::uniform_buffer::CameraUniform;
 use bytemuck;
@@ -10,6 +11,11 @@ use wgpu::{
     BindGroup, Buffer, Device, Queue, RenderPipeline, Surface, SurfaceConfiguration,
     TextureViewDescriptor,
 };
+
+use crate::assets::color::{ColorTable, build_color_table, Color};
+use model_configuration::ModelConfiguration;
+use color_table_uniform::ColorTableUniform;
+
 pub struct ModelArtifacts {
     render_pipeline: RenderPipeline,
     vertex_buffer: Buffer,
@@ -17,6 +23,10 @@ pub struct ModelArtifacts {
     camera_buffer: Buffer,
     camera_bind_group: BindGroup,
     vertex_data: VertexData,
+    color_table_uniform: ColorTableUniform,
+    color_table_buffer: Buffer,
+    color_table_bind_group: BindGroup,
+    background_color: Color, 
 }
 
 impl ModelArtifacts {
@@ -24,6 +34,7 @@ impl ModelArtifacts {
         device: &Device,
         config: &SurfaceConfiguration,
         camera_uniform: &CameraUniform,
+        model_configuration: &ModelConfiguration,
     ) -> Self {
         let vertex_data = VertexData::new();
         let shader =
@@ -71,10 +82,49 @@ impl ModelArtifacts {
             label: Some("camera_bind_group"),
         });
 
+        let color_table_uniform = ColorTableUniform::new(
+            model_configuration.min_color,
+            model_configuration.max_color,
+            model_configuration.x_axis_color,
+            model_configuration.y_axis_color,
+            model_configuration.z_axis_color,
+            model_configuration.background_color
+
+        );
+
+        let color_table_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Color Table Buffer"),
+            contents: bytemuck::cast_slice(&[color_table_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+
+        let color_table_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }],
+                label: Some("color_table_bind_group_layout"),
+            });
+
+        let color_table_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &color_table_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: color_table_buffer.as_entire_binding(),
+            }],
+            label: Some("color_table_bind_group"),
+        });
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[&camera_bind_group_layout],
+                bind_group_layouts: &[&camera_bind_group_layout, &color_table_bind_group_layout],
                 push_constant_ranges: &[],
             });
 
@@ -131,6 +181,10 @@ impl ModelArtifacts {
             camera_buffer,
             camera_bind_group,
             vertex_data,
+            color_table_uniform,
+            color_table_buffer,
+            color_table_bind_group,
+            background_color: model_configuration.background_color,
         }
     }
 }
@@ -144,7 +198,9 @@ impl Pipeline for ModelArtifacts {
         camera_uniform: Option<&CameraUniform>,
     ) -> Result<(), wgpu::SurfaceError> {
 
-        let camera_uniform = camera_uniform.unwrap();        queue.write_buffer(&self.camera_buffer, 0,bytemuck::cast_slice(&[*camera_uniform]));
+        let camera_uniform = camera_uniform.unwrap();     
+        queue.write_buffer(&self.camera_buffer, 0,bytemuck::cast_slice(&[*camera_uniform]));
+        queue.write_buffer(&self.color_table_buffer, 0,bytemuck::cast_slice(&[self.color_table_uniform]));
 
         let output = surface.get_current_texture()?;
         let view = output
@@ -162,9 +218,9 @@ impl Pipeline for ModelArtifacts {
                 resolve_target: None,
                 ops: wgpu::Operations {
                     load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: 13.0 / 255.0,
-                        g: 19.0/ 255.0,
-                        b: 33.0 / 255.0,
+                        r: self.background_color[0] as f64 / 255.0,
+                        g: self.background_color[1] as f64 / 255.0,
+                        b: self.background_color[2] as f64 / 255.0,
                         a: 1.0,
                     }),
                     store: true,
@@ -175,6 +231,7 @@ impl Pipeline for ModelArtifacts {
 
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
+        render_pass.set_bind_group(1, &self.color_table_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(0..self.vertex_data.get_indicies().len() as u32, 0, 0..1);

@@ -1,7 +1,9 @@
 use super::pipeline::pipeline_manager::PipeLines;
 use super::pipeline::{basic_triangle, model_artifacts, simple_screen_clean};
 use crate::camera::camera_controller;
-use crate::camera::{uniform_buffer::CameraUniform, Camera, camera_controller::CameraController};
+use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, Camera};
+use crate::model::pipeline::model_artifacts::model_configuration::ModelConfiguration;
+
 use wgpu::util::DeviceExt;
 use wgpu::{Device, Queue, Surface, SurfaceConfiguration};
 use winit::dpi::PhysicalSize;
@@ -32,7 +34,8 @@ impl State {
 
         let config = Self::configure_surface(&surface, adapter, size, &device);
 
-        let (camera, camera_buffer, camera_uniform, camera_controller) = Self::configure_camera(&config, &device);
+        let (camera, camera_buffer, camera_uniform, camera_controller) =
+            Self::configure_camera(&config, &device);
         let pipelines = Self::build_pipelines(&device, &config, &camera_uniform);
 
         Self {
@@ -71,14 +74,14 @@ impl State {
         self.camera_controller.process_events(event)
     }
 
-    pub fn move_camera( &mut self, direction: &str, on_or_off: bool ) {
-        if direction == "forward"  {
+    pub fn move_camera(&mut self, direction: &str, on_or_off: bool) {
+        if direction == "forward" {
             self.camera_controller.move_forward(on_or_off);
-        } else if direction == "backward"  {
+        } else if direction == "backward" {
             self.camera_controller.move_backward(on_or_off);
-        } else if direction == "left"  {
+        } else if direction == "left" {
             self.camera_controller.move_left(on_or_off);
-        } else if direction == "right"  {
+        } else if direction == "right" {
             self.camera_controller.move_right(on_or_off);
         }
         self.update();
@@ -89,8 +92,13 @@ impl State {
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        self.pipelines
-            .run_pipeline("model_artifacts", &self.surface, &self.device, &self.queue, Some(&self.camera_uniform))
+        self.pipelines.run_pipeline(
+            "model_artifacts",
+            &self.surface,
+            &self.device,
+            &self.queue,
+            Some(&self.camera_uniform),
+        )
     }
 
     fn configure_surface(
@@ -176,7 +184,11 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_pipelines(device: &Device, config: &SurfaceConfiguration, camera_uniform: &CameraUniform) -> PipeLines {
+    fn build_pipelines(
+        device: &Device,
+        config: &SurfaceConfiguration,
+        camera_uniform: &CameraUniform,
+    ) -> PipeLines {
         let mut pipelines = PipeLines::new();
 
         let screen_clean = Box::new(simple_screen_clean::SimpleScreenClean::new(device));
@@ -185,13 +197,29 @@ impl State {
         let basic_triangle = Box::new(basic_triangle::BasicTriangle::new(device, config));
         pipelines.add_pipeline("basic_triangle".to_string(), basic_triangle);
 
-        let model_artifacts = Box::new(model_artifacts::ModelArtifacts::new(device, config, camera_uniform));
+        let model_artifacts = Box::new(model_artifacts::ModelArtifacts::new(
+            device,
+            config,
+            camera_uniform,
+            &ModelConfiguration {
+                max_color: [255.0, 0.0, 0.0, 1.0],
+                min_color: [0.0, 255.0, 255.0, 1.0],
+                num_colors: 60,
+                background_color: [13.0, 19.0, 33.0, 1.0],
+                x_axis_color: [1.0, 0.0, 0.0, 1.0],
+                y_axis_color: [0.0, 1.0, 0.0, 1.0],
+                z_axis_color: [0.0, 0.0, 1.0, 1.0],
+            },
+        ));
         pipelines.add_pipeline("model_artifacts".to_string(), model_artifacts);
 
         pipelines
     }
 
-    fn configure_camera(config: &SurfaceConfiguration, device: &Device) -> (Camera, wgpu::Buffer, CameraUniform, CameraController) {
+    fn configure_camera(
+        config: &SurfaceConfiguration,
+        device: &Device,
+    ) -> (Camera, wgpu::Buffer, CameraUniform, CameraController) {
         let camera = Camera::new(config);
         let mut camera_uniform = CameraUniform::new();
         camera_uniform.update_view_proj(&camera);

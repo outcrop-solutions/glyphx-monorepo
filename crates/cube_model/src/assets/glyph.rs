@@ -3,7 +3,7 @@ use cgmath::{vec2, Vector2};
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
     position: [f32; 3],
-    color: [f32; 3],
+    color_code: u32,
 }
 
 impl Vertex {
@@ -18,9 +18,9 @@ impl Vertex {
                     format: wgpu::VertexFormat::Float32x3,
                 },
                 wgpu::VertexAttribute {
-                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                    offset: std::mem::size_of::<[f32;3]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x3,
+                    format: wgpu::VertexFormat::Uint32,
                 },
             ],
         }
@@ -145,7 +145,7 @@ pub fn build_x_oriented_glyph(
     y_pos: f32,
     z_pos: f32,
     width: f32,
-    color: &[f32; 3],
+    color_code: u32,
 ) -> ([Vertex; 8], [u16; 36]) {
     let y_offset = if y_pos < 0.0 {
         y_pos + width
@@ -161,35 +161,35 @@ pub fn build_x_oriented_glyph(
     let vertex_data = [
         Vertex {
             position: [start_x, y_pos, z_offset],
-            color: *color,
+            color_code,
         }, //0
         Vertex {
             position: [end_x, y_pos, z_offset],
-            color: *color,
+            color_code,
         }, //1
         Vertex {
             position: [end_x, y_offset, z_offset],
-            color: *color,
+            color_code,
         }, //2
         Vertex {
             position: [start_x, y_offset, z_offset],
-            color: *color,
+            color_code,
         }, //3
         Vertex {
             position: [start_x, y_offset, z_pos],
-            color: *color,
+            color_code,
         }, //4
         Vertex {
             position: [end_x, y_offset, z_pos],
-            color: *color,
+            color_code,
         }, //5
         Vertex {
             position: [end_x, y_pos, z_pos],
-            color: *color,
+            color_code,
         }, //6
         Vertex {
             position: [start_x, y_pos, z_pos],
-            color: *color,
+            color_code,
         }, //7
     ];
 
@@ -212,7 +212,7 @@ pub fn build_y_oriented_glyph(
     x_pos: f32,
     z_pos: f32,
     width: f32,
-    color: &[f32; 3],
+    color_code: u32,
 ) -> ([Vertex; 8], [u16; 36]) {
     let x_offset = if x_pos < 0.0 {
         x_pos + width
@@ -228,35 +228,35 @@ pub fn build_y_oriented_glyph(
     let vertex_data = [
         Vertex {
             position: [x_pos, start_y, z_offset],
-            color: *color,
+            color_code,
         }, //0
         Vertex {
             position: [x_offset, start_y, z_offset],
-            color: *color,
+            color_code,
         }, //1
         Vertex {
             position: [x_offset, end_y, z_offset],
-            color: *color,
+            color_code,
         }, //2
         Vertex {
             position: [x_pos, end_y, z_offset],
-            color: *color,
+            color_code,
         }, //3
         Vertex {
             position: [x_pos, end_y, z_pos],
-            color: *color,
+            color_code,
         }, //4
         Vertex {
             position: [x_offset, end_y, z_pos],
-            color: *color,
+            color_code,
         }, //5
         Vertex {
             position: [x_offset, start_y, z_pos],
-            color: *color,
+            color_code,
         }, //6
         Vertex {
             position: [x_pos, start_y, z_pos],
-            color: *color,
+            color_code,
         }, //7
     ];
 
@@ -278,7 +278,7 @@ pub fn build_z_oriented_glyph(
     x_pos: f32,
     start_y: f32,
     width: f32,
-    color: &[f32; 3],
+    color_code: u32,
 ) -> ([Vertex; 8], [u16; 36]) {
     let x_offset = if x_pos < 0.0 {
         x_pos + width
@@ -299,36 +299,36 @@ pub fn build_z_oriented_glyph(
         // top (0, 0, 1)
         Vertex {
             position: [x_pos, start_y, z_offset],
-            color: *color,
+            color_code,
         }, //0
         Vertex {
             position: [x_offset, start_y, z_offset],
-            color: *color,
+            color_code,
         }, //1
         Vertex {
             position: [x_offset, end_y, z_offset],
-            color: *color,
+            color_code,
         }, //2
         Vertex {
             position: [x_pos, end_y, z_offset],
-            color: *color,
+            color_code,
         }, //3
         // bottom (0, 0, -1)
         Vertex {
             position: [x_pos, end_y, z_pos],
-            color: *color,
+            color_code,
         }, //4
         Vertex {
             position: [x_offset, end_y, z_pos],
-            color: *color,
+            color_code,
         }, //5
         Vertex {
             position: [x_offset, start_y, z_pos],
-            color: *color,
+            color_code,
         }, //6
         Vertex {
             position: [x_pos, start_y, z_pos],
-            color: *color,
+            color_code,
         }, //7
     ];
 
