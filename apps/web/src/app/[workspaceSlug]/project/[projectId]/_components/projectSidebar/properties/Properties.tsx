@@ -8,6 +8,7 @@ export const Properties = () => {
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
 
+  console.log({ properties });
   return (
     properties && (
       <React.Fragment>

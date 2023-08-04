@@ -20,6 +20,7 @@ export const Axes = ({ axis }) => {
   const [showFilter, setShowFilter] = useState(false); //shows filter property
   const { handleDrop } = useProject();
 
+  console.log({ accept: prop.accepts, axis: true });
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: prop.accepts,
     drop: (item) => handleDrop(axis, item, project as webTypes.IHydratedProject, false),

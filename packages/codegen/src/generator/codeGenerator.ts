@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import _, { capitalize } from 'lodash';
 import pluralize from 'pluralize';
+import { pascalCase } from 'pascal-case';
 import Handlebars from 'handlebars';
 import { database as databaseTypes } from '@glyphx/types';
 import { error, constants } from '@glyphx/core';
@@ -32,14 +33,19 @@ export class CodeGenerator {
     // Registering template helper functions
     this.handlebars.registerHelper('stripLeadingI', this.stripLeadingI);
     this.handlebars.registerHelper('wrapSingleQuotes', (value: string) => `'${value}'`);
+    // check relation type
     this.handlebars.registerHelper('isEnum', (value: string) => value === 'ENUM');
     this.handlebars.registerHelper('isOneToOne', (value: string) => value === 'ONE_TO_ONE');
     this.handlebars.registerHelper('isOneToMany', (value: string) => value === 'ONE_TO_MANY');
+    // check referential action type
+    this.handlebars.registerHelper('isCascade', (value: string) => value === 'CASCADE');
+    this.handlebars.registerHelper('isNoAction', (value: string) => value === 'NO_ACTION');
+    this.handlebars.registerHelper('isSetNull', (value: string) => value === 'SET_NULL');
     this.handlebars.registerHelper('capitalize', (value: string) => _.capitalize(value));
     this.handlebars.registerHelper('pluralize', (value: string) => pluralize.plural(value));
     this.handlebars.registerHelper('lowercase', this.toLowercase);
     this.handlebars.registerHelper('pascalcase', (value: string) => _.upperFirst(_.camelCase(value)));
-    this.handlebars.registerHelper('camelCase', (value: string) => _.camelCase(value));
+    this.handlebars.registerHelper('camelcase', (value: string) => _.camelCase(value));
   }
 
   public async init(): Promise<void> {
@@ -164,6 +170,7 @@ export class CodeGenerator {
     try {
       if (ts.isInterfaceDeclaration(node)) {
         const interfaceName = this.getInterfaceName(node);
+        const ogTableName = this.stripLeadingI(interfaceName);
         const tableName = this.normalizeTableName(interfaceName);
         const properties = this.getInterfaceProperties(node);
 
@@ -172,6 +179,7 @@ export class CodeGenerator {
 
         const table: databaseTypes.meta.ITable = {
           name: tableName,
+          ogName: ogTableName,
           path: filePath,
           properties: properties!,
           isPublic: false,
@@ -201,9 +209,9 @@ export class CodeGenerator {
     try {
       const properties = node.members
         .filter(ts.isPropertySignature)
-        .filter((p) => p.name.getText() !== '_id') // filtered out as implementation is standard
+        .filter((p) => p.name && p.name?.getText() !== '_id') // filtered out as implementation is standard
         .map((property: any) => {
-          const propertyName = property.name.getText();
+          const propertyName = property?.name && property.name?.getText();
           if (propertyName === 'string' || propertyName === 'number') {
             capitalize(propertyName); // for mongoose model formatting
           }
@@ -214,7 +222,7 @@ export class CodeGenerator {
           const isRequired = !property.questionToken;
 
           const typeNode = (property as ts.PropertySignature).type;
-          const refName = (typeNode as ts.TypeReferenceNode).typeName.getText();
+          const refName = (typeNode as ts.TypeReferenceNode).typeName?.getText();
 
           // determine relationships and utilities via naming convention and utility types
           const { isRelation, relationType } = this.determineRelationType(refName, typeNode);
@@ -237,7 +245,7 @@ export class CodeGenerator {
           return {
             name: propertyName,
             type: typeString,
-            required: isRequired,
+            isRequired: isRequired,
             isProtected: isProtected,
             isRelation: isRelation,
             ...relation,
@@ -277,7 +285,7 @@ export class CodeGenerator {
       hasUtility = true;
       for (const type of typeNode.types) {
         if (ts.isTypeReferenceNode(type) && type.typeName) {
-          const typeName = type.typeName.getText();
+          const typeName = type?.typeName?.getText();
           switch (typeName) {
             case '__unique__':
               isUnique = true;
@@ -346,11 +354,21 @@ export class CodeGenerator {
    * Collection of utilities to format table names
    */
   private stripLeadingI(value: string) {
-    return value.startsWith('I') || value.startsWith('i') ? value.substring(1) : value;
+    return (value && value.startsWith('I')) || value.startsWith('i') ? value.substring(1) : value;
   }
 
   private toLowercase(value: string) {
     return value ? value.toLowerCase() : value;
+  }
+
+  private toSnakeCase(value: string) {
+    return value.replace(/([A-Z])/g, (match, letter, index) =>
+      index > 0 ? '_' + letter.toLowerCase() : letter.toLowerCase()
+    );
+  }
+
+  private toPascalCase(value: string) {
+    return value ? pascalCase(value) : value;
   }
 
   private normalizeTableName(tableName: string): string {
@@ -370,32 +388,32 @@ export class CodeGenerator {
     try {
       await Promise.all([
         // generate model
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.models}`,
-          `${paths.destination}/${output.models}/${table.name}.ts`
-        ),
+        // this.sourceFromTemplate(
+        //   table,
+        //   `${paths.templates}/${templates.models}`,
+        //   `${paths.destination}/${output.models}/${table.name}.ts`
+        // ),
         // generate interfaces
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.interfaces.createInput}`,
-          `${paths.destination}/${output.interfaces}/i${table.name}CreateInput.ts`
+          `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}CreateInput.ts`
         ),
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.interfaces.document}`,
-          `${paths.destination}/${output.interfaces}/i${table.name}Document.ts`
-        ),
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.interfaces.methods}`,
-          `${paths.destination}/${output.interfaces}/i${table.name}Methods.ts`
-        ),
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.interfaces.staticMethods}`,
-          `${paths.destination}/${output.interfaces}/i${table.name}StaticMethods.ts`
-        ),
+        // this.sourceFromTemplate(
+        //   table,
+        //   `${paths.templates}/${templates.interfaces.document}`,
+        //   `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}Document.ts`
+        // ),
+        // this.sourceFromTemplate(
+        //   table,
+        //   `${paths.templates}/${templates.interfaces.methods}`,
+        //   `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}Methods.ts`
+        // ),
+        // this.sourceFromTemplate(
+        //   table,
+        //   `${paths.templates}/${templates.interfaces.staticMethods}`,
+        //   `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}StaticMethods.ts`
+        // ),
         // generate schemas
         // this.sourceFromTemplate(formattedTable, templates.schemas, `${output.schemas}/${name}.ts`),
       ]);
