@@ -25,6 +25,9 @@
     "codegen": {
       "outputs": ["./packages/examples/**", "./packages/sdks/**"]
     },
+    "db:generate": {
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "dist/**", "build/**"]

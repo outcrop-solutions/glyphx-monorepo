@@ -1,0 +1,9 @@
+{
+  "extends": "@glyphx/tsconfig/node18.json",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "exclude": ["src/__tests__/**"]
+}
