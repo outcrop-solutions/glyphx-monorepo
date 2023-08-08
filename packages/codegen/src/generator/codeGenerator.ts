@@ -16,6 +16,7 @@ import type { Options } from 'prettier';
  * - All enums must be CAPITALIZED_AS_SUCH (this is enforced in our linting rules)
  * - All interfaces must begin with I<interfaceName> (this is also enforced in our linting rules)
  * - All interfaces referenced within an interface definition must exist within the source folder
+ * - Any interface members that are not type references must be mapped to mongoose types, string and number are supported as of now. BigInt etc. need to be tested
  */
 export class CodeGenerator {
   // configurable defaults
@@ -66,26 +67,33 @@ export class CodeGenerator {
   /**
    * Collection of utilities to format table names
    */
+
+  // used to normalize table name inputs
   private stripLeadingI(value: string): string {
     return (value && value?.startsWith('I')) || value?.startsWith('i') ? value?.substring(1) : value;
   }
 
+  // largely replaced by toSnakeCase + toPascalCase
   private toCapitalized(value: string): string {
     return value ? _.capitalize(value) : value;
   }
 
+  // primarily used for add/remove static methods
   private toPlural(value: string): string {
     return value ? pluralize.plural(value) : value;
   }
 
+  // used for imports and schema references
   private toSingular(value: string): string {
     return value ? pluralize.singular(value) : value;
   }
 
+  // unused at the moment
   private wrapSingleQuotes(value: string): string {
     return value ? `'${value}'` : value;
   }
 
+  // primarily used on interface members i.e property names
   private toCamelCase(value: string): string {
     return value ? _.camelCase(value) : value;
   }
@@ -94,6 +102,7 @@ export class CodeGenerator {
     return value ? value?.toLowerCase() : value;
   }
 
+  // primarily required for MODEL and ENUM formatting
   private toUpperCase(value: string): string {
     return value ? value.toUpperCase() : value;
   }
@@ -121,6 +130,7 @@ export class CodeGenerator {
     return value ? pascalCase(value) : value;
   }
 
+  // used to filter properties to set default behaviour around protected fields
   private isNotProtected(value: string): boolean {
     if (value && ['createdAt', 'updatedAt', 'deletedAt', '_id'].includes(value)) {
       return false;
@@ -129,12 +139,14 @@ export class CodeGenerator {
     }
   }
 
+  // crucial for predictable handlebar compilation
   private normalizeTableName(tableName: string): string {
     const stripped = this.stripLeadingI(tableName);
     const snaked = this.toSnakeCase(stripped);
     return this.toLowercase(snaked);
   }
 
+  // FIXME: eventually remove duplicate config from other packages within the monorepo
   public async init(): Promise<void> {
     // Retrieve Prettier configuration
     const options = await prettier.resolveConfig(this.config.paths.prettier);
@@ -162,7 +174,7 @@ export class CodeGenerator {
       }
 
       // STEP 3: FORMAT OUTPUT
-      // await this.formatDirectory(`${this.config.paths.destination}`);
+      await this.formatDirectory(`${this.config.paths.destination}`);
     } catch (err: any) {
       if (err instanceof error.TypeCheckError || err instanceof error.FileParseError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);

@@ -4,11 +4,11 @@ import {error} from '@glyphx/core';
 import {I{{pascalcase this.name}}Document, I{{pascalcase this.name}}CreateInput, I{{pascalcase this.name}}StaticMethods, I{{pascalcase name}}Methods} from '../interfaces';
 {{#each properties}}
 {{#if (isOneToMany this.relationType)}}
-import { {{singularize (pascalcase this.name)}}Model} from './{{singularize this.name}}'
+import { {{singularize (pascalcase this.referenceTable)}}Model} from './{{singularize this.referenceTable}}'
 {{else if (isOneToOne this.relationType)}}
-import { {{singularize (pascalcase this.name)}}Model} from './{{singularize this.name}}'
+import { {{singularize (pascalcase this.referenceTable)}}Model} from './{{singularize this.referenceTable}}'
 {{else if (isSchema this.relationType)}}
-import { {{camelcase (singularize this.name)}}Schema } from '../schemas'
+import { {{camelcase (singularize this.referenceTable)}}Schema } from '../schemas'
 {{/if}}
 {{/each}}
 
@@ -167,7 +167,7 @@ SCHEMA.static(
 
     if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
 
-    TODO: handle case when these are not on the type?
+    {{!-- TODO: handle case when these are not on the type? --}}
     if ({{camelcase this.name}}.createdAt)
       throw new error.InvalidOperationError(
         'The createdAt date is set internally and cannot be altered externally',
@@ -214,7 +214,7 @@ SCHEMA.static(
         updatedAt: createDate,
         {{#each properties}}
         {{#if (isNotProtected this.name)}}
-          {{this.name}}: input.{{this.name}}{{#unless @last}},{{/unless}}
+        {{this.name}}: input.{{this.name}}{{#unless @last}},{{/unless}}
         {{/if}}
         {{/each}}
       };
@@ -315,7 +315,7 @@ SCHEMA.static(
                 : (value._id as mongooseTypes.ObjectId);
           {{/if}}
         {{/each}} 
-        TODO: handle case where no OneToOne relations
+        {{!-- TODO: handle case where no OneToOne relations --}}
         else transformedObject[key] = value;
       }
       const updateResult = await {{uppercase (pascalcase  this.name)}}_MODEL.updateOne(
@@ -483,7 +483,7 @@ SCHEMA.static(
           {{camelcase ../this.name}}Id
         );
 
-      const reconciledIds = await {{uppercase (pascalcase  ../this.name)}}_MODEL.validate{{capitalize (pascalcase this.referenceTable)}}({{pluralize (camelcase this.referenceTable)}});
+      const reconciledIds = await {{uppercase (pascalcase  ../this.name)}}_MODEL.validate{{pascalcase this.referenceTable}}({{pluralize (camelcase this.referenceTable)}});
       let dirty = false;
       reconciledIds.forEach((p: any) => {
         if (
