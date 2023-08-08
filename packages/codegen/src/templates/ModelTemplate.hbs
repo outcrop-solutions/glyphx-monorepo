@@ -1,9 +1,18 @@
 import {IQueryResult, database as databaseTypes} from '@glyphx/types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from '@glyphx/core';
-import {I{{capitalize this.name}}Document, I{{capitalize this.name}}StaticMethods, I{{capitalize name}}Methods} from '../interfaces';
+import {I{{pascalcase this.name}}Document, I{{pascalcase this.name}}CreateInput, I{{pascalcase this.name}}StaticMethods, I{{pascalcase name}}Methods} from '../interfaces';
+{{#each properties}}
+{{#if (isOneToMany this.relationType)}}
+import { {{singularize (pascalcase this.name)}}Model} from './{{singularize this.name}}'
+{{else if (isOneToOne this.relationType)}}
+import { {{singularize (pascalcase this.name)}}Model} from './{{singularize this.name}}'
+{{else if (isSchema this.relationType)}}
+import { {{camelcase (singularize this.name)}}Schema } from '../schemas'
+{{/if}}
+{{/each}}
 
-const SCHEMA = new Schema<I{{capitalize this.name}}Document, I{{capitalize this.name}}StaticMethods, I{{capitalize name}}Methods>({
+const SCHEMA = new Schema<I{{pascalcase this.name}}Document, I{{pascalcase this.name}}StaticMethods, I{{pascalcase name}}Methods>({
   createdAt: {
     type: Date,
     required: true,
@@ -25,53 +34,471 @@ const SCHEMA = new Schema<I{{capitalize this.name}}Document, I{{capitalize this.
       //istanbul ignore next
       () => new Date(),
   },
-{{#each properties}}
-  {{this.name}}: { type:
-  {{this.type}}, 
-  required: {{this.required}},
-  {{#if this.default}}default: '{{this.default}}',{{/if}}
-  },
-{{/each}}
+  {{#each properties}}
+  {{#if (isNotProtected this.name)}}
+  {{this.name}}: {
+    {{#if (isDate this)}}
+    type: Date,
+    required: false,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+    {{else if (isOneToOne this.relationType)}}
+    type: Schema.Types.ObjectId, 
+    required: false,
+    ref: '{{lowercase (pascalcase this.referenceTable)}}'
+    {{else if (isOneToMany this.relationType)}}
+    type: [Schema.Types.ObjectId],
+    required: true,
+    default: [],
+    ref: '{{lowercase (pascalcase this.name)}}'
+    {{else if (isSchema this.relationType)}}
+    type: {{camelcase (singularize this.name)}}Schema,
+    required: false,
+    default: {}
+    {{else if (isEnum this.relationType)}}
+    type: String,
+    required: false,
+    enum: databaseTypes.constants.{{pascalcase this.name}}
+    {{else}}
+    type: {{this.type}},
+    required: {{this.isRequired}},
+      {{#if this.hasDefault}}
+      default: {{this.default}}
+      {{else}}
+      default: false
+      {{/if}}
+    {{/if}}
+  }{{#unless @last}},{{/unless}}
+  {{/if}}
+  {{/each}}
 })
 
-{{#each relationships}}
-SCHEMA.static(add{{capitalize this.referenceTable}}: async (
-    id: mongooseTypes.ObjectId,
-    {{pluralize this.referenceTable}}: (databaseTypes.I{{capitalize this.referenceTable}} | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.I{{capitalize this.sourceTable}}> => {
+SCHEMA.static(
+  '{{camelcase this.name}}IdExists',
+  async ({{camelcase this.name}}Id: mongooseTypes.ObjectId): Promise<boolean> => {
+    let retval = false;
     try {
-      if (!{{pluralize this.referenceTable}}.length)
+      const result = await {{uppercase (pascalcase  this.name)}}_MODEL.findById({{camelcase this.name}}Id, ['_id']);
+      if (result) retval = true;
+    } catch (err) {
+      throw new error.DatabaseOperationError(
+        'an unexpected error occurred while trying to find the {{camelcase this.name}}.  See the inner error for additional information',
+        'mongoDb',
+        '{{camelcase this.name}}IdExists',
+        {_id: {{camelcase this.name}}Id},
+        err
+      );
+    }
+    return retval;
+  }
+);
+
+SCHEMA.static(
+  'all{{pascalcase this.name}}IdsExist',
+  async ({{camelcase this.name}}Ids: mongooseTypes.ObjectId[]): Promise<boolean> => {
+    try {
+      const notFoundIds: mongooseTypes.ObjectId[] = [];
+      const foundIds = (await {{uppercase (pascalcase  this.name)}}_MODEL.find({_id: {$in: {{camelcase this.name}}Ids}}, [
+        '_id',
+      ])) as {_id: mongooseTypes.ObjectId}[];
+
+      {{camelcase this.name}}Ids.forEach(id => {
+        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
+          notFoundIds.push(id);
+      });
+
+      if (notFoundIds.length) {
+        throw new error.DataNotFoundError(
+          'One or more {{camelcase this.name}}Ids cannot be found in the database.',
+          '{{camelcase this.name}}._id',
+          notFoundIds
+        );
+      }
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'an unexpected error occurred while trying to find the {{camelcase this.name}}Ids.  See the inner error for additional information',
+          'mongoDb',
+          'all{{pascalcase this.name}}IdsExists',
+          { {{camelcase this.name}}Ids: {{camelcase this.name}}Ids},
+          err
+        );
+      }
+    }
+    return true;
+  }
+);
+
+SCHEMA.static(
+  'validateUpdateObject',
+  async (
+    {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
+  ): Promise<void> => {
+    const idValidator = async (
+      id: mongooseTypes.ObjectId,
+      objectType: string,
+      validator: (id: mongooseTypes.ObjectId) => Promise<boolean>
+    ) => {
+      const result = await validator(id);
+      if (!result) {
+        throw new error.InvalidOperationError(
+          `A ${objectType} with an id: ${id} cannot be found.  You cannot update a {{camelcase this.name}} with an invalid ${objectType} id`,
+          {objectType: objectType, id: id}
+        );
+      }
+    };
+
+    const tasks: Promise<void>[] = [];
+
+    {{#each properties}}
+      {{#if (isOneToOne this.relationType)}}
+        if ({{camelcase ../this.name}}.{{camelcase this.name}})
+          tasks.push(
+            idValidator(
+              {{camelcase ../this.name}}.{{camelcase this.name}}._id as mongooseTypes.ObjectId,
+              '{{pascalcase this.name}}',
+              {{pascalcase this.name}}Model.{{camelcase this.name}}IdExists
+            )
+          );
+      {{/if}}
+    {{/each}}
+
+    if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
+
+    if ({{camelcase this.name}}.createdAt)
+      throw new error.InvalidOperationError(
+        'The createdAt date is set internally and cannot be altered externally',
+        {createdAt: {{camelcase this.name}}.createdAt}
+      );
+    if ({{camelcase this.name}}.updatedAt)
+      throw new error.InvalidOperationError(
+        'The updatedAt date is set internally and cannot be altered externally',
+        {updatedAt: {{camelcase this.name}}.updatedAt}
+      );
+    if (({{camelcase this.name}} as Record<string, unknown>)['_id'])
+      throw new error.InvalidOperationError(
+        'The {{camelcase this.name}}._id is immutable and cannot be changed',
+        {_id: ({{camelcase this.name}} as Record<string, unknown>)['_id']}
+      );
+  }
+);
+
+SCHEMA.static(
+  'create{{pascalcase this.name}}',
+  async (input: I{{pascalcase this.name}}CreateInput): Promise<databaseTypes.I{{pascalcase this.name}}> => {
+    let id: undefined | mongooseTypes.ObjectId = undefined;
+
+    try {
+      const [ 
+        {{#each properties}}
+          {{#if (isOneToMany this.relationType)}} 
+          {{this.name}}{{#unless @last}},{{/unless}}
+          {{/if}}
+        {{/each}} 
+        ] = await Promise.all([
+        {{#each properties}}
+        {{#if (isOneToMany this.relationType)}}
+        {{uppercase (pascalcase ../this.name)}}_MODEL.validate{{pluralize (pascalcase this.name)}}(input.workspace ?? []),
+        {{/if}}
+        {{/each}}
+      ]);
+
+      const createDate = new Date();
+
+      //istanbul ignore next
+      const resolvedInput: I{{pascalcase this.name}}Document = {
+        createdAt: createDate,
+        updatedAt: createDate
+        {{#each properties}}
+        {{#if (isNotProtected this.name)}}
+          {{this.name}}: input.{{this.name}}{{#unless @last}},{{/unless}}
+        {{/if}}
+        {{/each}}
+      };
+      try {
+        await {{uppercase (pascalcase this.name)}}_MODEL.validate(resolvedInput);
+      } catch (err) {
+        throw new error.DataValidationError(
+          'An error occurred while validating the document before creating it.  See the inner error for additional information',
+          'I{{pascalcase this.name}}Document',
+          resolvedInput,
+          err
+        );
+      }
+      const {{lowercase (pascalcase this.name)}}Document = (
+        await {{uppercase (pascalcase  this.name)}}_MODEL.create([resolvedInput], {validateBeforeSave: false})
+      )[0];
+      id = {{lowercase (pascalcase this.name)}}Document._id;
+    } catch (err) {
+      if (err instanceof error.DataValidationError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An Unexpected Error occurred while adding the {{lowercase (pascalcase this.name)}}.  See the inner error for additional details',
+          'mongoDb',
+          'add{{pascalcase this.name}}',
+          {},
+          err
+        );
+      }
+    }
+    if (id) return await {{uppercase (pascalcase  this.name)}}_MODEL.get{{pascalcase this.name}}ById(id);
+    else
+      throw new error.UnexpectedError(
+        'An unexpected error has occurred and the {{lowercase (pascalcase this.name)}} may not have been created.  I have no other information to provide.'
+      );
+  }
+);
+
+SCHEMA.static('get{{pascalcase this.name}}ById', async ({{lowercase (pascalcase this.name)}}Id: mongooseTypes.ObjectId) => {
+  try {
+    const {{lowercase (pascalcase this.name)}}Document = (await {{uppercase (pascalcase  this.name)}}_MODEL.findById({{lowercase (pascalcase this.name)}}Id)
+    {{#each properties}}
+      {{#if (isRelation this)}}
+      .populate('{{this.name}}')
+      {{/if}}
+    {{/each}}
+      .lean()) as databaseTypes.I{{pascalcase this.name}};
+    if (!{{lowercase (pascalcase this.name)}}Document) {
+      throw new error.DataNotFoundError(
+        `Could not find a {{lowercase (pascalcase this.name)}} with the _id: ${ {{lowercase (pascalcase this.name)}}Id}`,
+        '{{lowercase (pascalcase this.name)}}_id',
+        {{lowercase (pascalcase this.name)}}Id
+      );
+    }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete ({{lowercase (pascalcase this.name)}}Document as any)['__v'];
+
+    {{#each properties}}
+    {{#if (isOneToOne this.relationType)}}
+    delete ({{lowercase (pascalcase ../this.name)}}Document as any).{{camelcase this.name}}?.['__v'];
+    {{else if (isOneToMany this.relationType)}}
+    {{lowercase (pascalcase ../this.name)}}Document.{{camelcase this.name}}?.forEach((m: any) => delete (m as any)['__v']);
+    {{/if}}
+    {{/each}}
+
+    return {{lowercase (pascalcase this.name)}}Document;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the project.  See the inner error for additional information',
+        'mongoDb',
+        'get{{pascalcase this.name}}ById',
+        err
+      );
+  }
+});
+
+SCHEMA.static(
+  'update{{pascalcase this.name}}WithFilter',
+  async (
+    filter: Record<string, unknown>,
+    {{lowercase (pascalcase this.name)}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
+  ): Promise<void> => {
+    try {
+      await {{uppercase (pascalcase  this.name)}}_MODEL.validateUpdateObject({{lowercase (pascalcase this.name)}});
+      const updateDate = new Date();
+      const transformedObject: Partial<I{{pascalcase this.name}}Document> &
+        Record<string, unknown> = {updatedAt: updateDate};
+      for (const key in {{lowercase (pascalcase this.name)}}) {
+        const value = ({{lowercase (pascalcase this.name)}} as Record<string, any>)[key];
+        {{#each properties}}
+          {{#if (isOneToOne this.relationType)}} 
+          if (key === '{{this.name}}')
+            transformedObject.{{this.name}} =
+              value instanceof mongooseTypes.ObjectId
+                ? value
+                : (value._id as mongooseTypes.ObjectId);
+          {{/if}}
+        {{/each}} 
+        else transformedObject[key] = value;
+      }
+      const updateResult = await {{uppercase (pascalcase  this.name)}}_MODEL.updateOne(
+        filter,
+        transformedObject
+      );
+      if (updateResult.modifiedCount !== 1) {
+        throw new error.InvalidArgumentError(
+          'No {{lowercase (pascalcase this.name)}} document with filter: ${filter} was found',
+          'filter',
+          filter
+        );
+      }
+    } catch (err) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
+          'mongoDb',
+          'update {{lowercase (pascalcase this.name)}}',
+          {filter: filter, {{lowercase (pascalcase this.name)}} : {{lowercase (pascalcase this.name)}} },
+          err
+        );
+    }
+  }
+);
+
+SCHEMA.static(
+  'query{{pluralize (pascalcase this.name)}}',
+  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+    try {
+      const count = await {{uppercase (pascalcase  this.name)}}_MODEL.count(filter);
+
+      if (!count) {
+        throw new error.DataNotFoundError(
+          `Could not find {{lowercase (pluralize (pascalcase this.name))}} with the filter: ${filter}`,
+          'query{{pluralize (pascalcase this.name)}}',
+          filter
+        );
+      }
+
+      const skip = itemsPerPage * page;
+      if (skip > count) {
+        throw new error.InvalidArgumentError(
+          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+            count / itemsPerPage
+          )}`,
+          'page',
+          page
+        );
+      }
+
+      const {{lowercase (pascalcase this.name)}}Documents = (await {{uppercase (pascalcase  this.name)}}_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
+      {{#each properties}}
+        {{#if (isRelation this)}}
+        .populate('{{this.name}}')
+        {{/if}}
+      {{/each}}
+        .lean()) as databaseTypes.I{{pascalcase this.name}}[];
+
+      //this is added by mongoose, so we will want to remove it before returning the document
+      //to the user.
+      {{lowercase (pascalcase this.name)}}Documents.forEach((doc: any) => {
+      delete (doc as any)['__v'];
+      {{#each properties}}
+      {{#if (isOneToOne this.relationType)}}
+      delete (doc as any).{{camelcase this.name}}?.['__v'];
+      {{else if (isOneToMany this.relationType)}}
+      (doc as any).{{camelcase this.name}}?.forEach((m: any) => delete (m as any)['__v']);
+      {{/if}}
+      {{/each}}
+      });
+
+      const retval: IQueryResult<databaseTypes.I{{pascalcase this.name}}> = {
+        results: {{lowercase (pascalcase this.name)}}Documents,
+        numberOfItems: count,
+        page: page,
+        itemsPerPage: itemsPerPage,
+      };
+
+      return retval;
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while getting the {{lowercase (pascalcase this.name)}}s.  See the inner error for additional information',
+          'mongoDb',
+          'query{{pluralize (pascalcase this.name)}}',
+          err
+        );
+    }
+  }
+);
+
+SCHEMA.static(
+  'delete{{pascalcase this.name}}ById',
+  async ({{lowercase (pascalcase this.name)}}Id: mongooseTypes.ObjectId): Promise<void> => {
+    try {
+      const results = await {{uppercase (pascalcase  this.name)}}_MODEL.deleteOne({_id: {{lowercase (pascalcase this.name)}}Id});
+      if (results.deletedCount !== 1)
+        throw new error.InvalidArgumentError(
+          `A {{lowercase (pascalcase this.name)}} with a _id: ${ {{lowercase (pascalcase this.name)}}Id} was not found in the database`,
+          '_id',
+          {{lowercase (pascalcase this.name)}}Id
+        );
+    } catch (err) {
+      if (err instanceof error.InvalidArgumentError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while deleteing the {{lowercase (pascalcase this.name)}} from the database. The {{lowercase (pascalcase this.name)}} may still exist.  See the inner error for additional information',
+          'mongoDb',
+          'delete {{lowercase (pascalcase this.name)}}',
+          {_id: {{lowercase (pascalcase this.name)}}Id},
+          err
+        );
+    }
+  }
+);
+
+SCHEMA.static(
+  'update{{pascalcase this.name}}ById',
+  async (
+    {{lowercase (pascalcase this.name)}}Id: mongooseTypes.ObjectId,
+    {{lowercase (pascalcase this.name)}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
+  ): Promise<databaseTypes.I{{pascalcase this.name}}> => {
+    await {{uppercase (pascalcase  this.name)}}_MODEL.update{{pascalcase this.name}}WithFilter({_id: {{lowercase (pascalcase this.name)}}Id}, {{lowercase (pascalcase this.name)}});
+    return await {{uppercase (pascalcase  this.name)}}_MODEL.get{{pascalcase this.name}}ById({{lowercase (pascalcase this.name)}}Id);
+  }
+);
+
+
+{{#each properties}}
+{{#if (referenceTableExists this)}}
+{{#if (isOneToMany this.relationType)}}
+
+SCHEMA.static(
+    'add{{pluralize (pascalcase this.name)}}',
+    async (
+    {{lowercase (pascalcase ../this.name)}}Id: mongooseTypes.ObjectId,
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
+    try {
+      if (!{{pluralize (camelcase this.referenceTable)}}.length)
         throw new error.InvalidArgumentError(
           'You must supply at least one id',
-          '{{pluralize this.referenceTable}}',
-          {{pluralize this.referenceTable}}
+          '{{pluralize (camelcase this.referenceTable)}}',
+          {{pluralize (camelcase this.referenceTable)}}
         );
-      const document = await {{capitalize this.sourceTable}}Model.findById(id);
-      if (!document)
+      const {{camelcase ../this.name}}Document = await {{uppercase (pascalcase  ../this.name)}}_MODEL.findById({{lowercase (pascalcase ../this.name)}}Id);
+      if (!{{camelcase ../this.name}}Document)
         throw new error.DataNotFoundError(
-          `A Document with _id : ${id} cannot be found`,
-          '{{sourceTable}}._id',
-          id
+          'A {{camelcase ../this.name}}Document with _id cannot be found',
+          '{{lowercase (pascalcase ../this.name)}}._id',
+          {{lowercase (pascalcase ../this.name)}}Id
         );
 
-      const reconciledIds = await {{capitalize this.sourceTable}}Model.validate{{capitalize this.referenceTable}}({{pluralize this.referenceTable}});
+      const reconciledIds = await {{uppercase (pascalcase  ../this.name)}}_MODEL.validate{{capitalize (pascalcase this.referenceTable)}}({{pluralize (camelcase this.referenceTable)}});
       let dirty = false;
-      reconciledIds.forEach(p => {
+      reconciledIds.forEach((p: any) => {
         if (
-          !document.{{pluralize this.referenceTable}}.find(
+          !{{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.find(
             (id: any) => id.toString() === p.toString()
           )
         ) {
           dirty = true;
-          document.{{pluralize this.referenceTable}}.push(
+          {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.push(
             p as unknown as databaseTypes.I{{capitalize this.referenceTable}}
           );
         }
       });
 
-      if (dirty) await document.save();
+      if (dirty) await {{camelcase ../this.name}}Document.save();
 
-      return await {{capitalize this.sourceTable}}Model.getById(id);
+      return await {{uppercase (pascalcase  ../this.name)}}_MODEL.get{{pascalcase ../this.name}}ById({{lowercase (pascalcase ../this.name)}}Id);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -81,9 +508,9 @@ SCHEMA.static(add{{capitalize this.referenceTable}}: async (
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while adding. See the inner error for additional information',
+          'An unexpected error occurred while adding the {{pluralize (pascalcase this.referenceTable)}}. See the inner error for additional information',
           'mongoDb',
-          '{{sourceTable}}.add{{capitalize this.referenceTable}}',
+          '{{camelcase ../this.name}}.add{{pluralize (pascalcase this.referenceTable)}}',
           err
         );
       }
@@ -91,36 +518,37 @@ SCHEMA.static(add{{capitalize this.referenceTable}}: async (
 })
 
 SCHEMA.static(
-    remove{{capitalize this.referenceTable}}: async (
-    id: mongooseTypes.ObjectId,
-    {{pluralize this.referenceTable}}: (databaseTypes.I{{capitalize this.referenceTable}} | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.I{{capitalize this.sourceTable}}> => {
+    'remove{{pluralize (pascalcase this.name)}}',
+    async (
+     {{lowercase (pascalcase ../this.name)}}Id: mongooseTypes.ObjectId, 
+     {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
     try {
-      if (!{{pluralize this.referenceTable}}.length)
+      if (!{{pluralize (camelcase this.referenceTable)}}.length)
         throw new error.InvalidArgumentError(
           'You must supply at least one id',
-          '{{pluralize this.referenceTable}}',
-          {{pluralize this.referenceTable}}
+          '{{pluralize (camelcase this.referenceTable)}}',
+          {{pluralize (camelcase this.referenceTable)}}
         );
-      const document = await {{capitalize this.sourceTable}}Model.findById(id);
-      if (!document)
+      const {{camelcase ../this.name}}Document = await {{uppercase (pascalcase  ../this.name)}}_MODEL.findById({{lowercase (pascalcase ../this.name)}}Id);
+      if (!{{camelcase ../this.name}}Document)
         throw new error.DataNotFoundError(
-          `A Document with _id : ${id} cannot be found`,
+          'A Document cannot be found',
           '{{sourceTable}}._id',
-          id
+          {{lowercase (pascalcase ../this.name)}}Id
         );
 
-      const reconciledIds = {{pluralize this.referenceTable}}.map(i =>
+      const reconciledIds = {{pluralize (camelcase this.referenceTable)}}.map((i: any) =>
         i instanceof mongooseTypes.ObjectId
           ? i
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updated{{capitalize this.referenceTable}} = document.{{pluralize this.referenceTable}}.filter(p => {
+      const updated{{pluralize (pascalcase this.referenceTable)}} = {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.filter((p: any) => {
         let retval = true;
         if (
           reconciledIds.find(
-            r =>
+            (r: any) =>
               r.toString() ===
               (p as unknown as mongooseTypes.ObjectId).toString()
           )
@@ -133,12 +561,12 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        document.{{pluralize this.referenceTable}} =
-          updated{{capitalize this.referenceTable}} as unknown as databaseTypes.I{{capitalize this.referenceTable}}[];
-        await document.save();
+        {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}} =
+          updated{{pluralize (pascalcase this.referenceTable)}} as unknown as databaseTypes.I{{pascalcase this.referenceTable}}[];
+        await {{camelcase ../this.name}}Document.save();
       }
 
-      return await {{capitalize this.sourceTable}}Model.getById(id);
+      return await {{uppercase (pascalcase  ../this.name)}}_MODEL.get{{pascalcase ../this.name}}ById({{lowercase (pascalcase ../this.name)}}Id);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -150,7 +578,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while removing. See the inner error for additional information',
           'mongoDb',
-          '{{sourceTable}}.remove{{capitalize this.referenceTable}}',
+          '{{camelcase ../this.name}}.remove{{pluralize (pascalcase this.referenceTable)}}',
           err
         );
       }
@@ -159,9 +587,9 @@ SCHEMA.static(
 )
 
 SCHEMA.static(
-    validate{{capitalize this.referenceTable}}, 
+    'validate{{pluralize (pascalcase this.name)}}', 
     async (
-    {{pluralize this.referenceTable}}: (databaseTypes.I{{capitalize this.referenceTable}} | mongooseTypes.ObjectId)[]
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
     const {{pluralize this.referenceTable}}Ids: mongooseTypes.ObjectId[] = [];
     {{pluralize this.referenceTable}}.forEach(p => {
@@ -173,7 +601,7 @@ SCHEMA.static(
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(
-          'One or more project ids do not exist in the database. See the inner error for additional information',
+          'One or more ids do not exist in the database. See the inner error for additional information',
           '{{pluralize this.referenceTable}}',
           {{pluralize this.referenceTable}},
           err
@@ -183,7 +611,22 @@ SCHEMA.static(
 
     return {{pluralize this.referenceTable}}Ids;
   })
+{{else if (isOneToOne this.relationType)}}
+
+{{/if}}
+{{/if}}
 {{/each}}
 
 
-export default mongoose.model('{{this.name}}', SCHEMA);
+// define the object that holds Mongoose models
+const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
+
+delete MODELS['{{lowercase (pascalcase this.name)}}'];
+
+const {{uppercase (pascalcase  this.name)}}_MODEL = model<I{{pascalcase  this.name}}Document, I{{pascalcase  this.name}}StaticMethods>(
+  '{{lowercase (pascalcase this.name)}}',
+  SCHEMA
+);
+
+export { {{uppercase (pascalcase this.name)}}_MODEL as {{pascalcase this.name}}Model };
+;

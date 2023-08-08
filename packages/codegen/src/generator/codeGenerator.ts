@@ -15,13 +15,20 @@ import type { Options } from 'prettier';
  * Constraints & Assumptions:
  * - All enums must be CAPITALIZED_AS_SUCH (this is enforced in our linting rules)
  * - All interfaces must begin with I<interfaceName> (this is also enforced in our linting rules)
+ * - All interfaces referenced within an interface definition must exist within the source folder
  */
 export class CodeGenerator {
   // configurable defaults
   private config: databaseTypes.meta.ICodeGenConfig;
   private handlebars = Handlebars;
   private protectedFields: string[] = ['createdAt', 'updatedAt', '_id'];
-  private prettierConfigField: Options = {};
+  private scalarValueFields: string[] = ['string', 'number'];
+  private prettierConfigField: Options = {
+    bracketSpacing: false,
+    singleQuote: true,
+    trailingComma: 'es5',
+    arrowParens: 'avoid',
+  };
 
   // internal IR between file processing => code generation
   private databaseSchemaField: databaseTypes.meta.IDatabaseSchema;
@@ -32,20 +39,100 @@ export class CodeGenerator {
     this.config = config || DEFAULT_CONFIG;
     // Registering template helper functions
     this.handlebars.registerHelper('stripLeadingI', this.stripLeadingI);
-    this.handlebars.registerHelper('wrapSingleQuotes', (value: string) => `'${value}'`);
+    this.handlebars.registerHelper('wrapSingleQuotes', this.wrapSingleQuotes);
+    this.handlebars.registerHelper('uppercase', this.toUpperCase);
+    this.handlebars.registerHelper('capitalize', this.toCapitalized);
+    this.handlebars.registerHelper('pluralize', this.toPlural);
+    this.handlebars.registerHelper('singularize', this.toSingular);
+    this.handlebars.registerHelper('isNotProtected', this.isNotProtected);
+    this.handlebars.registerHelper('lowercase', this.toLowercase);
+    this.handlebars.registerHelper('pascalcase', this.toPascalCase);
+    this.handlebars.registerHelper('camelcase', this.toCamelCase);
     // check relation type
     this.handlebars.registerHelper('isEnum', (value: string) => value === 'ENUM');
+    this.handlebars.registerHelper('isDate', (value: any) => value.type === 'Date');
+    this.handlebars.registerHelper('isSchema', (value: string) => value === 'SCHEMA');
     this.handlebars.registerHelper('isOneToOne', (value: string) => value === 'ONE_TO_ONE');
     this.handlebars.registerHelper('isOneToMany', (value: string) => value === 'ONE_TO_MANY');
+    // check referenceTable exists (needed for scalar arrays i.e string[])
+    this.handlebars.registerHelper('referenceTableExists', (value) => !!value.referenceTable);
+    this.handlebars.registerHelper('isRelation', (value) => !!value.isRelation);
     // check referential action type
     this.handlebars.registerHelper('isCascade', (value: string) => value === 'CASCADE');
     this.handlebars.registerHelper('isNoAction', (value: string) => value === 'NO_ACTION');
     this.handlebars.registerHelper('isSetNull', (value: string) => value === 'SET_NULL');
-    this.handlebars.registerHelper('capitalize', (value: string) => _.capitalize(value));
-    this.handlebars.registerHelper('pluralize', (value: string) => pluralize.plural(value));
-    this.handlebars.registerHelper('lowercase', this.toLowercase);
-    this.handlebars.registerHelper('pascalcase', (value: string) => _.upperFirst(_.camelCase(value)));
-    this.handlebars.registerHelper('camelcase', (value: string) => _.camelCase(value));
+  }
+
+  /**
+   * Collection of utilities to format table names
+   */
+  private stripLeadingI(value: string): string {
+    return (value && value?.startsWith('I')) || value?.startsWith('i') ? value?.substring(1) : value;
+  }
+
+  private toCapitalized(value: string): string {
+    return value ? _.capitalize(value) : value;
+  }
+
+  private toPlural(value: string): string {
+    return value ? pluralize.plural(value) : value;
+  }
+
+  private toSingular(value: string): string {
+    return value ? pluralize.singular(value) : value;
+  }
+
+  private wrapSingleQuotes(value: string): string {
+    return value ? `'${value}'` : value;
+  }
+
+  private toCamelCase(value: string): string {
+    return value ? _.camelCase(value) : value;
+  }
+
+  private toLowercase(value: string): string {
+    return value ? value?.toLowerCase() : value;
+  }
+
+  private toUpperCase(value: string): string {
+    return value ? value.toUpperCase() : value;
+  }
+
+  // needed to preserve table names without eslint complaining
+  private toSnakeCase(value: string): string {
+    return value
+      ? value?.replace(/([A-Z])/g, (match, letter, index) =>
+          index > 0 ? '_' + letter?.toLowerCase() : letter?.toLowerCase()
+        )
+      : value;
+  }
+
+  // needed for mongoose references
+  private convertScalarFieldTypes(value: string): string {
+    if (value && this.scalarValueFields.includes(value)) {
+      return this.toCapitalized(value);
+    } else {
+      return value;
+    }
+  }
+
+  // used with toSnakeCase to preserve table names compliant with eslint config
+  private toPascalCase(value: string): string {
+    return value ? pascalCase(value) : value;
+  }
+
+  private isNotProtected(value: string): boolean {
+    if (value && ['createdAt', 'updatedAt', 'deletedAt', '_id'].includes(value)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  private normalizeTableName(tableName: string): string {
+    const stripped = this.stripLeadingI(tableName);
+    const snaked = this.toSnakeCase(stripped);
+    return this.toLowercase(snaked);
   }
 
   public async init(): Promise<void> {
@@ -75,7 +162,7 @@ export class CodeGenerator {
       }
 
       // STEP 3: FORMAT OUTPUT
-      await this.formatDirectory(`${this.config.paths.destination}`);
+      // await this.formatDirectory(`${this.config.paths.destination}`);
     } catch (err: any) {
       if (err instanceof error.TypeCheckError || err instanceof error.FileParseError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -170,7 +257,6 @@ export class CodeGenerator {
     try {
       if (ts.isInterfaceDeclaration(node)) {
         const interfaceName = this.getInterfaceName(node);
-        const ogTableName = this.stripLeadingI(interfaceName);
         const tableName = this.normalizeTableName(interfaceName);
         const properties = this.getInterfaceProperties(node);
 
@@ -179,7 +265,6 @@ export class CodeGenerator {
 
         const table: databaseTypes.meta.ITable = {
           name: tableName,
-          ogName: ogTableName,
           path: filePath,
           properties: properties!,
           isPublic: false,
@@ -222,7 +307,15 @@ export class CodeGenerator {
           const isRequired = !property.questionToken;
 
           const typeNode = (property as ts.PropertySignature).type;
-          const refName = (typeNode as ts.TypeReferenceNode).typeName?.getText();
+
+          let refName;
+          if (typeNode && typeNode.kind === 185) {
+            // Checking for ArrayType
+            const arrayTypeNode = typeNode as ts.ArrayTypeNode;
+            refName = (arrayTypeNode.elementType as ts.TypeReferenceNode).typeName?.getText();
+          } else {
+            refName = (typeNode as ts.TypeReferenceNode).typeName?.getText();
+          }
 
           // determine relationships and utilities via naming convention and utility types
           const { isRelation, relationType } = this.determineRelationType(refName, typeNode);
@@ -244,7 +337,7 @@ export class CodeGenerator {
 
           return {
             name: propertyName,
-            type: typeString,
+            type: this.convertScalarFieldTypes(typeString),
             isRequired: isRequired,
             isProtected: isProtected,
             isRelation: isRelation,
@@ -330,50 +423,22 @@ export class CodeGenerator {
     // If the type node exists and is of kind TypeReference
     if (
       typeNode &&
-      typeNode.kind === ts.SyntaxKind.TypeReference &&
-      // Exclude ids, dates
-      refName !== 'Date' &&
-      refName !== 'mongooseTypes.ObjectId'
+      (typeNode.kind === ts.SyntaxKind.ArrayType ||
+        (typeNode.kind === ts.SyntaxKind.TypeReference && refName !== 'Date' && refName !== 'mongooseTypes.ObjectId'))
     ) {
       isRelation = true;
       // Assuming enums are UPPER_CASE and interfaces include "I" whereas subdocuments do not i.e Camera/AspectRatio
-      if (refName === refName.toUpperCase()) {
+      if (refName && refName === refName?.toUpperCase()) {
         relationType = databaseTypes.meta.RELATION_TYPE.ENUM;
-      } else if (!refName.startsWith('I')) {
+      } else if (refName && !refName?.startsWith('I')) {
         relationType = databaseTypes.meta.RELATION_TYPE.SCHEMA;
-      } else if ('elementType' in typeNode) {
+      } else if (typeNode.kind === ts.SyntaxKind.ArrayType) {
         relationType = databaseTypes.meta.RELATION_TYPE.ONE_TO_MANY;
       } else {
         relationType = databaseTypes.meta.RELATION_TYPE.ONE_TO_ONE;
       }
     }
     return { isRelation, relationType };
-  }
-
-  /**
-   * Collection of utilities to format table names
-   */
-  private stripLeadingI(value: string) {
-    return (value && value.startsWith('I')) || value.startsWith('i') ? value.substring(1) : value;
-  }
-
-  private toLowercase(value: string) {
-    return value ? value.toLowerCase() : value;
-  }
-
-  private toSnakeCase(value: string) {
-    return value.replace(/([A-Z])/g, (match, letter, index) =>
-      index > 0 ? '_' + letter.toLowerCase() : letter.toLowerCase()
-    );
-  }
-
-  private toPascalCase(value: string) {
-    return value ? pascalCase(value) : value;
-  }
-
-  private normalizeTableName(tableName: string): string {
-    const stripped = this.stripLeadingI(tableName);
-    return this.toLowercase(stripped);
   }
 
   /**
@@ -388,32 +453,32 @@ export class CodeGenerator {
     try {
       await Promise.all([
         // generate model
-        // this.sourceFromTemplate(
-        //   table,
-        //   `${paths.templates}/${templates.models}`,
-        //   `${paths.destination}/${output.models}/${table.name}.ts`
-        // ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.models}`,
+          `${paths.destination}/${output.models}/${this.toCamelCase(table.name)}.ts`
+        ),
         // generate interfaces
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.interfaces.createInput}`,
-          `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}CreateInput.ts`
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}CreateInput.ts`
         ),
-        // this.sourceFromTemplate(
-        //   table,
-        //   `${paths.templates}/${templates.interfaces.document}`,
-        //   `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}Document.ts`
-        // ),
-        // this.sourceFromTemplate(
-        //   table,
-        //   `${paths.templates}/${templates.interfaces.methods}`,
-        //   `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}Methods.ts`
-        // ),
-        // this.sourceFromTemplate(
-        //   table,
-        //   `${paths.templates}/${templates.interfaces.staticMethods}`,
-        //   `${paths.destination}/${output.interfaces}/i${capitalize(table.name)}StaticMethods.ts`
-        // ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.interfaces.document}`,
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}Document.ts`
+        ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.interfaces.methods}`,
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}Methods.ts`
+        ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.interfaces.staticMethods}`,
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}StaticMethods.ts`
+        ),
         // generate schemas
         // this.sourceFromTemplate(formattedTable, templates.schemas, `${output.schemas}/${name}.ts`),
       ]);
