@@ -172,11 +172,11 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: ISessionDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,userId: input.userId
-          ,sessionToken: input.sessionToken
-          ,expires: input.expires
-          ,user: input.user
+        updatedAt: createDate,
+          userId: input.userId,
+          sessionToken: input.sessionToken,
+          expires: input.expires,
+          user: input.user
       };
       try {
         await SESSION_MODEL.validate(resolvedInput);

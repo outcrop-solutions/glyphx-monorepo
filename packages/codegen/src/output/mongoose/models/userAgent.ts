@@ -176,14 +176,14 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IUserAgentDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,userAgent: input.userAgent
-          ,platform: input.platform
-          ,appName: input.appName
-          ,appVersion: input.appVersion
-          ,vendor: input.vendor
-          ,language: input.language
-          ,cookieEnabled: input.cookieEnabled
+        updatedAt: createDate,
+          userAgent: input.userAgent,
+          platform: input.platform,
+          appName: input.appName,
+          appVersion: input.appVersion,
+          vendor: input.vendor,
+          language: input.language,
+          cookieEnabled: input.cookieEnabled
       };
       try {
         await USERAGENT_MODEL.validate(resolvedInput);
@@ -195,15 +195,15 @@ SCHEMA.static(
           err
         );
       }
-      const useragentDocument = (
+      const userAgentDocument = (
         await USERAGENT_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
-      id = useragentDocument._id;
+      id = userAgentDocument._id;
     } catch (err) {
       if (err instanceof error.DataValidationError) throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while adding the useragent.  See the inner error for additional details',
+          'An Unexpected Error occurred while adding the userAgent.  See the inner error for additional details',
           'mongoDb',
           'addUserAgent',
           {},
@@ -214,28 +214,28 @@ SCHEMA.static(
     if (id) return await USERAGENT_MODEL.getUserAgentById(id);
     else
       throw new error.UnexpectedError(
-        'An unexpected error has occurred and the useragent may not have been created.  I have no other information to provide.'
+        'An unexpected error has occurred and the userAgent may not have been created.  I have no other information to provide.'
       );
   }
 );
 
-SCHEMA.static('getUserAgentById', async (useragentId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getUserAgentById', async (userAgentId: mongooseTypes.ObjectId) => {
   try {
-    const useragentDocument = (await USERAGENT_MODEL.findById(useragentId)
+    const userAgentDocument = (await USERAGENT_MODEL.findById(userAgentId)
       .lean()) as databaseTypes.IUserAgent;
-    if (!useragentDocument) {
+    if (!userAgentDocument) {
       throw new error.DataNotFoundError(
-        `Could not find a useragent with the _id: ${ useragentId}`,
-        'useragent_id',
-        useragentId
+        `Could not find a userAgent with the _id: ${ userAgentId}`,
+        'userAgent_id',
+        userAgentId
       );
     }
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    delete (useragentDocument as any)['__v'];
+    delete (userAgentDocument as any)['__v'];
 
 
-    return useragentDocument;
+    return userAgentDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -252,15 +252,15 @@ SCHEMA.static(
   'updateUserAgentWithFilter',
   async (
     filter: Record<string, unknown>,
-    useragent: Omit<Partial<databaseTypes.IUserAgent>, '_id'>
+    userAgent: Omit<Partial<databaseTypes.IUserAgent>, '_id'>
   ): Promise<void> => {
     try {
-      await USERAGENT_MODEL.validateUpdateObject(useragent);
+      await USERAGENT_MODEL.validateUpdateObject(userAgent);
       const updateDate = new Date();
       const transformedObject: Partial<IUserAgentDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
-      for (const key in useragent) {
-        const value = (useragent as Record<string, any>)[key];
+      for (const key in userAgent) {
+        const value = (userAgent as Record<string, any>)[key];
         else transformedObject[key] = value;
       }
       const updateResult = await USERAGENT_MODEL.updateOne(
@@ -269,7 +269,7 @@ SCHEMA.static(
       );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
-          'No useragent document with filter: ${filter} was found',
+          'No userAgent document with filter: ${filter} was found',
           'filter',
           filter
         );
@@ -284,8 +284,8 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
-          'update useragent',
-          {filter: filter, useragent : useragent },
+          'update userAgent',
+          {filter: filter, userAgent : userAgent },
           err
         );
     }
@@ -317,7 +317,7 @@ SCHEMA.static(
         );
       }
 
-      const useragentDocuments = (await USERAGENT_MODEL.find(filter, null, {
+      const userAgentDocuments = (await USERAGENT_MODEL.find(filter, null, {
         skip: skip,
         limit: itemsPerPage,
       })
@@ -325,12 +325,12 @@ SCHEMA.static(
 
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      useragentDocuments.forEach((doc: any) => {
+      userAgentDocuments.forEach((doc: any) => {
       delete (doc as any)['__v'];
       });
 
       const retval: IQueryResult<databaseTypes.IUserAgent> = {
-        results: useragentDocuments,
+        results: userAgentDocuments,
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -345,7 +345,7 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the useragents.  See the inner error for additional information',
+          'An unexpected error occurred while getting the userAgents.  See the inner error for additional information',
           'mongoDb',
           'queryUserAgents',
           err
@@ -356,23 +356,23 @@ SCHEMA.static(
 
 SCHEMA.static(
   'deleteUserAgentById',
-  async (useragentId: mongooseTypes.ObjectId): Promise<void> => {
+  async (userAgentId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await USERAGENT_MODEL.deleteOne({_id: useragentId});
+      const results = await USERAGENT_MODEL.deleteOne({_id: userAgentId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
-          `A useragent with a _id: ${ useragentId} was not found in the database`,
+          `A userAgent with a _id: ${ userAgentId} was not found in the database`,
           '_id',
-          useragentId
+          userAgentId
         );
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the useragent from the database. The useragent may still exist.  See the inner error for additional information',
+          'An unexpected error occurred while deleteing the userAgent from the database. The userAgent may still exist.  See the inner error for additional information',
           'mongoDb',
-          'delete useragent',
-          {_id: useragentId},
+          'delete userAgent',
+          {_id: userAgentId},
           err
         );
     }
@@ -382,11 +382,11 @@ SCHEMA.static(
 SCHEMA.static(
   'updateUserAgentById',
   async (
-    useragentId: mongooseTypes.ObjectId,
-    useragent: Omit<Partial<databaseTypes.IUserAgent>, '_id'>
+    userAgentId: mongooseTypes.ObjectId,
+    userAgent: Omit<Partial<databaseTypes.IUserAgent>, '_id'>
   ): Promise<databaseTypes.IUserAgent> => {
-    await USERAGENT_MODEL.updateUserAgentWithFilter({_id: useragentId}, useragent);
-    return await USERAGENT_MODEL.getUserAgentById(useragentId);
+    await USERAGENT_MODEL.updateUserAgentWithFilter({_id: userAgentId}, userAgent);
+    return await USERAGENT_MODEL.getUserAgentById(userAgentId);
   }
 );
 
@@ -396,10 +396,10 @@ SCHEMA.static(
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
-delete MODELS['useragent'];
+delete MODELS['userAgent'];
 
 const USERAGENT_MODEL = model<IUserAgentDocument, IUserAgentStaticMethods>(
-  'useragent',
+  'userAgent',
   SCHEMA
 );
 

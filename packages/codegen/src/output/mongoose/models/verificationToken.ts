@@ -158,10 +158,10 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IVerificationTokenDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,identifier: input.identifier
-          ,token: input.token
-          ,expires: input.expires
+        updatedAt: createDate,
+          identifier: input.identifier,
+          token: input.token,
+          expires: input.expires
       };
       try {
         await VERIFICATIONTOKEN_MODEL.validate(resolvedInput);
@@ -173,15 +173,15 @@ SCHEMA.static(
           err
         );
       }
-      const verificationtokenDocument = (
+      const verificationTokenDocument = (
         await VERIFICATIONTOKEN_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
-      id = verificationtokenDocument._id;
+      id = verificationTokenDocument._id;
     } catch (err) {
       if (err instanceof error.DataValidationError) throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while adding the verificationtoken.  See the inner error for additional details',
+          'An Unexpected Error occurred while adding the verificationToken.  See the inner error for additional details',
           'mongoDb',
           'addVerificationToken',
           {},
@@ -192,28 +192,28 @@ SCHEMA.static(
     if (id) return await VERIFICATIONTOKEN_MODEL.getVerificationTokenById(id);
     else
       throw new error.UnexpectedError(
-        'An unexpected error has occurred and the verificationtoken may not have been created.  I have no other information to provide.'
+        'An unexpected error has occurred and the verificationToken may not have been created.  I have no other information to provide.'
       );
   }
 );
 
-SCHEMA.static('getVerificationTokenById', async (verificationtokenId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getVerificationTokenById', async (verificationTokenId: mongooseTypes.ObjectId) => {
   try {
-    const verificationtokenDocument = (await VERIFICATIONTOKEN_MODEL.findById(verificationtokenId)
+    const verificationTokenDocument = (await VERIFICATIONTOKEN_MODEL.findById(verificationTokenId)
       .lean()) as databaseTypes.IVerificationToken;
-    if (!verificationtokenDocument) {
+    if (!verificationTokenDocument) {
       throw new error.DataNotFoundError(
-        `Could not find a verificationtoken with the _id: ${ verificationtokenId}`,
-        'verificationtoken_id',
-        verificationtokenId
+        `Could not find a verificationToken with the _id: ${ verificationTokenId}`,
+        'verificationToken_id',
+        verificationTokenId
       );
     }
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    delete (verificationtokenDocument as any)['__v'];
+    delete (verificationTokenDocument as any)['__v'];
 
 
-    return verificationtokenDocument;
+    return verificationTokenDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -230,15 +230,15 @@ SCHEMA.static(
   'updateVerificationTokenWithFilter',
   async (
     filter: Record<string, unknown>,
-    verificationtoken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
+    verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<void> => {
     try {
-      await VERIFICATIONTOKEN_MODEL.validateUpdateObject(verificationtoken);
+      await VERIFICATIONTOKEN_MODEL.validateUpdateObject(verificationToken);
       const updateDate = new Date();
       const transformedObject: Partial<IVerificationTokenDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
-      for (const key in verificationtoken) {
-        const value = (verificationtoken as Record<string, any>)[key];
+      for (const key in verificationToken) {
+        const value = (verificationToken as Record<string, any>)[key];
         else transformedObject[key] = value;
       }
       const updateResult = await VERIFICATIONTOKEN_MODEL.updateOne(
@@ -247,7 +247,7 @@ SCHEMA.static(
       );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
-          'No verificationtoken document with filter: ${filter} was found',
+          'No verificationToken document with filter: ${filter} was found',
           'filter',
           filter
         );
@@ -262,8 +262,8 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
-          'update verificationtoken',
-          {filter: filter, verificationtoken : verificationtoken },
+          'update verificationToken',
+          {filter: filter, verificationToken : verificationToken },
           err
         );
     }
@@ -295,7 +295,7 @@ SCHEMA.static(
         );
       }
 
-      const verificationtokenDocuments = (await VERIFICATIONTOKEN_MODEL.find(filter, null, {
+      const verificationTokenDocuments = (await VERIFICATIONTOKEN_MODEL.find(filter, null, {
         skip: skip,
         limit: itemsPerPage,
       })
@@ -303,12 +303,12 @@ SCHEMA.static(
 
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      verificationtokenDocuments.forEach((doc: any) => {
+      verificationTokenDocuments.forEach((doc: any) => {
       delete (doc as any)['__v'];
       });
 
       const retval: IQueryResult<databaseTypes.IVerificationToken> = {
-        results: verificationtokenDocuments,
+        results: verificationTokenDocuments,
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -323,7 +323,7 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the verificationtokens.  See the inner error for additional information',
+          'An unexpected error occurred while getting the verificationTokens.  See the inner error for additional information',
           'mongoDb',
           'queryVerificationTokens',
           err
@@ -334,23 +334,23 @@ SCHEMA.static(
 
 SCHEMA.static(
   'deleteVerificationTokenById',
-  async (verificationtokenId: mongooseTypes.ObjectId): Promise<void> => {
+  async (verificationTokenId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await VERIFICATIONTOKEN_MODEL.deleteOne({_id: verificationtokenId});
+      const results = await VERIFICATIONTOKEN_MODEL.deleteOne({_id: verificationTokenId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
-          `A verificationtoken with a _id: ${ verificationtokenId} was not found in the database`,
+          `A verificationToken with a _id: ${ verificationTokenId} was not found in the database`,
           '_id',
-          verificationtokenId
+          verificationTokenId
         );
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the verificationtoken from the database. The verificationtoken may still exist.  See the inner error for additional information',
+          'An unexpected error occurred while deleteing the verificationToken from the database. The verificationToken may still exist.  See the inner error for additional information',
           'mongoDb',
-          'delete verificationtoken',
-          {_id: verificationtokenId},
+          'delete verificationToken',
+          {_id: verificationTokenId},
           err
         );
     }
@@ -360,11 +360,11 @@ SCHEMA.static(
 SCHEMA.static(
   'updateVerificationTokenById',
   async (
-    verificationtokenId: mongooseTypes.ObjectId,
-    verificationtoken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
+    verificationTokenId: mongooseTypes.ObjectId,
+    verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<databaseTypes.IVerificationToken> => {
-    await VERIFICATIONTOKEN_MODEL.updateVerificationTokenWithFilter({_id: verificationtokenId}, verificationtoken);
-    return await VERIFICATIONTOKEN_MODEL.getVerificationTokenById(verificationtokenId);
+    await VERIFICATIONTOKEN_MODEL.updateVerificationTokenWithFilter({_id: verificationTokenId}, verificationToken);
+    return await VERIFICATIONTOKEN_MODEL.getVerificationTokenById(verificationTokenId);
   }
 );
 
@@ -374,10 +374,10 @@ SCHEMA.static(
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
-delete MODELS['verificationtoken'];
+delete MODELS['verificationToken'];
 
 const VERIFICATIONTOKEN_MODEL = model<IVerificationTokenDocument, IVerificationTokenStaticMethods>(
-  'verificationtoken',
+  'verificationToken',
   SCHEMA
 );
 

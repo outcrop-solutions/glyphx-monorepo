@@ -241,19 +241,19 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IMemberDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,email: input.email
-          ,inviter: input.inviter
-          ,type: input.type
-          ,invitedAt: input.invitedAt
-          ,joinedAt: input.joinedAt
-          ,status: input.status
-          ,teamRole: input.teamRole
-          ,projectRole: input.projectRole
-          ,member: input.member
-          ,invitedBy: input.invitedBy
-          ,workspace: input.workspace
-          ,project: input.project
+        updatedAt: createDate,
+          email: input.email,
+          inviter: input.inviter,
+          type: input.type,
+          invitedAt: input.invitedAt,
+          joinedAt: input.joinedAt,
+          status: input.status,
+          teamRole: input.teamRole,
+          projectRole: input.projectRole,
+          member: input.member,
+          invitedBy: input.invitedBy,
+          workspace: input.workspace,
+          project: input.project
       };
       try {
         await MEMBER_MODEL.validate(resolvedInput);

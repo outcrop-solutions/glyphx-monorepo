@@ -216,17 +216,17 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IWorkspaceDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,workspaceCode: input.workspaceCode
-          ,inviteCode: input.inviteCode
-          ,name: input.name
-          ,slug: input.slug
-          ,tags: input.tags
-          ,description: input.description
-          ,creator: input.creator
-          ,members: input.members
-          ,projects: input.projects
-          ,states: input.states
+        updatedAt: createDate,
+          workspaceCode: input.workspaceCode,
+          inviteCode: input.inviteCode,
+          name: input.name,
+          slug: input.slug,
+          tags: input.tags,
+          description: input.description,
+          creator: input.creator,
+          members: input.members,
+          projects: input.projects,
+          states: input.states
       };
       try {
         await WORKSPACE_MODEL.validate(resolvedInput);

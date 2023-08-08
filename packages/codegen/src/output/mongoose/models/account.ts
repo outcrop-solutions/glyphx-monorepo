@@ -225,22 +225,22 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IAccountDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,type: input.type
-          ,userId: input.userId
-          ,provider: input.provider
-          ,providerAccountId: input.providerAccountId
-          ,refresh_token: input.refresh_token
-          ,refresh_token_expires_in: input.refresh_token_expires_in
-          ,access_token: input.access_token
-          ,expires_at: input.expires_at
-          ,token_type: input.token_type
-          ,scope: input.scope
-          ,id_token: input.id_token
-          ,session_state: input.session_state
-          ,oauth_token_secret: input.oauth_token_secret
-          ,oauth_token: input.oauth_token
-          ,user: input.user
+        updatedAt: createDate,
+          type: input.type,
+          userId: input.userId,
+          provider: input.provider,
+          providerAccountId: input.providerAccountId,
+          refresh_token: input.refresh_token,
+          refresh_token_expires_in: input.refresh_token_expires_in,
+          access_token: input.access_token,
+          expires_at: input.expires_at,
+          token_type: input.token_type,
+          scope: input.scope,
+          id_token: input.id_token,
+          session_state: input.session_state,
+          oauth_token_secret: input.oauth_token_secret,
+          oauth_token: input.oauth_token,
+          user: input.user
       };
       try {
         await ACCOUNT_MODEL.validate(resolvedInput);

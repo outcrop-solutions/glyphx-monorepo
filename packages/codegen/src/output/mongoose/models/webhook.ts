@@ -165,10 +165,10 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IWebhookDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,name: input.name
-          ,url: input.url
-          ,user: input.user
+        updatedAt: createDate,
+          name: input.name,
+          url: input.url,
+          user: input.user
       };
       try {
         await WEBHOOK_MODEL.validate(resolvedInput);

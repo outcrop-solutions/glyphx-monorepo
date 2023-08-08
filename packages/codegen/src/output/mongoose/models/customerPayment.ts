@@ -170,11 +170,11 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: ICustomerPaymentDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,paymentId: input.paymentId
-          ,email: input.email
-          ,subscriptionType: input.subscriptionType
-          ,customer: input.customer
+        updatedAt: createDate,
+          paymentId: input.paymentId,
+          email: input.email,
+          subscriptionType: input.subscriptionType,
+          customer: input.customer
       };
       try {
         await CUSTOMERPAYMENT_MODEL.validate(resolvedInput);
@@ -186,15 +186,15 @@ SCHEMA.static(
           err
         );
       }
-      const customerpaymentDocument = (
+      const customerPaymentDocument = (
         await CUSTOMERPAYMENT_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
-      id = customerpaymentDocument._id;
+      id = customerPaymentDocument._id;
     } catch (err) {
       if (err instanceof error.DataValidationError) throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while adding the customerpayment.  See the inner error for additional details',
+          'An Unexpected Error occurred while adding the customerPayment.  See the inner error for additional details',
           'mongoDb',
           'addCustomerPayment',
           {},
@@ -205,31 +205,31 @@ SCHEMA.static(
     if (id) return await CUSTOMERPAYMENT_MODEL.getCustomerPaymentById(id);
     else
       throw new error.UnexpectedError(
-        'An unexpected error has occurred and the customerpayment may not have been created.  I have no other information to provide.'
+        'An unexpected error has occurred and the customerPayment may not have been created.  I have no other information to provide.'
       );
   }
 );
 
-SCHEMA.static('getCustomerPaymentById', async (customerpaymentId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getCustomerPaymentById', async (customerPaymentId: mongooseTypes.ObjectId) => {
   try {
-    const customerpaymentDocument = (await CUSTOMERPAYMENT_MODEL.findById(customerpaymentId)
+    const customerPaymentDocument = (await CUSTOMERPAYMENT_MODEL.findById(customerPaymentId)
       .populate('subscriptionType')
       .populate('customer')
       .lean()) as databaseTypes.ICustomerPayment;
-    if (!customerpaymentDocument) {
+    if (!customerPaymentDocument) {
       throw new error.DataNotFoundError(
-        `Could not find a customerpayment with the _id: ${ customerpaymentId}`,
-        'customerpayment_id',
-        customerpaymentId
+        `Could not find a customerPayment with the _id: ${ customerPaymentId}`,
+        'customerPayment_id',
+        customerPaymentId
       );
     }
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    delete (customerpaymentDocument as any)['__v'];
+    delete (customerPaymentDocument as any)['__v'];
 
-    delete (customerpaymentDocument as any).customer?.['__v'];
+    delete (customerPaymentDocument as any).customer?.['__v'];
 
-    return customerpaymentDocument;
+    return customerPaymentDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -246,15 +246,15 @@ SCHEMA.static(
   'updateCustomerPaymentWithFilter',
   async (
     filter: Record<string, unknown>,
-    customerpayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
+    customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<void> => {
     try {
-      await CUSTOMERPAYMENT_MODEL.validateUpdateObject(customerpayment);
+      await CUSTOMERPAYMENT_MODEL.validateUpdateObject(customerPayment);
       const updateDate = new Date();
       const transformedObject: Partial<ICustomerPaymentDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
-      for (const key in customerpayment) {
-        const value = (customerpayment as Record<string, any>)[key];
+      for (const key in customerPayment) {
+        const value = (customerPayment as Record<string, any>)[key];
           if (key === 'customer')
             transformedObject.customer =
               value instanceof mongooseTypes.ObjectId
@@ -268,7 +268,7 @@ SCHEMA.static(
       );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
-          'No customerpayment document with filter: ${filter} was found',
+          'No customerPayment document with filter: ${filter} was found',
           'filter',
           filter
         );
@@ -283,8 +283,8 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
-          'update customerpayment',
-          {filter: filter, customerpayment : customerpayment },
+          'update customerPayment',
+          {filter: filter, customerPayment : customerPayment },
           err
         );
     }
@@ -316,7 +316,7 @@ SCHEMA.static(
         );
       }
 
-      const customerpaymentDocuments = (await CUSTOMERPAYMENT_MODEL.find(filter, null, {
+      const customerPaymentDocuments = (await CUSTOMERPAYMENT_MODEL.find(filter, null, {
         skip: skip,
         limit: itemsPerPage,
       })
@@ -326,13 +326,13 @@ SCHEMA.static(
 
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      customerpaymentDocuments.forEach((doc: any) => {
+      customerPaymentDocuments.forEach((doc: any) => {
       delete (doc as any)['__v'];
       delete (doc as any).customer?.['__v'];
       });
 
       const retval: IQueryResult<databaseTypes.ICustomerPayment> = {
-        results: customerpaymentDocuments,
+        results: customerPaymentDocuments,
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -347,7 +347,7 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the customerpayments.  See the inner error for additional information',
+          'An unexpected error occurred while getting the customerPayments.  See the inner error for additional information',
           'mongoDb',
           'queryCustomerPayments',
           err
@@ -358,23 +358,23 @@ SCHEMA.static(
 
 SCHEMA.static(
   'deleteCustomerPaymentById',
-  async (customerpaymentId: mongooseTypes.ObjectId): Promise<void> => {
+  async (customerPaymentId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await CUSTOMERPAYMENT_MODEL.deleteOne({_id: customerpaymentId});
+      const results = await CUSTOMERPAYMENT_MODEL.deleteOne({_id: customerPaymentId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
-          `A customerpayment with a _id: ${ customerpaymentId} was not found in the database`,
+          `A customerPayment with a _id: ${ customerPaymentId} was not found in the database`,
           '_id',
-          customerpaymentId
+          customerPaymentId
         );
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the customerpayment from the database. The customerpayment may still exist.  See the inner error for additional information',
+          'An unexpected error occurred while deleteing the customerPayment from the database. The customerPayment may still exist.  See the inner error for additional information',
           'mongoDb',
-          'delete customerpayment',
-          {_id: customerpaymentId},
+          'delete customerPayment',
+          {_id: customerPaymentId},
           err
         );
     }
@@ -384,11 +384,11 @@ SCHEMA.static(
 SCHEMA.static(
   'updateCustomerPaymentById',
   async (
-    customerpaymentId: mongooseTypes.ObjectId,
-    customerpayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
+    customerPaymentId: mongooseTypes.ObjectId,
+    customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<databaseTypes.ICustomerPayment> => {
-    await CUSTOMERPAYMENT_MODEL.updateCustomerPaymentWithFilter({_id: customerpaymentId}, customerpayment);
-    return await CUSTOMERPAYMENT_MODEL.getCustomerPaymentById(customerpaymentId);
+    await CUSTOMERPAYMENT_MODEL.updateCustomerPaymentWithFilter({_id: customerPaymentId}, customerPayment);
+    return await CUSTOMERPAYMENT_MODEL.getCustomerPaymentById(customerPaymentId);
   }
 );
 
@@ -399,10 +399,10 @@ SCHEMA.static(
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
-delete MODELS['customerpayment'];
+delete MODELS['customerPayment'];
 
 const CUSTOMERPAYMENT_MODEL = model<ICustomerPaymentDocument, ICustomerPaymentStaticMethods>(
-  'customerpayment',
+  'customerPayment',
   SCHEMA
 );
 

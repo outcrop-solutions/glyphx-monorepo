@@ -174,10 +174,10 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: ICommentDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,content: input.content
-          ,author: input.author
-          ,state: input.state
+        updatedAt: createDate,
+          content: input.content,
+          author: input.author,
+          state: input.state
       };
       try {
         await COMMENT_MODEL.validate(resolvedInput);

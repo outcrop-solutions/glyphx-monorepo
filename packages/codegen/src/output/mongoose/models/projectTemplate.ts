@@ -170,11 +170,11 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IProjectTemplateDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,name: input.name
-          ,projects: input.projects
-          ,tags: input.tags
-          ,shape: input.shape
+        updatedAt: createDate,
+          name: input.name,
+          projects: input.projects,
+          tags: input.tags,
+          shape: input.shape
       };
       try {
         await PROJECTTEMPLATE_MODEL.validate(resolvedInput);
@@ -186,15 +186,15 @@ SCHEMA.static(
           err
         );
       }
-      const projecttemplateDocument = (
+      const projectTemplateDocument = (
         await PROJECTTEMPLATE_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
-      id = projecttemplateDocument._id;
+      id = projectTemplateDocument._id;
     } catch (err) {
       if (err instanceof error.DataValidationError) throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while adding the projecttemplate.  See the inner error for additional details',
+          'An Unexpected Error occurred while adding the projectTemplate.  See the inner error for additional details',
           'mongoDb',
           'addProjectTemplate',
           {},
@@ -205,33 +205,33 @@ SCHEMA.static(
     if (id) return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(id);
     else
       throw new error.UnexpectedError(
-        'An unexpected error has occurred and the projecttemplate may not have been created.  I have no other information to provide.'
+        'An unexpected error has occurred and the projectTemplate may not have been created.  I have no other information to provide.'
       );
   }
 );
 
-SCHEMA.static('getProjectTemplateById', async (projecttemplateId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getProjectTemplateById', async (projectTemplateId: mongooseTypes.ObjectId) => {
   try {
-    const projecttemplateDocument = (await PROJECTTEMPLATE_MODEL.findById(projecttemplateId)
+    const projectTemplateDocument = (await PROJECTTEMPLATE_MODEL.findById(projectTemplateId)
       .populate('projects')
       .populate('tags')
       .populate('shape')
       .lean()) as databaseTypes.IProjectTemplate;
-    if (!projecttemplateDocument) {
+    if (!projectTemplateDocument) {
       throw new error.DataNotFoundError(
-        `Could not find a projecttemplate with the _id: ${ projecttemplateId}`,
-        'projecttemplate_id',
-        projecttemplateId
+        `Could not find a projectTemplate with the _id: ${ projectTemplateId}`,
+        'projectTemplate_id',
+        projectTemplateId
       );
     }
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    delete (projecttemplateDocument as any)['__v'];
+    delete (projectTemplateDocument as any)['__v'];
 
-    projecttemplateDocument.projects?.forEach((m: any) => delete (m as any)['__v']);
-        projecttemplateDocument.tags?.forEach((m: any) => delete (m as any)['__v']);
+    projectTemplateDocument.projects?.forEach((m: any) => delete (m as any)['__v']);
+        projectTemplateDocument.tags?.forEach((m: any) => delete (m as any)['__v']);
     
-    return projecttemplateDocument;
+    return projectTemplateDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -248,15 +248,15 @@ SCHEMA.static(
   'updateProjectTemplateWithFilter',
   async (
     filter: Record<string, unknown>,
-    projecttemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
+    projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<void> => {
     try {
-      await PROJECTTEMPLATE_MODEL.validateUpdateObject(projecttemplate);
+      await PROJECTTEMPLATE_MODEL.validateUpdateObject(projectTemplate);
       const updateDate = new Date();
       const transformedObject: Partial<IProjectTemplateDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
-      for (const key in projecttemplate) {
-        const value = (projecttemplate as Record<string, any>)[key];
+      for (const key in projectTemplate) {
+        const value = (projectTemplate as Record<string, any>)[key];
         else transformedObject[key] = value;
       }
       const updateResult = await PROJECTTEMPLATE_MODEL.updateOne(
@@ -265,7 +265,7 @@ SCHEMA.static(
       );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
-          'No projecttemplate document with filter: ${filter} was found',
+          'No projectTemplate document with filter: ${filter} was found',
           'filter',
           filter
         );
@@ -280,8 +280,8 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
-          'update projecttemplate',
-          {filter: filter, projecttemplate : projecttemplate },
+          'update projectTemplate',
+          {filter: filter, projectTemplate : projectTemplate },
           err
         );
     }
@@ -313,7 +313,7 @@ SCHEMA.static(
         );
       }
 
-      const projecttemplateDocuments = (await PROJECTTEMPLATE_MODEL.find(filter, null, {
+      const projectTemplateDocuments = (await PROJECTTEMPLATE_MODEL.find(filter, null, {
         skip: skip,
         limit: itemsPerPage,
       })
@@ -324,14 +324,14 @@ SCHEMA.static(
 
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      projecttemplateDocuments.forEach((doc: any) => {
+      projectTemplateDocuments.forEach((doc: any) => {
       delete (doc as any)['__v'];
       (doc as any).projects?.forEach((m: any) => delete (m as any)['__v']);
             (doc as any).tags?.forEach((m: any) => delete (m as any)['__v']);
             });
 
       const retval: IQueryResult<databaseTypes.IProjectTemplate> = {
-        results: projecttemplateDocuments,
+        results: projectTemplateDocuments,
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -346,7 +346,7 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the projecttemplates.  See the inner error for additional information',
+          'An unexpected error occurred while getting the projectTemplates.  See the inner error for additional information',
           'mongoDb',
           'queryProjectTemplates',
           err
@@ -357,23 +357,23 @@ SCHEMA.static(
 
 SCHEMA.static(
   'deleteProjectTemplateById',
-  async (projecttemplateId: mongooseTypes.ObjectId): Promise<void> => {
+  async (projectTemplateId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await PROJECTTEMPLATE_MODEL.deleteOne({_id: projecttemplateId});
+      const results = await PROJECTTEMPLATE_MODEL.deleteOne({_id: projectTemplateId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
-          `A projecttemplate with a _id: ${ projecttemplateId} was not found in the database`,
+          `A projectTemplate with a _id: ${ projectTemplateId} was not found in the database`,
           '_id',
-          projecttemplateId
+          projectTemplateId
         );
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the projecttemplate from the database. The projecttemplate may still exist.  See the inner error for additional information',
+          'An unexpected error occurred while deleteing the projectTemplate from the database. The projectTemplate may still exist.  See the inner error for additional information',
           'mongoDb',
-          'delete projecttemplate',
-          {_id: projecttemplateId},
+          'delete projectTemplate',
+          {_id: projectTemplateId},
           err
         );
     }
@@ -383,11 +383,11 @@ SCHEMA.static(
 SCHEMA.static(
   'updateProjectTemplateById',
   async (
-    projecttemplateId: mongooseTypes.ObjectId,
-    projecttemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
+    projectTemplateId: mongooseTypes.ObjectId,
+    projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<databaseTypes.IProjectTemplate> => {
-    await PROJECTTEMPLATE_MODEL.updateProjectTemplateWithFilter({_id: projecttemplateId}, projecttemplate);
-    return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projecttemplateId);
+    await PROJECTTEMPLATE_MODEL.updateProjectTemplateWithFilter({_id: projectTemplateId}, projectTemplate);
+    return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projectTemplateId);
   }
 );
 
@@ -396,7 +396,7 @@ SCHEMA.static(
 SCHEMA.static(
     'addProjects',
     async (
-    projecttemplateId: mongooseTypes.ObjectId,
+    projectTemplateId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProjectTemplate> => {
     try {
@@ -406,12 +406,12 @@ SCHEMA.static(
           'projects',
           projects
         );
-      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projecttemplateId);
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projectTemplateId);
       if (!projectTemplateDocument)
         throw new error.DataNotFoundError(
           'A projectTemplateDocument with _id cannot be found',
-          'projecttemplate._id',
-          projecttemplateId
+          'projectTemplate._id',
+          projectTemplateId
         );
 
       const reconciledIds = await PROJECTTEMPLATE_MODEL.validateProject(projects);
@@ -431,7 +431,7 @@ SCHEMA.static(
 
       if (dirty) await projectTemplateDocument.save();
 
-      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projecttemplateId);
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projectTemplateId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -453,7 +453,7 @@ SCHEMA.static(
 SCHEMA.static(
     'removeProjects',
     async (
-     projecttemplateId: mongooseTypes.ObjectId, 
+     projectTemplateId: mongooseTypes.ObjectId, 
      projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProjectTemplate> => {
     try {
@@ -463,12 +463,12 @@ SCHEMA.static(
           'projects',
           projects
         );
-      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projecttemplateId);
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projectTemplateId);
       if (!projectTemplateDocument)
         throw new error.DataNotFoundError(
           'A Document cannot be found',
           '._id',
-          projecttemplateId
+          projectTemplateId
         );
 
       const reconciledIds = projects.map((i: any) =>
@@ -499,7 +499,7 @@ SCHEMA.static(
         await projectTemplateDocument.save();
       }
 
-      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projecttemplateId);
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projectTemplateId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -548,7 +548,7 @@ SCHEMA.static(
 SCHEMA.static(
     'addTags',
     async (
-    projecttemplateId: mongooseTypes.ObjectId,
+    projectTemplateId: mongooseTypes.ObjectId,
     tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProjectTemplate> => {
     try {
@@ -558,12 +558,12 @@ SCHEMA.static(
           'tags',
           tags
         );
-      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projecttemplateId);
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projectTemplateId);
       if (!projectTemplateDocument)
         throw new error.DataNotFoundError(
           'A projectTemplateDocument with _id cannot be found',
-          'projecttemplate._id',
-          projecttemplateId
+          'projectTemplate._id',
+          projectTemplateId
         );
 
       const reconciledIds = await PROJECTTEMPLATE_MODEL.validateTag(tags);
@@ -583,7 +583,7 @@ SCHEMA.static(
 
       if (dirty) await projectTemplateDocument.save();
 
-      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projecttemplateId);
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projectTemplateId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -605,7 +605,7 @@ SCHEMA.static(
 SCHEMA.static(
     'removeTags',
     async (
-     projecttemplateId: mongooseTypes.ObjectId, 
+     projectTemplateId: mongooseTypes.ObjectId, 
      tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IProjectTemplate> => {
     try {
@@ -615,12 +615,12 @@ SCHEMA.static(
           'tags',
           tags
         );
-      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projecttemplateId);
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(projectTemplateId);
       if (!projectTemplateDocument)
         throw new error.DataNotFoundError(
           'A Document cannot be found',
           '._id',
-          projecttemplateId
+          projectTemplateId
         );
 
       const reconciledIds = tags.map((i: any) =>
@@ -651,7 +651,7 @@ SCHEMA.static(
         await projectTemplateDocument.save();
       }
 
-      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projecttemplateId);
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(projectTemplateId);
     } catch (err) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -701,10 +701,10 @@ SCHEMA.static(
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
-delete MODELS['projecttemplate'];
+delete MODELS['projectTemplate'];
 
 const PROJECTTEMPLATE_MODEL = model<IProjectTemplateDocument, IProjectTemplateStaticMethods>(
-  'projecttemplate',
+  'projectTemplate',
   SCHEMA
 );
 

@@ -199,15 +199,15 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IActivityLogDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,actor: input.actor
-          ,workspaceId: input.workspaceId
-          ,projectId: input.projectId
-          ,location: input.location
-          ,userAgent: input.userAgent
-          ,action: input.action
-          ,onModel: input.onModel
-          ,resource: input.resource
+        updatedAt: createDate,
+          actor: input.actor,
+          workspaceId: input.workspaceId,
+          projectId: input.projectId,
+          location: input.location,
+          userAgent: input.userAgent,
+          action: input.action,
+          onModel: input.onModel,
+          resource: input.resource
       };
       try {
         await ACTIVITYLOG_MODEL.validate(resolvedInput);
@@ -219,15 +219,15 @@ SCHEMA.static(
           err
         );
       }
-      const activitylogDocument = (
+      const activityLogDocument = (
         await ACTIVITYLOG_MODEL.create([resolvedInput], {validateBeforeSave: false})
       )[0];
-      id = activitylogDocument._id;
+      id = activityLogDocument._id;
     } catch (err) {
       if (err instanceof error.DataValidationError) throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while adding the activitylog.  See the inner error for additional details',
+          'An Unexpected Error occurred while adding the activityLog.  See the inner error for additional details',
           'mongoDb',
           'addActivityLog',
           {},
@@ -238,34 +238,34 @@ SCHEMA.static(
     if (id) return await ACTIVITYLOG_MODEL.getActivityLogById(id);
     else
       throw new error.UnexpectedError(
-        'An unexpected error has occurred and the activitylog may not have been created.  I have no other information to provide.'
+        'An unexpected error has occurred and the activityLog may not have been created.  I have no other information to provide.'
       );
   }
 );
 
-SCHEMA.static('getActivityLogById', async (activitylogId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getActivityLogById', async (activityLogId: mongooseTypes.ObjectId) => {
   try {
-    const activitylogDocument = (await ACTIVITYLOG_MODEL.findById(activitylogId)
+    const activityLogDocument = (await ACTIVITYLOG_MODEL.findById(activityLogId)
       .populate('actor')
       .populate('userAgent')
       .populate('action')
       .populate('onModel')
       .lean()) as databaseTypes.IActivityLog;
-    if (!activitylogDocument) {
+    if (!activityLogDocument) {
       throw new error.DataNotFoundError(
-        `Could not find a activitylog with the _id: ${ activitylogId}`,
-        'activitylog_id',
-        activitylogId
+        `Could not find a activityLog with the _id: ${ activityLogId}`,
+        'activityLog_id',
+        activityLogId
       );
     }
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    delete (activitylogDocument as any)['__v'];
+    delete (activityLogDocument as any)['__v'];
 
-    delete (activitylogDocument as any).actor?.['__v'];
-    delete (activitylogDocument as any).userAgent?.['__v'];
+    delete (activityLogDocument as any).actor?.['__v'];
+    delete (activityLogDocument as any).userAgent?.['__v'];
 
-    return activitylogDocument;
+    return activityLogDocument;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -282,15 +282,15 @@ SCHEMA.static(
   'updateActivityLogWithFilter',
   async (
     filter: Record<string, unknown>,
-    activitylog: Omit<Partial<databaseTypes.IActivityLog>, '_id'>
+    activityLog: Omit<Partial<databaseTypes.IActivityLog>, '_id'>
   ): Promise<void> => {
     try {
-      await ACTIVITYLOG_MODEL.validateUpdateObject(activitylog);
+      await ACTIVITYLOG_MODEL.validateUpdateObject(activityLog);
       const updateDate = new Date();
       const transformedObject: Partial<IActivityLogDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
-      for (const key in activitylog) {
-        const value = (activitylog as Record<string, any>)[key];
+      for (const key in activityLog) {
+        const value = (activityLog as Record<string, any>)[key];
           if (key === 'actor')
             transformedObject.actor =
               value instanceof mongooseTypes.ObjectId
@@ -309,7 +309,7 @@ SCHEMA.static(
       );
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
-          'No activitylog document with filter: ${filter} was found',
+          'No activityLog document with filter: ${filter} was found',
           'filter',
           filter
         );
@@ -324,8 +324,8 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
-          'update activitylog',
-          {filter: filter, activitylog : activitylog },
+          'update activityLog',
+          {filter: filter, activityLog : activityLog },
           err
         );
     }
@@ -357,7 +357,7 @@ SCHEMA.static(
         );
       }
 
-      const activitylogDocuments = (await ACTIVITYLOG_MODEL.find(filter, null, {
+      const activityLogDocuments = (await ACTIVITYLOG_MODEL.find(filter, null, {
         skip: skip,
         limit: itemsPerPage,
       })
@@ -369,14 +369,14 @@ SCHEMA.static(
 
       //this is added by mongoose, so we will want to remove it before returning the document
       //to the user.
-      activitylogDocuments.forEach((doc: any) => {
+      activityLogDocuments.forEach((doc: any) => {
       delete (doc as any)['__v'];
       delete (doc as any).actor?.['__v'];
       delete (doc as any).userAgent?.['__v'];
       });
 
       const retval: IQueryResult<databaseTypes.IActivityLog> = {
-        results: activitylogDocuments,
+        results: activityLogDocuments,
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -391,7 +391,7 @@ SCHEMA.static(
         throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the activitylogs.  See the inner error for additional information',
+          'An unexpected error occurred while getting the activityLogs.  See the inner error for additional information',
           'mongoDb',
           'queryActivityLogs',
           err
@@ -402,23 +402,23 @@ SCHEMA.static(
 
 SCHEMA.static(
   'deleteActivityLogById',
-  async (activitylogId: mongooseTypes.ObjectId): Promise<void> => {
+  async (activityLogId: mongooseTypes.ObjectId): Promise<void> => {
     try {
-      const results = await ACTIVITYLOG_MODEL.deleteOne({_id: activitylogId});
+      const results = await ACTIVITYLOG_MODEL.deleteOne({_id: activityLogId});
       if (results.deletedCount !== 1)
         throw new error.InvalidArgumentError(
-          `A activitylog with a _id: ${ activitylogId} was not found in the database`,
+          `A activityLog with a _id: ${ activityLogId} was not found in the database`,
           '_id',
-          activitylogId
+          activityLogId
         );
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the activitylog from the database. The activitylog may still exist.  See the inner error for additional information',
+          'An unexpected error occurred while deleteing the activityLog from the database. The activityLog may still exist.  See the inner error for additional information',
           'mongoDb',
-          'delete activitylog',
-          {_id: activitylogId},
+          'delete activityLog',
+          {_id: activityLogId},
           err
         );
     }
@@ -428,11 +428,11 @@ SCHEMA.static(
 SCHEMA.static(
   'updateActivityLogById',
   async (
-    activitylogId: mongooseTypes.ObjectId,
-    activitylog: Omit<Partial<databaseTypes.IActivityLog>, '_id'>
+    activityLogId: mongooseTypes.ObjectId,
+    activityLog: Omit<Partial<databaseTypes.IActivityLog>, '_id'>
   ): Promise<databaseTypes.IActivityLog> => {
-    await ACTIVITYLOG_MODEL.updateActivityLogWithFilter({_id: activitylogId}, activitylog);
-    return await ACTIVITYLOG_MODEL.getActivityLogById(activitylogId);
+    await ACTIVITYLOG_MODEL.updateActivityLogWithFilter({_id: activityLogId}, activityLog);
+    return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
   }
 );
 
@@ -444,10 +444,10 @@ SCHEMA.static(
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
-delete MODELS['activitylog'];
+delete MODELS['activityLog'];
 
 const ACTIVITYLOG_MODEL = model<IActivityLogDocument, IActivityLogStaticMethods>(
-  'activitylog',
+  'activityLog',
   SCHEMA
 );
 

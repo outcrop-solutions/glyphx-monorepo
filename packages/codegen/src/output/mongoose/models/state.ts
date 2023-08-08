@@ -101,7 +101,7 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
     type: [Schema.Types.ObjectId],
     required: true,
     default: [],
-    ref: 'filesystem'
+    ref: 'fileSystem'
   }
 })
 
@@ -245,21 +245,21 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IStateDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,createdBy: input.createdBy
-          ,name: input.name
-          ,version: input.version
-          ,static: input.static
-          ,imageHash: input.imageHash
-          ,camera: input.camera
-          ,aspectRatio: input.aspectRatio
-          ,properties: input.properties
-          ,fileSystemHash: input.fileSystemHash
-          ,payloadHash: input.payloadHash
-          ,description: input.description
-          ,project: input.project
-          ,workspace: input.workspace
-          ,fileSystem: input.fileSystem
+        updatedAt: createDate,
+          createdBy: input.createdBy,
+          name: input.name,
+          version: input.version,
+          static: input.static,
+          imageHash: input.imageHash,
+          camera: input.camera,
+          aspectRatio: input.aspectRatio,
+          properties: input.properties,
+          fileSystemHash: input.fileSystemHash,
+          payloadHash: input.payloadHash,
+          description: input.description,
+          project: input.project,
+          workspace: input.workspace,
+          fileSystem: input.fileSystem
       };
       try {
         await STATE_MODEL.validate(resolvedInput);

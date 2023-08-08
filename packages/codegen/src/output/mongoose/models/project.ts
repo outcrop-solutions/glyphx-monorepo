@@ -106,7 +106,7 @@ const SCHEMA = new Schema<IProjectDocument, IProjectStaticMethods, IProjectMetho
     type: [Schema.Types.ObjectId],
     required: true,
     default: [],
-    ref: 'statehistory'
+    ref: 'stateHistory'
   },
   files: {
     type: [Schema.Types.ObjectId],
@@ -259,23 +259,23 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IProjectDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,name: input.name
-          ,description: input.description
-          ,sdtPath: input.sdtPath
-          ,workspace: input.workspace
-          ,lastOpened: input.lastOpened
-          ,imageHash: input.imageHash
-          ,aspectRatio: input.aspectRatio
-          ,slug: input.slug
-          ,template: input.template
-          ,members: input.members
-          ,tags: input.tags
-          ,currentVersion: input.currentVersion
-          ,state: input.state
-          ,stateHistory: input.stateHistory
-          ,files: input.files
-          ,viewName: input.viewName
+        updatedAt: createDate,
+          name: input.name,
+          description: input.description,
+          sdtPath: input.sdtPath,
+          workspace: input.workspace,
+          lastOpened: input.lastOpened,
+          imageHash: input.imageHash,
+          aspectRatio: input.aspectRatio,
+          slug: input.slug,
+          template: input.template,
+          members: input.members,
+          tags: input.tags,
+          currentVersion: input.currentVersion,
+          state: input.state,
+          stateHistory: input.stateHistory,
+          files: input.files,
+          viewName: input.viewName
       };
       try {
         await PROJECT_MODEL.validate(resolvedInput);

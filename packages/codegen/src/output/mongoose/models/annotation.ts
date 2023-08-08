@@ -170,11 +170,11 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IAnnotationDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,author: input.author
-          ,value: input.value
-          ,projectId: input.projectId
-          ,stateId: input.stateId
+        updatedAt: createDate,
+          author: input.author,
+          value: input.value,
+          projectId: input.projectId,
+          stateId: input.stateId
       };
       try {
         await ANNOTATION_MODEL.validate(resolvedInput);

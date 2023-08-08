@@ -97,13 +97,13 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
     type: [Schema.Types.ObjectId],
     required: true,
     default: [],
-    ref: 'invitedmembers'
+    ref: 'invitedMembers'
   },
   createdWorkspaces: {
     type: [Schema.Types.ObjectId],
     required: true,
     default: [],
-    ref: 'createdworkspaces'
+    ref: 'createdWorkspaces'
   },
   projects: {
     type: [Schema.Types.ObjectId],
@@ -265,24 +265,24 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: IUserDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,userCode: input.userCode
-          ,name: input.name
-          ,username: input.username
-          ,gh_username: input.gh_username
-          ,email: input.email
-          ,emailVerified: input.emailVerified
-          ,isVerified: input.isVerified
-          ,image: input.image
-          ,accounts: input.accounts
-          ,sessions: input.sessions
-          ,membership: input.membership
-          ,invitedMembers: input.invitedMembers
-          ,createdWorkspaces: input.createdWorkspaces
-          ,projects: input.projects
-          ,customerPayment: input.customerPayment
-          ,webhooks: input.webhooks
-          ,apiKey: input.apiKey
+        updatedAt: createDate,
+          userCode: input.userCode,
+          name: input.name,
+          username: input.username,
+          gh_username: input.gh_username,
+          email: input.email,
+          emailVerified: input.emailVerified,
+          isVerified: input.isVerified,
+          image: input.image,
+          accounts: input.accounts,
+          sessions: input.sessions,
+          membership: input.membership,
+          invitedMembers: input.invitedMembers,
+          createdWorkspaces: input.createdWorkspaces,
+          projects: input.projects,
+          customerPayment: input.customerPayment,
+          webhooks: input.webhooks,
+          apiKey: input.apiKey
       };
       try {
         await USER_MODEL.validate(resolvedInput);

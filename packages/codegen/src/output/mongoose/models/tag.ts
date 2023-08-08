@@ -173,11 +173,11 @@ SCHEMA.static(
       //istanbul ignore next
       const resolvedInput: ITagDocument = {
         createdAt: createDate,
-        updatedAt: createDate
-          ,workspaces: input.workspaces
-          ,templates: input.templates
-          ,projects: input.projects
-          ,value: input.value
+        updatedAt: createDate,
+          workspaces: input.workspaces,
+          templates: input.templates,
+          projects: input.projects,
+          value: input.value
       };
       try {
         await TAG_MODEL.validate(resolvedInput);
