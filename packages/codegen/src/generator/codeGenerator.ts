@@ -73,6 +73,19 @@ export class CodeGenerator {
     return (value && value?.startsWith('I')) || value?.startsWith('i') ? value?.substring(1) : value;
   }
 
+  // Pull out schemas from table properties to generate schema validations in directories
+  private getSchemas() {
+    const schemas: databaseTypes.meta.IProperty[] = [];
+    this.databaseSchemaField.tables.map((table: databaseTypes.meta.ITable) => {
+      table.properties.map((property: databaseTypes.meta.IProperty) => {
+        if (property.relationType === 'SCHEMA') {
+          schemas.push(property);
+        }
+      });
+    });
+    return schemas;
+  }
+
   // largely replaced by toSnakeCase + toPascalCase
   private toCapitalized(value: string): string {
     return value ? _.capitalize(value) : value;
@@ -164,16 +177,13 @@ export class CodeGenerator {
    */
   public async generate(): Promise<void> {
     try {
-      // STEP 1: extract IR
+      // STEP 1: EXTRACT IR
       await this.processFiles(this.config.paths.source);
 
-      // STEP 2: generate source
-      for (const table of this.databaseSchemaField.tables) {
-        // generate source files from IR
-        await this.generateModelFromTable(table);
-      }
-
+      // STEP 2: GENERATE SOURCE
+      await this.generateModels();
       await this.generateEntryPoints();
+      await this.generateSchemas();
 
       // STEP 3: FORMAT OUTPUT
       // await this.formatDirectory(`${this.config.paths.destination}`);
@@ -187,10 +197,6 @@ export class CodeGenerator {
         );
       }
     }
-  }
-
-  private async generateEntryPoints() {
-    // TODO: generate entry points for interfaces, models, schemas
   }
 
   /**
@@ -308,6 +314,7 @@ export class CodeGenerator {
   /**
    * Extracts db model properties and datatypes from the interface declaration
    */
+  // FIXME: add recursion to check members of SCHEMA types
   private getInterfaceProperties(node: ts.InterfaceDeclaration): databaseTypes.meta.IProperty[] {
     try {
       const properties = node.members
@@ -427,6 +434,7 @@ export class CodeGenerator {
       defaultValue,
     };
   }
+
   /**
    * Determines what type of relationship the interface member denotes
    * @param refName
@@ -460,53 +468,11 @@ export class CodeGenerator {
   }
 
   /**
-   * STEP 2: GENERATE AND EMIT
+   * STEP 2: GENERATE Database Model AND EMIT
    * Generate Code from database schema ITable IR
    * @param templatePath
    * @param outputPath
    */
-  private async generateModelFromTable(table: databaseTypes.meta.ITable): Promise<void> {
-    const { paths, output, templates } = this.config;
-
-    try {
-      await Promise.all([
-        // generate model
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.models}`,
-          `${paths.destination}/${output.models}/${this.toCamelCase(table.name)}.ts`
-        ),
-        // generate interfaces
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.interfaces.createInput}`,
-          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}CreateInput.ts`
-        ),
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.interfaces.document}`,
-          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}Document.ts`
-        ),
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.interfaces.methods}`,
-          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}Methods.ts`
-        ),
-        this.sourceFromTemplate(
-          table,
-          `${paths.templates}/${templates.interfaces.staticMethods}`,
-          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}StaticMethods.ts`
-        ),
-        // generate schemas
-        // this.sourceFromTemplate(formattedTable, templates.schemas, `${output.schemas}/${name}.ts`),
-      ]);
-    } catch (err: any) {
-      throw new error.CodeGenError(
-        'An error occurred while generating source code from templates in generateSourceFromTable, See inner error for details',
-        err
-      );
-    }
-  }
 
   /**
    * Takes in arbitrary data and template to generate a new file asynchronously on disk
@@ -533,8 +499,142 @@ export class CodeGenerator {
     }
   }
 
-  // STEP 3: FORMATTING
+  private async generateModel(table: databaseTypes.meta.ITable): Promise<void> {
+    const { paths, output, templates } = this.config;
 
+    try {
+      await Promise.all([
+        // GENERATE MODEL
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.models.model}`,
+          `${paths.destination}/${output.models}/${this.toCamelCase(table.name)}.ts`
+        ),
+
+        // GENERATE MODEL TESTS
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.models.unitTest}`,
+          `${paths.destination}/${output.unitTests}/mongoose/models/${this.toPascalCase(table.name)}.tests.ts`
+        ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.models.integrationTest}`,
+          `${paths.destination}/${output.integrationTests}/mongoose/models/${this.toPascalCase(table.name)}.tests.ts`
+        ),
+
+        // GENERATE INTERFACES
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.interfaces.createInput}`,
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}CreateInput.ts`
+        ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.interfaces.document}`,
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}Document.ts`
+        ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.interfaces.methods}`,
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}Methods.ts`
+        ),
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.interfaces.staticMethods}`,
+          `${paths.destination}/${output.interfaces}/i${this.toPascalCase(table.name)}StaticMethods.ts`
+        ),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating source code from templates in generateSourceFromTable, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Generate database models and interfaces
+  private async generateModels(): Promise<void> {
+    try {
+      for (const table of this.databaseSchemaField.tables) {
+        await this.generateModel(table);
+      }
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating the db boilerplate, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Generate schemas and validators
+  private async generateSchemas(): Promise<void> {
+    const { paths, output, templates } = this.config;
+
+    const schemas = this.getSchemas();
+    try {
+      await Promise.all([
+        schemas.map((schema: databaseTypes.meta.IProperty) => {
+          // FIXME: create this template
+          // generate schema
+          this.sourceFromTemplate(
+            schema,
+            `${paths.templates}/${templates.schemas.schema}`,
+            `${paths.destination}/${output.schemas}/${this.toPascalCase(schema.name)}Schema.ts`
+          );
+          // FIXME: create this template
+          // generate validator
+          this.sourceFromTemplate(
+            schema,
+            `${paths.templates}/${templates.validators.validator}`,
+            `${paths.destination}/${output.validators}/${this.toPascalCase(schema.name)}Validator.ts`
+          );
+        }),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating schema source code from templates in generateSchemas, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Generate subfolder entrypoints (index.ts)
+  private async generateEntryPoints(): Promise<void> {
+    const { paths, output, templates } = this.config;
+
+    const schemas = this.getSchemas();
+
+    try {
+      await Promise.all([
+        // generate model entrypoint
+        this.sourceFromTemplate(
+          this.databaseSchemaField,
+          `${paths.templates}/${templates.modelEntry}`,
+          `${paths.destination}/${output.models}/index.ts`
+        ),
+        // generate interfaces entrypoint
+        this.sourceFromTemplate(
+          this.databaseSchemaField,
+          `${paths.templates}/${templates.interfaces.entry}`,
+          `${paths.destination}/${output.interfaces}/index.ts`
+        ),
+        // generate schemas entrypoint
+        this.sourceFromTemplate(
+          { schemas },
+          `${paths.templates}/${templates.schemaEntry}`,
+          `${paths.destination}/${output.schemas}/index.ts`
+        ),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating entry point source code from templates in generateEntryPoints, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // STEP 3: FORMATTING
   /**
    * Formats a given file with the given prettier config
    * @param filePath

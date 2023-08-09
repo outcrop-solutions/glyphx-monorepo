@@ -12,26 +12,37 @@ export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
     templates: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/templates',
     prettier: 'gts/.prettierrc.json',
   },
+  // base output directory configuration
   output: {
-    // base directory configuration
     models: 'mongoose/models', // where do you want your models to live?
     schemas: 'mongoose/schemas', // where do you want your schemas (sub documents) to live?
+    validators: 'mongoose/validators', // where do you want your schemas (sub documents) to live?
     interfaces: 'mongoose/interfaces', // where do you want your interfaces to live?
-    tests: { unit: '__tests__', integration: '__integrationTests__' }, // where do you want your tests to live?
+    unitTests: '__tests__', 
+    integrationTests: '__integrationTests__' }, // where do you want your tests to live?
   },
+  //   template file location configuration
   templates: {
-    //   template file location configuration
-    models: 'ModelTemplate.hbs',
-    schemas: 'SchemaTemplate.hbs',
-    interfaces: {
-      createInput: 'CreateInputTemplate.hbs',
-      document: 'DocumentTemplate.hbs',
-      methods: 'MethodsTemplate.hbs',
-      staticMethods: 'StaticMethodsTemplate.hbs',
+    models: {
+      model: 'database/models.model.hbs',
+      index: 'database/models.index.hbs',
+      unitTest: 'database/models.__tests__.hbs',
+      integrationTest: 'database/models.__integrationTests__.hbs',
     },
-    tests: {
-      unit: 'Model.tests.hbs',
-      integration: 'Model.integrationTests.hbs',
+    schemas: {
+      schema: 'database/schemas.schema.hbs',
+      index: 'database/schemas.index.hbs',
+    },
+    validators: {
+      validator: 'database/validators.validator.hbs',
+      index: 'database/validators.index.hbs',
+    },
+    interfaces: {
+      createInput: 'database/interfaces.createInput.hbs',
+      document: 'database/interfaces.document.hbs',
+      index: 'database/interfaces.index.hbs',
+      methods: 'database/interfaces.methods.hbs',
+      staticMethods: 'database/interfaces.staticMethods.hbs',
     },
   },
 };
