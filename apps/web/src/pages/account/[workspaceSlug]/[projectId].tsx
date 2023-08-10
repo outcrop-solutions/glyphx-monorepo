@@ -9,13 +9,14 @@ import { web as webTypes } from '@glyphx/types';
 import ProjectLayout from 'layouts/ProjectLayout';
 import Meta from 'components/Meta';
 
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { dataGridAtom, projectAtom, rightSidebarControlAtom, splitPaneSizeAtom, workspaceAtom } from 'state';
+import { useSetRecoilState } from 'recoil';
+import { dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom } from 'state';
 
 import { useSendPosition, useSocket, useWindowSize } from 'services';
 import { useCloseViewerOnModalOpen } from 'services/useCloseViewerOnModalOpen';
 import { useProject, useWorkspace } from 'lib/client/hooks';
 import { useCloseViewerOnLoading } from 'services/useCloseViewerOnLoading';
+import useTemplates from 'lib/client/hooks/useTemplates';
 
 const DynamicProject = dynamic(() => import('views/project'), {
   ssr: false,
@@ -31,6 +32,7 @@ const openFirstFile = (projData) => {
 
 export default function Project() {
   const { data, isLoading } = useProject();
+  const { data: templateData, isLoading: templateLoading } = useTemplates();
   const { data: result, isLoading: isWorkspaceLoading } = useWorkspace();
 
   // resize setup
@@ -41,13 +43,15 @@ export default function Project() {
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);
+  const setTemplates = useSetRecoilState(templatesAtom);
   const setDataGrid = useSetRecoilState(dataGridAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   // hydrate recoil state
   useEffect(() => {
-    if (!isLoading && !isWorkspaceLoading) {
+    if (!isLoading && !isWorkspaceLoading && !templateLoading) {
       const projectData = openFirstFile(data?.project);
       setProject(projectData);
+      setTemplates(templateData);
       setRightSidebarControl(
         produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
           draft.data = data?.project;
@@ -55,7 +59,17 @@ export default function Project() {
       );
       setWorkspace(result?.workspace);
     }
-  }, [data, isLoading, isWorkspaceLoading, result, setDataGrid, setProject, setRightSidebarControl, setWorkspace]);
+  }, [
+    data,
+    isLoading,
+    templateLoading,
+    isWorkspaceLoading,
+    result,
+    setDataGrid,
+    setProject,
+    setRightSidebarControl,
+    setWorkspace,
+  ]);
 
   useSocket();
 
