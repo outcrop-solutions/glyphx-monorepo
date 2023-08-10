@@ -1,5 +1,5 @@
 use crate::model::pipeline::pipeline_manager::PipeLines;
-use crate::model::pipeline::{basic_triangle, model_artifacts, simple_screen_clean, guide_lines};
+use crate::model::pipeline::{ model_artifacts, axis_lines};
 use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, Camera};
 use crate::assets::color::{ColorTable, build_color_table, Color};
 use crate::model::model_configuration::ModelConfiguration;
@@ -11,7 +11,6 @@ use winit::event::WindowEvent;
 use winit::window::Window;
 use std::sync::Arc;
 
-use super::pipeline::guide_lines::GuideLines;
 
 pub struct State {
     surface: wgpu::Surface,
@@ -105,7 +104,7 @@ impl State {
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.pipelines.run_pipeline(
-            "guide_lines",
+            "axis_lines",
             &self.surface,
             &self.device,
             &self.queue,
@@ -205,11 +204,6 @@ impl State {
     ) -> PipeLines {
         let mut pipelines = PipeLines::new();
 
-        let screen_clean = Arc::new(simple_screen_clean::SimpleScreenClean::new(device));
-        pipelines.add_pipeline("simple_screen_clean".to_string(), screen_clean);
-
-        let basic_triangle = Arc::new(basic_triangle::BasicTriangle::new(device, config));
-        pipelines.add_pipeline("basic_triangle".to_string(), basic_triangle);
 
         let model_artifacts = Arc::new(model_artifacts::ModelArtifacts::new(
             device,
@@ -220,14 +214,14 @@ impl State {
         ));
         pipelines.add_pipeline("model_artifacts".to_string(), model_artifacts);
 
-        let guide_lines = Arc::new(guide_lines::GuideLines::new(
+        let axis_lines = Arc::new(axis_lines::AxisLines::new(
             device,
             config,
             camera_uniform,
             color_table_uniform
 
         ));
-        pipelines.add_pipeline("guide_lines".to_string(), guide_lines);
+        pipelines.add_pipeline("axis_lines".to_string(), axis_lines);
 
         pipelines
     }

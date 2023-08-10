@@ -1,6 +1,4 @@
 use crate::assets::axis_line::create_axis_line;
-use crate::assets::color::Color;
-use crate::assets::cone::create_cone;
 use crate::camera::uniform_buffer::CameraUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::pipeline::pipeline_manager::Pipeline;
@@ -24,7 +22,7 @@ pub struct VertexData {
     indicies: Vec<u32>,
 }
 
-pub struct GuideLines {
+pub struct AxisLines {
     render_pipeline: RenderPipeline,
     vertex_buffer: Buffer,
     index_buffer: Buffer,
@@ -35,13 +33,13 @@ pub struct GuideLines {
     color_table_bind_group: BindGroup,
 }
 
-impl GuideLines {
+impl AxisLines {
     pub fn new(
         device: &Device,
         config: &SurfaceConfiguration,
         camera_uniform: &CameraUniform,
         color_table_uniform: &ColorTableUniform,
-    ) -> GuideLines {
+    ) -> AxisLines {
         let mut vertex_data = VertexData {
             verticies: Vec::new(),
             indicies: Vec::new(),
@@ -50,7 +48,7 @@ impl GuideLines {
         Self::build_verticies(&mut vertex_data.verticies, &mut vertex_data.indicies);
 
         let shader =
-            device.create_shader_module(wgpu::include_wgsl!("guide_lines/shader.wgsl").into());
+            device.create_shader_module(wgpu::include_wgsl!("axis_lines/shader.wgsl").into());
         let (vertex_buffer_layout, vertex_buffer, index_buffer) =
             Self::configure_verticies(device, &vertex_data);
 
@@ -69,7 +67,7 @@ impl GuideLines {
             config,
         );
 
-        GuideLines {
+        AxisLines {
             render_pipeline,
             vertex_buffer,
             index_buffer,
@@ -322,7 +320,7 @@ fn configure_color_table(
     )
 }
 
-impl Pipeline for GuideLines {
+impl Pipeline for AxisLines {
     fn run_pipeline(
         &self,
         surface: &Surface,
