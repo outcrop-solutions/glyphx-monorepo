@@ -4,6 +4,7 @@ mod model;
 mod model_event;
 
 use model::state::State;
+use model::model_configuration::ModelConfiguration;
 use model_event::{ModelEvent, ModelMoveDirection};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -112,7 +113,7 @@ impl ModelRunner {
     pub fn move_back(&self) {
         unsafe {
             if EVENT_LOOP_PROXY.is_some() {
-                let event = ModelEvent::ModelMove(ModelMoveDirection::Left(true));
+                let event = ModelEvent::ModelMove(ModelMoveDirection::Backward(true));
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
@@ -171,7 +172,15 @@ impl ModelRunner {
         }
 
         let this_window_id = window.id();
-        let mut state = State::new(window).await;
+        let mut state = State::new(window, &ModelConfiguration {
+            max_color: [255.0, 0.0, 0.0, 1.0],
+            min_color: [0.0, 255.0, 255.0, 1.0],
+            background_color: [13.0, 19.0, 33.0, 1.0],
+            x_axis_color : [255.0, 0.0, 0.0, 1.0],
+            y_axis_color : [0.0, 255.0, 0.0, 1.0],
+            z_axis_color : [0.0, 0.0, 255.0, 1.0],
+            num_colors: 60,
+        }).await;
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
         }

@@ -1,14 +1,16 @@
 use wgpu::{Device, Surface, Queue};
 use crate::camera::uniform_buffer::CameraUniform;
+use crate::model::color_table_uniform::ColorTableUniform;
+use std::sync::Arc;
 
 pub trait Pipeline {
-    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue, camera_buffer: Option<&CameraUniform>) -> Result<(), wgpu::SurfaceError>;
+    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue, camera_buffer: Option<&CameraUniform>, color_table_uniform: Option<&ColorTableUniform>) -> Result<(), wgpu::SurfaceError>;
 
 }
 
 pub struct PipeLineDefinition {
     name: String,
-    pipeline: Box<dyn Pipeline>,
+    pipeline: Arc<dyn Pipeline>,
 }
 
 pub struct PipeLines {
@@ -22,7 +24,7 @@ impl PipeLines {
         }
     }
 
-    pub fn get_pipeline(&self, name: &str) -> Option<&Box<dyn Pipeline>> {
+    pub fn get_pipeline(&self, name: &str) -> Option<&Arc<dyn Pipeline>> {
         for pipeline in &self.pipelines {
             if pipeline.name == name {
                 return Some(&pipeline.pipeline);
@@ -31,19 +33,19 @@ impl PipeLines {
         None
     }
 
-    pub fn add_pipeline(&mut self, name: String, pipeline: Box<dyn Pipeline>) {
+    pub fn add_pipeline(&mut self, name: String, pipeline: Arc<dyn Pipeline>) {
         self.pipelines.push(PipeLineDefinition {
             name,
             pipeline,
         });
     }
 
-    pub fn run_pipeline(&self, name: &str, surface: &Surface, device: &Device, queue: &Queue, camera_uniform: Option<&CameraUniform>) -> Result<(), wgpu::SurfaceError> {
+    pub fn run_pipeline(&self, name: &str, surface: &Surface, device: &Device, queue: &Queue, camera_uniform: Option<&CameraUniform>, color_table_uniform: Option<&ColorTableUniform>) -> Result<(), wgpu::SurfaceError> {
         let pipeline = self.get_pipeline(name);
         if pipeline.is_none() {
             return Err(wgpu::SurfaceError::Lost);
         } else {
-            return pipeline.unwrap().run_pipeline(surface, device, queue, camera_uniform);
+            return pipeline.unwrap().run_pipeline(surface, device, queue, camera_uniform, color_table_uniform );
         }
     }
 }

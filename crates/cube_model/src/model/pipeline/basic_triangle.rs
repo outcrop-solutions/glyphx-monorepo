@@ -2,6 +2,8 @@ use super::pipeline_manager::Pipeline;
 use wgpu::{Device, Queue, RenderPipeline, Surface, TextureViewDescriptor, SurfaceConfiguration};
 
 use crate::camera::uniform_buffer::CameraUniform;
+use crate::model::color_table_uniform::ColorTableUniform;
+
 pub struct BasicTriangle {
     render_pipeline: RenderPipeline
 }
@@ -71,6 +73,7 @@ impl Pipeline for BasicTriangle {
         device: &Device,
         queue: &Queue,
         _ : Option<&CameraUniform>,
+        _ : Option<&ColorTableUniform>
     ) -> Result<(), wgpu::SurfaceError> {
         let output = surface.get_current_texture()?;
         let view = output
