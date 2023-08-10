@@ -13,7 +13,7 @@ use wgpu::{
 
 use crate::assets::color::Color;
 use crate::model::color_table_uniform::ColorTableUniform;
-
+use smaa::SmaaTarget;
 pub struct ModelArtifacts {
     render_pipeline: RenderPipeline,
     vertex_buffer: Buffer,
@@ -184,7 +184,8 @@ impl Pipeline for ModelArtifacts {
         device: &Device,
         queue: &Queue,
         camera_uniform: Option<&CameraUniform>,
-        color_table_uniform: Option<&ColorTableUniform>
+        color_table_uniform: Option<&ColorTableUniform>,
+        _: Option<&mut SmaaTarget>
     ) -> Result<(), wgpu::SurfaceError> {
 
         let camera_uniform = camera_uniform.unwrap();     

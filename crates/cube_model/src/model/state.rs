@@ -10,7 +10,7 @@ use winit::dpi::PhysicalSize;
 use winit::event::WindowEvent;
 use winit::window::Window;
 use std::sync::Arc;
-
+use smaa::*;
 
 pub struct State {
     surface: wgpu::Surface,
@@ -26,6 +26,7 @@ pub struct State {
     camera_controller: CameraController,
     color_table_uniform: ColorTableUniform,
     model_configuration: ModelConfiguration,
+    smaa_target: SmaaTarget,
 }
 
 impl State {
@@ -47,6 +48,14 @@ impl State {
 
         let pipelines = Self::build_pipelines(&device, &config, &camera_uniform, &color_table_uniform);
 
+        let smaa_target = SmaaTarget::new(
+        &device,
+        &queue,
+        window.inner_size().width,
+        window.inner_size().height,
+        config.format,
+        SmaaMode::Smaa1X,
+    );
         Self {
             window,
             surface,
@@ -61,6 +70,7 @@ impl State {
             camera_controller,
             model_configuration,
             color_table_uniform,
+            smaa_target,
         }
     }
  
@@ -110,6 +120,7 @@ impl State {
             &self.queue,
             Some(&self.camera_uniform),
             Some(&self.color_table_uniform),
+            Some(&mut self.smaa_target),
         )
     }
 

@@ -9,6 +9,8 @@ use wgpu::{
     SurfaceConfiguration, TextureViewDescriptor,
 };
 
+use smaa::SmaaTarget;
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
@@ -328,6 +330,7 @@ impl Pipeline for AxisLines {
         queue: &Queue,
         camera_uniform: Option<&CameraUniform>,
         color_table_uniform: Option<&ColorTableUniform>,
+        smaa_target: Option<&mut SmaaTarget>,
     ) -> Result<(), wgpu::SurfaceError> {
         let camera_uniform = camera_uniform.unwrap();
         let color_table_uniform = color_table_uniform.unwrap();
@@ -350,6 +353,8 @@ impl Pipeline for AxisLines {
             .texture
             .create_view(&TextureViewDescriptor::default());
 
+        let smaa_target = smaa_target.unwrap();
+        let smaa_frame = smaa_target.start_frame(device, queue, &view);
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("Render Encoder"),
         });
@@ -357,7 +362,7 @@ impl Pipeline for AxisLines {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                view: &view,
+                view: &*smaa_frame,
                 resolve_target: None,
                 ops: wgpu::Operations {
                     load: wgpu::LoadOp::Clear(wgpu::Color {
@@ -380,6 +385,7 @@ impl Pipeline for AxisLines {
         render_pass.draw_indexed(0..self.vertex_data.indicies.len() as u32, 0, 0..1);
         drop(render_pass);
         queue.submit(std::iter::once(encoder.finish()));
+        smaa_frame.resolve();
         output.present();
         Ok(())
     }
