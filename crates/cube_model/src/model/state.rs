@@ -11,7 +11,7 @@ use winit::event::WindowEvent;
 use winit::window::Window;
 use std::sync::Arc;
 use smaa::*;
-
+use std::rc::Rc;
 pub struct State {
     surface: wgpu::Surface,
     device: wgpu::Device,
@@ -25,12 +25,12 @@ pub struct State {
     camera_uniform: CameraUniform,
     camera_controller: CameraController,
     color_table_uniform: ColorTableUniform,
-    model_configuration: ModelConfiguration,
+    model_configuration: Rc<ModelConfiguration>,
     smaa_target: SmaaTarget,
 }
 
 impl State {
-    pub async fn new(window: Window, model_configuration: &ModelConfiguration) -> Self {
+    pub async fn new(window: Window, model_configuration: Rc<ModelConfiguration>) -> Self {
         let size = window.inner_size();
 
         let (surface, adapter) = Self::init_wgpu(&window).await;
@@ -46,7 +46,7 @@ impl State {
 
         let model_configuration = model_configuration.clone();
 
-        let pipelines = Self::build_pipelines(&device, &config, &camera_uniform, &color_table_uniform);
+        let pipelines = Self::build_pipelines(&device, &config, &camera_uniform, &color_table_uniform, &model_configuration);
 
         let smaa_target = SmaaTarget::new(
         &device,
@@ -212,6 +212,7 @@ impl State {
         config: &SurfaceConfiguration,
         camera_uniform: &CameraUniform,
         color_table_uniform: &ColorTableUniform,
+        model_configuration: &Rc<ModelConfiguration>,
     ) -> PipeLines {
         let mut pipelines = PipeLines::new();
 
@@ -229,7 +230,8 @@ impl State {
             device,
             config,
             camera_uniform,
-            color_table_uniform
+            color_table_uniform,
+            model_configuration.clone(),
 
         ));
         pipelines.add_pipeline("axis_lines".to_string(), axis_lines);

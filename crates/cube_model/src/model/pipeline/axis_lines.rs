@@ -1,6 +1,7 @@
 use crate::assets::axis_line::create_axis_line;
 use crate::camera::uniform_buffer::CameraUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
+use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::pipeline_manager::Pipeline;
 use bytemuck;
 use wgpu::util::DeviceExt;
@@ -10,6 +11,7 @@ use wgpu::{
 };
 
 use smaa::SmaaTarget;
+use std::rc::Rc;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -33,6 +35,7 @@ pub struct AxisLines {
     vertex_data: VertexData,
     color_table_buffer: Buffer,
     color_table_bind_group: BindGroup,
+    model_configuration: Rc<ModelConfiguration>,
 }
 
 impl AxisLines {
@@ -41,13 +44,14 @@ impl AxisLines {
         config: &SurfaceConfiguration,
         camera_uniform: &CameraUniform,
         color_table_uniform: &ColorTableUniform,
+        model_configuration: Rc<ModelConfiguration>,
     ) -> AxisLines {
         let mut vertex_data = VertexData {
             verticies: Vec::new(),
             indicies: Vec::new(),
         };
 
-        Self::build_verticies(&mut vertex_data.verticies, &mut vertex_data.indicies);
+        Self::build_verticies(&mut vertex_data.verticies, &mut vertex_data.indicies, &model_configuration);
 
         let shader =
             device.create_shader_module(wgpu::include_wgsl!("axis_lines/shader.wgsl").into());
@@ -78,25 +82,19 @@ impl AxisLines {
             vertex_data,
             color_table_buffer,
             color_table_bind_group,
+            model_configuration,
         }
     }
 
-    pub fn build_verticies(verticies: &mut Vec<Vertex>, indicies: &mut Vec<u32>) {
-        let radius = 0.01;
-        let length = 1.8;
-        let cylinder_height_pct = 0.97;
-        let cylinder_height = length * cylinder_height_pct;
-        let cone_height = length - cylinder_height;
-
-        let cone_radius_pct = 2.5;
-        //Just for x and y z is a half lenght cylindar
-        let (axis_verticies, axis_indicies) = create_axis_line(radius, cylinder_height, cone_height, cone_radius_pct);
-        //In our logic the cone's radius is 2.5 times the cylinder radius.
-        let cone_radius = radius * cone_radius_pct;
+    pub fn build_verticies(verticies: &mut Vec<Vertex>, indicies: &mut Vec<u32>, model_configuration: &Rc<ModelConfiguration>,) {
+        let cylinder_radius = model_configuration.grid_cylinder_radius;
+        let cylinder_height = model_configuration.grid_cylinder_length;
+        let cone_height = model_configuration.grid_cone_length;
+        let cone_radius = model_configuration.grid_cone_radius;
+        let height = cylinder_height + cone_height;
+        let (axis_verticies, axis_indicies) = create_axis_line(cylinder_radius, cylinder_height, cone_height, cone_radius);
         //Subtracting this point should put the edge of the cone at -1.0.
         let offset = 1.0 - cone_radius;
-        //create an x oriented axis line which is red.  //We also need to move from 0.0 to the
-        //edge, so we will need to calculate the offset based on the size of the radius.
 
         for vertex in &axis_verticies {
             let x = vertex[0] - offset;
@@ -127,8 +125,11 @@ impl AxisLines {
             indicies.push(index + index_offset);
         }
 
-        //Make a half length line with the same proportions
-        let (axis_verticies, axis_indicies) = create_axis_line(radius, cylinder_height/2.0, cone_height, cone_radius_pct);
+        //Our Z axis is configuralbe seperate from the x/y base.
+        //No matter the length, the cone will always be the same size.
+        let z_cylinder_height = height * model_configuration.z_height_ratio - cone_height;  
+                                                                                
+        let (axis_verticies, axis_indicies) = create_axis_line(cylinder_radius, z_cylinder_height, cone_height, cone_radius);
         //create a z oriented axis line which is blue.
         let index_offset = verticies.len() as u32;
         //create a y oriented axis line which is green.

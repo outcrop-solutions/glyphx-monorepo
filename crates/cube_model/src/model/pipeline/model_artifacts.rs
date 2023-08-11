@@ -1,5 +1,4 @@
 mod vertex_buffer;
-pub(crate) mod model_configuration;
 use super::pipeline_manager::Pipeline;
 use crate::camera::uniform_buffer::CameraUniform;
 use bytemuck;
