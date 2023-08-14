@@ -185,7 +185,8 @@ impl ModelRunner {
             grid_cone_length : 0.06,
             grid_cone_radius : 0.025,
             z_height_ratio : 1.0,
-            glyph_offset: 0.001
+            glyph_offset: 0.003,
+            z_offset: 0.002
 
         });
         let mut state = State::new(window,model_config.clone() ).await;

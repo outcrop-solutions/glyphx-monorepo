@@ -32,6 +32,7 @@ pub struct Glyphs {
     color_table_bind_group: BindGroup,
     model_configuration: Rc<ModelConfiguration>,
     glyph_uniform_bind_group: BindGroup,
+    instance_data_buffer: Buffer,
 }
 
 impl Glyphs {
@@ -47,10 +48,12 @@ impl Glyphs {
         color_table_uniform: &ColorTableUniform,
         model_configuration: Rc<ModelConfiguration>,
     ) -> Glyphs {
+
+        let instance_data = glyph_instance_data.clone();
         let mut vertex_data = VertexData {
             vertices: Vec::new(),
             indices: Vec::new(),
-            instance_data: Vec::new(),
+            instance_data,
         };
 
         Self::build_verticies(
@@ -62,6 +65,8 @@ impl Glyphs {
         let shader = device.create_shader_module(wgpu::include_wgsl!("glyphs/shader.wgsl").into());
         let (vertex_buffer_layout, vertex_buffer, index_buffer) =
             Self::configure_verticies(device, &vertex_data);
+        let (instance_buffer_layout, instance_data_buffer) =
+            Self::configure_instance_buffer(device, glyph_instance_data);
 
         let (glyph_uniform_buffer_layout, glyph_uniform_bind_group) =
             glyph_uniform_data.configure_glyph_uniform(glyph_uniform_buffer, device);
@@ -79,6 +84,7 @@ impl Glyphs {
             glyph_uniform_buffer_layout,
             shader,
             vertex_buffer_layout,
+            instance_buffer_layout,
             config,
         );
 
@@ -91,6 +97,7 @@ impl Glyphs {
             color_table_bind_group,
             model_configuration,
             glyph_uniform_bind_group,
+            instance_data_buffer,
         }
     }
 
@@ -128,6 +135,50 @@ impl Glyphs {
         for index in &base_indicies {
             indicies.push(*index);
         }
+    }
+
+    fn configure_instance_buffer(
+        device: &Device,
+        instance_data: &Vec<GlyphInstanceData>,
+    ) -> (wgpu::VertexBufferLayout<'static>, Buffer) {
+        let instance_buffer_layout = wgpu::VertexBufferLayout {
+            array_stride: std::mem::size_of::<GlyphInstanceData>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Instance,
+            attributes: &[
+                wgpu::VertexAttribute {
+                    offset: 0,
+                    shader_location: 2,
+                    format: wgpu::VertexFormat::Uint32,
+                },
+                wgpu::VertexAttribute {
+                    offset: std::mem::size_of::<u32>() as wgpu::BufferAddress,
+                    shader_location: 3,
+                    format: wgpu::VertexFormat::Float32,
+                },
+                wgpu::VertexAttribute {
+                    offset: (std::mem::size_of::<u32>() + std::mem::size_of::<f32>()) as wgpu::BufferAddress,
+                    shader_location: 4,
+                    format: wgpu::VertexFormat::Float32,
+                },
+                wgpu::VertexAttribute {
+                    offset: (std::mem::size_of::<u32>() + std::mem::size_of::<f32>() + std::mem::size_of::<f32>()) as wgpu::BufferAddress,
+                    shader_location: 5,
+                    format: wgpu::VertexFormat::Float32,
+                },
+                wgpu::VertexAttribute {
+                    offset: (std::mem::size_of::<u32>() + std::mem::size_of::<f32>() + std::mem::size_of::<f32>() + std::mem::size_of::<f32>()) as wgpu::BufferAddress,
+                    shader_location: 6,
+                    format: wgpu::VertexFormat::Uint32,
+                },
+            ],
+        };
+        let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Instance Buffer"),
+            contents: bytemuck::cast_slice(&instance_data),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+
+        (instance_buffer_layout, instance_buffer)
     }
 
     fn configure_verticies(
@@ -171,11 +222,12 @@ impl Glyphs {
         glyph_bind_group_layout: BindGroupLayout,
         shader: wgpu::ShaderModule,
         vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
+        instance_buffer_layout: wgpu::VertexBufferLayout<'static>,
         config: &SurfaceConfiguration,
     ) -> RenderPipeline {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("Render Pipeline Layout"),
+                label: Some("Glyph Render Pipeline Layout"),
                 bind_group_layouts: &[
                     &camera_bind_group_layout,
                     &color_table_bind_group_layout,
@@ -185,12 +237,12 @@ impl Glyphs {
             });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Render Pipeline"),
+            label: Some("Glyph Render Pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[vertex_buffer_layout],
+                buffers: &[vertex_buffer_layout, instance_buffer_layout],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -235,6 +287,7 @@ impl Glyphs {
         &'a self,
         encoder: &'a mut wgpu::CommandEncoder,
         smaa_frame: &SmaaFrame,
+        glyph_instance_data: &Vec<GlyphInstanceData>
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
@@ -253,7 +306,8 @@ impl Glyphs {
         render_pass.set_bind_group(1, &self.color_table_bind_group, &[]);
         render_pass.set_bind_group(2, &self.glyph_uniform_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+        render_pass.set_vertex_buffer(1, self.instance_data_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
-        render_pass.draw_indexed(0..self.vertex_data.indices.len() as u32, 0, 0..1);
+        render_pass.draw_indexed(0..self.vertex_data.indices.len() as u32, 0, 0..self.vertex_data.instance_data.len() as u32);
     }
 }

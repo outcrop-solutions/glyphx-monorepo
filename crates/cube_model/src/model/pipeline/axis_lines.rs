@@ -143,7 +143,7 @@ impl AxisLines {
         for vertex in &axis_verticies {
             let x = vertex[0] - offset;
             let y = vertex[1] - offset;
-            let z = (vertex[2] * 0.5) - offset;
+            let z = vertex[2] - offset;
             verticies.push(Vertex {
                 //lay the line on its side.
                 position: [x, y, z],

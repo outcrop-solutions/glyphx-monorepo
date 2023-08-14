@@ -1,14 +1,18 @@
 use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, Camera};
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
+use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
 use crate::model::pipeline::{axis_lines, glyphs};
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
-use wgpu::{ Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
+use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
 use winit::dpi::PhysicalSize;
 use winit::event::WindowEvent;
 use winit::window::Window;
+
+use rand::Rng;
+use super::pipeline::glyphs::glyph_instance_data;
 
 pub struct State {
     surface: wgpu::Surface,
@@ -29,6 +33,7 @@ pub struct State {
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
+    glyph_instance_data: Vec<GlyphInstanceData>,
 }
 
 impl State {
@@ -61,36 +66,9 @@ impl State {
 
         let model_configuration = model_configuration.clone();
 
-        let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
-            glyphs::glyph_instance_data::GlyphUniformData {
-                x: glyphs::glyph_instance_data::FieldUniformDescription {
-                    field_type: 0,
-                    field_min_value: 0.0,
-                    field_max_value: 1.0,
-                    _padding: 0,
-                },
+        let glyph_uniform_data = Self::build_glyph_uniform_data(&model_configuration);
 
-                y: glyphs::glyph_instance_data::FieldUniformDescription {
-                    field_type: 0,
-                    field_min_value: 0.0,
-                    field_max_value: 1.0,
-                    _padding: 0,
-                },
-
-                z: glyphs::glyph_instance_data::FieldUniformDescription {
-                    field_type: 0,
-                    field_min_value: 0.0,
-                    field_max_value: 1.0,
-                    _padding: 0,
-                },
-
-                min_x: -1.0,
-                max_x: 1.0,
-                min_y: -1.0,
-                max_y: 1.0,
-                min_z: -1.0,
-                max_z: 1.0,
-            };
+        let glyph_instance_data = Self::build_instance_data();
 
         let glyph_uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Glyph Uniform Buffer"),
@@ -108,6 +86,7 @@ impl State {
             &model_configuration,
             &glyph_uniform_data,
             &glyph_uniform_buffer,
+            &glyph_instance_data,
         );
 
         let smaa_target = SmaaTarget::new(
@@ -137,6 +116,7 @@ impl State {
             smaa_target,
             axis_lines_pipeline,
             glyphs_pipeline,
+            glyph_instance_data,
         }
     }
 
@@ -198,38 +178,36 @@ impl State {
             bytemuck::cast_slice(&[self.glyph_uniform_data]),
         );
 
-
         let output = self.surface.get_current_texture()?;
         let view = output
             .texture
             .create_view(&TextureViewDescriptor::default());
 
-        
-        let smaa_frame = self.smaa_target.start_frame(&self.device, &self.queue, &view);
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Axis Lines Render Encoder"),
-        });
+        let smaa_frame = self
+            .smaa_target
+            .start_frame(&self.device, &self.queue, &view);
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Axis Lines Render Encoder"),
+            });
 
-        self.axis_lines_pipeline.run_pipeline(
-            &mut encoder,
-            &smaa_frame,
-            &background_color,
-        );
+        self.axis_lines_pipeline
+            .run_pipeline(&mut encoder, &smaa_frame, &background_color);
 
         let axis_commands = encoder.finish();
 
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Glyph Render Encoder"),
-        });
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Glyph Render Encoder"),
+            });
 
-
-        self.glyphs_pipeline.run_pipeline(
-            &mut encoder,
-            &smaa_frame,
-        );
+        self.glyphs_pipeline
+            .run_pipeline(&mut encoder, &smaa_frame, &self.glyph_instance_data);
 
         let glyph_commands = encoder.finish();
-        
+
         self.queue.submit([axis_commands, glyph_commands]);
 
         smaa_frame.resolve();
@@ -321,6 +299,104 @@ impl State {
         (surface, adapter)
     }
 
+    fn build_instance_data() -> Vec<glyphs::glyph_instance_data::GlyphInstanceData> {
+        // vec![
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 0,
+        //         x_value: 0.0,
+        //         y_value: 0.0,
+        //         z_value: 0.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 1,
+        //         x_value: 1.0,
+        //         y_value: 1.0,
+        //         z_value: 1.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 2,
+        //         x_value: 2.0,
+        //         y_value: 2.0,
+        //         z_value: 2.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 3,
+        //         x_value: 3.0,
+        //         y_value: 3.0,
+        //         z_value: 3.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 4,
+        //         x_value: 4.0,
+        //         y_value: 4.0,
+        //         z_value: 4.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 5,
+        //         x_value: 5.0,
+        //         y_value: 5.0,
+        //         z_value: 5.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 6,
+        //         x_value: 6.0,
+        //         y_value: 6.0,
+        //         z_value: 6.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 7,
+        //         x_value: 7.0,
+        //         y_value: 7.0,
+        //         z_value: 7.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 8,
+        //         x_value: 8.0,
+        //         y_value: 8.0,
+        //         z_value: 8.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 9,
+        //         x_value: 9.0,
+        //         y_value: 9.0,
+        //         z_value: 9.0,
+        //         glyph_selected: 0,
+        //     },
+        // ]
+
+        let mut instance_data: Vec<glyph_instance_data::GlyphInstanceData> = Vec::new();
+        let mut rng = rand::thread_rng();
+        let mut x = 0.0;
+        let mut y = 0.0;
+        let mut count = 0;
+        while x < 100.0 {
+            while y < 50.0 {
+                
+                let random_number: f32 = rng.gen_range(0.0..=9.0);
+                instance_data.push(glyph_instance_data::GlyphInstanceData {
+                    glyph_id: count,
+                    x_value: x,
+                    y_value: y,
+                    z_value: random_number,
+                    glyph_selected: 0,
+                });
+                y += 1.0;
+                count += 1;
+            }
+            y = 0.0;
+            x += 1.0;
+        }
+         instance_data
+    }
     fn build_pipelines(
         device: &Device,
         config: &SurfaceConfiguration,
@@ -331,6 +407,7 @@ impl State {
         model_configuration: &Rc<ModelConfiguration>,
         glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
+        glyph_instance_data: &Vec<GlyphInstanceData>,
     ) -> (axis_lines::AxisLines, glyphs::Glyphs) {
         let axis_lines = axis_lines::AxisLines::new(
             device,
@@ -341,10 +418,11 @@ impl State {
             color_table_uniform,
             model_configuration.clone(),
         );
+
         let glyphs = glyphs::Glyphs::new(
             glyph_uniform_data,
             glyph_uniform_buffer,
-            &Vec::new(),
+            glyph_instance_data,
             device,
             config,
             camera_buffer,
@@ -370,5 +448,41 @@ impl State {
         });
         let camera_controller = CameraController::new(0.2);
         (camera, camera_buffer, camera_uniform, camera_controller)
+    }
+
+    fn build_glyph_uniform_data(
+        model_configuration: &Rc<ModelConfiguration>,
+    ) -> glyphs::glyph_instance_data::GlyphUniformData {
+        let radius =
+            if model_configuration.grid_cylinder_radius > model_configuration.grid_cone_radius {
+                model_configuration.grid_cylinder_radius
+            } else {
+                model_configuration.grid_cone_radius
+            };
+
+        let x_y_offset = radius + model_configuration.glyph_offset;
+        let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
+            glyphs::glyph_instance_data::GlyphUniformData {
+                min_x: 0.0,
+                max_x: 100.0,
+                min_interp_x: -1.0,
+                max_interp_x: 1.0,
+
+                min_y: 0.0,
+                max_y: 50.0,
+                min_interp_y: -1.0,
+                max_interp_y: 1.0,
+
+
+                min_z: 0.0,
+                max_z: 9.0,
+                min_interp_z: -1.0,
+                max_interp_z: 1.0,
+
+                x_y_offset,
+                z_offset: model_configuration.z_offset,
+                _padding: [0u32; 2],
+            };
+        glyph_uniform_data
     }
 }
