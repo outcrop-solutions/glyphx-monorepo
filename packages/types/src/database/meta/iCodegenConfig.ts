@@ -6,33 +6,58 @@ export interface ICodeGenConfig {
     prettier: string;
   };
   output: {
-    models: string;
-    schemas: string;
-    interfaces: string;
-    unitTests: string;
-    integrationTests: string;
+    business: {
+      services: string;
+      unitTests: string;
+      integrationTests: string;
+    };
+    database: {
+      interfaces: string;
+      mocks: string;
+      models: string;
+      validators: string;
+      schemas: string;
+      unitTests: string;
+      integrationTests: string;
+    };
   };
   templates: {
-    models: {
-      model: string;
-      index: string;
-      unitTest: string;
-      integationTest: string;
+    business: {
+      services: {
+        service: string;
+        index: string;
+        unitTest: string;
+        integrationTest: string;
+      };
     };
-    schemas: {
-      schema: string;
-      index: string;
-    };
-    validators: {
-      validator: string;
-      index: string;
-    };
-    interfaces: {
-      createInput: string;
-      document: string;
-      index: string;
-      methods: string;
-      staticMethods: string;
+    database: {
+      interfaces: {
+        createInput: string;
+        document: string;
+        index: string;
+        methods: string;
+        staticMethods: string;
+      };
+      models: {
+        model: string;
+        index: string;
+        unitTest: string;
+        integrationTest: string;
+      };
+      validators: {
+        validator: string;
+        index: string;
+        unitTest: string;
+        integrationTest: string;
+      };
+      mocks: {
+        mock: string;
+        index: string;
+      };
+      schemas: {
+        schema: string;
+        index: string;
+      };
     };
   };
 }

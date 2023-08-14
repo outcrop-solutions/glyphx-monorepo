@@ -1,4 +1,4 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 {{#each schemas}}
-export * from './{{camelcase (singularize this.referenceTable)}}Schema'
+export * from './{{camelcase this.name}}Schema';
 {{/each}}

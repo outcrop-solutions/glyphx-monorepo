@@ -1,15 +1,19 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from '../../../../../database';
+import {IQueryResult} from '@glyphx/types'
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from '@glyphx/core';
 import {I{{pascalcase this.name}}Document, I{{pascalcase this.name}}CreateInput, I{{pascalcase this.name}}StaticMethods, I{{pascalcase name}}Methods} from '../interfaces';
-{{#each properties}}
-{{#if (isOneToMany this.relationType)}}
-import { {{singularize (pascalcase this.referenceTable)}}Model} from './{{singularize this.referenceTable}}'
-{{else if (isOneToOne this.relationType)}}
-import { {{singularize (pascalcase this.referenceTable)}}Model} from './{{singularize this.referenceTable}}'
+{{#each dedupedProperties}}
+{{#if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+import { {{singularize (pascalcase this.referenceTable)}}Model} from './{{singularize (camelcase this.referenceTable)}}'
+{{else if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+import { {{singularize (pascalcase this.referenceTable)}}Model} from './{{singularize (camelcase this.referenceTable)}}'
 {{else if (isSchema this.relationType)}}
-import { {{camelcase (singularize this.referenceTable)}}Schema } from '../schemas'
+{{#unless (isRecord this)}}
+// eslint-disable-next-line import/no-duplicates
+import { {{camelcase this.name}}Schema } from '../schemas'
+{{/unless}}
 {{/if}}
 {{/each}}
 
@@ -44,30 +48,32 @@ const SCHEMA = new Schema<I{{pascalcase this.name}}Document, I{{pascalcase this.
     default:
       //istanbul ignore next
       () => new Date(),
-    {{else if (isOneToOne this.relationType)}}
+    {{else if (and (isOneToOne this.relationType) (referenceTableExists this))}}
     type: Schema.Types.ObjectId, 
     required: false,
     ref: '{{lowercase (pascalcase this.referenceTable)}}'
-    {{else if (isOneToMany this.relationType)}}
+    {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
     type: [Schema.Types.ObjectId],
     required: true,
     default: [],
     ref: '{{camelcase this.name}}'
+    {{else if (isRecord this)}}
+    type: Schema.Types.Mixed,
+    required: {{this.isRequired}},
+    default: {},
     {{else if (isSchema this.relationType)}}
     type: {{camelcase (singularize this.name)}}Schema,
     required: false,
-    default: {}
+    default: {},
     {{else if (isEnum this.relationType)}}
     type: String,
     required: false,
-    enum: databaseTypes.constants.{{pascalcase this.name}}
+    enum: databaseTypes.{{this.type}},
     {{else}}
     type: {{this.type}},
     required: {{this.isRequired}},
       {{#if this.hasDefault}}
-      default: {{this.default}}
-      {{else}}
-      default: false
+      default: {{this.default}},
       {{/if}}
     {{/if}}
   }{{#unless @last}},{{/unless}}
@@ -96,7 +102,7 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'all{{pascalcase this.name}}IdsExist',
+  'all{{singularize (pascalcase this.name)}}IdsExist',
   async ({{camelcase this.name}}Ids: mongooseTypes.ObjectId[]): Promise<boolean> => {
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
@@ -122,7 +128,7 @@ SCHEMA.static(
         throw new error.DatabaseOperationError(
           'an unexpected error occurred while trying to find the {{camelcase this.name}}Ids.  See the inner error for additional information',
           'mongoDb',
-          'all{{pascalcase this.name}}IdsExists',
+          'all{{singularize (pascalcase this.name)}}IdsExists',
           { {{camelcase this.name}}Ids: {{camelcase this.name}}Ids},
           err
         );
@@ -159,8 +165,8 @@ SCHEMA.static(
           tasks.push(
             idValidator(
               {{camelcase ../this.name}}.{{camelcase this.name}}._id as mongooseTypes.ObjectId,
-              '{{pascalcase this.name}}',
-              {{pascalcase this.name}}Model.{{camelcase this.name}}IdExists
+              '{{pascalcase this.referenceTable}}',
+              {{pascalcase this.referenceTable}}Model.{{camelcase this.referenceTable}}IdExists
             )
           );
       {{/if}}
@@ -187,25 +193,32 @@ SCHEMA.static(
   }
 );
 
+// CREATE
 SCHEMA.static(
   'create{{pascalcase this.name}}',
   async (input: I{{pascalcase this.name}}CreateInput): Promise<databaseTypes.I{{pascalcase this.name}}> => {
     let id: undefined | mongooseTypes.ObjectId = undefined;
 
     try {
+      {{#if (or (hasOneToOne properties) (hasOneToMany properties))}}
       const [ 
         {{#each properties}}
           {{#if (isOneToMany this.relationType)}} 
+          {{this.name}}{{#unless @last}},{{/unless}}
+          {{else if (isOneToOne this.relationType)}}
           {{this.name}}{{#unless @last}},{{/unless}}
           {{/if}}
         {{/each}} 
         ] = await Promise.all([
         {{#each properties}}
         {{#if (isOneToMany this.relationType)}}
-        {{uppercase (pascalcase ../this.name)}}_MODEL.validate{{pluralize (pascalcase this.name)}}(input.workspace ?? []),
+        {{uppercase (pascalcase ../this.name)}}_MODEL.validate{{pluralize (pascalcase this.name)}}(input.{{this.name}} ?? []),
+        {{else if (isOneToOne this.relationType)}}
+        {{uppercase (pascalcase ../this.name)}}_MODEL.validate{{pascalcase this.name}}(input.{{this.name}}),
         {{/if}}
         {{/each}}
       ]);
+      {{/if}}
 
       const createDate = new Date();
 
@@ -215,7 +228,13 @@ SCHEMA.static(
         updatedAt: createDate,
         {{#each properties}}
         {{#if (isNotProtected this.name)}}
+        {{#if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{this.name}}: {{this.name}}{{#unless @last}},{{/unless}}
+        {{else if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{this.name}}: {{this.name}}{{#unless @last}},{{/unless}}
+        {{else}}
         {{this.name}}: input.{{this.name}}{{#unless @last}},{{/unless}}
+        {{/if}}
         {{/if}}
         {{/each}}
       };
@@ -253,6 +272,7 @@ SCHEMA.static(
   }
 );
 
+// READ
 SCHEMA.static('get{{pascalcase this.name}}ById', async ({{camelcase this.name}}Id: mongooseTypes.ObjectId) => {
   try {
     const {{camelcase this.name}}Document = (await {{uppercase (pascalcase this.name)}}_MODEL.findById({{camelcase this.name}}Id)
@@ -293,60 +313,6 @@ SCHEMA.static('get{{pascalcase this.name}}ById', async ({{camelcase this.name}}I
       );
   }
 });
-
-SCHEMA.static(
-  'update{{pascalcase this.name}}WithFilter',
-  async (
-    filter: Record<string, unknown>,
-    {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
-  ): Promise<void> => {
-    try {
-      await {{uppercase (pascalcase  this.name)}}_MODEL.validateUpdateObject({{camelcase this.name}});
-      const updateDate = new Date();
-      const transformedObject: Partial<I{{pascalcase this.name}}Document> &
-        Record<string, unknown> = {updatedAt: updateDate};
-      for (const key in {{camelcase this.name}}) {
-        const value = ({{camelcase this.name}} as Record<string, any>)[key];
-        {{#each properties}}
-          {{#if (isOneToOne this.relationType)}} 
-          if (key === '{{this.name}}')
-            transformedObject.{{this.name}} =
-              value instanceof mongooseTypes.ObjectId
-                ? value
-                : (value._id as mongooseTypes.ObjectId);
-          {{/if}}
-        {{/each}} 
-        {{!-- TODO: handle case where no OneToOne relations --}}
-        else transformedObject[key] = value;
-      }
-      const updateResult = await {{uppercase (pascalcase  this.name)}}_MODEL.updateOne(
-        filter,
-        transformedObject
-      );
-      if (updateResult.modifiedCount !== 1) {
-        throw new error.InvalidArgumentError(
-          'No {{camelcase this.name}} document with filter: ${filter} was found',
-          'filter',
-          filter
-        );
-      }
-    } catch (err) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      )
-        throw err;
-      else
-        throw new error.DatabaseOperationError(
-          `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
-          'mongoDb',
-          'update {{camelcase this.name}}',
-          {filter: filter, {{camelcase this.name}} : {{camelcase this.name}} },
-          err
-        );
-    }
-  }
-);
 
 SCHEMA.static(
   'query{{pluralize (pascalcase this.name)}}',
@@ -422,6 +388,74 @@ SCHEMA.static(
   }
 );
 
+// UPDATE
+SCHEMA.static(
+  'update{{pascalcase this.name}}WithFilter',
+  async (
+    filter: Record<string, unknown>,
+    {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
+  ): Promise<void> => {
+    try {
+      await {{uppercase (pascalcase  this.name)}}_MODEL.validateUpdateObject({{camelcase this.name}});
+      const updateDate = new Date();
+      const transformedObject: Partial<I{{pascalcase this.name}}Document> &
+        Record<string, unknown> = {updatedAt: updateDate};
+      {{#if (hasOneToOne properties)}}
+      for (const key in {{camelcase this.name}}) {
+        const value = ({{camelcase this.name}} as Record<string, any>)[key];
+        {{#each properties}}
+          {{#if (isOneToOne this.relationType)}} 
+          if (key === '{{this.name}}')
+            transformedObject.{{this.name}} =
+              value instanceof mongooseTypes.ObjectId
+                ? value
+                : (value._id as mongooseTypes.ObjectId);
+          {{/if}}
+        {{/each}} 
+        else transformedObject[key] = value;
+      }
+      {{/if}}
+      const updateResult = await {{uppercase (pascalcase  this.name)}}_MODEL.updateOne(
+        filter,
+        transformedObject
+      );
+      if (updateResult.modifiedCount !== 1) {
+        throw new error.InvalidArgumentError(
+          'No {{camelcase this.name}} document with filter: ${filter} was found',
+          'filter',
+          filter
+        );
+      }
+    } catch (err) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      )
+        throw err;
+      else
+        throw new error.DatabaseOperationError(
+          `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
+          'mongoDb',
+          'update {{camelcase this.name}}',
+          {filter: filter, {{camelcase this.name}} : {{camelcase this.name}} },
+          err
+        );
+    }
+  }
+);
+
+SCHEMA.static(
+  'update{{pascalcase this.name}}ById',
+  async (
+    {{camelcase this.name}}Id: mongooseTypes.ObjectId,
+    {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
+  ): Promise<databaseTypes.I{{pascalcase this.name}}> => {
+    await {{uppercase (pascalcase  this.name)}}_MODEL.update{{pascalcase this.name}}WithFilter({_id: {{camelcase this.name}}Id}, {{camelcase this.name}});
+    return await {{uppercase (pascalcase  this.name)}}_MODEL.get{{pascalcase this.name}}ById({{camelcase this.name}}Id);
+  }
+);
+
+// DELETE
 SCHEMA.static(
   'delete{{pascalcase this.name}}ById',
   async ({{camelcase this.name}}Id: mongooseTypes.ObjectId): Promise<void> => {
@@ -447,22 +481,9 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'update{{pascalcase this.name}}ById',
-  async (
-    {{camelcase this.name}}Id: mongooseTypes.ObjectId,
-    {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
-  ): Promise<databaseTypes.I{{pascalcase this.name}}> => {
-    await {{uppercase (pascalcase  this.name)}}_MODEL.update{{pascalcase this.name}}WithFilter({_id: {{camelcase this.name}}Id}, {{camelcase this.name}});
-    return await {{uppercase (pascalcase  this.name)}}_MODEL.get{{pascalcase this.name}}ById({{camelcase this.name}}Id);
-  }
-);
-
 
 {{#each properties}}
-{{#if (referenceTableExists this)}}
-{{#if (isOneToMany this.relationType)}}
-
+{{#if (and (isOneToMany this.relationType) (hasOneToMany properties))}}
 SCHEMA.static(
     'add{{pluralize (pascalcase this.name)}}',
     async (
@@ -484,15 +505,19 @@ SCHEMA.static(
           {{camelcase ../this.name}}Id
         );
 
-      const reconciledIds = await {{uppercase (pascalcase  ../this.name)}}_MODEL.validate{{pascalcase this.referenceTable}}({{pluralize (camelcase this.referenceTable)}});
+      const reconciledIds = await {{uppercase (pascalcase  ../this.name)}}_MODEL.validate{{pluralize (pascalcase this.name)}}({{pluralize (camelcase this.referenceTable)}});
       let dirty = false;
       reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (
           !{{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.find(
             (id: any) => id.toString() === p.toString()
           )
         ) {
           dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.push(
             p as unknown as databaseTypes.I{{capitalize this.referenceTable}}
           );
@@ -547,6 +572,8 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const updated{{pluralize (pascalcase this.referenceTable)}} = {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.filter((p: any) => {
         let retval = true;
         if (
@@ -564,6 +591,8 @@ SCHEMA.static(
       });
 
       if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}} =
           updated{{pluralize (pascalcase this.referenceTable)}} as unknown as databaseTypes.I{{pascalcase this.referenceTable}}[];
         await {{camelcase ../this.name}}Document.save();
@@ -594,29 +623,134 @@ SCHEMA.static(
     async (
     {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
-    const {{pluralize this.referenceTable}}Ids: mongooseTypes.ObjectId[] = [];
-    {{pluralize this.referenceTable}}.forEach(p => {
-      if (p instanceof mongooseTypes.ObjectId) {{pluralize this.referenceTable}}Ids.push(p);
-      else {{pluralize this.referenceTable}}Ids.push(p._id as mongooseTypes.ObjectId);
+    const {{pluralize (camelcase this.referenceTable)}}Ids: mongooseTypes.ObjectId[] = [];
+    {{pluralize (camelcase this.referenceTable)}}.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) {{pluralize (camelcase this.referenceTable)}}Ids.push(p);
+      else {{pluralize (camelcase this.referenceTable)}}Ids.push(p._id as mongooseTypes.ObjectId);
     });
     try {
-      await {{capitalize this.referenceTable}}Model.all{{capitalize this.referenceTable}}IdsExist({{pluralize this.referenceTable}}Ids);
+      await {{pascalcase this.referenceTable}}Model.all{{pascalcase this.referenceTable}}IdsExist({{pluralize (camelcase this.referenceTable)}}Ids);
     } catch (err) {
       if (err instanceof error.DataNotFoundError)
         throw new error.DataValidationError(
           'One or more ids do not exist in the database. See the inner error for additional information',
-          '{{pluralize this.referenceTable}}',
-          {{pluralize this.referenceTable}},
+          '{{pluralize (camelcase this.referenceTable)}}',
+          {{pluralize (camelcase this.referenceTable)}},
           err
         );
       else throw err;
     }
 
-    return {{pluralize this.referenceTable}}Ids;
+    return {{pluralize (camelcase this.referenceTable)}}Ids;
   })
-{{else if (isOneToOne this.relationType)}}
+{{else if (and (isOneToOne this.relationType) (hasOneToOne properties))}}
 
-{{/if}}
+
+SCHEMA.static(
+  'add{{pascalcase this.name}}',
+  async (
+    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId,
+    {{camelcase this.name}}: databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
+    try {
+      if (!{{camelcase this.name}}) throw new error.InvalidArgumentError('You must supply at least one id', '{{camelcase this.name}}', {{camelcase this.name}});
+      const {{camelcase ../this.name}}Document = await {{uppercase (pascalcase ../this.name)}}_MODEL.findById({{camelcase ../this.name}}Id);
+
+      if (!{{camelcase ../this.name}}Document)
+        throw new error.DataNotFoundError('A {{camelcase ../this.name}}Document with _id cannot be found', '{{camelcase ../this.name}}._id', {{camelcase ../this.name}}Id);
+
+      const reconciledId = await {{uppercase (pascalcase ../this.name)}}_MODEL.validate{{pascalcase this.name}}({{camelcase this.name}})
+
+      if ({{camelcase ../this.name}}Document.{{camelcase this.name}}?.toString() !== reconciledId.toString()) {
+      const reconciledId = await {{uppercase (pascalcase ../this.name)}}_MODEL.validate{{pascalcase this.name}}({{camelcase this.name}});
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        {{camelcase ../this.name}}Document.{{camelcase this.name}} = reconciledId
+        await {{camelcase ../this.name}}Document.save();
+      }
+      
+      return await {{uppercase (pascalcase ../this.name)}}_MODEL.get{{pascalcase ../this.name}}ById({{camelcase ../this.name}}Id);
+
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the {{camelcase this.name}}. See the inner error for additional information',
+          'mongoDb',
+          '{{camelcase ../this.name}}.add{{pascalcase this.name}}',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  "remove{{pascalcase this.name}}",
+  async (
+    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
+    try {
+      const {{camelcase ../this.name}}Document = await {{uppercase (pascalcase ../this.name)}}_MODEL.findById({{camelcase ../this.name}}Id);
+      if (!{{camelcase ../this.name}}Document)
+        throw new error.DataNotFoundError(
+          "A {{camelcase ../this.name}}Document with _id cannot be found",
+          "{{camelcase ../this.name}}._id",
+          {{camelcase ../this.name}}Id
+        );
+
+       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      {{camelcase ../this.name}}Document.{{camelcase this.name}} = undefined;
+      await {{camelcase ../this.name}}Document.save();
+
+      return await {{uppercase (pascalcase ../this.name)}}_MODEL.get{{pascalcase ../this.name}}ById({{camelcase ../this.name}}Id);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          "An unexpected error occurred while removing the {{camelcase this.name}}. See the inner error for additional information",
+          "mongoDb",
+          "{{camelcase ../this.name}}.remove{{pascalcase this.name}}",
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validate{{pascalcase this.name}}',
+  async (
+    input: databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const {{ camelcase this.name }}Id =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (
+      !(await {{pascalcase this.referenceTable}}Model.{{ camelcase this.referenceTable }}IdExists({{ camelcase this.name }}Id))
+    ) {
+      throw new error.InvalidArgumentError(
+        `The {{camelcase this.name}}: ${ {{ camelcase this.name }}Id} does not exist`,
+        '{{ camelcase this.name }}Id',
+        {{ camelcase this.name }}Id
+      );
+    }
+    return {{ camelcase this.name }}Id;
+  }
+);
 {{/if}}
 {{/each}}
 
