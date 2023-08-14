@@ -1,17 +1,15 @@
-use crate::model::pipeline::pipeline_manager::PipeLines;
-use crate::model::pipeline::{ model_artifacts, axis_lines};
 use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, Camera};
-use crate::assets::color::{ColorTable, build_color_table, Color};
-use crate::model::model_configuration::ModelConfiguration;
 use crate::model::color_table_uniform::ColorTableUniform;
+use crate::model::model_configuration::ModelConfiguration;
+use crate::model::pipeline::{axis_lines, glyphs};
+use smaa::*;
+use std::rc::Rc;
 use wgpu::util::DeviceExt;
-use wgpu::{Device, Queue, Surface, SurfaceConfiguration};
+use wgpu::{ Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
 use winit::dpi::PhysicalSize;
 use winit::event::WindowEvent;
 use winit::window::Window;
-use std::sync::Arc;
-use smaa::*;
-use std::rc::Rc;
+
 pub struct State {
     surface: wgpu::Surface,
     device: wgpu::Device,
@@ -19,14 +17,18 @@ pub struct State {
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
     window: Window,
-    pipelines: PipeLines,
     camera: Camera,
     camera_buffer: wgpu::Buffer,
     camera_uniform: CameraUniform,
     camera_controller: CameraController,
     color_table_uniform: ColorTableUniform,
+    color_table_buffer: wgpu::Buffer,
     model_configuration: Rc<ModelConfiguration>,
+    axis_lines_pipeline: axis_lines::AxisLines,
+    glyphs_pipeline: glyphs::Glyphs,
     smaa_target: SmaaTarget,
+    glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
+    glyph_uniform_buffer: wgpu::Buffer,
 }
 
 impl State {
@@ -42,20 +44,80 @@ impl State {
         let (camera, camera_buffer, camera_uniform, camera_controller) =
             Self::configure_camera(&config, &device);
 
-        let color_table_uniform = ColorTableUniform::new(model_configuration.min_color, model_configuration.max_color, model_configuration.x_axis_color, model_configuration.y_axis_color, model_configuration.z_axis_color, model_configuration.background_color);
+        let color_table_uniform = ColorTableUniform::new(
+            model_configuration.min_color,
+            model_configuration.max_color,
+            model_configuration.x_axis_color,
+            model_configuration.y_axis_color,
+            model_configuration.z_axis_color,
+            model_configuration.background_color,
+        );
+
+        let color_table_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Color Table Buffer"),
+            contents: bytemuck::cast_slice(&[color_table_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
 
         let model_configuration = model_configuration.clone();
 
-        let pipelines = Self::build_pipelines(&device, &config, &camera_uniform, &color_table_uniform, &model_configuration);
+        let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
+            glyphs::glyph_instance_data::GlyphUniformData {
+                x: glyphs::glyph_instance_data::FieldUniformDescription {
+                    field_type: 0,
+                    field_min_value: 0.0,
+                    field_max_value: 1.0,
+                    _padding: 0,
+                },
+
+                y: glyphs::glyph_instance_data::FieldUniformDescription {
+                    field_type: 0,
+                    field_min_value: 0.0,
+                    field_max_value: 1.0,
+                    _padding: 0,
+                },
+
+                z: glyphs::glyph_instance_data::FieldUniformDescription {
+                    field_type: 0,
+                    field_min_value: 0.0,
+                    field_max_value: 1.0,
+                    _padding: 0,
+                },
+
+                min_x: -1.0,
+                max_x: 1.0,
+                min_y: -1.0,
+                max_y: 1.0,
+                min_z: -1.0,
+                max_z: 1.0,
+            };
+
+        let glyph_uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Glyph Uniform Buffer"),
+            contents: bytemuck::cast_slice(&[glyph_uniform_data]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+
+        let (axis_lines_pipeline, glyphs_pipeline) = Self::build_pipelines(
+            &device,
+            &config,
+            &camera_buffer,
+            &camera_uniform,
+            &color_table_buffer,
+            &color_table_uniform,
+            &model_configuration,
+            &glyph_uniform_data,
+            &glyph_uniform_buffer,
+        );
 
         let smaa_target = SmaaTarget::new(
-        &device,
-        &queue,
-        window.inner_size().width,
-        window.inner_size().height,
-        config.format,
-        SmaaMode::Smaa1X,
-    );
+            &device,
+            &queue,
+            window.inner_size().width,
+            window.inner_size().height,
+            config.format,
+            SmaaMode::Smaa1X,
+        );
         Self {
             window,
             surface,
@@ -63,17 +125,21 @@ impl State {
             queue,
             config,
             size,
-            pipelines,
             camera,
             camera_buffer,
             camera_uniform,
             camera_controller,
             model_configuration,
+            color_table_buffer,
             color_table_uniform,
+            glyph_uniform_buffer,
+            glyph_uniform_data,
             smaa_target,
+            axis_lines_pipeline,
+            glyphs_pipeline,
         }
     }
- 
+
     pub fn window(&self) -> &Window {
         &self.window
     }
@@ -113,15 +179,63 @@ impl State {
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        self.pipelines.run_pipeline(
-            "axis_lines",
-            &self.surface,
-            &self.device,
-            &self.queue,
-            Some(&self.camera_uniform),
-            Some(&self.color_table_uniform),
-            Some(&mut self.smaa_target),
-        )
+        let background_color = self.color_table_uniform.background_color();
+
+        self.queue.write_buffer(
+            &self.camera_buffer,
+            0,
+            bytemuck::cast_slice(&[self.camera_uniform]),
+        );
+        self.queue.write_buffer(
+            &self.color_table_buffer,
+            0,
+            bytemuck::cast_slice(&[self.color_table_uniform]),
+        );
+
+        self.queue.write_buffer(
+            &self.glyph_uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[self.glyph_uniform_data]),
+        );
+
+
+        let output = self.surface.get_current_texture()?;
+        let view = output
+            .texture
+            .create_view(&TextureViewDescriptor::default());
+
+        
+        let smaa_frame = self.smaa_target.start_frame(&self.device, &self.queue, &view);
+        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Axis Lines Render Encoder"),
+        });
+
+        self.axis_lines_pipeline.run_pipeline(
+            &mut encoder,
+            &smaa_frame,
+            &background_color,
+        );
+
+        let axis_commands = encoder.finish();
+
+        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Glyph Render Encoder"),
+        });
+
+
+        self.glyphs_pipeline.run_pipeline(
+            &mut encoder,
+            &smaa_frame,
+        );
+
+        let glyph_commands = encoder.finish();
+        
+        self.queue.submit([axis_commands, glyph_commands]);
+
+        smaa_frame.resolve();
+        output.present();
+
+        Ok(())
     }
 
     fn configure_surface(
@@ -210,35 +324,37 @@ impl State {
     fn build_pipelines(
         device: &Device,
         config: &SurfaceConfiguration,
+        camera_buffer: &wgpu::Buffer,
         camera_uniform: &CameraUniform,
+        color_table_buffer: &wgpu::Buffer,
         color_table_uniform: &ColorTableUniform,
         model_configuration: &Rc<ModelConfiguration>,
-    ) -> PipeLines {
-        let mut pipelines = PipeLines::new();
-
-
-        let model_artifacts = Arc::new(model_artifacts::ModelArtifacts::new(
+        glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
+        glyph_uniform_buffer: &wgpu::Buffer,
+    ) -> (axis_lines::AxisLines, glyphs::Glyphs) {
+        let axis_lines = axis_lines::AxisLines::new(
             device,
             config,
+            camera_buffer,
             camera_uniform,
-            color_table_uniform
-
-        ));
-        pipelines.add_pipeline("model_artifacts".to_string(), model_artifacts);
-
-        let axis_lines = Arc::new(axis_lines::AxisLines::new(
-            device,
-            config,
-            camera_uniform,
+            color_table_buffer,
             color_table_uniform,
             model_configuration.clone(),
-
-        ));
-        pipelines.add_pipeline("axis_lines".to_string(), axis_lines);
-
-        pipelines
+        );
+        let glyphs = glyphs::Glyphs::new(
+            glyph_uniform_data,
+            glyph_uniform_buffer,
+            &Vec::new(),
+            device,
+            config,
+            camera_buffer,
+            camera_uniform,
+            color_table_buffer,
+            color_table_uniform,
+            model_configuration.clone(),
+        );
+        (axis_lines, glyphs)
     }
-
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,

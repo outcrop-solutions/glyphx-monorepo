@@ -1,29 +1,29 @@
-use crate::assets::axis_line::create_axis_line;
-use crate::assets::color::Color;
+pub(crate) mod glyph_instance_data;
+use crate::assets::rectangular_prism::create_rectangular_prism;
 use crate::camera::uniform_buffer::CameraUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use bytemuck;
+use glyph_instance_data::*;
+use smaa::*;
+use std::rc::Rc;
 use wgpu::util::DeviceExt;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
-
-use smaa::SmaaFrame;
-use std::rc::Rc;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
     pub position: [f32; 3],
-    pub color: u32,
+    //we don't need color here.  It is interpolated in the gpu
 }
 
-#[derive(Debug)]
 pub struct VertexData {
-    verticies: Vec<Vertex>,
-    indicies: Vec<u32>,
+    pub vertices: Vec<Vertex>,
+    pub indices: Vec<u32>,
+    pub instance_data: Vec<GlyphInstanceData>,
 }
 
-pub struct AxisLines {
+pub struct Glyphs {
     render_pipeline: RenderPipeline,
     vertex_buffer: Buffer,
     index_buffer: Buffer,
@@ -31,10 +31,14 @@ pub struct AxisLines {
     vertex_data: VertexData,
     color_table_bind_group: BindGroup,
     model_configuration: Rc<ModelConfiguration>,
+    glyph_uniform_bind_group: BindGroup,
 }
 
-impl AxisLines {
+impl Glyphs {
     pub fn new(
+        glyph_uniform_data: &GlyphUniformData,
+        glyph_uniform_buffer: &Buffer,
+        glyph_instance_data: &Vec<GlyphInstanceData>,
         device: &Device,
         config: &SurfaceConfiguration,
         camera_buffer: &Buffer,
@@ -42,23 +46,25 @@ impl AxisLines {
         color_table_buffer: &Buffer,
         color_table_uniform: &ColorTableUniform,
         model_configuration: Rc<ModelConfiguration>,
-    ) -> AxisLines {
+    ) -> Glyphs {
         let mut vertex_data = VertexData {
-            verticies: Vec::new(),
-            indicies: Vec::new(),
+            vertices: Vec::new(),
+            indices: Vec::new(),
+            instance_data: Vec::new(),
         };
 
         Self::build_verticies(
-            &mut vertex_data.verticies,
-            &mut vertex_data.indicies,
+            &mut vertex_data.vertices,
+            &mut vertex_data.indices,
             &model_configuration,
         );
 
-        let shader =
-            device.create_shader_module(wgpu::include_wgsl!("axis_lines/shader.wgsl").into());
-
+        let shader = device.create_shader_module(wgpu::include_wgsl!("glyphs/shader.wgsl").into());
         let (vertex_buffer_layout, vertex_buffer, index_buffer) =
             Self::configure_verticies(device, &vertex_data);
+
+        let (glyph_uniform_buffer_layout, glyph_uniform_bind_group) =
+            glyph_uniform_data.configure_glyph_uniform(glyph_uniform_buffer, device);
 
         let (camera_bind_group_layout, camera_bind_group) =
             camera_uniform.configure_camera_uniform(camera_buffer, device);
@@ -70,12 +76,13 @@ impl AxisLines {
             device,
             camera_bind_group_layout,
             color_table_bind_group_layout,
+            glyph_uniform_buffer_layout,
             shader,
             vertex_buffer_layout,
             config,
         );
 
-        AxisLines {
+        Glyphs {
             render_pipeline,
             vertex_buffer,
             index_buffer,
@@ -83,6 +90,7 @@ impl AxisLines {
             vertex_data,
             color_table_bind_group,
             model_configuration,
+            glyph_uniform_bind_group,
         }
     }
 
@@ -91,67 +99,34 @@ impl AxisLines {
         indicies: &mut Vec<u32>,
         model_configuration: &Rc<ModelConfiguration>,
     ) {
-        let cylinder_radius = model_configuration.grid_cylinder_radius;
-        let cylinder_height = model_configuration.grid_cylinder_length;
-        let cone_height = model_configuration.grid_cone_length;
-        let cone_radius = model_configuration.grid_cone_radius;
-        let height = cylinder_height + cone_height;
-        let (axis_verticies, axis_indicies) =
-            create_axis_line(cylinder_radius, cylinder_height, cone_height, cone_radius);
-        //Subtracting this point should put the edge of the cone at -1.0.
-        let offset = 1.0 - cone_radius;
+        //Our x/y size
+        let glyph_size = 0.015;
 
-        for vertex in &axis_verticies {
-            let x = vertex[0] - offset;
-            let y = vertex[1] - offset;
-            let z = vertex[2] - offset;
+        //Our z size is based on the height of the grid with a little bit of padding so that
+        //the top does not but up against the z axis line
+        let length = (model_configuration.grid_cylinder_length
+            + model_configuration.grid_cone_length)
+            * model_configuration.z_height_ratio;
+
+        let (base_verticies, base_indicies) = create_rectangular_prism(glyph_size, length);
+        //now we want to move this to -1,-1,-1.
+        //The center of the cube is at 0,0 so x and y hang over by 1/2 the width.
+        let x_y_offset = -1.0 + glyph_size / 2.0;
+        //z sits at 0.0 so just subtract 1 to move it down.
+        let z_offset = -1.0;
+
+        for vertex in &base_verticies {
             verticies.push(Vertex {
-                //lay the line on its side.
-                position: [z, y, x],
-                color: 60, //x_color is 60 in our color table
+                position: [
+                    vertex[0] + x_y_offset,
+                    vertex[1] + x_y_offset,
+                    vertex[2] + z_offset,
+                ],
             });
         }
-        indicies.extend_from_slice(&axis_indicies);
 
-        let index_offset = verticies.len() as u32;
-        //create a y oriented axis line which is green.
-
-        for vertex in &axis_verticies {
-            let x = vertex[0] - offset;
-            let y = vertex[1] - offset;
-            let z = vertex[2] - offset;
-            verticies.push(Vertex {
-                //lay the line on its side.
-                position: [x, z, y],
-                color: 61, //x_color is 60 in our color table
-            });
-        }
-        for index in &axis_indicies {
-            indicies.push(index + index_offset);
-        }
-
-        //Our Z axis is configuralbe seperate from the x/y base.
-        //No matter the length, the cone will always be the same size.
-        let z_cylinder_height = height * model_configuration.z_height_ratio - cone_height;
-
-        let (axis_verticies, axis_indicies) =
-            create_axis_line(cylinder_radius, z_cylinder_height, cone_height, cone_radius);
-        //create a z oriented axis line which is blue.
-        let index_offset = verticies.len() as u32;
-        //create a y oriented axis line which is green.
-
-        for vertex in &axis_verticies {
-            let x = vertex[0] - offset;
-            let y = vertex[1] - offset;
-            let z = (vertex[2] * 0.5) - offset;
-            verticies.push(Vertex {
-                //lay the line on its side.
-                position: [x, y, z],
-                color: 62, //x_color is 60 in our color table
-            });
-        }
-        for index in &axis_indicies {
-            indicies.push(index + index_offset);
+        for index in &base_indicies {
+            indicies.push(*index);
         }
     }
 
@@ -177,13 +152,13 @@ impl AxisLines {
         };
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(&vertex_data.verticies),
+            contents: bytemuck::cast_slice(&vertex_data.vertices),
             usage: wgpu::BufferUsages::VERTEX,
         });
 
         let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(&vertex_data.indicies),
+            contents: bytemuck::cast_slice(&vertex_data.indices),
             usage: wgpu::BufferUsages::INDEX,
         });
         (vertex_buffer_layout, vertex_buffer, index_buffer)
@@ -193,6 +168,7 @@ impl AxisLines {
         device: &Device,
         camera_bind_group_layout: BindGroupLayout,
         color_table_bind_group_layout: BindGroupLayout,
+        glyph_bind_group_layout: BindGroupLayout,
         shader: wgpu::ShaderModule,
         vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
         config: &SurfaceConfiguration,
@@ -200,7 +176,11 @@ impl AxisLines {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[&camera_bind_group_layout, &color_table_bind_group_layout],
+                bind_group_layouts: &[
+                    &camera_bind_group_layout,
+                    &color_table_bind_group_layout,
+                    &glyph_bind_group_layout,
+                ],
                 push_constant_ranges: &[],
             });
 
@@ -255,7 +235,6 @@ impl AxisLines {
         &'a self,
         encoder: &'a mut wgpu::CommandEncoder,
         smaa_frame: &SmaaFrame,
-        background_color: &Color,
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
@@ -263,23 +242,18 @@ impl AxisLines {
                 view: &*smaa_frame,
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: background_color[0] as f64,
-                        g: background_color[1] as f64,
-                        b: background_color[2] as f64,
-                        a: 1.0,
-                    }),
+                    load: wgpu::LoadOp::Load,
                     store: true,
                 },
             })],
             depth_stencil_attachment: None,
         });
-
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_bind_group(1, &self.color_table_bind_group, &[]);
+        render_pass.set_bind_group(2, &self.glyph_uniform_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
-        render_pass.draw_indexed(0..self.vertex_data.indicies.len() as u32, 0, 0..1);
+        render_pass.draw_indexed(0..self.vertex_data.indices.len() as u32, 0, 0..1);
     }
 }
