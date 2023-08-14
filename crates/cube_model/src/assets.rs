@@ -3,5 +3,4 @@ pub(crate) mod color;
 pub(crate) mod cone;
 pub(crate) mod rectangular_prism;
 pub(crate) mod cylinder;
-pub(crate) mod glyph;
 pub(crate) mod interpolation;
