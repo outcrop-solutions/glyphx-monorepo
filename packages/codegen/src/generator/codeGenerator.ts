@@ -16,8 +16,13 @@ import type { Options } from 'prettier';
  * - All enums must be CAPITALIZED_AS_SUCH (this is enforced in our linting rules)
  * - All interfaces (a.k.a TABLES) must begin with I<interfaceName> (this is also enforced in our linting rules)
  * - All interfaces (a.k.a TABLES) referenced within an interface definition must exist within the database.ts file
- * - The only scalar fields allowed live in the scalarValueFields array
+ * - The only scalar fields allowed live in the typeMap
  * - The only supported utility types live in the utilityTypes array
+ * - No more than 2 ONE_TO_ONE relationships to the same table
+ * 
+ * WIP
+ * - dslTypes
+ * - 
  */
 export class CodeGenerator {
   // configurable defaults
@@ -810,17 +815,20 @@ export class CodeGenerator {
     outputPath: string
   ): Promise<void> {
     try {
+      // '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/packages/codegen/src/templates/database/models.__integrationTests__.hbs'
+      const absoluteTemplatePath = path.resolve(templatePath);
+      const absoluteOutputPath = path.resolve(outputPath);
       // Ensure directory exists
-      const dir = path.dirname(outputPath);
+      const dir = path.dirname(absoluteOutputPath);
       await fs.mkdir(dir, {recursive: true});
       // Read the template file
-      const source = await fs.readFile(templatePath, 'utf8');
+      const source = await fs.readFile(absoluteTemplatePath, 'utf8');
       // Create a compiled version of the template
       const template = Handlebars.compile(source);
       // Generate the file content by rendering the template with the table data
       const result = template(data);
       // Write the content to a new file in the output directory
-      await fs.writeFile(`${outputPath}`, result);
+      await fs.writeFile(`${absoluteOutputPath}`, result);
     } catch (err) {
       throw new error.CodeGenError(
         'An error occurred while compiling the handlebar template and writing to disk at sourceFromTemplate, See inner error for details',
@@ -1051,16 +1059,6 @@ export class CodeGenerator {
 
     return deduplicatedProperties;
   }
-
-  // private deduplicateProperties(properties: databaseTypes.meta.IProperty[]): databaseTypes.meta.IProperty[] {
-  //   const seen = new Set();
-  //   return properties.filter((property) => {
-  //     const key = property.referenceTable;
-  //     if (seen.has(key)) return false;
-  //     seen.add(key);
-  //     return true;
-  //   });
-  // }
 
   // Generate schemas and validators
   private async generateSchemas(): Promise<void> {

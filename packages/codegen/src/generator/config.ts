@@ -6,11 +6,11 @@ export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
   paths: {
     // where are your database interfaces defined?
     source:
-      '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/database.ts',
+      './src/__tests__/mocks/database.ts',
     // where do i want to output my database files?
-    destination: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output',
+    destination: './src/output',
     // where do my templates with?
-    templates: '/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/templates',
+    templates: './src/templates',
     prettier: 'gts/.prettierrc.json',
   },
   // base output directory configuration
