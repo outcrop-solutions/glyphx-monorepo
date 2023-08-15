@@ -28,16 +28,17 @@
     "db:generate": {
       "cache": false
     },
+    "test:db": {
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "test:business": {
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "dist/**", "build/**"]
     },
     "test": {
-      "dependsOn": ["build"],
-      "outputs": [],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
-    },
-    "test:generated": {
       "dependsOn": ["build"],
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
