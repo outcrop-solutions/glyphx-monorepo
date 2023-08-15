@@ -1,4 +1,4 @@
-import {IProject} from '../../../database';
+import {IProject, IProjectTemplate} from '../../../database';
 import {MODAL_CONTENT_TYPE} from '../../constants';
 import {MatchingFileStatsData} from '../../interfaces';
 import {IDeleteProjectData} from '../../interfaces/modals/iDeleteProjectData';
@@ -10,6 +10,11 @@ export type ModalState =
       type: MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS;
       isSubmitting: boolean;
       data: IProject;
+    }
+  | {
+      type: MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW;
+      isSubmitting: boolean;
+      data: IProjectTemplate;
     }
   | {
       type: MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE;
