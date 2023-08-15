@@ -16,3 +16,4 @@ export type {IActivityLog} from './iActivityLog';
 export type {IUserAgent} from './iUserAgent';
 export type {IAnnotation} from './iAnnotation';
 export type {ITag} from './iTag';
+export * as meta from './meta';

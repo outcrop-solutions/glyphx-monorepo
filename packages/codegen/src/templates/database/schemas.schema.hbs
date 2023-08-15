@@ -1,0 +1,37 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED 
+import {Schema} from 'mongoose';
+{{#each schemaProperties}}
+  {{#if (isSchema this.relationType)}}
+    import {
+    {{camelcase (singularize this.referenceTable)}}Schema } from '../schemas'
+  {{/if}}
+{{/each}}
+
+const {{uppercase (pascalcase this.name)}}_SCHEMA = new Schema({
+{{#each schemaProperties}}
+  {{#if (isNotProtected this.name)}}
+    {{this.name}}: {
+    {{#if (isDate this)}}
+      type: Date, required: false, default: //istanbul ignore next () => new Date(),
+    {{else if (isSchema this.relationType)}}
+      type:
+      {{camelcase (singularize this.name)}}Schema, required: false, default: {}
+    {{else if (isEnum this.relationType)}}
+      type: String, required: false, enum: databaseTypes.{{this.type}}
+    {{else}}
+      type:
+      {{this.type}}, required:
+      {{this.isRequired}},
+      {{#if this.hasDefault}}
+        default:
+        {{this.default}}
+      {{else}}
+        default: false
+      {{/if}}
+    {{/if}}
+    }{{#unless @last}},{{/unless}}
+  {{/if}}
+{{/each}}
+}); 
+
+export { {{uppercase (pascalcase this.name)}}_SCHEMA as {{camelcase this.name}}Schema};
