@@ -2,7 +2,7 @@
 import 'mocha';
 import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
-import {MongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '@glyphx/database';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {error} from '@glyphx/core';
@@ -14,7 +14,7 @@ const UNIQUE_KEY = v4().replaceAll('-', '');
 describe('#{{pascalcase this.name}}Model', () => {
   context('test the crud functions of the {{camelcase this.name}} model', () => {
     const mongoConnection = new MongoDbConnection();
-    const {{camelcase this.name}}Model = mongoConnection.models.{{pascalcase this.name}}Model;
+    const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.name)}}Model;
     let {{camelcase this.name}}DocId: ObjectId;
     let {{camelcase this.name}}DocId2: ObjectId;
     {{#each properties}}
@@ -29,11 +29,11 @@ describe('#{{pascalcase this.name}}Model', () => {
       {{!-- Generate pre-requisite test data --}}
       {{#each dedupedProperties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-      const {{camelcase this.name}}Model = mongoConnection.models.{{pascalcase this.name}}Model;
+      const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.referenceTable)}}Model;
       const saved{{pascalcase this.name}}Document = await {{camelcase this.name}}Model.create([mocks.MOCK_{{uppercase (pascalcase this.referenceTable)}}], {
         validateBeforeSave: false,
       });
-      {{camelcase this.name}}Id =  saved{{pascalcase this.name}}Document?._id as mongooseTypes.ObjectId;
+      {{camelcase this.name}}Id =  saved{{pascalcase this.name}}Document[0]?._id as mongooseTypes.ObjectId;
       assert.isOk({{camelcase this.name}}Id)
       {{/if}}
       {{/each}}
@@ -49,7 +49,7 @@ describe('#{{pascalcase this.name}}Model', () => {
       }
       {{#each properties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-      const {{camelcase this.name}}Model = mongoConnection.models.{{pascalcase this.name}}Model;
+      const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.referenceTable)}}Model;
       await {{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}Id);
       {{/if}}
       {{/each}}
