@@ -237,6 +237,148 @@ export class ActivityLogService {
     }
   }
 
+  public static async addWorkspace(
+    activityLogId: mongooseTypes.ObjectId | string,
+    workspace: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IActivityLog> {
+    try {
+      const id =
+        activityLogId instanceof mongooseTypes.ObjectId
+          ? activityLogId
+          : new mongooseTypes.ObjectId(activityLogId);
+      const updatedActivityLog =
+        await mongoDbConnection.models.ActivityLogModel.addWorkspace(
+          id,
+          workspace
+        );
+
+      return updatedActivityLog;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding workspace to the activityLog. See the inner error for additional details',
+          'activityLog',
+          'addWorkspace',
+          {id: activityLogId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async removeWorkspace(
+    activityLogId: mongooseTypes.ObjectId | string,
+    workspace: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IActivityLog> {
+    try {
+      const id =
+        activityLogId instanceof mongooseTypes.ObjectId
+          ? activityLogId
+          : new mongooseTypes.ObjectId(activityLogId);
+      const updatedActivityLog =
+        await mongoDbConnection.models.WorkspaceModel.removeWorkspace(
+          id,
+          workspace
+        );
+
+      return updatedActivityLog;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while removing  workspace from the activityLog. See the inner error for additional details',
+          'activityLog',
+          'removeWorkspace',
+          {id: activityLogId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async addProject(
+    activityLogId: mongooseTypes.ObjectId | string,
+    project: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IActivityLog> {
+    try {
+      const id =
+        activityLogId instanceof mongooseTypes.ObjectId
+          ? activityLogId
+          : new mongooseTypes.ObjectId(activityLogId);
+      const updatedActivityLog =
+        await mongoDbConnection.models.ActivityLogModel.addProject(id, project);
+
+      return updatedActivityLog;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding project to the activityLog. See the inner error for additional details',
+          'activityLog',
+          'addProject',
+          {id: activityLogId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async removeProject(
+    activityLogId: mongooseTypes.ObjectId | string,
+    project: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IActivityLog> {
+    try {
+      const id =
+        activityLogId instanceof mongooseTypes.ObjectId
+          ? activityLogId
+          : new mongooseTypes.ObjectId(activityLogId);
+      const updatedActivityLog =
+        await mongoDbConnection.models.ProjectModel.removeProject(id, project);
+
+      return updatedActivityLog;
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while removing  project from the activityLog. See the inner error for additional details',
+          'activityLog',
+          'removeProject',
+          {id: activityLogId},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
   public static async addUserAgent(
     activityLogId: mongooseTypes.ObjectId | string,
     userAgent: (databaseTypes.IUserAgent | mongooseTypes.ObjectId)[]

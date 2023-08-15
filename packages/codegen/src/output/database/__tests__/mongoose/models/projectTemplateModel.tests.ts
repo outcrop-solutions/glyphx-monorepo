@@ -433,9 +433,9 @@ describe('#mongoose/models/projectTemplate', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.projects[0] as any).__v);
-      assert.isUndefined((doc.tags[0] as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.projects[0] as any)?.__v);
+      assert.isUndefined((doc.tags[0] as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_PROJECTTEMPLATE._id);
     });
@@ -539,9 +539,9 @@ describe('#mongoose/models/projectTemplate', () => {
       assert.strictEqual(results.results.length, mockProjectTemplates.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.projects[0] as any).__v);
-        assert.isUndefined((doc.tags[0] as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.projects[0] as any)?.__v);
+        assert.isUndefined((doc.tags[0] as any)?.__v);
       });
     });
 
@@ -668,7 +668,7 @@ describe('#mongoose/models/projectTemplate', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a projectTemplate with refrences as ObjectIds', async () => {
+    it('Should update a projectTemplate with references as ObjectIds', async () => {
       const updateProjectTemplate = {
         ...mocks.MOCK_PROJECTTEMPLATE,
         deletedAt: new Date(),
@@ -718,6 +718,14 @@ describe('#mongoose/models/projectTemplate', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(ProjectTemplateModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(
+        ProjectTemplateModel,
+        'validateUpdateObject',
+        validateStub
+      );
 
       const getProjectTemplateStub = sandbox.stub();
       getProjectTemplateStub.resolves({_id: projectTemplateId});

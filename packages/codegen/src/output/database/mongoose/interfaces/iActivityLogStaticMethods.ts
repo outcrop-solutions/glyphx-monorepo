@@ -45,6 +45,28 @@ export interface IActivityLogStaticMethods
   validateActor(
     user: databaseTypes.IUser | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
+  addWorkspace(
+    activityLogId: mongooseTypes.ObjectId,
+    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog>;
+  removeWorkspace(
+    activityLogId: mongooseTypes.ObjectId,
+    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog>;
+  validateWorkspace(
+    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId>;
+  addProject(
+    activityLogId: mongooseTypes.ObjectId,
+    project: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog>;
+  removeProject(
+    activityLogId: mongooseTypes.ObjectId,
+    project: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog>;
+  validateProject(
+    project: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId>;
   addUserAgent(
     activityLogId: mongooseTypes.ObjectId,
     userAgent: databaseTypes.IUserAgent | mongooseTypes.ObjectId

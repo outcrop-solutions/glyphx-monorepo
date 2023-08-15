@@ -33,7 +33,12 @@ export class CodeGenerator {
   };
 
   private utilityTypes: string[] = ['record', 'omit', 'pick'];
-  private dslTypes: string[] = ['__cascadeOnUpdate__', '__cascadeOnDelete__', '__unique__', 'Default'];
+  private dslTypes: string[] = [
+    '__cascadeOnUpdate__',
+    '__cascadeOnDelete__',
+    '__unique__',
+    'Default',
+  ];
   private prettierConfigField: Options = {
     bracketSpacing: false,
     singleQuote: true,
@@ -48,7 +53,7 @@ export class CodeGenerator {
   private _addedSchemas = new Set<string>();
 
   constructor(config: databaseTypes.meta.ICodeGenConfig | undefined) {
-    this.databaseSchemaField = { tables: [] };
+    this.databaseSchemaField = {tables: []};
     this.config = config || DEFAULT_CONFIG;
     // Registering handlebar template helper functions
     this.handlebars.registerHelper('stripLeadingI', this.stripLeadingI);
@@ -62,25 +67,64 @@ export class CodeGenerator {
     this.handlebars.registerHelper('pascalcase', this.toPascalCase);
     this.handlebars.registerHelper('camelcase', this.toCamelCase);
     // check relation type
-    this.handlebars.registerHelper('isEnum', (value: string) => value === 'ENUM');
+    this.handlebars.registerHelper(
+      'isEnum',
+      (value: string) => value === 'ENUM'
+    );
     this.handlebars.registerHelper('getEnumValue', this.getEnumValue);
-    this.handlebars.registerHelper('isDate', (value: any) => value.type === 'Date');
-    this.handlebars.registerHelper('isString', (value: any) => value.type === 'String');
-    this.handlebars.registerHelper('isNumber', (value: any) => value.type === 'Number');
-    this.handlebars.registerHelper('isStringArray', (value: any) => value.type === 'String[]');
-    this.handlebars.registerHelper('isNumberArray', (value: any) => value.type === 'Number[]');
-    this.handlebars.registerHelper('isSchema', (value: string) => value === 'SCHEMA');
+    this.handlebars.registerHelper(
+      'isDate',
+      (value: any) => value.type === 'Date'
+    );
+    this.handlebars.registerHelper(
+      'isString',
+      (value: any) => value.type === 'String'
+    );
+    this.handlebars.registerHelper(
+      'isNumber',
+      (value: any) => value.type === 'Number'
+    );
+    this.handlebars.registerHelper(
+      'isStringArray',
+      (value: any) => value.type === 'String[]'
+    );
+    this.handlebars.registerHelper(
+      'isNumberArray',
+      (value: any) => value.type === 'Number[]'
+    );
+    this.handlebars.registerHelper(
+      'isSchema',
+      (value: string) => value === 'SCHEMA'
+    );
     // this will be removed when utility types become supported
     this.handlebars.registerHelper('isRecord', this.isRecord);
-    this.handlebars.registerHelper('isOneToOne', (value: string) => value === 'ONE_TO_ONE');
-    this.handlebars.registerHelper('isOneToMany', (value: string) => value === 'ONE_TO_MANY');
+    this.handlebars.registerHelper(
+      'isOneToOne',
+      (value: string) => value === 'ONE_TO_ONE'
+    );
+    this.handlebars.registerHelper(
+      'isOneToMany',
+      (value: string) => value === 'ONE_TO_MANY'
+    );
     // check referenceTable exists (needed for scalar arrays i.e string[])
-    this.handlebars.registerHelper('referenceTableExists', (value) => !!value.referenceTable);
-    this.handlebars.registerHelper('isRelation', (value) => !!value.isRelation);
+    this.handlebars.registerHelper(
+      'referenceTableExists',
+      value => !!value.referenceTable
+    );
+    this.handlebars.registerHelper('isRelation', value => !!value.isRelation);
     // check referential action type
-    this.handlebars.registerHelper('isCascade', (value: string) => value === 'CASCADE');
-    this.handlebars.registerHelper('isNoAction', (value: string) => value === 'NO_ACTION');
-    this.handlebars.registerHelper('isSetNull', (value: string) => value === 'SET_NULL');
+    this.handlebars.registerHelper(
+      'isCascade',
+      (value: string) => value === 'CASCADE'
+    );
+    this.handlebars.registerHelper(
+      'isNoAction',
+      (value: string) => value === 'NO_ACTION'
+    );
+    this.handlebars.registerHelper(
+      'isSetNull',
+      (value: string) => value === 'SET_NULL'
+    );
     this.handlebars.registerHelper('hasOneToOne', this.hasOneToOne);
     this.handlebars.registerHelper('hasOneToMany', this.hasOneToMany);
     this.handlebars.registerHelper('or', this.logicalOr);
@@ -95,7 +139,9 @@ export class CodeGenerator {
 
   // used to normalize table name inputs
   private stripLeadingI(value: string): string {
-    return (value && value?.startsWith('I')) || value?.startsWith('i') ? value?.substring(1) : value;
+    return (value && value?.startsWith('I')) || value?.startsWith('i')
+      ? value?.substring(1)
+      : value;
   }
 
   // largely replaced by toSnakeCase + toPascalCase
@@ -154,7 +200,10 @@ export class CodeGenerator {
   // HBS HELPERS
   // used to filter properties to set default behaviour around protected fields
   private isNotProtected(value: string): boolean {
-    if (value && ['createdAt', 'updatedAt', 'deletedAt', '_id'].includes(value)) {
+    if (
+      value &&
+      ['createdAt', 'updatedAt', 'deletedAt', '_id'].includes(value)
+    ) {
       return false;
     } else {
       return true;
@@ -170,21 +219,29 @@ export class CodeGenerator {
 
   // get enum value for mock data generation
   private getEnumValue(property: databaseTypes.meta.IProperty) {
-    return property?.enumValues && property?.enumValues?.length && property?.enumValues?.length > 0
+    return property?.enumValues &&
+      property?.enumValues?.length &&
+      property?.enumValues?.length > 0
       ? property.enumValues[0]
       : '';
   }
 
   private isRecord(value: databaseTypes.meta.IProperty) {
-    return value?.relationType === 'SCHEMA' && value?.schemaProperties?.length === 0;
+    return (
+      value?.relationType === 'SCHEMA' && value?.schemaProperties?.length === 0
+    );
   }
 
   private hasOneToOne(properties: databaseTypes.meta.IProperty[]) {
-    return properties?.some((prop) => prop.relationType === 'ONE_TO_ONE' && !!prop.referenceTable);
+    return properties?.some(
+      prop => prop.relationType === 'ONE_TO_ONE' && !!prop.referenceTable
+    );
   }
 
   private hasOneToMany(properties: databaseTypes.meta.IProperty[]) {
-    return properties?.some((prop) => prop.relationType === 'ONE_TO_MANY' && !!prop.referenceTable);
+    return properties?.some(
+      prop => prop.relationType === 'ONE_TO_MANY' && !!prop.referenceTable
+    );
   }
 
   private logicalOr(...args: any[]) {
@@ -239,7 +296,10 @@ export class CodeGenerator {
       // STEP 3: FORMAT OUTPUT
       await this.formatDirectory(`${this.config.paths.destination}`);
     } catch (err: any) {
-      if (err instanceof error.TypeCheckError || err instanceof error.FileParseError) {
+      if (
+        err instanceof error.TypeCheckError ||
+        err instanceof error.FileParseError
+      ) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
       } else {
         throw new error.CodeGenError(
@@ -298,7 +358,9 @@ export class CodeGenerator {
       if (!sourceFile) {
         throw new error.FileParseError('Could not find source file', filePath);
       }
-      ts.forEachChild(sourceFile, (node: ts.Node) => this.extractTypes(filePath, node));
+      ts.forEachChild(sourceFile, (node: ts.Node) =>
+        this.extractTypes(filePath, node)
+      );
 
       // deduplicate table names for entry points
     } catch (err: any) {
@@ -340,7 +402,9 @@ export class CodeGenerator {
 
         this.databaseSchemaField.tables.push(table);
       }
-      ts.forEachChild(node, (childNode: ts.Node) => this.extractTypes(filePath, childNode));
+      ts.forEachChild(node, (childNode: ts.Node) =>
+        this.extractTypes(filePath, childNode)
+      );
     } catch (err: any) {
       if (err instanceof error.TypeCheckError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -375,11 +439,13 @@ export class CodeGenerator {
    * @param node
    * @returns
    */
-  private getInterfaceProperties(node: ts.InterfaceDeclaration): databaseTypes.meta.IProperty[] {
+  private getInterfaceProperties(
+    node: ts.InterfaceDeclaration
+  ): databaseTypes.meta.IProperty[] {
     try {
       const properties = node.members
         .filter(ts.isPropertySignature)
-        .filter((p) => p.name && p.name?.getText() !== '_id') // filtered out because implementation is standardized
+        .filter(p => p.name && p.name?.getText() !== '_id') // filtered out because implementation is standardized
         .map(this.getProperty.bind(this));
 
       return properties;
@@ -408,7 +474,9 @@ export class CodeGenerator {
       }
 
       const typeLiteral = node.type as ts.TypeLiteralNode;
-      return typeLiteral.members.filter(ts.isPropertySignature).map(this.getProperty.bind(this));
+      return typeLiteral.members
+        .filter(ts.isPropertySignature)
+        .map(this.getProperty.bind(this));
     } catch (err: any) {
       throw new error.TypeCheckError(
         'An error occurred while extracting properties from type members, See inner error for details',
@@ -422,7 +490,9 @@ export class CodeGenerator {
    * @param property
    * @returns
    */
-  private getProperty(property: ts.PropertySignature): databaseTypes.meta.IProperty {
+  private getProperty(
+    property: ts.PropertySignature
+  ): databaseTypes.meta.IProperty {
     const propertyName = property?.name && property.name?.getText();
 
     // format scalar values for mongoose
@@ -437,12 +507,21 @@ export class CodeGenerator {
     const isRequired = !property.questionToken;
 
     // determine relationships
-    const { isRelation, relationType } = this.determineRelationType(refName, typeNode);
+    const {isRelation, relationType} = this.determineRelationType(
+      refName,
+      typeNode
+    );
 
     // determine referential actions and default values
-    const { isUnique, hasDefault, cascadeOnDelete, cascadeOnUpdate, defaultValue } = this.checkDSLTypes(typeNode);
+    const {
+      isUnique,
+      hasDefault,
+      cascadeOnDelete,
+      cascadeOnUpdate,
+      defaultValue,
+    } = this.checkDSLTypes(typeNode);
 
-    const def = hasDefault ? { default: defaultValue } : {};
+    const def = hasDefault ? {default: defaultValue} : {};
     const relation = isRelation
       ? {
           relationType: relationType,
@@ -455,7 +534,7 @@ export class CodeGenerator {
       : {};
 
     // extract ENUMs and SCHEMAs
-    const { enumValues, nestedProperties } = this.extractNestedProperties(
+    const {enumValues, nestedProperties} = this.extractNestedProperties(
       relationType,
       typeNode as ts.TypeNode,
       refName
@@ -478,7 +557,9 @@ export class CodeGenerator {
     // check if typeNode is an array
     if (typeNode && typeNode.kind === 185) {
       const arrayTypeNode = typeNode as ts.ArrayTypeNode;
-      refName = (arrayTypeNode.elementType as ts.TypeReferenceNode).typeName?.getText();
+      refName = (
+        arrayTypeNode.elementType as ts.TypeReferenceNode
+      ).typeName?.getText();
     } else {
       refName = (typeNode as ts.TypeReferenceNode).typeName?.getText();
     }
@@ -496,29 +577,48 @@ export class CodeGenerator {
 
     if (relationType === databaseTypes.meta.RELATION_TYPE.ENUM) {
       // Assuming you have a method or logic to identify ENUM relations
-      const referenceSymbol = this.checker!.getSymbolAtLocation((typeNode as ts.TypeReferenceNode).typeName);
+      const referenceSymbol = this.checker!.getSymbolAtLocation(
+        (typeNode as ts.TypeReferenceNode).typeName
+      );
 
-      if (referenceSymbol && referenceSymbol.declarations && referenceSymbol.declarations.length > 0) {
+      if (
+        referenceSymbol &&
+        referenceSymbol.declarations &&
+        referenceSymbol.declarations.length > 0
+      ) {
         const enumDeclaration = referenceSymbol.declarations[0];
         if (ts.isEnumDeclaration(enumDeclaration)) {
-          enumValues = enumDeclaration.members.map((member) => member.name.getText());
+          enumValues = enumDeclaration.members.map(member =>
+            member.name.getText()
+          );
         }
       }
     } else if (relationType === databaseTypes.meta.RELATION_TYPE.SCHEMA) {
       // If 'Pick', 'Omit', or 'Record', handle with care
       if (this.utilityTypes.includes(this.normalizeTableName(refName))) {
-        const nested = this.extractUtilityTypes(refName, typeNode as ts.TypeReferenceNode);
+        const nested = this.extractUtilityTypes(
+          refName,
+          typeNode as ts.TypeReferenceNode
+        );
         nestedProperties = [...nested];
       } else {
         // Find the referenced interface declaration
-        const referenceSymbol = this.checker!.getSymbolAtLocation((typeNode as ts.TypeReferenceNode).typeName);
+        const referenceSymbol = this.checker!.getSymbolAtLocation(
+          (typeNode as ts.TypeReferenceNode).typeName
+        );
         // Extract nested properties
-        if (referenceSymbol && referenceSymbol.declarations && referenceSymbol.declarations.length > 0) {
-          nestedProperties = this.getTypeProperties(referenceSymbol.declarations[0]);
+        if (
+          referenceSymbol &&
+          referenceSymbol.declarations &&
+          referenceSymbol.declarations.length > 0
+        ) {
+          nestedProperties = this.getTypeProperties(
+            referenceSymbol.declarations[0]
+          );
         }
       }
     }
-    return { nestedProperties, enumValues };
+    return {nestedProperties, enumValues};
   }
 
   // Handle cases where nested schemas use Record, Omit, or Pick types
@@ -529,10 +629,17 @@ export class CodeGenerator {
       const typeArgs = typeNode.typeArguments;
       if (typeArgs && typeArgs.length === 2) {
         const valueType = typeArgs[1];
-        const valueTypeSymbol = this.checker!.getTypeAtLocation(valueType).getSymbol();
+        const valueTypeSymbol =
+          this.checker!.getTypeAtLocation(valueType).getSymbol();
 
-        if (valueTypeSymbol && valueTypeSymbol.declarations && valueTypeSymbol.declarations.length > 0) {
-          nestedProperties = this.getTypeProperties(valueTypeSymbol.declarations[0]);
+        if (
+          valueTypeSymbol &&
+          valueTypeSymbol.declarations &&
+          valueTypeSymbol.declarations.length > 0
+        ) {
+          nestedProperties = this.getTypeProperties(
+            valueTypeSymbol.declarations[0]
+          );
         }
       }
     } else if (this.normalizeTableName(refName) === 'omit') {
@@ -543,7 +650,9 @@ export class CodeGenerator {
         const baseProperties = this.getTypeProperties(baseType);
 
         const omitKeys = this.getLiteralKeysFromType(omitKeysType);
-        nestedProperties = baseProperties.filter((p) => !omitKeys.includes(p.name));
+        nestedProperties = baseProperties.filter(
+          p => !omitKeys.includes(p.name)
+        );
       }
     } else if (refName === 'pick') {
       const typeArgs = typeNode.typeArguments;
@@ -553,7 +662,9 @@ export class CodeGenerator {
         const baseProperties = this.getTypeProperties(baseType);
 
         const pickKeys = this.getLiteralKeysFromType(pickKeysType);
-        nestedProperties = baseProperties.filter((p) => pickKeys.includes(p.name));
+        nestedProperties = baseProperties.filter(p =>
+          pickKeys.includes(p.name)
+        );
       }
     }
     return nestedProperties;
@@ -612,7 +723,9 @@ export class CodeGenerator {
               hasDefault = true;
               // assuming the second type argument is a literal type
               if (type.typeArguments && type.typeArguments.length > 1) {
-                defaultValue = this.checker!.typeToString(this.checker!.getTypeAtLocation(type.typeArguments[1]));
+                defaultValue = this.checker!.typeToString(
+                  this.checker!.getTypeAtLocation(type.typeArguments[1])
+                );
               }
               break;
             case '__cascadeOnDelete__':
@@ -644,7 +757,10 @@ export class CodeGenerator {
   private determineRelationType(
     refName: string,
     typeNode: ts.TypeNode | undefined
-  ): { isRelation: boolean; relationType: databaseTypes.meta.RELATION_TYPE | undefined } {
+  ): {
+    isRelation: boolean;
+    relationType: databaseTypes.meta.RELATION_TYPE | undefined;
+  } {
     let isRelation = false;
     let relationType;
 
@@ -652,7 +768,9 @@ export class CodeGenerator {
     if (
       typeNode &&
       (typeNode.kind === ts.SyntaxKind.ArrayType ||
-        (typeNode.kind === ts.SyntaxKind.TypeReference && refName !== 'Date' && refName !== 'mongooseTypes.ObjectId'))
+        (typeNode.kind === ts.SyntaxKind.TypeReference &&
+          refName !== 'Date' &&
+          refName !== 'mongooseTypes.ObjectId'))
     ) {
       isRelation = true;
       // Assuming enums are UPPER_CASE and interfaces include "I" whereas subdocuments do not i.e Camera/AspectRatio
@@ -666,7 +784,7 @@ export class CodeGenerator {
         relationType = databaseTypes.meta.RELATION_TYPE.ONE_TO_ONE;
       }
     }
-    return { isRelation, relationType };
+    return {isRelation, relationType};
   }
 
   /**
@@ -683,11 +801,15 @@ export class CodeGenerator {
    * @param templatePath
    * @param outputPath
    */
-  private async sourceFromTemplate(data: any, templatePath: string, outputPath: string): Promise<void> {
+  private async sourceFromTemplate(
+    data: any,
+    templatePath: string,
+    outputPath: string
+  ): Promise<void> {
     try {
       // Ensure directory exists
       const dir = path.dirname(outputPath);
-      await fs.mkdir(dir, { recursive: true });
+      await fs.mkdir(dir, {recursive: true});
       // Read the template file
       const source = await fs.readFile(templatePath, 'utf8');
       // Create a compiled version of the template
@@ -722,8 +844,10 @@ export class CodeGenerator {
    * Generates a business service and unit/integration tests
    * @param table
    */
-  private async generateService(table: databaseTypes.meta.ITable): Promise<void> {
-    const { paths, output, templates } = this.config;
+  private async generateService(
+    table: databaseTypes.meta.ITable
+  ): Promise<void> {
+    const {paths, output, templates} = this.config;
 
     try {
       await Promise.all([
@@ -731,19 +855,25 @@ export class CodeGenerator {
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.business.services.service}`,
-          `${paths.destination}/${output.business.services}/${this.toCamelCase(table.name)}.ts`
+          `${paths.destination}/${output.business.services}/${this.toCamelCase(
+            table.name
+          )}.ts`
         ),
 
         // GENERATE SERVICE TESTS
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.business.services.unitTest}`,
-          `${paths.destination}/${output.business.unitTests}/${this.toCamelCase(table.name)}Service.tests.ts`
+          `${paths.destination}/${output.business.unitTests}/${this.toCamelCase(
+            table.name
+          )}Service.tests.ts`
         ),
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.business.services.integrationTest}`,
-          `${paths.destination}/${output.business.integrationTests}/${this.toCamelCase(table.name)}Service.tests.ts`
+          `${paths.destination}/${
+            output.business.integrationTests
+          }/${this.toCamelCase(table.name)}Service.tests.ts`
         ),
       ]);
     } catch (err: any) {
@@ -773,7 +903,7 @@ export class CodeGenerator {
    * @param table
    */
   private async generateModel(table: databaseTypes.meta.ITable): Promise<void> {
-    const { paths, output, templates } = this.config;
+    const {paths, output, templates} = this.config;
 
     try {
       await Promise.all([
@@ -781,43 +911,55 @@ export class CodeGenerator {
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.database.models.model}`,
-          `${paths.destination}/${output.database.models}/${this.toCamelCase(table.name)}.ts`
+          `${paths.destination}/${output.database.models}/${this.toCamelCase(
+            table.name
+          )}.ts`
         ),
 
         // GENERATE MODEL TESTS
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.database.models.unitTest}`,
-          `${paths.destination}/${output.database.unitTests}/mongoose/models/${this.toCamelCase(
-            table.name
-          )}Model.tests.ts`
+          `${paths.destination}/${
+            output.database.unitTests
+          }/mongoose/models/${this.toCamelCase(table.name)}Model.tests.ts`
         ),
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.database.models.integrationTest}`,
-          `${paths.destination}/${output.database.integrationTests}/${this.toCamelCase(table.name)}Model.tests.ts`
+          `${paths.destination}/${
+            output.database.integrationTests
+          }/${this.toCamelCase(table.name)}Model.tests.ts`
         ),
 
         // GENERATE INTERFACES
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.database.interfaces.createInput}`,
-          `${paths.destination}/${output.database.interfaces}/i${this.toPascalCase(table.name)}CreateInput.ts`
+          `${paths.destination}/${
+            output.database.interfaces
+          }/i${this.toPascalCase(table.name)}CreateInput.ts`
         ),
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.database.interfaces.document}`,
-          `${paths.destination}/${output.database.interfaces}/i${this.toPascalCase(table.name)}Document.ts`
+          `${paths.destination}/${
+            output.database.interfaces
+          }/i${this.toPascalCase(table.name)}Document.ts`
         ),
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.database.interfaces.methods}`,
-          `${paths.destination}/${output.database.interfaces}/i${this.toPascalCase(table.name)}Methods.ts`
+          `${paths.destination}/${
+            output.database.interfaces
+          }/i${this.toPascalCase(table.name)}Methods.ts`
         ),
         this.sourceFromTemplate(
           table,
           `${paths.templates}/${templates.database.interfaces.staticMethods}`,
-          `${paths.destination}/${output.database.interfaces}/i${this.toPascalCase(table.name)}StaticMethods.ts`
+          `${paths.destination}/${
+            output.database.interfaces
+          }/i${this.toPascalCase(table.name)}StaticMethods.ts`
         ),
       ]);
     } catch (err: any) {
@@ -830,18 +972,22 @@ export class CodeGenerator {
 
   // Generates mock data for unit and integration testing purposes
   private async generateMocks(): Promise<void> {
-    const { paths, output, templates } = this.config;
+    const {paths, output, templates} = this.config;
 
     try {
       await Promise.all([
-        this.databaseSchemaField.tables.map((table: databaseTypes.meta.ITable) => {
-          // GENERATE MOCK
-          this.sourceFromTemplate(
-            table,
-            `${paths.templates}/${templates.database.mocks.mock}`,
-            `${paths.destination}/${output.database.mocks}/${this.toCamelCase(table.name)}.ts`
-          );
-        }),
+        this.databaseSchemaField.tables.map(
+          (table: databaseTypes.meta.ITable) => {
+            // GENERATE MOCK
+            this.sourceFromTemplate(
+              table,
+              `${paths.templates}/${templates.database.mocks.mock}`,
+              `${paths.destination}/${output.database.mocks}/${this.toCamelCase(
+                table.name
+              )}.ts`
+            );
+          }
+        ),
       ]);
     } catch (err: any) {
       throw new error.CodeGenError(
@@ -853,31 +999,69 @@ export class CodeGenerator {
 
   // Pull out schemas from tables to generate schemas and validators
   private get schemas(): databaseTypes.meta.IProperty[] {
-    this.databaseSchemaField.tables.forEach((table: databaseTypes.meta.ITable) => {
-      table.properties.forEach((property: databaseTypes.meta.IProperty) => {
-        if (property.relationType === 'SCHEMA' && !this.isRecord(property) && !this._addedSchemas.has(property.name)) {
-          this._schemas.push(property);
-          this._addedSchemas.add(property.name);
-        }
-      });
-    });
+    this.databaseSchemaField.tables.forEach(
+      (table: databaseTypes.meta.ITable) => {
+        table.properties.forEach((property: databaseTypes.meta.IProperty) => {
+          if (
+            property.relationType === 'SCHEMA' &&
+            !this.isRecord(property) &&
+            !this._addedSchemas.has(property.name)
+          ) {
+            this._schemas.push(property);
+            this._addedSchemas.add(property.name);
+          }
+        });
+      }
+    );
 
     return this._schemas;
   }
 
-  private deduplicateProperties(properties: databaseTypes.meta.IProperty[]): databaseTypes.meta.IProperty[] {
-    const seen = new Set();
-    return properties.filter((property) => {
+  private deduplicateProperties(
+    properties: databaseTypes.meta.IProperty[]
+  ): databaseTypes.meta.IProperty[] {
+    const counts = new Map<string, number>();
+    const deduplicatedProperties: databaseTypes.meta.IProperty[] = [];
+
+    // First loop to count duplicates
+    for (const property of properties) {
       const key = property.referenceTable;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+      counts.set(key as string, (counts.get(key as string) || 0) + 1);
+    }
+
+    // Set to keep track of added properties
+    const added = new Set<string>();
+
+    // Second loop to filter and assign duplicate counts
+    for (const property of properties) {
+      const key = property.referenceTable;
+      const count = counts.get(key as string) || 0;
+
+      property.duplicates = count;
+
+      if (!added.has(key as string)) {
+        // if the property isn't added yet, add it
+        deduplicatedProperties.push(property);
+        added.add(key as string); // mark this referenceTable as added
+      }
+    }
+
+    return deduplicatedProperties;
   }
+
+  // private deduplicateProperties(properties: databaseTypes.meta.IProperty[]): databaseTypes.meta.IProperty[] {
+  //   const seen = new Set();
+  //   return properties.filter((property) => {
+  //     const key = property.referenceTable;
+  //     if (seen.has(key)) return false;
+  //     seen.add(key);
+  //     return true;
+  //   });
+  // }
 
   // Generate schemas and validators
   private async generateSchemas(): Promise<void> {
-    const { paths, output, templates } = this.config;
+    const {paths, output, templates} = this.config;
 
     try {
       await Promise.all(
@@ -886,14 +1070,18 @@ export class CodeGenerator {
           this.sourceFromTemplate(
             schema,
             `${paths.templates}/${templates.database.schemas.schema}`,
-            `${paths.destination}/${output.database.schemas}/${this.toCamelCase(schema.name)}Schema.ts`
+            `${paths.destination}/${output.database.schemas}/${this.toCamelCase(
+              schema.name
+            )}Schema.ts`
           );
           // FIXME: create this template
           // generate validator
           this.sourceFromTemplate(
             schema,
             `${paths.templates}/${templates.database.validators.validator}`,
-            `${paths.destination}/${output.database.validators}/${this.toCamelCase(schema.name)}ShapeValidator.ts`
+            `${paths.destination}/${
+              output.database.validators
+            }/${this.toCamelCase(schema.name)}ShapeValidator.ts`
           );
         })
       );
@@ -907,7 +1095,7 @@ export class CodeGenerator {
 
   // Generate subfolder entrypoints (index.ts)
   private async generateEntryPoints(): Promise<void> {
-    const { paths, output, templates } = this.config;
+    const {paths, output, templates} = this.config;
 
     try {
       await Promise.all([
@@ -933,13 +1121,13 @@ export class CodeGenerator {
         ),
         // generate schemas entrypoint
         this.sourceFromTemplate(
-          { schemas: this.schemas },
+          {schemas: this.schemas},
           `${paths.templates}/${templates.database.schemas.index}`,
           `${paths.destination}/${output.database.schemas}/index.ts`
         ),
         // generate validators entrypoint
         this.sourceFromTemplate(
-          { schemas: this.schemas },
+          {schemas: this.schemas},
           `${paths.templates}/${templates.database.validators.index}`,
           `${paths.destination}/${output.database.validators}/index.ts`
         ),
@@ -966,7 +1154,10 @@ export class CodeGenerator {
   private async formatFile(filePath: string) {
     try {
       const content = await fs.readFile(filePath, 'utf8');
-      const formatted = await prettier.format(content, { ...this.prettierConfigField, parser: 'typescript' });
+      const formatted = await prettier.format(content, {
+        ...this.prettierConfigField,
+        parser: 'typescript',
+      });
 
       if (formatted.trim() !== '// THIS CODE WAS AUTOMATICALLY GENERATED') {
         // Checking if the formatted content is not empty

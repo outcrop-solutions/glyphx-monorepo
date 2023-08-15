@@ -483,7 +483,7 @@ SCHEMA.static(
 
 
 {{#each properties}}
-{{#if (and (isOneToMany this.relationType) (hasOneToMany properties))}}
+{{#if (and (isOneToMany this.relationType) (hasOneToMany ../properties))}}
 SCHEMA.static(
     'add{{pluralize (pascalcase this.name)}}',
     async (
@@ -511,15 +511,15 @@ SCHEMA.static(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (
-          !{{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.find(
+          !{{camelcase ../this.name}}Document.{{camelcase this.name}}.find(
             (id: any) => id.toString() === p.toString()
           )
         ) {
           dirty = true;
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.push(
-            p as unknown as databaseTypes.I{{capitalize this.referenceTable}}
+          {{camelcase ../this.name}}Document.{{camelcase this.name}}.push(
+            p as unknown as databaseTypes.I{{pascalcase this.referenceTable}}
           );
         }
       });
@@ -643,8 +643,7 @@ SCHEMA.static(
 
     return {{pluralize (camelcase this.referenceTable)}}Ids;
   })
-{{else if (and (isOneToOne this.relationType) (hasOneToOne properties))}}
-
+{{else if (and (isOneToOne this.relationType) (hasOneToOne ../properties))}}
 
 SCHEMA.static(
   'add{{pascalcase this.name}}',

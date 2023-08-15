@@ -387,7 +387,7 @@ describe('#mongoose/models/processTracking', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_PROCESSTRACKING._id);
     });
@@ -487,7 +487,7 @@ describe('#mongoose/models/processTracking', () => {
       assert.strictEqual(results.results.length, mockProcessTrackings.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc as any)?.__v);
       });
     });
 
@@ -612,7 +612,7 @@ describe('#mongoose/models/processTracking', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a processTracking with refrences as ObjectIds', async () => {
+    it('Should update a processTracking with references as ObjectIds', async () => {
       const updateProcessTracking = {
         ...mocks.MOCK_PROCESSTRACKING,
         deletedAt: new Date(),
@@ -662,6 +662,14 @@ describe('#mongoose/models/processTracking', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(
+        ProcessTrackingModel,
+        'validateUpdateObject',
+        validateStub
+      );
 
       const getProcessTrackingStub = sandbox.stub();
       getProcessTrackingStub.resolves({_id: processTrackingId});

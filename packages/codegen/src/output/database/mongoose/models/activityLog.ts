@@ -10,6 +10,8 @@ import {
   IActivityLogMethods,
 } from '../interfaces';
 import {UserModel} from './user';
+import {WorkspaceModel} from './workspace';
+import {ProjectModel} from './project';
 import {UserAgentModel} from './userAgent';
 
 const SCHEMA = new Schema<
@@ -43,17 +45,15 @@ const SCHEMA = new Schema<
     required: false,
     ref: 'user',
   },
-  workspaceId: {
-    type: ObjectId,
+  workspace: {
+    type: Schema.Types.ObjectId,
     required: false,
+    ref: 'workspace',
   },
-  projectId: {
-    type: ObjectId,
+  project: {
+    type: Schema.Types.ObjectId,
     required: false,
-  },
-  resourceId: {
-    type: ObjectId,
-    required: true,
+    ref: 'project',
   },
   location: {
     type: String,
@@ -163,6 +163,22 @@ SCHEMA.static(
           UserModel.userIdExists
         )
       );
+    if (activityLog.workspace)
+      tasks.push(
+        idValidator(
+          activityLog.workspace._id as mongooseTypes.ObjectId,
+          'Workspace',
+          WorkspaceModel.workspaceIdExists
+        )
+      );
+    if (activityLog.project)
+      tasks.push(
+        idValidator(
+          activityLog.project._id as mongooseTypes.ObjectId,
+          'Project',
+          ProjectModel.projectIdExists
+        )
+      );
     if (activityLog.userAgent)
       tasks.push(
         idValidator(
@@ -201,8 +217,10 @@ SCHEMA.static(
     let id: undefined | mongooseTypes.ObjectId = undefined;
 
     try {
-      const [actor, userAgent] = await Promise.all([
+      const [actor, workspace, project, userAgent] = await Promise.all([
         ACTIVITYLOG_MODEL.validateActor(input.actor),
+        ACTIVITYLOG_MODEL.validateWorkspace(input.workspace),
+        ACTIVITYLOG_MODEL.validateProject(input.project),
         ACTIVITYLOG_MODEL.validateUserAgent(input.userAgent),
       ]);
 
@@ -213,9 +231,8 @@ SCHEMA.static(
         createdAt: createDate,
         updatedAt: createDate,
         actor: actor,
-        workspaceId: input.workspaceId,
-        projectId: input.projectId,
-        resourceId: input.resourceId,
+        workspace: workspace,
+        project: project,
         location: input.location,
         userAgent: userAgent,
         action: input.action,
@@ -266,6 +283,8 @@ SCHEMA.static(
         activityLogId
       )
         .populate('actor')
+        .populate('workspace')
+        .populate('project')
         .populate('userAgent')
         .populate('action')
         .populate('onModel')
@@ -282,6 +301,8 @@ SCHEMA.static(
       delete (activityLogDocument as any)['__v'];
 
       delete (activityLogDocument as any).actor?.['__v'];
+      delete (activityLogDocument as any).workspace?.['__v'];
+      delete (activityLogDocument as any).project?.['__v'];
       delete (activityLogDocument as any).userAgent?.['__v'];
 
       return activityLogDocument;
@@ -328,6 +349,8 @@ SCHEMA.static(
         limit: itemsPerPage,
       })
         .populate('actor')
+        .populate('workspace')
+        .populate('project')
         .populate('userAgent')
         .populate('action')
         .populate('onModel')
@@ -338,6 +361,8 @@ SCHEMA.static(
       activityLogDocuments.forEach((doc: any) => {
         delete (doc as any)['__v'];
         delete (doc as any).actor?.['__v'];
+        delete (doc as any).workspace?.['__v'];
+        delete (doc as any).project?.['__v'];
         delete (doc as any).userAgent?.['__v'];
       });
 
@@ -382,6 +407,16 @@ SCHEMA.static(
         const value = (activityLog as Record<string, any>)[key];
         if (key === 'actor')
           transformedObject.actor =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        if (key === 'workspace')
+          transformedObject.workspace =
+            value instanceof mongooseTypes.ObjectId
+              ? value
+              : (value._id as mongooseTypes.ObjectId);
+        if (key === 'project')
+          transformedObject.project =
             value instanceof mongooseTypes.ObjectId
               ? value
               : (value._id as mongooseTypes.ObjectId);
@@ -458,6 +493,478 @@ SCHEMA.static(
           err
         );
     }
+  }
+);
+
+SCHEMA.static(
+  'addActor',
+  async (
+    activityLogId: mongooseTypes.ObjectId,
+    actor: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      if (!actor)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'actor',
+          actor
+        );
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      const reconciledId = await ACTIVITYLOG_MODEL.validateActor(actor);
+
+      if (activityLogDocument.actor?.toString() !== reconciledId.toString()) {
+        const reconciledId = await ACTIVITYLOG_MODEL.validateActor(actor);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        activityLogDocument.actor = reconciledId;
+        await activityLogDocument.save();
+      }
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the actor. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.addActor',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeActor',
+  async (
+    activityLogId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      activityLogDocument.actor = undefined;
+      await activityLogDocument.save();
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the actor. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.removeActor',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateActor',
+  async (
+    input: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const actorId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(actorId))) {
+      throw new error.InvalidArgumentError(
+        `The actor: ${actorId} does not exist`,
+        'actorId',
+        actorId
+      );
+    }
+    return actorId;
+  }
+);
+
+SCHEMA.static(
+  'addWorkspace',
+  async (
+    activityLogId: mongooseTypes.ObjectId,
+    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      if (!workspace)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'workspace',
+          workspace
+        );
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      const reconciledId = await ACTIVITYLOG_MODEL.validateWorkspace(workspace);
+
+      if (
+        activityLogDocument.workspace?.toString() !== reconciledId.toString()
+      ) {
+        const reconciledId = await ACTIVITYLOG_MODEL.validateWorkspace(
+          workspace
+        );
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        activityLogDocument.workspace = reconciledId;
+        await activityLogDocument.save();
+      }
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the workspace. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.addWorkspace',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeWorkspace',
+  async (
+    activityLogId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      activityLogDocument.workspace = undefined;
+      await activityLogDocument.save();
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the workspace. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.removeWorkspace',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateWorkspace',
+  async (
+    input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const workspaceId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await WorkspaceModel.workspaceIdExists(workspaceId))) {
+      throw new error.InvalidArgumentError(
+        `The workspace: ${workspaceId} does not exist`,
+        'workspaceId',
+        workspaceId
+      );
+    }
+    return workspaceId;
+  }
+);
+
+SCHEMA.static(
+  'addProject',
+  async (
+    activityLogId: mongooseTypes.ObjectId,
+    project: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      if (!project)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'project',
+          project
+        );
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      const reconciledId = await ACTIVITYLOG_MODEL.validateProject(project);
+
+      if (activityLogDocument.project?.toString() !== reconciledId.toString()) {
+        const reconciledId = await ACTIVITYLOG_MODEL.validateProject(project);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        activityLogDocument.project = reconciledId;
+        await activityLogDocument.save();
+      }
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the project. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.addProject',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeProject',
+  async (
+    activityLogId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      activityLogDocument.project = undefined;
+      await activityLogDocument.save();
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the project. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.removeProject',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateProject',
+  async (
+    input: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const projectId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await ProjectModel.projectIdExists(projectId))) {
+      throw new error.InvalidArgumentError(
+        `The project: ${projectId} does not exist`,
+        'projectId',
+        projectId
+      );
+    }
+    return projectId;
+  }
+);
+
+SCHEMA.static(
+  'addUserAgent',
+  async (
+    activityLogId: mongooseTypes.ObjectId,
+    userAgent: databaseTypes.IUserAgent | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      if (!userAgent)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'userAgent',
+          userAgent
+        );
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      const reconciledId = await ACTIVITYLOG_MODEL.validateUserAgent(userAgent);
+
+      if (
+        activityLogDocument.userAgent?.toString() !== reconciledId.toString()
+      ) {
+        const reconciledId = await ACTIVITYLOG_MODEL.validateUserAgent(
+          userAgent
+        );
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        activityLogDocument.userAgent = reconciledId;
+        await activityLogDocument.save();
+      }
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the userAgent. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.addUserAgent',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeUserAgent',
+  async (
+    activityLogId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IActivityLog> => {
+    try {
+      const activityLogDocument = await ACTIVITYLOG_MODEL.findById(
+        activityLogId
+      );
+      if (!activityLogDocument)
+        throw new error.DataNotFoundError(
+          'A activityLogDocument with _id cannot be found',
+          'activityLog._id',
+          activityLogId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      activityLogDocument.userAgent = undefined;
+      await activityLogDocument.save();
+
+      return await ACTIVITYLOG_MODEL.getActivityLogById(activityLogId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the userAgent. See the inner error for additional information',
+          'mongoDb',
+          'activityLog.removeUserAgent',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateUserAgent',
+  async (
+    input: databaseTypes.IUserAgent | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const userAgentId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserAgentModel.userAgentIdExists(userAgentId))) {
+      throw new error.InvalidArgumentError(
+        `The userAgent: ${userAgentId} does not exist`,
+        'userAgentId',
+        userAgentId
+      );
+    }
+    return userAgentId;
   }
 );
 

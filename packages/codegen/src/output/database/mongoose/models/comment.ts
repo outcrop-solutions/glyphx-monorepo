@@ -417,6 +417,230 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addAuthor',
+  async (
+    commentId: mongooseTypes.ObjectId,
+    author: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IComment> => {
+    try {
+      if (!author)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'author',
+          author
+        );
+      const commentDocument = await COMMENT_MODEL.findById(commentId);
+
+      if (!commentDocument)
+        throw new error.DataNotFoundError(
+          'A commentDocument with _id cannot be found',
+          'comment._id',
+          commentId
+        );
+
+      const reconciledId = await COMMENT_MODEL.validateAuthor(author);
+
+      if (commentDocument.author?.toString() !== reconciledId.toString()) {
+        const reconciledId = await COMMENT_MODEL.validateAuthor(author);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        commentDocument.author = reconciledId;
+        await commentDocument.save();
+      }
+
+      return await COMMENT_MODEL.getCommentById(commentId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the author. See the inner error for additional information',
+          'mongoDb',
+          'comment.addAuthor',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeAuthor',
+  async (
+    commentId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IComment> => {
+    try {
+      const commentDocument = await COMMENT_MODEL.findById(commentId);
+      if (!commentDocument)
+        throw new error.DataNotFoundError(
+          'A commentDocument with _id cannot be found',
+          'comment._id',
+          commentId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      commentDocument.author = undefined;
+      await commentDocument.save();
+
+      return await COMMENT_MODEL.getCommentById(commentId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the author. See the inner error for additional information',
+          'mongoDb',
+          'comment.removeAuthor',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateAuthor',
+  async (
+    input: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const authorId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(authorId))) {
+      throw new error.InvalidArgumentError(
+        `The author: ${authorId} does not exist`,
+        'authorId',
+        authorId
+      );
+    }
+    return authorId;
+  }
+);
+
+SCHEMA.static(
+  'addState',
+  async (
+    commentId: mongooseTypes.ObjectId,
+    state: databaseTypes.IState | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IComment> => {
+    try {
+      if (!state)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'state',
+          state
+        );
+      const commentDocument = await COMMENT_MODEL.findById(commentId);
+
+      if (!commentDocument)
+        throw new error.DataNotFoundError(
+          'A commentDocument with _id cannot be found',
+          'comment._id',
+          commentId
+        );
+
+      const reconciledId = await COMMENT_MODEL.validateState(state);
+
+      if (commentDocument.state?.toString() !== reconciledId.toString()) {
+        const reconciledId = await COMMENT_MODEL.validateState(state);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        commentDocument.state = reconciledId;
+        await commentDocument.save();
+      }
+
+      return await COMMENT_MODEL.getCommentById(commentId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the state. See the inner error for additional information',
+          'mongoDb',
+          'comment.addState',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeState',
+  async (
+    commentId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IComment> => {
+    try {
+      const commentDocument = await COMMENT_MODEL.findById(commentId);
+      if (!commentDocument)
+        throw new error.DataNotFoundError(
+          'A commentDocument with _id cannot be found',
+          'comment._id',
+          commentId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      commentDocument.state = undefined;
+      await commentDocument.save();
+
+      return await COMMENT_MODEL.getCommentById(commentId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the state. See the inner error for additional information',
+          'mongoDb',
+          'comment.removeState',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateState',
+  async (
+    input: databaseTypes.IState | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const stateId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await StateModel.stateIdExists(stateId))) {
+      throw new error.InvalidArgumentError(
+        `The state: ${stateId} does not exist`,
+        'stateId',
+        stateId
+      );
+    }
+    return stateId;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

@@ -362,7 +362,7 @@ describe('#mongoose/models/userAgent', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_USERAGENT._id);
     });
@@ -462,7 +462,7 @@ describe('#mongoose/models/userAgent', () => {
       assert.strictEqual(results.results.length, mockUserAgents.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc as any)?.__v);
       });
     });
 
@@ -575,7 +575,7 @@ describe('#mongoose/models/userAgent', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a userAgent with refrences as ObjectIds', async () => {
+    it('Should update a userAgent with references as ObjectIds', async () => {
       const updateUserAgent = {
         ...mocks.MOCK_USERAGENT,
         deletedAt: new Date(),
@@ -617,6 +617,10 @@ describe('#mongoose/models/userAgent', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(UserAgentModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(UserAgentModel, 'validateUpdateObject', validateStub);
 
       const getUserAgentStub = sandbox.stub();
       getUserAgentStub.resolves({_id: userAgentId});

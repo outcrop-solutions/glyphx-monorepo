@@ -406,10 +406,10 @@ describe('#mongoose/models/tag', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.workspaces[0] as any).__v);
-      assert.isUndefined((doc.templates[0] as any).__v);
-      assert.isUndefined((doc.projects[0] as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.workspaces[0] as any)?.__v);
+      assert.isUndefined((doc.templates[0] as any)?.__v);
+      assert.isUndefined((doc.projects[0] as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_TAG._id);
     });
@@ -515,10 +515,10 @@ describe('#mongoose/models/tag', () => {
       assert.strictEqual(results.results.length, mockTags.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.workspaces[0] as any).__v);
-        assert.isUndefined((doc.templates[0] as any).__v);
-        assert.isUndefined((doc.projects[0] as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.workspaces[0] as any)?.__v);
+        assert.isUndefined((doc.templates[0] as any)?.__v);
+        assert.isUndefined((doc.projects[0] as any)?.__v);
       });
     });
 
@@ -631,7 +631,7 @@ describe('#mongoose/models/tag', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a tag with refrences as ObjectIds', async () => {
+    it('Should update a tag with references as ObjectIds', async () => {
       const updateTag = {
         ...mocks.MOCK_TAG,
         deletedAt: new Date(),
@@ -670,6 +670,10 @@ describe('#mongoose/models/tag', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(TagModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(TagModel, 'validateUpdateObject', validateStub);
 
       const getTagStub = sandbox.stub();
       getTagStub.resolves({_id: tagId});

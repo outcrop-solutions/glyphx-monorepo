@@ -148,6 +148,16 @@ describe('#mongoose/models/state', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const createdByStub = sandbox.stub();
+      createdByStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', createdByStub);
+      const projectStub = sandbox.stub();
+      projectStub.resolves(true);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      const workspaceStub = sandbox.stub();
+      workspaceStub.resolves(true);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+
       let errored = false;
 
       try {
@@ -193,6 +203,9 @@ describe('#mongoose/models/state', () => {
     });
 
     it('will fail when the createdBy does not exist.', async () => {
+      const createdByStub = sandbox.stub();
+      createdByStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', createdByStub);
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
       sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
@@ -219,6 +232,9 @@ describe('#mongoose/models/state', () => {
       const createdByStub = sandbox.stub();
       createdByStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', createdByStub);
+      const projectStub = sandbox.stub();
+      projectStub.resolves(false);
+      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
@@ -245,6 +261,9 @@ describe('#mongoose/models/state', () => {
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
       sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      const workspaceStub = sandbox.stub();
+      workspaceStub.resolves(false);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
 
       let errored = false;
 
@@ -407,17 +426,26 @@ describe('#mongoose/models/state', () => {
         sandbox.stub().resolves(mocks.MOCK_STATE.workspace)
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(StateModel, 'getStateById', stub);
+
       let errored = false;
 
       try {
-        await StateModel.validateUpdateObject(
-          mocks.MOCK_STATE as unknown as Omit<
-            Partial<databaseTypes.IState>,
-            '_id'
-          >
-        );
+        await StateModel.createState(mocks.MOCK_STATE);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -448,17 +476,26 @@ describe('#mongoose/models/state', () => {
         sandbox.stub().resolves(mocks.MOCK_STATE.workspace)
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(StateModel, 'getStateById', stub);
+
       let errored = false;
 
       try {
-        await StateModel.validateUpdateObject(
-          mocks.MOCK_STATE as unknown as Omit<
-            Partial<databaseTypes.IState>,
-            '_id'
-          >
-        );
+        await StateModel.createState(mocks.MOCK_STATE);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -489,17 +526,26 @@ describe('#mongoose/models/state', () => {
           )
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        StateModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(StateModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(StateModel, 'getStateById', stub);
+
       let errored = false;
 
       try {
-        await StateModel.validateUpdateObject(
-          mocks.MOCK_STATE as unknown as Omit<
-            Partial<databaseTypes.IState>,
-            '_id'
-          >
-        );
+        await StateModel.createState(mocks.MOCK_STATE);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -655,10 +701,10 @@ describe('#mongoose/models/state', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.createdBy as any).__v);
-      assert.isUndefined((doc.project as any).__v);
-      assert.isUndefined((doc.workspace as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.createdBy as any)?.__v);
+      assert.isUndefined((doc.project as any)?.__v);
+      assert.isUndefined((doc.workspace as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_STATE._id);
     });
@@ -782,10 +828,10 @@ describe('#mongoose/models/state', () => {
       assert.strictEqual(results.results.length, mockStates.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.createdBy as any).__v);
-        assert.isUndefined((doc.project as any).__v);
-        assert.isUndefined((doc.workspace as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.createdBy as any)?.__v);
+        assert.isUndefined((doc.project as any)?.__v);
+        assert.isUndefined((doc.workspace as any)?.__v);
       });
     });
 
@@ -907,7 +953,7 @@ describe('#mongoose/models/state', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a state with refrences as ObjectIds', async () => {
+    it('Should update a state with references as ObjectIds', async () => {
       const updateState = {
         ...mocks.MOCK_STATE,
         deletedAt: new Date(),
@@ -946,6 +992,10 @@ describe('#mongoose/models/state', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(StateModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(StateModel, 'validateUpdateObject', validateStub);
 
       const getStateStub = sandbox.stub();
       getStateStub.resolves({_id: stateId});

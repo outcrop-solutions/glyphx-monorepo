@@ -14,4 +14,5 @@ export interface IProperty {
   cascadeOnDelete?: boolean;
   cascadeOnUpdate?: boolean;
   unique?: boolean;
+  duplicates?: number;
 }

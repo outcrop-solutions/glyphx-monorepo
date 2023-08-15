@@ -142,6 +142,10 @@ describe('#mongoose/models/account', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const userStub = sandbox.stub();
+      userStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userStub);
+
       let errored = false;
 
       try {
@@ -179,6 +183,10 @@ describe('#mongoose/models/account', () => {
     });
 
     it('will fail when the user does not exist.', async () => {
+      const userStub = sandbox.stub();
+      userStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', userStub);
+
       let errored = false;
 
       try {
@@ -304,17 +312,26 @@ describe('#mongoose/models/account', () => {
           )
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        AccountModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(AccountModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(AccountModel, 'getAccountById', stub);
+
       let errored = false;
 
       try {
-        await AccountModel.validateUpdateObject(
-          mocks.MOCK_ACCOUNT as unknown as Omit<
-            Partial<databaseTypes.IAccount>,
-            '_id'
-          >
-        );
+        await AccountModel.createAccount(mocks.MOCK_ACCOUNT);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -440,8 +457,8 @@ describe('#mongoose/models/account', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.user as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.user as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_ACCOUNT._id);
     });
@@ -549,8 +566,8 @@ describe('#mongoose/models/account', () => {
       assert.strictEqual(results.results.length, mockAccounts.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.user as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.user as any)?.__v);
       });
     });
 
@@ -667,7 +684,7 @@ describe('#mongoose/models/account', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a account with refrences as ObjectIds', async () => {
+    it('Should update a account with references as ObjectIds', async () => {
       const updateAccount = {
         ...mocks.MOCK_ACCOUNT,
         deletedAt: new Date(),
@@ -709,6 +726,10 @@ describe('#mongoose/models/account', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(AccountModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(AccountModel, 'validateUpdateObject', validateStub);
 
       const getAccountStub = sandbox.stub();
       getAccountStub.resolves({_id: accountId});

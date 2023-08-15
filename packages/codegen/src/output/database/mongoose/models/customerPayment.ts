@@ -428,6 +428,132 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addCustomer',
+  async (
+    customerPaymentId: mongooseTypes.ObjectId,
+    customer: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.ICustomerPayment> => {
+    try {
+      if (!customer)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'customer',
+          customer
+        );
+      const customerPaymentDocument = await CUSTOMERPAYMENT_MODEL.findById(
+        customerPaymentId
+      );
+
+      if (!customerPaymentDocument)
+        throw new error.DataNotFoundError(
+          'A customerPaymentDocument with _id cannot be found',
+          'customerPayment._id',
+          customerPaymentId
+        );
+
+      const reconciledId = await CUSTOMERPAYMENT_MODEL.validateCustomer(
+        customer
+      );
+
+      if (
+        customerPaymentDocument.customer?.toString() !== reconciledId.toString()
+      ) {
+        const reconciledId = await CUSTOMERPAYMENT_MODEL.validateCustomer(
+          customer
+        );
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        customerPaymentDocument.customer = reconciledId;
+        await customerPaymentDocument.save();
+      }
+
+      return await CUSTOMERPAYMENT_MODEL.getCustomerPaymentById(
+        customerPaymentId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the customer. See the inner error for additional information',
+          'mongoDb',
+          'customerPayment.addCustomer',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeCustomer',
+  async (
+    customerPaymentId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.ICustomerPayment> => {
+    try {
+      const customerPaymentDocument = await CUSTOMERPAYMENT_MODEL.findById(
+        customerPaymentId
+      );
+      if (!customerPaymentDocument)
+        throw new error.DataNotFoundError(
+          'A customerPaymentDocument with _id cannot be found',
+          'customerPayment._id',
+          customerPaymentId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      customerPaymentDocument.customer = undefined;
+      await customerPaymentDocument.save();
+
+      return await CUSTOMERPAYMENT_MODEL.getCustomerPaymentById(
+        customerPaymentId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the customer. See the inner error for additional information',
+          'mongoDb',
+          'customerPayment.removeCustomer',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateCustomer',
+  async (
+    input: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const customerId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(customerId))) {
+      throw new error.InvalidArgumentError(
+        `The customer: ${customerId} does not exist`,
+        'customerId',
+        customerId
+      );
+    }
+    return customerId;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

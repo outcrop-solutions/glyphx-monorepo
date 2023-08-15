@@ -148,6 +148,17 @@ describe('#mongoose/models/project', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const workspaceStub = sandbox.stub();
+      workspaceStub.resolves(true);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      const templateStub = sandbox.stub();
+      templateStub.resolves(true);
+      sandbox.replace(
+        ProjectTemplateModel,
+        'projectTemplateIdExists',
+        templateStub
+      );
+
       let errored = false;
 
       try {
@@ -193,6 +204,9 @@ describe('#mongoose/models/project', () => {
     });
 
     it('will fail when the workspace does not exist.', async () => {
+      const workspaceStub = sandbox.stub();
+      workspaceStub.resolves(false);
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
       const templateStub = sandbox.stub();
       templateStub.resolves(true);
       sandbox.replace(
@@ -220,6 +234,13 @@ describe('#mongoose/models/project', () => {
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      const templateStub = sandbox.stub();
+      templateStub.resolves(false);
+      sandbox.replace(
+        ProjectTemplateModel,
+        'projectTemplateIdExists',
+        templateStub
+      );
 
       let errored = false;
 
@@ -407,17 +428,26 @@ describe('#mongoose/models/project', () => {
         sandbox.stub().resolves(mocks.MOCK_PROJECT.states)
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(ProjectModel, 'getProjectById', stub);
+
       let errored = false;
 
       try {
-        await ProjectModel.validateUpdateObject(
-          mocks.MOCK_PROJECT as unknown as Omit<
-            Partial<databaseTypes.IProject>,
-            '_id'
-          >
-        );
+        await ProjectModel.createProject(mocks.MOCK_PROJECT);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -458,17 +488,26 @@ describe('#mongoose/models/project', () => {
         sandbox.stub().resolves(mocks.MOCK_PROJECT.states)
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ProjectModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(ProjectModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(ProjectModel, 'getProjectById', stub);
+
       let errored = false;
 
       try {
-        await ProjectModel.validateUpdateObject(
-          mocks.MOCK_PROJECT as unknown as Omit<
-            Partial<databaseTypes.IProject>,
-            '_id'
-          >
-        );
+        await ProjectModel.createProject(mocks.MOCK_PROJECT);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -654,12 +693,12 @@ describe('#mongoose/models/project', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.workspace as any).__v);
-      assert.isUndefined((doc.template as any).__v);
-      assert.isUndefined((doc.members[0] as any).__v);
-      assert.isUndefined((doc.tags[0] as any).__v);
-      assert.isUndefined((doc.states[0] as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.workspace as any)?.__v);
+      assert.isUndefined((doc.template as any)?.__v);
+      assert.isUndefined((doc.members[0] as any)?.__v);
+      assert.isUndefined((doc.tags[0] as any)?.__v);
+      assert.isUndefined((doc.states[0] as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_PROJECT._id);
     });
@@ -781,12 +820,12 @@ describe('#mongoose/models/project', () => {
       assert.strictEqual(results.results.length, mockProjects.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.workspace as any).__v);
-        assert.isUndefined((doc.template as any).__v);
-        assert.isUndefined((doc.members[0] as any).__v);
-        assert.isUndefined((doc.tags[0] as any).__v);
-        assert.isUndefined((doc.states[0] as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.workspace as any)?.__v);
+        assert.isUndefined((doc.template as any)?.__v);
+        assert.isUndefined((doc.members[0] as any)?.__v);
+        assert.isUndefined((doc.tags[0] as any)?.__v);
+        assert.isUndefined((doc.states[0] as any)?.__v);
       });
     });
 
@@ -910,7 +949,7 @@ describe('#mongoose/models/project', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a project with refrences as ObjectIds', async () => {
+    it('Should update a project with references as ObjectIds', async () => {
       const updateProject = {
         ...mocks.MOCK_PROJECT,
         deletedAt: new Date(),
@@ -952,6 +991,10 @@ describe('#mongoose/models/project', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(ProjectModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(ProjectModel, 'validateUpdateObject', validateStub);
 
       const getProjectStub = sandbox.stub();
       getProjectStub.resolves({_id: projectId});

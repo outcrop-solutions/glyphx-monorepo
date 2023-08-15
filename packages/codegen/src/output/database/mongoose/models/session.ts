@@ -405,6 +405,118 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addUser',
+  async (
+    sessionId: mongooseTypes.ObjectId,
+    user: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.ISession> => {
+    try {
+      if (!user)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'user',
+          user
+        );
+      const sessionDocument = await SESSION_MODEL.findById(sessionId);
+
+      if (!sessionDocument)
+        throw new error.DataNotFoundError(
+          'A sessionDocument with _id cannot be found',
+          'session._id',
+          sessionId
+        );
+
+      const reconciledId = await SESSION_MODEL.validateUser(user);
+
+      if (sessionDocument.user?.toString() !== reconciledId.toString()) {
+        const reconciledId = await SESSION_MODEL.validateUser(user);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        sessionDocument.user = reconciledId;
+        await sessionDocument.save();
+      }
+
+      return await SESSION_MODEL.getSessionById(sessionId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the user. See the inner error for additional information',
+          'mongoDb',
+          'session.addUser',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeUser',
+  async (
+    sessionId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.ISession> => {
+    try {
+      const sessionDocument = await SESSION_MODEL.findById(sessionId);
+      if (!sessionDocument)
+        throw new error.DataNotFoundError(
+          'A sessionDocument with _id cannot be found',
+          'session._id',
+          sessionId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      sessionDocument.user = undefined;
+      await sessionDocument.save();
+
+      return await SESSION_MODEL.getSessionById(sessionId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the user. See the inner error for additional information',
+          'mongoDb',
+          'session.removeUser',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateUser',
+  async (
+    input: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const userId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(userId))) {
+      throw new error.InvalidArgumentError(
+        `The user: ${userId} does not exist`,
+        'userId',
+        userId
+      );
+    }
+    return userId;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

@@ -520,6 +520,706 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addWorkspace',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!workspace)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'workspace',
+          workspace
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A projectDocument with _id cannot be found',
+          'project._id',
+          projectId
+        );
+
+      const reconciledId = await PROJECT_MODEL.validateWorkspace(workspace);
+
+      if (projectDocument.workspace?.toString() !== reconciledId.toString()) {
+        const reconciledId = await PROJECT_MODEL.validateWorkspace(workspace);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        projectDocument.workspace = reconciledId;
+        await projectDocument.save();
+      }
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the workspace. See the inner error for additional information',
+          'mongoDb',
+          'project.addWorkspace',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeWorkspace',
+  async (
+    projectId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A projectDocument with _id cannot be found',
+          'project._id',
+          projectId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      projectDocument.workspace = undefined;
+      await projectDocument.save();
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the workspace. See the inner error for additional information',
+          'mongoDb',
+          'project.removeWorkspace',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateWorkspace',
+  async (
+    input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const workspaceId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await WorkspaceModel.workspaceIdExists(workspaceId))) {
+      throw new error.InvalidArgumentError(
+        `The workspace: ${workspaceId} does not exist`,
+        'workspaceId',
+        workspaceId
+      );
+    }
+    return workspaceId;
+  }
+);
+
+SCHEMA.static(
+  'addTemplate',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    template: databaseTypes.IProjectTemplate | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!template)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'template',
+          template
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A projectDocument with _id cannot be found',
+          'project._id',
+          projectId
+        );
+
+      const reconciledId = await PROJECT_MODEL.validateTemplate(template);
+
+      if (projectDocument.template?.toString() !== reconciledId.toString()) {
+        const reconciledId = await PROJECT_MODEL.validateTemplate(template);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        projectDocument.template = reconciledId;
+        await projectDocument.save();
+      }
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the template. See the inner error for additional information',
+          'mongoDb',
+          'project.addTemplate',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeTemplate',
+  async (
+    projectId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A projectDocument with _id cannot be found',
+          'project._id',
+          projectId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      projectDocument.template = undefined;
+      await projectDocument.save();
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the template. See the inner error for additional information',
+          'mongoDb',
+          'project.removeTemplate',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateTemplate',
+  async (
+    input: databaseTypes.IProjectTemplate | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const templateId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await ProjectTemplateModel.projectTemplateIdExists(templateId))) {
+      throw new error.InvalidArgumentError(
+        `The template: ${templateId} does not exist`,
+        'templateId',
+        templateId
+      );
+    }
+    return templateId;
+  }
+);
+SCHEMA.static(
+  'addMembers',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A projectDocument with _id cannot be found',
+          'project._id',
+          projectId
+        );
+
+      const reconciledIds = await PROJECT_MODEL.validateMembers(members);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !projectDocument.members.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          projectDocument.members.push(p as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await projectDocument.save();
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Members. See the inner error for additional information',
+          'mongoDb',
+          'project.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeMembers',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          projectId
+        );
+
+      const reconciledIds = members.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedMembers = projectDocument.members.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        projectDocument.members =
+          updatedMembers as unknown as databaseTypes.IMember[];
+        await projectDocument.save();
+      }
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'project.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateMembers',
+  async (
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const membersIds: mongooseTypes.ObjectId[] = [];
+    members.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) membersIds.push(p);
+      else membersIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await MemberModel.allMemberIdsExist(membersIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'members',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return membersIds;
+  }
+);
+SCHEMA.static(
+  'addTags',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'tags',
+          tags
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A projectDocument with _id cannot be found',
+          'project._id',
+          projectId
+        );
+
+      const reconciledIds = await PROJECT_MODEL.validateTags(tags);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !projectDocument.tags.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          projectDocument.tags.push(p as unknown as databaseTypes.ITag);
+        }
+      });
+
+      if (dirty) await projectDocument.save();
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Tags. See the inner error for additional information',
+          'mongoDb',
+          'project.addTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeTags',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'tags',
+          tags
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          projectId
+        );
+
+      const reconciledIds = tags.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedTags = projectDocument.tags.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        projectDocument.tags = updatedTags as unknown as databaseTypes.ITag[];
+        await projectDocument.save();
+      }
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'project.removeTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateTags',
+  async (
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const tagsIds: mongooseTypes.ObjectId[] = [];
+    tags.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) tagsIds.push(p);
+      else tagsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await TagModel.allTagIdsExist(tagsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'tags',
+          tags,
+          err
+        );
+      else throw err;
+    }
+
+    return tagsIds;
+  }
+);
+SCHEMA.static(
+  'addStates',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'states',
+          states
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A projectDocument with _id cannot be found',
+          'project._id',
+          projectId
+        );
+
+      const reconciledIds = await PROJECT_MODEL.validateStates(states);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !projectDocument.states.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          projectDocument.states.push(p as unknown as databaseTypes.IState);
+        }
+      });
+
+      if (dirty) await projectDocument.save();
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the States. See the inner error for additional information',
+          'mongoDb',
+          'project.addStates',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeStates',
+  async (
+    projectId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProject> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'states',
+          states
+        );
+      const projectDocument = await PROJECT_MODEL.findById(projectId);
+      if (!projectDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          projectId
+        );
+
+      const reconciledIds = states.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedStates = projectDocument.states.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        projectDocument.states =
+          updatedStates as unknown as databaseTypes.IState[];
+        await projectDocument.save();
+      }
+
+      return await PROJECT_MODEL.getProjectById(projectId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'project.removeStates',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateStates',
+  async (
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const statesIds: mongooseTypes.ObjectId[] = [];
+    states.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) statesIds.push(p);
+      else statesIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await StateModel.allStateIdsExist(statesIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'states',
+          states,
+          err
+        );
+      else throw err;
+    }
+
+    return statesIds;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

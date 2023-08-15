@@ -534,6 +534,1244 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addAccounts',
+  async (
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!accounts.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'accounts',
+          accounts
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateAccounts(accounts);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !userDocument.accounts.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          userDocument.accounts.push(p as unknown as databaseTypes.IAccount);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Accounts. See the inner error for additional information',
+          'mongoDb',
+          'user.addAccounts',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeAccounts',
+  async (
+    userId: mongooseTypes.ObjectId,
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!accounts.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'accounts',
+          accounts
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          userId
+        );
+
+      const reconciledIds = accounts.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedAccounts = userDocument.accounts.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.accounts =
+          updatedAccounts as unknown as databaseTypes.IAccount[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeAccounts',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateAccounts',
+  async (
+    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const accountsIds: mongooseTypes.ObjectId[] = [];
+    accounts.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) accountsIds.push(p);
+      else accountsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await AccountModel.allAccountIdsExist(accountsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'accounts',
+          accounts,
+          err
+        );
+      else throw err;
+    }
+
+    return accountsIds;
+  }
+);
+SCHEMA.static(
+  'addSessions',
+  async (
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!sessions.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'sessions',
+          sessions
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateSessions(sessions);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !userDocument.sessions.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          userDocument.sessions.push(p as unknown as databaseTypes.ISession);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Sessions. See the inner error for additional information',
+          'mongoDb',
+          'user.addSessions',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeSessions',
+  async (
+    userId: mongooseTypes.ObjectId,
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!sessions.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'sessions',
+          sessions
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          userId
+        );
+
+      const reconciledIds = sessions.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedSessions = userDocument.sessions.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.sessions =
+          updatedSessions as unknown as databaseTypes.ISession[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeSessions',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateSessions',
+  async (
+    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const sessionsIds: mongooseTypes.ObjectId[] = [];
+    sessions.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) sessionsIds.push(p);
+      else sessionsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await SessionModel.allSessionIdsExist(sessionsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'sessions',
+          sessions,
+          err
+        );
+      else throw err;
+    }
+
+    return sessionsIds;
+  }
+);
+SCHEMA.static(
+  'addMemberships',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateMemberships(members);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !userDocument.membership.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          userDocument.membership.push(p as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Members. See the inner error for additional information',
+          'mongoDb',
+          'user.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeMemberships',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          userId
+        );
+
+      const reconciledIds = members.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedMembers = userDocument.members.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.members =
+          updatedMembers as unknown as databaseTypes.IMember[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateMemberships',
+  async (
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const membersIds: mongooseTypes.ObjectId[] = [];
+    members.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) membersIds.push(p);
+      else membersIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await MemberModel.allMemberIdsExist(membersIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'members',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return membersIds;
+  }
+);
+SCHEMA.static(
+  'addInvitedMembers',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateInvitedMembers(members);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !userDocument.invitedMembers.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          userDocument.invitedMembers.push(
+            p as unknown as databaseTypes.IMember
+          );
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Members. See the inner error for additional information',
+          'mongoDb',
+          'user.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeInvitedMembers',
+  async (
+    userId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          userId
+        );
+
+      const reconciledIds = members.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedMembers = userDocument.members.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.members =
+          updatedMembers as unknown as databaseTypes.IMember[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateInvitedMembers',
+  async (
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const membersIds: mongooseTypes.ObjectId[] = [];
+    members.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) membersIds.push(p);
+      else membersIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await MemberModel.allMemberIdsExist(membersIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'members',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return membersIds;
+  }
+);
+SCHEMA.static(
+  'addCreatedWorkspaces',
+  async (
+    userId: mongooseTypes.ObjectId,
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!workspaces.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'workspaces',
+          workspaces
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateCreatedWorkspaces(
+        workspaces
+      );
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !userDocument.createdWorkspaces.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          userDocument.createdWorkspaces.push(
+            p as unknown as databaseTypes.IWorkspace
+          );
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Workspaces. See the inner error for additional information',
+          'mongoDb',
+          'user.addWorkspaces',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeCreatedWorkspaces',
+  async (
+    userId: mongooseTypes.ObjectId,
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!workspaces.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'workspaces',
+          workspaces
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          userId
+        );
+
+      const reconciledIds = workspaces.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedWorkspaces = userDocument.workspaces.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.workspaces =
+          updatedWorkspaces as unknown as databaseTypes.IWorkspace[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeWorkspaces',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateCreatedWorkspaces',
+  async (
+    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const workspacesIds: mongooseTypes.ObjectId[] = [];
+    workspaces.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) workspacesIds.push(p);
+      else workspacesIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await WorkspaceModel.allWorkspaceIdsExist(workspacesIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'workspaces',
+          workspaces,
+          err
+        );
+      else throw err;
+    }
+
+    return workspacesIds;
+  }
+);
+SCHEMA.static(
+  'addProjects',
+  async (
+    userId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'projects',
+          projects
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateProjects(projects);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !userDocument.projects.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          userDocument.projects.push(p as unknown as databaseTypes.IProject);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Projects. See the inner error for additional information',
+          'mongoDb',
+          'user.addProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeProjects',
+  async (
+    userId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'projects',
+          projects
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          userId
+        );
+
+      const reconciledIds = projects.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedProjects = userDocument.projects.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateProjects',
+  async (
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const projectsIds: mongooseTypes.ObjectId[] = [];
+    projects.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) projectsIds.push(p);
+      else projectsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await ProjectModel.allProjectIdsExist(projectsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'projects',
+          projects,
+          err
+        );
+      else throw err;
+    }
+
+    return projectsIds;
+  }
+);
+
+SCHEMA.static(
+  'addCustomerPayment',
+  async (
+    userId: mongooseTypes.ObjectId,
+    customerPayment: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!customerPayment)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'customerPayment',
+          customerPayment
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledId = await USER_MODEL.validateCustomerPayment(
+        customerPayment
+      );
+
+      if (
+        userDocument.customerPayment?.toString() !== reconciledId.toString()
+      ) {
+        const reconciledId = await USER_MODEL.validateCustomerPayment(
+          customerPayment
+        );
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.customerPayment = reconciledId;
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the customerPayment. See the inner error for additional information',
+          'mongoDb',
+          'user.addCustomerPayment',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeCustomerPayment',
+  async (userId: mongooseTypes.ObjectId): Promise<databaseTypes.IUser> => {
+    try {
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      userDocument.customerPayment = undefined;
+      await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the customerPayment. See the inner error for additional information',
+          'mongoDb',
+          'user.removeCustomerPayment',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateCustomerPayment',
+  async (
+    input: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const customerPaymentId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (
+      !(await CustomerPaymentModel.customerPaymentIdExists(customerPaymentId))
+    ) {
+      throw new error.InvalidArgumentError(
+        `The customerPayment: ${customerPaymentId} does not exist`,
+        'customerPaymentId',
+        customerPaymentId
+      );
+    }
+    return customerPaymentId;
+  }
+);
+SCHEMA.static(
+  'addWebhooks',
+  async (
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!webhooks.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'webhooks',
+          webhooks
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A userDocument with _id cannot be found',
+          'user._id',
+          userId
+        );
+
+      const reconciledIds = await USER_MODEL.validateWebhooks(webhooks);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !userDocument.webhooks.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          userDocument.webhooks.push(p as unknown as databaseTypes.IWebhook);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Webhooks. See the inner error for additional information',
+          'mongoDb',
+          'user.addWebhooks',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeWebhooks',
+  async (
+    userId: mongooseTypes.ObjectId,
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IUser> => {
+    try {
+      if (!webhooks.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'webhooks',
+          webhooks
+        );
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          userId
+        );
+
+      const reconciledIds = webhooks.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedWebhooks = userDocument.webhooks.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        userDocument.webhooks =
+          updatedWebhooks as unknown as databaseTypes.IWebhook[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeWebhooks',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateWebhooks',
+  async (
+    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const webhooksIds: mongooseTypes.ObjectId[] = [];
+    webhooks.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) webhooksIds.push(p);
+      else webhooksIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await WebhookModel.allWebhookIdsExist(webhooksIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'webhooks',
+          webhooks,
+          err
+        );
+      else throw err;
+    }
+
+    return webhooksIds;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

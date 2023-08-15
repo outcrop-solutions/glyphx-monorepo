@@ -7,9 +7,8 @@ const RANDOM_NUMBER = Math.random();
 
 export const MOCK_ACTIVITYLOG = {
   actor: {},
-  workspaceId: 'workspaceId',
-  projectId: 'projectId',
-  resourceId: 'resourceId',
+  workspace: {},
+  project: {},
   location: 'location',
   userAgent: {},
   action: databaseTypes.ACTION_TYPE.CREATED,

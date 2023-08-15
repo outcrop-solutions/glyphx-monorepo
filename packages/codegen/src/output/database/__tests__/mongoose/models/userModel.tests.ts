@@ -145,6 +145,14 @@ describe('#mongoose/models/user', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const customerPaymentStub = sandbox.stub();
+      customerPaymentStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentStub
+      );
+
       let errored = false;
 
       try {
@@ -186,6 +194,14 @@ describe('#mongoose/models/user', () => {
     });
 
     it('will fail when the customerPayment does not exist.', async () => {
+      const customerPaymentStub = sandbox.stub();
+      customerPaymentStub.resolves(false);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'customerPaymentIdExists',
+        customerPaymentStub
+      );
+
       let errored = false;
 
       try {
@@ -297,6 +313,11 @@ describe('#mongoose/models/user', () => {
       );
       sandbox.replace(
         UserModel,
+        'validateInvitedMembers',
+        sandbox.stub().resolves(mocks.MOCK_USER.invitedMembers)
+      );
+      sandbox.replace(
+        UserModel,
         'validateCreatedWorkspaces',
         sandbox.stub().resolves(mocks.MOCK_USER.createdWorkspaces)
       );
@@ -350,7 +371,7 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(
         UserModel,
         'validateMemberships',
-        sandbox.stub().resolves(mocks.MOCK_USER.memberships)
+        sandbox.stub().resolves(mocks.MOCK_USER.membership)
       );
       sandbox.replace(
         UserModel,
@@ -381,17 +402,26 @@ describe('#mongoose/models/user', () => {
         sandbox.stub().resolves(mocks.MOCK_USER.webhooks)
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        UserModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(UserModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(UserModel, 'getUserById', stub);
+
       let errored = false;
 
       try {
-        await UserModel.validateUpdateObject(
-          mocks.MOCK_USER as unknown as Omit<
-            Partial<databaseTypes.IUser>,
-            '_id'
-          >
-        );
+        await UserModel.createUser(mocks.MOCK_USER);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -412,6 +442,11 @@ describe('#mongoose/models/user', () => {
         UserModel,
         'validateMemberships',
         sandbox.stub().resolves(mocks.MOCK_USER.membership)
+      );
+      sandbox.replace(
+        UserModel,
+        'validateInvitedMembers',
+        sandbox.stub().resolves(mocks.MOCK_USER.invitedMembers)
       );
       sandbox.replace(
         UserModel,
@@ -473,6 +508,11 @@ describe('#mongoose/models/user', () => {
       );
       sandbox.replace(
         UserModel,
+        'validateInvitedMembers',
+        sandbox.stub().resolves(mocks.MOCK_USER.invitedMembers)
+      );
+      sandbox.replace(
+        UserModel,
         'validateCreatedWorkspaces',
         sandbox.stub().resolves(mocks.MOCK_USER.createdWorkspaces)
       );
@@ -525,6 +565,11 @@ describe('#mongoose/models/user', () => {
         UserModel,
         'validateMemberships',
         sandbox.stub().resolves(mocks.MOCK_USER.membership)
+      );
+      sandbox.replace(
+        UserModel,
+        'validateInvitedMembers',
+        sandbox.stub().resolves(mocks.MOCK_USER.invitedMembers)
       );
       sandbox.replace(
         UserModel,
@@ -607,15 +652,15 @@ describe('#mongoose/models/user', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.accounts[0] as any).__v);
-      assert.isUndefined((doc.sessions[0] as any).__v);
-      assert.isUndefined((doc.membership[0] as any).__v);
-      assert.isUndefined((doc.invitedMembers[0] as any).__v);
-      assert.isUndefined((doc.createdWorkspaces[0] as any).__v);
-      assert.isUndefined((doc.projects[0] as any).__v);
-      assert.isUndefined((doc.customerPayment as any).__v);
-      assert.isUndefined((doc.webhooks[0] as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.accounts[0] as any)?.__v);
+      assert.isUndefined((doc.sessions[0] as any)?.__v);
+      assert.isUndefined((doc.membership[0] as any)?.__v);
+      assert.isUndefined((doc.invitedMembers[0] as any)?.__v);
+      assert.isUndefined((doc.createdWorkspaces[0] as any)?.__v);
+      assert.isUndefined((doc.projects[0] as any)?.__v);
+      assert.isUndefined((doc.customerPayment as any)?.__v);
+      assert.isUndefined((doc.webhooks[0] as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_USER._id);
     });
@@ -737,15 +782,15 @@ describe('#mongoose/models/user', () => {
       assert.strictEqual(results.results.length, mockUsers.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.accounts[0] as any).__v);
-        assert.isUndefined((doc.sessions[0] as any).__v);
-        assert.isUndefined((doc.membership[0] as any).__v);
-        assert.isUndefined((doc.invitedMembers[0] as any).__v);
-        assert.isUndefined((doc.createdWorkspaces[0] as any).__v);
-        assert.isUndefined((doc.projects[0] as any).__v);
-        assert.isUndefined((doc.customerPayment as any).__v);
-        assert.isUndefined((doc.webhooks[0] as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.accounts[0] as any)?.__v);
+        assert.isUndefined((doc.sessions[0] as any)?.__v);
+        assert.isUndefined((doc.membership[0] as any)?.__v);
+        assert.isUndefined((doc.invitedMembers[0] as any)?.__v);
+        assert.isUndefined((doc.createdWorkspaces[0] as any)?.__v);
+        assert.isUndefined((doc.projects[0] as any)?.__v);
+        assert.isUndefined((doc.customerPayment as any)?.__v);
+        assert.isUndefined((doc.webhooks[0] as any)?.__v);
       });
     });
 
@@ -865,7 +910,7 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a user with refrences as ObjectIds', async () => {
+    it('Should update a user with references as ObjectIds', async () => {
       const updateUser = {
         ...mocks.MOCK_USER,
         deletedAt: new Date(),
@@ -904,6 +949,10 @@ describe('#mongoose/models/user', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(UserModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(UserModel, 'validateUpdateObject', validateStub);
 
       const getUserStub = sandbox.stub();
       getUserStub.resolves({_id: userId});

@@ -1,0 +1,1703 @@
+ 
+   #mongoose/models/account
+     accountIdExists
+       ✔ should return true if the accountId exists
+       ✔ should return false if the accountId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allAccountIdsExist
+       ✔ should return true when all the account ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       1) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       2) will fail when the user does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createAccount
+       3) will create a account document
+       4) will rethrow a DataValidationError when the user validator throws one
+       5) will throw a DatabaseOperationError when an underlying model function errors
+       6) will throw an Unexpected Error when create does not return an object with an _id
+       7) will rethrow a DataValidationError when the validate method on the model errors
+     getAccountById
+       ✔ will retreive a account document with the related fields populated
+       ✔ will throw a DataNotFoundError when the account does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryAccounts
+       ✔ will return the filtered accounts
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateAccountById
+       ✔ Should update a account
+       ✔ Should update a account with refrences as ObjectIds
+       8) Will fail when the account does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a account document
+       ✔ should remove a account
+       ✔ should fail with an InvalidArgumentError when the account does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/activityLog
+     activityLogIdExists
+       ✔ should return true if the activityLogId exists
+       ✔ should return false if the activityLogId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allActivityLogIdsExist
+       ✔ should return true when all the activityLog ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       9) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       10) will fail when the actor does not exist.
+       11) will fail when the workspaceId does not exist.
+       12) will fail when the projectId does not exist.
+       13) will fail when the userAgent does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createActivityLog
+       14) will create a activityLog document
+       15) will rethrow a DataValidationError when the actor validator throws one
+       16) will rethrow a DataValidationError when the workspaceId validator throws one
+       17) will rethrow a DataValidationError when the projectId validator throws one
+       18) will rethrow a DataValidationError when the userAgent validator throws one
+       19) will throw a DatabaseOperationError when an underlying model function errors
+       20) will throw an Unexpected Error when create does not return an object with an _id
+       21) will rethrow a DataValidationError when the validate method on the model errors
+     getActivityLogById
+       ✔ will retreive a activityLog document with the related fields populated
+       ✔ will throw a DataNotFoundError when the activityLog does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryActivityLogs
+       ✔ will return the filtered activityLogs
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateActivityLogById
+       ✔ Should update a activityLog
+       ✔ Should update a activityLog with refrences as ObjectIds
+       22) Will fail when the activityLog does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a activityLog document
+       ✔ should remove a activityLog
+       ✔ should fail with an InvalidArgumentError when the activityLog does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/comment
+     commentIdExists
+       ✔ should return true if the commentId exists
+       ✔ should return false if the commentId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allCommentIdsExist
+       ✔ should return true when all the comment ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       23) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       24) will fail when the author does not exist.
+       25) will fail when the state does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createComment
+       26) will create a comment document
+       27) will rethrow a DataValidationError when the author validator throws one
+       28) will rethrow a DataValidationError when the state validator throws one
+       29) will throw a DatabaseOperationError when an underlying model function errors
+       30) will throw an Unexpected Error when create does not return an object with an _id
+       31) will rethrow a DataValidationError when the validate method on the model errors
+     getCommentById
+       ✔ will retreive a comment document with the related fields populated
+       ✔ will throw a DataNotFoundError when the comment does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryComments
+       ✔ will return the filtered comments
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateCommentById
+       ✔ Should update a comment
+       ✔ Should update a comment with refrences as ObjectIds
+       32) Will fail when the comment does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a comment document
+       ✔ should remove a comment
+       ✔ should fail with an InvalidArgumentError when the comment does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/customerPayment
+     customerPaymentIdExists
+       ✔ should return true if the customerPaymentId exists
+       ✔ should return false if the customerPaymentId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allCustomerPaymentIdsExist
+       ✔ should return true when all the customerPayment ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       33) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       34) will fail when the customer does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createCustomerPayment
+       35) will create a customerPayment document
+       36) will rethrow a DataValidationError when the customer validator throws one
+       37) will throw a DatabaseOperationError when an underlying model function errors
+       38) will throw an Unexpected Error when create does not return an object with an _id
+       39) will rethrow a DataValidationError when the validate method on the model errors
+     getCustomerPaymentById
+       ✔ will retreive a customerPayment document with the related fields populated
+       ✔ will throw a DataNotFoundError when the customerPayment does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryCustomerPayments
+       ✔ will return the filtered customerPayments
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateCustomerPaymentById
+       ✔ Should update a customerPayment
+       ✔ Should update a customerPayment with refrences as ObjectIds
+       40) Will fail when the customerPayment does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a customerPayment document
+       ✔ should remove a customerPayment
+       ✔ should fail with an InvalidArgumentError when the customerPayment does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/member
+     memberIdExists
+       ✔ should return true if the memberId exists
+       ✔ should return false if the memberId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allMemberIdsExist
+       ✔ should return true when all the member ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       41) will not throw an error when no unsafe fields are present
+       42) will not throw an error when the related fields exist in the database
+       43) will fail when the member does not exist.
+       44) will fail when the workspace does not exist.
+       45) will fail when the project does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createMember
+       46) will create a member document
+       47) will rethrow a DataValidationError when the member validator throws one
+       48) will rethrow a DataValidationError when the workspace validator throws one
+       49) will rethrow a DataValidationError when the project validator throws one
+       50) will throw a DatabaseOperationError when an underlying model function errors
+       51) will throw an Unexpected Error when create does not return an object with an _id
+       52) will rethrow a DataValidationError when the validate method on the model errors
+     getMemberById
+       ✔ will retreive a member document with the related fields populated
+       ✔ will throw a DataNotFoundError when the member does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryMembers
+       ✔ will return the filtered members
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateMemberById
+       ✔ Should update a member
+       ✔ Should update a member with refrences as ObjectIds
+       53) Will fail when the member does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a member document
+       ✔ should remove a member
+       ✔ should fail with an InvalidArgumentError when the member does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/processTracking
+     processTrackingIdExists
+       ✔ should return true if the processTrackingId exists
+       ✔ should return false if the processTrackingId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allProcessTrackingIdsExist
+       ✔ should return true when all the processTracking ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       ✔ will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createProcessTracking
+       ✔ will create a processTracking document
+       ✔ will throw a DatabaseOperationError when an underlying model function errors
+       ✔ will throw an Unexpected Error when create does not return an object with an _id
+       ✔ will rethrow a DataValidationError when the validate method on the model errors
+     getProcessTrackingById
+       ✔ will retreive a processTracking document with the related fields populated
+       ✔ will throw a DataNotFoundError when the processTracking does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryProcessTrackings
+       ✔ will return the filtered processTrackings
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateProcessTrackingById
+       ✔ Should update a processTracking
+       ✔ Should update a processTracking with refrences as ObjectIds
+       ✔ Will fail when the processTracking does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a processTracking document
+       ✔ should remove a processTracking
+       ✔ should fail with an InvalidArgumentError when the processTracking does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/project
+     projectIdExists
+       ✔ should return true if the projectId exists
+       ✔ should return false if the projectId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allProjectIdsExist
+       ✔ should return true when all the project ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       54) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       55) will fail when the workspace does not exist.
+       56) will fail when the template does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createProject
+       57) will create a project document
+       58) will rethrow a DataValidationError when the workspace validator throws one
+       59) will rethrow a DataValidationError when the template validator throws one
+       60) will throw a DatabaseOperationError when an underlying model function errors
+       61) will throw an Unexpected Error when create does not return an object with an _id
+       62) will rethrow a DataValidationError when the validate method on the model errors
+     getProjectById
+       63) will retreive a project document with the related fields populated
+       ✔ will throw a DataNotFoundError when the project does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryProjects
+       64) will return the filtered projects
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateProjectById
+       ✔ Should update a project
+       ✔ Should update a project with refrences as ObjectIds
+       65) Will fail when the project does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a project document
+       ✔ should remove a project
+       ✔ should fail with an InvalidArgumentError when the project does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/projectTemplate
+     projectTemplateIdExists
+       ✔ should return true if the projectTemplateId exists
+       ✔ should return false if the projectTemplateId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allProjectTemplateIdsExist
+       ✔ should return true when all the projectTemplate ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       ✔ will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createProjectTemplate
+       66) will create a projectTemplate document
+       67) will throw a DatabaseOperationError when an underlying model function errors
+       68) will throw an Unexpected Error when create does not return an object with an _id
+       69) will rethrow a DataValidationError when the validate method on the model errors
+     getProjectTemplateById
+       70) will retreive a projectTemplate document with the related fields populated
+       ✔ will throw a DataNotFoundError when the projectTemplate does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryProjectTemplates
+       71) will return the filtered projectTemplates
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateProjectTemplateById
+       ✔ Should update a projectTemplate
+       ✔ Should update a projectTemplate with refrences as ObjectIds
+       ✔ Will fail when the projectTemplate does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a projectTemplate document
+       ✔ should remove a projectTemplate
+       ✔ should fail with an InvalidArgumentError when the projectTemplate does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/session
+     sessionIdExists
+       ✔ should return true if the sessionId exists
+       ✔ should return false if the sessionId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allSessionIdsExist
+       ✔ should return true when all the session ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       72) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       73) will fail when the user does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createSession
+       74) will create a session document
+       75) will rethrow a DataValidationError when the user validator throws one
+       76) will throw a DatabaseOperationError when an underlying model function errors
+       77) will throw an Unexpected Error when create does not return an object with an _id
+       78) will rethrow a DataValidationError when the validate method on the model errors
+     getSessionById
+       ✔ will retreive a session document with the related fields populated
+       ✔ will throw a DataNotFoundError when the session does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     querySessions
+       ✔ will return the filtered sessions
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateSessionById
+       ✔ Should update a session
+       ✔ Should update a session with refrences as ObjectIds
+       79) Will fail when the session does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a session document
+       ✔ should remove a session
+       ✔ should fail with an InvalidArgumentError when the session does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/state
+     stateIdExists
+       ✔ should return true if the stateId exists
+       ✔ should return false if the stateId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allStateIdsExist
+       ✔ should return true when all the state ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       80) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       81) will fail when the createdBy does not exist.
+       82) will fail when the project does not exist.
+       83) will fail when the workspace does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createState
+       84) will create a state document
+       85) will rethrow a DataValidationError when the createdBy validator throws one
+       86) will rethrow a DataValidationError when the project validator throws one
+       87) will rethrow a DataValidationError when the workspace validator throws one
+       88) will throw a DatabaseOperationError when an underlying model function errors
+       89) will throw an Unexpected Error when create does not return an object with an _id
+       90) will rethrow a DataValidationError when the validate method on the model errors
+     getStateById
+       ✔ will retreive a state document with the related fields populated
+       ✔ will throw a DataNotFoundError when the state does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryStates
+       ✔ will return the filtered states
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateStateById
+       ✔ Should update a state
+       ✔ Should update a state with refrences as ObjectIds
+       91) Will fail when the state does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a state document
+       ✔ should remove a state
+       ✔ should fail with an InvalidArgumentError when the state does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/tag
+     tagIdExists
+       ✔ should return true if the tagId exists
+       ✔ should return false if the tagId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allTagIdsExist
+       ✔ should return true when all the tag ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       ✔ will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createTag
+       92) will create a tag document
+       93) will throw a DatabaseOperationError when an underlying model function errors
+       94) will throw an Unexpected Error when create does not return an object with an _id
+       95) will rethrow a DataValidationError when the validate method on the model errors
+     getTagById
+       96) will retreive a tag document with the related fields populated
+       ✔ will throw a DataNotFoundError when the tag does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryTags
+       97) will return the filtered tags
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateTagById
+       ✔ Should update a tag
+       ✔ Should update a tag with refrences as ObjectIds
+       ✔ Will fail when the tag does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a tag document
+       ✔ should remove a tag
+       ✔ should fail with an InvalidArgumentError when the tag does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/userAgent
+     userAgentIdExists
+       ✔ should return true if the userAgentId exists
+       ✔ should return false if the userAgentId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allUserAgentIdsExist
+       ✔ should return true when all the userAgent ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       ✔ will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createUserAgent
+       ✔ will create a userAgent document
+       ✔ will throw a DatabaseOperationError when an underlying model function errors
+       ✔ will throw an Unexpected Error when create does not return an object with an _id
+       ✔ will rethrow a DataValidationError when the validate method on the model errors
+     getUserAgentById
+       ✔ will retreive a userAgent document with the related fields populated
+       ✔ will throw a DataNotFoundError when the userAgent does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryUserAgents
+       ✔ will return the filtered userAgents
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateUserAgentById
+       ✔ Should update a userAgent
+       ✔ Should update a userAgent with refrences as ObjectIds
+       ✔ Will fail when the userAgent does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a userAgent document
+       ✔ should remove a userAgent
+       ✔ should fail with an InvalidArgumentError when the userAgent does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/user
+     userIdExists
+       ✔ should return true if the userId exists
+       ✔ should return false if the userId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allUserIdsExist
+       ✔ should return true when all the user ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       98) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       99) will fail when the customerPayment does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createUser
+       100) will create a user document
+       101) will rethrow a DataValidationError when the customerPayment validator throws one
+       102) will throw a DatabaseOperationError when an underlying model function errors
+       103) will throw an Unexpected Error when create does not return an object with an _id
+       104) will rethrow a DataValidationError when the validate method on the model errors
+     getUserById
+       105) will retreive a user document with the related fields populated
+       ✔ will throw a DataNotFoundError when the user does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryUsers
+       106) will return the filtered users
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateUserById
+       ✔ Should update a user
+       ✔ Should update a user with refrences as ObjectIds
+       107) Will fail when the user does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a user document
+       ✔ should remove a user
+       ✔ should fail with an InvalidArgumentError when the user does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/verificationToken
+     verificationTokenIdExists
+       ✔ should return true if the verificationTokenId exists
+       ✔ should return false if the verificationTokenId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allVerificationTokenIdsExist
+       ✔ should return true when all the verificationToken ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       ✔ will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createVerificationToken
+       ✔ will create a verificationToken document
+       ✔ will throw a DatabaseOperationError when an underlying model function errors
+       ✔ will throw an Unexpected Error when create does not return an object with an _id
+       ✔ will rethrow a DataValidationError when the validate method on the model errors
+     getVerificationTokenById
+       ✔ will retreive a verificationToken document with the related fields populated
+       ✔ will throw a DataNotFoundError when the verificationToken does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryVerificationTokens
+       ✔ will return the filtered verificationTokens
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateVerificationTokenById
+       ✔ Should update a verificationToken
+       ✔ Should update a verificationToken with refrences as ObjectIds
+       ✔ Will fail when the verificationToken does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a verificationToken document
+       ✔ should remove a verificationToken
+       ✔ should fail with an InvalidArgumentError when the verificationToken does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/webhook
+     webhookIdExists
+       ✔ should return true if the webhookId exists
+       ✔ should return false if the webhookId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allWebhookIdsExist
+       ✔ should return true when all the webhook ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       108) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       109) will fail when the user does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createWebhook
+       110) will create a webhook document
+       111) will rethrow a DataValidationError when the user validator throws one
+       112) will throw a DatabaseOperationError when an underlying model function errors
+       113) will throw an Unexpected Error when create does not return an object with an _id
+       114) will rethrow a DataValidationError when the validate method on the model errors
+     getWebhookById
+       ✔ will retreive a webhook document with the related fields populated
+       ✔ will throw a DataNotFoundError when the webhook does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryWebhooks
+       ✔ will return the filtered webhooks
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateWebhookById
+       ✔ Should update a webhook
+       ✔ Should update a webhook with refrences as ObjectIds
+       115) Will fail when the webhook does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a webhook document
+       ✔ should remove a webhook
+       ✔ should fail with an InvalidArgumentError when the webhook does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+   #mongoose/models/workspace
+     workspaceIdExists
+       ✔ should return true if the workspaceId exists
+       ✔ should return false if the workspaceId does not exist
+       ✔ will throw a DatabaseOperationError when the underlying database connection errors
+     allWorkspaceIdsExist
+       ✔ should return true when all the workspace ids exist
+       ✔ should throw a DataNotFoundError when one of the ids does not exist
+       ✔ should throw a DatabaseOperationError when the undelying connection errors
+     validateUpdateObject
+       116) will not throw an error when no unsafe fields are present
+       ✔ will not throw an error when the related fields exist in the database
+       117) will fail when the creator does not exist.
+       ✔ will fail when trying to update the _id
+       ✔ will fail when trying to update the createdAt
+       ✔ will fail when trying to update the updatedAt
+     createWorkspace
+       118) will create a workspace document
+       119) will rethrow a DataValidationError when the creator validator throws one
+       120) will throw a DatabaseOperationError when an underlying model function errors
+       121) will throw an Unexpected Error when create does not return an object with an _id
+       122) will rethrow a DataValidationError when the validate method on the model errors
+     getWorkspaceById
+       123) will retreive a workspace document with the related fields populated
+       ✔ will throw a DataNotFoundError when the workspace does not exist
+       ✔ will throw a DatabaseOperationError when an underlying database connection throws an error
+     queryWorkspaces
+       124) will return the filtered workspaces
+       ✔ will throw a DataNotFoundError when no values match the filter
+       ✔ will throw an InvalidArgumentError when the page number exceeds the number of available pages
+       ✔ will throw a DatabaseOperationError when the underlying database connection fails
+     updateWorkspaceById
+       ✔ Should update a workspace
+       ✔ Should update a workspace with refrences as ObjectIds
+       125) Will fail when the workspace does not exist
+       ✔ Will fail when validateUpdateObject fails
+       ✔ Will fail when a database error occurs
+     Delete a workspace document
+       ✔ should remove a workspace
+       ✔ should fail with an InvalidArgumentError when the workspace does not exist
+       ✔ should fail with an DatabaseOperationError when the underlying database connection throws an error
+ 
+ 
+   395 passing (7m)
+   125 failing
+ 
+   1) #mongoose/models/account
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:157:14)
+ 
+   2) #mongoose/models/account
+        validateUpdateObject
+          will fail when the user does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:192:16)
+ 
+   3) #mongoose/models/account
+        createAccount
+          will create a account document:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:264:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   4) #mongoose/models/account
+        createAccount
+          will rethrow a DataValidationError when the user validator throws one:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:293:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   5) #mongoose/models/account
+        createAccount
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:324:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   6) #mongoose/models/account
+        createAccount
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:352:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   7) #mongoose/models/account
+        createAccount
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:377:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   8) #mongoose/models/account
+        updateAccountById
+          Will fail when the account does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/accountModel.tests.ts:721:16)
+ 
+   9) #mongoose/models/activityLog
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:162:14)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   10) #mongoose/models/activityLog
+        validateUpdateObject
+          will fail when the actor does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:219:16)
+ 
+   11) #mongoose/models/activityLog
+        validateUpdateObject
+          will fail when the workspaceId does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:245:16)
+ 
+   12) #mongoose/models/activityLog
+        validateUpdateObject
+          will fail when the projectId does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:271:16)
+ 
+   13) #mongoose/models/activityLog
+        validateUpdateObject
+          will fail when the userAgent does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:297:16)
+ 
+   14) #mongoose/models/activityLog
+        createActivityLog
+          will create a activityLog document:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:396:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   15) #mongoose/models/activityLog
+        createActivityLog
+          will rethrow a DataValidationError when the actor validator throws one:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:444:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   16) #mongoose/models/activityLog
+        createActivityLog
+          will rethrow a DataValidationError when the workspaceId validator throws one:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:490:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   17) #mongoose/models/activityLog
+        createActivityLog
+          will rethrow a DataValidationError when the projectId validator throws one:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:536:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   18) #mongoose/models/activityLog
+        createActivityLog
+          will rethrow a DataValidationError when the userAgent validator throws one:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:582:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   19) #mongoose/models/activityLog
+        createActivityLog
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:628:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   20) #mongoose/models/activityLog
+        createActivityLog
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:675:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   21) #mongoose/models/activityLog
+        createActivityLog
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateActor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:723:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   22) #mongoose/models/activityLog
+        updateActivityLogById
+          Will fail when the activityLog does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/activityLogModel.tests.ts:1139:16)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   23) #mongoose/models/comment
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:158:14)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   24) #mongoose/models/comment
+        validateUpdateObject
+          will fail when the author does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:201:16)
+ 
+   25) #mongoose/models/comment
+        validateUpdateObject
+          will fail when the state does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:221:16)
+ 
+   26) #mongoose/models/comment
+        createComment
+          will create a comment document:
+      TypeError: Cannot replace non-existent property validateAuthor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:302:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   27) #mongoose/models/comment
+        createComment
+          will rethrow a DataValidationError when the author validator throws one:
+      TypeError: Cannot replace non-existent property validateAuthor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:336:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   28) #mongoose/models/comment
+        createComment
+          will rethrow a DataValidationError when the state validator throws one:
+      TypeError: Cannot replace non-existent property validateAuthor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:372:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   29) #mongoose/models/comment
+        createComment
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateAuthor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:408:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   30) #mongoose/models/comment
+        createComment
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateAuthor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:441:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   31) #mongoose/models/comment
+        createComment
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateAuthor
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:471:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   32) #mongoose/models/comment
+        updateCommentById
+          Will fail when the comment does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/commentModel.tests.ts:834:16)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   33) #mongoose/models/customerPayment
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:171:14)
+ 
+   34) #mongoose/models/customerPayment
+        validateUpdateObject
+          will fail when the customer does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:206:16)
+ 
+   35) #mongoose/models/customerPayment
+        createCustomerPayment
+          will create a customerPayment document:
+      TypeError: Cannot replace non-existent property validateCustomer
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:278:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   36) #mongoose/models/customerPayment
+        createCustomerPayment
+          will rethrow a DataValidationError when the customer validator throws one:
+      TypeError: Cannot replace non-existent property validateCustomer
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:312:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   37) #mongoose/models/customerPayment
+        createCustomerPayment
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateCustomer
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:343:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   38) #mongoose/models/customerPayment
+        createCustomerPayment
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateCustomer
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:377:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   39) #mongoose/models/customerPayment
+        createCustomerPayment
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateCustomer
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:412:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   40) #mongoose/models/customerPayment
+        updateCustomerPaymentById
+          Will fail when the customerPayment does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/customerPaymentModel.tests.ts:785:16)
+ 
+   41) #mongoose/models/member
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:159:14)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   42) #mongoose/models/member
+        validateUpdateObject
+          will not throw an error when the related fields exist in the database:
+      TypeError: Attempted to replace userIdExists which is already replaced
+       at /Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:234:23
+       at Array.forEach (<anonymous>)
+       at verifyNotReplaced (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:229:9)
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:272:9)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:168:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   43) #mongoose/models/member
+        validateUpdateObject
+          will fail when the member does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:213:16)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   44) #mongoose/models/member
+        validateUpdateObject
+          will fail when the workspace does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:236:16)
+ 
+   45) #mongoose/models/member
+        validateUpdateObject
+          will fail when the project does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:259:16)
+ 
+   46) #mongoose/models/member
+        createMember
+          will create a member document:
+      TypeError: Cannot replace non-existent property validateMember
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:349:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   47) #mongoose/models/member
+        createMember
+          will rethrow a DataValidationError when the member validator throws one:
+      TypeError: Cannot replace non-existent property validateMember
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:386:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   48) #mongoose/models/member
+        createMember
+          will rethrow a DataValidationError when the workspace validator throws one:
+      TypeError: Cannot replace non-existent property validateMember
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:427:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   49) #mongoose/models/member
+        createMember
+          will rethrow a DataValidationError when the project validator throws one:
+      TypeError: Cannot replace non-existent property validateMember
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:468:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   50) #mongoose/models/member
+        createMember
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateMember
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:509:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   51) #mongoose/models/member
+        createMember
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateMember
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:547:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   52) #mongoose/models/member
+        createMember
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateMember
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:582:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   53) #mongoose/models/member
+        updateMemberById
+          Will fail when the member does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/memberModel.tests.ts:968:16)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   54) #mongoose/models/project
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:163:14)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   55) #mongoose/models/project
+        validateUpdateObject
+          will fail when the workspace does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:214:16)
+ 
+   56) #mongoose/models/project
+        validateUpdateObject
+          will fail when the template does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:234:16)
+ 
+   57) #mongoose/models/project
+        createProject
+          will create a project document:
+      TypeError: Cannot replace non-existent property validateWorkspace
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:327:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   58) #mongoose/models/project
+        createProject
+          will rethrow a DataValidationError when the workspace validator throws one:
+      TypeError: Cannot replace non-existent property validateWorkspace
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:376:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   59) #mongoose/models/project
+        createProject
+          will rethrow a DataValidationError when the template validator throws one:
+      TypeError: Cannot replace non-existent property validateWorkspace
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:427:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   60) #mongoose/models/project
+        createProject
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateWorkspace
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:478:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   61) #mongoose/models/project
+        createProject
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateWorkspace
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:526:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   62) #mongoose/models/project
+        createProject
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateWorkspace
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:571:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   63) #mongoose/models/project
+        getProjectById
+          will retreive a project document with the related fields populated:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:660:50)
+ 
+   64) #mongoose/models/project
+        queryProjects
+          will return the filtered projects:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at /Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output/database/__tests__/mongoose/models/projectModel.tests.ts:787:52
+       at Array.forEach (<anonymous>)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:783:23)
+ 
+   65) #mongoose/models/project
+        updateProjectById
+          Will fail when the project does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectModel.tests.ts:964:16)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   66) #mongoose/models/projectTemplate
+        createProjectTemplate
+          will create a projectTemplate document:
+      TypeError: Cannot replace non-existent property validateProjects
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectTemplateModel.tests.ts:245:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   67) #mongoose/models/projectTemplate
+        createProjectTemplate
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateProjects
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectTemplateModel.tests.ts:284:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   68) #mongoose/models/projectTemplate
+        createProjectTemplate
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateProjects
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectTemplateModel.tests.ts:323:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   69) #mongoose/models/projectTemplate
+        createProjectTemplate
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateProjects
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectTemplateModel.tests.ts:363:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   70) #mongoose/models/projectTemplate
+        getProjectTemplateById
+          will retreive a projectTemplate document with the related fields populated:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectTemplateModel.tests.ts:437:51)
+ 
+   71) #mongoose/models/projectTemplate
+        queryProjectTemplates
+          will return the filtered projectTemplates:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at /Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output/database/__tests__/mongoose/models/projectTemplateModel.tests.ts:543:53
+       at Array.forEach (<anonymous>)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/projectTemplateModel.tests.ts:541:23)
+ 
+   72) #mongoose/models/session
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:157:14)
+ 
+   73) #mongoose/models/session
+        validateUpdateObject
+          will fail when the user does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:192:16)
+ 
+   74) #mongoose/models/session
+        createSession
+          will create a session document:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:264:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   75) #mongoose/models/session
+        createSession
+          will rethrow a DataValidationError when the user validator throws one:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:293:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   76) #mongoose/models/session
+        createSession
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:324:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   77) #mongoose/models/session
+        createSession
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:352:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   78) #mongoose/models/session
+        createSession
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:377:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   79) #mongoose/models/session
+        updateSessionById
+          Will fail when the session does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/sessionModel.tests.ts:721:16)
+ 
+   80) #mongoose/models/state
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:163:14)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   81) #mongoose/models/state
+        validateUpdateObject
+          will fail when the createdBy does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:213:16)
+ 
+   82) #mongoose/models/state
+        validateUpdateObject
+          will fail when the project does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:236:16)
+ 
+   83) #mongoose/models/state
+        validateUpdateObject
+          will fail when the workspace does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:259:16)
+ 
+   84) #mongoose/models/state
+        createState
+          will create a state document:
+      TypeError: Cannot replace non-existent property validateCreatedBy
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:349:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   85) #mongoose/models/state
+        createState
+          will rethrow a DataValidationError when the createdBy validator throws one:
+      TypeError: Cannot replace non-existent property validateCreatedBy
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:386:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   86) #mongoose/models/state
+        createState
+          will rethrow a DataValidationError when the project validator throws one:
+      TypeError: Cannot replace non-existent property validateCreatedBy
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:427:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   87) #mongoose/models/state
+        createState
+          will rethrow a DataValidationError when the workspace validator throws one:
+      TypeError: Cannot replace non-existent property validateCreatedBy
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:468:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   88) #mongoose/models/state
+        createState
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateCreatedBy
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:509:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   89) #mongoose/models/state
+        createState
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateCreatedBy
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:547:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   90) #mongoose/models/state
+        createState
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateCreatedBy
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:582:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   91) #mongoose/models/state
+        updateStateById
+          Will fail when the state does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/stateModel.tests.ts:958:16)
+       at runNextTicks (node:internal/process/task_queues:60:5)
+       at listOnTimeout (node:internal/timers:533:9)
+       at processTimers (node:internal/timers:507:7)
+ 
+   92) #mongoose/models/tag
+        createTag
+          will create a tag document:
+      TypeError: Cannot replace non-existent property validateWorkspaces
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/tagModel.tests.ts:223:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   93) #mongoose/models/tag
+        createTag
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateWorkspaces
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/tagModel.tests.ts:260:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   94) #mongoose/models/tag
+        createTag
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateWorkspaces
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/tagModel.tests.ts:298:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   95) #mongoose/models/tag
+        createTag
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateWorkspaces
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/tagModel.tests.ts:333:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   96) #mongoose/models/tag
+        getTagById
+          will retreive a tag document with the related fields populated:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/tagModel.tests.ts:410:53)
+ 
+   97) #mongoose/models/tag
+        queryTags
+          will return the filtered tags:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at /Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output/database/__tests__/mongoose/models/tagModel.tests.ts:519:55
+       at Array.forEach (<anonymous>)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/tagModel.tests.ts:517:23)
+ 
+   98) #mongoose/models/user
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:160:14)
+ 
+   99) #mongoose/models/user
+        validateUpdateObject
+          will fail when the customerPayment does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:199:16)
+ 
+   100) #mongoose/models/user
+        createUser
+          will create a user document:
+      TypeError: Cannot replace non-existent property validateAccounts
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:283:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   101) #mongoose/models/user
+        createUser
+          will rethrow a DataValidationError when the customerPayment validator throws one:
+      TypeError: Cannot replace non-existent property validateAccounts
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:340:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   102) #mongoose/models/user
+        createUser
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateAccounts
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:401:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   103) #mongoose/models/user
+        createUser
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateAccounts
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:459:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   104) #mongoose/models/user
+        createUser
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateAccounts
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:514:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   105) #mongoose/models/user
+        getUserById
+          will retreive a user document with the related fields populated:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:611:51)
+ 
+   106) #mongoose/models/user
+        queryUsers
+          will return the filtered users:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at /Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output/database/__tests__/mongoose/models/userModel.tests.ts:741:53
+       at Array.forEach (<anonymous>)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:739:23)
+ 
+   107) #mongoose/models/user
+        updateUserById
+          Will fail when the user does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/userModel.tests.ts:916:16)
+ 
+   108) #mongoose/models/webhook
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:157:14)
+ 
+   109) #mongoose/models/webhook
+        validateUpdateObject
+          will fail when the user does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:192:16)
+ 
+   110) #mongoose/models/webhook
+        createWebhook
+          will create a webhook document:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:264:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   111) #mongoose/models/webhook
+        createWebhook
+          will rethrow a DataValidationError when the user validator throws one:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:293:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   112) #mongoose/models/webhook
+        createWebhook
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:324:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   113) #mongoose/models/webhook
+        createWebhook
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:352:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   114) #mongoose/models/webhook
+        createWebhook
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateUser
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:377:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   115) #mongoose/models/webhook
+        updateWebhookById
+          Will fail when the webhook does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/webhookModel.tests.ts:721:16)
+ 
+   116) #mongoose/models/workspace
+        validateUpdateObject
+          will not throw an error when no unsafe fields are present:
+ 
+       AssertionError: expected true to be false
+       + expected - actual
+ 
+       -true
+       +false
+       
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:161:14)
+ 
+   117) #mongoose/models/workspace
+        validateUpdateObject
+          will fail when the creator does not exist.:
+      AssertionError: expected DatabaseOperationError: an unexpected err… { …(4) } to be an instance of InvalidOperationError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:196:16)
+ 
+   118) #mongoose/models/workspace
+        createWorkspace
+          will create a workspace document:
+      TypeError: Cannot replace non-existent property validateTags
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:268:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   119) #mongoose/models/workspace
+        createWorkspace
+          will rethrow a DataValidationError when the creator validator throws one:
+      TypeError: Cannot replace non-existent property validateTags
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:321:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   120) #mongoose/models/workspace
+        createWorkspace
+          will throw a DatabaseOperationError when an underlying model function errors:
+      TypeError: Cannot replace non-existent property validateTags
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:372:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   121) #mongoose/models/workspace
+        createWorkspace
+          will throw an Unexpected Error when create does not return an object with an _id:
+      TypeError: Cannot replace non-existent property validateTags
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:424:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   122) #mongoose/models/workspace
+        createWorkspace
+          will rethrow a DataValidationError when the validate method on the model errors:
+      TypeError: Cannot replace non-existent property validateTags
+       at Sandbox.replace (/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/node_modules/.pnpm/sinon@14.0.2/node_modules/sinon/lib/sinon/sandbox.js:245:19)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:473:15)
+       at processImmediate (node:internal/timers:471:21)
+ 
+   123) #mongoose/models/workspace
+        getWorkspaceById
+          will retreive a workspace document with the related fields populated:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:560:47)
+ 
+   124) #mongoose/models/workspace
+        queryWorkspaces
+          will return the filtered workspaces:
+      TypeError: Cannot read properties of undefined (reading '__v')
+       at /Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:681:49
+       at Array.forEach (<anonymous>)
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:679:23)
+ 
+   125) #mongoose/models/workspace
+        updateWorkspaceById
+          Will fail when the workspace does not exist:
+      AssertionError: expected DatabaseOperationError: An unexpected err… { …(4) } to be an instance of InvalidArgumentError
+       at Context.<anonymous> (src/output/database/__tests__/mongoose/models/workspaceModel.tests.ts:857:16)
+ 
+ 
+ 
+  ELIFECYCLE  Command failed with exit code 125.
+
+ Tasks:    9 successful, 10 total
+Cached:    9 cached, 10 total
+  Time:    7m9.541s 
+Failed:    @glyphx/codegen#test:generated
+
+ ELIFECYCLE  Command failed with exit code 1.

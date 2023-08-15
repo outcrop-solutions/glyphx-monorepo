@@ -502,6 +502,336 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addCreatedBy',
+  async (
+    stateId: mongooseTypes.ObjectId,
+    createdBy: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IState> => {
+    try {
+      if (!createdBy)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'createdBy',
+          createdBy
+        );
+      const stateDocument = await STATE_MODEL.findById(stateId);
+
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          'A stateDocument with _id cannot be found',
+          'state._id',
+          stateId
+        );
+
+      const reconciledId = await STATE_MODEL.validateCreatedBy(createdBy);
+
+      if (stateDocument.createdBy?.toString() !== reconciledId.toString()) {
+        const reconciledId = await STATE_MODEL.validateCreatedBy(createdBy);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        stateDocument.createdBy = reconciledId;
+        await stateDocument.save();
+      }
+
+      return await STATE_MODEL.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the createdBy. See the inner error for additional information',
+          'mongoDb',
+          'state.addCreatedBy',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeCreatedBy',
+  async (stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState> => {
+    try {
+      const stateDocument = await STATE_MODEL.findById(stateId);
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          'A stateDocument with _id cannot be found',
+          'state._id',
+          stateId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      stateDocument.createdBy = undefined;
+      await stateDocument.save();
+
+      return await STATE_MODEL.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the createdBy. See the inner error for additional information',
+          'mongoDb',
+          'state.removeCreatedBy',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateCreatedBy',
+  async (
+    input: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const createdById =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(createdById))) {
+      throw new error.InvalidArgumentError(
+        `The createdBy: ${createdById} does not exist`,
+        'createdById',
+        createdById
+      );
+    }
+    return createdById;
+  }
+);
+
+SCHEMA.static(
+  'addProject',
+  async (
+    stateId: mongooseTypes.ObjectId,
+    project: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IState> => {
+    try {
+      if (!project)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'project',
+          project
+        );
+      const stateDocument = await STATE_MODEL.findById(stateId);
+
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          'A stateDocument with _id cannot be found',
+          'state._id',
+          stateId
+        );
+
+      const reconciledId = await STATE_MODEL.validateProject(project);
+
+      if (stateDocument.project?.toString() !== reconciledId.toString()) {
+        const reconciledId = await STATE_MODEL.validateProject(project);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        stateDocument.project = reconciledId;
+        await stateDocument.save();
+      }
+
+      return await STATE_MODEL.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the project. See the inner error for additional information',
+          'mongoDb',
+          'state.addProject',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeProject',
+  async (stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState> => {
+    try {
+      const stateDocument = await STATE_MODEL.findById(stateId);
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          'A stateDocument with _id cannot be found',
+          'state._id',
+          stateId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      stateDocument.project = undefined;
+      await stateDocument.save();
+
+      return await STATE_MODEL.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the project. See the inner error for additional information',
+          'mongoDb',
+          'state.removeProject',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateProject',
+  async (
+    input: databaseTypes.IProject | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const projectId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await ProjectModel.projectIdExists(projectId))) {
+      throw new error.InvalidArgumentError(
+        `The project: ${projectId} does not exist`,
+        'projectId',
+        projectId
+      );
+    }
+    return projectId;
+  }
+);
+
+SCHEMA.static(
+  'addWorkspace',
+  async (
+    stateId: mongooseTypes.ObjectId,
+    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IState> => {
+    try {
+      if (!workspace)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'workspace',
+          workspace
+        );
+      const stateDocument = await STATE_MODEL.findById(stateId);
+
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          'A stateDocument with _id cannot be found',
+          'state._id',
+          stateId
+        );
+
+      const reconciledId = await STATE_MODEL.validateWorkspace(workspace);
+
+      if (stateDocument.workspace?.toString() !== reconciledId.toString()) {
+        const reconciledId = await STATE_MODEL.validateWorkspace(workspace);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        stateDocument.workspace = reconciledId;
+        await stateDocument.save();
+      }
+
+      return await STATE_MODEL.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the workspace. See the inner error for additional information',
+          'mongoDb',
+          'state.addWorkspace',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeWorkspace',
+  async (stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState> => {
+    try {
+      const stateDocument = await STATE_MODEL.findById(stateId);
+      if (!stateDocument)
+        throw new error.DataNotFoundError(
+          'A stateDocument with _id cannot be found',
+          'state._id',
+          stateId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      stateDocument.workspace = undefined;
+      await stateDocument.save();
+
+      return await STATE_MODEL.getStateById(stateId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the workspace. See the inner error for additional information',
+          'mongoDb',
+          'state.removeWorkspace',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateWorkspace',
+  async (
+    input: databaseTypes.IWorkspace | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const workspaceId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await WorkspaceModel.workspaceIdExists(workspaceId))) {
+      throw new error.InvalidArgumentError(
+        `The workspace: ${workspaceId} does not exist`,
+        'workspaceId',
+        workspaceId
+      );
+    }
+    return workspaceId;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

@@ -146,6 +146,10 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const creatorStub = sandbox.stub();
+      creatorStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', creatorStub);
+
       let errored = false;
 
       try {
@@ -183,6 +187,10 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will fail when the creator does not exist.', async () => {
+      const creatorStub = sandbox.stub();
+      creatorStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', creatorStub);
+
       let errored = false;
 
       try {
@@ -352,17 +360,30 @@ describe('#mongoose/models/workspace', () => {
         sandbox.stub().resolves(mocks.MOCK_WORKSPACE.states)
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        WorkspaceModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(
+        WorkspaceModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(WorkspaceModel, 'getWorkspaceById', stub);
+
       let errored = false;
 
       try {
-        await WorkspaceModel.validateUpdateObject(
-          mocks.MOCK_WORKSPACE as unknown as Omit<
-            Partial<databaseTypes.IWorkspace>,
-            '_id'
-          >
-        );
+        await WorkspaceModel.createWorkspace(mocks.MOCK_WORKSPACE);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -556,12 +577,12 @@ describe('#mongoose/models/workspace', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.tags[0] as any).__v);
-      assert.isUndefined((doc.creator as any).__v);
-      assert.isUndefined((doc.members[0] as any).__v);
-      assert.isUndefined((doc.projects[0] as any).__v);
-      assert.isUndefined((doc.states[0] as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.tags[0] as any)?.__v);
+      assert.isUndefined((doc.creator as any)?.__v);
+      assert.isUndefined((doc.members[0] as any)?.__v);
+      assert.isUndefined((doc.projects[0] as any)?.__v);
+      assert.isUndefined((doc.states[0] as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_WORKSPACE._id);
     });
@@ -677,12 +698,12 @@ describe('#mongoose/models/workspace', () => {
       assert.strictEqual(results.results.length, mockWorkspaces.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.tags[0] as any).__v);
-        assert.isUndefined((doc.creator as any).__v);
-        assert.isUndefined((doc.members[0] as any).__v);
-        assert.isUndefined((doc.projects[0] as any).__v);
-        assert.isUndefined((doc.states[0] as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.tags[0] as any)?.__v);
+        assert.isUndefined((doc.creator as any)?.__v);
+        assert.isUndefined((doc.members[0] as any)?.__v);
+        assert.isUndefined((doc.projects[0] as any)?.__v);
+        assert.isUndefined((doc.states[0] as any)?.__v);
       });
     });
 
@@ -803,7 +824,7 @@ describe('#mongoose/models/workspace', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a workspace with refrences as ObjectIds', async () => {
+    it('Should update a workspace with references as ObjectIds', async () => {
       const updateWorkspace = {
         ...mocks.MOCK_WORKSPACE,
         deletedAt: new Date(),
@@ -845,6 +866,10 @@ describe('#mongoose/models/workspace', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(WorkspaceModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(WorkspaceModel, 'validateUpdateObject', validateStub);
 
       const getWorkspaceStub = sandbox.stub();
       getWorkspaceStub.resolves({_id: workspaceId});

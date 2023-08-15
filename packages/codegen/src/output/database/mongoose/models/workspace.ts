@@ -472,6 +472,756 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addTags',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'tags',
+          tags
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A workspaceDocument with _id cannot be found',
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = await WORKSPACE_MODEL.validateTags(tags);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !workspaceDocument.tags.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          workspaceDocument.tags.push(p as unknown as databaseTypes.ITag);
+        }
+      });
+
+      if (dirty) await workspaceDocument.save();
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Tags. See the inner error for additional information',
+          'mongoDb',
+          'workspace.addTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeTags',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'tags',
+          tags
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          workspaceId
+        );
+
+      const reconciledIds = tags.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedTags = workspaceDocument.tags.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        workspaceDocument.tags = updatedTags as unknown as databaseTypes.ITag[];
+        await workspaceDocument.save();
+      }
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'workspace.removeTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateTags',
+  async (
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const tagsIds: mongooseTypes.ObjectId[] = [];
+    tags.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) tagsIds.push(p);
+      else tagsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await TagModel.allTagIdsExist(tagsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'tags',
+          tags,
+          err
+        );
+      else throw err;
+    }
+
+    return tagsIds;
+  }
+);
+
+SCHEMA.static(
+  'addCreator',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    creator: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!creator)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'creator',
+          creator
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A workspaceDocument with _id cannot be found',
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledId = await WORKSPACE_MODEL.validateCreator(creator);
+
+      if (workspaceDocument.creator?.toString() !== reconciledId.toString()) {
+        const reconciledId = await WORKSPACE_MODEL.validateCreator(creator);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        workspaceDocument.creator = reconciledId;
+        await workspaceDocument.save();
+      }
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the creator. See the inner error for additional information',
+          'mongoDb',
+          'workspace.addCreator',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeCreator',
+  async (
+    workspaceId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A workspaceDocument with _id cannot be found',
+          'workspace._id',
+          workspaceId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      workspaceDocument.creator = undefined;
+      await workspaceDocument.save();
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the creator. See the inner error for additional information',
+          'mongoDb',
+          'workspace.removeCreator',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateCreator',
+  async (
+    input: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const creatorId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(creatorId))) {
+      throw new error.InvalidArgumentError(
+        `The creator: ${creatorId} does not exist`,
+        'creatorId',
+        creatorId
+      );
+    }
+    return creatorId;
+  }
+);
+SCHEMA.static(
+  'addMembers',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A workspaceDocument with _id cannot be found',
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = await WORKSPACE_MODEL.validateMembers(members);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !workspaceDocument.members.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          workspaceDocument.members.push(p as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await workspaceDocument.save();
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Members. See the inner error for additional information',
+          'mongoDb',
+          'workspace.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeMembers',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!members.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'members',
+          members
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          workspaceId
+        );
+
+      const reconciledIds = members.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedMembers = workspaceDocument.members.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        workspaceDocument.members =
+          updatedMembers as unknown as databaseTypes.IMember[];
+        await workspaceDocument.save();
+      }
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'workspace.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateMembers',
+  async (
+    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const membersIds: mongooseTypes.ObjectId[] = [];
+    members.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) membersIds.push(p);
+      else membersIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await MemberModel.allMemberIdsExist(membersIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'members',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return membersIds;
+  }
+);
+SCHEMA.static(
+  'addProjects',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'projects',
+          projects
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A workspaceDocument with _id cannot be found',
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = await WORKSPACE_MODEL.validateProjects(projects);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !workspaceDocument.projects.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          workspaceDocument.projects.push(
+            p as unknown as databaseTypes.IProject
+          );
+        }
+      });
+
+      if (dirty) await workspaceDocument.save();
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Projects. See the inner error for additional information',
+          'mongoDb',
+          'workspace.addProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeProjects',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'projects',
+          projects
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          workspaceId
+        );
+
+      const reconciledIds = projects.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedProjects = workspaceDocument.projects.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        workspaceDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await workspaceDocument.save();
+      }
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'workspace.removeProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateProjects',
+  async (
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const projectsIds: mongooseTypes.ObjectId[] = [];
+    projects.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) projectsIds.push(p);
+      else projectsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await ProjectModel.allProjectIdsExist(projectsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'projects',
+          projects,
+          err
+        );
+      else throw err;
+    }
+
+    return projectsIds;
+  }
+);
+SCHEMA.static(
+  'addStates',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'states',
+          states
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A workspaceDocument with _id cannot be found',
+          'workspace._id',
+          workspaceId
+        );
+
+      const reconciledIds = await WORKSPACE_MODEL.validateStates(states);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !workspaceDocument.states.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          workspaceDocument.states.push(p as unknown as databaseTypes.IState);
+        }
+      });
+
+      if (dirty) await workspaceDocument.save();
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the States. See the inner error for additional information',
+          'mongoDb',
+          'workspace.addStates',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeStates',
+  async (
+    workspaceId: mongooseTypes.ObjectId,
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IWorkspace> => {
+    try {
+      if (!states.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'states',
+          states
+        );
+      const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
+      if (!workspaceDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          workspaceId
+        );
+
+      const reconciledIds = states.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedStates = workspaceDocument.states.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        workspaceDocument.states =
+          updatedStates as unknown as databaseTypes.IState[];
+        await workspaceDocument.save();
+      }
+
+      return await WORKSPACE_MODEL.getWorkspaceById(workspaceId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'workspace.removeStates',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateStates',
+  async (
+    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const statesIds: mongooseTypes.ObjectId[] = [];
+    states.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) statesIds.push(p);
+      else statesIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await StateModel.allStateIdsExist(statesIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'states',
+          states,
+          err
+        );
+      else throw err;
+    }
+
+    return statesIds;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

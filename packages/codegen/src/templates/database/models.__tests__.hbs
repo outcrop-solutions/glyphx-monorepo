@@ -153,6 +153,18 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Stub = sandbox.stub();
+      {{camelcase this.name}}Stub.resolves(true);
+      sandbox.replace(
+        {{pascalcase this.referenceTable}}Model,
+        '{{camelcase this.referenceTable}}IdExists',
+        {{camelcase this.name}}Stub
+      );
+      {{/if}}
+      {{/each}}
+
       let errored = false;
 
       try {
@@ -164,7 +176,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('will not throw an error when the related fields exist in the database', async () => {
-      {{#each properties}}
+      {{#each dedupedProperties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
       const {{camelcase this.name}}Stub = sandbox.stub();
       {{camelcase this.name}}Stub.resolves(true);
@@ -185,9 +197,13 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       }
       assert.isFalse(errored);
       {{#if (hasOneToOne properties)}}
-      {{#each properties}}
+      {{#each dedupedProperties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      {{#if (eq this.duplicates 2)}}
+      assert.isTrue({{camelcase this.name}}Stub.calledTwice);
+      {{else}}
       assert.isTrue({{camelcase this.name}}Stub.calledOnce);
+      {{/if}}
       {{/if}}
       {{/each}}
       {{/if}}
@@ -198,7 +214,17 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     it('will fail when the {{camelcase outerProperty.name}} does not exist.', async () => {
       
       {{#each ../dedupedProperties as |innerProperty innerIndex|}}
-      {{#unless (eq outerIndex innerIndex)}}
+      {{#if (eq outerIndex innerIndex)}}
+      {{#if (and (isOneToOne innerProperty.relationType) (referenceTableExists innerProperty))}}
+      const {{camelcase innerProperty.name}}Stub = sandbox.stub();
+      {{camelcase innerProperty.name}}Stub.resolves(false);
+      sandbox.replace(
+        {{pascalcase innerProperty.referenceTable}}Model,
+        '{{camelcase innerProperty.referenceTable}}IdExists',
+        {{camelcase innerProperty.name}}Stub
+      );
+      {{/if}}
+      {{else}}
       {{#if (and (isOneToOne innerProperty.relationType) (referenceTableExists innerProperty))}}
       const {{camelcase innerProperty.name}}Stub = sandbox.stub();
       {{camelcase innerProperty.name}}Stub.resolves(true);
@@ -208,7 +234,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
         {{camelcase innerProperty.name}}Stub
       );
       {{/if}}
-      {{/unless}}
+      {{/if}}
       {{/each}}
 
       let errored = false;
@@ -306,7 +332,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('will create a {{camelcase this.name}} document', async () => {
-      {{#each dedupedProperties}}
+      {{#each properties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
       sandbox.replace(
         {{singularize (pascalcase ../this.name)}}Model,
@@ -383,7 +409,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
          sandbox.replace(
         {{singularize (pascalcase ../../this.name)}}Model,
         'validate{{pluralize (pascalcase innerProperty.name)}}',
-        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../../this.name)}}.{{pluralize (camelcase innerProperty.name)}})
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../../this.name)}}.{{camelcase innerProperty.name}})
         );
         {{else if (and (isOneToOne innerProperty.relationType) (referenceTableExists innerProperty))}}
          sandbox.replace(
@@ -395,12 +421,26 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       {{/if}}
       {{/each}}
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate', sandbox.stub().resolves(true));
+      
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', stub);
+
       let errored = false;
 
       try {
-        await {{singularize (pascalcase ../this.name)}}Model.validateUpdateObject(mocks.MOCK_{{uppercase (pascalcase ../this.name)}} as unknown as Omit<Partial<databaseTypes.I{{pascalcase ../this.name}}>, '_id'>);
+        await {{singularize (pascalcase ../this.name)}}Model.create{{pascalcase ../this.name}}(mocks.MOCK_{{uppercase (pascalcase ../this.name)}});
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -410,7 +450,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     {{/each}}
 
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
-       {{#each dedupedProperties}}
+       {{#each properties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
       sandbox.replace(
         {{singularize (pascalcase ../this.name)}}Model,
@@ -448,7 +488,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
-      {{#each dedupedProperties}}
+      {{#each properties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
       sandbox.replace(
         {{singularize (pascalcase ../this.name)}}Model,
@@ -483,7 +523,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-       {{#each dedupedProperties}}
+       {{#each properties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
       sandbox.replace(
         {{singularize (pascalcase ../this.name)}}Model,
@@ -559,12 +599,12 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc as any)?.__v);
       {{#each properties}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-      assert.isUndefined((doc.{{camelcase this.name}} as any).__v);
+      assert.isUndefined((doc.{{camelcase this.name}} as any)?.__v);
       {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-      assert.isUndefined((doc.{{camelcase this.name}}[0] as any).__v);
+      assert.isUndefined((doc.{{camelcase this.name}}[0] as any)?.__v);
       {{/if}}
       {{/each}}
 
@@ -666,7 +706,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       sandbox.restore();
     });
 
-    it('will return the filtered {{camelcase this.name}}s', async () => {
+    it('will return the filtered {{pluralize (camelcase this.name)}}', async () => {
       sandbox.replace(
         {{singularize (pascalcase this.name)}}Model,
         'count',
@@ -686,12 +726,12 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       assert.strictEqual(results.results.length, mock{{pluralize (pascalcase this.name)}}.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc as any)?.__v);
         {{#each properties}}
         {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-        assert.isUndefined((doc.{{camelcase this.name}} as any).__v);
+        assert.isUndefined((doc.{{camelcase this.name}} as any)?.__v);
         {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-        assert.isUndefined((doc.{{camelcase this.name}}[0] as any).__v);
+        assert.isUndefined((doc.{{camelcase this.name}}[0] as any)?.__v);
         {{/if}}
         {{/each}}
       });
@@ -816,7 +856,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a {{camelcase this.name}} with refrences as ObjectIds', async () => {
+    it('Should update a {{camelcase this.name}} with references as ObjectIds', async () => {
       const update{{pascalcase this.name}} = {
         ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
         deletedAt: new Date()
@@ -858,6 +898,10 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validateUpdateObject', validateStub);
 
       const get{{pascalcase this.name}}Stub = sandbox.stub();
       get{{pascalcase this.name}}Stub.resolves({_id: {{camelcase this.name}}Id});

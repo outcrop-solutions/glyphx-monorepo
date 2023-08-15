@@ -397,6 +397,118 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addUser',
+  async (
+    webhookId: mongooseTypes.ObjectId,
+    user: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IWebhook> => {
+    try {
+      if (!user)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'user',
+          user
+        );
+      const webhookDocument = await WEBHOOK_MODEL.findById(webhookId);
+
+      if (!webhookDocument)
+        throw new error.DataNotFoundError(
+          'A webhookDocument with _id cannot be found',
+          'webhook._id',
+          webhookId
+        );
+
+      const reconciledId = await WEBHOOK_MODEL.validateUser(user);
+
+      if (webhookDocument.user?.toString() !== reconciledId.toString()) {
+        const reconciledId = await WEBHOOK_MODEL.validateUser(user);
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        webhookDocument.user = reconciledId;
+        await webhookDocument.save();
+      }
+
+      return await WEBHOOK_MODEL.getWebhookById(webhookId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the user. See the inner error for additional information',
+          'mongoDb',
+          'webhook.addUser',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeUser',
+  async (
+    webhookId: mongooseTypes.ObjectId
+  ): Promise<databaseTypes.IWebhook> => {
+    try {
+      const webhookDocument = await WEBHOOK_MODEL.findById(webhookId);
+      if (!webhookDocument)
+        throw new error.DataNotFoundError(
+          'A webhookDocument with _id cannot be found',
+          'webhook._id',
+          webhookId
+        );
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      webhookDocument.user = undefined;
+      await webhookDocument.save();
+
+      return await WEBHOOK_MODEL.getWebhookById(webhookId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing the user. See the inner error for additional information',
+          'mongoDb',
+          'webhook.removeUser',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateUser',
+  async (
+    input: databaseTypes.IUser | mongooseTypes.ObjectId
+  ): Promise<mongooseTypes.ObjectId> => {
+    const userId =
+      input instanceof mongooseTypes.ObjectId
+        ? input
+        : (input._id as mongooseTypes.ObjectId);
+    if (!(await UserModel.userIdExists(userId))) {
+      throw new error.InvalidArgumentError(
+        `The user: ${userId} does not exist`,
+        'userId',
+        userId
+      );
+    }
+    return userId;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

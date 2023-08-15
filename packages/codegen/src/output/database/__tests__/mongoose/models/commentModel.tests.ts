@@ -143,6 +143,13 @@ describe('#mongoose/models/comment', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const authorStub = sandbox.stub();
+      authorStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', authorStub);
+      const stateStub = sandbox.stub();
+      stateStub.resolves(true);
+      sandbox.replace(StateModel, 'stateIdExists', stateStub);
+
       let errored = false;
 
       try {
@@ -184,6 +191,9 @@ describe('#mongoose/models/comment', () => {
     });
 
     it('will fail when the author does not exist.', async () => {
+      const authorStub = sandbox.stub();
+      authorStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', authorStub);
       const stateStub = sandbox.stub();
       stateStub.resolves(true);
       sandbox.replace(StateModel, 'stateIdExists', stateStub);
@@ -207,6 +217,9 @@ describe('#mongoose/models/comment', () => {
       const authorStub = sandbox.stub();
       authorStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', authorStub);
+      const stateStub = sandbox.stub();
+      stateStub.resolves(false);
+      sandbox.replace(StateModel, 'stateIdExists', stateStub);
 
       let errored = false;
 
@@ -352,17 +365,26 @@ describe('#mongoose/models/comment', () => {
         sandbox.stub().resolves(mocks.MOCK_COMMENT.state)
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        CommentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(CommentModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(CommentModel, 'getCommentById', stub);
+
       let errored = false;
 
       try {
-        await CommentModel.validateUpdateObject(
-          mocks.MOCK_COMMENT as unknown as Omit<
-            Partial<databaseTypes.IComment>,
-            '_id'
-          >
-        );
+        await CommentModel.createComment(mocks.MOCK_COMMENT);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -388,17 +410,26 @@ describe('#mongoose/models/comment', () => {
           )
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        CommentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(CommentModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(CommentModel, 'getCommentById', stub);
+
       let errored = false;
 
       try {
-        await CommentModel.validateUpdateObject(
-          mocks.MOCK_COMMENT as unknown as Omit<
-            Partial<databaseTypes.IComment>,
-            '_id'
-          >
-        );
+        await CommentModel.createComment(mocks.MOCK_COMMENT);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -539,9 +570,9 @@ describe('#mongoose/models/comment', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.author as any).__v);
-      assert.isUndefined((doc.state as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.author as any)?.__v);
+      assert.isUndefined((doc.state as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_COMMENT._id);
     });
@@ -657,9 +688,9 @@ describe('#mongoose/models/comment', () => {
       assert.strictEqual(results.results.length, mockComments.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.author as any).__v);
-        assert.isUndefined((doc.state as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.author as any)?.__v);
+        assert.isUndefined((doc.state as any)?.__v);
       });
     });
 
@@ -780,7 +811,7 @@ describe('#mongoose/models/comment', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a comment with refrences as ObjectIds', async () => {
+    it('Should update a comment with references as ObjectIds', async () => {
       const updateComment = {
         ...mocks.MOCK_COMMENT,
         deletedAt: new Date(),
@@ -822,6 +853,10 @@ describe('#mongoose/models/comment', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(CommentModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(CommentModel, 'validateUpdateObject', validateStub);
 
       const getCommentStub = sandbox.stub();
       getCommentStub.resolves({_id: commentId});

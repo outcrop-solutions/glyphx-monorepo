@@ -389,7 +389,7 @@ describe('#mongoose/models/verificationToken', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
+      assert.isUndefined((doc as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_VERIFICATIONTOKEN._id);
     });
@@ -489,7 +489,7 @@ describe('#mongoose/models/verificationToken', () => {
       assert.strictEqual(results.results.length, mockVerificationTokens.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
+        assert.isUndefined((doc as any)?.__v);
       });
     });
 
@@ -614,7 +614,7 @@ describe('#mongoose/models/verificationToken', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a verificationToken with refrences as ObjectIds', async () => {
+    it('Should update a verificationToken with references as ObjectIds', async () => {
       const updateVerificationToken = {
         ...mocks.MOCK_VERIFICATIONTOKEN,
         deletedAt: new Date(),
@@ -664,6 +664,14 @@ describe('#mongoose/models/verificationToken', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(VerificationTokenModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(
+        VerificationTokenModel,
+        'validateUpdateObject',
+        validateStub
+      );
 
       const getVerificationTokenStub = sandbox.stub();
       getVerificationTokenStub.resolves({_id: verificationTokenId});

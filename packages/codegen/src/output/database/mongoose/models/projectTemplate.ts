@@ -423,6 +423,347 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.static(
+  'addProjects',
+  async (
+    projectTemplateId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'projects',
+          projects
+        );
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(
+        projectTemplateId
+      );
+      if (!projectTemplateDocument)
+        throw new error.DataNotFoundError(
+          'A projectTemplateDocument with _id cannot be found',
+          'projectTemplate._id',
+          projectTemplateId
+        );
+
+      const reconciledIds = await PROJECTTEMPLATE_MODEL.validateProjects(
+        projects
+      );
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !projectTemplateDocument.projects.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          projectTemplateDocument.projects.push(
+            p as unknown as databaseTypes.IProject
+          );
+        }
+      });
+
+      if (dirty) await projectTemplateDocument.save();
+
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(
+        projectTemplateId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Projects. See the inner error for additional information',
+          'mongoDb',
+          'projectTemplate.addProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeProjects',
+  async (
+    projectTemplateId: mongooseTypes.ObjectId,
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate> => {
+    try {
+      if (!projects.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'projects',
+          projects
+        );
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(
+        projectTemplateId
+      );
+      if (!projectTemplateDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          projectTemplateId
+        );
+
+      const reconciledIds = projects.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedProjects = projectTemplateDocument.projects.filter(
+        (p: any) => {
+          let retval = true;
+          if (
+            reconciledIds.find(
+              (r: any) =>
+                r.toString() ===
+                (p as unknown as mongooseTypes.ObjectId).toString()
+            )
+          ) {
+            dirty = true;
+            retval = false;
+          }
+
+          return retval;
+        }
+      );
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        projectTemplateDocument.projects =
+          updatedProjects as unknown as databaseTypes.IProject[];
+        await projectTemplateDocument.save();
+      }
+
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(
+        projectTemplateId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'projectTemplate.removeProjects',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateProjects',
+  async (
+    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const projectsIds: mongooseTypes.ObjectId[] = [];
+    projects.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) projectsIds.push(p);
+      else projectsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await ProjectModel.allProjectIdsExist(projectsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'projects',
+          projects,
+          err
+        );
+      else throw err;
+    }
+
+    return projectsIds;
+  }
+);
+SCHEMA.static(
+  'addTags',
+  async (
+    projectTemplateId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'tags',
+          tags
+        );
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(
+        projectTemplateId
+      );
+      if (!projectTemplateDocument)
+        throw new error.DataNotFoundError(
+          'A projectTemplateDocument with _id cannot be found',
+          'projectTemplate._id',
+          projectTemplateId
+        );
+
+      const reconciledIds = await PROJECTTEMPLATE_MODEL.validateTags(tags);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (
+          !projectTemplateDocument.tags.find(
+            (id: any) => id.toString() === p.toString()
+          )
+        ) {
+          dirty = true;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          projectTemplateDocument.tags.push(p as unknown as databaseTypes.ITag);
+        }
+      });
+
+      if (dirty) await projectTemplateDocument.save();
+
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(
+        projectTemplateId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Tags. See the inner error for additional information',
+          'mongoDb',
+          'projectTemplate.addTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeTags',
+  async (
+    projectTemplateId: mongooseTypes.ObjectId,
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.IProjectTemplate> => {
+    try {
+      if (!tags.length)
+        throw new error.InvalidArgumentError(
+          'You must supply at least one id',
+          'tags',
+          tags
+        );
+      const projectTemplateDocument = await PROJECTTEMPLATE_MODEL.findById(
+        projectTemplateId
+      );
+      if (!projectTemplateDocument)
+        throw new error.DataNotFoundError(
+          'A Document cannot be found',
+          '._id',
+          projectTemplateId
+        );
+
+      const reconciledIds = tags.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId
+          ? i
+          : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const updatedTags = projectTemplateDocument.tags.filter((p: any) => {
+        let retval = true;
+        if (
+          reconciledIds.find(
+            (r: any) =>
+              r.toString() ===
+              (p as unknown as mongooseTypes.ObjectId).toString()
+          )
+        ) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        projectTemplateDocument.tags =
+          updatedTags as unknown as databaseTypes.ITag[];
+        await projectTemplateDocument.save();
+      }
+
+      return await PROJECTTEMPLATE_MODEL.getProjectTemplateById(
+        projectTemplateId
+      );
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'projectTemplate.removeTags',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateTags',
+  async (
+    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+  ): Promise<mongooseTypes.ObjectId[]> => {
+    const tagsIds: mongooseTypes.ObjectId[] = [];
+    tags.forEach((p: any) => {
+      if (p instanceof mongooseTypes.ObjectId) tagsIds.push(p);
+      else tagsIds.push(p._id as mongooseTypes.ObjectId);
+    });
+    try {
+      await TagModel.allTagIdsExist(tagsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'tags',
+          tags,
+          err
+        );
+      else throw err;
+    }
+
+    return tagsIds;
+  }
+);
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

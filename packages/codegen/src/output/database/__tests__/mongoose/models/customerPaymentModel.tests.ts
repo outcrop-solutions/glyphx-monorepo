@@ -156,6 +156,10 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const customerStub = sandbox.stub();
+      customerStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', customerStub);
+
       let errored = false;
 
       try {
@@ -193,6 +197,10 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('will fail when the customer does not exist.', async () => {
+      const customerStub = sandbox.stub();
+      customerStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', customerStub);
+
       let errored = false;
 
       try {
@@ -323,17 +331,32 @@ describe('#mongoose/models/customerPayment', () => {
           )
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        CustomerPaymentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(
+        CustomerPaymentModel,
+        'validate',
+        sandbox.stub().resolves(true)
+      );
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(CustomerPaymentModel, 'getCustomerPaymentById', stub);
+
       let errored = false;
 
       try {
-        await CustomerPaymentModel.validateUpdateObject(
-          mocks.MOCK_CUSTOMERPAYMENT as unknown as Omit<
-            Partial<databaseTypes.ICustomerPayment>,
-            '_id'
-          >
+        await CustomerPaymentModel.createCustomerPayment(
+          mocks.MOCK_CUSTOMERPAYMENT
         );
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -477,8 +500,8 @@ describe('#mongoose/models/customerPayment', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.customer as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.customer as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_CUSTOMERPAYMENT._id);
     });
@@ -586,8 +609,8 @@ describe('#mongoose/models/customerPayment', () => {
       assert.strictEqual(results.results.length, mockCustomerPayments.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.customer as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.customer as any)?.__v);
       });
     });
 
@@ -716,7 +739,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a customerPayment with refrences as ObjectIds', async () => {
+    it('Should update a customerPayment with references as ObjectIds', async () => {
       const updateCustomerPayment = {
         ...mocks.MOCK_CUSTOMERPAYMENT,
         deletedAt: new Date(),
@@ -766,6 +789,14 @@ describe('#mongoose/models/customerPayment', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(CustomerPaymentModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(
+        CustomerPaymentModel,
+        'validateUpdateObject',
+        validateStub
+      );
 
       const getCustomerPaymentStub = sandbox.stub();
       getCustomerPaymentStub.resolves({_id: customerPaymentId});

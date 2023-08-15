@@ -142,6 +142,10 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+      const userStub = sandbox.stub();
+      userStub.resolves(true);
+      sandbox.replace(UserModel, 'userIdExists', userStub);
+
       let errored = false;
 
       try {
@@ -179,6 +183,10 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will fail when the user does not exist.', async () => {
+      const userStub = sandbox.stub();
+      userStub.resolves(false);
+      sandbox.replace(UserModel, 'userIdExists', userStub);
+
       let errored = false;
 
       try {
@@ -304,17 +312,26 @@ describe('#mongoose/models/webhook', () => {
           )
       );
 
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        WebhookModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(WebhookModel, 'validate', sandbox.stub().resolves(true));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(WebhookModel, 'getWebhookById', stub);
+
       let errored = false;
 
       try {
-        await WebhookModel.validateUpdateObject(
-          mocks.MOCK_WEBHOOK as unknown as Omit<
-            Partial<databaseTypes.IWebhook>,
-            '_id'
-          >
-        );
+        await WebhookModel.createWebhook(mocks.MOCK_WEBHOOK);
       } catch (err) {
-        assert.instanceOf(err, error.InvalidOperationError);
+        assert.instanceOf(err, error.DataValidationError);
         errored = true;
       }
       assert.isTrue(errored);
@@ -440,8 +457,8 @@ describe('#mongoose/models/webhook', () => {
       );
 
       assert.isTrue(findByIdStub.calledOnce);
-      assert.isUndefined((doc as any).__v);
-      assert.isUndefined((doc.user as any).__v);
+      assert.isUndefined((doc as any)?.__v);
+      assert.isUndefined((doc.user as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_WEBHOOK._id);
     });
@@ -549,8 +566,8 @@ describe('#mongoose/models/webhook', () => {
       assert.strictEqual(results.results.length, mockWebhooks.length);
       assert.isNumber(results.itemsPerPage);
       results.results.forEach((doc: any) => {
-        assert.isUndefined((doc as any).__v);
-        assert.isUndefined((doc.user as any).__v);
+        assert.isUndefined((doc as any)?.__v);
+        assert.isUndefined((doc.user as any)?.__v);
       });
     });
 
@@ -667,7 +684,7 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(validateStub.calledOnce);
     });
 
-    it('Should update a webhook with refrences as ObjectIds', async () => {
+    it('Should update a webhook with references as ObjectIds', async () => {
       const updateWebhook = {
         ...mocks.MOCK_WEBHOOK,
         deletedAt: new Date(),
@@ -709,6 +726,10 @@ describe('#mongoose/models/webhook', () => {
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
       sandbox.replace(WebhookModel, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace(WebhookModel, 'validateUpdateObject', validateStub);
 
       const getWebhookStub = sandbox.stub();
       getWebhookStub.resolves({_id: webhookId});

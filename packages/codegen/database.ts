@@ -167,9 +167,8 @@ export namespace databaseTypes {
     updatedAt: Date;
     deletedAt?: Date;
     actor: IUser;
-    workspaceId?: mongooseTypes.ObjectId;
-    projectId?: mongooseTypes.ObjectId;
-    resourceId: mongooseTypes.ObjectId;
+    workspace?: IWorkspace;
+    project?: IProject;
     location: string; // IP address
     userAgent: IUserAgent;
     action: ACTION_TYPE;
