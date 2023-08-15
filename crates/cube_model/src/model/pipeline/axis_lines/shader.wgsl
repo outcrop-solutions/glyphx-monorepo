@@ -14,6 +14,7 @@ struct ColorTable {
 @group(1) @binding(0) 
 var<uniform> color_table_buffer: ColorTable; 
 
+
 struct VertexInput {
     @location(0) position: vec3<f32>,
     @location(1) color_code: u32,
@@ -21,8 +22,7 @@ struct VertexInput {
 
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
-    @location(0) position: vec3<f32>,
-    @location(1) color_code: u32,
+    @location(0) color_code: u32,
 };
 
 @vertex
@@ -30,9 +30,8 @@ fn vs_main(
     model: VertexInput,
 ) -> VertexOutput {
     var out: VertexOutput;
-    out.position = model.position;
     out.color_code = model.color_code;
-    out.clip_position = camera.view_proj * vec4<f32>(model.position, 1.0);
+    out.clip_position = camera.view_proj *  vec4<f32>(model.position, 1.0);
     return out;
 }
 
@@ -40,8 +39,8 @@ fn vs_main(
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-   // return vec4<f32>(0.0,0.0,0.0, 1.0);
     let color = color_table_buffer.color_table[in.color_code];
     return vec4<f32>(color);
+    //return vec4<f32>(1.0, 0.0, 0.0, 1.0);
 }
  

@@ -1157,8 +1157,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1219,10 +1221,14 @@ dependencies = [
  "console_error_panic_hook",
  "console_log",
  "env_logger",
+ "getrandom",
  "log",
+ "num-traits",
  "pollster",
+ "rand",
  "serde",
  "serde-wasm-bindgen",
+ "smaa",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -1860,6 +1866,7 @@ dependencies = [
  "indexmap 1.9.3",
  "log",
  "num-traits",
+ "pp-rs",
  "rustc-hash",
  "spirv",
  "termcolor",
@@ -1967,9 +1974,9 @@ dependencies = [
 
 [[package]]
 name = "num-traits"
-version = "0.2.15"
+version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd"
+checksum = "f30b0abd723be7e2ffca1272140fac1a2f084c77ec3e123c192b66af1ee9e6c2"
 dependencies = [
  "autocfg",
 ]
@@ -2292,6 +2299,15 @@ name = "pollster"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22686f4785f02a4fcc856d3b3bb19bf6c8160d103f7a99cc258bddd0251dc7f2"
+
+[[package]]
+name = "pp-rs"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb458bb7f6e250e6eb79d5026badc10a3ebb8f9a15d1fff0f13d17c71f4d6dee"
+dependencies = [
+ "unicode-xid",
+]
 
 [[package]]
 name = "ppv-lite86"
@@ -2799,6 +2815,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1e08e261d0e8f5c43123b7adf3e4ca1690d655377ac93a03b2c9d3e98de1342"
 dependencies = [
  "version_check",
+]
+
+[[package]]
+name = "smaa"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73591a8166dc9d741e4831701d9affc7b5b46771bdd46fee8cf4cf51cfaca6bf"
+dependencies = [
+ "naga",
+ "wgpu",
 ]
 
 [[package]]
