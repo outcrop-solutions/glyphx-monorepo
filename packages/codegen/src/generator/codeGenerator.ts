@@ -130,6 +130,9 @@ export class CodeGenerator {
     this.handlebars.registerHelper('or', this.logicalOr);
     this.handlebars.registerHelper('and', this.logicalAnd);
     this.handlebars.registerHelper('eq', this.logicalEq);
+    this.handlebars.registerHelper('firstKey', function (object) {
+      return Object.keys(object)[0];
+    });
   }
 
   // STRING UTILITIES

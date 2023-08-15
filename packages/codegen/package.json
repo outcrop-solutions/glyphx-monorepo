@@ -34,6 +34,7 @@
     "@glyphx/core": "workspace:^1.0.0",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "@glyphx/tsconfig": "workspace:*",
+    "@glyphx/database": "workspace:*",
     "@glyphx/types": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/fs-extra": "^11.0.1",
