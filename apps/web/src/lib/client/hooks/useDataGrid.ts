@@ -31,9 +31,11 @@ const useDataGrid = () => {
       return;
     } else if (rowIds) {
       const data = await api(fetchRowIdsConfig);
+      console.log({ data, selection: true });
       setData(data);
     } else {
       const data = await api(fetchDataGridConfig);
+      console.log({ data, selection: false });
       setData(data);
     }
   }, [rowIds, tableName, fetchRowIdsConfig, fetchDataGridConfig]);

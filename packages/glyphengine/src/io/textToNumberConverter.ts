@@ -29,10 +29,6 @@ export class TextColumnToNumberConverter {
   public convert(text: string): number {
     const convertedValue = this.convertedFields.get(text);
     if (convertedValue === undefined) {
-      // console.dir(
-      //   {text, convertedValue, fields: this.convertedFields},
-      //   {depth: null}
-      // );
       throw new error.DataNotFoundError(
         `Cannot find ${text} in ${this.columnName} for ${this.tableName}`,
         this.columnName,
