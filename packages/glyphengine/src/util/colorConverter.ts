@@ -10,7 +10,6 @@ export function convertRgbToHsv(
   inputBlue = inputBlue / 255;
 
   // Find the maximum and minimum values of inputRed, inputGreen, and inputBlue
-  const color_vector = vec!(inputRed, inputGreen, inputBlue);
   const max = Math.max(inputRed, inputGreen, inputBlue);
   const min = Math.min(inputRed, inputGreen, inputBlue);
   const diff = max - min;

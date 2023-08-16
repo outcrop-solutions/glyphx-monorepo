@@ -21,8 +21,6 @@ export class TextColumnToNumberConverter {
 
     const data = await athenaClient.connection.runQuery(query);
 
-    console.dir({data}, {depth: null});
-
     data.forEach((row, index) => {
       this.convertedFields.set(row[this.columnName] as string, index);
     });
@@ -31,6 +29,10 @@ export class TextColumnToNumberConverter {
   public convert(text: string): number {
     const convertedValue = this.convertedFields.get(text);
     if (convertedValue === undefined) {
+      // console.dir(
+      //   {text, convertedValue, fields: this.convertedFields},
+      //   {depth: null}
+      // );
       throw new error.DataNotFoundError(
         `Cannot find ${text} in ${this.columnName} for ${this.tableName}`,
         this.columnName,

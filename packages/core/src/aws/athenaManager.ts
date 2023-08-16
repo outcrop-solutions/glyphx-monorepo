@@ -190,6 +190,7 @@ export class AthenaManager {
       const queryId = await this.startQuery(queryString);
       const adjustedWaitTime = waitTime * 1000; //Convert seconds to milliseconds
       const endTime = new Date(new Date().getTime() + adjustedWaitTime);
+
       // eslint-disable-next-line no-constant-condition
       while (true) {
         const queryStatus = await this.getQueryStatus(queryId);
@@ -214,6 +215,7 @@ export class AthenaManager {
 
       let allResults: Record<string, unknown>[] = [];
       let nextToken: string | undefined;
+      let firstResultSet = true;
 
       do {
         const queryResultsCommand = new GetQueryResultsCommand({
@@ -231,6 +233,11 @@ export class AthenaManager {
           convertedResults as Record<string, unknown>[]
         );
         nextToken = results.NextToken;
+
+        if (firstResultSet) {
+          includeHeaderRow = true;
+          firstResultSet = false;
+        }
       } while (nextToken);
 
       return allResults;
