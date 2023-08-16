@@ -1,4 +1,4 @@
-use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, Camera};
+use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, orbit_camera::OrbitCamera};
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
@@ -6,13 +6,14 @@ use crate::model::pipeline::{axis_lines, glyphs};
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
-use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
+use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor };
 use winit::dpi::PhysicalSize;
-use winit::event::WindowEvent;
+use winit::event::{WindowEvent, DeviceEvent};
 use winit::window::Window;
 
 use rand::Rng;
 use super::pipeline::glyphs::glyph_instance_data;
+use glam::Vec3;
 
 pub struct State {
     surface: wgpu::Surface,
@@ -21,7 +22,7 @@ pub struct State {
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
     window: Window,
-    camera: Camera,
+    camera: OrbitCamera,
     camera_buffer: wgpu::Buffer,
     camera_uniform: CameraUniform,
     camera_controller: CameraController,
@@ -137,24 +138,24 @@ impl State {
         }
     }
 
-    pub fn input(&mut self, event: &WindowEvent) -> bool {
-        self.camera_controller.process_events(event)
+    pub fn input(&mut self, event: &DeviceEvent) -> bool {
+        self.camera_controller.process_events(event, &mut self.camera)
     }
 
     pub fn move_camera(&mut self, direction: &str, on_or_off: bool) {
-        if direction == "forward" {
-            self.camera_controller.move_forward(on_or_off);
-        } else if direction == "backward" {
-            self.camera_controller.move_backward(on_or_off);
-        } else if direction == "left" {
-            self.camera_controller.move_left(on_or_off);
-        } else if direction == "right" {
-            self.camera_controller.move_right(on_or_off);
-        }
+        // if direction == "forward" {
+        //     self.camera_controller.move_forward(on_or_off);
+        // } else if direction == "backward" {
+        //     self.camera_controller.move_backward(on_or_off);
+        // } else if direction == "left" {
+        //     self.camera_controller.move_left(on_or_off);
+        // } else if direction == "right" {
+        //     self.camera_controller.move_right(on_or_off);
+        // }
         self.update();
     }
     pub fn update(&mut self) {
-        self.camera_controller.update_camera(&mut self.camera);
+//        self.camera_controller.update_camera(&mut self.camera);
         self.camera_uniform.update_view_proj(&self.camera);
     }
 
@@ -186,6 +187,7 @@ impl State {
         let smaa_frame = self
             .smaa_target
             .start_frame(&self.device, &self.queue, &view);
+
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -196,7 +198,6 @@ impl State {
             .run_pipeline(&mut encoder, &smaa_frame, &background_color);
 
         let axis_commands = encoder.finish();
-
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -433,12 +434,16 @@ impl State {
         );
         (axis_lines, glyphs)
     }
+
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,
-    ) -> (Camera, wgpu::Buffer, CameraUniform, CameraController) {
-        let camera = Camera::new(config);
-        let mut camera_uniform = CameraUniform::new();
+    ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
+        //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
+        let mut camera = OrbitCamera::new(4.07, 0.42, -32.12, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
+        //let mut camera = OrbitCamera::new(2.0, 1.5, 1.25, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
+        camera.bounds.min_distance = Some(1.1);
+        let mut camera_uniform = CameraUniform::default();
         camera_uniform.update_view_proj(&camera);
 
         let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -446,7 +451,7 @@ impl State {
             contents: bytemuck::cast_slice(&[camera_uniform]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
-        let camera_controller = CameraController::new(0.2);
+        let camera_controller = CameraController::new(0.025, 0.006);
         (camera, camera_buffer, camera_uniform, camera_controller)
     }
 
@@ -465,13 +470,13 @@ impl State {
             glyphs::glyph_instance_data::GlyphUniformData {
                 min_x: 0.0,
                 max_x: 100.0,
-                min_interp_x: -1.0,
-                max_interp_x: 1.0,
+                min_interp_x: -5.0,
+                max_interp_x: 5.0,
 
                 min_y: 0.0,
                 max_y: 50.0,
-                min_interp_y: -1.0,
-                max_interp_y: 1.0,
+                min_interp_y: -5.0,
+                max_interp_y: 5.0,
 
 
                 min_z: 0.0,

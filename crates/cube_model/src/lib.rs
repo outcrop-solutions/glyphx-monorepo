@@ -3,15 +3,15 @@ mod camera;
 mod model;
 mod model_event;
 
-use model::state::State;
 use model::model_configuration::ModelConfiguration;
+use model::state::State;
 use model_event::{ModelEvent, ModelMoveDirection};
+use std::rc::Rc;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
 use winit::window::{Window, WindowBuilder};
-use std::rc::Rc;
 
 cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {
@@ -163,7 +163,13 @@ impl ModelRunner {
         self.init_logger();
 
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
-        let window = WindowBuilder::new().with_inner_size(winit::dpi::LogicalSize{width:1500, height: 1000}).build(&el).unwrap();
+        let window = WindowBuilder::new()
+            .with_inner_size(winit::dpi::LogicalSize {
+                width: 1500,
+                height: 1000,
+            })
+            .build(&el)
+            .unwrap();
 
         cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {
@@ -177,19 +183,18 @@ impl ModelRunner {
             max_color: [255.0, 0.0, 0.0, 1.0],
             min_color: [0.0, 255.0, 255.0, 1.0],
             background_color: [13.0, 19.0, 33.0, 1.0],
-            x_axis_color : [255.0, 0.0, 0.0, 1.0],
-            y_axis_color : [0.0, 255.0, 0.0, 1.0],
-            z_axis_color : [0.0, 0.0, 255.0, 1.0],
-            grid_cylinder_length : 1.94,
-            grid_cylinder_radius : 0.01,
-            grid_cone_length : 0.06,
-            grid_cone_radius : 0.025,
-            z_height_ratio : 1.0,
-            glyph_offset: 0.003,
-            z_offset: 0.002
-
+            x_axis_color: [255.0, 0.0, 0.0, 1.0],
+            y_axis_color: [0.0, 255.0, 0.0, 1.0],
+            z_axis_color: [0.0, 0.0, 255.0, 1.0],
+            grid_cylinder_length: 10.80,
+            grid_cylinder_radius: 0.05,
+            grid_cone_length: 0.2,
+            grid_cone_radius: 0.10,
+            z_height_ratio: 0.1,
+            glyph_offset: 0.15,
+            z_offset: 0.002,
         });
-        let mut state = State::new(window,model_config.clone() ).await;
+        let mut state = State::new(window, model_config.clone()).await;
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
         }
@@ -207,33 +212,34 @@ impl ModelRunner {
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Backward(value))) => {
                     state.move_camera("backward", value);
                 }
+                Event::DeviceEvent { device_id, event } => {
+                        state.input(&event);
+                }
                 Event::WindowEvent {
                     ref event,
                     window_id,
                 } if window_id == this_window_id => {
-                    if !state.input(event) {
-                        match event {
-                            WindowEvent::CloseRequested
-                            | WindowEvent::KeyboardInput {
-                                input:
-                                    KeyboardInput {
-                                        state: ElementState::Pressed,
-                                        virtual_keycode: Some(VirtualKeyCode::Escape),
-                                        ..
-                                    },
-                                ..
-                            } => *control_flow = ControlFlow::Exit,
+                    match event {
+                        WindowEvent::CloseRequested
+                        | WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::Escape),
+                                    ..
+                                },
+                            ..
+                        } => *control_flow = ControlFlow::Exit,
 
-                            WindowEvent::Resized(physical_size) => {
-                                state.resize(*physical_size);
-                            }
-
-                            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                                // new_inner_size is &&mut so we have to dereference it twice
-                                state.resize(**new_inner_size);
-                            }
-                            _ => {}
+                        WindowEvent::Resized(physical_size) => {
+                            state.resize(*physical_size);
                         }
+
+                        WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                            // new_inner_size is &&mut so we have to dereference it twice
+                            state.resize(**new_inner_size);
+                        }
+                        _ => {}
                     }
                 }
                 Event::RedrawRequested(window_id) if window_id == state.window().id() => {
