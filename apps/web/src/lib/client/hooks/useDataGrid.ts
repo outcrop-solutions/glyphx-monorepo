@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api } from '../network';
 import { _getDataGrid, _getRowIds } from '../mutations';
 import { dataGridPayloadSelector, rowIdsAtom } from 'state';
@@ -8,6 +8,8 @@ const useDataGrid = () => {
   const [data, setData] = useState(null);
   const [rowIds, setRowIds] = useRecoilState(rowIdsAtom);
   const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
+  const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);
+  const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
 
   const fetchRowIdsConfig = useMemo(
     () => ({
@@ -26,23 +28,37 @@ const useDataGrid = () => {
     [workspaceId, projectId, tableName]
   );
 
-  const fetchData = useCallback(async () => {
-    if (!tableName) {
+  useEffect(() => {
+    if (!tableName || isLoadingRowIds || !rowIds) {
       return;
-    } else if (rowIds) {
-      const data = await api(fetchRowIdsConfig);
-      console.log({ data, selection: true });
-      setData(data);
-    } else {
-      const data = await api(fetchDataGridConfig);
-      console.log({ data, selection: false });
-      setData(data);
     }
-  }, [rowIds, tableName, fetchRowIdsConfig, fetchDataGridConfig]);
+
+    const fetchDataWithRowIds = async () => {
+      setIsLoadingRowIds(true);
+      const data = await api(fetchRowIdsConfig);
+      console.log({ data, rowIds, selection: true });
+      setData(data);
+      setIsLoadingRowIds(false);
+    };
+
+    fetchDataWithRowIds();
+  }, [rowIds, tableName, isLoadingRowIds, fetchRowIdsConfig]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (!tableName || isLoadingDataGrid || rowIds) {
+      return;
+    }
+
+    const fetchDataWithoutRowIds = async () => {
+      setIsLoadingDataGrid(true);
+      const data = await api(fetchDataGridConfig);
+      console.log({ data, rowIds, selection: false });
+      setData(data);
+      setIsLoadingDataGrid(false);
+    };
+
+    fetchDataWithoutRowIds();
+  }, [isLoadingDataGrid, tableName, fetchDataGridConfig, rowIds]);
 
   return { data };
 };
