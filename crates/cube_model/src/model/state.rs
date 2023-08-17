@@ -1,4 +1,6 @@
-use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, orbit_camera::OrbitCamera};
+use crate::camera::{
+    camera_controller::CameraController, orbit_camera::OrbitCamera, uniform_buffer::CameraUniform,
+};
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
@@ -6,14 +8,14 @@ use crate::model::pipeline::{axis_lines, glyphs};
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
-use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor };
+use wgpu::{CommandBuffer, Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
 use winit::dpi::PhysicalSize;
-use winit::event::{WindowEvent, DeviceEvent};
+use winit::event::{DeviceEvent, WindowEvent};
 use winit::window::Window;
 
-use rand::Rng;
 use super::pipeline::glyphs::glyph_instance_data;
 use glam::Vec3;
+use rand::Rng;
 
 pub struct State {
     surface: wgpu::Surface,
@@ -29,7 +31,9 @@ pub struct State {
     color_table_uniform: ColorTableUniform,
     color_table_buffer: wgpu::Buffer,
     model_configuration: Rc<ModelConfiguration>,
-    axis_lines_pipeline: axis_lines::AxisLines,
+    x_axis_lines_pipeline: axis_lines::AxisLines,
+    y_axis_lines_pipeline: axis_lines::AxisLines,
+    z_axis_lines_pipeline: axis_lines::AxisLines,
     glyphs_pipeline: glyphs::Glyphs,
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
@@ -77,18 +81,19 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        let (axis_lines_pipeline, glyphs_pipeline) = Self::build_pipelines(
-            &device,
-            &config,
-            &camera_buffer,
-            &camera_uniform,
-            &color_table_buffer,
-            &color_table_uniform,
-            &model_configuration,
-            &glyph_uniform_data,
-            &glyph_uniform_buffer,
-            &glyph_instance_data,
-        );
+        let (x_axis_lines_pipeline, y_axis_lines_pipeline, z_axis_lines_pipeline, glyphs_pipeline) =
+            Self::build_pipelines(
+                &device,
+                &config,
+                &camera_buffer,
+                &camera_uniform,
+                &color_table_buffer,
+                &color_table_uniform,
+                &model_configuration,
+                &glyph_uniform_data,
+                &glyph_uniform_buffer,
+                &glyph_instance_data,
+            );
 
         let smaa_target = SmaaTarget::new(
             &device,
@@ -115,7 +120,9 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            axis_lines_pipeline,
+            x_axis_lines_pipeline,
+            y_axis_lines_pipeline,
+            z_axis_lines_pipeline,
             glyphs_pipeline,
             glyph_instance_data,
         }
@@ -139,7 +146,8 @@ impl State {
     }
 
     pub fn input(&mut self, event: &DeviceEvent) -> bool {
-        self.camera_controller.process_events(event, &mut self.camera)
+        self.camera_controller
+            .process_events(event, &mut self.camera)
     }
 
     pub fn move_camera(&mut self, direction: &str, on_or_off: bool) {
@@ -155,13 +163,12 @@ impl State {
         self.update();
     }
     pub fn update(&mut self) {
-//        self.camera_controller.update_camera(&mut self.camera);
+        //        self.camera_controller.update_camera(&mut self.camera);
         self.camera_uniform.update_view_proj(&self.camera);
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         let background_color = self.color_table_uniform.background_color();
-
         self.queue.write_buffer(
             &self.camera_buffer,
             0,
@@ -215,16 +222,27 @@ impl State {
         drop(screen_clear_render_pass);
         let screen_clear_commands = encoder.finish();
 
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Axis Lines Render Encoder"),
-            });
-
-        self.axis_lines_pipeline
-            .run_pipeline(&mut encoder, &smaa_frame, &background_color);
-
-        let axis_commands = encoder.finish();
+        let x_axis_commands = Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            &self.x_axis_lines_pipeline,
+            "X Axis Line Encoder",
+            background_color,
+        );
+        let y_axis_commands = Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            &self.y_axis_lines_pipeline,
+            "Y Axis Line Encoder",
+            background_color,
+        );
+        let z_axis_commands = Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            &self.z_axis_lines_pipeline,
+            "z Axis Line Encoder",
+            background_color,
+        );
 
         let mut encoder = self
             .device
@@ -237,12 +255,34 @@ impl State {
 
         let glyph_commands = encoder.finish();
 
-        self.queue.submit([screen_clear_commands, axis_commands, glyph_commands]);
+        self.queue.submit([
+            screen_clear_commands,
+            x_axis_commands,
+            y_axis_commands,
+            z_axis_commands,
+            glyph_commands,
+        ]);
 
         smaa_frame.resolve();
         output.present();
 
         Ok(())
+    }
+
+    fn run_pipeline(
+        device: &Device,
+        smaa_frame: &SmaaFrame,
+        pipeline: &axis_lines::AxisLines,
+        label: &str,
+        background_color: [f32; 4],
+    ) -> CommandBuffer {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some(label),
+        });
+
+        pipeline.run_pipeline(&mut encoder, smaa_frame, &background_color);
+
+        encoder.finish()
     }
 
     fn configure_surface(
@@ -409,7 +449,6 @@ impl State {
         let mut count = 0;
         while x < 100.0 {
             while y < 50.0 {
-                
                 let random_number: f32 = rng.gen_range(0.0..=9.0);
                 instance_data.push(glyph_instance_data::GlyphInstanceData {
                     glyph_id: count,
@@ -424,7 +463,7 @@ impl State {
             y = 0.0;
             x += 1.0;
         }
-         instance_data
+        instance_data
     }
     fn build_pipelines(
         device: &Device,
@@ -437,8 +476,13 @@ impl State {
         glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
         glyph_instance_data: &Vec<GlyphInstanceData>,
-    ) -> (axis_lines::AxisLines, glyphs::Glyphs) {
-        let axis_lines = axis_lines::AxisLines::new(
+    ) -> (
+        axis_lines::AxisLines,
+        axis_lines::AxisLines,
+        axis_lines::AxisLines,
+        glyphs::Glyphs,
+    ) {
+        let x_axis_lines = axis_lines::AxisLines::new(
             device,
             config,
             camera_buffer,
@@ -446,6 +490,28 @@ impl State {
             color_table_buffer,
             color_table_uniform,
             model_configuration.clone(),
+            axis_lines::AxisLineDirection::X,
+        );
+        let y_axis_lines = axis_lines::AxisLines::new(
+            device,
+            config,
+            camera_buffer,
+            camera_uniform,
+            color_table_buffer,
+            color_table_uniform,
+            model_configuration.clone(),
+            axis_lines::AxisLineDirection::Y,
+        );
+
+        let z_axis_lines = axis_lines::AxisLines::new(
+            device,
+            config,
+            camera_buffer,
+            camera_uniform,
+            color_table_buffer,
+            color_table_uniform,
+            model_configuration.clone(),
+            axis_lines::AxisLineDirection::Z,
         );
 
         let glyphs = glyphs::Glyphs::new(
@@ -460,14 +526,20 @@ impl State {
             color_table_uniform,
             model_configuration.clone(),
         );
-        (axis_lines, glyphs)
+        (x_axis_lines, y_axis_lines, z_axis_lines, glyphs)
     }
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,
     ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
         //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
-        let mut camera = OrbitCamera::new(4.07, 0.42, -32.12, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
+        let mut camera = OrbitCamera::new(
+            4.07,
+            0.42,
+            -32.12,
+            Vec3::new(0.0, 0.0, 0.0),
+            config.width as f32 / config.height as f32,
+        );
         //let mut camera = OrbitCamera::new(2.0, 1.5, 1.25, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
         camera.bounds.min_distance = Some(1.1);
         let mut camera_uniform = CameraUniform::default();

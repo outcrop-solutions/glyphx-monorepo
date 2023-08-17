@@ -10,6 +10,13 @@ use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceCo
 use smaa::SmaaFrame;
 use std::rc::Rc;
 
+pub enum AxisLineDirection {
+    X,
+    Y,
+    Z,
+}
+
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
@@ -31,6 +38,7 @@ pub struct AxisLines {
     vertex_data: VertexData,
     color_table_bind_group: BindGroup,
     model_configuration: Rc<ModelConfiguration>,
+    direction: AxisLineDirection,
 }
 
 impl AxisLines {
@@ -42,6 +50,7 @@ impl AxisLines {
         color_table_buffer: &Buffer,
         color_table_uniform: &ColorTableUniform,
         model_configuration: Rc<ModelConfiguration>,
+        direction: AxisLineDirection,
     ) -> AxisLines {
         let mut vertex_data = VertexData {
             verticies: Vec::new(),
@@ -52,6 +61,7 @@ impl AxisLines {
             &mut vertex_data.verticies,
             &mut vertex_data.indicies,
             &model_configuration,
+            &direction
         );
 
         let shader =
@@ -83,6 +93,7 @@ impl AxisLines {
             vertex_data,
             color_table_bind_group,
             model_configuration,
+            direction,
         }
     }
 
@@ -90,69 +101,38 @@ impl AxisLines {
         verticies: &mut Vec<Vertex>,
         indicies: &mut Vec<u32>,
         model_configuration: &Rc<ModelConfiguration>,
+        direction: &AxisLineDirection,
     ) {
         let cylinder_radius = model_configuration.grid_cylinder_radius;
         let cylinder_height = model_configuration.grid_cylinder_length;
         let cone_height = model_configuration.grid_cone_length;
         let cone_radius = model_configuration.grid_cone_radius;
-        let height = cylinder_height + cone_height;
+        let z_height_ratio = model_configuration.z_height_ratio;
+        let (height, color, order) = match direction {
+            AxisLineDirection::X => (cylinder_height + cone_height, 60, [2,1,0]),
+            AxisLineDirection::Y => (cylinder_height + cone_height, 61, [0,2,1]),
+            AxisLineDirection::Z => (cylinder_height * z_height_ratio + cone_height, 62, [0,1,2]),
+             
+
+        };
+
+        
         let (axis_verticies, axis_indicies) =
-            create_axis_line(cylinder_radius, cylinder_height, cone_height, cone_radius);
+            create_axis_line(cylinder_radius, height, cone_height, cone_radius);
         //Subtracting this point should put the edge of the cone at -1.0.
         let offset = 1.0 - cone_radius;
 
         for vertex in &axis_verticies {
-            let x = vertex[0] - offset;
-            let y = vertex[1] - offset;
-            let z = vertex[2] - offset;
-            verticies.push(Vertex {
-                //lay the line on its side.
-                position: [z, y, x],
-                color: 60, //x_color is 60 in our color table
-            });
-        }
-        indicies.extend_from_slice(&axis_indicies);
-
-        let index_offset = verticies.len() as u32;
-        //create a y oriented axis line which is green.
-
-        for vertex in &axis_verticies {
-            let x = vertex[0] - offset;
-            let y = vertex[1] - offset;
-            let z = vertex[2] - offset;
-            verticies.push(Vertex {
-                //lay the line on its side.
-                position: [x, z, y],
-                color: 61, //x_color is 60 in our color table
-            });
-        }
-        for index in &axis_indicies {
-            indicies.push(index + index_offset);
-        }
-
-        //Our Z axis is configuralbe seperate from the x/y base.
-        //No matter the length, the cone will always be the same size.
-        let z_cylinder_height = height * model_configuration.z_height_ratio - cone_height;
-
-        let (axis_verticies, axis_indicies) =
-            create_axis_line(cylinder_radius, z_cylinder_height, cone_height, cone_radius);
-        //create a z oriented axis line which is blue.
-        let index_offset = verticies.len() as u32;
-        //create a y oriented axis line which is green.
-
-        for vertex in &axis_verticies {
-            let x = vertex[0] - offset;
-            let y = vertex[1] - offset;
-            let z = vertex[2] - offset;
+            let x = vertex[order[0]] - offset;
+            let y = vertex[order[1]] - offset;
+            let z = vertex[order[2]] - offset;
             verticies.push(Vertex {
                 //lay the line on its side.
                 position: [x, y, z],
-                color: 62, //x_color is 60 in our color table
+                color, //x_color is 60 in our color table
             });
         }
-        for index in &axis_indicies {
-            indicies.push(index + index_offset);
-        }
+        indicies.extend_from_slice(&axis_indicies);
     }
 
     fn configure_verticies(
