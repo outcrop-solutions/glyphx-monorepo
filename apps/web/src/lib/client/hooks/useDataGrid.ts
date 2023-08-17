@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from '../network';
 import { _getDataGrid, _getRowIds } from '../mutations';
 import { dataGridPayloadSelector, rowIdsAtom } from 'state';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
 const useDataGrid = () => {
   const [data, setData] = useState(null);
-  const [rowIds, setRowIds] = useRecoilState(rowIdsAtom);
+  const rowIds = useSetRecoilState(rowIdsAtom);
   const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
   const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);
   const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
@@ -36,7 +36,6 @@ const useDataGrid = () => {
     const fetchDataWithRowIds = async () => {
       setIsLoadingRowIds(true);
       const data = await api(fetchRowIdsConfig);
-      console.log({ data, rowIds, selection: true });
       setData(data);
       setIsLoadingRowIds(false);
     };
@@ -52,7 +51,6 @@ const useDataGrid = () => {
     const fetchDataWithoutRowIds = async () => {
       setIsLoadingDataGrid(true);
       const data = await api(fetchDataGridConfig);
-      console.log({ data, rowIds, selection: false });
       setData(data);
       setIsLoadingDataGrid(false);
     };
