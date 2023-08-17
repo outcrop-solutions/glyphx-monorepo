@@ -11,6 +11,7 @@ use wasm_bindgen::prelude::*;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
 use winit::window::{Window, WindowBuilder};
+use std::rc::Rc;
 
 cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {
@@ -172,15 +173,23 @@ impl ModelRunner {
         }
 
         let this_window_id = window.id();
-        let mut state = State::new(window, &ModelConfiguration {
+        let model_config = Rc::new(ModelConfiguration {
             max_color: [255.0, 0.0, 0.0, 1.0],
             min_color: [0.0, 255.0, 255.0, 1.0],
             background_color: [13.0, 19.0, 33.0, 1.0],
             x_axis_color : [255.0, 0.0, 0.0, 1.0],
             y_axis_color : [0.0, 255.0, 0.0, 1.0],
             z_axis_color : [0.0, 0.0, 255.0, 1.0],
-            num_colors: 60,
-        }).await;
+            grid_cylinder_length : 1.94,
+            grid_cylinder_radius : 0.01,
+            grid_cone_length : 0.06,
+            grid_cone_radius : 0.025,
+            z_height_ratio : 1.0,
+            glyph_offset: 0.003,
+            z_offset: 0.002
+
+        });
+        let mut state = State::new(window,model_config.clone() ).await;
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
         }

@@ -1,3 +1,5 @@
+use wgpu::util::DeviceExt;
+use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
 use crate::assets::color::{build_color_table, Color};
 
 #[repr(C)]
@@ -50,4 +52,39 @@ impl ColorTableUniform {
     pub fn z_axis_color(&self) -> Color {
         self.color_table[self.color_table.len() - 2]
     }
+
+pub fn configure_color_table_uniform(
+    &self,
+    color_table_buffer: &Buffer,
+    device: &Device,
+) -> (BindGroupLayout, BindGroup) {
+
+    let color_table_bind_group_layout =
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+            label: Some("color_table_bind_group_layout"),
+        });
+
+    let color_table_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        layout: &color_table_bind_group_layout,
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+            resource: color_table_buffer.as_entire_binding(),
+        }],
+        label: Some("color_table_bind_group"),
+    });
+    (
+        color_table_bind_group_layout,
+        color_table_bind_group,
+    )
+}
 }
