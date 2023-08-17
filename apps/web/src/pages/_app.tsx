@@ -76,30 +76,6 @@ export default function App({
   //   integrations: [new BrowserTracing()],
   // });
 
-  useEffect(() => {
-    // console.log({ core: window.core });
-    // window.core = window.core || {
-    //   ToggleDrawer: (open: boolean) => {
-    //     // console.log({ function: 'ToggleDrawer', open });
-    //   },
-    //   OpenProject: (object) => {
-    //     console.log({ function: 'Open Project Called', ...JSON.parse(object) });
-    //   },
-    //   TakeScreenShot: (object) => {
-    //     console.log({ function: 'Take Screen Shot Called', ...JSON.parse(object) });
-    //   },
-    //   GetCameraPosition: (object) => {
-    //     return { pos: { x: 0, y: 0, z: 0 }, dir: { x: 0, y: 0, z: 0 } };
-    //   },
-    //   SendRowIds: (rowIds) => {
-    //     // console.log({ function: 'SendRowIds', rowIds });
-    //   },
-    //   SendDrawerPosition: (position) => {
-    //     // console.log({ function: 'SendDrawerPosition', position });
-    //   },
-    // };
-  }, []);
-
   return (
     <SessionProvider session={pageProps.session}>
       <SWRConfig value={swrOptions}>
