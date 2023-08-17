@@ -4,7 +4,7 @@ use crate::camera::{
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
-use crate::model::pipeline::{axis_lines, glyphs};
+use crate::model::pipeline::{axis_lines, glyphs,  pipeline_manager::PipelineManager};
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
@@ -31,14 +31,11 @@ pub struct State {
     color_table_uniform: ColorTableUniform,
     color_table_buffer: wgpu::Buffer,
     model_configuration: Rc<ModelConfiguration>,
-    x_axis_lines_pipeline: axis_lines::AxisLines,
-    y_axis_lines_pipeline: axis_lines::AxisLines,
-    z_axis_lines_pipeline: axis_lines::AxisLines,
-    glyphs_pipeline: glyphs::Glyphs,
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    glyph_instance_data: Vec<GlyphInstanceData>,
+    glyph_instance_data: Rc<Vec<GlyphInstanceData>>,
+    pipeline_manager: PipelineManager,
 }
 
 impl State {
@@ -81,19 +78,18 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        let (x_axis_lines_pipeline, y_axis_lines_pipeline, z_axis_lines_pipeline, glyphs_pipeline) =
-            Self::build_pipelines(
-                &device,
-                &config,
-                &camera_buffer,
-                &camera_uniform,
-                &color_table_buffer,
-                &color_table_uniform,
-                &model_configuration,
-                &glyph_uniform_data,
-                &glyph_uniform_buffer,
-                &glyph_instance_data,
-            );
+        let pipeline_manager = Self::build_pipelines(
+            &device,
+            &config,
+            &camera_buffer,
+            &camera_uniform,
+            &color_table_buffer,
+            &color_table_uniform,
+            &model_configuration,
+            &glyph_uniform_data,
+            &glyph_uniform_buffer,
+            &glyph_instance_data,
+        );
 
         let smaa_target = SmaaTarget::new(
             &device,
@@ -120,11 +116,8 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            x_axis_lines_pipeline,
-            y_axis_lines_pipeline,
-            z_axis_lines_pipeline,
-            glyphs_pipeline,
             glyph_instance_data,
+            pipeline_manager,
         }
     }
 
@@ -225,35 +218,30 @@ impl State {
         let x_axis_commands = Self::run_pipeline(
             &self.device,
             &smaa_frame,
-            &self.x_axis_lines_pipeline,
-            "X Axis Line Encoder",
-            background_color,
+            &self.pipeline_manager,
+            "x-axis-line",
         );
         let y_axis_commands = Self::run_pipeline(
             &self.device,
             &smaa_frame,
-            &self.y_axis_lines_pipeline,
-            "Y Axis Line Encoder",
-            background_color,
+            &self.pipeline_manager,
+            "y-axis-line",
         );
         let z_axis_commands = Self::run_pipeline(
             &self.device,
             &smaa_frame,
-            &self.z_axis_lines_pipeline,
-            "z Axis Line Encoder",
-            background_color,
+            &self.pipeline_manager,
+            "z-axis-line",
         );
 
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Glyph Render Encoder"),
-            });
 
-        self.glyphs_pipeline
-            .run_pipeline(&mut encoder, &smaa_frame, &self.glyph_instance_data);
+        let glyph_commands = Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            &self.pipeline_manager,
+            "glyphs",
+        );
 
-        let glyph_commands = encoder.finish();
 
         self.queue.submit([
             screen_clear_commands,
@@ -272,15 +260,15 @@ impl State {
     fn run_pipeline(
         device: &Device,
         smaa_frame: &SmaaFrame,
-        pipeline: &axis_lines::AxisLines,
-        label: &str,
-        background_color: [f32; 4],
+        pipeline_manager: &PipelineManager,
+        pipeline_name: &str,
     ) -> CommandBuffer {
-        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some(label),
-        });
+        let pipeline = pipeline_manager.get_pipeline(pipeline_name).unwrap();
 
-        pipeline.run_pipeline(&mut encoder, smaa_frame, &background_color);
+        let mut encoder =
+            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some((format!("{} Encoder", pipeline_name)).as_str()) });
+
+        pipeline.run_pipeline(&mut encoder, smaa_frame);
 
         encoder.finish()
     }
@@ -368,7 +356,7 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_instance_data() -> Vec<glyphs::glyph_instance_data::GlyphInstanceData> {
+    fn build_instance_data() -> Rc<Vec<glyphs::glyph_instance_data::GlyphInstanceData>> {
         // vec![
         //     glyphs::glyph_instance_data::GlyphInstanceData {
         //         glyph_id: 0,
@@ -463,8 +451,9 @@ impl State {
             y = 0.0;
             x += 1.0;
         }
-        instance_data
+        Rc::new(instance_data)
     }
+
     fn build_pipelines(
         device: &Device,
         config: &SurfaceConfiguration,
@@ -475,14 +464,10 @@ impl State {
         model_configuration: &Rc<ModelConfiguration>,
         glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
-        glyph_instance_data: &Vec<GlyphInstanceData>,
-    ) -> (
-        axis_lines::AxisLines,
-        axis_lines::AxisLines,
-        axis_lines::AxisLines,
-        glyphs::Glyphs,
-    ) {
-        let x_axis_lines = axis_lines::AxisLines::new(
+        glyph_instance_data: &Rc<Vec<GlyphInstanceData>>,
+    ) -> PipelineManager{
+        let mut pipeline_manager = PipelineManager::new();
+         pipeline_manager.add_pipeline("x-axis-line", Box::new(axis_lines::AxisLines::new(
             device,
             config,
             camera_buffer,
@@ -491,8 +476,9 @@ impl State {
             color_table_uniform,
             model_configuration.clone(),
             axis_lines::AxisLineDirection::X,
-        );
-        let y_axis_lines = axis_lines::AxisLines::new(
+        )), 0);
+
+         pipeline_manager.add_pipeline("y-axis-line", Box::new(axis_lines::AxisLines::new(
             device,
             config,
             camera_buffer,
@@ -501,9 +487,9 @@ impl State {
             color_table_uniform,
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Y,
-        );
+        )), 0);
 
-        let z_axis_lines = axis_lines::AxisLines::new(
+         pipeline_manager.add_pipeline("z-axis-line", Box::new(axis_lines::AxisLines::new(
             device,
             config,
             camera_buffer,
@@ -512,12 +498,12 @@ impl State {
             color_table_uniform,
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Z,
-        );
+        )), 0);
 
-        let glyphs = glyphs::Glyphs::new(
+        pipeline_manager.add_pipeline("glyphs",Box::new(glyphs::Glyphs::new(
             glyph_uniform_data,
             glyph_uniform_buffer,
-            glyph_instance_data,
+            glyph_instance_data.clone(),
             device,
             config,
             camera_buffer,
@@ -525,8 +511,8 @@ impl State {
             color_table_buffer,
             color_table_uniform,
             model_configuration.clone(),
-        );
-        (x_axis_lines, y_axis_lines, z_axis_lines, glyphs)
+        )),1);
+        pipeline_manager
     }
     fn configure_camera(
         config: &SurfaceConfiguration,

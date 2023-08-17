@@ -3,12 +3,14 @@ use crate::assets::rectangular_prism::create_rectangular_prism;
 use crate::camera::uniform_buffer::CameraUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
+use crate::assets::color::Color;
 use bytemuck;
 use glyph_instance_data::*;
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
+use crate::model::pipeline::PipelineRunner;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -20,7 +22,7 @@ pub struct Vertex {
 pub struct VertexData {
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u32>,
-    pub instance_data: Vec<GlyphInstanceData>,
+    pub instance_data: Rc<Vec<GlyphInstanceData>>,
 }
 
 pub struct Glyphs {
@@ -33,13 +35,14 @@ pub struct Glyphs {
     model_configuration: Rc<ModelConfiguration>,
     glyph_uniform_bind_group: BindGroup,
     instance_data_buffer: Buffer,
+    glyph_instance_data: Rc<Vec<GlyphInstanceData>>,
 }
 
 impl Glyphs {
     pub fn new(
         glyph_uniform_data: &GlyphUniformData,
         glyph_uniform_buffer: &Buffer,
-        glyph_instance_data: &Vec<GlyphInstanceData>,
+        glyph_instance_data: Rc<Vec<GlyphInstanceData>>,
         device: &Device,
         config: &SurfaceConfiguration,
         camera_buffer: &Buffer,
@@ -66,7 +69,7 @@ impl Glyphs {
         let (vertex_buffer_layout, vertex_buffer, index_buffer) =
             Self::configure_verticies(device, &vertex_data);
         let (instance_buffer_layout, instance_data_buffer) =
-            Self::configure_instance_buffer(device, glyph_instance_data);
+            Self::configure_instance_buffer(device, &glyph_instance_data);
 
         let (glyph_uniform_buffer_layout, glyph_uniform_bind_group) =
             glyph_uniform_data.configure_glyph_uniform(glyph_uniform_buffer, device);
@@ -98,6 +101,7 @@ impl Glyphs {
             model_configuration,
             glyph_uniform_bind_group,
             instance_data_buffer,
+            glyph_instance_data,
         }
     }
 
@@ -139,7 +143,7 @@ impl Glyphs {
 
     fn configure_instance_buffer(
         device: &Device,
-        instance_data: &Vec<GlyphInstanceData>,
+        instance_data: &Rc<Vec<GlyphInstanceData>>,
     ) -> (wgpu::VertexBufferLayout<'static>, Buffer) {
         let instance_buffer_layout = wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<GlyphInstanceData>() as wgpu::BufferAddress,
@@ -282,13 +286,15 @@ impl Glyphs {
         });
         render_pipeline
     }
+}
 
-    pub fn run_pipeline<'a>(
+impl PipelineRunner for Glyphs {
+    fn run_pipeline<'a>(
         &'a self,
         encoder: &'a mut wgpu::CommandEncoder,
         smaa_frame: &SmaaFrame,
-        glyph_instance_data: &Vec<GlyphInstanceData>
     ) {
+        let glyph_instance_data = &self.glyph_instance_data;
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {

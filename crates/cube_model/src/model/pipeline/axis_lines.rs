@@ -9,6 +9,7 @@ use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceCo
 
 use smaa::SmaaFrame;
 use std::rc::Rc;
+use crate::model::pipeline::PipelineRunner;
 
 pub enum AxisLineDirection {
     X,
@@ -112,11 +113,8 @@ impl AxisLines {
             AxisLineDirection::X => (cylinder_height + cone_height, 60, [2,1,0]),
             AxisLineDirection::Y => (cylinder_height + cone_height, 61, [0,2,1]),
             AxisLineDirection::Z => (cylinder_height * z_height_ratio + cone_height, 62, [0,1,2]),
-             
-
         };
 
-        
         let (axis_verticies, axis_indicies) =
             create_axis_line(cylinder_radius, height, cone_height, cone_radius);
         //Subtracting this point should put the edge of the cone at -1.0.
@@ -230,12 +228,13 @@ impl AxisLines {
         });
         render_pipeline
     }
+}
 
-    pub fn run_pipeline<'a>(
+impl PipelineRunner for AxisLines{
+   fn run_pipeline<'a>(
         &'a self,
         encoder: &'a mut wgpu::CommandEncoder,
         smaa_frame: &SmaaFrame,
-        background_color: &Color,
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
