@@ -5,6 +5,9 @@ import {ModalState} from './modalState';
 export type AiRecommendationsModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS}>
 >;
+export type TemplatePreviewModalProps = ModalProps<
+  Extract<ModalState, {type: MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW}>
+>;
 export type CreateProjectTemplateModalProps = ModalProps<
   Extract<ModalState, {type: MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE}>
 >;

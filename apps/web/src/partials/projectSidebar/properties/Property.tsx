@@ -188,14 +188,14 @@ export const Property = ({ axis }) => {
         </div>
       ) : (
         <div
-          data-type={handleDataType(prop)}
+          data-type={handleDataType(prop, project)}
           className={`flex min-w-[8rem] grow text-white justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
         >
           <span className="inline-flex uppercase align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">
             {prop?.key}
           </span>
           <div className="hidden group-hover/axes:flex absolute top-8 z-40 px-2 py-1right-2 bg-primary-dark-blue text-white">
-            {'description'}
+            {prop?.description || 'description'}
           </div>
         </div>
       )}

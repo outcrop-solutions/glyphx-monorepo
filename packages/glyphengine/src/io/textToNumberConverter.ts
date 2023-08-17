@@ -20,6 +20,7 @@ export class TextColumnToNumberConverter {
     const query = `SELECT DISTINCT ${this.columnName} FROM ${this.tableName} ORDER BY ${this.columnName}`;
 
     const data = await athenaClient.connection.runQuery(query);
+
     data.forEach((row, index) => {
       this.convertedFields.set(row[this.columnName] as string, index);
     });

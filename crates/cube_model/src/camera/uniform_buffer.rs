@@ -68,4 +68,5 @@ impl Default for CameraUniform {
             view_proj: Mat4::IDENTITY.to_cols_array_2d(),
         }
     }
+
 }

@@ -1,0 +1,5 @@
+export enum SUBSCRIPTION_TYPE {
+  FREE,
+  STANDARD,
+  PREMIUM,
+}

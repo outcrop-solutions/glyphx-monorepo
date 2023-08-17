@@ -1,0 +1,35 @@
+{{! GENERATED MOCKS FOR TESTING PURPOSES }}
+// THIS CODE WAS AUTOMATICALLY GENERATED 
+import {v4} from 'uuid';
+import {databaseTypes} from '../../../../../database';
+import { I{{pascalcase this.name}}Document } from '../interfaces';
+const UNIQUE_KEY = v4().replaceAll('-', ''); 
+const RANDOM_NUMBER = Math.random(); 
+
+export const MOCK_{{uppercase (pascalcase this.name)}} = {
+{{#each properties}}
+  {{#if (isNotProtected this.name)}}
+    {{#if (isOneToMany this.relationType)}}
+      {{camelcase this.name}}: [],
+    {{else if (isOneToOne this.relationType)}}
+      {{camelcase this.name}}: {},
+    {{else if (isSchema this.relationType)}}
+      {{camelcase this.name}}: {},
+    {{else if (isEnum this.relationType)}}
+      {{camelcase this.name}}: databaseTypes.{{this.type}}.{{getEnumValue this}},
+    {{else if (isDate this.type)}}
+      {{camelcase this.name}}: () => new Date(),
+    {{else if (isString this.type)}}
+      {{camelcase this.name}}: 'test{{camelcase this.name}}' + UNIQUE_KEY,
+    {{else if (isNumber this.type)}}
+      {{camelcase this.name}}: RANDOM_NUMBER,
+    {{else if (isStringArray this.type)}}
+      {{camelcase this.name}}: ['test{{camelcase this.name}}' + UNIQUE_KEY],
+    {{else if (isNumberArray this.type)}}
+      {{camelcase this.name}}: [RANDOM_NUMBER],
+    {{else}}
+      {{camelcase this.name}}: '{{camelcase this.name}}',
+    {{/if}}
+  {{/if}}
+{{/each}}
+} as unknown as I{{pascalcase this.name}}Document;

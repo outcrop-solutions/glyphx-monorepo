@@ -178,7 +178,7 @@ impl State {
             0,
             bytemuck::cast_slice(&[self.glyph_uniform_data]),
         );
-    
+
         let output = self.surface.get_current_texture()?;
         let view = output
             .texture
@@ -225,6 +225,7 @@ impl State {
             .run_pipeline(&mut encoder, &smaa_frame, &background_color);
 
         let axis_commands = encoder.finish();
+
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -461,7 +462,6 @@ impl State {
         );
         (axis_lines, glyphs)
     }
-
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,
@@ -504,7 +504,6 @@ impl State {
                 max_y: 50.0,
                 min_interp_y: -5.0,
                 max_interp_y: 5.0,
-
 
                 min_z: 0.0,
                 max_z: 9.0,

@@ -7,20 +7,21 @@ use model::model_configuration::ModelConfiguration;
 use model::state::State;
 use model_event::{ModelEvent, ModelMoveDirection};
 use std::rc::Rc;
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
 use winit::event::*;
-use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder, EventLoopProxy};
-use winit::window::{Window, WindowBuilder};
+use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
+use winit::window::WindowBuilder;
 
 cfg_if::cfg_if! {
-        if #[cfg(target_arch="wasm32")] {
-#[wasm_bindgen]
-extern "C" {
- #[wasm_bindgen(js_namespace = console)]
- pub fn log(s: &str);
-}
-}
+    if #[cfg(target_arch="wasm32")] {
+        use wasm_bindgen::prelude::*;
+        use winit::window::Window;
+
+        #[wasm_bindgen]
+        extern "C" {
+            #[wasm_bindgen(js_namespace = console)]
+            pub fn log(s: &str);
+        }
+    }
 }
 
 const WEB_ELEMENT_NAME: &str = "glyphx-cube-model";
@@ -213,7 +214,7 @@ impl ModelRunner {
                     state.move_camera("backward", value);
                 }
                 Event::DeviceEvent { device_id, event } => {
-                        state.input(&event);
+                    state.input(&event);
                 }
                 Event::WindowEvent {
                     ref event,
