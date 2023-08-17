@@ -1,27 +1,29 @@
+///https://github.com/FrankenApps/wgpu_cube/blob/master/src/render/camera.rs
+use crate::camera::orbit_camera::OrbitCamera;
 use crate::camera::Camera;
-use wgpu::util::DeviceExt;
-use cgmath;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
-// We need this for Rust to store our data correctly for the shaders
+use glam::Mat4;
+/// The camera uniform contains the data linked to the camera that is passed to the shader.
 #[repr(C)]
-// This is so we can store this in a buffer
-#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct CameraUniform {
-    // We can't use cgmath with bytemuck directly so we'll have
-    // to convert the Matrix4 into a 4x4 f32 array
-    view_proj: [[f32; 4]; 4],
+    /// The eye position of the camera in homogenous coordinates.
+    ///
+    /// Homogenous coordinates are used to fullfill the 16 byte alignment requirement.
+    pub view_position: [f32; 4],
+
+    /// Contains the view projection matrix.
+    pub view_proj: [[f32; 4]; 4],
 }
 
 impl CameraUniform {
-    pub fn new() -> Self {
-        use cgmath::SquareMatrix;
-        Self {
-            view_proj: cgmath::Matrix4::identity().into(),
-        }
-    }
-
-    pub fn update_view_proj(&mut self, camera: &Camera) {
-        self.view_proj = camera.build_view_projection_matrix().into();
+    /// Updates the view projection matrix of this [CameraUniform].
+    ///
+    /// Arguments:
+    /// * `camera`: The [OrbitCamera] from which the matrix will be computed.
+    pub fn update_view_proj(&mut self, camera: &OrbitCamera) {
+        self.view_position = [camera.eye.x, camera.eye.y, camera.eye.z, 1.0];
+        self.view_proj = camera.build_view_projection_matrix().to_cols_array_2d();
     }
 
     pub fn configure_camera_uniform(
@@ -56,4 +58,15 @@ impl CameraUniform {
 
         (camera_bind_group_layout, camera_bind_group)
     }
+}
+
+impl Default for CameraUniform {
+    /// Creates a default [CameraUniform].
+    fn default() -> Self {
+        Self {
+            view_position: [0.0; 4],
+            view_proj: Mat4::IDENTITY.to_cols_array_2d(),
+        }
+    }
+
 }

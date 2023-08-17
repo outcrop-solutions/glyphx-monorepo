@@ -1,6 +1,7 @@
 // Vertex shader
 
 struct CameraUniform {
+    view_pos: vec4<f32>,
     view_proj: mat4x4<f32>,
 };
 
@@ -87,7 +88,7 @@ fn vs_main(
         glyph_uniform_data.max_x,
         min_x,
         max_x,
-    ) - min_x +	glyph_uniform_data.x_y_offset;
+    ) - min_x + glyph_uniform_data.x_y_offset - f32(4.8);
 
     let min_y = glyph_uniform_data.min_interp_y;
     let max_y = glyph_uniform_data.max_interp_y;
@@ -97,7 +98,7 @@ fn vs_main(
         glyph_uniform_data.max_y,
         min_y,
         max_y,
-    ) - min_y + glyph_uniform_data.x_y_offset;
+    ) - min_y + glyph_uniform_data.x_y_offset - f32(4.8);
 
     let min_z = glyph_uniform_data.min_interp_z;
     let max_z = glyph_uniform_data.max_interp_z;
@@ -111,21 +112,21 @@ fn vs_main(
             min_z,
             max_z,
         );
-	z_vec = z_pos + glyph_uniform_data.z_offset;
-
+        z_vec = z_pos;
     }
-       
+
+    z_vec = z_vec + glyph_uniform_data.z_offset;
     let color = floor(linear_interpolation(
-            instance.z_value,
-            glyph_uniform_data.min_z,
-            glyph_uniform_data.max_z,
-            f32(0.0),
-            f32(60.0),
-        ));
+        instance.z_value,
+        glyph_uniform_data.min_z,
+        glyph_uniform_data.max_z,
+        f32(0.0),
+        f32(60.0),
+    ));
     var out: VertexOutput;
     out.position = vec3<f32>(model.position[0] + x_pos, model.position[1] + y_pos, z_vec);
     out.color_code = u32(color);
-    out.clip_position = camera.view_proj * vec4<f32>(out.position, 1.0);
+    out.clip_position = camera.view_proj * vec4<f32>(out.position[1], out.position[2], out.position[0], 1.0);
     return out;
 }
 
