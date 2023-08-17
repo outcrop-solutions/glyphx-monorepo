@@ -236,7 +236,7 @@ impl AxisLines {
                 topology: wgpu::PrimitiveTopology::TriangleList,
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
-                cull_mode: None, //Some(wgpu::Face::Back),
+                cull_mode: Some(wgpu::Face::Back),
                 polygon_mode: wgpu::PolygonMode::Fill,
                 ..Default::default()
             },
@@ -263,12 +263,7 @@ impl AxisLines {
                 view: &*smaa_frame,
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: background_color[0] as f64,
-                        g: background_color[1] as f64,
-                        b: background_color[2] as f64,
-                        a: 1.0,
-                    }),
+                    load: wgpu::LoadOp::Load,
                     store: true,
                 },
             })],

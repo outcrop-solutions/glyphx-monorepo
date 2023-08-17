@@ -178,7 +178,7 @@ impl State {
             0,
             bytemuck::cast_slice(&[self.glyph_uniform_data]),
         );
-
+    
         let output = self.surface.get_current_texture()?;
         let view = output
             .texture
@@ -187,6 +187,33 @@ impl State {
         let smaa_frame = self
             .smaa_target
             .start_frame(&self.device, &self.queue, &view);
+
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("ScreenClear Encoder"),
+            });
+
+        let screen_clear_render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Render Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &*smaa_frame,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: background_color[0] as f64,
+                        g: background_color[1] as f64,
+                        b: background_color[2] as f64,
+                        a: 1.0,
+                    }),
+                    store: true,
+                },
+            })],
+            depth_stencil_attachment: None,
+        });
+
+        drop(screen_clear_render_pass);
+        let screen_clear_commands = encoder.finish();
 
         let mut encoder = self
             .device
@@ -209,7 +236,7 @@ impl State {
 
         let glyph_commands = encoder.finish();
 
-        self.queue.submit([axis_commands, glyph_commands]);
+        self.queue.submit([screen_clear_commands, axis_commands, glyph_commands]);
 
         smaa_frame.resolve();
         output.present();
