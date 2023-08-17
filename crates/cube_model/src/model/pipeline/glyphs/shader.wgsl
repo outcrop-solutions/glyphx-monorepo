@@ -126,6 +126,7 @@ fn vs_main(
     var out: VertexOutput;
     out.position = vec3<f32>(model.position[0] + x_pos, model.position[1] + y_pos, z_vec);
     out.color_code = u32(color);
+    //out.clip_position = camera.view_proj * vec4<f32>(out.position[0], out.position[1], out.position[2], 1.0);
     out.clip_position = camera.view_proj * vec4<f32>(out.position[1], out.position[2], out.position[0], 1.0);
     return out;
 }
