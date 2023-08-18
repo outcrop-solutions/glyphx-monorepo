@@ -24,3 +24,4 @@ export * from './modals/iDeleteProjectData';
 export * from './modals/iModalsAtom';
 
 export * from './ui';
+export * from './iModelConfig';
