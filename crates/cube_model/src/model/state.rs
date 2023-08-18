@@ -1,6 +1,7 @@
 use crate::camera::{
     camera_controller::CameraController, orbit_camera::OrbitCamera, uniform_buffer::CameraUniform,
 };
+use crate::light::light_uniform::LightUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
@@ -16,7 +17,7 @@ use winit::event::{DeviceEvent, WindowEvent};
 use winit::window::Window;
 
 use super::pipeline::glyphs::glyph_instance_data;
-use glam::{Vec3, Mat4, Vec4};
+use glam::{Mat4, Vec3, Vec4};
 use rand::Rng;
 
 const Z_ORDERS: [[&str; 4]; 8] = [
@@ -42,6 +43,8 @@ pub struct State {
     camera_controller: CameraController,
     color_table_uniform: ColorTableUniform,
     color_table_buffer: wgpu::Buffer,
+    light_uniform: LightUniform,
+    light_buffer: wgpu::Buffer,
     model_configuration: Rc<ModelConfiguration>,
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
@@ -78,6 +81,22 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
+        let light_uniform = LightUniform::new(
+            model_configuration.light_location,
+            [
+                model_configuration.light_color[0] / 255.0,
+                model_configuration.light_color[1] / 255.0,
+                model_configuration.light_color[2] / 255.0,
+            ],
+        );
+
+        let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Light Buffer"),
+            contents: bytemuck::cast_slice(&[light_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+
+
         let model_configuration = model_configuration.clone();
 
         let glyph_uniform_data = Self::build_glyph_uniform_data(&model_configuration);
@@ -97,6 +116,8 @@ impl State {
             &camera_uniform,
             &color_table_buffer,
             &color_table_uniform,
+            &light_buffer,
+            &light_uniform,
             &model_configuration,
             &glyph_uniform_data,
             &glyph_uniform_buffer,
@@ -130,6 +151,8 @@ impl State {
             smaa_target,
             glyph_instance_data,
             pipeline_manager,
+            light_buffer,
+            light_uniform,
         }
     }
 
@@ -191,6 +214,11 @@ impl State {
         );
 
         self.queue.write_buffer(
+            &self.light_buffer,
+            0,
+            bytemuck::cast_slice(&[self.light_uniform]),
+        );
+        self.queue.write_buffer(
             &self.glyph_uniform_buffer,
             0,
             bytemuck::cast_slice(&[self.glyph_uniform_data]),
@@ -248,12 +276,12 @@ impl State {
         //     i += 1;
         // }
         let x_axis_pipeline = self.pipeline_manager.get_pipeline("x-axis-line").unwrap();
-            commands.push(Self::run_pipeline(
-                &self.device,
-                &smaa_frame,
-                x_axis_pipeline,
-               "x-axis-line", 
-            ));
+        commands.push(Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            x_axis_pipeline,
+            "x-axis-line",
+        ));
         self.queue.submit(commands);
 
         smaa_frame.resolve();
@@ -465,6 +493,8 @@ impl State {
         camera_uniform: &CameraUniform,
         color_table_buffer: &wgpu::Buffer,
         color_table_uniform: &ColorTableUniform,
+        light_buffer: &wgpu::Buffer,
+        light_uniform: &LightUniform,
         model_configuration: &Rc<ModelConfiguration>,
         glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
@@ -480,6 +510,8 @@ impl State {
                 camera_uniform,
                 color_table_buffer,
                 color_table_uniform,
+                light_buffer,
+                light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::X,
             )),
@@ -495,6 +527,8 @@ impl State {
                 camera_uniform,
                 color_table_buffer,
                 color_table_uniform,
+                light_buffer,
+                light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::Y,
             )),
@@ -510,6 +544,8 @@ impl State {
                 camera_uniform,
                 color_table_buffer,
                 color_table_uniform,
+                light_buffer,
+                light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::Z,
             )),
@@ -615,7 +651,14 @@ impl State {
     //so we are going to run with this for now.  When we hire someone with graphics programming
     //experience they will make fun of all these hacks, but that is ok since I approve vacation time :)
     //JK, I am not that shallow.
-    fn get_facing_sides(pitch: f32, yaw: f32, eye_x: f32, eye_y: f32, eye_z: f32, camera_uniform: &CameraUniform) -> usize {
+    fn get_facing_sides(
+        pitch: f32,
+        yaw: f32,
+        eye_x: f32,
+        eye_y: f32,
+        eye_z: f32,
+        camera_uniform: &CameraUniform,
+    ) -> usize {
         // Calculate the direction vector of the camera.
         let direction_vector =
             Vec3::new(eye_x, eye_y, eye_z) * Vec3::new(yaw.cos(), yaw.sin(), pitch.cos());
@@ -672,7 +715,7 @@ impl State {
             self.camera.eye.z,
             &self.camera_uniform,
         );
-        
+
         println!("z_order_index: {}", z_order_index);
         //This is our translation to the z order for our axis lines and glyphs.
         // 0 (top, left, front)  -> x-axis, y-axis, z-axis, glyphs

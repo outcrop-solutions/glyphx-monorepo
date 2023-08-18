@@ -23,4 +23,7 @@ pub struct ModelConfiguration {
     pub z_height_ratio: f32,
     //Gives a minium height for the glyphs
     pub z_offset: f32,
+
+    pub light_location: [f32; 3],
+    pub light_color: Color,
 }

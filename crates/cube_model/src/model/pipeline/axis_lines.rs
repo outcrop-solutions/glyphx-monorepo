@@ -3,6 +3,7 @@ use crate::assets::shape_vertex::ShapeVertex;
 use crate::camera::uniform_buffer::CameraUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
+use crate::light::light_uniform::LightUniform;
 use bytemuck;
 use wgpu::util::DeviceExt;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
@@ -37,6 +38,7 @@ pub struct AxisLines {
     camera_bind_group: BindGroup,
     vertex_data: Vec<ShapeVertex>,
     color_table_bind_group: BindGroup,
+    light_bind_group: BindGroup,
     model_configuration: Rc<ModelConfiguration>,
     direction: AxisLineDirection,
 }
@@ -49,6 +51,8 @@ impl AxisLines {
         camera_uniform: &CameraUniform,
         color_table_buffer: &Buffer,
         color_table_uniform: &ColorTableUniform,
+        light_buffer: &Buffer,
+        light_uniform: &LightUniform,
         model_configuration: Rc<ModelConfiguration>,
         direction: AxisLineDirection,
     ) -> AxisLines {
@@ -66,6 +70,8 @@ impl AxisLines {
 
         let (camera_bind_group_layout, camera_bind_group) =
             camera_uniform.configure_camera_uniform(camera_buffer, device);
+        let (light_bind_group_layout, light_bind_group) =
+            light_uniform.configure_light_uniform(light_buffer, device);
 
         let (color_table_bind_group_layout, color_table_bind_group) =
             color_table_uniform.configure_color_table_uniform(color_table_buffer, device);
@@ -74,6 +80,7 @@ impl AxisLines {
             device,
             camera_bind_group_layout,
             color_table_bind_group_layout,
+            light_bind_group_layout,
             shader,
             vertex_buffer_layout,
             config,
@@ -87,6 +94,7 @@ impl AxisLines {
             color_table_bind_group,
             model_configuration,
             direction,
+            light_bind_group,
         }
     }
 
@@ -149,6 +157,7 @@ impl AxisLines {
         device: &Device,
         camera_bind_group_layout: BindGroupLayout,
         color_table_bind_group_layout: BindGroupLayout,
+        light_bind_group_layout: BindGroupLayout,
         shader: wgpu::ShaderModule,
         vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
         config: &SurfaceConfiguration,
@@ -156,7 +165,7 @@ impl AxisLines {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[&camera_bind_group_layout, &color_table_bind_group_layout],
+                bind_group_layouts: &[&camera_bind_group_layout, &color_table_bind_group_layout, &light_bind_group_layout],
                 push_constant_ranges: &[],
             });
 
@@ -230,6 +239,7 @@ impl PipelineRunner for AxisLines{
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_bind_group(1, &self.color_table_bind_group, &[]);
+        render_pass.set_bind_group(2, &self.light_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.draw(0..self.vertex_data.len() as u32, 0..1);
     }
