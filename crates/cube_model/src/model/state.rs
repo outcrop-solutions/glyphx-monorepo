@@ -88,6 +88,7 @@ impl State {
                 model_configuration.light_color[1] / 255.0,
                 model_configuration.light_color[2] / 255.0,
             ],
+            model_configuration.light_intensity,
         );
 
         let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {

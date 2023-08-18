@@ -26,4 +26,5 @@ pub struct ModelConfiguration {
 
     pub light_location: [f32; 3],
     pub light_color: Color,
+    pub light_intensity: f32,
 }

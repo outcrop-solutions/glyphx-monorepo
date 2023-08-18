@@ -7,7 +7,7 @@ struct CameraUniform {
 
 struct LightUniform {
     light_pos: vec3<f32>,
-    _padding: u32,
+    light_intensity: f32,
     light_color: vec3<f32>,
     _padding2: u32,
 };
@@ -58,7 +58,7 @@ fn vs_main(
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let color = color_table_buffer.color_table[in.color_code];
    // We don't need (or want) much ambient light, so 0.1 is fine
-    let ambient_strength = 0.5;
+    let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;
 
     //return vec4<f32>(color);
