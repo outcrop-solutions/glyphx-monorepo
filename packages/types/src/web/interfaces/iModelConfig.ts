@@ -16,4 +16,7 @@ export interface IModelConfig {
   glyph_offset: number;
   z_height_ratio: number;
   z_offset: number;
+  toggle_grid_lines: boolean;
+  toggle_glyph_offset: boolean;
+  toggle_z_offset: boolean;
 }
