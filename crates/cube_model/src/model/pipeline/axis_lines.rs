@@ -1,5 +1,5 @@
 use crate::assets::axis_line::create_axis_line;
-use crate::assets::color::Color;
+use crate::assets::shape_vertex::ShapeVertex;
 use crate::camera::uniform_buffer::CameraUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
@@ -34,9 +34,8 @@ pub struct VertexData {
 pub struct AxisLines {
     render_pipeline: RenderPipeline,
     vertex_buffer: Buffer,
-    index_buffer: Buffer,
     camera_bind_group: BindGroup,
-    vertex_data: VertexData,
+    vertex_data: Vec<ShapeVertex>,
     color_table_bind_group: BindGroup,
     model_configuration: Rc<ModelConfiguration>,
     direction: AxisLineDirection,
@@ -53,14 +52,8 @@ impl AxisLines {
         model_configuration: Rc<ModelConfiguration>,
         direction: AxisLineDirection,
     ) -> AxisLines {
-        let mut vertex_data = VertexData {
-            verticies: Vec::new(),
-            indicies: Vec::new(),
-        };
 
-        Self::build_verticies(
-            &mut vertex_data.verticies,
-            &mut vertex_data.indicies,
+        let vertex_data = Self::build_verticies(
             &model_configuration,
             &direction
         );
@@ -68,7 +61,7 @@ impl AxisLines {
         let shader =
             device.create_shader_module(wgpu::include_wgsl!("axis_lines/shader.wgsl").into());
 
-        let (vertex_buffer_layout, vertex_buffer, index_buffer) =
+        let (vertex_buffer_layout, vertex_buffer) =
             Self::configure_verticies(device, &vertex_data);
 
         let (camera_bind_group_layout, camera_bind_group) =
@@ -89,7 +82,6 @@ impl AxisLines {
         AxisLines {
             render_pipeline,
             vertex_buffer,
-            index_buffer,
             camera_bind_group,
             vertex_data,
             color_table_bind_group,
@@ -99,11 +91,10 @@ impl AxisLines {
     }
 
     pub fn build_verticies(
-        verticies: &mut Vec<Vertex>,
-        indicies: &mut Vec<u32>,
         model_configuration: &Rc<ModelConfiguration>,
         direction: &AxisLineDirection,
-    ) {
+    ) -> Vec<ShapeVertex>{
+        let mut vertex_data: Vec<ShapeVertex> = Vec::new();
         let cylinder_radius = model_configuration.grid_cylinder_radius;
         let cylinder_height = model_configuration.grid_cylinder_length;
         let cone_height = model_configuration.grid_cone_length;
@@ -115,56 +106,43 @@ impl AxisLines {
             AxisLineDirection::Z => (cylinder_height * z_height_ratio + cone_height, 62, [0,1,2]),
         };
 
-        let (axis_verticies, axis_indicies) =
-            create_axis_line(cylinder_radius, height, cone_height, cone_radius);
-        //Subtracting this point should put the edge of the cone at -1.0.
-        let offset = 1.0 - cone_radius;
-
-        for vertex in &axis_verticies {
-            let x = vertex[order[0]] - offset;
-            let y = vertex[order[1]] - offset;
-            let z = vertex[order[2]] - offset;
-            verticies.push(Vertex {
-                //lay the line on its side.
-                position: [x, y, z],
-                color, //x_color is 60 in our color table
-            });
+        for mut vertex in  create_axis_line(cylinder_radius, cylinder_height, cone_height, cone_radius){
+           vertex.color = color; 
+           vertex_data.push(vertex);
         }
-        indicies.extend_from_slice(&axis_indicies);
+        
+        //let (axis_verticies, axis_indicies) =
+        //    create_axis_line(cylinder_radius, height, cone_height, cone_radius);
+        ////Subtracting this point should put the edge of the cone at -1.0.
+        //let offset = 1.0 - cone_radius;
+
+        //for vertex in &axis_verticies {
+        //    let x = vertex[order[0]] - offset;
+        //    let y = vertex[order[1]] - offset;
+        //    let z = vertex[order[2]] - offset;
+        //    verticies.push(Vertex {
+        //        //lay the line on its side.
+        //        position: [x, y, z],
+        //        color, //x_color is 60 in our color table
+        //    });
+        //}
+        //indicies.extend_from_slice(&axis_indicies);
+
+        vertex_data
     }
 
     fn configure_verticies(
         device: &Device,
-        vertex_data: &VertexData,
-    ) -> (wgpu::VertexBufferLayout<'static>, Buffer, Buffer) {
-        let vertex_buffer_layout = wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-                wgpu::VertexAttribute {
-                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Uint32,
-                },
-            ],
-        };
+        vertex_data: &Vec<ShapeVertex>,
+    ) -> (wgpu::VertexBufferLayout<'static>, Buffer) {
+        let vertex_buffer_layout = ShapeVertex::desc();
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(&vertex_data.verticies),
+            contents: bytemuck::cast_slice(&vertex_data),
             usage: wgpu::BufferUsages::VERTEX,
         });
 
-        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(&vertex_data.indicies),
-            usage: wgpu::BufferUsages::INDEX,
-        });
-        (vertex_buffer_layout, vertex_buffer, index_buffer)
+        (vertex_buffer_layout, vertex_buffer)
     }
 
     fn configure_render_pipeline(
@@ -253,7 +231,6 @@ impl PipelineRunner for AxisLines{
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_bind_group(1, &self.color_table_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-        render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
-        render_pass.draw_indexed(0..self.vertex_data.indicies.len() as u32, 0, 0..1);
+        render_pass.draw(0..self.vertex_data.len() as u32, 0..1);
     }
 }

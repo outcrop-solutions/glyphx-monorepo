@@ -16,7 +16,7 @@ use winit::event::{DeviceEvent, WindowEvent};
 use winit::window::Window;
 
 use super::pipeline::glyphs::glyph_instance_data;
-use glam::Vec3;
+use glam::{Vec3, Mat4, Vec4};
 use rand::Rng;
 
 const Z_ORDERS: [[&str; 4]; 8] = [
@@ -232,21 +232,28 @@ impl State {
         drop(screen_clear_render_pass);
         let mut commands = Vec::new();
         commands.push(encoder.finish());
-        let mut i: usize = 0;
-        while i < self.pipeline_manager.get_pipeline_count() {
-            let (name, pipeline) = self
-                .pipeline_manager
-                .get_pipeline_by_z_order(i as u32)
-                .unwrap();
+        // let mut i: usize = 0;
+        // while i < self.pipeline_manager.get_pipeline_count() {
+        //     let (name, pipeline) = self
+        //         .pipeline_manager
+        //         .get_pipeline_by_z_order(i as u32)
+        //         .unwrap();
 
+        //     commands.push(Self::run_pipeline(
+        //         &self.device,
+        //         &smaa_frame,
+        //         pipeline,
+        //         &name,
+        //     ));
+        //     i += 1;
+        // }
+        let x_axis_pipeline = self.pipeline_manager.get_pipeline("x-axis-line").unwrap();
             commands.push(Self::run_pipeline(
                 &self.device,
                 &smaa_frame,
-                pipeline,
-                &name,
+                x_axis_pipeline,
+               "x-axis-line", 
             ));
-            i += 1;
-        }
         self.queue.submit(commands);
 
         smaa_frame.resolve();
@@ -532,10 +539,17 @@ impl State {
         device: &Device,
     ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
         //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
+        // let mut camera = OrbitCamera::new(
+        //     4.07,
+        //     0.42,
+        //     -32.12,
+        //     Vec3::new(0.0, 0.0, 0.0),
+        //     config.width as f32 / config.height as f32,
+        // );
         let mut camera = OrbitCamera::new(
-            4.07,
-            0.42,
-            -32.12,
+            -10.0,
+            0.0,
+            0.0,
             Vec3::new(0.0, 0.0, 0.0),
             config.width as f32 / config.height as f32,
         );
@@ -601,11 +615,12 @@ impl State {
     //so we are going to run with this for now.  When we hire someone with graphics programming
     //experience they will make fun of all these hacks, but that is ok since I approve vacation time :)
     //JK, I am not that shallow.
-    fn get_facing_sides(pitch: f32, yaw: f32, eye_x: f32, eye_y: f32, eye_z: f32) -> usize {
+    fn get_facing_sides(pitch: f32, yaw: f32, eye_x: f32, eye_y: f32, eye_z: f32, camera_uniform: &CameraUniform) -> usize {
         // Calculate the direction vector of the camera.
         let direction_vector =
             Vec3::new(eye_x, eye_y, eye_z) * Vec3::new(yaw.cos(), yaw.sin(), pitch.cos());
 
+        let mat = Mat4::from_cols_array_2d(&camera_uniform.view_proj);
         // Calculate the normal vectors of each of the cube's faces.
         let top_normal = Vec3::new(0.0, 1.0, 0.0);
         let bottom_normal = Vec3::new(0.0, -1.0, 0.0);
@@ -629,7 +644,7 @@ impl State {
             let face_normal = normals[i];
             // Calculate the dot product of the face's normal vector and the camera's direction vector.
             let dot_product = direction_vector.dot(face_normal);
-
+            let dot_product2 = mat * Vec4::new(face_normal.y, face_normal.z, face_normal.x, 1.0);
             // If the dot product is positive, then the face is facing the camera.
             if dot_product > 0.0 {
                 index += match i {
@@ -655,7 +670,9 @@ impl State {
             self.camera.eye.x,
             self.camera.eye.y,
             self.camera.eye.z,
+            &self.camera_uniform,
         );
+        
         println!("z_order_index: {}", z_order_index);
         //This is our translation to the z order for our axis lines and glyphs.
         // 0 (top, left, front)  -> x-axis, y-axis, z-axis, glyphs

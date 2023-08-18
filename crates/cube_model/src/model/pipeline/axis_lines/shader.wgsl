@@ -18,7 +18,8 @@ var<uniform> color_table_buffer: ColorTable;
 
 struct VertexInput {
     @location(0) position: vec3<f32>,
-    @location(1) color_code: u32,
+    @location(1) normal: vec3<f32>,
+    @location(2) color_code: u32,
 };
 
 struct VertexOutput {
@@ -33,7 +34,8 @@ fn vs_main(
     var out: VertexOutput;
     out.color_code = model.color_code;
     //out.clip_position = camera.view_proj * vec4<f32>(model.position[0]- f32(4.8),  model.position[1] - f32(4.8), model.position[2], 1.0);
-    out.clip_position = camera.view_proj * vec4<f32>(model.position[1]- f32(4.8),  model.position[2], model.position[0] - f32(4.8) , 1.0);
+    //out.clip_position = camera.view_proj * vec4<f32>(model.position[1]- f32(4.8),  model.position[2], model.position[0] - f32(4.8) , 1.0);
+    out.clip_position = camera.view_proj * vec4<f32>(model.position, 1.0);
     return out;
 }
 
