@@ -283,6 +283,22 @@ impl State {
             x_axis_pipeline,
             "x-axis-line",
         ));
+
+        let y_axis_pipeline = self.pipeline_manager.get_pipeline("y-axis-line").unwrap();
+        commands.push(Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            y_axis_pipeline,
+            "y-axis-line",
+        ));
+
+        let z_axis_pipeline = self.pipeline_manager.get_pipeline("z-axis-line").unwrap();
+        commands.push(Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            z_axis_pipeline,
+            "z-axis-line",
+        ));
         self.queue.submit(commands);
 
         smaa_frame.resolve();
@@ -515,6 +531,7 @@ impl State {
                 light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::X,
+                glyph_uniform_data.min_interp_x
             )),
             0,
         );
@@ -532,6 +549,7 @@ impl State {
                 light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::Y,
+                glyph_uniform_data.min_interp_y
             )),
             1,
         );
@@ -549,6 +567,7 @@ impl State {
                 light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::Z,
+                glyph_uniform_data.min_interp_y
             )),
             2,
         );
@@ -584,9 +603,9 @@ impl State {
         //     config.width as f32 / config.height as f32,
         // );
         let mut camera = OrbitCamera::new(
-            -10.0,
-            0.0,
-            0.0,
+            2.0,
+            1.5,
+            1.25,
             Vec3::new(0.0, 0.0, 0.0),
             config.width as f32 / config.height as f32,
         );

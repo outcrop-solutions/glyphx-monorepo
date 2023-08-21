@@ -196,7 +196,7 @@ impl ModelRunner {
             glyph_offset: 0.15,
             z_offset: 0.05,
             light_color: [255.0, 255.0, 255.0, 1.0],
-            light_location: [2.0, 2.0, 2.0],
+            light_location: [-2.0, 2.0, -2.0],
             light_intensity: 0.5,
         });
         let mut state = State::new(window, model_config.clone()).await;

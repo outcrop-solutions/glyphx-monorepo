@@ -55,11 +55,14 @@ impl AxisLines {
         light_uniform: &LightUniform,
         model_configuration: Rc<ModelConfiguration>,
         direction: AxisLineDirection,
+        axis_start: f32,
+
     ) -> AxisLines {
 
         let vertex_data = Self::build_verticies(
             &model_configuration,
-            &direction
+            &direction,
+            axis_start,
         );
 
         let shader =
@@ -101,6 +104,7 @@ impl AxisLines {
     pub fn build_verticies(
         model_configuration: &Rc<ModelConfiguration>,
         direction: &AxisLineDirection,
+        axis_start: f32,
     ) -> Vec<ShapeVertex>{
         let mut vertex_data: Vec<ShapeVertex> = Vec::new();
         let cylinder_radius = model_configuration.grid_cylinder_radius;
@@ -109,33 +113,30 @@ impl AxisLines {
         let cone_radius = model_configuration.grid_cone_radius;
         let z_height_ratio = model_configuration.z_height_ratio;
         let (height, color, order) = match direction {
-            AxisLineDirection::X => (cylinder_height + cone_height, 60, [2,1,0]),
-            AxisLineDirection::Y => (cylinder_height + cone_height, 61, [0,2,1]),
-            AxisLineDirection::Z => (cylinder_height * z_height_ratio + cone_height, 62, [0,1,2]),
+            AxisLineDirection::X => (cylinder_height + cone_height, 60, [1,2,0]),
+            AxisLineDirection::Y => (cylinder_height + cone_height, 62, [0,1,2]),
+            AxisLineDirection::Z => (cylinder_height * z_height_ratio + cone_height, 61, [2,0,1]),
         };
 
-        for mut vertex in  create_axis_line(cylinder_radius, cylinder_height, cone_height, cone_radius){
+        let offset = 1.0 -  cone_radius;
+        let vertices = create_axis_line(cylinder_radius, cylinder_height, cone_height, cone_radius);
+        for mut vertex in vertices {
            vertex.color = color; 
-           vertex_data.push(vertex);
+            let x = vertex.position_vertex[order[0]] + axis_start;
+            let y = vertex.position_vertex[order[1]] + axis_start;
+            let z = vertex.position_vertex[order[2]] + axis_start;
+
+            let n_x = vertex.normal[order[0]];
+            let n_y = vertex.normal[order[1]];
+            let n_z = vertex.normal[order[2]];
+
+            vertex_data.push(ShapeVertex {
+                position_vertex: [x, y, z],
+                normal: [n_x, n_y, n_z],
+                color, 
+            });
         }
         
-        //let (axis_verticies, axis_indicies) =
-        //    create_axis_line(cylinder_radius, height, cone_height, cone_radius);
-        ////Subtracting this point should put the edge of the cone at -1.0.
-        //let offset = 1.0 - cone_radius;
-
-        //for vertex in &axis_verticies {
-        //    let x = vertex[order[0]] - offset;
-        //    let y = vertex[order[1]] - offset;
-        //    let z = vertex[order[2]] - offset;
-        //    verticies.push(Vertex {
-        //        //lay the line on its side.
-        //        position: [x, y, z],
-        //        color, //x_color is 60 in our color table
-        //    });
-        //}
-        //indicies.extend_from_slice(&axis_indicies);
-
         vertex_data
     }
 
