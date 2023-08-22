@@ -40,9 +40,6 @@ const SCHEMA = new Schema<
   deletedAt: {
     type: Date,
     required: false,
-    default:
-      //istanbul ignore next
-      () => new Date(),
   },
   name: {
     type: String,
@@ -419,7 +416,6 @@ SCHEMA.static(
         transformedObject[key] = value;
       }
 
-      console.log({transformedObject});
       const updateResult = await MODELCONFIG_MODEL.updateOne(
         filter,
         transformedObject

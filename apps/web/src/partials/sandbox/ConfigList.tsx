@@ -35,12 +35,12 @@ export const ConfigList = () => {
   }, []);
 
   return (
-    configs && (
-      <details>
-        <summary className="flex items-center justify-between text-base font-semibold leading-7 text-white cursor-pointer py-2">
-          Configurations
-          <PlusCircleIcon onClick={addConfig} className="w-6 h-6" />
-        </summary>
+    <details>
+      <summary className="flex items-center justify-between text-base font-semibold leading-7 text-white cursor-pointer py-2">
+        Configurations
+        <PlusCircleIcon onClick={addConfig} className="w-6 h-6" />
+      </summary>
+      {configs && (
         <ul role="list" className="-mx-2 mt-2 space-y-1">
           {configs.map((config, idx) => (
             <li onClick={() => setCurrentConfig(idx)} key={idx}>
@@ -48,7 +48,7 @@ export const ConfigList = () => {
             </li>
           ))}
         </ul>
-      </details>
-    )
+      )}
+    </details>
   );
 };

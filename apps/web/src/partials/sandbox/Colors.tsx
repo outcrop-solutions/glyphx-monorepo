@@ -28,8 +28,11 @@ export const Colors = () => {
   );
 
   const saveChanges = useCallback(async () => {
-    await api({ ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig) });
-  }, [config]);
+    await api({
+      ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig),
+      setLoading: (loading) => setConfigDirty(loading),
+    });
+  }, [config, setConfigDirty]);
 
   return (
     config && (
