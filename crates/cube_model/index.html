@@ -18,11 +18,11 @@
     <button id="move-forward-button">Move Forward</button>
     <button id="move-backward-button">Move Backward</button>
     <script type="module">
-      import init, { ModelRunner} from './pkg/glyphx_cube_model.js';
+      import init, { ModelRunner } from './pkg/glyphx_cube_model.js';
       async function run() {
         await init();
         console.log('WASM Loaded');
-         const modelRunner = new ModelRunner();
+        const modelRunner = new ModelRunner();
 
         console.log('ModelRunner created');
         // Get the button element
@@ -33,34 +33,33 @@
         const moveBackwardButton = document.getElementById('move-backward-button');
 
         moveLeftButton.addEventListener('click', function onClick() {
-	  console.log('Move Left Button Clicked');
+          console.log('Move Left Button Clicked');
 
           modelRunner.move_left();
         });
 
         moveRightButton.addEventListener('click', function onClick() {
-	  console.log('Move Right Button Clicked');
+          console.log('Move Right Button Clicked');
 
           modelRunner.move_right();
         });
 
         moveForwardButton.addEventListener('click', function onClick() {
-	  console.log('Move Forward Button Clicked');
+          console.log('Move Forward Button Clicked');
 
           modelRunner.move_forward();
         });
 
         moveBackwardButton.addEventListener('click', function onClick() {
-	  console.log('Move Backward Button Clicked');
+          console.log('Move Backward Button Clicked');
 
           modelRunner.move_back();
         });
 
-	window.addEventListener('model-event', (event)=>{
-	  console.log('Model Event Received');
-	  console.log({event}); 
-
-	});
+        window.addEventListener('model-event', (event) => {
+          console.log('Model Event Received');
+          console.log({ event });
+        });
         await modelRunner.run();
       }
       run();

@@ -12,3 +12,4 @@ export * from './data';
 export * from './activity';
 export * from './annotation';
 export * from './template';
+export * from './config';

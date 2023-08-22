@@ -14,3 +14,4 @@ export {ProcessTrackingModel} from './processTracking';
 export {ActivityLogModel} from './activityLog';
 export {AnnotationModel} from './annotation';
 export {TagModel} from './tag';
+export {ModelConfigModel} from './modelConfig';
