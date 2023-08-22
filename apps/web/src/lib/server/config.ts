@@ -22,6 +22,26 @@ export const createConfig = async (req: NextApiRequest, res: NextApiResponse, se
 };
 
 /**
+ * Get Configs
+ *
+ * @note returns configs
+ * @route GET /api/configs
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+export const getConfigs = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const configs = await modelConfigService.getModelConfigs();
+    res.status(200).json({ data: { configs } });
+  } catch (error) {
+    res.status(404).json({ errors: { error: { msg: error.message } } });
+  }
+};
+
+/**
  * Get Config
  *
  * @note returns a config by id
@@ -49,7 +69,7 @@ export const getConfig = async (req: NextApiRequest, res: NextApiResponse) => {
  * Update Config
  *
  * @note returns a config by id
- * @route GET /api/config/[configId]
+ * @route PUT /api/config/[configId]
  * @param req - Next.js API Request
  * @param res - Next.js API Response
  * @param session - NextAuth.js session
@@ -58,14 +78,14 @@ export const getConfig = async (req: NextApiRequest, res: NextApiResponse) => {
 
 export const updateConfig = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { configId } = req.query;
-  const { state } = req.body;
+  const { config } = req.body;
   if (Array.isArray(configId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const config = await modelConfigService.updateModelConfig(configId, state);
+    const updatedConfig = await modelConfigService.updateModelConfig(configId, config);
 
-    res.status(200).json({ data: { config } });
+    res.status(200).json({ data: { config: updatedConfig } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
   }

@@ -6,12 +6,13 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import produce from 'immer';
 import { configSelector, configsAtom, currentConfigAtom } from 'state';
 import { SandboxSidebar } from 'partials/sandbox/Sidebar';
+import Script from 'next/script';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function Sandboxm() {
+export default function Sandbox() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const setConfigs = useSetRecoilState(configsAtom);
 
@@ -96,8 +97,55 @@ export default function Sandboxm() {
           </button>
         </div>
         <main className="lg:ml-72 p-8 h-full">
+          <Script id="run-model" type="module">
+            {`import init, { ModelRunner } from '../../../../../pkg/glyphx_cube_model.js';
+      async function run() {
+        await init();
+        console.log('WASM Loaded');
+        const modelRunner = new ModelRunner();
+
+        console.log('ModelRunner created');
+        // Get the button element
+
+        const moveLeftButton = document.getElementById('move-left-button');
+        const moveRightButton = document.getElementById('move-right-button');
+        const moveForwardButton = document.getElementById('move-forward-button');
+        const moveBackwardButton = document.getElementById('move-backward-button');
+
+        moveLeftButton.addEventListener('click', function onClick() {
+          console.log('Move Left Button Clicked');
+
+          modelRunner.move_left();
+        });
+
+        moveRightButton.addEventListener('click', function onClick() {
+          console.log('Move Right Button Clicked');
+
+          modelRunner.move_right();
+        });
+
+        moveForwardButton.addEventListener('click', function onClick() {
+          console.log('Move Forward Button Clicked');
+
+          modelRunner.move_forward();
+        });
+
+        moveBackwardButton.addEventListener('click', function onClick() {
+          console.log('Move Backward Button Clicked');
+
+          modelRunner.move_back();
+        });
+
+        window.addEventListener('model-event', (event) => {
+          console.log('Model Event Received');
+          console.log({ event });
+        });
+        await modelRunner.run();
+      }
+      run();`}
+          </Script>
           <Resizable minHeight={600} style={style}>
-            Model
+            <div id="glyphx-cube-model" className="h-600 w-600"></div>
           </Resizable>
         </main>
       </div>

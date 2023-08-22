@@ -8,6 +8,8 @@ function interceptStdout(text) {
     return '';
   } else if (text.includes('Critical dependency: the request of a dependency is an expression')) {
     return '';
+  } else if (text.includes('Warning: Prop `style` did not match. Server:')) {
+    return '';
   }
   return text;
 }

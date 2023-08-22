@@ -39,7 +39,7 @@ const SCHEMA = new Schema<
   },
   deletedAt: {
     type: Date,
-    required: true,
+    required: false,
     default:
       //istanbul ignore next
       () => new Date(),
@@ -413,6 +413,13 @@ SCHEMA.static(
       const updateDate = new Date();
       const transformedObject: Partial<IModelConfigDocument> &
         Record<string, unknown> = {updatedAt: updateDate};
+
+      for (const key in modelConfig) {
+        const value = (modelConfig as Record<string, any>)[key];
+        transformedObject[key] = value;
+      }
+
+      console.log({transformedObject});
       const updateResult = await MODELCONFIG_MODEL.updateOne(
         filter,
         transformedObject

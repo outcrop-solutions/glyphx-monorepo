@@ -1,27 +1,25 @@
-import { atom, selector } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { atom, atomFamily, selector } from 'recoil';
+import { database as databaseTypes } from '@glyphx/types';
 
-export const configsAtom = atom<webTypes.IModelConfig[]>({
+export const configsAtom = atom<Partial<databaseTypes.IModelConfig>[]>({
   key: 'configsAtomKey',
-  default: [
-    {
-      name: 'Default Config',
-      current: true,
-      min_color: { r: 0, g: 0, b: 0, a: 0 },
-      max_color: { r: 0, g: 0, b: 0, a: 0 },
-      background_color: { r: 0, g: 0, b: 0, a: 0 },
-      x_axis_color: { r: 0, g: 0, b: 0, a: 0 },
-      y_axis_color: { r: 0, g: 0, b: 0, a: 0 },
-      z_axis_color: { r: 0, g: 0, b: 0, a: 0 },
-      grid_cylinder_radius: 0,
-      grid_cylinder_length: 0,
-      grid_cone_length: 0,
-      grid_cone_radius: 0,
-      glyph_offset: 0,
-      z_height_ratio: 0,
-      z_offset: 0,
-    },
-  ],
+  default: [],
+});
+
+// editor state
+export const togglesConfigDirtyAtom = atom<boolean>({
+  key: 'togglesConfigDirtyAtom',
+  default: false,
+});
+
+export const radiusConfigDirtyAtom = atom<boolean>({
+  key: 'radiusConfigDirtyAtom',
+  default: false,
+});
+
+export const colorsConfigDirtyAtom = atom<boolean>({
+  key: 'colorsConfigDirtyAtom',
+  default: false,
 });
 
 export const currentConfigAtom = atom<number>({
@@ -29,13 +27,18 @@ export const currentConfigAtom = atom<number>({
   default: 0,
 });
 
-export const configSelector = selector<webTypes.IModelConfig>({
+export const configSelector = selector<Partial<databaseTypes.IModelConfig>>({
   key: 'sandboxConfigAtomKey',
   get: ({ get }) => {
     const configs = get(configsAtom);
     const currentConfig = get(currentConfigAtom);
     return configs[currentConfig];
   },
+});
+
+export const configNameDirtyFamily = atomFamily({
+  key: 'configNameDirtyFamily',
+  default: false,
 });
 
 export const configNameSelector = selector<string[]>({

@@ -103,6 +103,8 @@ export class ModelConfigService {
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
           : new mongooseTypes.ObjectId(modelConfigId);
+
+      console.log({data});
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
           id,

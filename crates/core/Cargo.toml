@@ -2,14 +2,14 @@
 name = "glyphx_core"
 version = "0.1.0"
 edition = "2021"
- 
+
 [profile.test]
 features = ["test"]
 
 [lib]
 test = true
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 async-recursion = "1.0.4"
 async-trait = "0.1.68"
@@ -37,8 +37,8 @@ tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1.14"
 
 [features]
-default=["aws"]
-test=["aws"]
-aws=["s3_manager", "athena_manager"]
-s3_manager=[]
-athena_manager=[]
+default = ["aws"]
+test = ["aws"]
+aws = ["s3_manager", "athena_manager"]
+s3_manager = []
+athena_manager = []

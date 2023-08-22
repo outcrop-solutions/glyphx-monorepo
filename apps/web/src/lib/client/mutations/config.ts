@@ -1,4 +1,14 @@
 import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+
+const cleanConfig = (config) => {
+  const cleanConfig = { ...config };
+  delete cleanConfig.createdAt;
+  delete cleanConfig.updatedAt;
+  delete cleanConfig.deletedAt;
+  delete cleanConfig._id;
+  return cleanConfig;
+};
+
 // CONFIG MUTATIONS
 /**
  * Creates Config
@@ -23,11 +33,12 @@ export const _createConfig = (config): webTypes.IFetchConfig => {
  * @param name
  * @returns
  */
-export const _updateConfig = (id: string, config: databaseTypes.IModelConfig): webTypes.IFetchConfig => {
+export const _updateConfig = (id: string, dirtyConfig: databaseTypes.IModelConfig): webTypes.IFetchConfig => {
+  const config = cleanConfig(dirtyConfig);
   return {
     url: `/api/config/${id}`,
     options: {
-      body: config,
+      body: { config },
       method: 'PUT',
     },
     successMsg: 'Config updated successfully',
