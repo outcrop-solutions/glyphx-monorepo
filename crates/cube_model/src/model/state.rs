@@ -299,6 +299,14 @@ impl State {
             z_axis_pipeline,
             "z-axis-line",
         ));
+
+        let glyph_pipeline = self.pipeline_manager.get_pipeline("glyphs").unwrap();
+        commands.push(Self::run_pipeline(
+            &self.device,
+            &smaa_frame,
+            glyph_pipeline,
+            "glyphs",
+        ));
         self.queue.submit(commands);
 
         smaa_frame.resolve();
@@ -406,101 +414,101 @@ impl State {
     }
 
     fn build_instance_data() -> Rc<Vec<glyphs::glyph_instance_data::GlyphInstanceData>> {
-        // vec![
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 0,
-        //         x_value: 0.0,
-        //         y_value: 0.0,
-        //         z_value: 0.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 1,
-        //         x_value: 1.0,
-        //         y_value: 1.0,
-        //         z_value: 1.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 2,
-        //         x_value: 2.0,
-        //         y_value: 2.0,
-        //         z_value: 2.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 3,
-        //         x_value: 3.0,
-        //         y_value: 3.0,
-        //         z_value: 3.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 4,
-        //         x_value: 4.0,
-        //         y_value: 4.0,
-        //         z_value: 4.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 5,
-        //         x_value: 5.0,
-        //         y_value: 5.0,
-        //         z_value: 5.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 6,
-        //         x_value: 6.0,
-        //         y_value: 6.0,
-        //         z_value: 6.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 7,
-        //         x_value: 7.0,
-        //         y_value: 7.0,
-        //         z_value: 7.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 8,
-        //         x_value: 8.0,
-        //         y_value: 8.0,
-        //         z_value: 8.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 9,
-        //         x_value: 9.0,
-        //         y_value: 9.0,
-        //         z_value: 9.0,
-        //         glyph_selected: 0,
-        //     },
-        // ]
+        Rc::new (vec![
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 0,
+                x_value: 0.0,
+                y_value: 0.0,
+                z_value: 0.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 1,
+                x_value: 1.0,
+                y_value: 1.0,
+                z_value: 1.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 2,
+                x_value: 2.0,
+                y_value: 2.0,
+                z_value: 2.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 3,
+                x_value: 3.0,
+                y_value: 3.0,
+                z_value: 3.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 4,
+                x_value: 4.0,
+                y_value: 4.0,
+                z_value: 4.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 5,
+                x_value: 5.0,
+                y_value: 5.0,
+                z_value: 5.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 6,
+                x_value: 6.0,
+                y_value: 6.0,
+                z_value: 6.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 7,
+                x_value: 7.0,
+                y_value: 7.0,
+                z_value: 7.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 8,
+                x_value: 8.0,
+                y_value: 8.0,
+                z_value: 8.0,
+                glyph_selected: 0,
+            },
+            glyphs::glyph_instance_data::GlyphInstanceData {
+                glyph_id: 9,
+                x_value: 9.0,
+                y_value: 9.0,
+                z_value: 9.0,
+                glyph_selected: 0,
+            },
+        ])
 
-        let mut instance_data: Vec<glyph_instance_data::GlyphInstanceData> = Vec::new();
-        let mut rng = rand::thread_rng();
-        let mut x = 0.0;
-        let mut y = 0.0;
-        let mut count = 0;
-        while x < 100.0 {
-            while y < 50.0 {
-                let random_number: f32 = rng.gen_range(0.0..=9.0);
-                instance_data.push(glyph_instance_data::GlyphInstanceData {
-                    glyph_id: count,
-                    x_value: x,
-                    y_value: y,
-                    z_value: random_number,
-                    glyph_selected: 0,
-                });
-                y += 1.0;
-                count += 1;
-            }
-            y = 0.0;
-            x += 1.0;
-        }
-        Rc::new(instance_data)
+        // let mut instance_data: Vec<glyph_instance_data::GlyphInstanceData> = Vec::new();
+        // let mut rng = rand::thread_rng();
+        // let mut x = 0.0;
+        // let mut z = 0.0;
+        // let mut count = 0;
+        // while x < 100.0 {
+        //     while z < 50.0 {
+        //         let random_number: f32 = rng.gen_range(0.0..=9.0);
+        //         instance_data.push(glyph_instance_data::GlyphInstanceData {
+        //             glyph_id: count,
+        //             x_value: x,
+        //             y_value: random_number,
+        //             z_value: z,
+        //             glyph_selected: 0,
+        //         });
+        //         z += 1.0;
+        //         count += 1;
+        //     }
+        //     z = 0.0;
+        //     x += 1.0;
+        // }
+        //Rc::new(instance_data)
     }
 
     fn build_pipelines(
@@ -531,7 +539,7 @@ impl State {
                 light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::X,
-                glyph_uniform_data.min_interp_x
+                model_configuration.model_origin[0],
             )),
             0,
         );
@@ -549,7 +557,7 @@ impl State {
                 light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::Y,
-                glyph_uniform_data.min_interp_y
+                model_configuration.model_origin[1],
             )),
             1,
         );
@@ -567,7 +575,7 @@ impl State {
                 light_uniform,
                 model_configuration.clone(),
                 axis_lines::AxisLineDirection::Z,
-                glyph_uniform_data.min_interp_y
+                model_configuration.model_origin[2],
             )),
             2,
         );
@@ -584,6 +592,8 @@ impl State {
                 camera_uniform,
                 color_table_buffer,
                 color_table_uniform,
+                light_buffer,
+                light_uniform,
                 model_configuration.clone(),
             )),
             3,
@@ -633,26 +643,26 @@ impl State {
                 model_configuration.grid_cone_radius
             };
 
-        let x_y_offset = radius + model_configuration.glyph_offset;
+        let x_z_offset = radius + model_configuration.glyph_offset;
         let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
             glyphs::glyph_instance_data::GlyphUniformData {
                 min_x: 0.0,
-                max_x: 100.0,
+                max_x: 9.0,
                 min_interp_x: -5.0,
                 max_interp_x: 5.0,
 
                 min_y: 0.0,
-                max_y: 50.0,
+                max_y: 9.0,
                 min_interp_y: -5.0,
-                max_interp_y: 5.0,
+                max_interp_y: 6.0,
 
                 min_z: 0.0,
                 max_z: 9.0,
-                min_interp_z: -1.0,
-                max_interp_z: 1.0,
+                min_interp_z: -5.0,
+                max_interp_z: 5.0,
 
-                x_y_offset,
-                z_offset: model_configuration.z_offset,
+                x_z_offset,
+                y_offset: model_configuration.min_glyph_height,
                 _padding: [0u32; 2],
             };
         glyph_uniform_data

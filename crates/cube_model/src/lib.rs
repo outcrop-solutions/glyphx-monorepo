@@ -192,12 +192,14 @@ impl ModelRunner {
             grid_cylinder_radius: 0.05,
             grid_cone_length: 0.2,
             grid_cone_radius: 0.10,
-            z_height_ratio: 0.1,
+            z_height_ratio: 1.0,
             glyph_offset: 0.15,
-            z_offset: 0.05,
+            min_glyph_height: 0.2,
             light_color: [255.0, 255.0, 255.0, 1.0],
             light_location: [-2.0, 2.0, -2.0],
             light_intensity: 0.5,
+            glyph_size: 0.15,
+            model_origin: [-5.0, -5.0, -5.0],
         });
         let mut state = State::new(window, model_config.clone()).await;
         unsafe {

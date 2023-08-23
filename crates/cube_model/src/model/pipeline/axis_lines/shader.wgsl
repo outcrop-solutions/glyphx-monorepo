@@ -46,8 +46,6 @@ fn vs_main(
     out.world_position = model.position;
     out.world_normal = model.normal;
 
-    //out.clip_position = camera.view_proj * vec4<f32>(model.position[0]- f32(4.8),  model.position[1] - f32(4.8), model.position[2], 1.0);
-    //out.clip_position = camera.view_proj * vec4<f32>(model.position[1]- f32(4.8),  model.position[2], model.position[0] - f32(4.8) , 1.0);
     out.clip_position = camera.view_proj * vec4<f32>(model.position, 1.0);
     return out;
 }

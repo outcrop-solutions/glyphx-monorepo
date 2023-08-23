@@ -126,9 +126,9 @@ impl AxisLines {
             let y = vertex.position_vertex[order[1]] + axis_start;
             let z = vertex.position_vertex[order[2]] + axis_start;
 
-            let n_x = vertex.normal[order[0]];
-            let n_y = vertex.normal[order[1]];
-            let n_z = vertex.normal[order[2]];
+            let n_x = vertex.normal[order[0]] + axis_start;
+            let n_y = vertex.normal[order[1]] + axis_start;
+            let n_z = vertex.normal[order[2]] + axis_start;
 
             vertex_data.push(ShapeVertex {
                 position_vertex: [x, y, z],
