@@ -136,7 +136,6 @@ impl AxisLines {
                 color, 
             });
         }
-        
         vertex_data
     }
 

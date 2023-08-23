@@ -95,28 +95,31 @@ fn vs_main(
     let min_x = glyph_uniform_data.min_interp_x;
     let max_x = glyph_uniform_data.max_interp_x;
 
-    let x_pos = linear_interpolation(
-        instance.x_value,
-        glyph_uniform_data.min_x,
-        glyph_uniform_data.max_x,
-        min_x,
-        max_x,
-    ) - min_x + instance.x_value;
+    let interp_x = linear_interpolation(
+	instance.x_value,
+	glyph_uniform_data.min_x,
+	glyph_uniform_data.max_x,
+	min_x,
+	max_x,
+    );
 
+    let distance_x = interp_x - min_x;
+    let x_pos = model.position[0] + distance_x + glyph_uniform_data.x_z_offset; 
     let x_offset = x_pos - model.position[0];
 
     let min_z = glyph_uniform_data.min_interp_z;
     let max_z = glyph_uniform_data.max_interp_z;
-    let z_pos = instance.z_value + linear_interpolation(
+
+    let interp_z = linear_interpolation(
         instance.z_value,
         glyph_uniform_data.min_z,
         glyph_uniform_data.max_z,
         min_z,
         max_z,
-    ) - min_z + instance.z_value;
-
-
-    let z_offset = z_pos - model.position[2];
+    );
+     let distance_z = interp_z - min_z; 
+     let z_pos = model.position[2] + distance_z + glyph_uniform_data.x_z_offset;
+     let z_offset = z_pos - model.position[2];
 
     let min_y = glyph_uniform_data.min_interp_y;
     let max_y = glyph_uniform_data.max_interp_y;
@@ -146,7 +149,7 @@ fn vs_main(
         f32(60.0),
     ));
     var out: VertexOutput;
-    out.world_position = vec3<f32>(model.position[0] + x_pos, y_vec, model.position[2] + z_pos);
+    out.world_position = vec3<f32>(x_pos, y_vec, z_pos);
 //move the normals based on instance buffer
     out.world_normal = vec3<f32>(model.normal[0] + x_offset, model.normal[1], model.normal[2] + z_offset);
     out.color_code = u32(color);
