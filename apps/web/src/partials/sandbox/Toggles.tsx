@@ -1,30 +1,16 @@
 import React, { useCallback } from 'react';
-import produce from 'immer';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { _updateConfig, api } from 'lib';
 import { togglesConfigDirtyAtom, configSelector, configsAtom, currentConfigAtom } from 'state';
 import { database as databaseTypes } from '@glyphx/types';
-import { toSnakeCase } from './toSnakeCase';
+import { Toggle } from './Toggle';
 
 const fields = ['Toggle Grid Lines', 'Toggle Glyph Offset', 'Toggle Z Offset'];
 
 export const Toggles = () => {
   const config = useRecoilValue(configSelector);
-  const setConfigs = useSetRecoilState(configsAtom);
   const currentConfig = useRecoilValue(currentConfigAtom);
   const [configDirty, setConfigDirty] = useRecoilState(togglesConfigDirtyAtom);
-
-  const handleChange = useCallback(
-    (idx: number, prop: string, value) => {
-      setConfigs(
-        produce((draft) => {
-          draft[idx][prop] = value;
-        })
-      );
-      setConfigDirty(true);
-    },
-    [setConfigDirty, setConfigs]
-  );
 
   const saveChanges = useCallback(async () => {
     await api({ ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig) });
@@ -46,24 +32,7 @@ export const Toggles = () => {
         </summary>
         <div className="space-y-5 mt-4">
           {fields.map((field) => (
-            <div key={field} className="relative flex items-start">
-              <div className="flex h-6 items-center">
-                <input
-                  id={toSnakeCase(field)}
-                  name={toSnakeCase(field)}
-                  placeholder={config[toSnakeCase(field)]}
-                  value={config[toSnakeCase(field)]}
-                  onChange={(ev) => handleChange(currentConfig, toSnakeCase(field), ev.target.value)}
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600"
-                />
-              </div>
-              <div className="ml-3 text-sm leading-6">
-                <label htmlFor="comments" className="font-medium text-white">
-                  {field}
-                </label>
-              </div>
-            </div>
+            <Toggle field={field} config={config} currentConfig={currentConfig} />
           ))}
         </div>
       </details>

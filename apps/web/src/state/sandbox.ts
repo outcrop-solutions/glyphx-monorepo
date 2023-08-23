@@ -32,19 +32,15 @@ export const configSelector = selector<Partial<databaseTypes.IModelConfig>>({
   get: ({ get }) => {
     const configs = get(configsAtom);
     const currentConfig = get(currentConfigAtom);
-    return configs[currentConfig];
+    if (configs?.length > 0) {
+      return configs[currentConfig];
+    } else {
+      return {};
+    }
   },
 });
 
 export const configNameDirtyFamily = atomFamily({
   key: 'configNameDirtyFamily',
   default: false,
-});
-
-export const configNameSelector = selector<string[]>({
-  key: 'configNameSelector',
-  get: ({ get }) => {
-    const configs = get(configsAtom);
-    return configs.map((config) => config.name);
-  },
 });
