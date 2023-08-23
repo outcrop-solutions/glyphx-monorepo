@@ -1,0 +1,170 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import 'mocha';
+import * as mocks from '../mongoose/mocks'
+import {assert} from 'chai';
+import {MongoDbConnection} from '@glyphx/database';
+import {Types as mongooseTypes} from 'mongoose';
+import {v4} from 'uuid';
+import {error} from '@glyphx/core';
+
+type ObjectId = mongooseTypes.ObjectId;
+
+const UNIQUE_KEY = v4().replaceAll('-', '');
+
+describe('#{{pascalcase this.name}}Model', () => {
+  context('test the crud functions of the {{camelcase this.name}} model', () => {
+    const mongoConnection = new MongoDbConnection();
+    const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.name)}}Model;
+    let {{camelcase this.name}}DocId: ObjectId;
+    let {{camelcase this.name}}DocId2: ObjectId;
+    {{#each properties}}
+    {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+    let {{camelcase this.name}}Id: ObjectId;
+    let {{camelcase this.name}}Document: any;
+    {{/if}}
+    {{/each}}
+
+    before(async () => {
+      await mongoConnection.init();
+      {{!-- Generate pre-requisite test data --}}
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.referenceTable)}}Model;
+      const saved{{pascalcase this.name}}Document = await {{camelcase this.name}}Model.create([mocks.MOCK_{{uppercase (pascalcase this.referenceTable)}}], {
+        validateBeforeSave: false,
+      });
+      {{camelcase this.name}}Id =  saved{{pascalcase this.name}}Document[0]?._id as mongooseTypes.ObjectId;
+      assert.isOk({{camelcase this.name}}Id)
+      {{/if}}
+      {{/each}}
+    });
+
+    after(async () => {
+      if ({{camelcase this.name}}DocId) {
+        await {{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}DocId);
+      }
+
+      if ({{camelcase this.name}}DocId2) {
+        await {{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}DocId2);
+      }
+      {{#each properties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.referenceTable)}}Model;
+      await {{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}Id);
+      {{/if}}
+      {{/each}}
+
+    });
+
+    it('add a new {{camelcase this.name}} ', async () => {
+      const {{camelcase this.name}}Input = JSON.parse(JSON.stringify(mocks.MOCK_{{uppercase (pascalcase this.name)}}));
+
+      {{#each properties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      {{camelcase ../this.name}}Input.{{camelcase this.name}} = {{camelcase this.name}}Document;
+      {{/if}}
+      {{/each}}
+
+      const {{camelcase this.name}}Document = await {{camelcase this.name}}Model.create{{pascalcase this.name}}({{camelcase this.name}}Input);
+
+      assert.isOk({{camelcase this.name}}Document);
+      assert.strictEqual(Object.keys({{camelcase this.name}}Document)[1], Object.keys({{camelcase this.name}}Input)[1]);
+
+      {{#each properteis}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      assert.strictEqual(
+        {{camelcase ../this.name}}Document.{{camelcase this.name}}._id?.toString(),
+        {{camelcase this.name}}Id.toString()
+      );
+      {{/if}}
+      {{/each}}
+
+      {{camelcase this.name}}DocId = {{camelcase this.name}}Document._id as mongooseTypes.ObjectId;
+    });
+
+    it('retreive a {{camelcase this.name}}', async () => {
+      assert.isOk({{camelcase this.name}}DocId);
+      const {{camelcase this.name}} = await {{camelcase this.name}}Model.get{{pascalcase this.name}}ById({{camelcase this.name}}DocId);
+
+      assert.isOk({{camelcase this.name}});
+      assert.strictEqual({{camelcase this.name}}._id?.toString(), {{camelcase this.name}}DocId.toString());
+    });
+
+    it('modify a {{camelcase this.name}}', async () => {
+      assert.isOk({{camelcase this.name}}DocId);
+      const input = {deletedAt: new Date()};
+      const updatedDocument = await {{camelcase this.name}}Model.update{{pascalcase this.name}}ById(
+        {{camelcase this.name}}DocId,
+        input
+      );
+      assert.isOk(updatedDocument.deletedAt);
+    });
+
+    it('Get multiple {{pluralize (camelcase this.name)}} without a filter', async () => {
+      assert.isOk({{camelcase this.name}}DocId);
+      const {{camelcase this.name}}Input = JSON.parse(JSON.stringify(mocks.MOCK_{{uppercase (pascalcase this.name)}}));
+
+      {{#each properteis}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      {{camelcase ../this.name}}Input.{{camelcase this.name}} = {{camelcase this.name}}TemplateDocument;
+      {{/if}}
+      {{/each}}
+
+
+      const {{camelcase this.name}}Document = await {{camelcase this.name}}Model.create{{pascalcase this.name}}({{camelcase this.name}}Input);
+
+      assert.isOk({{camelcase this.name}}Document);
+
+      {{camelcase this.name}}DocId2 = {{camelcase this.name}}Document._id as mongooseTypes.ObjectId;
+
+      const {{pluralize (camelcase this.name)}} = await {{camelcase this.name}}Model.query{{pluralize (pascalcase this.name)}}();
+      assert.isArray({{pluralize (camelcase this.name)}}.results);
+      assert.isAtLeast({{pluralize (camelcase this.name)}}.numberOfItems, 2);
+      const expectedDocumentCount =
+        {{pluralize (camelcase this.name)}}.numberOfItems <= {{pluralize (camelcase this.name)}}.itemsPerPage
+          ? {{pluralize (camelcase this.name)}}.numberOfItems
+          : {{pluralize (camelcase this.name)}}.itemsPerPage;
+      assert.strictEqual({{pluralize (camelcase this.name)}}.results.length, expectedDocumentCount);
+    });
+
+    it('Get multiple {{camelcase this.name}}s with a filter', async () => {
+      assert.isOk({{camelcase this.name}}DocId2);
+      const results = await {{camelcase this.name}}Model.query{{pluralize (pascalcase this.name)}}({
+        deletedAt: undefined,
+      });
+      assert.strictEqual(results.results.length, 1);
+      assert.isUndefined(results.results[0]?.deletedAt);
+    });
+
+    it('page accounts', async () => {
+      assert.isOk({{camelcase this.name}}DocId2);
+      const results = await {{camelcase this.name}}Model.query{{pluralize (pascalcase this.name)}}({}, 0, 1);
+      assert.strictEqual(results.results.length, 1);
+
+      const lastId = results.results[0]?._id;
+
+      const results2 = await {{camelcase this.name}}Model.query{{pluralize (pascalcase this.name)}}({}, 1, 1);
+      assert.strictEqual(results2.results.length, 1);
+
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
+    });
+
+    it('remove a {{camelcase this.name}}', async () => {
+      assert.isOk({{camelcase this.name}}DocId);
+      await {{camelcase this.name}}Model.delete{{pascalcase this.name}}ById({{camelcase this.name}}DocId);
+      let errored = false;
+      try {
+        await {{camelcase this.name}}Model.get{{pascalcase this.name}}ById({{camelcase this.name}}DocId);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+      {{camelcase this.name}}DocId = null as unknown as ObjectId;
+    });
+  });
+});

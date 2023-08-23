@@ -1,5 +1,5 @@
-export const handleDataType = (prop) => {
-  if (prop.key.includes('Column ')) {
+export const handleDataType = (prop, project) => {
+  if (prop.key.includes('Column ') || prop.key === project?.template?.shape[prop.axis].key) {
     return '';
   } else if (prop.dataType === 0) {
     return 'number';

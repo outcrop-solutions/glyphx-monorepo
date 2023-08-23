@@ -646,6 +646,10 @@ SCHEMA.static(
 
       const createDate = new Date();
 
+      const template: {template: mongooseTypes.ObjectId} = input.template
+        ? {template: input.template as mongooseTypes.ObjectId}
+        : ({} as {template: mongooseTypes.ObjectId});
+
       //istanbul ignore next
       const resolvedInput: IProjectDocument = {
         createdAt: createDate,
@@ -662,6 +666,7 @@ SCHEMA.static(
         slug: input.slug,
         files: input.files ?? [],
         viewName: input.viewName ?? ' ',
+        ...template,
       };
       try {
         await PROJECT_MODEL.validate(resolvedInput);
@@ -702,6 +707,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     const projectDocument = (await PROJECT_MODEL.findById(projectId)
       .populate('workspace')
       .populate('members')
+      .populate('template')
       .populate('tags')
       .populate({
         path: 'stateHistory',

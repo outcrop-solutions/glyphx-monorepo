@@ -67,7 +67,7 @@ export class ProjectService {
     workspaceId: mongooseTypes.ObjectId | string,
     userId: mongooseTypes.ObjectId | string,
     email: string,
-    type?: mongooseTypes.ObjectId | string,
+    template?: databaseTypes.IProjectTemplate,
     description?: string
   ): Promise<databaseTypes.IProject> {
     try {
@@ -76,34 +76,32 @@ export class ProjectService {
           ? workspaceId
           : new mongooseTypes.ObjectId(workspaceId);
 
-      const projectTemplateCastId =
-        type instanceof mongooseTypes.ObjectId
-          ? type
-          : new mongooseTypes.ObjectId(type);
+      let projectTemplateCastId;
+
+      if (template) {
+        projectTemplateCastId =
+          template?._id instanceof mongooseTypes.ObjectId
+            ? template._id
+            : new mongooseTypes.ObjectId(template._id);
+      }
 
       const creatorCastId =
         userId instanceof mongooseTypes.ObjectId
           ? userId
           : new mongooseTypes.ObjectId(userId);
 
-      const defaultType = {
-        name: `${name}-type`,
-        projects: [],
-        shape: {},
-      };
-
       // TODO: requires getProjectTemplate service
       const input = {
         name,
         description: description ?? '',
         workspace: workspaceCastId,
-        template: projectTemplateCastId ?? defaultType,
+        template: projectTemplateCastId,
         files: [],
         members: [],
         stateHistory: [],
         tags: [],
         state: {
-          properties: {
+          properties: template?.shape || {
             X: {
               axis: webTypes.constants.AXIS.X,
               accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,

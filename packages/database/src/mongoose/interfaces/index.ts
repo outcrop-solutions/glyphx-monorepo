@@ -84,3 +84,9 @@ export type {IWorkspaceCreateInput} from './iWorkspaceCreateInput';
 export type {IWorkspaceDocument} from './iWorkspaceDocument';
 export type {IWorkspaceMethods} from './iWorkspaceMethods';
 export type {IWorkspaceStaticMethods} from './iWorkspaceStaticMethods';
+
+// ModelConfig
+export * from './iModelConfigDocument';
+export * from './iModelConfigCreateInput';
+export * from './iModelConfigStaticMethods';
+export * from './iModelConfigMethods';

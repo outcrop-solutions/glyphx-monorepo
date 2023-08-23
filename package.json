@@ -9,6 +9,8 @@
   "scripts": {
     "build": "dotenv -- turbo build",
     "test": "dotenv -- turbo test",
+    "test:db": "dotenv -- turbo test:db",
+    "test:business": "dotenv -- turbo test:business",
     "test:web": "dotenv -- turbo test:web",
     "integrationTest": "turbo integrationTest",
     "format": "turbo format",

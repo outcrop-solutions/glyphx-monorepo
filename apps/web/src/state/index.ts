@@ -18,3 +18,5 @@ export * from './ui'; // control visual state of the app
 export * from './workspace'; // holds workspace and membership
 export * from './state';
 export * from './resize';
+export * from './template';
+export * from './sandbox';

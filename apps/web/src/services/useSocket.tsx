@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QWebChannel } from 'qwebchannel';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { cameraAtom, imageHashAtom, rowIdsAtom } from 'state';
 import { web as webTypes } from '@glyphx/types';
 import produce from 'immer';
@@ -21,12 +21,13 @@ export const useSocket = () => {
 
   useEffect(() => {
     if (channel === null && socket === null) {
-      const ws = new WebSocket('ws://localhost:12345'); // Replace with your WebSocket server URL and port
+      const ws = new WebSocket('ws://localhost:63630'); // Replace with your WebSocket server URL and port
       ws.onopen = () => {
         const channel = new QWebChannel(ws, function (channel) {
           window.core = channel.objects.core; // making it global
           window.core.SendRowIds.connect((json: string) => {
             const ids = JSON.parse(json)?.rowIds;
+            console.log({ ids });
             setRowIds(ids.length === 0 ? false : [...ids]);
           });
           window.core.SendCameraPosition.connect((json: string) => {
@@ -80,7 +81,7 @@ export const useSocket = () => {
     }
     return () => {
       if (socket && socket.readyState === WebSocket.OPEN) {
-        // socket.close();
+        socket.close();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

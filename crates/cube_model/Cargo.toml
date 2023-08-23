@@ -1,0 +1,38 @@
+[package]
+name = "glyphx_cube_model"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+
+[dependencies]
+cfg-if = "1"
+winit = "0.28"
+env_logger = "0.10"
+log = "0.4"
+wgpu = "0.16"
+pollster = "0.3"
+bytemuck = { version = "1.12", features = [ "derive" ] }
+cgmath = "0.18"
+serde = { version = "1.0", features = ["derive"] }
+rand = "0.8"
+num-traits = "0.2.16"
+smaa = "0.10.0"
+glam = "0.24.1"
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.6"
+console_log = "1.0"
+wgpu = { version = "0.16", features = ["webgl"]}
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4.30"
+web-sys = { version = "0.3", features = [
+    "Document",
+    "Window",
+    "Element",
+    "CustomEvent",
+    "CustomEventInit",
+]}
+serde-wasm-bindgen = "0.4"
+getrandom = { version = "0.2", features = ["js"] }

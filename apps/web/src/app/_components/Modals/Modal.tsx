@@ -4,19 +4,22 @@ import { modalsAtom } from 'state';
 import ClickAwayListener from 'react-click-away-listener';
 import { web as webTypes } from '@glyphx/types';
 
-import { CreateWorkspaceModal } from 'app/_components/Modals/CreateWorkspaceModal';
-import { CreateProjectModal } from 'app/_components/Modals/CreateProjectModal';
+import { CreateWorkspaceModal } from './CreateWorkspaceModal';
+import { CreateProjectModal } from './CreateProjectModal';
 import produce from 'immer';
-import { DeleteAccountModal } from 'app/_components/Modals/DeleteAccountModal';
-import { DeleteWorkspaceModal } from 'app/_components/Modals/DeleteWorkspaceModal';
-import { DeleteProjectModal } from 'app/_components/Modals/DeleteProjectModal';
-import { FileErrorsModal } from 'app/_components/Modals/FileErrorsModal';
-import { FileDecisionModal } from 'app/_components/Modals/FileDecisionModal';
+import { DeleteAccountModal } from './DeleteAccountModal';
+import { DeleteWorkspaceModal } from './DeleteWorkspaceModal';
+import { DeleteProjectModal } from './DeleteProjectModal';
+import { FileErrorsModal } from './FileErrorsModal';
+import { FileDecisionModal } from './FileDecisionModal';
 import { WritableDraft } from 'immer/dist/internal';
-import { DeleteFileModal } from 'app/_components/Modals/DeleteFileModal';
-import { CreateStateModal } from 'app/_components/Modals/CreateStateModal';
-import { DeleteStateModal } from 'app/_components/Modals/DeleteStateModal';
-import { UpdateStateModal } from 'app/_components/Modals/UpdateStateModal';
+import { DeleteFileModal } from './DeleteFileModal';
+import { CreateStateModal } from './CreateStateModal';
+import { DeleteStateModal } from './DeleteStateModal';
+import { UpdateStateModal } from './UpdateStateModal';
+import { AIRecommendationsModal } from './AIRecommendationsModal';
+import { CreateProjectTemplateModal } from './CreateProjectTemplateModal';
+import { TemplatePreviewModal } from './TemplatePreviewModal';
 
 export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) => {
   const setModals = useSetRecoilState(modalsAtom);
@@ -38,13 +41,35 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
             <div>
               {(() => {
                 switch (modalContent.type) {
-                  case webTypes.constants.MODAL_CONTENT_TYPE.AI_UPLOAD:
+                  case webTypes.constants.MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS:
                     return (
-                      <AIUploadModal
+                      <AIRecommendationsModal
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.AI_UPLOAD }
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS }
+                          >
+                        }
+                      />
+                    );
+                  case webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW:
+                    return (
+                      <TemplatePreviewModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW }
+                          >
+                        }
+                      />
+                    );
+                  case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE:
+                    return (
+                      <CreateProjectTemplateModal
+                        modalContent={
+                          modalContent as Extract<
+                            webTypes.ModalState,
+                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE }
                           >
                         }
                       />

@@ -63,6 +63,7 @@ describe('#/secrets/secretClassDecorator', () => {
     it('will throw an InvalidOperationException if the initilizer is set on a function that is not async', () => {
       assert.throws(() => {
         /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+        @secrets.bindSecrets('test')
         class TestClass {
           @secrets.initializer
           init(): void {
@@ -522,6 +523,44 @@ describe('#/secrets/secretClassDecorator', () => {
       assert.strictEqual(testClass.id, mockedSecret.userId.toUpperCase());
     });
 
+    it('will allow us to instantiate two objects each with its own inited value', async () => {
+      const secretName = 'testSecret';
+      const initedResult = 'I am inited';
+      secretsManagerMock
+        .on(GetSecretValueCommand)
+        .resolves({SecretString: JSON.stringify(mockedSecret)});
+
+      @secrets.bindSecrets(secretName)
+      class BoundClass {
+        @secrets.boundProperty('userName')
+        user = '';
+        @secrets.boundProperty('userId', (input: any) =>
+          input.userId.toUpperCase()
+        )
+        id = '';
+
+        @secrets.initializer
+        async init(): Promise<string> {
+          return initedResult;
+        }
+      }
+
+      const testClass = new BoundClass();
+      assert.strictEqual((testClass as any).secretName, secretName);
+      assert.isOk((testClass as any).secretManager);
+      assert.isFalse((testClass as any).inited);
+      assert.throws(() => testClass.user, InvalidOperationError);
+
+      const initResult = await testClass.init();
+      assert.strictEqual(initResult, initedResult);
+
+      assert.strictEqual(testClass.user, mockedSecret.userName);
+      assert.strictEqual(testClass.id, mockedSecret.userId.toUpperCase());
+
+      const testClass2 = new BoundClass();
+      assert.isFalse((testClass2 as any)['__secretInitalized__']);
+      assert.isTrue((testClass as any)['__secretInitalized__']);
+    });
     it('will throw an InvalidOperationError becuase our init function is not async', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';

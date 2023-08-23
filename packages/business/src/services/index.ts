@@ -11,3 +11,4 @@ export {ActivityLogService as activityLogService} from './activityLog';
 export {AnnotationService as annotationService} from './annotation';
 export {ProjectTemplateService as projectTemplateService} from './projectTemplate';
 export {TagService as tagService} from './tag';
+export {ModelConfigService as modelConfigService} from './modelConfig';

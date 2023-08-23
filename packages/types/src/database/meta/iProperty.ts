@@ -8,8 +8,11 @@ export interface IProperty {
   isRelation: boolean;
   default?: any;
   relationType?: RELATION_TYPE;
+  enumValues?: string[];
+  schemaProperties?: IProperty[];
   referenceTable?: string;
   cascadeOnDelete?: boolean;
   cascadeOnUpdate?: boolean;
   unique?: boolean;
+  duplicates?: number;
 }

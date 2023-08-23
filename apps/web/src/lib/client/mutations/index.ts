@@ -5,3 +5,5 @@ export * from './project';
 export * from './state';
 export * from './user';
 export * from './workspace';
+export * from './template';
+export * from './config';

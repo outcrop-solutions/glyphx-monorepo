@@ -29,7 +29,6 @@ export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) 
       const cleanTableName = cleaner.cleanColumnName(tableName);
       const cleanFileName = cleaner.cleanColumnName(fileNamWithoutExt);
 
-      console.log({ key: `client/${workspaceId}/${projectId}/input/${cleanTableName}/${cleanFileName}.csv` });
       return `client/${workspaceId}/${projectId}/input/${cleanTableName}/${cleanFileName}.csv`;
     });
 

@@ -5,8 +5,16 @@ import { SettingsDropdown } from 'app/[workspaceSlug]/_components/controls/Setti
 import { ShareButton } from 'app/[workspaceSlug]/_components/controls/ShareButton';
 import { ShowInfo } from 'app/[workspaceSlug]/_components/controls/ShowInfo';
 import { ShowNotifications } from 'app/[workspaceSlug]/_components/controls/ShowNotifications';
+import { CreateTemplateButton } from 'app/[workspaceSlug]/_components/controls/CreateTemplateButton';
+import { AIButton } from 'app/[workspaceSlug]/_components/controls/AIButton';
 
 export const projectControls = () => [
+  {
+    component: () => <AIButton />,
+  },
+  {
+    component: () => <CreateTemplateButton />,
+  },
   {
     component: () => <ShareButton />,
   },
@@ -16,9 +24,9 @@ export const projectControls = () => [
   {
     component: () => <ShowInfo />,
   },
-  {
-    component: () => <ShowNotifications />,
-  },
+  // {
+  //   component: () => <ShowNotifications />,
+  // },
   {
     component: () => <SettingsDropdown />,
   },

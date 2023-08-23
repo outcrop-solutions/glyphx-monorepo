@@ -48,11 +48,11 @@ export class AthenaManager {
    * @throws InvalidOperationException - if {@link init} has not been previously called on this instance.
    */
   public get athenaClient(): AthenaClient {
-    // if (!this.initedField)
-    // throw new error.InvalidOperationError(
-    //   'you must call init before you can retreive the athena client',
-    //   {}
-    // );
+    if (!this.initedField)
+      throw new error.InvalidOperationError(
+        'you must call init before you can retreive the athena client',
+        {}
+      );
     return this.athenaClientField;
   }
 
@@ -83,23 +83,23 @@ export class AthenaManager {
    * named in {@link databaseName}
    */
   public async init(): Promise<void> {
-    // try {
-    await this.athenaClientField.send(
-      new GetDatabaseCommand({
-        CatalogName: DATA_CATALOG_NAME,
-        DatabaseName: this.databaseNameField,
-      })
-    );
+    try {
+      await this.athenaClientField.send(
+        new GetDatabaseCommand({
+          CatalogName: DATA_CATALOG_NAME,
+          DatabaseName: this.databaseNameField,
+        })
+      );
 
-    this.initedField = true;
-    // } catch (err) {
-    //   throw new error.InvalidArgumentError(
-    //     `An unexpected error occurred while checking for the existance of the database ${this.databaseName}.  Are you sure that it exists and that you have permissions to access it`,
-    //     'databaseName',
-    //     this.databaseName,
-    //     err
-    //   );
-    // }
+      this.initedField = true;
+    } catch (err) {
+      throw new error.InvalidArgumentError(
+        `An unexpected error occurred while checking for the existance of the database ${this.databaseName}.  Are you sure that it exists and that you have permissions to access it`,
+        'databaseName',
+        this.databaseName,
+        err
+      );
+    }
   }
   /**
    * Will execute the query against Athena.  Athena completes the query offline, so this funciton will start the query
@@ -188,50 +188,68 @@ export class AthenaManager {
   ): Promise<Record<string, unknown>[]> {
     try {
       const queryId = await this.startQuery(queryString);
-
       const adjustedWaitTime = waitTime * 1000; //Convert seconds to milliseconds
       const endTime = new Date(new Date().getTime() + adjustedWaitTime);
-      //eslint-disable-next-line
+
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const queryStatus = await this.getQueryStatus(queryId);
-        //istanbul ignore next
 
         if (queryStatus.QueryExecution?.Status?.State === 'SUCCEEDED') break;
         else if (queryStatus.QueryExecution?.Status?.State === 'FAILED') {
           throw new error.QueryExecutionError(
-            'An error occuered while processing the query.  See the inner error for details',
+            'An error occurred while processing the query. See the inner error for details',
             queryString,
             queryStatus.QueryExecution?.Status?.AthenaError
           );
         }
 
-        if (new Date().getTime() > endTime.getTime())
+        if (new Date().getTime() > endTime.getTime()) {
           throw new error.QueryTimeoutError(
             'The query timed out while waiting for results to be processed',
             queryString,
             waitTime
           );
+        }
       }
 
-      const queryResultsCommand = new GetQueryResultsCommand({
-        QueryExecutionId: queryId,
-      });
+      let allResults: Record<string, unknown>[] = [];
+      let nextToken: string | undefined;
+      let firstResultSet = true;
 
-      const results = await this.athenaClient.send(queryResultsCommand);
-      const convertedResults = ResultSetConverter.fromResultset(
-        results.ResultSet as Required<ResultSet>,
-        includeHeaderRow
-      );
-      return convertedResults as Record<string, unknown>[];
+      do {
+        const queryResultsCommand = new GetQueryResultsCommand({
+          QueryExecutionId: queryId,
+          NextToken: nextToken,
+        });
+
+        const results = await this.athenaClient.send(queryResultsCommand);
+        const convertedResults = ResultSetConverter.fromResultset(
+          results.ResultSet as Required<ResultSet>,
+          includeHeaderRow
+        );
+
+        allResults = allResults.concat(
+          convertedResults as Record<string, unknown>[]
+        );
+        nextToken = results.NextToken;
+
+        if (firstResultSet) {
+          includeHeaderRow = true;
+          firstResultSet = false;
+        }
+      } while (nextToken);
+
+      return allResults;
     } catch (err) {
       if (
         err instanceof error.QueryTimeoutError ||
         err instanceof error.QueryExecutionError
-      )
+      ) {
         throw err;
-      else {
+      } else {
         throw new error.InvalidOperationError(
-          'An unexpected error occrred while running the query.  See the inner error for additional details',
+          'An unexpected error occurred while running the query. See the inner error for additional details',
           {queryString, waitTime},
           err
         );
