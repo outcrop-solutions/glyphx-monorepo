@@ -34,7 +34,7 @@ export const createConfig = async (req: NextApiRequest, res: NextApiResponse, se
 
 export const getConfigs = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const configs = await modelConfigService.getModelConfigs();
+    const configs = await modelConfigService.getModelConfigs({ deletedAt: undefined });
     res.status(200).json({ data: { configs } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
