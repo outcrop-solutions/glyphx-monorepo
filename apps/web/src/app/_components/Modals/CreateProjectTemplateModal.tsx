@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import Button from 'components/Button';
+import Button from '../Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, _createProjectTemplate, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
-import { LoadingDots } from 'partials/loaders/LoadingDots';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
+import { LoadingDots } from '../Loaders/LoadingDots';
 
 export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProjectTemplateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);

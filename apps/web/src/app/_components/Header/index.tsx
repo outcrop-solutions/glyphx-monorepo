@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { drawerOpenAtom, projectAtom } from 'state';
 import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
 
-import { Controls } from 'app/[workspaceSlug]/_components/controls';
+import { Controls } from 'app/[workspaceId]/_components/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
 

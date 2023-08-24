@@ -32,7 +32,7 @@ export const Providers = ({ children, session }: { children: React.ReactNode; se
   useEffect(() => {
     if (pathname) {
       let url = window.origin + pathname;
-      if (searchParams.toString()) {
+      if (searchParams?.toString()) {
         url = url + `?${searchParams.toString()}`;
       }
       posthog.capture('$pageview', {

@@ -1,5 +1,4 @@
 const intercept = require('intercept-stdout');
-const withTM = require('next-transpile-modules')(['@glyphx/types', 'react-data-grid']);
 const path = require('path');
 // safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
@@ -18,7 +17,7 @@ function interceptStdout(text) {
 intercept(interceptStdout);
 
 /** @type {import('next').NextConfig} */
-module.exports = withTM({
+module.exports = {
   reactStrictMode: true,
   swcMinify: true,
   serverRuntimeConfig: {
@@ -43,4 +42,4 @@ module.exports = withTM({
 
     return config;
   },
-});
+};

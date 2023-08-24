@@ -1,11 +1,10 @@
 import { api, _createProjectFromTemplate } from 'lib';
 import useTemplates from 'lib/client/hooks/useTemplates';
-import Button from 'components/Button';
+import Button from 'app/_components/Button';
 import PinnedIcon from 'public/svg/pinned-icon.svg';
 import { useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
-import { LoadingDots } from 'partials/loaders/LoadingDots';
 import { useRouter } from 'next/router';
 import { WritableDraft } from 'immer/dist/internal';
 import { web as webTypes } from '@glyphx/types';

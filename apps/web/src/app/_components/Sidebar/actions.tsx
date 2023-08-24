@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
 import { useWorkspace, useWorkspaces } from 'lib/client';
-import { CreateWorkspace } from 'app/[workspaceSlug]/_components/controls/CreateWorkspace';
+import { CreateWorkspace } from 'app/[workspaceId]/_components/controls/CreateWorkspace';
 
 const Actions = () => {
   const router = useRouter();

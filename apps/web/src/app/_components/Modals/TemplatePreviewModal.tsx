@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import Button from 'components/Button';
+import Button from 'app/_components/Button';
 import { _createState, _createProjectFromTemplate, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
-import { LoadingDots } from 'partials/loaders/LoadingDots';
+import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
 import { useRouter } from 'next/router';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';

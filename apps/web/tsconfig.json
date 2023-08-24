@@ -14,7 +14,6 @@
       "@/lib/client": ["src/lib/client/*"],
       "@/pages/*": ["src/pages/*"],
       "@/hooks/*": ["src/hooks/*"],
-      "@/partials/*": ["src/partials/*"],
       "@/providers/*": ["src/providers/*"],
       "@/state/*": ["src/state/*"],
       "@/services/*": ["src/services/*"],
@@ -33,7 +32,13 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
@@ -41,7 +46,8 @@
     "src/**/*.tsx",
     "src/utils/scrollbar.js",
     "src/utils/scrollbar.js",
-    "src/__tests__/utilities"
+    "src/__tests__/utilities",
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
