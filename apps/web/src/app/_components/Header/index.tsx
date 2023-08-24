@@ -1,11 +1,13 @@
 'use client';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { drawerOpenAtom, projectAtom } from 'state';
-import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 
-import { Controls } from 'app/[workspaceId]/_components/controls';
+import { Controls } from 'app/[workspaceSlug]/_components/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
+import { useParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 const Header = () => {
   const project = useRecoilValue(projectAtom);
@@ -13,7 +15,8 @@ const Header = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
+  const pathname = usePathname();
 
   const backPressed = () => {
     router.push(`/account/${project.workspace.slug}`);
@@ -25,7 +28,7 @@ const Header = () => {
   return (
     <div
       className={`flex flex-row h-[56px] sticky z-60 top-0 items-center bg-secondary-midnight justify-between pr-4 ${
-        workspaceSlug && !router.pathname.includes('settings') && !project && 'pl-8 pt-2 bg-primary-dark-blue'
+        workspaceSlug && !pathname?.includes('settings') && !project && 'pl-8 pt-2 bg-primary-dark-blue'
       } ${project ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
     >
       {project ? (
@@ -42,7 +45,6 @@ const Header = () => {
           <input
             className="p-1 m-2 text-white font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] flex text-left outline-none border-2 border-transparent rounded-lg pr-2 bg-transparent hover:border-yellow"
             defaultValue={project?.name}
-            // onChange={updateProjectName}
           />
         </div>
       ) : (

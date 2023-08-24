@@ -5,16 +5,17 @@ import { web as webTypes } from '@glyphx/types';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
+import { useParams } from 'next/navigation';
 
 export const TemplatePreviewModal = ({ modalContent }: webTypes.TemplatePreviewModalProps) => {
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const [loading, setLoading] = useState(false);
   const setModals = useSetRecoilState(modalsAtom);
   const { _id } = useRecoilValue(workspaceAtom);

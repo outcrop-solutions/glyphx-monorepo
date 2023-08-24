@@ -1,13 +1,14 @@
 import React from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { projectControls, workspaceControls, homeControls } from 'config/menu/controls';
 import { useSession } from 'next-auth/react';
+import { useParams } from 'next/navigation';
 
 export const Controls = () => {
   const router = useRouter();
   const { data } = useSession();
   const isGlyphxUser = data?.user?.email?.endsWith('@glyphx.co');
-  const { projectId, workspaceSlug } = router.query;
+  const { projectId, workspaceSlug } = useParams();
   const pControls = projectControls();
   const wControls = workspaceControls();
   const hControls = homeControls();

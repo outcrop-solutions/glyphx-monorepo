@@ -4,7 +4,7 @@ import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createWorkspace, api } from 'lib';
 import { web as webTypes } from '@glyphx/types';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';

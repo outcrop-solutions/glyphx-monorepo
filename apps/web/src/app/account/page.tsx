@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';

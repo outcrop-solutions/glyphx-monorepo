@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Toaster } from 'react-hot-toast';
 
 import Card from 'app/_components/Card';

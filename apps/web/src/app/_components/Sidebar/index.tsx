@@ -12,9 +12,10 @@ import FullLogo from 'public/svg/full-logo.svg';
 import SmallLogo from 'public/svg/small-logo.svg';
 // hooks
 import { useWorkspace, useWorkspaces } from 'lib/client';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { drawerOpenAtom } from 'state';
 import { useSetRecoilState } from 'recoil';
+import { useParams } from 'next/navigation';
 
 const staticMenu = sidebarMenu();
 
@@ -22,7 +23,7 @@ const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const router = useRouter();
-  const { projectId } = router.query;
+  const { projectId } = useParams();
   const { data, isLoading } = useWorkspaces();
   const { data: workspace } = useWorkspace();
 

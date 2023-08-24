@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Fuse from 'fuse.js';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -10,10 +10,11 @@ import { workspaceAtom } from 'state/workspace';
 import SearchInputIcon from 'public/svg/search-input-icon.svg';
 import SearchFilterIcon from 'public/svg/search-filter-icon.svg';
 import ProjectResultIcon from 'public/svg/project-result-icon.svg';
+import { useParams } from 'next/navigation';
 
 export function SearchModal() {
   const router = useRouter();
-  const { orgId } = router.query;
+  const { workspaceId } = useParams();
 
   const [rightSidebar, setRightSidebar] = useRecoilState(rightSidebarControlAtom);
   const workspace = useRecoilValue(workspaceAtom);
@@ -122,7 +123,7 @@ export function SearchModal() {
                   {workspace.projects.slice(0, 5).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/${orgId}/${value._id}`}>
+                        <Link href={`/${workspaceId}/${value._id}`}>
                           <a className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
                             <ProjectResultIcon />
                             <span>{value.name}</span>
@@ -142,7 +143,7 @@ export function SearchModal() {
                   {queryResult.slice(0, 10).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/${orgId}/${value.item.id}`}>
+                        <Link href={`/${workspaceId}/${value.item.id}`}>
                           <a
                             // onClick={() => {
                             //   setShowSearchModalOpen(false);

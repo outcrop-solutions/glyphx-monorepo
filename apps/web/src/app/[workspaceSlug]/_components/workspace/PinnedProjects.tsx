@@ -5,14 +5,15 @@ import PinnedIcon from 'public/svg/pinned-icon.svg';
 import { useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { WritableDraft } from 'immer/dist/internal';
 import { web as webTypes } from '@glyphx/types';
 import produce from 'immer';
+import { useParams } from 'next/navigation';
 
 export const PinnedProjects = () => {
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const { data } = useTemplates();
   const setModals = useSetRecoilState(modalsAtom);
   const [loading, setLoading] = useState(false);

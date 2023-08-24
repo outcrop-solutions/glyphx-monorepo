@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import produce from 'immer';
 import dayjs from 'dayjs';
@@ -18,11 +18,12 @@ import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 import { rightSidebarControlAtom } from 'state';
 import { WritableDraft } from 'immer/dist/internal';
+import { useParams } from 'next/navigation';
 
 export const ProjectCard = ({ idx, project }) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
 
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);

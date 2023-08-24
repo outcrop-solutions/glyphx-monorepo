@@ -1,5 +1,6 @@
+'use client';
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 import Content from 'app/_components/Content';
@@ -7,7 +8,7 @@ import Header from 'app/_components/Header';
 import Sidebar from 'app/_components/Sidebar';
 import menu from 'config/menu/index';
 import { useWorkspace } from 'lib';
-import { RightSidebar } from 'app/[workspaceId]/_components/rightSidebar';
+import { RightSidebar } from 'app/[workspaceSlug]/_components/rightSidebar';
 import { ProjectSidebar } from './_components/projectSidebar';
 
 const ProjectLayout = ({ children }) => {

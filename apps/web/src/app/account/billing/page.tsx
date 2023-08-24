@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import formatDistance from 'date-fns/formatDistance';
 import Link from 'next/link';
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import Modal from 'app/_components/Modals/Modal';
+import { Modal } from 'app/_components/Modals/Modal';
 import { api, _createSubscription } from 'lib/client';
 // import { redirectToCheckout } from 'lib/server';
 
@@ -55,7 +56,7 @@ const Billing = ({ invoices, products }) => {
             </Button>
           </Card.Footer>
         </Card>
-        <Modal show={showModal} title="Upgrade Subscription" toggle={toggleModal}>
+        {/* <Modal show={showModal} title="Upgrade Subscription" toggle={toggleModal}>
           <div className="space-y-0 text-sm text-gray-600">
             <p>You are currently under the FREE plan</p>
           </div>
@@ -73,7 +74,7 @@ const Billing = ({ invoices, products }) => {
               </Card>
             ))}
           </div>
-        </Modal>
+        </Modal> */}
       </Content.Container>
       <Content.Divider thick />
       <Content.Title title="Invoices" subtitle="View and download invoices you may need" />

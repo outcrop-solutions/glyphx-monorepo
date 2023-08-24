@@ -1,9 +1,9 @@
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 
 const useProject = () => {
-  const router = useRouter();
-  const { projectId } = router.query;
+  const { projectId } = useParams();
   const apiRoute = `/api/project/${projectId}`;
   const { data, error } = useSWR(projectId && `${apiRoute}`, {
     revalidateIfStale: false,

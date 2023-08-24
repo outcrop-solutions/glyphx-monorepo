@@ -11,12 +11,13 @@ import { _deleteProject, _deleteWorkspace, api } from 'lib';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModalProps) => {
   const { mutate } = useSWRConfig();
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyProject, setVerifyProject] = useState('');

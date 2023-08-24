@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import { _createProject, api } from 'lib/client';
@@ -8,10 +8,11 @@ import ExitModalIcon from 'public/svg/exit-project-modal-icon.svg';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import { useParams } from 'next/navigation';
 
 export const NewProject = ({ exit }) => {
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const workspace = useRecoilValue(workspaceAtom);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

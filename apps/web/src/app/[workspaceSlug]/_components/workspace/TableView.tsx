@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
@@ -11,13 +11,14 @@ import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 import produce from 'immer';
 import { useCallback } from 'react';
 import { WritableDraft } from 'immer/dist/internal';
+import { useParams } from 'next/navigation';
 
 const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
 
 export const TableView = () => {
   dayjs.extend(relativeTime);
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const workspace = useRecoilValue(workspaceAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);

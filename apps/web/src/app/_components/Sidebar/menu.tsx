@@ -1,10 +1,9 @@
 'use client';
-import { useRouter } from 'next/router';
 import Item from './item';
+import { useParams } from 'next/navigation';
 
 const Menu = ({ data, isLoading, showMenu }) => {
-  const router = useRouter();
-  const { projectId } = router.query;
+  const { projectId } = useParams();
   return showMenu ? (
     <div className="space-y-2">
       {!projectId ? <h5 className="text-sm font-bold text-gray-400">{data.name}</h5> : <></>}

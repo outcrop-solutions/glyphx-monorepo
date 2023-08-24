@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isAlphanumeric from 'validator/lib/isAlphanumeric';

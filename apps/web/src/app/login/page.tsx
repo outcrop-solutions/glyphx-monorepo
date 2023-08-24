@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getProviders, signIn, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const Login = () => {
   const { status } = useSession();

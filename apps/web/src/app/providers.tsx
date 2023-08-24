@@ -20,7 +20,7 @@ import { Modals } from 'app/_components/Modals';
 import { Loading } from 'app/_components/Loaders/Loading';
 
 if (typeof window !== 'undefined') {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   });
 }

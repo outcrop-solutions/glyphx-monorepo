@@ -3,17 +3,18 @@ import { web as webTypes } from '@glyphx/types';
 import { _createState, _createProjectFromTemplate, api } from 'lib';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, templatesAtom, workspaceAtom } from 'state';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { LoadingDots } from '../Loaders/LoadingDots';
 import Button from '../Button';
+import { useParams } from 'next/navigation';
 
 // FIXME: NOTE: completions require streaming + RSC in feature/next-13.4-layout - placeholder for now so Will can mark it up
 export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendationsModalProps) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const { templates } = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const { _id } = useRecoilValue(workspaceAtom);

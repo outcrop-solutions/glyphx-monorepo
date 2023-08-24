@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect } from 'react';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
@@ -8,7 +9,7 @@ import { useSendPosition, useSocket, useWindowSize } from 'services';
 import { useCloseViewerOnModalOpen } from 'services/useCloseViewerOnModalOpen';
 import { useProject, useWorkspace } from 'lib/client/hooks';
 import { useCloseViewerOnLoading } from 'services/useCloseViewerOnLoading';
-import { GridContainer } from 'app/[workspaceId]/project/[projectId]/_components/datagrid/GridContainer';
+import { GridContainer } from 'app/[workspaceSlug]/project/[projectId]/_components/datagrid/GridContainer';
 import useTemplates from 'lib/client/hooks/useTemplates';
 
 const openFirstFile = (projData) => {

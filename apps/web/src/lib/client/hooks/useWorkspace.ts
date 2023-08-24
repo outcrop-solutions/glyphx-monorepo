@@ -1,9 +1,8 @@
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import useSWR from 'swr';
 
 const useWorkspace = () => {
-  const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const apiRoute = `/api/workspace/${workspaceSlug}`;
   const { data, error } = useSWR(workspaceSlug && `${apiRoute}`);
   return {

@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FallbackProps } from 'react-error-boundary';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 import ProjectErrorIcon from 'public/svg/project-error-icon.svg';
 

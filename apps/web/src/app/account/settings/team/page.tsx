@@ -1,4 +1,5 @@
-import { Fragment, useState } from 'react';
+'use client';
+import { Fragment, SetStateAction, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import {
   ChevronDownIcon,
@@ -15,7 +16,6 @@ import isEmail from 'validator/lib/isEmail';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { useMembers } from 'lib/client';
 import { _createMember, _removeMember, _updateRole, api } from 'lib/client';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
@@ -62,7 +62,7 @@ const Team = () => {
   const invite = () => {
     api({
       ..._createMember({ slug: workspace.slug, members }),
-      setLoading: setSubmittingState,
+      setLoading: (value) => setSubmittingState(value as unknown as SetStateAction<boolean>),
 
       onSuccess: () => {
         const members = [{ ...MEMBERS_TEMPLATE }];

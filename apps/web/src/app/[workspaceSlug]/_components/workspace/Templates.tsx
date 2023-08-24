@@ -1,9 +1,7 @@
 import { ChevronRightIcon } from '@heroicons/react/solid';
 import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
-import { v4 as uuid } from 'uuid';
-import { useRouter } from 'next/router';
 import { _createDefaultProject, api, useWorkspace } from 'lib/client';
-import { useSession } from 'next-auth/react';
+import { useParams, useRouter } from 'next/navigation';
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -30,7 +28,7 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const { data } = useWorkspace();
 
   // mutations

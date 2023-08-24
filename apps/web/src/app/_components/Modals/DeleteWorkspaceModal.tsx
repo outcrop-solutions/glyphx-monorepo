@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { web as webTypes } from '@glyphx/types';
 import { useSWRConfig } from 'swr';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -14,11 +14,12 @@ import Button from 'app/_components/Button';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import { useParams } from 'next/navigation';
 
 export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceModalProps) => {
   const { mutate } = useSWRConfig();
   const router = useRouter();
-  const { workspaceSlug } = router.query;
+  const { workspaceSlug } = useParams();
   const setModals = useSetRecoilState(modalsAtom);
   const setWorkspace = useSetRecoilState(workspaceAtom);
 
