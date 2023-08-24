@@ -1,23 +1,15 @@
 'use client';
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { MenuIcon, XIcon } from '@heroicons/react/outline';
 import { Resizable } from 're-resizable';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import produce from 'immer';
-import { configSelector, configsAtom, currentConfigAtom } from 'state';
 import Script from 'next/script';
 import { SandboxSidebar } from 'app/_components/Sandbox/Sidebar';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
-
 export default function Sandbox() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const setConfigs = useSetRecoilState(configsAtom);
 
-  const [style, setStyle] = useState({
+  const [style, _] = useState({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -26,17 +18,6 @@ export default function Sandbox() {
     height: '100%',
     width: '100%',
   });
-
-  const handleChange = useCallback(
-    (idx: number, prop: string, value) => {
-      setConfigs(
-        produce((draft) => {
-          draft[idx][prop] = value;
-        })
-      );
-    },
-    [setConfigs]
-  );
 
   return (
     <>

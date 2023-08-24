@@ -15,7 +15,7 @@
     "integrationTest": "turbo integrationTest",
     "format": "turbo format",
     "format:write": "turbo format",
-    "dev": "dotenv -- turbo dev",
+    "dev": "rimraf apps/web/.next && dotenv -- turbo dev",
     "plop": "plop",
     "start": "dotenv -- turbo start",
     "lint": "turbo run lint",

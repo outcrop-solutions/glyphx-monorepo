@@ -1,3 +1,4 @@
+'use client';
 // layout
 import Content from 'app/_components/Content';
 import { useWorkspace } from 'lib';
