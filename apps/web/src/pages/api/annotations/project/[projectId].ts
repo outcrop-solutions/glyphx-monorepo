@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { getProjectAnnotations, createProjectAnnotation } from 'business/actions/annotation';
+import { getProjectAnnotations, createProjectAnnotation } from 'lib/server';
 
 const projectAnnotations = async (req, res) => {
   // initialize the business layer

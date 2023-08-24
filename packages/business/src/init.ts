@@ -1,8 +1,8 @@
 import {logging} from '@glyphx/core';
 import {EmailClient} from '@glyphx/email';
-import databaseConnection from 'lib/databaseConnection';
-import athenaConnection from 'lib/athenaConnection';
-import {StripeClient} from 'lib/stripe';
+import databaseConnection from './lib/databaseConnection';
+import athenaConnection from './lib/athenaConnection';
+import {StripeClient} from './lib/stripe';
 
 export class Initializer {
   static initedField = false;

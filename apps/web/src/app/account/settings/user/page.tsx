@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useState } from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 import { useRouter } from 'next/navigation';

@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { updateWorkspaceSlug } from 'business/actions/workspace';
+import { updateWorkspaceSlug } from 'lib/server/workspace';
 
 const slug = async (req, res) => {
   // initialize the business layer

@@ -1,3 +1,4 @@
+'use client';
 import { useState, Fragment, useEffect } from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 import { useSession } from 'next-auth/react';

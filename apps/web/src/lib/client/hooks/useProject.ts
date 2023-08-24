@@ -1,3 +1,4 @@
+'use client';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';

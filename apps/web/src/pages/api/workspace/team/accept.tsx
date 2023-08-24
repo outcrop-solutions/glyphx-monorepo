@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { acceptInvitation } from 'business/actions/team';
+import { acceptInvitation } from 'lib/server/team';
 
 const accept = async (req, res) => {
   // initialize the business layer

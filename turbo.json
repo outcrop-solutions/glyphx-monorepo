@@ -34,9 +34,6 @@
     "codegen": {
       "outputs": ["./packages/examples/**", "./packages/sdks/**"]
     },
-    "db:generate": {
-      "cache": false
-    },
     "test:db": {
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
     },
@@ -44,7 +41,6 @@
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
     },
     "build": {
-      "dependsOn": ["^build"],
       "outputs": [".next/**", "dist/**", "build/**"]
     },
     "test": {

@@ -1,9 +1,9 @@
 import {database as databaseTypes, web as webTypes} from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
-import {hashFileSystem} from 'util/hashFileSystem';
-import {hashPayload} from 'util/hashPayload';
+import {hashFileSystem} from '../util/hashFileSystem';
+import {hashPayload} from '../util/hashPayload';
 
 export class StateService {
   public static async getState(

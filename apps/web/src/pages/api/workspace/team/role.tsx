@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { updateRole } from 'business/actions/team';
+import { updateRole } from 'lib/server/team';
 
 const role = async (req, res) => {
   // initialize the business layer

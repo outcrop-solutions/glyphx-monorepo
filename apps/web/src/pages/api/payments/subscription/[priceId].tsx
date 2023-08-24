@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { initStripePaymentSession } from 'business/actions';
+import { initStripePaymentSession } from 'lib/server';
 
 const payment = async (req, res) => {
   // initialize the business layer

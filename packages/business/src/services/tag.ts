@@ -1,6 +1,6 @@
 import {database as databaseTypes} from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 
 export class TagService {

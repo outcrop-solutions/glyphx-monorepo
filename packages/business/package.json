@@ -2,12 +2,8 @@
   "name": "@glyphx/business",
   "version": "1.0.0",
   "description": "The core business logic controllers called from the Next.js lambda api interface",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist/**"
-  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",

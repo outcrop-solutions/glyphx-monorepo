@@ -2,7 +2,7 @@ import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Session } from 'next-auth';
 import { validateSession } from '@glyphx/business';
-import { glyphEngine } from 'business/actions/etl/glyphEngine';
+import { glyphEngine } from 'lib/server/etl/glyphEngine';
 
 /**
  * Implements controller of browser based FILE OPERATIONS

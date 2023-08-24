@@ -1,10 +1,8 @@
-import React from "react";
-import { FallbackProps } from "react-error-boundary";
+'use client';
+import React from 'react';
+import { FallbackProps } from 'react-error-boundary';
 
-export const AdminErrorFallback = ({
-  error,
-  resetErrorBoundary,
-}: FallbackProps) => {
+export const AdminErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
   return (
     <div className="w-full h-full">
       <h2 className="text-white text-center">Admin Error Boundary</h2>

@@ -2,12 +2,8 @@
   "name": "@glyphx/glyphengine",
   "version": "1.0.0",
   "description": "Builds our glyphs and stores them in sgn and sdt files ",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist/**"
-  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "engines": {
     "node": ">=16.0.0"
   },

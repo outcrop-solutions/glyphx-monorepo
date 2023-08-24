@@ -42,11 +42,6 @@
     "rimraf": "^3.0.2",
     "turbo": "latest"
   },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "17.0.2"
-    }
-  },
   "packageManager": "pnpm@7.15.0",
   "dependencies": {
     "dotenv-cli": "^6.0.0"

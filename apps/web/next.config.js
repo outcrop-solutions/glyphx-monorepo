@@ -18,6 +18,7 @@ intercept(interceptStdout);
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  //https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable
   transpilePackages: [
     '@glyphx/codegen',
     '@glyphx/core',
@@ -28,6 +29,12 @@ module.exports = {
     '@glyphx/glyphengine',
     '@glyphx/types',
   ],
+  modularizeImports: {
+    lodash: {
+      transform: 'lodash/{{member}}',
+      preventFullImport: true, // don't allow import of full lodash lib, when only using a few utilities
+    },
+  },
   experimental: {
     // gives us statically types routes
     typedRoutes: true,

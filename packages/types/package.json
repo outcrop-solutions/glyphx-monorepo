@@ -5,14 +5,8 @@
   "author": "JP Burford <jp.burford@h1insights.com>",
   "homepage": "https://github.com/outcrop-solutions/serverless/tree/main/packages/glyphx-types#readme",
   "license": "ISC",
-  "main": "dist/index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SynGlyphX/serverless.git"

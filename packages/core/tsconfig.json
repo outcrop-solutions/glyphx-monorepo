@@ -2,7 +2,9 @@
   "extends": "@glyphx/tsconfig/node18.json",
   "include": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts"],
   "compilerOptions": {
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "experimentalDecorators": true, // required for correct next transpilation
+    "emitDecoratorMetadata": true
   },
   "paths": {
     "@/aws/*": ["src/aws/*"],

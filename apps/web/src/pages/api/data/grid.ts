@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Initializer, validateSession } from '@glyphx/business';
 import { Session } from 'next-auth';
-import { getDataByTableName } from 'business/actions/data';
+import { getDataByTableName } from 'lib/server/data';
 
 const data = async (req, res) => {
   // initialize the glyphengine layer

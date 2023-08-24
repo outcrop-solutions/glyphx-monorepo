@@ -1,5 +1,5 @@
 import { Initializer } from '@glyphx/business';
-import { stripeHooks } from 'business/actions';
+import { stripeHooks } from 'lib/server';
 
 export const config = { api: { bodyParser: false } };
 

@@ -4,7 +4,9 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "baseUrl": "./src",
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "experimentalDecorators": true, // required for correct next transpilation
+    "emitDecoratorMetadata": true
   },
   "paths": {
     "@/constants/*": ["src/constants/*"],

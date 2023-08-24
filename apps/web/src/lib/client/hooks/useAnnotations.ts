@@ -1,3 +1,4 @@
+'use client';
 import { useRecoilValue } from 'recoil';
 import { annotationResourceIdSelector } from 'state/annotations';
 import { database as databaseTypes } from '@glyphx/types';

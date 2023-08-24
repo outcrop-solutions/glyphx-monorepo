@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../network';
 import { _getDataGrid, _getRowIds } from '../mutations';

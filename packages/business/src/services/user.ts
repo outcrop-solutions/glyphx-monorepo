@@ -1,7 +1,7 @@
 import {EmailClient, updateHtml, updateText} from '@glyphx/email';
 import {database as databaseTypes} from '@glyphx/types';
 import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 

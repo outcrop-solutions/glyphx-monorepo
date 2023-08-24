@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import { Session } from 'next-auth';
 import { validateSession, Initializer } from '@glyphx/business';
-import { declineInvitation } from 'business/actions/team';
+import { declineInvitation } from 'lib/server/team';
 
 const decline = async (req, res) => {
   // initialize the business layer
