@@ -1,3 +1,4 @@
+'use client';
 import { Fragment, useCallback, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { MenuIcon, XIcon } from '@heroicons/react/outline';
@@ -5,8 +6,8 @@ import { Resizable } from 're-resizable';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import produce from 'immer';
 import { configSelector, configsAtom, currentConfigAtom } from 'state';
-import { SandboxSidebar } from 'partials/sandbox/Sidebar';
 import Script from 'next/script';
+import { SandboxSidebar } from 'app/_components/Sandbox/Sidebar';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
