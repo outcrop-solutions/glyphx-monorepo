@@ -1,6 +1,6 @@
 import 'mocha';
 import { assert } from 'chai';
-import { Session } from 'next-auth';
+
 import { createSandbox } from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';

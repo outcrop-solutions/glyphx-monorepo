@@ -3,7 +3,7 @@ import {BasicHiveQueryPlanner} from './basicHiveQueryPlanner';
 import {
   IViewQueryPlanner,
   IJoinTableDefinition,
-} from '@interfaces/fileProcessing';
+} from '../interfaces/fileProcessing';
 
 /**
  * This class will create a string which can be used to create a view

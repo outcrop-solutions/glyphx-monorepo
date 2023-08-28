@@ -1,3 +1,4 @@
+'use client';
 import { ChevronRightIcon } from '@heroicons/react/solid';
 import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
 import { _createDefaultProject, api, useWorkspace } from 'lib/client';

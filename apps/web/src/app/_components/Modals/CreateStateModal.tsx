@@ -68,7 +68,21 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
         },
       });
     }
-  }, [camera, modalContent.data._id, name, setCamera, setModals, setProject, mutate, image, setImage]);
+  }, [
+    camera,
+    modalContent.data._id,
+    name,
+    setCamera,
+    setModals,
+    setProject,
+    mutate,
+    image,
+    setImage,
+    // @ts-ignore
+    viewerPosition.w,
+    // @ts-ignore
+    viewerPosition.h,
+  ]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">

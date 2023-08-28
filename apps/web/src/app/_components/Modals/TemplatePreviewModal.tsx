@@ -52,7 +52,7 @@ export const TemplatePreviewModal = ({ modalContent }: webTypes.TemplatePreviewM
         router.push(`/account/${workspaceSlug}/${data._id}`);
       },
     });
-  }, [_id, data, router, workspaceSlug]);
+  }, [_id, data, router, setModals, workspaceSlug]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 w-[500px] space-y-5 bg-secondary-midnight rounded-md text-white">

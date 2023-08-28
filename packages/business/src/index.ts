@@ -3,7 +3,6 @@ export {Initializer} from './init';
 
 // library
 import initMiddleware from './lib/initMiddleware';
-import {validateSessionMiddleware} from './lib/sessionCheck';
 import {StripeClient} from './lib/stripe';
 import {validateMiddleware} from './lib/validate';
 import dbConnection from './lib/databaseConnection';
@@ -11,7 +10,6 @@ import athenaConnection from './lib/athenaConnection';
 export {
   initMiddleware,
   validateMiddleware,
-  validateSessionMiddleware,
   StripeClient,
   dbConnection,
   athenaConnection,

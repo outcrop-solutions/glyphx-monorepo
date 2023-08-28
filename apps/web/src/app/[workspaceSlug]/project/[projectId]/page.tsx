@@ -59,6 +59,8 @@ export default function Project() {
     setProject,
     setRightSidebarControl,
     setWorkspace,
+    setTemplates,
+    templateData,
   ]);
 
   useSocket();

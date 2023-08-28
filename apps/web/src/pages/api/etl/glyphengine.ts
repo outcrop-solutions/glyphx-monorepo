@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { validateSession } from '@glyphx/business';
+import { authOptions } from 'app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth/next';
 import { glyphEngine } from 'lib/server/etl/glyphEngine';
 
 /**
@@ -14,7 +14,7 @@ import { glyphEngine } from 'lib/server/etl/glyphEngine';
 
 export default async function engine(req: NextApiRequest, res: NextApiResponse) {
   // check for valid session
-  const session = (await validateSession(req, res)) as Session;
+  const session = await getServerSession(req, res, authOptions);
   if (!session?.user?.userId) return res.status(401).end();
 
   switch (req.method) {

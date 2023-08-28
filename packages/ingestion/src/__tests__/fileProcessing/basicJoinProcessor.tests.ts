@@ -4,7 +4,7 @@ import {error} from '@glyphx/core';
 import {
   IFieldDefinition,
   IJoinTableColumnDefinition,
-} from '@interfaces/fileProcessing';
+} from 'interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 

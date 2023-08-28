@@ -2,7 +2,7 @@ import {assert} from 'chai';
 import {BasicHiveViewQueryPlanner} from '@fileProcessing';
 
 import * as joinQueryHelpers from './basicHiveQueryPlanner.tests';
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 
 const VIEW_REGEX = 'CREATE\\s+VIEW\\s+$1\\s+AS\\s+SELECT';

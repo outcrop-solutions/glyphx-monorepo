@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
 import {BasicTableSorter} from '@fileProcessing';
 import {error} from '@glyphx/core';
 import {fileIngestion} from '@glyphx/types';

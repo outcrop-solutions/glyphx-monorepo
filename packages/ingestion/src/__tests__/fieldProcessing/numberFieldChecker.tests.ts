@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {NumberFieldChecker} from '@fieldProcessing';
+import {NumberFieldChecker} from 'fieldProcessing';
 import {error} from '@glyphx/core';
 
 describe('#fieldProcessing/NumberFieldChecker', () => {

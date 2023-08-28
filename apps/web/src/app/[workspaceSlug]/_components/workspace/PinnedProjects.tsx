@@ -1,3 +1,4 @@
+'use client';
 import { api, _createProjectFromTemplate } from 'lib';
 import useTemplates from 'lib/client/hooks/useTemplates';
 import Button from 'app/_components/Button';

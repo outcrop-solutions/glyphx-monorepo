@@ -1,4 +1,4 @@
-import {IFileInformation, ITableSorter} from '@interfaces/fileProcessing';
+import {IFileInformation, ITableSorter} from '../interfaces/fileProcessing';
 import {error} from '@glyphx/core';
 
 /**

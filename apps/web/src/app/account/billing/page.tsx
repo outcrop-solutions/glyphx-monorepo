@@ -21,7 +21,7 @@ import { api, _createSubscription } from 'lib/client';
 //    StripeClient.getInvoices(customerPayment?.paymentId),
 //    StripeClient.getProducts(),
 //  ]);
-const Billing = ({ invoices, products }) => {
+const Billing = () => {
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalVisibility] = useState(false);
 

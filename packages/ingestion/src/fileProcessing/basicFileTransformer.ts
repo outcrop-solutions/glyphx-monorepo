@@ -1,8 +1,8 @@
 import {Transform, TransformCallback} from 'node:stream';
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
-import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
-import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
-import {NumberFieldChecker, DateFieldChecker} from '@fieldProcessing';
+import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
+import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
+import {FILE_PROCESSING_ERROR_TYPES} from '../util/constants';
+import {NumberFieldChecker, DateFieldChecker} from '../fieldProcessing';
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 /**

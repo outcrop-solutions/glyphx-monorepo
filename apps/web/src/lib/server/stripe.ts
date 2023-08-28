@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
+
 import { loadStripe } from '@stripe/stripe-js';
 import { buffer } from 'micro';
 import { StripeClient, customerPaymentService } from '@glyphx/business';

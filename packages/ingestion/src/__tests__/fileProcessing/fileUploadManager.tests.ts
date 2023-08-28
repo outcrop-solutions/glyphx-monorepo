@@ -10,7 +10,7 @@ import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {tableService} from '@glyphx/business';
 
-import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
+import {FILE_PROCESSING_ERROR_TYPES} from 'util/constants';
 
 const INPUT_DATA = [
   `col1,col2,col3,col4

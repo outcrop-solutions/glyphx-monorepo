@@ -15,12 +15,12 @@ import {
   IFileProcessingError,
   IJoinTableDefinition,
   IJoinTableColumnDefinition,
-} from '@interfaces/fileProcessing';
+} from 'interfaces/fileProcessing';
 import {FileReconciliator} from '../fileProcessing/fileReconciliator';
 import {
   FILE_PROCESSING_STATUS,
   FILE_PROCESSING_ERROR_TYPES,
-} from '@util/constants';
+} from 'util/constants';
 import * as businessLogic from '@glyphx/business';
 import {config} from '../config';
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();

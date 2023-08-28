@@ -1,3 +1,4 @@
+'use client';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { useRecoilValue, useSetRecoilState } from 'recoil';

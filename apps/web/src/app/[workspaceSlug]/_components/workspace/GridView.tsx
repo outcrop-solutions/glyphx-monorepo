@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+'use client';
 import { ProjectCard } from './ProjectCard';
 // import { PinnedProjects } from "./PinnedProjects";
 import React from 'react';

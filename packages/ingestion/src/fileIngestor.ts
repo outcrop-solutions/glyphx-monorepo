@@ -22,12 +22,12 @@ import {
   IFileProcessingError,
   IJoinTableDefinition,
   IFileProcessingResult,
-} from '@interfaces/fileProcessing';
+} from './interfaces/fileProcessing';
 import {TableArchiver} from './fileProcessing/tableArchiver';
 import {
   FILE_PROCESSING_ERROR_TYPES,
   FILE_PROCESSING_STATUS,
-} from '@util/constants';
+} from './util/constants';
 import {config} from './config';
 
 export class FileIngestor {

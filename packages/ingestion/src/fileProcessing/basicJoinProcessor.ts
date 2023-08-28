@@ -1,4 +1,4 @@
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
 import {error} from '@glyphx/core';
 import {GLYPHX_ID_COLUMN_NAME} from './basicFileTransformer';
 import {fileIngestion} from '@glyphx/types';

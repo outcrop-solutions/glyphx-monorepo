@@ -1,20 +1,20 @@
 import {
   IFileInformation,
   IJoinTableDefinition,
-} from '@interfaces/fileProcessing';
+} from '../interfaces/fileProcessing';
 import {
   BasicHiveTableQueryPlanner,
   BasicHiveViewQueryPlanner,
   BasicTableSorter,
   BasicJoinProcessor,
-} from '@fileProcessing';
+} from './';
 
 //eslint-disable-next-line
 import {fileIngestion} from '@glyphx/types';
 
 import {aws, error} from '@glyphx/core';
 
-import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
+import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../util/constants';
 
 export class BasicAthenaProcessor {
   private bucketNameField: string;

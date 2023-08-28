@@ -1,7 +1,8 @@
 import { web as webTypes } from '@glyphx/types';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { Initializer, validateSession } from '@glyphx/business';
+import { authOptions } from 'app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth/next';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Initializer } from '@glyphx/business';
 import { getWorkspaces } from 'lib/server/workspaces';
 
 const workspaces = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -11,7 +12,7 @@ const workspaces = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   // check for valid session
-  const session = (await validateSession(req, res)) as Session;
+  const session = await getServerSession(req, res, authOptions);
   if (!session?.user?.userId) return res.status(401).end();
 
   // execute the appropriate handler

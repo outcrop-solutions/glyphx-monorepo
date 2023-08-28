@@ -1,7 +1,7 @@
 import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { Initializer, validateSession } from '@glyphx/business';
+
+import { Initializer } from '@glyphx/business';
 import { signDataUrls } from 'lib/server/etl/signDataUrls';
 /**
  * Implements controller of browser based FILE OPERATIONS
@@ -17,7 +17,7 @@ export default async function signData(req: NextApiRequest, res: NextApiResponse
     await Initializer.init();
   }
   // check for valid session
-  const session = (await validateSession(req, res)) as Session;
+  const session = await getServerSession(req, res, authOptions);
   if (!session?.user?.userId) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:

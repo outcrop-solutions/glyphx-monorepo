@@ -84,7 +84,7 @@ export const Property = ({ axis }) => {
         mutate(`/api/project/${project._id}`);
       },
     });
-  }, [axis, mutate, project, setProject]);
+  }, [axis, mutate, project]);
 
   const logLin = useCallback(() => {
     setProject(

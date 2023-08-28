@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
+
 import { Configuration, OpenAIApi } from 'openai-edge';
 import { systemMessage } from 'lib/utils/systemMessages';
 import { projectService, projectTemplateService } from '@glyphx/business';

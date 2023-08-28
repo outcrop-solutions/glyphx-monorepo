@@ -1,4 +1,4 @@
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
 /**
  * Implements {@link interfaces/fileProcessing/iColumnNameCleaner!IColumnNameCleaner} to provide basic column name cleaning.
  */

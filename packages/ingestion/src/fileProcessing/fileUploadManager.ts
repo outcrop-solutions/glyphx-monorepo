@@ -4,14 +4,14 @@ import {
   BasicFileTransformer,
   BasicParquetProcessor,
   BasicColumnNameCleaner,
-} from '@fileProcessing';
-import {BasicFieldTypeCalculator} from '@fieldProcessing';
+} from './';
+import {BasicFieldTypeCalculator} from '../fieldProcessing';
 import {Readable, PassThrough} from 'node:stream';
 import * as csv from 'csv';
 import {
   IFileInformation,
   IFileProcessingError,
-} from '@interfaces/fileProcessing';
+} from '../interfaces/fileProcessing';
 import {tableService} from '@glyphx/business';
 
 export class FileUploadManager {

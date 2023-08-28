@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
+
 import { modelConfigService } from '@glyphx/business';
 /**
  * Create Default Config

@@ -1,4 +1,4 @@
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
 
 /**
  * This class will take an array of {@link interfaces/fileProcessing/iJoinTableDefinition!IJoinTableDefinition}

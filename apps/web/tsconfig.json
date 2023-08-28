@@ -1,61 +1,25 @@
 {
   "compilerOptions": {
     "target": "ES2015",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",
     "paths": {
-      "@/email/*": [
-        "src/email/*"
-      ],
-      "@/app/*": [
-        "src/app/*"
-      ],
-      "@/config/*": [
-        "src/config/*"
-      ],
-      "@/layouts/*": [
-        "src/layouts/*"
-      ],
-      "@/public/*": [
-        "src/public/*"
-      ],
-      "@/lib/*": [
-        "src/lib/*"
-      ],
-      "@/lib/server": [
-        "src/business/server/*"
-      ],
-      "@/lib/client": [
-        "src/lib/client/*"
-      ],
-      "@/pages/*": [
-        "src/pages/*"
-      ],
-      "@/hooks/*": [
-        "src/hooks/*"
-      ],
-      "@/providers/*": [
-        "src/providers/*"
-      ],
-      "@/state/*": [
-        "src/state/*"
-      ],
-      "@/services/*": [
-        "src/services/*"
-      ],
-      "@/styles/*": [
-        "src/styles/*"
-      ],
-      "@/types/*": [
-        "src/types/*"
-      ],
-      "@/utils/*": [
-        "src/utils/*"
-      ]
+      "@/email/*": ["src/email/*"],
+      "@/app/*": ["src/app/*"],
+      "@/config/*": ["src/config/*"],
+      "@/layouts/*": ["src/layouts/*"],
+      "@/public/*": ["src/public/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/lib/server": ["src/business/server/*"],
+      "@/lib/client": ["src/lib/client/*"],
+      "@/pages/*": ["src/pages/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/providers/*": ["src/providers/*"],
+      "@/state/*": ["src/state/*"],
+      "@/services/*": ["src/services/*"],
+      "@/styles/*": ["src/styles/*"],
+      "@/types/*": ["src/types/*"],
+      "@/utils/*": ["src/utils/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -69,6 +33,8 @@
     "moduleResolution": "node",
     "isolatedModules": true,
     "jsx": "preserve",
+    "experimentalDecorators": true, // required for correct next transpilation
+    "emitDecoratorMetadata": true,
     "plugins": [
       {
         "name": "next"
@@ -85,7 +51,5 @@
     "src/__tests__/utilities",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

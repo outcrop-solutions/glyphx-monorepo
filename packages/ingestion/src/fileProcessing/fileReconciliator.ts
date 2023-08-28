@@ -1,4 +1,4 @@
-import {IFileInformation} from '@interfaces/fileProcessing';
+import {IFileInformation} from '../interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 import {generalPurposeFunctions} from '@glyphx/core';
 

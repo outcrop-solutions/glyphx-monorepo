@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { annotationService } from '@glyphx/business';
-import { Session } from 'next-auth';
+
 /**
  * Get Project Annotations
  *

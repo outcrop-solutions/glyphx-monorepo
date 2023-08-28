@@ -74,7 +74,7 @@ export const State = ({ item, idx }) => {
         },
       });
     }
-  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url]);
+  }, [idx, isBrowser, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url]);
 
   const deleteState = useCallback(() => {
     setModals(

@@ -1,4 +1,4 @@
-import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
+import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
 import {error} from '@glyphx/core';
 import {NumberFieldChecker} from './numberFieldChecker';
 // eslint-disable-next-line node/no-unpublished-import

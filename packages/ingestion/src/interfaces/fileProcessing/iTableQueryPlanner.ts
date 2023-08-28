@@ -1,5 +1,5 @@
 import {IJoinTableDefinition} from './iJoinTableDefinition';
-import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
+import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../../util/constants';
 
 /**
  * Our ITableQueryPlanner will process a {@link interfaces/fileProcessing/iJoinTableDefinition!IJoinTableDefinition} object

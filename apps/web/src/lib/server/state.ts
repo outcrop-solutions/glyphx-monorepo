@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
+
 import { stateService, activityLogService } from '@glyphx/business';
 import { formatUserAgent } from 'lib/utils';
 import { database as databaseTypes } from '@glyphx/types';

@@ -1,4 +1,4 @@
-import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
+import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
 import {error} from '@glyphx/core';
 
 export class DateFieldChecker

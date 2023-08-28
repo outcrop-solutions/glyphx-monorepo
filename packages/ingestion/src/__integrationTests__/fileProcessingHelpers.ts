@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {aws, error, generalPurposeFunctions} from '@glyphx/core';
 import {createReadStream} from 'fs';
-import {IJoinTableDefinition} from '@interfaces/fileProcessing';
+import {IJoinTableDefinition} from 'interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 import {GLYPHX_ID_COLUMN_NAME} from 'fileProcessing/basicFileTransformer';
 export async function removeS3File(filePath: string, s3Bucket: aws.S3Manager) {

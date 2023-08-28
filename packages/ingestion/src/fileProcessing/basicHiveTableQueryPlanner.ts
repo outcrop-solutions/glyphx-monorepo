@@ -1,8 +1,8 @@
 import {
   IJoinTableDefinition,
   ITableQueryPlanner,
-} from '@interfaces/fileProcessing';
-import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
+} from '../interfaces/fileProcessing';
+import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../util/constants';
 import {generalPurposeFunctions} from '@glyphx/core';
 import {fileIngestion} from '@glyphx/types';
 

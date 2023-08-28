@@ -1,4 +1,5 @@
 import NextAuth from 'next-auth';
+import type { NextAuthOptions } from 'next-auth/index';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
@@ -7,16 +8,16 @@ import { signInHtml, signInText, EmailClient } from '@glyphx/email';
 import { customerPaymentService } from '@glyphx/business';
 import clientPromise from 'lib/server/mongodb';
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   callbacks: {
     session: async ({ session, user }) => {
       if (session?.user) {
         const customerPayment = await customerPaymentService.getPayment(user.email);
-
+        //@ts-ignore
         session.user.userId = user.id;
-
         if (customerPayment) {
+          //@ts-ignore
           session.user.subscription = customerPayment.subscriptionType;
         }
       }
@@ -72,9 +73,9 @@ export const authOptions = {
     }),
     GoogleProvider({
       // eslint-disable-next-line turbo/no-undeclared-env-vars
-      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
       // eslint-disable-next-line turbo/no-undeclared-env-vars
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET || undefined,

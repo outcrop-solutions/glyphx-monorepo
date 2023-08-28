@@ -1,5 +1,4 @@
 import { web as webTypes, database as databaseTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { Session } from 'next-auth';
 
 /******************** INGESTION *********************/
 /**

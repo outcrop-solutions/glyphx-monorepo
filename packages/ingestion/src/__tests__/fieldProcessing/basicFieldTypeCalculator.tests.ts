@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {BasicFieldTypeCalculator} from '@fieldProcessing';
+import {BasicFieldTypeCalculator} from 'fieldProcessing';
 import Stream from 'stream';
 import {error} from '@glyphx/core';
 import {fileIngestion} from '@glyphx/types';

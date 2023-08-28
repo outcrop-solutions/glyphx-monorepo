@@ -8,7 +8,7 @@ import {
   BasicHiveViewQueryPlanner,
   BasicJoinProcessor,
 } from '@fileProcessing';
-import {IJoinTableDefinition} from '@interfaces/fileProcessing';
+import {IJoinTableDefinition} from 'interfaces/fileProcessing';
 import {fileIngestion} from '@glyphx/types';
 
 const MOCK_FILE_INFORMATION = [
