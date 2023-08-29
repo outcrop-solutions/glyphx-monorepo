@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Fuse from 'fuse.js';
 import { useRecoilState, useRecoilValue } from 'recoil';
-
 import { rightSidebarControlAtom } from 'state/ui';
 import { workspaceAtom } from 'state/workspace';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 // importing fuse
 import SearchInputIcon from 'public/svg/search-input-icon.svg';
 import SearchFilterIcon from 'public/svg/search-filter-icon.svg';
 import ProjectResultIcon from 'public/svg/project-result-icon.svg';
 import { useParams } from 'next/navigation';
+import { WritableDraft } from 'immer/dist/internal';
+import produce from 'immer';
+import { Route } from 'next';
 
 export function SearchModal() {
-  const router = useRouter();
-  const { workspaceId } = useParams();
+  const params = useParams();
+  const { workspaceId } = params as { workspaceId: string };
 
   const [rightSidebar, setRightSidebar] = useRecoilState(rightSidebarControlAtom);
   const workspace = useRecoilValue(workspaceAtom);
   const [query, setQuery] = useState('');
-  const [queryResult, setQueryResult] = useState([]);
+  const [queryResult, setQueryResult] = useState([] as Fuse.FuseResult<databaseTypes.IProject>[]);
 
   // configure fuse
   const fuse = useMemo(
@@ -46,9 +48,7 @@ export function SearchModal() {
   // TODO: Fix this use effect and stop it from constantly running
   useEffect(() => {
     if (query) {
-      setQueryResult((prev) => {
-        return fuse.search(query);
-      });
+      setQueryResult(fuse.search(query));
     }
   }, [fuse, query]);
 
@@ -56,7 +56,11 @@ export function SearchModal() {
   useEffect(() => {
     const keyHandler = ({ keyCode }) => {
       if (!rightSidebar || keyCode !== 27) return;
-      setRightSidebar(false);
+      setRightSidebar(
+        produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+          draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED;
+        })
+      );
     };
     /**
      * Used to handle clicking outside of search modal
@@ -64,11 +68,16 @@ export function SearchModal() {
      */
     const clickHandler = (e) => {
       try {
+        // @ts-ignore
         if (document.getElementById('search').contains(e.target)) {
           // Clicked in box
         } else {
           // Clicked outside the box
-          setRightSidebar(false);
+          setRightSidebar(
+            produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+              draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED;
+            })
+          );
         }
       } catch (error) {
         // do nothing
@@ -87,7 +96,11 @@ export function SearchModal() {
       id="search"
       onClick={(e) => {
         e.stopPropagation();
-        setRightSidebar('search');
+        setRightSidebar(
+          produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+            draft.type = webTypes.constants.RIGHT_SIDEBAR_CONTROL.SEARCH;
+          })
+        );
       }}
       className="input-group flex flex-col justify-center relative rounded border border-gray z-60"
     >
@@ -123,7 +136,7 @@ export function SearchModal() {
                   {workspace.projects.slice(0, 5).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/${workspaceId}/${value._id}`}>
+                        <Link href={`/${workspaceId}/${value._id}` as Route}>
                           <a className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
                             <ProjectResultIcon />
                             <span>{value.name}</span>
@@ -143,7 +156,7 @@ export function SearchModal() {
                   {queryResult.slice(0, 10).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/${workspaceId}/${value.item.id}`}>
+                        <Link href={`/${workspaceId}/${value.item._id}` as Route}>
                           <a
                             // onClick={() => {
                             //   setShowSearchModalOpen(false);

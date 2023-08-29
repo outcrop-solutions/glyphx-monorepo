@@ -9,10 +9,12 @@ import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
 import { useParams } from 'next/navigation';
+import { Route } from 'next';
 
 export const NewProject = ({ exit }) => {
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
   const workspace = useRecoilValue(workspaceAtom);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -20,11 +22,11 @@ export const NewProject = ({ exit }) => {
   const handleCreateProject = useCallback(() => {
     setLoading(true);
     api({
-      ..._createProject(workspace._id.toString(), name, description),
+      ..._createProject(workspace._id!.toString(), name, description),
       onSuccess: (data) => {
         setLoading(false);
         exit();
-        router.push(`/account/${workspaceSlug}/${data._id}`);
+        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
       },
     });
   }, [description, exit, name, router, workspace._id, workspaceSlug]);

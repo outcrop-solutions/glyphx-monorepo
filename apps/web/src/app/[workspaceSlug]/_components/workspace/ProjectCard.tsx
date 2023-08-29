@@ -20,17 +20,19 @@ import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 import { rightSidebarControlAtom } from 'state';
 import { WritableDraft } from 'immer/dist/internal';
 import { useParams } from 'next/navigation';
+import { Route } from 'next';
 
 export const ProjectCard = ({ idx, project }) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
 
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
   const navigate = (slug) => {
-    router.push(`/account/${slug}/${project._id}`);
+    router.push(`/account/${slug}/${project._id}` as Route);
   };
 
   const deleteProject = useCallback(() => {

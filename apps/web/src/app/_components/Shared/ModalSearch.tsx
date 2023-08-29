@@ -1,7 +1,8 @@
-import { useRef, useEffect } from "react";
-import Link from "next/link";
-import { Transition } from "utils/Transition";
-import React from "react";
+import { useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { Transition } from 'utils/Transition';
+import React from 'react';
+import { Route } from 'next';
 
 export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
   const modalContent = useRef(null);
@@ -10,11 +11,12 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }) => {
-      if (!modalOpen || modalContent.current.contains(target)) return;
+      // @ts-ignore
+      if (!modalOpen || modalContent.current?.contains(target)) return;
       setModalOpen(false);
     };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
+    document.addEventListener('click', clickHandler);
+    return () => document.removeEventListener('click', clickHandler);
   });
 
   // close if the esc key is pressed
@@ -23,11 +25,12 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
       if (!modalOpen || keyCode !== 27) return;
       setModalOpen(false);
     };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
+    document.addEventListener('keydown', keyHandler);
+    return () => document.removeEventListener('keydown', keyHandler);
   });
 
   useEffect(() => {
+    // @ts-ignore
     modalOpen && searchInput.current.focus();
   }, [modalOpen]);
 
@@ -35,7 +38,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
     <>
       {/* Modal backdrop */}
       <Transition
-      appear={null}
+        appear={null}
         className="fixed inset-0 bg-primary-dark-blue bg-opacity-30 z-50 transition-opacity"
         show={modalOpen}
         enter="transition ease-out duration-200"
@@ -48,7 +51,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
       />
       {/* Modal dialog */}
       <Transition
-      appear={null}
+        appear={null}
         id={id}
         className="fixed inset-0 z-50 overflow-hidden flex items-start top-20 mb-4 justify-center transform px-4 sm:px-6"
         role="dialog"
@@ -61,10 +64,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
         leaveStart="opacity-100 translate-y-0"
         leaveEnd="opacity-0 translate-y-4"
       >
-        <div
-          ref={modalContent}
-          className="z-60 overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg"
-        >
+        <div ref={modalContent} className="z-60 overflow-auto max-w-2xl w-full max-h-full rounded shadow-lg">
           {/* Search form */}
           <form className="border-b border-gray">
             <div className="relative">
@@ -78,11 +78,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
                 placeholder="Search Anything…"
                 ref={searchInput}
               />
-              <button
-                className="absolute inset-0 right-auto group"
-                type="submit"
-                aria-label="Search"
-              >
+              <button className="absolute inset-0 right-auto group" type="submit" aria-label="Search">
                 <svg
                   className="w-4 h-4 shrink-0 fill-current text-gray group-hover:text-gray ml-4 mr-2"
                   viewBox="0 0 16 16"
@@ -97,12 +93,10 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
           <div className="py-4 px-2">
             {/* Recent searches */}
             <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">
-                Recent searches
-              </div>
+              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">Recent searches</div>
               <ul className="text-sm">
                 <li>
-                  <Link href="#0">
+                  <Link href={'#0' as Route}>
                     <a
                       className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
                       onClick={() => setModalOpen(!modalOpen)}
@@ -121,12 +115,10 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
             </div>
             {/* Recent pages */}
             <div className="mb-3 last:mb-0">
-              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">
-                Recent Projects
-              </div>
+              <div className="text-xs font-semibold text-gray uppercase px-2 mb-2">Recent Projects</div>
               <ul className="text-sm">
                 <li>
-                  <Link href="#0">
+                  <Link href={'#0' as Route}>
                     <a
                       onClick={() => setModalOpen(!modalOpen)}
                       className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
@@ -138,10 +130,8 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
                         <path d="M14 0H2c-.6 0-1 .4-1 1v14c0 .6.4 1 1 1h8l5-5V1c0-.6-.4-1-1-1zM3 2h10v8H9v4H3V2z" />
                       </svg>
                       <span>
-                        <span className="font-medium text-gray group-hover:text-white">
-                          Project #1
-                        </span>{" "}
-                        - Filter#1 / … / Comments
+                        <span className="font-medium text-gray group-hover:text-white">Project #1</span> - Filter#1 / …
+                        / Comments
                       </span>
                     </a>
                   </Link>

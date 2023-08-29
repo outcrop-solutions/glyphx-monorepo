@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { SetStateAction, useEffect, useState } from 'react';
 import { StateList } from './StateList';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { projectAtom } from 'state/project';
@@ -28,10 +28,13 @@ export const States = () => {
           name,
           project._id as unknown as string,
           camera as unknown as webTypes.Camera,
-          { width: viewerPosition?.w || 300, height: viewerPosition?.h || 200 },
+          {
+            width: (viewerPosition as webTypes.IViewerPosition).w || 300,
+            height: (viewerPosition as webTypes.IViewerPosition).h || 200,
+          },
           image.imageHash
         ),
-        setLoading: (state) => setIsSubmitting(state),
+        setLoading: (state) => setIsSubmitting(state as SetStateAction<boolean>),
         onError: (_: any) => {
           setCamera({});
           setImage({ imageHash: false });

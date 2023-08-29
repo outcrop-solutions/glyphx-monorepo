@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 
 const useProject = () => {
-  const { projectId } = useParams();
+  const params = useParams();
+  const { projectId } = params as { projectId: string };
   const apiRoute = `/api/project/${projectId}`;
   const { data, error } = useSWR(projectId && `${apiRoute}`, {
     revalidateIfStale: false,

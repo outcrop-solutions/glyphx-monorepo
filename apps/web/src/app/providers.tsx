@@ -10,7 +10,6 @@ import TopBarProgress from 'react-topbar-progress-indicator';
 import { SWRConfig } from 'swr';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-
 import { RecoilRoot } from 'recoil';
 import progressBarConfig from 'config/progress-bar';
 import swrConfig from 'config/swr';
@@ -18,6 +17,7 @@ import { Toaster } from 'react-hot-toast';
 import useToggleViewerOnRouteChange from 'services/useToggleViewerOnRouteChange';
 import { Modals } from 'app/_components/Modals';
 import { Loading } from 'app/_components/Loaders/Loading';
+import { Session } from 'next-auth';
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
@@ -25,7 +25,7 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export const Providers = ({ children, session }: { children: React.ReactNode; session }) => {
+export const Providers = ({ children, session }: { children: React.ReactNode; session: Session | null }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   // Track pageviews
@@ -48,13 +48,17 @@ export const Providers = ({ children, session }: { children: React.ReactNode; se
   Router.events.on('routeChangeComplete', () => setProgress(false));
   TopBarProgress.config(progressBarConfig());
 
+  const sesh = { ...session } as Session;
+
   useToggleViewerOnRouteChange();
 
   return (
-    <SessionProvider session={...session}>
+    <SessionProvider session={sesh}>
+      {/* @ts-ignore */}
       <SWRConfig value={swrOptions}>
         <RecoilRoot>
           <PostHogProvider client={posthog}>
+            {/* @ts-ignore */}
             <DndProvider backend={HTML5Backend}>
               <Toaster position="bottom-left" toastOptions={{ duration: 2000 }} />
               {progress && <TopBarProgress />}

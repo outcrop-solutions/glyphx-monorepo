@@ -38,13 +38,16 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
           name,
           modalContent.data._id as unknown as string,
           camera as unknown as webTypes.Camera,
-          { width: viewerPosition.w, height: viewerPosition.h } as unknown as webTypes.Aspect,
+          {
+            width: (viewerPosition as webTypes.IViewerPosition).w,
+            height: (viewerPosition as webTypes.IViewerPosition).h,
+          } as unknown as webTypes.Aspect,
           image.imageHash
         ),
         setLoading: (state) =>
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals[0].isSubmitting = state;
+              draft.modals[0].isSubmitting = state as boolean;
             })
           ),
         onError: (_: any) => {
@@ -68,21 +71,7 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
         },
       });
     }
-  }, [
-    camera,
-    modalContent.data._id,
-    name,
-    setCamera,
-    setModals,
-    setProject,
-    mutate,
-    image,
-    setImage,
-    // @ts-ignore
-    viewerPosition.w,
-    // @ts-ignore
-    viewerPosition.h,
-  ]);
+  }, [camera, modalContent.data._id, name, setCamera, setModals, setProject, mutate, image, setImage, viewerPosition]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">

@@ -13,7 +13,7 @@ export const Toggles = () => {
   const [configDirty, _] = useRecoilState(togglesConfigDirtyAtom);
 
   const saveChanges = useCallback(async () => {
-    await api({ ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig) });
+    await api({ ..._updateConfig(config?._id!.toString(), config as databaseTypes.IModelConfig) });
   }, [config]);
 
   return (

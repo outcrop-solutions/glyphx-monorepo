@@ -3,6 +3,7 @@ import React, { Fragment } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline';
 import Image from 'next/image';
+import { Route } from 'next';
 // DUMMY DATA
 const user = {
   name: 'Bryan Holster',
@@ -100,7 +101,7 @@ export default function Dashboard() {
                         {navigation.map((item) => (
                           <a
                             key={item.name}
-                            href={item.href}
+                            href={item.href as Route}
                             className={classNames(
                               item.current
                                 ? 'border-indigo-500 text-white'
@@ -145,7 +146,7 @@ export default function Dashboard() {
                               <Menu.Item key={item.name}>
                                 {({ active }) => (
                                   <a
-                                    href={item.href}
+                                    href={item.href as Route}
                                     className={classNames(active ? 'bg-gray' : '', 'block px-4 py-2 text-sm text-gray')}
                                   >
                                     {item.name}
@@ -177,7 +178,7 @@ export default function Dashboard() {
                       <Disclosure.Button
                         key={item.name}
                         as="a"
-                        href={item.href}
+                        href={item.href as Route}
                         className={classNames(
                           item.current
                             ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
@@ -212,7 +213,7 @@ export default function Dashboard() {
                         <Disclosure.Button
                           key={item.name}
                           as="a"
-                          href={item.href}
+                          href={item.href as Route}
                           className="block px-4 py-2 text-base font-medium text-gray hover:text-gray hover:bg-gray"
                         >
                           {item.name}

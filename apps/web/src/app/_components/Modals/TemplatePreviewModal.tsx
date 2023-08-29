@@ -12,10 +12,12 @@ import ColZIcon from 'public/svg/col-z-icon.svg';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { useParams } from 'next/navigation';
+import { Route } from 'next';
 
 export const TemplatePreviewModal = ({ modalContent }: webTypes.TemplatePreviewModalProps) => {
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
   const [loading, setLoading] = useState(false);
   const setModals = useSetRecoilState(modalsAtom);
   const { _id } = useRecoilValue(workspaceAtom);
@@ -38,9 +40,9 @@ export const TemplatePreviewModal = ({ modalContent }: webTypes.TemplatePreviewM
   // mutations
   const getTemplate = useCallback(() => {
     api({
-      ..._createProjectFromTemplate(_id.toString(), data),
+      ..._createProjectFromTemplate(_id!.toString(), data),
       setLoading: (state) => {
-        setLoading(state);
+        setLoading(state as boolean);
       },
       onSuccess: (data: any) => {
         setLoading(false);
@@ -49,7 +51,7 @@ export const TemplatePreviewModal = ({ modalContent }: webTypes.TemplatePreviewM
             draft.modals.splice(0, 1);
           })
         );
-        router.push(`/account/${workspaceSlug}/${data._id}`);
+        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
       },
     });
   }, [_id, data, router, setModals, workspaceSlug]);

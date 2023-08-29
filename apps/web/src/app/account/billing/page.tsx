@@ -6,8 +6,8 @@ import Link from 'next/link';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { Modal } from 'app/_components/Modals/Modal';
 import { api, _createSubscription } from 'lib/client';
+import { Route } from 'next';
 // import { redirectToCheckout } from 'lib/server';
 
 //  if (!Initializer.initedField) {
@@ -21,6 +21,9 @@ import { api, _createSubscription } from 'lib/client';
 //    StripeClient.getInvoices(customerPayment?.paymentId),
 //    StripeClient.getProducts(),
 //  ]);
+
+const invoices = [];
+
 const Billing = () => {
   const [isSubmitting, setSubmittingState] = useState(false);
   const [showModal, setModalVisibility] = useState(false);
@@ -30,7 +33,7 @@ const Billing = () => {
   const subscribe = (priceId) => {
     api({
       ..._createSubscription(priceId),
-      setLoading: setSubmittingState,
+      setLoading: (state) => setSubmittingState(state as boolean),
       onSuccess: (data) => {
         // return (async () => redirectToCheckout(data.sessionId))();
       },
@@ -94,20 +97,25 @@ const Billing = () => {
               {invoices.map((invoice, index) => (
                 <tr key={index} className="text-sm hover:bg-secondary-midnight">
                   <td className="px-3 py-5">
-                    <Link href={invoice.hosted_invoice_url}>
+                    {/* @ts-ignore */}
+                    <Link href={invoice.hosted_invoice_url as Route}>
                       <a className="text-blue-600" target="_blank">
+                        {/* @ts-ignore */}
                         {invoice.number}
                       </a>
                     </Link>
                   </td>
                   <td className="py-5">
+                    {/* @ts-ignore */}
                     {formatDistance(new Date(invoice.created * 1000), new Date(), {
                       addSuffix: true,
                     })}
                   </td>
+                  {/* @ts-ignore */}
                   <td className="py-5">{invoice.status}</td>
                   <td className="py-5">
-                    <Link href={invoice.hosted_invoice_url}>
+                    {/* @ts-ignore */}
+                    <Link href={invoice.hosted_invoice_url as Route}>
                       <a className="text-blue-600" target="_blank">
                         &rarr;
                       </a>

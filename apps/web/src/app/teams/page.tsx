@@ -11,6 +11,7 @@ import Button from 'app/_components/Button';
 import { _joinWorkspace, api } from 'lib/client';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
+import { Route } from 'next';
 
 export default function Invite() {
   const router = useRouter();
@@ -21,10 +22,10 @@ export default function Invite() {
   const join = () => {
     api({
       ..._joinWorkspace(workspace.workspaceCode),
-      setLoading: setSubmittingState,
+      setLoading: (state) => setSubmittingState(state as boolean),
       onError: (status) => {
         if (status === 422) {
-          router.replace('/account');
+          router.replace('/account' as Route);
         }
       },
     });
@@ -44,7 +45,7 @@ export default function Invite() {
                     Join Workspace
                   </Button>
                 ) : (
-                  <Link href="/auth/login">
+                  <Link href={'/auth/login' as Route}>
                     <a className="flex items-center justify-center px-5 py-2 space-x-3 text-black bg-yellow rounded hover:bg-blue-500">
                       Create an account
                     </a>

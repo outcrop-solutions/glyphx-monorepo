@@ -23,6 +23,7 @@ export function DraggableHeaderRenderer({ column, sortDirection, onSort, priorit
 
   const [{ isOver }, drop] = useDrop({
     accept: 'COLUMN_DRAG',
+    // @ts-ignore
     drop({ key }) {
       console.log({ key });
     },

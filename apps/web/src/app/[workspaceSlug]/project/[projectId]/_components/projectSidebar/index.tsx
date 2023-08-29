@@ -21,6 +21,7 @@ export const ProjectSidebar = () => {
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
+      // @ts-ignore
       const coords = sidebar.current.getBoundingClientRect();
       setCoords(coords);
     }

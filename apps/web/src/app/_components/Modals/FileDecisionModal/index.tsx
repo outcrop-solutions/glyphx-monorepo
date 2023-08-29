@@ -9,7 +9,6 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalsAtom, projectAtom } from 'state';
 
 import Button from 'app/_components/Button';
-import { useFileSystem } from 'services';
 import { DecisionBtns } from './DecisionBtns';
 import { CollisionType } from './CollisionType';
 import { cleanNoOps } from 'lib/client/files/transforms/cleanNoOps';
@@ -17,11 +16,10 @@ import { renameAppend } from 'lib/client/files/transforms/renameAppend';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
 
 export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalProps) => {
+  // @ts-ignore
   const [payload, setPayload] = useState<webTypes.IClientSidePayload>(modalContent.data.payload);
-  const [project, setProject] = useRecoilState(projectAtom);
+  const [project, _] = useRecoilState(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
-
-  const { selectFile } = useFileSystem();
 
   const { name, desc, data } = modalContent;
 
@@ -45,7 +43,9 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
   // execute upload/glyph engine
   const upload = useCallback(async () => {
     // forced to filter out no-ops on the fly to allow non-desctructive state ops on toggle
+    // @ts-ignore
     const { cleanPayload, cleanFiles } = cleanNoOps(payload, data.acceptedFiles);
+    // @ts-ignore
     const finalPayload = renameAppend(cleanPayload, data.collisions);
     // get s3 keys for upload
     const keys = finalPayload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
@@ -115,6 +115,7 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
             <div className="font-bold my-2 text-xs">Operation:</div>
           </div>
         </div>
+        {/* @ts-ignore */}
         {data.collisions.map(({ newFile, existingFile, type, operations }, idx) => (
           <div className="grid grid-cols-12 gap-2" key={`${idx}-${type}`}>
             <div className="col-span-2 rounded-md p-2 text-xs">

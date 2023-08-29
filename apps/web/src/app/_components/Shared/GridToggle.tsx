@@ -15,6 +15,7 @@ export function GridToggle() {
   useEffect(() => {
     const clickHandler = ({ target }) => {
       if (!dropdown.current) return;
+      // @ts-ignore
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
     };

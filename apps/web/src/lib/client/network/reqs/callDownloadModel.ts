@@ -12,7 +12,7 @@ export const callDownloadModel = async ({ project, payloadHash, session, url, se
   );
   await api({
     ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       if (window?.core) {
         setResize(150);
         setDrawer(true);

@@ -23,7 +23,7 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
 
   const copyToClipboard = () => toast.success('Copied to clipboard!');
 
-  const verifiedEmail = verifyEmail === data.user.email;
+  const verifiedEmail = verifyEmail === data?.user.email;
 
   const handleVerifyEmailChange = (event) => setVerifyEmail(event.target.value);
 
@@ -34,7 +34,7 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state as boolean;
           })
         ),
       onSuccess: () => {
@@ -58,9 +58,9 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
         <span>Enter your email to continue:</span>
         <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded my-4">
           <strong>
-            <span className="overflow-x-auto">{data.user.email}</span>
+            <span className="overflow-x-auto">{data?.user.email}</span>
           </strong>
-          <CopyToClipboard onCopy={copyToClipboard} text={data.user.email}>
+          <CopyToClipboard onCopy={copyToClipboard} text={data?.user.email}>
             <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
           </CopyToClipboard>
         </div>

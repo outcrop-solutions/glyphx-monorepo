@@ -36,6 +36,7 @@ export const GridContainer = () => {
   return (
     <div className="relative h-full w-full border-r border-gray">
       <ModelFooter />
+      {/* @ts-ignore */}
       <SplitPane
         style={{ overflow: 'scroll', height: `${getPaneHeight()}px` }}
         key={resize}

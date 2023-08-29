@@ -1,8 +1,9 @@
 {
   "extends": "@glyphx/tsconfig/node18.json",
   "include": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts"],
+  "lib": ["es6", "dom"],
   "compilerOptions": {
-	  "experimentalDecorators": true,
-	  "emitDecoratorMetadata": true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

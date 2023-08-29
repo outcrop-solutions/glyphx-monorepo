@@ -1,6 +1,5 @@
 import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
 import { FILE_RULES } from './rules';
-
 /**
  * @note populates file error modal
  * @param payload
@@ -14,7 +13,7 @@ export const runRulesEngine = (
   acceptedFiles: File[]
 ): webTypes.RuleWithData<webTypes.IFileRule>[] | false => {
   const stats = FILE_RULES.map((rule: webTypes.IFileRule) => {
-    const data = rule.condition(payload, existingFiles, acceptedFiles);
+    const data = rule?.condition!(payload, existingFiles, acceptedFiles);
     return { ...rule, isSubmitting: false, data: data };
   });
 

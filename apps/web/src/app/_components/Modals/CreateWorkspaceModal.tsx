@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import { Route } from 'next';
 
 export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceModalProps) => {
   const router = useRouter();
@@ -26,7 +27,7 @@ export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceM
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state as boolean;
           })
         ),
       onSuccess: (result) => {
@@ -35,7 +36,7 @@ export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceM
             draft.modals.splice(0, 1);
           })
         );
-        router.replace(`/account/${result.slug}`);
+        router.replace(`/account/${result.slug}` as Route);
       },
     });
   };

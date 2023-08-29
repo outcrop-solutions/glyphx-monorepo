@@ -9,12 +9,14 @@ import { WritableDraft } from 'immer/dist/internal';
 import { LoadingDots } from '../Loaders/LoadingDots';
 import Button from '../Button';
 import { useParams } from 'next/navigation';
+import { Route } from 'next';
 
 // FIXME: NOTE: completions require streaming + RSC in feature/next-13.4-layout - placeholder for now so Will can mark it up
 export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendationsModalProps) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
   const { templates } = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const { _id } = useRecoilValue(workspaceAtom);
@@ -22,9 +24,9 @@ export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendati
   const getTemplate = useCallback(
     (template) => {
       api({
-        ..._createProjectFromTemplate(_id.toString(), template),
+        ..._createProjectFromTemplate(_id!.toString(), template),
         setLoading: (state) => {
-          setLoading(state);
+          setLoading(state as boolean);
         },
         onSuccess: (data: any) => {
           setLoading(false);
@@ -33,7 +35,7 @@ export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendati
               draft.modals.splice(0, 1);
             })
           );
-          router.push(`/account/${workspaceSlug}/${data._id}`);
+          router.push(`/account/${workspaceSlug}/${data._id}` as Route);
         },
       });
     },

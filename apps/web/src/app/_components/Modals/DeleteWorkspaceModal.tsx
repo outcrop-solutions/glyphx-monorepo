@@ -15,11 +15,13 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
 import { useParams } from 'next/navigation';
+import { Route } from 'next';
 
 export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceModalProps) => {
   const { mutate } = useSWRConfig();
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
   const setModals = useSetRecoilState(modalsAtom);
   const setWorkspace = useSetRecoilState(workspaceAtom);
 
@@ -38,7 +40,7 @@ export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceM
         setLoading: (state) =>
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals[0].isSubmitting = state;
+              draft.modals[0].isSubmitting = state as boolean;
             })
           ),
         onSuccess: () => {
@@ -47,8 +49,9 @@ export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceM
               draft.modals.splice(0, 1);
             })
           );
+          // @ts-ignore
           setWorkspace(null);
-          router.replace('/account');
+          router.replace('/account' as Route);
         },
       });
   };

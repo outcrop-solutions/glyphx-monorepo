@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useParams } from 'next/navigation';
 
 const Payment = () => {
   const searchParams = useSearchParams();
@@ -11,12 +10,12 @@ const Payment = () => {
         <div className="flex flex-col items-center justify-center pt-10 pb-5 mx-auto">
           <h1 className="text-5xl font-bold text-center">
             <span className="block">Subscription Purchase:</span>
-            <span className={`block ${searchParams.status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-              {searchParams.status === 'success' ? 'Success' : 'Cancelled'}
+            <span className={`block ${searchParams![0].status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+              {searchParams![0].status === 'success' ? 'Success' : 'Cancelled'}
             </span>
           </h1>
           <p className="mt-5 text-center text-gray-600">
-            {searchParams.status === 'success'
+            {searchParams![0].status === 'success'
               ? 'Thank you for your purchase!'
               : 'You can come back to the billing page at a later time.'}
           </p>

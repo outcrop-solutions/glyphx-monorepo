@@ -55,11 +55,11 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
   const createProjectTemplate = (event) => {
     event.preventDefault();
     api({
-      ..._createProjectTemplate(modalContent.data._id.toString(), name, desc, properties),
+      ..._createProjectTemplate(modalContent.data._id!.toString(), name, desc, properties),
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state as boolean;
           })
         ),
       onError: (_: any) => {

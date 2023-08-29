@@ -12,7 +12,7 @@ export const handleCollisionCase = (
   columnsHash: string,
   existingHashes: { fileColumnsHash: string; columnsHash: string }[],
   idx: number
-): webTypes.constants.COLLISION_CASE => {
+): webTypes.constants.COLLISION_CASE | undefined => {
   const fileCollision: boolean = fileColumnsHash === existingHashes[idx]?.fileColumnsHash;
   const colCollision: boolean = columnsHash === existingHashes[idx]?.columnsHash;
   if (fileCollision && colCollision) {
@@ -21,5 +21,7 @@ export const handleCollisionCase = (
     return webTypes.constants.COLLISION_CASE.FILE_NAME;
   } else if (colCollision) {
     return webTypes.constants.COLLISION_CASE.COLUMNS;
+  } else {
+    return undefined;
   }
 };

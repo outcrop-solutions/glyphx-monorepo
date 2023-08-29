@@ -35,7 +35,7 @@ export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps)
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state as boolean;
           })
         ),
       onSuccess: (data) => {

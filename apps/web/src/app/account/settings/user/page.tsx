@@ -14,6 +14,7 @@ import { _updateWorkspaceName, _updateWorkspaceSlug, api } from 'lib/client';
 import { useRecoilValue } from 'recoil';
 import { workspaceAtom } from 'state';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
+import { Route } from 'next';
 
 const General = () => {
   const router = useRouter();
@@ -38,7 +39,7 @@ const General = () => {
     event.preventDefault();
     api({
       ..._updateWorkspaceName({ slug: workspace.slug, name }),
-      setLoading: setSubmittingState,
+      setLoading: (state) => setSubmittingState(state as boolean),
     });
   };
 
@@ -46,9 +47,9 @@ const General = () => {
     event.preventDefault();
     api({
       ..._updateWorkspaceSlug({ slug: workspace.slug, newSlug: slug }),
-      setLoading: setSubmittingState,
+      setLoading: (state) => setSubmittingState(state as boolean),
       onSuccess: (data) => {
-        router.replace(`/account/${data?.slug}/settings/general`);
+        router.replace(`/account/${data?.slug}/settings/general` as Route);
       },
     });
   };

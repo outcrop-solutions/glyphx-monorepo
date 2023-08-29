@@ -4,12 +4,13 @@ import { FallbackProps } from 'react-error-boundary';
 import { useRouter } from 'next/navigation';
 
 import ProjectErrorIcon from 'public/svg/project-error-icon.svg';
+import { Route } from 'next';
 
 export const ProjectErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
   const router = useRouter();
 
   function returnToHome() {
-    router.push('/');
+    router.push('/' as Route);
   }
 
   return (

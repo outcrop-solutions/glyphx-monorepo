@@ -36,8 +36,8 @@ export const RadiusLengths = () => {
 
   const saveChanges = useCallback(async () => {
     await api({
-      ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig),
-      setLoading: (loading) => setConfigDirty(loading),
+      ..._updateConfig(config?._id!.toString(), config as databaseTypes.IModelConfig),
+      setLoading: (loading) => setConfigDirty(loading as boolean),
     });
   }, [config, setConfigDirty]);
 

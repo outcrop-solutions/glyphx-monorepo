@@ -5,6 +5,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
 import { useWorkspace, useWorkspaces } from 'lib/client';
 import { CreateWorkspace } from 'app/[workspaceSlug]/_components/controls/CreateWorkspace';
+import { Route } from 'next';
 
 const Actions = () => {
   const router = useRouter();
@@ -13,7 +14,7 @@ const Actions = () => {
 
   // local state
   const handleWorkspaceChange = (workspace) => {
-    router.replace(`/account/${workspace?.slug}`);
+    router.replace(`/account/${workspace?.slug}` as Route);
   };
 
   return (

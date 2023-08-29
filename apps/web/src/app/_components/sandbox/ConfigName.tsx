@@ -21,7 +21,7 @@ export const ConfigName = ({ config, idx }) => {
   const saveChanges = useCallback(async () => {
     await api({
       ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig),
-      setLoading: (loading) => setConfigDirty(loading),
+      setLoading: (loading) => setConfigDirty(loading as boolean),
       onSuccess: () => setSelected(false),
     });
   }, [config, setConfigDirty]);

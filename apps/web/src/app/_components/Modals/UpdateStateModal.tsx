@@ -25,7 +25,7 @@ export const UpdateStateModal = ({ modalContent }: webTypes.UpdateStateModalProp
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state as boolean;
           })
         ),
       onError: (_: any) => {

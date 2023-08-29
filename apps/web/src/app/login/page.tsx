@@ -5,6 +5,7 @@ import { getProviders, signIn, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 import { useRouter } from 'next/navigation';
+import { Route } from 'next';
 
 const Login = () => {
   const { status } = useSession();
@@ -21,7 +22,7 @@ const Login = () => {
     setSubmittingState(true);
     const response = await signIn('email', { email, redirect: true });
 
-    if (response.error === null) {
+    if (response?.error === null) {
       toast.success(`Please check your email (${email}) for the login link.`, {
         duration: 5000,
       });
@@ -35,14 +36,16 @@ const Login = () => {
     signIn(socialId);
   };
   const signInWithCreds = async () => {
-    router.push('/account');
+    router.push('/account' as Route);
   };
 
   useEffect(() => {
     (async () => {
       const socialProviders = [];
+      // @ts-ignore
       const { email, ...providers } = await getProviders();
       for (const provider in providers) {
+        // @ts-ignore
         socialProviders.push(providers[provider]);
       }
       setSocialProviders([...socialProviders]);
@@ -93,13 +96,16 @@ const Login = () => {
                   className="py-2 bg-secondary-midnight border rounded hover:bg-gray-50 disabled:opacity-75 text-white"
                   disabled={status === 'loading'}
                   onClick={() => {
+                    // @ts-ignore
                     if (provider.name === 'Credentials') {
                       signInWithCreds();
                     } else {
+                      // @ts-ignore
                       signInWithSocial(provider.id);
                     }
                   }}
                 >
+                  {/* @ts-ignore */}
                   {provider.name === 'Credentials' ? 'Dev Mode Sign In' : provider.name}
                 </button>
               ))}

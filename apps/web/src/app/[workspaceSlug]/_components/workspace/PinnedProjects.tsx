@@ -1,9 +1,10 @@
 'use client';
 import { api, _createProjectFromTemplate } from 'lib';
+import type { Route } from 'next';
 import useTemplates from 'lib/client/hooks/useTemplates';
 import Button from 'app/_components/Button';
 import PinnedIcon from 'public/svg/pinned-icon.svg';
-import { useState } from 'react';
+import { SetStateAction, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
 import { useRouter } from 'next/navigation';
@@ -14,7 +15,8 @@ import { useParams } from 'next/navigation';
 
 export const PinnedProjects = () => {
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
   const { data } = useTemplates();
   const setModals = useSetRecoilState(modalsAtom);
   const [loading, setLoading] = useState(false);
@@ -23,13 +25,13 @@ export const PinnedProjects = () => {
 
   const createProjectFromTemplate = (template) => {
     api({
-      ..._createProjectFromTemplate(_id.toString(), template),
+      ..._createProjectFromTemplate(_id!.toString(), template),
       setLoading: (state) => {
-        setLoading(state);
+        setLoading(state as SetStateAction<boolean>);
       },
       onSuccess: (data: any) => {
         setLoading(false);
-        router.push(`/account/${workspaceSlug}/${data._id}`);
+        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
       },
     });
   };

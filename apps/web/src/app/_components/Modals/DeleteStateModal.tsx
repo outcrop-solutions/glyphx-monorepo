@@ -26,11 +26,11 @@ export const DeleteStateModal = ({ modalContent }: webTypes.DeleteStateModalProp
   const deleteState = (event) => {
     event.preventDefault();
     api({
-      ..._deleteState(modalContent.data.id),
+      ..._deleteState(modalContent.data.id.toString()),
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state;
+            draft.modals[0].isSubmitting = state as boolean;
           })
         ),
       onError: (_: any) => {

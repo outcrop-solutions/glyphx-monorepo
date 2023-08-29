@@ -6,6 +6,7 @@ import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
 import { _acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces, useWorkspace } from 'lib/client';
+import { Route } from 'next';
 
 const Welcome = () => {
   const router = useRouter();
@@ -17,18 +18,18 @@ const Welcome = () => {
   const accept = (memberId) => {
     api({
       ..._acceptInvitation(memberId),
-      setLoading: setSubmittingState,
+      setLoading: (state) => setSubmittingState(state as boolean),
     });
   };
   const decline = (memberId) => {
     api({
       ..._declineInvitation(memberId),
-      setLoading: setSubmittingState,
+      setLoading: (state) => setSubmittingState(state as boolean),
     });
   };
 
   const navigate = (workspace) => {
-    router.replace(`/account/${workspace.slug}`);
+    router.replace(`/account/${workspace.slug}` as Route);
   };
 
   return (

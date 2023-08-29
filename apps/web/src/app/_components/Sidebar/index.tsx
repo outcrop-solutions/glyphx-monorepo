@@ -22,8 +22,8 @@ const staticMenu = sidebarMenu();
 const Sidebar = ({ menu }) => {
   const [showMenu, setMenuVisibility] = useState(false);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const router = useRouter();
-  const { projectId } = useParams();
+  const params = useParams();
+  const { projectId } = params as { projectId: string };
   const { data, isLoading } = useWorkspaces();
   const { data: workspace } = useWorkspace();
 

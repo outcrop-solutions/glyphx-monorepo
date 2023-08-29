@@ -8,6 +8,7 @@ import { Controls } from 'app/[workspaceSlug]/_components/controls';
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
 import { useParams } from 'next/navigation';
 import { usePathname } from 'next/navigation';
+import { Route } from 'next';
 
 const Header = () => {
   const project = useRecoilValue(projectAtom);
@@ -15,11 +16,12 @@ const Header = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
   const pathname = usePathname();
 
   const backPressed = () => {
-    router.push(`/account/${project.workspace.slug}`);
+    router.push(`/account/${project.workspace.slug}` as Route);
     setDrawer(false);
     window?.core?.ToggleDrawer(false);
     setProject(null);
@@ -49,14 +51,10 @@ const Header = () => {
         </div>
       ) : (
         <div
-          className={`${
-            workspaceSlug && !router.pathname.includes('settings') ? (workspaceSlug ? 'pl-0 py-3' : '') : ''
-          }`}
+          className={`${workspaceSlug && !pathname!.includes('settings') ? (workspaceSlug ? 'pl-0 py-3' : '') : ''}`}
         >
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {workspaceSlug && !router.pathname.includes('settings')
-              ? `${workspaceSlug} > Recents`
-              : 'Account Dashboard'}
+            {workspaceSlug && !pathname!.includes('settings') ? `${workspaceSlug} > Recents` : 'Account Dashboard'}
           </p>
         </div>
       )}

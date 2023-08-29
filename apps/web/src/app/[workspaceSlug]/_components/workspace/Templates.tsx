@@ -3,6 +3,7 @@ import { ChevronRightIcon } from '@heroicons/react/solid';
 import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
 import { _createDefaultProject, api, useWorkspace } from 'lib/client';
 import { useParams, useRouter } from 'next/navigation';
+import { Route } from 'next';
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -29,7 +30,8 @@ const items = [
 
 export const Templates = () => {
   const router = useRouter();
-  const { workspaceSlug } = useParams();
+  const params = useParams();
+  const { workspaceSlug } = params as { workspaceSlug: string };
   const { data } = useWorkspace();
 
   // mutations
@@ -37,7 +39,7 @@ export const Templates = () => {
     api({
       ..._createDefaultProject(data.workspace._id),
       onSuccess: (data) => {
-        router.push(`/account/${workspaceSlug}/${data._id}`);
+        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
       },
     });
   };
@@ -56,7 +58,7 @@ export const Templates = () => {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-white">
-                  <a href={item.href}>
+                  <a href={item.href as Route}>
                     <span className="absolute inset-0" aria-hidden="true" />
                     {item.name}
                   </a>

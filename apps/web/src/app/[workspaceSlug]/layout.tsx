@@ -17,7 +17,7 @@ const WorkspaceLayout = ({ children }) => {
 
   useEffect(() => {
     if (!data) {
-      // router.replace('/auth/login');
+      // router.replace('/auth/login' as Route);
     }
   }, [data, router]);
 

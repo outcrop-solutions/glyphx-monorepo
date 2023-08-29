@@ -36,7 +36,7 @@ export const callCreateModel = async ({
       );
       api({
         ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
-        onSuccess: async (data) => {
+        onSuccess: (data) => {
           mutate(`/api/project/${project._id}`);
           setLoading({});
           if (window?.core) {

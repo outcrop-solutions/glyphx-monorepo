@@ -1,5 +1,5 @@
 'use client';
-import { useState, Fragment, useEffect } from 'react';
+import { useState, Fragment, useEffect, SetStateAction } from 'react';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
 import { useSession } from 'next-auth/react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -38,7 +38,7 @@ export default function Settings() {
   // mutations
   const changeName = (event) => {
     event.preventDefault();
-    api({ ..._updateUserName(name), setLoading: setSubmittingState });
+    api({ ..._updateUserName(name), setLoading: (state) => setSubmittingState(state as boolean) });
   };
   const changeEmail = (event) => {
     event.preventDefault();
@@ -46,7 +46,7 @@ export default function Settings() {
     if (result) {
       api({
         ..._updateUserEmail(email),
-        setLoading: setSubmittingState,
+        setLoading: (state) => setSubmittingState(state as boolean),
         // onSuccess: () => signOut({ callbackUrl: '/auth/login' }),
       });
     }
@@ -67,9 +67,9 @@ export default function Settings() {
 
   useEffect(() => {
     if (data) {
-      setName(data?.user?.name);
-      setEmail(data?.user?.email);
-      setUserCode(data?.user?.userId);
+      setName(data?.user?.name as SetStateAction<string>);
+      setEmail(data?.user?.email as SetStateAction<string>);
+      setUserCode(data?.user?.userId as SetStateAction<string>);
     }
   }, [data]);
 

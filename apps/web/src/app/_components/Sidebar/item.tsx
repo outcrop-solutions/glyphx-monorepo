@@ -1,4 +1,5 @@
 'use client';
+import { Route } from 'next';
 import Link from 'next/link';
 
 const Item = ({ data, isLoading, isProjectView }) => {
@@ -6,7 +7,7 @@ const Item = ({ data, isLoading, isProjectView }) => {
     <div className="h-6 mb-3 bg-gray-600 rounded animate-pulse" />
   ) : (
     <li>
-      <Link href={data.path}>
+      <Link href={data.path as Route}>
         {!isProjectView ? (
           <a className="text-gray-300 hover:text-white">{data.name}</a>
         ) : (

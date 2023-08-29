@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { Transition } from "utils/Transition";
-import React from "react";
+import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { Transition } from 'utils/Transition';
+import React from 'react';
+import { Route } from 'next';
 
 export function Help() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,16 +14,12 @@ export function Help() {
   useEffect(() => {
     const clickHandler = ({ target }) => {
       if (!dropdown.current) return;
-      if (
-        !dropdownOpen ||
-        dropdown.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
+      // @ts-ignore
+      if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
     };
-    document.addEventListener("click", clickHandler);
-    return () => document.removeEventListener("click", clickHandler);
+    document.addEventListener('click', clickHandler);
+    return () => document.removeEventListener('click', clickHandler);
   });
 
   // close if the esc key is pressed
@@ -31,8 +28,8 @@ export function Help() {
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };
-    document.addEventListener("keydown", keyHandler);
-    return () => document.removeEventListener("keydown", keyHandler);
+    document.addEventListener('keydown', keyHandler);
+    return () => document.removeEventListener('keydown', keyHandler);
   });
 
   return (
@@ -40,18 +37,14 @@ export function Help() {
       <button
         ref={trigger}
         className={`w-8 h-8 flex items-center justify-center bg-gray hover:bg-gray transition duration-150 rounded-full ${
-          dropdownOpen && "bg-gray"
+          dropdownOpen && 'bg-gray'
         }`}
         aria-haspopup="true"
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-expanded={dropdownOpen}
       >
         <span className="sr-only">Need help?</span>
-        <svg
-          className="w-4 h-4"
-          viewBox="0 0 16 16"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg className="w-4 h-4" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
           <path
             className="fill-current text-gray"
             d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm1-3H7V4h2v5z"
@@ -70,25 +63,16 @@ export function Help() {
         leaveStart="opacity-100"
         leaveEnd="opacity-0"
       >
-        <div
-          ref={dropdown}
-          onFocus={() => setDropdownOpen(true)}
-          onBlur={() => setDropdownOpen(false)}
-        >
-          <div className="text-xs font-semibold text-gray uppercase pt-1.5 pb-2 px-4">
-            Need help?
-          </div>
+        <div ref={dropdown} onFocus={() => setDropdownOpen(true)} onBlur={() => setDropdownOpen(false)}>
+          <div className="text-xs font-semibold text-gray uppercase pt-1.5 pb-2 px-4">Need help?</div>
           <ul>
             <li>
-              <Link href="#0">
+              <Link href={'#0' as Route}>
                 <a
                   className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <svg
-                    className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2"
-                    viewBox="0 0 12 12"
-                  >
+                  <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
                     <rect y="3" width="12" height="9" rx="1" />
                     <path d="M2 0h8v2H2z" />
                   </svg>
@@ -97,15 +81,12 @@ export function Help() {
               </Link>
             </li>
             <li>
-              <Link href="#0">
+              <Link href={'#0' as Route}>
                 <a
                   className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <svg
-                    className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2"
-                    viewBox="0 0 12 12"
-                  >
+                  <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
                     <rect y="3" width="12" height="9" rx="1" />
                     <path d="M2 0h8v2H2z" />
                   </svg>
@@ -114,15 +95,12 @@ export function Help() {
               </Link>
             </li>
             <li>
-              <Link href="#0">
+              <Link href={'#0' as Route}>
                 <a
                   className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <svg
-                    className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2"
-                    viewBox="0 0 12 12"
-                  >
+                  <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
                     <rect y="3" width="12" height="9" rx="1" />
                     <path d="M2 0h8v2H2z" />
                   </svg>

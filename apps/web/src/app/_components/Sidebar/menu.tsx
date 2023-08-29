@@ -3,7 +3,8 @@ import Item from './item';
 import { useParams } from 'next/navigation';
 
 const Menu = ({ data, isLoading, showMenu }) => {
-  const { projectId } = useParams();
+  const params = useParams();
+  const { projectId } = params as { projectId: string };
   return showMenu ? (
     <div className="space-y-2">
       {!projectId ? <h5 className="text-sm font-bold text-gray-400">{data.name}</h5> : <></>}

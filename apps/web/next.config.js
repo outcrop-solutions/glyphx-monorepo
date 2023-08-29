@@ -38,6 +38,11 @@ module.exports = {
   experimental: {
     // gives us statically types routes
     typedRoutes: true,
+    turbo: {
+      loaders: {
+        '.svg': ['@svgr/webpack'],
+      },
+    },
     turbotrace: {
       // control the log level of the turbotrace, default is `error`
       logLevel: 'error',

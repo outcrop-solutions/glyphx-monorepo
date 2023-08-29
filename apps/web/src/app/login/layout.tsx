@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { Route } from 'next';
 
 const AuthLayout = ({ children }) => {
   const router = useRouter();
@@ -9,7 +10,7 @@ const AuthLayout = ({ children }) => {
 
   useEffect(() => {
     if (data) {
-      router.push('/account');
+      router.push('/account' as Route);
     }
   }, [data, router]);
 
