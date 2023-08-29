@@ -54,9 +54,9 @@ impl ModelRunner {
         }
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_left(&self, amount: f32) {
+    pub fn add_yaw(&self, amount: f32) {
         unsafe {
-            let event = ModelEvent::ModelMove(ModelMoveDirection::Left(amount));
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
             self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
@@ -69,9 +69,23 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_right(&self, amount: f32) {
+    pub fn add_pitch(&self, amount: f32) {
         unsafe {
-            let event = ModelEvent::ModelMove(ModelMoveDirection::Right(amount));
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn add_distance(&self, amount: f32) {
+        unsafe {
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
             self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
@@ -83,61 +97,6 @@ impl ModelRunner {
         }
     }
 
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_forward(&self, amount: f32) {
-        unsafe {
-            if EVENT_LOOP_PROXY.is_some() {
-                let event = ModelEvent::ModelMove(ModelMoveDirection::Forward(amount));
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
-        }
-    }
-    }
-
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_back(&self, amount: f32) {
-        unsafe {
-            if EVENT_LOOP_PROXY.is_some() {
-                let event = ModelEvent::ModelMove(ModelMoveDirection::Backward(amount));
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
-            }
-        }
-    }
-
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_up(&self, amount: f32) {
-        unsafe {
-            if EVENT_LOOP_PROXY.is_some() {
-                let event = ModelEvent::ModelMove(ModelMoveDirection::Up(amount));
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
-            }
-        }
-    }
-
-    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_down(&self, amount: f32) {
-        unsafe {
-            if EVENT_LOOP_PROXY.is_some() {
-                let event = ModelEvent::ModelMove(ModelMoveDirection::Down(amount));
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
-            }
-        }
-    }
     fn init_logger(&self) {
         cfg_if::cfg_if! {
         if #[cfg(target_arch = "wasm32")] {
@@ -161,6 +120,7 @@ impl ModelRunner {
             .and_then(|doc| {
                 let dst = doc.get_element_by_id(WEB_ELEMENT_NAME)?;
                 let canvas = web_sys::Element::from(window.canvas());
+                canvas.set_attribute("id", "cube_model").ok()?;
                 dst.append_child(&canvas).ok()?;
                 Some(())
             })
@@ -214,23 +174,14 @@ impl ModelRunner {
         }
         el.run(move |event, _, control_flow| {
             match event {
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Left(amount))) => {
-                    state.move_camera("left", amount);
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount))) => {
+                    state.move_camera("pitch", amount);
                 }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Right(amount))) => {
-                    state.move_camera("right", amount);
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount))) => {
+                    state.move_camera("yaw", amount);
                 }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Forward(amount))) => {
-                    state.move_camera("forward", amount);
-                }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Backward(amount))) => {
-                    state.move_camera("backward", amount);
-                }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Up(amount))) => {
-                    state.move_camera("up", amount);
-                }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Down(amount))) => {
-                    state.move_camera("down", amount);
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Distance(amount))) => {
+                    state.move_camera("distance", amount);
                 }
                 Event::DeviceEvent { device_id, event } => {
                     state.input(&event);

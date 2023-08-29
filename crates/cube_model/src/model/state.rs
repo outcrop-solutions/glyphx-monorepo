@@ -180,21 +180,24 @@ impl State {
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
-        
-        if direction == "forward" {
-            self.camera.add_distance(amount * self.camera_controller.zoom_speed);
-        } else if direction == "backward" {
-            self.camera.add_distance(amount * self.camera_controller.zoom_speed);
-        } else if direction == "left" {
-            self.camera.add_yaw(amount * self.camera_controller.rotate_speed);
-        } else if direction == "right" {
-            self.camera.add_yaw(amount * self.camera_controller.rotate_speed);
-        } else if direction == "up" {
-            self.camera.add_pitch(amount * self.camera_controller.rotate_speed);
-        } else if direction == "down" {
-            self.camera.add_pitch(amount * self.camera_controller.rotate_speed);
-        }
-        self.update();
+        match direction {
+            "distance" => {
+                self.camera
+                    .add_distance(amount * self.camera_controller.zoom_speed);
+                self.update();
+            }
+            "yaw" => {
+                self.camera
+                    .add_yaw(amount * self.camera_controller.rotate_speed);
+                self.update();
+            }
+            "pitch" => {
+                self.camera
+                    .add_pitch(amount * self.camera_controller.rotate_speed);
+                self.update();
+            }
+            _ => (),
+        };
     }
     pub fn update(&mut self) {
         self.camera_uniform.update_view_proj(&self.camera);
@@ -669,7 +672,8 @@ impl State {
 
     pub fn update_z_order(&mut self) {
         //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
-        let cube_diameter = self.model_configuration.grid_cylinder_length + self.model_configuration.grid_cone_length;
+        let cube_diameter = self.model_configuration.grid_cylinder_length
+            + self.model_configuration.grid_cone_length;
         let rotation_angle = Self::calculate_rotation_change(
             cube_diameter, //self.config.width as f32,
             cube_diameter, //self.config.height as f32,
@@ -680,9 +684,9 @@ impl State {
 
         let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
             0
-        } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294  {
-            1 //-- right or back, z(green) is covered.  
-        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374{
+        } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294 {
+            1 //-- right or back, z(green) is covered.
+        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
             2 //-- back all three axis lines are visible.
         } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
             3 //-- left or back, x(red) is covered.
