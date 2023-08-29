@@ -179,16 +179,21 @@ impl State {
         camera_result
     }
 
-    pub fn move_camera(&mut self, direction: &str, on_or_off: bool) {
-        // if direction == "forward" {
-        //     self.camera_controller.move_forward(on_or_off);
-        // } else if direction == "backward" {
-        //     self.camera_controller.move_backward(on_or_off);
-        // } else if direction == "left" {
-        //     self.camera_controller.move_left(on_or_off);
-        // } else if direction == "right" {
-        //     self.camera_controller.move_right(on_or_off);
-        // }
+    pub fn move_camera(&mut self, direction: &str, amount: f32) {
+        
+        if direction == "forward" {
+            self.camera.add_distance(amount * self.camera_controller.zoom_speed);
+        } else if direction == "backward" {
+            self.camera.add_distance(amount * self.camera_controller.zoom_speed);
+        } else if direction == "left" {
+            self.camera.add_yaw(amount * self.camera_controller.rotate_speed);
+        } else if direction == "right" {
+            self.camera.add_yaw(amount * self.camera_controller.rotate_speed);
+        } else if direction == "up" {
+            self.camera.add_pitch(amount * self.camera_controller.rotate_speed);
+        } else if direction == "down" {
+            self.camera.add_pitch(amount * self.camera_controller.rotate_speed);
+        }
         self.update();
     }
     pub fn update(&mut self) {

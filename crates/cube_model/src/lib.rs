@@ -54,9 +54,9 @@ impl ModelRunner {
         }
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_left(&self) {
+    pub fn move_left(&self, amount: f32) {
         unsafe {
-            let event = ModelEvent::ModelMove(ModelMoveDirection::Left(true));
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Left(amount));
             self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
@@ -64,19 +64,14 @@ impl ModelRunner {
                     .unwrap()
                     .send_event(event)
                     .unwrap();
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Left(false)))
-                    .unwrap();
             }
         }
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_right(&self) {
+    pub fn move_right(&self, amount: f32) {
         unsafe {
-            let event = ModelEvent::ModelMove(ModelMoveDirection::Right(true));
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Right(amount));
             self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
@@ -84,53 +79,65 @@ impl ModelRunner {
                     .unwrap()
                     .send_event(event)
                     .unwrap();
+            }
+        }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn move_forward(&self, amount: f32) {
+        unsafe {
+            if EVENT_LOOP_PROXY.is_some() {
+                let event = ModelEvent::ModelMove(ModelMoveDirection::Forward(amount));
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Right(false)))
+                    .send_event(event)
+                    .unwrap();
+        }
+    }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn move_back(&self, amount: f32) {
+        unsafe {
+            if EVENT_LOOP_PROXY.is_some() {
+                let event = ModelEvent::ModelMove(ModelMoveDirection::Backward(amount));
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
                     .unwrap();
             }
         }
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_forward(&self) {
+    pub fn move_up(&self, amount: f32) {
         unsafe {
             if EVENT_LOOP_PROXY.is_some() {
-                let event = ModelEvent::ModelMove(ModelMoveDirection::Forward(true));
+                let event = ModelEvent::ModelMove(ModelMoveDirection::Up(amount));
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
                     .send_event(event)
-                    .unwrap();
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Forward(false)))
                     .unwrap();
             }
         }
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn move_back(&self) {
+    pub fn move_down(&self, amount: f32) {
         unsafe {
             if EVENT_LOOP_PROXY.is_some() {
-                let event = ModelEvent::ModelMove(ModelMoveDirection::Backward(true));
+                let event = ModelEvent::ModelMove(ModelMoveDirection::Down(amount));
                 EVENT_LOOP_PROXY
                     .as_ref()
                     .unwrap()
                     .send_event(event)
                     .unwrap();
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(ModelEvent::ModelMove(ModelMoveDirection::Backward(false)))
-                    .unwrap();
             }
         }
     }
-
     fn init_logger(&self) {
         cfg_if::cfg_if! {
         if #[cfg(target_arch = "wasm32")] {
@@ -207,17 +214,23 @@ impl ModelRunner {
         }
         el.run(move |event, _, control_flow| {
             match event {
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Left(value))) => {
-                    state.move_camera("left", value);
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Left(amount))) => {
+                    state.move_camera("left", amount);
                 }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Right(value))) => {
-                    state.move_camera("right", value);
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Right(amount))) => {
+                    state.move_camera("right", amount);
                 }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Forward(value))) => {
-                    state.move_camera("forward", value);
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Forward(amount))) => {
+                    state.move_camera("forward", amount);
                 }
-                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Backward(value))) => {
-                    state.move_camera("backward", value);
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Backward(amount))) => {
+                    state.move_camera("backward", amount);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Up(amount))) => {
+                    state.move_camera("up", amount);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Down(amount))) => {
+                    state.move_camera("down", amount);
                 }
                 Event::DeviceEvent { device_id, event } => {
                     state.input(&event);
