@@ -166,8 +166,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;
 
-    //return vec4<f32>(color);
-    //return vec4<f32>(1.0, 0.0, 0.0, 1.0);
     let light_dir = normalize(light.light_pos - in.world_position);
     let view_dir = normalize(camera.view_pos.xyz - in.world_position);
     let half_dir = normalize(view_dir + light_dir);
