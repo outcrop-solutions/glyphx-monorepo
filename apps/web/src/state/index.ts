@@ -19,3 +19,4 @@ export * from './workspace'; // holds workspace and membership
 export * from './state';
 export * from './resize';
 export * from './template';
+export * from './sandbox';

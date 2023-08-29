@@ -17,3 +17,4 @@ export * from './property';
 
 // used for ui controls
 export * from './ui';
+export * from './color';

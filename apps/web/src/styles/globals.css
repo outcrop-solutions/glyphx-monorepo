@@ -39,6 +39,9 @@ div[class='react-grid-Viewport'] {
 div[class='react-grid-Canvas'] {
   @apply bg-primary-dark-blue h-full text-white rounded w-full p-0 text-center;
 }
+canvas {
+  background-color: black;
+}
 
 div[class='react-grid-Grid'] {
   @apply bg-primary-dark-blue border border-none text-white outline-none rounded text-center scrollbar-none;
