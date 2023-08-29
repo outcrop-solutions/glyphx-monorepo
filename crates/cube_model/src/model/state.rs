@@ -664,16 +664,14 @@ impl State {
     }
 
     pub fn update_z_order(&mut self) {
+        //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
+        let cube_diameter = self.model_configuration.grid_cylinder_length + self.model_configuration.grid_cone_length;
         let rotation_angle = Self::calculate_rotation_change(
-            10.0, //self.config.width as f32,
-            10.0, //self.config.height as f32,
-            10.0,
+            cube_diameter, //self.config.width as f32,
+            cube_diameter, //self.config.height as f32,
+            cube_diameter,
             self.camera.yaw,
             self.camera.distance,
-        );
-        println!(
-            "rotation_angle : {},  distance: {}, yaw: {}, pitch: {}",
-            rotation_angle,  self.camera.distance, self.camera.yaw, self.camera.pitch
         );
 
         let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
