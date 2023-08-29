@@ -32,8 +32,8 @@ pub struct GlyphUniformData {
     pub min_interp_z: f32,
     pub max_interp_z: f32,
     //other values
-    pub x_y_offset: f32,
-    pub z_offset: f32,
+    pub x_z_offset: f32,
+    pub y_offset: f32,
     pub _padding: [u32; 2],
 }
 

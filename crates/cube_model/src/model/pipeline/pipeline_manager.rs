@@ -1,30 +1,38 @@
-use wgpu::{Device, Surface, Queue};
-use crate::camera::uniform_buffer::CameraUniform;
-use crate::model::color_table_uniform::ColorTableUniform;
-use std::sync::Arc;
-use smaa::SmaaTarget;
-pub trait Pipeline {
-    fn run_pipeline(&self, surface: &Surface, device: &Device, queue: &Queue, camera_buffer: Option<&CameraUniform>, color_table_uniform: Option<&ColorTableUniform>, smaa_target: Option<&mut SmaaTarget>) -> Result<(), wgpu::SurfaceError>;
+ use crate::model::pipeline::PipelineRunner;
 
-}
-
-pub struct PipeLineDefinition {
+pub struct PipelineDefinition {
+    pipeline: Box<dyn PipelineRunner>,
     name: String,
-    pipeline: Arc<dyn Pipeline>,
+    z_order: u32,
 }
 
-pub struct PipeLines {
-    pipelines: Vec<PipeLineDefinition>,
+pub struct PipelineManager {
+    pipelines: Vec<PipelineDefinition>,
 }
 
-impl PipeLines {
-    pub fn new() -> Self {
-        Self {
+impl PipelineManager {
+    pub fn new() -> PipelineManager {
+        PipelineManager {
             pipelines: Vec::new(),
         }
     }
 
-    pub fn get_pipeline(&self, name: &str) -> Option<&Arc<dyn Pipeline>> {
+    pub fn add_pipeline(&mut self, name: &str, pipeline: Box<dyn PipelineRunner>, z_order: u32) {
+        self.pipelines.push(PipelineDefinition {
+            pipeline,
+            name: name.to_string(),
+            z_order,
+        });
+    }
+    pub fn update_pipeline_z_order(&mut self, name: &str, z_order: u32) {
+        for pipeline in &mut self.pipelines {
+            if pipeline.name == name {
+                pipeline.z_order = z_order;
+            }
+        }
+        self.pipelines.sort_by(|a, b| a.z_order.cmp(&b.z_order));
+    }
+    pub fn get_pipeline(&self, name: &str) -> Option<&Box<dyn PipelineRunner>> {
         for pipeline in &self.pipelines {
             if pipeline.name == name {
                 return Some(&pipeline.pipeline);
@@ -33,19 +41,17 @@ impl PipeLines {
         None
     }
 
-    pub fn add_pipeline(&mut self, name: String, pipeline: Arc<dyn Pipeline>) {
-        self.pipelines.push(PipeLineDefinition {
-            name,
-            pipeline,
-        });
+    pub fn get_pipeline_count(&self) -> usize {
+        self.pipelines.len()
     }
 
-    pub fn run_pipeline(&self, name: &str, surface: &Surface, device: &Device, queue: &Queue, camera_uniform: Option<&CameraUniform>, color_table_uniform: Option<&ColorTableUniform>, smaa_target: Option<&mut SmaaTarget>) -> Result<(), wgpu::SurfaceError> {
-        let pipeline = self.get_pipeline(name);
-        if pipeline.is_none() {
-            return Err(wgpu::SurfaceError::Lost);
-        } else {
-            return pipeline.unwrap().run_pipeline(surface, device, queue, camera_uniform, color_table_uniform, smaa_target );
+    pub fn get_pipeline_by_z_order(&self, z_order: u32) -> Option<(String, &Box<dyn PipelineRunner>)> {
+        for pipeline in &self.pipelines {
+            if pipeline.z_order == z_order {
+                return Some((pipeline.name.clone(),  &pipeline.pipeline));
+            }
         }
+        None
     }
 }
+

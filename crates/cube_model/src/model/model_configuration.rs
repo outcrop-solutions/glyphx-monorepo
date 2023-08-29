@@ -22,5 +22,11 @@ pub struct ModelConfiguration {
     //How big can our glyhs be as a ratio of the base grid size
     pub z_height_ratio: f32,
     //Gives a minium height for the glyphs
-    pub z_offset: f32,
+    pub min_glyph_height: f32,
+
+    pub light_location: [f32; 3],
+    pub light_color: Color,
+    pub light_intensity: f32,
+    pub glyph_size: f32,
+    pub model_origin: [f32; 3],
 }

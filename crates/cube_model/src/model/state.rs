@@ -1,20 +1,31 @@
-use crate::camera::{camera_controller::CameraController, uniform_buffer::CameraUniform, orbit_camera::OrbitCamera};
+use crate::camera::{
+    camera_controller::CameraController, orbit_camera::OrbitCamera, uniform_buffer::CameraUniform,
+};
+use crate::light::light_uniform::LightUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
-use crate::model::pipeline::{axis_lines, glyphs};
+use crate::model::pipeline::{
+    axis_lines, glyphs, pipeline_manager::PipelineManager, PipelineRunner,
+};
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
-use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor };
+use wgpu::{CommandBuffer, Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
 use winit::dpi::PhysicalSize;
-use winit::event::{WindowEvent, DeviceEvent};
+use winit::event::{DeviceEvent, WindowEvent};
 use winit::window::Window;
 
-use rand::Rng;
 use super::pipeline::glyphs::glyph_instance_data;
-use glam::Vec3;
-
+use glam::{Mat4, Vec3, Vec4};
+use rand::Rng;
+use std::f32::consts::PI;
+const Z_ORDERS: [[&str; 4]; 4] = [
+    ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
+    ["z-axis-line", "glyphs", "x-axis-line", "y-axis-line"],
+    ["glyphs", "x-axis-line", "z-axis-line", "y-axis-line"],
+    ["x-axis-line", "glyphs", "z-axis-line", "y-axis-line"],
+];
 pub struct State {
     surface: wgpu::Surface,
     device: wgpu::Device,
@@ -28,13 +39,14 @@ pub struct State {
     camera_controller: CameraController,
     color_table_uniform: ColorTableUniform,
     color_table_buffer: wgpu::Buffer,
+    light_uniform: LightUniform,
+    light_buffer: wgpu::Buffer,
     model_configuration: Rc<ModelConfiguration>,
-    axis_lines_pipeline: axis_lines::AxisLines,
-    glyphs_pipeline: glyphs::Glyphs,
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    glyph_instance_data: Vec<GlyphInstanceData>,
+    glyph_instance_data: Rc<Vec<GlyphInstanceData>>,
+    pipeline_manager: PipelineManager,
 }
 
 impl State {
@@ -65,6 +77,22 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
+        let light_uniform = LightUniform::new(
+            model_configuration.light_location,
+            [
+                model_configuration.light_color[0] / 255.0,
+                model_configuration.light_color[1] / 255.0,
+                model_configuration.light_color[2] / 255.0,
+            ],
+            model_configuration.light_intensity,
+        );
+
+        let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Light Buffer"),
+            contents: bytemuck::cast_slice(&[light_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+
         let model_configuration = model_configuration.clone();
 
         let glyph_uniform_data = Self::build_glyph_uniform_data(&model_configuration);
@@ -77,13 +105,15 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        let (axis_lines_pipeline, glyphs_pipeline) = Self::build_pipelines(
+        let pipeline_manager = Self::build_pipelines(
             &device,
             &config,
             &camera_buffer,
             &camera_uniform,
             &color_table_buffer,
             &color_table_uniform,
+            &light_buffer,
+            &light_uniform,
             &model_configuration,
             &glyph_uniform_data,
             &glyph_uniform_buffer,
@@ -115,9 +145,10 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            axis_lines_pipeline,
-            glyphs_pipeline,
             glyph_instance_data,
+            pipeline_manager,
+            light_buffer,
+            light_uniform,
         }
     }
 
@@ -139,7 +170,13 @@ impl State {
     }
 
     pub fn input(&mut self, event: &DeviceEvent) -> bool {
-        self.camera_controller.process_events(event, &mut self.camera)
+        let camera_result = self
+            .camera_controller
+            .process_events(event, &mut self.camera);
+        if camera_result {
+            self.update_z_order();
+        };
+        camera_result
     }
 
     pub fn move_camera(&mut self, direction: &str, on_or_off: bool) {
@@ -155,13 +192,12 @@ impl State {
         self.update();
     }
     pub fn update(&mut self) {
-//        self.camera_controller.update_camera(&mut self.camera);
+        //        self.camera_controller.update_camera(&mut self.camera);
         self.camera_uniform.update_view_proj(&self.camera);
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         let background_color = self.color_table_uniform.background_color();
-
         self.queue.write_buffer(
             &self.camera_buffer,
             0,
@@ -173,6 +209,11 @@ impl State {
             bytemuck::cast_slice(&[self.color_table_uniform]),
         );
 
+        self.queue.write_buffer(
+            &self.light_buffer,
+            0,
+            bytemuck::cast_slice(&[self.light_uniform]),
+        );
         self.queue.write_buffer(
             &self.glyph_uniform_buffer,
             0,
@@ -213,36 +254,44 @@ impl State {
         });
 
         drop(screen_clear_render_pass);
-        let screen_clear_commands = encoder.finish();
+        let mut commands = Vec::new();
+        commands.push(encoder.finish());
+        let mut i: usize = 0;
+        while i < self.pipeline_manager.get_pipeline_count() {
+            let (name, pipeline) = self
+                .pipeline_manager
+                .get_pipeline_by_z_order(i as u32)
+                .unwrap();
 
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Axis Lines Render Encoder"),
-            });
-
-        self.axis_lines_pipeline
-            .run_pipeline(&mut encoder, &smaa_frame, &background_color);
-
-        let axis_commands = encoder.finish();
-
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Glyph Render Encoder"),
-            });
-
-        self.glyphs_pipeline
-            .run_pipeline(&mut encoder, &smaa_frame, &self.glyph_instance_data);
-
-        let glyph_commands = encoder.finish();
-
-        self.queue.submit([screen_clear_commands, axis_commands, glyph_commands]);
+            commands.push(Self::run_pipeline(
+                &self.device,
+                &smaa_frame,
+                pipeline,
+                &name,
+            ));
+            i += 1;
+        }
+        self.queue.submit(commands);
 
         smaa_frame.resolve();
         output.present();
 
         Ok(())
+    }
+
+    fn run_pipeline(
+        device: &Device,
+        smaa_frame: &SmaaFrame,
+        pipeline: &Box<dyn PipelineRunner>,
+        pipeline_name: &str,
+    ) -> CommandBuffer {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some((format!("{} Encoder", pipeline_name)).as_str()),
+        });
+
+        pipeline.run_pipeline(&mut encoder, smaa_frame);
+
+        encoder.finish()
     }
 
     fn configure_surface(
@@ -328,8 +377,8 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_instance_data() -> Vec<glyphs::glyph_instance_data::GlyphInstanceData> {
-        // vec![
+    fn build_instance_data() -> Rc<Vec<glyphs::glyph_instance_data::GlyphInstanceData>> {
+        // Rc::new (vec![
         //     glyphs::glyph_instance_data::GlyphInstanceData {
         //         glyph_id: 0,
         //         x_value: 0.0,
@@ -400,32 +449,32 @@ impl State {
         //         z_value: 9.0,
         //         glyph_selected: 0,
         //     },
-        // ]
+        // ])
 
         let mut instance_data: Vec<glyph_instance_data::GlyphInstanceData> = Vec::new();
         let mut rng = rand::thread_rng();
         let mut x = 0.0;
-        let mut y = 0.0;
+        let mut z = 0.0;
         let mut count = 0;
         while x < 100.0 {
-            while y < 50.0 {
-                
+            while z < 50.0 {
                 let random_number: f32 = rng.gen_range(0.0..=9.0);
                 instance_data.push(glyph_instance_data::GlyphInstanceData {
                     glyph_id: count,
                     x_value: x,
-                    y_value: y,
-                    z_value: random_number,
+                    y_value: random_number,
+                    z_value: z,
                     glyph_selected: 0,
                 });
-                y += 1.0;
+                z += 1.0;
                 count += 1;
             }
-            y = 0.0;
+            z = 0.0;
             x += 1.0;
         }
-         instance_data
+        Rc::new(instance_data)
     }
+
     fn build_pipelines(
         device: &Device,
         config: &SurfaceConfiguration,
@@ -433,41 +482,107 @@ impl State {
         camera_uniform: &CameraUniform,
         color_table_buffer: &wgpu::Buffer,
         color_table_uniform: &ColorTableUniform,
+        light_buffer: &wgpu::Buffer,
+        light_uniform: &LightUniform,
         model_configuration: &Rc<ModelConfiguration>,
         glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
-        glyph_instance_data: &Vec<GlyphInstanceData>,
-    ) -> (axis_lines::AxisLines, glyphs::Glyphs) {
-        let axis_lines = axis_lines::AxisLines::new(
-            device,
-            config,
-            camera_buffer,
-            camera_uniform,
-            color_table_buffer,
-            color_table_uniform,
-            model_configuration.clone(),
+        glyph_instance_data: &Rc<Vec<GlyphInstanceData>>,
+    ) -> PipelineManager {
+        let mut pipeline_manager = PipelineManager::new();
+        pipeline_manager.add_pipeline(
+            "x-axis-line",
+            Box::new(axis_lines::AxisLines::new(
+                device,
+                config,
+                camera_buffer,
+                camera_uniform,
+                color_table_buffer,
+                color_table_uniform,
+                light_buffer,
+                light_uniform,
+                model_configuration.clone(),
+                axis_lines::AxisLineDirection::X,
+                model_configuration.model_origin[0],
+            )),
+            0,
         );
 
-        let glyphs = glyphs::Glyphs::new(
-            glyph_uniform_data,
-            glyph_uniform_buffer,
-            glyph_instance_data,
-            device,
-            config,
-            camera_buffer,
-            camera_uniform,
-            color_table_buffer,
-            color_table_uniform,
-            model_configuration.clone(),
+        pipeline_manager.add_pipeline(
+            "y-axis-line",
+            Box::new(axis_lines::AxisLines::new(
+                device,
+                config,
+                camera_buffer,
+                camera_uniform,
+                color_table_buffer,
+                color_table_uniform,
+                light_buffer,
+                light_uniform,
+                model_configuration.clone(),
+                axis_lines::AxisLineDirection::Y,
+                model_configuration.model_origin[1],
+            )),
+            1,
         );
-        (axis_lines, glyphs)
+
+        pipeline_manager.add_pipeline(
+            "z-axis-line",
+            Box::new(axis_lines::AxisLines::new(
+                device,
+                config,
+                camera_buffer,
+                camera_uniform,
+                color_table_buffer,
+                color_table_uniform,
+                light_buffer,
+                light_uniform,
+                model_configuration.clone(),
+                axis_lines::AxisLineDirection::Z,
+                model_configuration.model_origin[2],
+            )),
+            2,
+        );
+
+        pipeline_manager.add_pipeline(
+            "glyphs",
+            Box::new(glyphs::Glyphs::new(
+                glyph_uniform_data,
+                glyph_uniform_buffer,
+                glyph_instance_data.clone(),
+                device,
+                config,
+                camera_buffer,
+                camera_uniform,
+                color_table_buffer,
+                color_table_uniform,
+                light_buffer,
+                light_uniform,
+                model_configuration.clone(),
+            )),
+            3,
+        );
+        pipeline_manager
     }
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,
     ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
         //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
-        let mut camera = OrbitCamera::new(4.07, 0.42, -32.12, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
+        // let mut camera = OrbitCamera::new(
+        //     4.07,
+        //     0.42,
+        //     -32.12,
+        //     Vec3::new(0.0, 0.0, 0.0),
+        //     config.width as f32 / config.height as f32,
+        // );
+        let mut camera = OrbitCamera::new(
+            11.0,
+            0.0,
+            0.0,
+            Vec3::new(0.0, 0.0, 0.0),
+            config.width as f32 / config.height as f32,
+        );
         //let mut camera = OrbitCamera::new(2.0, 1.5, 1.25, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
         camera.bounds.min_distance = Some(1.1);
         let mut camera_uniform = CameraUniform::default();
@@ -492,7 +607,7 @@ impl State {
                 model_configuration.grid_cone_radius
             };
 
-        let x_y_offset = radius + model_configuration.glyph_offset;
+        let x_z_offset = radius + model_configuration.glyph_offset;
         let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
             glyphs::glyph_instance_data::GlyphUniformData {
                 min_x: 0.0,
@@ -501,19 +616,82 @@ impl State {
                 max_interp_x: 5.0,
 
                 min_y: 0.0,
-                max_y: 50.0,
+                max_y: 9.0,
                 min_interp_y: -5.0,
-                max_interp_y: 5.0,
+                max_interp_y: 6.0,
 
                 min_z: 0.0,
-                max_z: 9.0,
-                min_interp_z: -1.0,
-                max_interp_z: 1.0,
+                max_z: 50.0,
+                min_interp_z: -5.0,
+                max_interp_z: 5.0,
 
-                x_y_offset,
-                z_offset: model_configuration.z_offset,
+                x_z_offset,
+                y_offset: model_configuration.min_glyph_height,
                 _padding: [0u32; 2],
             };
         glyph_uniform_data
+    }
+    ///We call this wheniver the camera is moved so that we can recalulate
+    ///the z order of the axis lines and glyphs in response.
+    //TODO: This is 100% hacked together and needs someone with a better
+    //grasp of the geometry to see if we can find the corerct algorithm
+    //to calculate the Z order so that the grid lines do not overwrite the
+    //glyphs and vice versa.
+    pub fn calculate_rotation_change(
+        width: f32,
+        height: f32,
+        cube_diameter: f32,
+        yaw: f32,
+        distance: f32,
+    ) -> f32 {
+        let afov_x = 2.0 * ((width as f32) / 2.0).atan2(distance);
+        let afov_y = 2.0 * ((height as f32) / 2.0).atan2(distance);
+        let max_yaw_change = afov_x / 2.0; // or use afov_y if you're considering vertical rotation
+        let max_distance = cube_diameter * 10.0; // Maximum distance from scene center
+                                                 // Calculate maximum yaw change for one full turn
+        let max_yaw_full_turn = 2.0 * std::f32::consts::PI;
+        let angle_per_distance = max_yaw_change / max_distance;
+
+        let angular_rotation = distance * angle_per_distance;
+        let calculated_angular_rotation = (yaw + angular_rotation) % max_yaw_full_turn;
+        let max_angular_rotation = max_yaw_full_turn + angular_rotation;
+
+        if calculated_angular_rotation < 0.0 {
+            calculated_angular_rotation + max_angular_rotation
+        } else {
+            calculated_angular_rotation
+        }
+    }
+
+    pub fn update_z_order(&mut self) {
+        //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
+        let cube_diameter = self.model_configuration.grid_cylinder_length + self.model_configuration.grid_cone_length;
+        let rotation_angle = Self::calculate_rotation_change(
+            cube_diameter, //self.config.width as f32,
+            cube_diameter, //self.config.height as f32,
+            cube_diameter,
+            self.camera.yaw,
+            self.camera.distance,
+        );
+
+        let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
+            0
+        } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294  {
+            1 //-- right or back, z(green) is covered.  
+        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374{
+            2 //-- back all three axis lines are visible.
+        } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
+            3 //-- left or back, x(red) is covered.
+        } else {
+            0 //-- normal glyphs last
+        };
+        let z_order = Z_ORDERS[z_order_index];
+        let mut i = 0;
+        while i < z_order.len() {
+            let name = z_order[i].clone();
+            self.pipeline_manager
+                .update_pipeline_z_order(&name, i as u32);
+            i += 1;
+        }
     }
 }

@@ -1,8 +1,11 @@
 pub(crate) mod glyph_instance_data;
 use crate::assets::rectangular_prism::create_rectangular_prism;
+use crate::assets::shape_vertex::ShapeVertex;
 use crate::camera::uniform_buffer::CameraUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
+use crate::light::light_uniform::LightUniform;
 use crate::model::model_configuration::ModelConfiguration;
+use crate::model::pipeline::PipelineRunner;
 use bytemuck;
 use glyph_instance_data::*;
 use smaa::*;
@@ -18,55 +21,55 @@ pub struct Vertex {
 }
 
 pub struct VertexData {
-    pub vertices: Vec<Vertex>,
-    pub indices: Vec<u32>,
-    pub instance_data: Vec<GlyphInstanceData>,
+    pub vertices: Vec<ShapeVertex>,
+    pub instance_data: Rc<Vec<GlyphInstanceData>>,
 }
 
 pub struct Glyphs {
     render_pipeline: RenderPipeline,
     vertex_buffer: Buffer,
-    index_buffer: Buffer,
     camera_bind_group: BindGroup,
     vertex_data: VertexData,
     color_table_bind_group: BindGroup,
+    light_bind_group: BindGroup,
     model_configuration: Rc<ModelConfiguration>,
     glyph_uniform_bind_group: BindGroup,
     instance_data_buffer: Buffer,
+    glyph_instance_data: Rc<Vec<GlyphInstanceData>>,
 }
 
 impl Glyphs {
     pub fn new(
         glyph_uniform_data: &GlyphUniformData,
         glyph_uniform_buffer: &Buffer,
-        glyph_instance_data: &Vec<GlyphInstanceData>,
+        glyph_instance_data: Rc<Vec<GlyphInstanceData>>,
         device: &Device,
         config: &SurfaceConfiguration,
         camera_buffer: &Buffer,
         camera_uniform: &CameraUniform,
         color_table_buffer: &Buffer,
         color_table_uniform: &ColorTableUniform,
+        light_buffer: &Buffer,
+        light_uniform: &LightUniform,
         model_configuration: Rc<ModelConfiguration>,
     ) -> Glyphs {
-
         let instance_data = glyph_instance_data.clone();
         let mut vertex_data = VertexData {
             vertices: Vec::new(),
-            indices: Vec::new(),
             instance_data,
         };
 
         Self::build_verticies(
             &mut vertex_data.vertices,
-            &mut vertex_data.indices,
             &model_configuration,
+            glyph_uniform_data,
         );
 
         let shader = device.create_shader_module(wgpu::include_wgsl!("glyphs/shader.wgsl").into());
-        let (vertex_buffer_layout, vertex_buffer, index_buffer) =
+        let (vertex_buffer_layout, vertex_buffer) =
             Self::configure_verticies(device, &vertex_data);
         let (instance_buffer_layout, instance_data_buffer) =
-            Self::configure_instance_buffer(device, glyph_instance_data);
+            Self::configure_instance_buffer(device, &glyph_instance_data);
 
         let (glyph_uniform_buffer_layout, glyph_uniform_bind_group) =
             glyph_uniform_data.configure_glyph_uniform(glyph_uniform_buffer, device);
@@ -74,6 +77,8 @@ impl Glyphs {
         let (camera_bind_group_layout, camera_bind_group) =
             camera_uniform.configure_camera_uniform(camera_buffer, device);
 
+        let (light_bind_group_layout, light_bind_group) =
+            light_uniform.configure_light_uniform(light_buffer, device);
         let (color_table_bind_group_layout, color_table_bind_group) =
             color_table_uniform.configure_color_table_uniform(color_table_buffer, device);
 
@@ -81,6 +86,7 @@ impl Glyphs {
             device,
             camera_bind_group_layout,
             color_table_bind_group_layout,
+            light_bind_group_layout,
             glyph_uniform_buffer_layout,
             shader,
             vertex_buffer_layout,
@@ -91,23 +97,24 @@ impl Glyphs {
         Glyphs {
             render_pipeline,
             vertex_buffer,
-            index_buffer,
             camera_bind_group,
             vertex_data,
             color_table_bind_group,
+            light_bind_group,
             model_configuration,
             glyph_uniform_bind_group,
             instance_data_buffer,
+            glyph_instance_data,
         }
     }
 
     pub fn build_verticies(
-        verticies: &mut Vec<Vertex>,
-        indicies: &mut Vec<u32>,
+        verticies: &mut Vec<ShapeVertex>,
         model_configuration: &Rc<ModelConfiguration>,
+        _glyph_uniform_data: &GlyphUniformData,
     ) {
         //Our x/y size
-        let glyph_size = 0.015;
+        let glyph_size = model_configuration.glyph_size;
 
         //Our z size is based on the height of the grid with a little bit of padding so that
         //the top does not but up against the z axis line
@@ -115,31 +122,36 @@ impl Glyphs {
             + model_configuration.grid_cone_length)
             * model_configuration.z_height_ratio;
 
-        let (base_verticies, base_indicies) = create_rectangular_prism(glyph_size, length);
-        //now we want to move this to -1,-1,-1.
-        //The center of the cube is at 0,0 so x and y hang over by 1/2 the width.
-        let x_y_offset = -1.0 + glyph_size / 2.0;
-        //z sits at 0.0 so just subtract 1 to move it down.
-        let z_offset = -1.0;
-
-        for vertex in &base_verticies {
-            verticies.push(Vertex {
-                position: [
-                    vertex[0] + x_y_offset,
-                    vertex[1] + x_y_offset,
-                    vertex[2] + z_offset,
+        let shape_vertices = create_rectangular_prism(glyph_size, length);
+        //now we want to move this to the model origin from it's current position at 0,0,0.
+        let x_offset = model_configuration.model_origin[0] + model_configuration.glyph_offset;
+        let z_offset = model_configuration.model_origin[2] + model_configuration.glyph_offset;
+        let y_offset = model_configuration.model_origin[1];
+        
+        let mut i = 0;
+        while i < shape_vertices.len() {
+            let vertex = shape_vertices[i];
+            verticies.push(ShapeVertex {
+                position_vertex: [
+                    vertex.position_vertex[0] + x_offset,
+                    vertex.position_vertex[1] + y_offset,
+                    vertex.position_vertex[2] + z_offset,
                 ],
+                normal: [
+                    vertex.normal[0] + x_offset,
+                    vertex.normal[1] + y_offset,
+                    vertex.normal[2] + z_offset,
+                ],
+                color: vertex.color,
             });
+            i += 1;
         }
 
-        for index in &base_indicies {
-            indicies.push(*index);
-        }
     }
 
     fn configure_instance_buffer(
         device: &Device,
-        instance_data: &Vec<GlyphInstanceData>,
+        instance_data: &Rc<Vec<GlyphInstanceData>>,
     ) -> (wgpu::VertexBufferLayout<'static>, Buffer) {
         let instance_buffer_layout = wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<GlyphInstanceData>() as wgpu::BufferAddress,
@@ -147,27 +159,35 @@ impl Glyphs {
             attributes: &[
                 wgpu::VertexAttribute {
                     offset: 0,
-                    shader_location: 2,
+                    shader_location: 3,
                     format: wgpu::VertexFormat::Uint32,
                 },
                 wgpu::VertexAttribute {
                     offset: std::mem::size_of::<u32>() as wgpu::BufferAddress,
-                    shader_location: 3,
-                    format: wgpu::VertexFormat::Float32,
-                },
-                wgpu::VertexAttribute {
-                    offset: (std::mem::size_of::<u32>() + std::mem::size_of::<f32>()) as wgpu::BufferAddress,
                     shader_location: 4,
                     format: wgpu::VertexFormat::Float32,
                 },
                 wgpu::VertexAttribute {
-                    offset: (std::mem::size_of::<u32>() + std::mem::size_of::<f32>() + std::mem::size_of::<f32>()) as wgpu::BufferAddress,
+                    offset: (std::mem::size_of::<u32>() + std::mem::size_of::<f32>())
+                        as wgpu::BufferAddress,
                     shader_location: 5,
                     format: wgpu::VertexFormat::Float32,
                 },
                 wgpu::VertexAttribute {
-                    offset: (std::mem::size_of::<u32>() + std::mem::size_of::<f32>() + std::mem::size_of::<f32>() + std::mem::size_of::<f32>()) as wgpu::BufferAddress,
+                    offset: (std::mem::size_of::<u32>()
+                        + std::mem::size_of::<f32>()
+                        + std::mem::size_of::<f32>())
+                        as wgpu::BufferAddress,
                     shader_location: 6,
+                    format: wgpu::VertexFormat::Float32,
+                },
+                wgpu::VertexAttribute {
+                    offset: (std::mem::size_of::<u32>()
+                        + std::mem::size_of::<f32>()
+                        + std::mem::size_of::<f32>()
+                        + std::mem::size_of::<f32>())
+                        as wgpu::BufferAddress,
+                    shader_location: 7,
                     format: wgpu::VertexFormat::Uint32,
                 },
             ],
@@ -184,41 +204,22 @@ impl Glyphs {
     fn configure_verticies(
         device: &Device,
         vertex_data: &VertexData,
-    ) -> (wgpu::VertexBufferLayout<'static>, Buffer, Buffer) {
-        let vertex_buffer_layout = wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-                wgpu::VertexAttribute {
-                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Uint32,
-                },
-            ],
-        };
+    ) -> (wgpu::VertexBufferLayout<'static>, Buffer) {
+        let vertex_buffer_layout = ShapeVertex::desc(); 
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(&vertex_data.vertices),
             usage: wgpu::BufferUsages::VERTEX,
         });
 
-        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(&vertex_data.indices),
-            usage: wgpu::BufferUsages::INDEX,
-        });
-        (vertex_buffer_layout, vertex_buffer, index_buffer)
+        (vertex_buffer_layout, vertex_buffer)
     }
 
     fn configure_render_pipeline(
         device: &Device,
         camera_bind_group_layout: BindGroupLayout,
         color_table_bind_group_layout: BindGroupLayout,
+        light_bind_group_layout: BindGroupLayout,
         glyph_bind_group_layout: BindGroupLayout,
         shader: wgpu::ShaderModule,
         vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
@@ -231,6 +232,7 @@ impl Glyphs {
                 bind_group_layouts: &[
                     &camera_bind_group_layout,
                     &color_table_bind_group_layout,
+                    &light_bind_group_layout,
                     &glyph_bind_group_layout,
                 ],
                 push_constant_ranges: &[],
@@ -282,13 +284,11 @@ impl Glyphs {
         });
         render_pipeline
     }
+}
 
-    pub fn run_pipeline<'a>(
-        &'a self,
-        encoder: &'a mut wgpu::CommandEncoder,
-        smaa_frame: &SmaaFrame,
-        glyph_instance_data: &Vec<GlyphInstanceData>
-    ) {
+impl PipelineRunner for Glyphs {
+    fn run_pipeline<'a>(&'a self, encoder: &'a mut wgpu::CommandEncoder, smaa_frame: &SmaaFrame) {
+        let glyph_instance_data = &self.glyph_instance_data;
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
@@ -304,10 +304,13 @@ impl Glyphs {
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_bind_group(1, &self.color_table_bind_group, &[]);
-        render_pass.set_bind_group(2, &self.glyph_uniform_bind_group, &[]);
+        render_pass.set_bind_group(2, &self.light_bind_group, &[]);
+        render_pass.set_bind_group(3, &self.glyph_uniform_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.set_vertex_buffer(1, self.instance_data_buffer.slice(..));
-        render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
-        render_pass.draw_indexed(0..self.vertex_data.indices.len() as u32, 0, 0..self.vertex_data.instance_data.len() as u32);
+        render_pass.draw(
+            0..self.vertex_data.vertices.len() as u32,
+            0..self.vertex_data.instance_data.len() as u32,
+        );
     }
 }
