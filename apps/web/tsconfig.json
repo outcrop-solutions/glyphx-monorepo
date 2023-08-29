@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2015",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["dom", "dom.iterable", "esnext", "es5"],
     "baseUrl": "./src",
     "paths": {
       "@/email/*": ["src/email/*"],
@@ -46,7 +46,6 @@
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/utils/scrollbar.js",
     "src/utils/scrollbar.js",
     "src/__tests__/utilities",
     ".next/types/**/*.ts"

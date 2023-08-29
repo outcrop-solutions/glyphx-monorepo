@@ -1,8 +1,9 @@
 import { web as webTypes } from '@glyphx/types';
 import type { NextApiRequest, NextApiResponse } from 'next';
-
 import { Initializer } from '@glyphx/business';
 import { signDataUrls } from 'lib/server/etl/signDataUrls';
+import { getServerSession } from 'next-auth';
+import { authOptions } from 'app/api/auth/[...nextauth]/route';
 /**
  * Implements controller of browser based FILE OPERATIONS
  * HANDLERS FOUND @ /lib/server/fileingestion.ts

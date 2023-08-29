@@ -15,7 +15,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
+          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
       const projectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.getProjectTemplateById(
           id
@@ -106,7 +106,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
+          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
       const project =
         await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
           id,
@@ -147,7 +147,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
+          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
       const updatedProjectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
           id,
@@ -184,7 +184,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
+          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
       const updatedProjectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.addTags(id, tags);
 
@@ -218,7 +218,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
+          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
       const updatedProjectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.removeTags(
           id,

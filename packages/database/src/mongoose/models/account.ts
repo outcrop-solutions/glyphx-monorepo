@@ -289,14 +289,14 @@ SCHEMA.static(
     const userId =
       input.user instanceof mongooseTypes.ObjectId
         ? input.user
-        : new mongooseTypes.ObjectId(input.user._id);
+        : new (mongooseTypes.ObjectId as any)(input.user._id);
 
     const userExists = await UserModel.userIdExists(userId);
     if (!userExists)
       throw new error.InvalidArgumentError(
         `A user with _id : ${userId} cannot be found`,
         'user._id',
-        input.user._id
+        input.userId
       );
 
     const transformedDocument: IAccountDocument = {

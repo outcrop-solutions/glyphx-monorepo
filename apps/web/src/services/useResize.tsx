@@ -1,7 +1,7 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { debounce } from 'lodash';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { drawerOpenAtom, orientationAtom, splitPaneSizeAtom } from 'state';
+import { orientationAtom, splitPaneSizeAtom } from 'state';
 
 export const useResize = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);

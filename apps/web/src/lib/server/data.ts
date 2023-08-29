@@ -15,22 +15,24 @@ export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse):
     const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds);
     const project = await projectService.getProject(projectId);
 
-    const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
+    if (project) {
+      const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
 
-    const formattedData = formatGridData(data, columns);
+      const formattedData = formatGridData(data, columns);
 
-    if (!formattedData.rows.length) {
-      res.status(404).json({ errors: { error: { msg: `No data found` } } });
-    } else {
-      const start = (page - 1) * pageSize;
-      const end = start + pageSize;
-      const paginatedRows = formattedData.rows.slice(start, end);
+      if (!formattedData.rows.length) {
+        res.status(404).json({ errors: { error: { msg: `No data found` } } });
+      } else {
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+        const paginatedRows = formattedData.rows.slice(start, end);
 
-      res.status(200).json({
-        data: { ...formattedData, rows: paginatedRows },
-        totalPages: Math.ceil(formattedData.rows.length / pageSize),
-        currentPage: page,
-      });
+        res.status(200).json({
+          data: { ...formattedData, rows: paginatedRows },
+          totalPages: Math.ceil(formattedData.rows.length / pageSize),
+          currentPage: page,
+        });
+      }
     }
   } catch (e) {
     res.status(500).send(e.message);
@@ -53,21 +55,23 @@ export const getDataByTableName = async (
     const data = await dataService.getDataByTableName(table);
     const project = await projectService.getProject(projectId);
 
-    const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
+    if (project) {
+      const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
 
-    const formattedData = formatGridData(data, columns);
-    if (!formattedData.rows.length) {
-      res.status(404).json({ errors: { error: { msg: `No data found` } } });
-    } else {
-      const start = (page - 1) * pageSize;
-      const end = start + pageSize;
-      const paginatedRows = formattedData.rows.slice(start, end);
+      const formattedData = formatGridData(data, columns);
+      if (!formattedData.rows.length) {
+        res.status(404).json({ errors: { error: { msg: `No data found` } } });
+      } else {
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+        const paginatedRows = formattedData.rows.slice(start, end);
 
-      res.status(200).json({
-        data: { ...formattedData, rows: paginatedRows },
-        totalPages: Math.ceil(formattedData.rows.length / pageSize),
-        currentPage: page,
-      });
+        res.status(200).json({
+          data: { ...formattedData, rows: paginatedRows },
+          totalPages: Math.ceil(formattedData.rows.length / pageSize),
+          currentPage: page,
+        });
+      }
     }
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });

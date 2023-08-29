@@ -43,7 +43,9 @@ export async function api({
     } else {
       if (!returnData) {
         onSuccess(response.data);
-        toast.success(successMsg);
+        if (successMsg) {
+          toast.success(successMsg);
+        }
       } else {
         return response.data;
       }

@@ -17,7 +17,6 @@ export {
 
 // validation
 import validateCreateWorkspace from './validation/createWorkspace';
-import validateSession from './validation/session';
 import validateUpdateEmail from './validation/updateEmail';
 import validateUpdateName from './validation/updateName';
 import validateUpdateWorkspaceName from './validation/updateWorkspaceName';
@@ -25,7 +24,6 @@ import validateUpdateWorkspaceSlug from './validation/updateWorkspaceSlug';
 import validateWorkspaceInvite from './validation/workspaceInvite';
 export {
   validateCreateWorkspace,
-  validateSession,
   validateUpdateName,
   validateUpdateEmail,
   validateUpdateWorkspaceName,

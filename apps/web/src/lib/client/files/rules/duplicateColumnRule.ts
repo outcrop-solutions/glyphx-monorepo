@@ -27,10 +27,10 @@ export const dusplicateColumnRule: webTypes.IFileRule = {
 
         if (nameTypes.has(columnName)) {
           const types = nameTypes.get(columnName);
-          if (types.has(columnType)) {
+          if (types?.has(columnType)) {
             types.get(columnType)?.push(fileStat.fileName);
           } else {
-            types.set(columnType, [fileStat.fileName]);
+            types?.set(columnType, [fileStat.fileName]);
           }
         } else {
           nameTypes.set(columnName, new Map<number, string[]>([[columnType, [fileStat.fileName]]]));

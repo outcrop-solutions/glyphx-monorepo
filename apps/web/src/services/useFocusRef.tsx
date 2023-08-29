@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect } from "react";
+import { useRef, useLayoutEffect } from 'react';
 
 /**
  * handles focus ref for SortableHeaderCell in DraggableHeaderRenderer
@@ -11,6 +11,7 @@ export function useFocusRef(isSelected) {
 
   useLayoutEffect(() => {
     if (!isSelected) return;
+    // @ts-ignore
     ref.current?.focus({ preventScroll: true });
   }, [isSelected]);
 

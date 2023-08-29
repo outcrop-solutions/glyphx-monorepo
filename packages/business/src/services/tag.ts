@@ -11,7 +11,7 @@ export class TagService {
       const id =
         tagId instanceof mongooseTypes.ObjectId
           ? tagId
-          : new mongooseTypes.ObjectId(tagId);
+          : new (mongooseTypes.ObjectId as any)(tagId);
       const tag = await mongoDbConnection.models.TagModel.getTagById(id);
       return tag;
     } catch (err: any) {

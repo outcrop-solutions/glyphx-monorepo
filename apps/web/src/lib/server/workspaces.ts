@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
+import type { Session } from 'next-auth';
 import { membershipService, workspaceService } from '@glyphx/business';
 
 /**
@@ -14,7 +14,10 @@ import { membershipService, workspaceService } from '@glyphx/business';
  */
 
 export const getWorkspaces = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const workspaces = await workspaceService.getWorkspaces(session?.user?.userId, session?.user?.email);
+  const workspaces = await workspaceService.getWorkspaces(
+    session?.user?.userId as string,
+    session?.user?.email as string
+  );
   res.status(200).json({ data: { workspaces } });
 };
 
@@ -29,6 +32,6 @@ export const getWorkspaces = async (req: NextApiRequest, res: NextApiResponse, s
  */
 
 export const getPendingInvitations = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const invitations = await membershipService.getPendingInvitations(session?.user?.email);
+  const invitations = await membershipService.getPendingInvitations(session?.user?.email as string);
   res.status(200).json({ data: { invitations } });
 };

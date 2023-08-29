@@ -11,7 +11,7 @@ export class AnnotationService {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : new (mongooseTypes.ObjectId as any)(stateId);
 
       const annotations =
         await mongoDbConnection.models.AnnotationModel.queryAnnotations({
@@ -44,7 +44,7 @@ export class AnnotationService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : new (mongooseTypes.ObjectId as any)(projectId);
 
       const annotations =
         await mongoDbConnection.models.AnnotationModel.queryAnnotations({
@@ -83,11 +83,11 @@ export class AnnotationService {
       const authorCastId =
         authorId instanceof mongooseTypes.ObjectId
           ? authorId
-          : new mongooseTypes.ObjectId(authorId);
+          : new (mongooseTypes.ObjectId as any)(authorId);
       const stateCastId =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : new (mongooseTypes.ObjectId as any)(stateId);
 
       const input = {
         author: authorCastId,
@@ -132,11 +132,11 @@ export class AnnotationService {
       const authorCastId =
         authorId instanceof mongooseTypes.ObjectId
           ? authorId
-          : new mongooseTypes.ObjectId(authorId);
+          : new (mongooseTypes.ObjectId as any)(authorId);
       const projectCastId =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : new (mongooseTypes.ObjectId as any)(projectId);
 
       const input = {
         author: authorCastId,

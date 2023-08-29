@@ -8,6 +8,7 @@ import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
 import { generateFilterQuery } from 'lib/client/helpers';
 import { isValidPayload } from 'lib/utils/isValidPayload';
+import { Session } from 'next-auth';
 /**
  * Call Glyph Engine
  *
@@ -144,7 +145,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       const { agentData, location } = formatUserAgent(req);
       await activityLogService.createLog({
-        actorId: session?.user?.userId,
+        actorId: session?.user?.userId as string,
         resourceId: payload.model_id,
         workspaceId: payload.client_id,
         projectId: payload.model_id,

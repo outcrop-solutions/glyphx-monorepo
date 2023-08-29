@@ -20,7 +20,7 @@ const ai = async (req: NextApiRequest, res: NextApiResponse) => {
   // execute the appropriate handler
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
-      return createCompletion(req, res, session);
+      return createCompletion(req, res);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).json({ error: `${req.method} method unsupported` });

@@ -40,7 +40,7 @@ export class CustomerPaymentService {
       const id =
         customerId instanceof mongooseTypes.ObjectId
           ? customerId
-          : new mongooseTypes.ObjectId(customerId);
+          : new (mongooseTypes.ObjectId as any)(customerId);
       // create customer payment
       // add to the user
       // add user to the customerpayment

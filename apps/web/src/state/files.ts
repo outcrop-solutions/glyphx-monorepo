@@ -76,7 +76,7 @@ export const dataGridPayloadSelector = selector({
  * Holds the matches found upon file ingestion between existing and new file statistics.
  * If !== null, modal will display asking user to make a ADD | APPEND choice
  * */
-export const matchingFilesAtom = atom<webTypes.IMatchingFileStats[]>({
+export const matchingFilesAtom = atom<webTypes.MatchingFileStatsData[] | null>({
   key: 'matchingFilesSelector',
   default: null,
 });
@@ -91,6 +91,8 @@ export const filesSelector = selector<string[]>({
     const fileSystem = get(fileSystemSelector);
     if (Array.isArray(fileSystem)) {
       return fileSystem?.map((file) => file?.tableName);
+    } else {
+      return [];
     }
   },
 });
@@ -125,11 +127,13 @@ export const filesOpenSelector = selector<webTypes.OpenFile[]>({
   key: 'filesOpenAtom',
   get: ({ get }) => {
     const fileSystem = get(fileSystemSelector);
-    return (
-      fileSystem
-        ?.map(({ open, tableName }, idx) => (open ? { tableName, fileIndex: idx } : null))
-        .filter((el) => el !== null) || null
-    );
+    if (fileSystem) {
+      return (fileSystem
+        .map(({ open, tableName }, idx) => (open ? { tableName, fileIndex: idx } : null))
+        .filter((el) => el !== null) || null) as webTypes.OpenFile[];
+    } else {
+      return [];
+    }
   },
 });
 

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
+import type { Session } from 'next-auth';
 import { userService, activityLogService, validateUpdateName, validateUpdateEmail } from '@glyphx/business';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
 import { database as databaseTypes } from '@glyphx/types';
@@ -19,12 +19,12 @@ export const updateName = async (req: NextApiRequest, res: NextApiResponse, sess
   const { name } = req.body;
   try {
     await validateUpdateName(req, res);
-    const user = await userService.updateName(session?.user?.userId, name);
+    const user = await userService.updateName(session?.user?.userId as string, name);
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: user._id,
+      actorId: session?.user?.userId as string,
+      resourceId: user._id as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
@@ -51,12 +51,12 @@ export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, ses
   const { email } = req.body;
   try {
     await validateUpdateEmail(req, res);
-    const user = await userService.updateEmail(session?.user?.userId, email, session?.user?.email);
+    const user = await userService.updateEmail(session?.user?.userId as string, email, session?.user?.email as string);
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: user._id,
+      actorId: session?.user?.userId as string,
+      resourceId: user._id as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
@@ -85,12 +85,12 @@ const ALLOW_DEACTIVATION = true;
 export const deactivateUser = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {
     if (ALLOW_DEACTIVATION) {
-      const user = await userService.deactivate(session?.user?.userId);
+      const user = await userService.deactivate(session?.user?.userId as string);
       const { agentData, location } = formatUserAgent(req);
 
       await activityLogService.createLog({
-        actorId: session?.user?.userId,
-        resourceId: user._id,
+        actorId: session?.user?.userId as string,
+        resourceId: user._id as string,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.USER,

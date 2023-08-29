@@ -3,11 +3,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from '../network';
 import { _getDataGrid, _getRowIds } from '../mutations';
 import { dataGridPayloadSelector, rowIdsAtom } from 'state';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 
 const useDataGrid = () => {
   const [data, setData] = useState(null);
-  const rowIds = useSetRecoilState(rowIdsAtom);
+  const rowIds = useRecoilValue(rowIdsAtom);
   const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
   const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);
   const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);

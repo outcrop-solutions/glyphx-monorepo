@@ -12,7 +12,7 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new mongooseTypes.ObjectId(modelConfigId);
+          : new (mongooseTypes.ObjectId as any)(modelConfigId);
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.getModelConfigById(id);
       return modelConfig;
@@ -102,7 +102,7 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new mongooseTypes.ObjectId(modelConfigId);
+          : new (mongooseTypes.ObjectId as any)(modelConfigId);
 
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
@@ -140,7 +140,7 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new mongooseTypes.ObjectId(modelConfigId);
+          : new (mongooseTypes.ObjectId as any)(modelConfigId);
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
           id,

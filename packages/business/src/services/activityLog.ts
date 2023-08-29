@@ -11,7 +11,7 @@ export class ActivityLogService {
       const id =
         logId instanceof mongooseTypes.ObjectId
           ? logId
-          : new mongooseTypes.ObjectId(logId);
+          : new (mongooseTypes.ObjectId as any)(logId);
       const log =
         await mongoDbConnection.models.ActivityLogModel.getActivityLogById(id);
       return log;
@@ -43,7 +43,7 @@ export class ActivityLogService {
       const id =
         resourceId instanceof mongooseTypes.ObjectId
           ? resourceId
-          : new mongooseTypes.ObjectId(resourceId);
+          : new (mongooseTypes.ObjectId as any)(resourceId);
 
       let logs;
       if (type === databaseTypes.constants.RESOURCE_MODEL.PROJECT) {
@@ -101,18 +101,18 @@ export class ActivityLogService {
       const actorCastId =
         actorId instanceof mongooseTypes.ObjectId
           ? actorId
-          : new mongooseTypes.ObjectId(actorId);
+          : new (mongooseTypes.ObjectId as any)(actorId);
       const resourceCastId =
         resourceId instanceof mongooseTypes.ObjectId
           ? resourceId
-          : new mongooseTypes.ObjectId(resourceId);
+          : new (mongooseTypes.ObjectId as any)(resourceId);
 
       let spaceCastId;
       if (workspaceId) {
         spaceCastId =
           workspaceId instanceof mongooseTypes.ObjectId
             ? workspaceId
-            : new mongooseTypes.ObjectId(workspaceId);
+            : new (mongooseTypes.ObjectId as any)(workspaceId);
       }
 
       let projCastId;
@@ -120,7 +120,7 @@ export class ActivityLogService {
         projCastId =
           projectId instanceof mongooseTypes.ObjectId
             ? projectId
-            : new mongooseTypes.ObjectId(projectId);
+            : new (mongooseTypes.ObjectId as any)(projectId);
       }
 
       const input = {

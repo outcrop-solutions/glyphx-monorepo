@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
+import type { Session } from 'next-auth';
 import { projectTemplateService, activityLogService } from '@glyphx/business';
 import { database as databaseTypes } from '@glyphx/types';
 import { formatUserAgent } from 'lib/utils';
@@ -22,9 +22,7 @@ export const createProjectTemplate = async (req: NextApiRequest, res: NextApiRes
       projectId,
       projectName,
       projectDesc,
-      properties,
-      session?.user?.userId,
-      session?.user?.email
+      properties
     );
 
     res.status(200).json({ data: template });
@@ -50,8 +48,8 @@ export const createProjectFromTemplate = async (req: NextApiRequest, res: NextAp
     const result = await projectService.createProject(
       `${template.name}`,
       workspaceId,
-      session?.user?.userId,
-      session?.user?.email,
+      session?.user?.userId as string,
+      session?.user?.email as string,
       template,
       template.description
     );
@@ -113,14 +111,12 @@ export const updateProjectTemplate = async (req: NextApiRequest, res: NextApiRes
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const template = await projectTemplateService.updateProjectTemplateState(templateId, properties);
+    const template = await projectTemplateService.updateProjectTemplate(templateId as string, properties);
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: template._id,
-      templateId: template._id,
-      workspaceId: template.workspace._id,
+      actorId: session?.user?.userId as string,
+      resourceId: template._id as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
@@ -152,14 +148,12 @@ export const deleteProjectTemplate = async (req: NextApiRequest, res: NextApiRes
   }
   try {
     if (ALLOW_DELETE) {
-      const template = await projectTemplateService.delete(templateId);
+      const template = await projectTemplateService.deactivate(templateId as string);
       const { agentData, location } = formatUserAgent(req);
 
       await activityLogService.createLog({
-        actorId: session?.user?.userId,
-        resourceId: template._id,
-        workspaceId: template.workspace._id,
-        templateId: template._id,
+        actorId: session?.user?.userId as string,
+        resourceId: template._id as string,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,

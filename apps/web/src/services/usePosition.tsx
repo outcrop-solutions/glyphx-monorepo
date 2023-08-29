@@ -7,7 +7,7 @@ import useResizeObserver from '@react-hook/resize-observer';
  * @returns {Object}
  */
 export const usePosition = (target) => {
-  const [entry, setEntry] = useState(null);
+  const [entry, setEntry] = useState<DOMRectReadOnly | null>(null);
   // Where the magic happens
   useResizeObserver(target, (entry) => setEntry(entry.contentRect));
 

@@ -7,7 +7,7 @@ export const fileCollisionRule: webTypes.IFileRule = {
   type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS,
   name: 'File Upload Summary',
   desc: 'At least one of your csv looks like a pre-existing upload. Please choose which operations you would like to perform.',
-  condition: (payload, existingFileStats, acceptedFiles): webTypes.MatchingFileStatsData => {
+  condition: (payload, existingFileStats, acceptedFiles: Blob[]): webTypes.MatchingFileStatsData => {
     // select and hash relevant values
     const newHashes = hashFileStats(payload.fileStats, false);
     const existingHashes = hashFileStats(existingFileStats, true);
@@ -24,7 +24,7 @@ export const fileCollisionRule: webTypes.IFileRule = {
       );
 
     // keep track of collisions to set default -1 (no-op)
-    const foundIndexes = [];
+    const foundIndexes: number[] = [];
 
     const retval = newHashes
       .map(({ fileColumnsHash, columnsHash }, idx) => {
@@ -53,6 +53,8 @@ export const fileCollisionRule: webTypes.IFileRule = {
       }),
     };
 
-    return retval.length > 0 ? { collisions: retval, payload: cleanPayload, acceptedFiles } : false;
+    return retval.length > 0
+      ? { collisions: retval as webTypes.Collision[], payload: cleanPayload, acceptedFiles }
+      : false;
   },
 };

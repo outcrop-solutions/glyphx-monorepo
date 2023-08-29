@@ -163,7 +163,7 @@ export const _getSignedDataUrls = (
 export const _createOpenProject = (
   data: { sdtUrl: string; sgnUrl: string; sgcUrl: string },
   project: databaseTypes.IProject,
-  session: Omit<Session & { status }, 'jwt' | 'user' | 'expires'>,
+  session: Omit<databaseTypes.ISession & { status }, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
   url: string,
   isCreate: boolean,
   camera?: {

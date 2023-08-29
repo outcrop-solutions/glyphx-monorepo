@@ -11,7 +11,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new mongooseTypes.ObjectId(memberId);
+          : new (mongooseTypes.ObjectId as any)(memberId);
       const member = await mongoDbConnection.models.MemberModel.getMemberById(
         id
       );
@@ -102,7 +102,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new mongooseTypes.ObjectId(memberId);
+          : new (mongooseTypes.ObjectId as any)(memberId);
       const member =
         await mongoDbConnection.models.MemberModel.updateMemberById(id, {
           deletedAt: new Date(),
@@ -137,7 +137,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new mongooseTypes.ObjectId(memberId);
+          : new (mongooseTypes.ObjectId as any)(memberId);
       if (
         role === databaseTypes.constants.ROLE.MEMBER ||
         role === databaseTypes.constants.ROLE.OWNER
@@ -189,7 +189,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new mongooseTypes.ObjectId(memberId);
+          : new (mongooseTypes.ObjectId as any)(memberId);
       const member =
         await mongoDbConnection.models.MemberModel.updateMemberById(id, {
           status,

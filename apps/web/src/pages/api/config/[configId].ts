@@ -20,7 +20,7 @@ const config = async (req: NextApiRequest, res: NextApiResponse) => {
     case webTypes.constants.HTTP_METHOD.GET:
       return getConfig(req, res);
     case webTypes.constants.HTTP_METHOD.POST:
-      return createConfig(req, res, session);
+      return createConfig(req, res);
     case webTypes.constants.HTTP_METHOD.PUT:
       return updateConfig(req, res, session);
     case webTypes.constants.HTTP_METHOD.DELETE:

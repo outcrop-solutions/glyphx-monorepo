@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
+import type { Session } from 'next-auth';
 import { stateService, activityLogService } from '@glyphx/business';
 import { formatUserAgent } from 'lib/utils';
 import { database as databaseTypes } from '@glyphx/types';
@@ -41,21 +41,23 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
       name,
       camera,
       projectId,
-      session?.user?.userId,
+      session?.user?.userId as string,
       aspectRatio,
       imageHash
     );
     const { agentData, location } = formatUserAgent(req);
 
-    await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: state._id,
-      workspaceId: state.workspace._id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-      action: databaseTypes.constants.ACTION_TYPE.CREATED,
-    });
+    if (state) {
+      await activityLogService.createLog({
+        actorId: session?.user?.userId as string,
+        resourceId: state._id as string,
+        workspaceId: state.workspace._id as string,
+        location: location,
+        userAgent: agentData,
+        onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
+        action: databaseTypes.constants.ACTION_TYPE.CREATED,
+      });
+    }
 
     res.status(200).json({ data: state });
   } catch (error) {
@@ -81,8 +83,8 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: state._id,
+      actorId: session?.user?.userId as string,
+      resourceId: state._id as string,
       workspaceId: state.project.workspace,
       projectId: state.project._id,
       location: location,
@@ -114,8 +116,8 @@ export const deleteState = async (req: NextApiRequest, res: NextApiResponse, ses
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: state._id,
+      actorId: session?.user?.userId as string,
+      resourceId: state._id as string,
       workspaceId: state.project.workspace,
       projectId: state.project._id,
       location: location,

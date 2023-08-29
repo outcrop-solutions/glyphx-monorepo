@@ -131,7 +131,7 @@ export const droppedPropertiesSelector = selector<webTypes.Property[]>({
   get: ({ get }) => {
     const project = get(projectAtom);
     const axisArray = Object.values(webTypes.constants.AXIS);
-    let retval = [];
+    let retval: webTypes.Property[] = [];
     for (const axis of axisArray.slice(0, 3)) {
       const prop = project?.state?.properties[`${axis}`];
       if (prop?.key !== '') {

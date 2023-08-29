@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
+import type { Session } from 'next-auth';
 import { modelConfigService } from '@glyphx/business';
 /**
  * Create Default Config
@@ -12,7 +12,7 @@ import { modelConfigService } from '@glyphx/business';
  *
  */
 
-export const createConfig = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+export const createConfig = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const config = await modelConfigService.createModelConfig(req.body);
     res.status(200).json({ data: config });
@@ -58,7 +58,7 @@ export const getConfig = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const config = await modelConfigService.getModelConfig(configId);
+    const config = await modelConfigService.getModelConfig(configId as string);
     res.status(200).json({ data: { config } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
@@ -83,7 +83,7 @@ export const updateConfig = async (req: NextApiRequest, res: NextApiResponse, se
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const updatedConfig = await modelConfigService.updateModelConfig(configId, config);
+    const updatedConfig = await modelConfigService.updateModelConfig(configId as string, config);
 
     res.status(200).json({ data: { config: updatedConfig } });
   } catch (error) {
@@ -111,7 +111,7 @@ export const deleteConfig = async (req: NextApiRequest, res: NextApiResponse, se
   }
   try {
     if (ALLOW_DELETE) {
-      await modelConfigService.deleteModelConfig(configId);
+      await modelConfigService.deleteModelConfig(configId as string);
     }
     res.status(200).json({ data: { email: session?.user?.email } });
   } catch (error) {

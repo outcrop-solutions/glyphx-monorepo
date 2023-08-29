@@ -51,7 +51,7 @@ export class WorkspaceService {
 
       const castCreatorId =
         typeof creatorId === 'string'
-          ? new mongooseTypes.ObjectId(creatorId)
+          ? new (mongooseTypes.ObjectId as any)(creatorId)
           : creatorId;
 
       const input = {
@@ -134,7 +134,7 @@ export class WorkspaceService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : new (mongooseTypes.ObjectId as any)(userId);
 
       const workspace = await WorkspaceService.getOwnWorkspace(
         userId,
@@ -147,7 +147,7 @@ export class WorkspaceService {
         const workspaceId =
           workId instanceof mongooseTypes.ObjectId
             ? workId
-            : new mongooseTypes.ObjectId(workId);
+            : new (mongooseTypes.ObjectId as any)(workId);
 
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
@@ -570,7 +570,7 @@ export class WorkspaceService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : new (mongooseTypes.ObjectId as any)(userId);
 
       const invitedBy = await mongoDbConnection.models.UserModel.getUserById(
         id
@@ -863,7 +863,7 @@ export class WorkspaceService {
       const id =
         workspaceId instanceof mongooseTypes.ObjectId
           ? workspaceId
-          : new mongooseTypes.ObjectId(workspaceId);
+          : new (mongooseTypes.ObjectId as any)(workspaceId);
       const updatedWorkspace =
         await mongoDbConnection.models.WorkspaceModel.addTags(id, tags);
 

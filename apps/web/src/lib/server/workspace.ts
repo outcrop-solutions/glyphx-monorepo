@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
+import type { Session } from 'next-auth';
 import {
   membershipService,
   validateCreateWorkspace,
@@ -28,7 +28,7 @@ export const getWorkspace = async (req: NextApiRequest, res: NextApiResponse) =>
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const workspace = await workspaceService.getSiteWorkspace(workspaceSlug);
+    const workspace = await workspaceService.getSiteWorkspace(workspaceSlug as string);
     res.status(200).json({ data: { workspace } });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
@@ -50,14 +50,19 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
   try {
     await validateCreateWorkspace(req, res);
     const slug = slugify(name.toLowerCase());
-    const workspace = await workspaceService.createWorkspace(session?.user?.userId, session?.user?.email, name, slug);
+    const workspace = await workspaceService.createWorkspace(
+      session?.user?.userId as string,
+      session?.user?.email as string,
+      name,
+      slug
+    );
 
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: workspace._id,
-      workspaceId: workspace._id,
+      actorId: session?.user?.userId as string,
+      resourceId: workspace?._id as string,
+      workspaceId: workspace?._id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -92,18 +97,18 @@ export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiRespo
   try {
     await validateUpdateWorkspaceSlug(req, res);
     const workspace = await workspaceService.updateWorkspaceSlug(
-      session?.user?.userId,
-      session?.user?.email,
+      session?.user?.userId as string,
+      session?.user?.email as string,
       slug,
-      workspaceSlug
+      workspaceSlug as string
     );
 
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: workspace,
-      workspaceId: workspace,
+      actorId: session?.user?.userId as string,
+      resourceId: workspace as string,
+      workspaceId: workspace!,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -138,17 +143,17 @@ export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiRespo
   try {
     const updatedName = await validateUpdateWorkspaceName(req, res);
     const workspace = await workspaceService.updateWorkspaceName(
-      session?.user?.userId,
-      session?.user?.email,
+      session?.user?.userId as string,
+      session?.user?.email as string,
       name,
-      workspaceSlug
+      workspaceSlug as string
     );
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: workspace,
-      workspaceId: workspace,
+      actorId: session?.user?.userId as string,
+      resourceId: workspace as string,
+      workspaceId: workspace as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -205,17 +210,18 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
   }
 
   try {
+    // @ts-ignore
     const { members: memberData, workspace } = await workspaceService.inviteUsers(
-      session?.user?.userId,
-      session?.user?.email,
+      session?.user?.userId as string,
+      session?.user?.email as string,
       members,
-      workspaceSlug
+      workspaceSlug as string
     );
 
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
+      actorId: session?.user?.userId as string,
       resourceId: workspace._id,
       workspaceId: workspace._id,
       location: location,
@@ -249,13 +255,17 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
   }
 
   try {
-    const workspace = await workspaceService.deleteWorkspace(session.user.userId, session.user.email, workspaceSlug);
+    const workspace = await workspaceService.deleteWorkspace(
+      session.user.userId as string,
+      session.user.email as string,
+      workspaceSlug as string
+    );
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: workspace._id,
-      workspaceId: workspace._id,
+      actorId: session?.user?.userId as string,
+      resourceId: workspace?._id as string,
+      workspaceId: workspace?._id as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -285,10 +295,14 @@ export const isTeamOwner = async (req: NextApiRequest, res: NextApiResponse, ses
   }
 
   try {
-    const workspace = await workspaceService.getWorkspace(session?.user?.userId, session?.user?.email, workspaceSlug);
+    const workspace = await workspaceService.getWorkspace(
+      session?.user?.userId as string,
+      session?.user?.email as string,
+      workspaceSlug as string
+    );
 
     if (workspace) {
-      const isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email, workspace);
+      const isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email as string, workspace);
       const inviteLink = `${process.env.APP_URL || 'http://localhost:3000'}/teams/invite?code=${encodeURI(
         workspace?.inviteCode
       )}`;

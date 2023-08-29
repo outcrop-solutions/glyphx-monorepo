@@ -231,7 +231,7 @@ SCHEMA.static(
     const customerId =
       input.customer instanceof mongooseTypes.ObjectId
         ? input.customer
-        : new mongooseTypes.ObjectId(input.customer._id);
+        : new (mongooseTypes.ObjectId as any)(input.customer._id);
 
     const userExists = await UserModel.userIdExists(customerId);
 

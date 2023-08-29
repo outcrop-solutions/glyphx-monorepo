@@ -1,4 +1,4 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { web as webTypes } from '@glyphx/types';
 
 /**
  * Takes in papaparsed file data and returns the rendarable grid state
@@ -6,7 +6,7 @@ import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/ty
  * @returns {webTypes.RenderableDataGrid}
  */
 export const formatGridData = (data, columns): webTypes.IRenderableDataGrid => {
-  const dateFields = [];
+  const dateFields: string[] = [];
   const cols = columns.map(({ name, fieldType }, idx) => {
     if (fieldType === 3) {
       dateFields.push(name);

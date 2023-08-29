@@ -120,7 +120,7 @@ SCHEMA.static(
       const workspaceId =
         input.workspace instanceof mongooseTypes.ObjectId
           ? input.workspace
-          : new mongooseTypes.ObjectId(input.workspace._id);
+          : new (mongooseTypes.ObjectId as any)(input.workspace._id);
 
       const workspaceExists = await WorkspaceModel.workspaceIdExists(
         workspaceId
@@ -136,7 +136,7 @@ SCHEMA.static(
       const projectId =
         input.project instanceof mongooseTypes.ObjectId
           ? input.project
-          : new mongooseTypes.ObjectId(input.project._id);
+          : new (mongooseTypes.ObjectId as any)(input.project._id);
 
       const projectExists = await ProjectModel.projectIdExists(projectId);
       if (!projectExists) {
@@ -150,7 +150,7 @@ SCHEMA.static(
       const userId =
         input.createdBy instanceof mongooseTypes.ObjectId
           ? input.createdBy
-          : new mongooseTypes.ObjectId(input.createdBy._id);
+          : new (mongooseTypes.ObjectId as any)(input.createdBy._id);
 
       const creatorExists = await UserModel.userIdExists(userId);
       if (!creatorExists) {

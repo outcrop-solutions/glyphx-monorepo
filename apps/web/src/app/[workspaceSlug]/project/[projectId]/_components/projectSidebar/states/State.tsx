@@ -1,18 +1,17 @@
 import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
 import { useCallback } from 'react';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { useSession } from 'next-auth/react';
 import { activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom } from 'state';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { WritableDraft } from 'immer/dist/internal';
 import produce from 'immer';
 import { _createOpenProject, _getSignedDataUrls, api } from 'lib';
-import { useSession } from 'next-auth/react';
 import { useUrl } from 'lib/client/hooks';
 import StateIcon from 'public/svg/state.svg';
 import ActiveStateIcon from 'public/svg/active-state.svg';
 import { isNullCamera } from 'lib/utils/isNullCamera';
 import Image from 'next/image';
-import { imageData } from './data';
+import { database as databaseTypes, web as webTypes } from '@glyphx/types';
 
 export const State = ({ item, idx }) => {
   const session = useSession();

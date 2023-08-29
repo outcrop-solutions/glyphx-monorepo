@@ -7,6 +7,7 @@ import { formatUserAgent } from 'lib/utils/formatUserAgent';
 import { database as databaseTypes } from '@glyphx/types';
 import { processTrackingService, activityLogService, projectService } from '@glyphx/business';
 import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
+import { Session } from 'next-auth';
 /**
  * File Ingestion Key Notes
  *
@@ -108,7 +109,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
+      actorId: session?.user?.userId as string,
       resourceId: newPayload.modelId,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
@@ -119,8 +120,8 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     });
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: processDocumentId,
+      actorId: session?.user?.userId as string,
+      resourceId: processDocumentId as string,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
       location: location,

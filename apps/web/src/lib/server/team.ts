@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
+import type { Session } from 'next-auth';
 import { database as databaseTypes } from '@glyphx/types';
 import { workspaceService, membershipService, activityLogService } from '@glyphx/business';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
@@ -19,14 +19,14 @@ export const updateRole = async (req: NextApiRequest, res: NextApiResponse, sess
   const { memberId, role } = req.body;
   try {
     const member = await membershipService.getMember(memberId);
-    await membershipService.updateRole(member._id, role);
+    await membershipService.updateRole(member?._id as string, role);
 
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: member._id,
-      workspaceId: member.workspace._id,
+      actorId: session?.user?.userId as string,
+      resourceId: member?._id as string,
+      workspaceId: member?.workspace._id as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -56,9 +56,9 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: member._id,
-      workspaceId: member.workspace._id,
+      actorId: session?.user?.userId as string,
+      resourceId: member?._id as string,
+      workspaceId: member?.workspace._id as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -85,13 +85,13 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
 export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const { workspaceCode } = req.body;
   try {
-    const workspace = await workspaceService.joinWorkspace(workspaceCode, session?.user?.email);
+    const workspace = await workspaceService.joinWorkspace(workspaceCode, session?.user?.email as string);
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: workspace._id,
-      workspaceId: workspace._id,
+      actorId: session?.user?.userId as string,
+      resourceId: workspace?._id as string,
+      workspaceId: workspace?._id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -122,9 +122,9 @@ export const declineInvitation = async (req: NextApiRequest, res: NextApiRespons
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
+      actorId: session?.user?.userId as string,
       resourceId: memberId,
-      workspaceId: member.workspace._id,
+      workspaceId: member?.workspace._id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -154,9 +154,9 @@ export const acceptInvitation = async (req: NextApiRequest, res: NextApiResponse
     const { agentData, location } = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
+      actorId: session?.user?.userId as string,
       resourceId: memberId,
-      workspaceId: member.workspace._id,
+      workspaceId: member?.workspace._id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,

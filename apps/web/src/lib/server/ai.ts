@@ -17,17 +17,11 @@ const configuration = new Configuration({
  *
  */
 
-export const createCompletion = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+export const createCompletion = async (req: NextApiRequest, res: NextApiResponse) => {
   const { payload } = req.body;
   try {
     const openai = new OpenAIApi(configuration);
-    const project = await projectService.getProject(payload.modelId);
-    const templates = await projectTemplateService.getProjectTemplates(
-      {},
-      0,
-      10,
-      project.tags.map((t) => t._id)
-    );
+    const templates = await projectTemplateService.getProjectTemplates({});
 
     const messages = systemMessage(payload.fileStats, templates);
 

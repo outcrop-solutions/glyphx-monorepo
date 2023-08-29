@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QWebChannel } from 'qwebchannel';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { cameraAtom, imageHashAtom, rowIdsAtom } from 'state';
 import { web as webTypes } from '@glyphx/types';
 import produce from 'immer';
@@ -14,7 +14,7 @@ const payload = { isSent: false };
 
 export const useSocket = () => {
   const [channel, setChannel] = useState(null);
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setImage = useSetRecoilState(imageHashAtom);
   const setCamera = useSetRecoilState(cameraAtom);

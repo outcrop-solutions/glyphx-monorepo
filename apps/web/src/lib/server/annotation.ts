@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { annotationService } from '@glyphx/business';
+import { Session } from 'next-auth';
 
 /**
  * Get Project Annotations
@@ -17,7 +18,7 @@ export const getProjectAnnotations = async (req: NextApiRequest, res: NextApiRes
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const annotations = await annotationService.getProjectAnnotations(projectId);
+    const annotations = await annotationService.getProjectAnnotations(projectId as string);
     res.status(200).json({ data: annotations });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
@@ -40,7 +41,7 @@ export const getStateAnnotations = async (req: NextApiRequest, res: NextApiRespo
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const annotations = await annotationService.getStateAnnotations(stateId);
+    const annotations = await annotationService.getStateAnnotations(stateId as string);
     res.status(200).json({ data: annotations });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });
@@ -55,8 +56,8 @@ export const createProjectAnnotation = async (req: NextApiRequest, res: NextApiR
   }
   try {
     const annotation = await annotationService.createProjectAnnotation({
-      authorId: session.user.userId,
-      projectId,
+      authorId: session.user.userId as string,
+      projectId: projectId as string,
       value,
     });
     res.status(200).json({ data: annotation });
@@ -72,7 +73,11 @@ export const createStateAnnotation = async (req: NextApiRequest, res: NextApiRes
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
-    const annotation = await annotationService.createStateAnnotation({ authorId: session.user.userId, stateId, value });
+    const annotation = await annotationService.createStateAnnotation({
+      authorId: session.user.userId as string,
+      stateId: stateId as string,
+      value: value as string,
+    });
     res.status(200).json({ data: annotation });
   } catch (error) {
     res.status(404).json({ errors: { error: { msg: error.message } } });

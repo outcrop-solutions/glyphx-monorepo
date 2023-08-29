@@ -1,6 +1,6 @@
 import {database} from '@glyphx/types';
 import {check} from 'express-validator';
-import {initMiddleware, validateMiddleware} from 'lib';
+import {initMiddleware, validateMiddleware} from '../lib';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const rules = [
   check('members')
