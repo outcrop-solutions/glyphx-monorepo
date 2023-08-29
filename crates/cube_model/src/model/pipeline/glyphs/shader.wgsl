@@ -151,8 +151,8 @@ fn vs_main(
     var out: VertexOutput;
     out.world_position = vec3<f32>(x_pos, y_vec, z_pos);
 //move the normals based on instance buffer
-    out.world_normal = vec3<f32>(model.normal[0] + x_offset, model.normal[1], model.normal[2] + z_offset);
-    out.color_code = u32(color);
+    out.world_normal = vec3<f32>(model.normal);
+    out.color_code = u32(floor(color));
     out.clip_position = camera.view_proj * vec4<f32>(out.world_position[0], out.world_position[1], out.world_position[2], 1.0);
     return out;
 }
@@ -163,7 +163,6 @@ fn vs_main(
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
    // return vec4<f32>(0.0,0.0,0.0, 1.0);
     let color = color_table_buffer.color_table[in.color_code];
-   // We don't need (or want) much ambient light, so 0.1 is fine
     let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;
 
@@ -180,7 +179,9 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let specular_color = specular_strength * light.light_color;
 
     let result = (ambient_color + diffuse_color + specular_color) * color.xyz;
+    //TODO: The light needs some work as it relates to the glyphs.  It is making them all yellow
+    //return vec4<f32>(result, 1.0);
+      return vec4<f32>(color);
 
-    return vec4<f32>(result, 1.0);
 }
  

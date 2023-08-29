@@ -196,8 +196,8 @@ impl ModelRunner {
             glyph_offset: 0.15,
             min_glyph_height: 0.2,
             light_color: [255.0, 255.0, 255.0, 1.0],
-            light_location: [-2.0, 2.0, -2.0],
-            light_intensity: 0.5,
+            light_location: [-30.0, -30.0, -30.0],
+            light_intensity: 0.02,
             glyph_size: 0.15,
             model_origin: [-5.0, -5.0, -5.0],
         });

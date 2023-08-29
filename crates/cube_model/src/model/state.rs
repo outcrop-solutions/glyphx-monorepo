@@ -192,7 +192,6 @@ impl State {
         self.update();
     }
     pub fn update(&mut self) {
-        //        self.camera_controller.update_camera(&mut self.camera);
         self.camera_uniform.update_view_proj(&self.camera);
     }
 
@@ -456,8 +455,8 @@ impl State {
         let mut x = 0.0;
         let mut z = 0.0;
         let mut count = 0;
-        while x < 100.0 {
-            while z < 50.0 {
+        while x < 17.0 {
+            while z < 12.0 {
                 let random_number: f32 = rng.gen_range(0.0..=9.0);
                 instance_data.push(glyph_instance_data::GlyphInstanceData {
                     glyph_id: count,
@@ -611,7 +610,7 @@ impl State {
         let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
             glyphs::glyph_instance_data::GlyphUniformData {
                 min_x: 0.0,
-                max_x: 100.0,
+                max_x: 17.0,
                 min_interp_x: -5.0,
                 max_interp_x: 5.0,
 
@@ -621,7 +620,7 @@ impl State {
                 max_interp_y: 6.0,
 
                 min_z: 0.0,
-                max_z: 50.0,
+                max_z: 12.0,
                 min_interp_z: -5.0,
                 max_interp_z: 5.0,
 
