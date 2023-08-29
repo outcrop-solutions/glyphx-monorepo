@@ -19,16 +19,12 @@ use winit::window::Window;
 use super::pipeline::glyphs::glyph_instance_data;
 use glam::{Mat4, Vec3, Vec4};
 use rand::Rng;
-
-const Z_ORDERS: [[&str; 4]; 8] = [
-    ["x-axis-line", "y-axis-line", "z-axis-line", "glyphs"],
-    ["y-axis-line", "glyphs", "x-axis-line", "z-axis-line"],
-    ["x-axis-line", "y-axis-line", "z-axis-line", "glyphs"],
-    ["x-axis-line", "y-axis-line", "z-axis-line", "glyphs"],
-    ["x-axis-line", "y-axis-line", "z-axis-line", "glyphs"],
-    ["x-axis-line", "glyphs", "y-axis-line", "z-axis-line"],
-    ["x-axis-line", "glyphs", "y-axis-line", "z-axis-line"],
-    ["y-axis-line", "glyphs", "x-axis-line", "z-axis-line"],
+use std::f32::consts::PI;
+const Z_ORDERS: [[&str; 4]; 4] = [
+    ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
+    ["z-axis-line", "glyphs", "x-axis-line", "y-axis-line"],
+    ["glyphs", "x-axis-line", "z-axis-line", "y-axis-line"],
+    ["x-axis-line", "glyphs", "z-axis-line", "y-axis-line"],
 ];
 pub struct State {
     surface: wgpu::Surface,
@@ -96,7 +92,6 @@ impl State {
             contents: bytemuck::cast_slice(&[light_uniform]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
-
 
         let model_configuration = model_configuration.clone();
 
@@ -261,52 +256,21 @@ impl State {
         drop(screen_clear_render_pass);
         let mut commands = Vec::new();
         commands.push(encoder.finish());
-        // let mut i: usize = 0;
-        // while i < self.pipeline_manager.get_pipeline_count() {
-        //     let (name, pipeline) = self
-        //         .pipeline_manager
-        //         .get_pipeline_by_z_order(i as u32)
-        //         .unwrap();
+        let mut i: usize = 0;
+        while i < self.pipeline_manager.get_pipeline_count() {
+            let (name, pipeline) = self
+                .pipeline_manager
+                .get_pipeline_by_z_order(i as u32)
+                .unwrap();
 
-        //     commands.push(Self::run_pipeline(
-        //         &self.device,
-        //         &smaa_frame,
-        //         pipeline,
-        //         &name,
-        //     ));
-        //     i += 1;
-        // }
-        let x_axis_pipeline = self.pipeline_manager.get_pipeline("x-axis-line").unwrap();
-        commands.push(Self::run_pipeline(
-            &self.device,
-            &smaa_frame,
-            x_axis_pipeline,
-            "x-axis-line",
-        ));
-
-        let y_axis_pipeline = self.pipeline_manager.get_pipeline("y-axis-line").unwrap();
-        commands.push(Self::run_pipeline(
-            &self.device,
-            &smaa_frame,
-            y_axis_pipeline,
-            "y-axis-line",
-        ));
-
-        let z_axis_pipeline = self.pipeline_manager.get_pipeline("z-axis-line").unwrap();
-        commands.push(Self::run_pipeline(
-            &self.device,
-            &smaa_frame,
-            z_axis_pipeline,
-            "z-axis-line",
-        ));
-
-        let glyph_pipeline = self.pipeline_manager.get_pipeline("glyphs").unwrap();
-        commands.push(Self::run_pipeline(
-            &self.device,
-            &smaa_frame,
-            glyph_pipeline,
-            "glyphs",
-        ));
+            commands.push(Self::run_pipeline(
+                &self.device,
+                &smaa_frame,
+                pipeline,
+                &name,
+            ));
+            i += 1;
+        }
         self.queue.submit(commands);
 
         smaa_frame.resolve();
@@ -414,101 +378,101 @@ impl State {
     }
 
     fn build_instance_data() -> Rc<Vec<glyphs::glyph_instance_data::GlyphInstanceData>> {
-        Rc::new (vec![
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 0,
-                x_value: 0.0,
-                y_value: 0.0,
-                z_value: 0.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 1,
-                x_value: 1.0,
-                y_value: 1.0,
-                z_value: 1.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 2,
-                x_value: 2.0,
-                y_value: 2.0,
-                z_value: 2.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 3,
-                x_value: 3.0,
-                y_value: 3.0,
-                z_value: 3.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 4,
-                x_value: 4.0,
-                y_value: 4.0,
-                z_value: 4.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 5,
-                x_value: 5.0,
-                y_value: 5.0,
-                z_value: 5.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 6,
-                x_value: 6.0,
-                y_value: 6.0,
-                z_value: 6.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 7,
-                x_value: 7.0,
-                y_value: 7.0,
-                z_value: 7.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 8,
-                x_value: 8.0,
-                y_value: 8.0,
-                z_value: 8.0,
-                glyph_selected: 0,
-            },
-            glyphs::glyph_instance_data::GlyphInstanceData {
-                glyph_id: 9,
-                x_value: 9.0,
-                y_value: 9.0,
-                z_value: 9.0,
-                glyph_selected: 0,
-            },
-        ])
+        // Rc::new (vec![
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 0,
+        //         x_value: 0.0,
+        //         y_value: 0.0,
+        //         z_value: 0.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 1,
+        //         x_value: 1.0,
+        //         y_value: 1.0,
+        //         z_value: 1.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 2,
+        //         x_value: 2.0,
+        //         y_value: 2.0,
+        //         z_value: 2.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 3,
+        //         x_value: 3.0,
+        //         y_value: 3.0,
+        //         z_value: 3.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 4,
+        //         x_value: 4.0,
+        //         y_value: 4.0,
+        //         z_value: 4.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 5,
+        //         x_value: 5.0,
+        //         y_value: 5.0,
+        //         z_value: 5.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 6,
+        //         x_value: 6.0,
+        //         y_value: 6.0,
+        //         z_value: 6.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 7,
+        //         x_value: 7.0,
+        //         y_value: 7.0,
+        //         z_value: 7.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 8,
+        //         x_value: 8.0,
+        //         y_value: 8.0,
+        //         z_value: 8.0,
+        //         glyph_selected: 0,
+        //     },
+        //     glyphs::glyph_instance_data::GlyphInstanceData {
+        //         glyph_id: 9,
+        //         x_value: 9.0,
+        //         y_value: 9.0,
+        //         z_value: 9.0,
+        //         glyph_selected: 0,
+        //     },
+        // ])
 
-        // let mut instance_data: Vec<glyph_instance_data::GlyphInstanceData> = Vec::new();
-        // let mut rng = rand::thread_rng();
-        // let mut x = 0.0;
-        // let mut z = 0.0;
-        // let mut count = 0;
-        // while x < 100.0 {
-        //     while z < 50.0 {
-        //         let random_number: f32 = rng.gen_range(0.0..=9.0);
-        //         instance_data.push(glyph_instance_data::GlyphInstanceData {
-        //             glyph_id: count,
-        //             x_value: x,
-        //             y_value: random_number,
-        //             z_value: z,
-        //             glyph_selected: 0,
-        //         });
-        //         z += 1.0;
-        //         count += 1;
-        //     }
-        //     z = 0.0;
-        //     x += 1.0;
-        // }
-        //Rc::new(instance_data)
+        let mut instance_data: Vec<glyph_instance_data::GlyphInstanceData> = Vec::new();
+        let mut rng = rand::thread_rng();
+        let mut x = 0.0;
+        let mut z = 0.0;
+        let mut count = 0;
+        while x < 100.0 {
+            while z < 50.0 {
+                let random_number: f32 = rng.gen_range(0.0..=9.0);
+                instance_data.push(glyph_instance_data::GlyphInstanceData {
+                    glyph_id: count,
+                    x_value: x,
+                    y_value: random_number,
+                    z_value: z,
+                    glyph_selected: 0,
+                });
+                z += 1.0;
+                count += 1;
+            }
+            z = 0.0;
+            x += 1.0;
+        }
+        Rc::new(instance_data)
     }
 
     fn build_pipelines(
@@ -613,9 +577,9 @@ impl State {
         //     config.width as f32 / config.height as f32,
         // );
         let mut camera = OrbitCamera::new(
-            2.0,
-            1.5,
-            1.25,
+            11.0,
+            0.0,
+            0.0,
             Vec3::new(0.0, 0.0, 0.0),
             config.width as f32 / config.height as f32,
         );
@@ -647,7 +611,7 @@ impl State {
         let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
             glyphs::glyph_instance_data::GlyphUniformData {
                 min_x: 0.0,
-                max_x: 9.0,
+                max_x: 100.0,
                 min_interp_x: -5.0,
                 max_interp_x: 5.0,
 
@@ -657,7 +621,7 @@ impl State {
                 max_interp_y: 6.0,
 
                 min_z: 0.0,
-                max_z: 9.0,
+                max_z: 50.0,
                 min_interp_z: -5.0,
                 max_interp_z: 5.0,
 
@@ -667,102 +631,68 @@ impl State {
             };
         glyph_uniform_data
     }
-
-    //Ok, don't take to much stock in the names of the faces.  They really do not make sense in the
-    //sense of the cube for a few reasons.
-    //1. To keep things straight in my own mind I built
-    //everything around xyz witht the z facing up.  I knwo that this is not standardm but it helped me
-    //reason about how to stage the data for the model.
-    //2. This was all well in good until I implimneted the camera, which required that I shuffel the
-    //   verticies in the shaders to make all the math work right.
-    //3.  I pulled this off of the web and while I cannot make rhyme or reason out of which side is
-    //    which, I can say that the output is deterministic and gives me somegthing stable to use to
-    //    layout the axis lines and glyphs.
-    //so we are going to run with this for now.  When we hire someone with graphics programming
-    //experience they will make fun of all these hacks, but that is ok since I approve vacation time :)
-    //JK, I am not that shallow.
-    fn get_facing_sides(
-        pitch: f32,
-        yaw: f32,
-        eye_x: f32,
-        eye_y: f32,
-        eye_z: f32,
-        camera_uniform: &CameraUniform,
-    ) -> usize {
-        // Calculate the direction vector of the camera.
-        let direction_vector =
-            Vec3::new(eye_x, eye_y, eye_z) * Vec3::new(yaw.cos(), yaw.sin(), pitch.cos());
-
-        let mat = Mat4::from_cols_array_2d(&camera_uniform.view_proj);
-        // Calculate the normal vectors of each of the cube's faces.
-        let top_normal = Vec3::new(0.0, 1.0, 0.0);
-        let bottom_normal = Vec3::new(0.0, -1.0, 0.0);
-        let left_normal = Vec3::new(-1.0, 0.0, 0.0);
-        let right_normal = Vec3::new(1.0, 0.0, 0.0);
-        let front_normal = Vec3::new(0.0, 0.0, 1.0);
-        let back_normal = Vec3::new(0.0, 0.0, -1.0);
-
-        // Check each of the cube's faces.
-        let normals = [
-            top_normal,
-            bottom_normal,
-            left_normal,
-            right_normal,
-            front_normal,
-            back_normal,
-        ];
-        let mut i = 0;
-        let mut index = 0;
-        while i < normals.len() {
-            let face_normal = normals[i];
-            // Calculate the dot product of the face's normal vector and the camera's direction vector.
-            let dot_product = direction_vector.dot(face_normal);
-            let dot_product2 = mat * Vec4::new(face_normal.y, face_normal.z, face_normal.x, 1.0);
-            // If the dot product is positive, then the face is facing the camera.
-            if dot_product > 0.0 {
-                index += match i {
-                    1 => 1,
-                    3 => 2,
-                    5 => 4,
-                    _ => 0,
-                };
-            }
-            i += 1;
-        }
-
-        // Return the list of facing sides.
-        index
-    }
-
     ///We call this wheniver the camera is moved so that we can recalulate
     ///the z order of the axis lines and glyphs in response.
+    //TODO: This is 100% hacked together and needs someone with a better
+    //grasp of the geometry to see if we can find the corerct algorithm
+    //to calculate the Z order so that the grid lines do not overwrite the
+    //glyphs and vice versa.
+    pub fn calculate_rotation_change(
+        width: f32,
+        height: f32,
+        cube_diameter: f32,
+        yaw: f32,
+        distance: f32,
+    ) -> f32 {
+        let afov_x = 2.0 * ((width as f32) / 2.0).atan2(distance);
+        let afov_y = 2.0 * ((height as f32) / 2.0).atan2(distance);
+        let max_yaw_change = afov_x / 2.0; // or use afov_y if you're considering vertical rotation
+        let max_distance = cube_diameter * 10.0; // Maximum distance from scene center
+                                                 // Calculate maximum yaw change for one full turn
+        let max_yaw_full_turn = 2.0 * std::f32::consts::PI;
+        let angle_per_distance = max_yaw_change / max_distance;
+
+        let angular_rotation = distance * angle_per_distance;
+        let calculated_angular_rotation = (yaw + angular_rotation) % max_yaw_full_turn;
+        let max_angular_rotation = max_yaw_full_turn + angular_rotation;
+
+        if calculated_angular_rotation < 0.0 {
+            calculated_angular_rotation + max_angular_rotation
+        } else {
+            calculated_angular_rotation
+        }
+    }
+
     pub fn update_z_order(&mut self) {
-        let z_order_index = Self::get_facing_sides(
-            self.camera.pitch,
+        let rotation_angle = Self::calculate_rotation_change(
+            10.0, //self.config.width as f32,
+            10.0, //self.config.height as f32,
+            10.0,
             self.camera.yaw,
-            self.camera.eye.x,
-            self.camera.eye.y,
-            self.camera.eye.z,
-            &self.camera_uniform,
+            self.camera.distance,
+        );
+        println!(
+            "rotation_angle : {},  distance: {}, yaw: {}, pitch: {}",
+            rotation_angle,  self.camera.distance, self.camera.yaw, self.camera.pitch
         );
 
-        println!("z_order_index: {}", z_order_index);
-        //This is our translation to the z order for our axis lines and glyphs.
-        // 0 (top, left, front)  -> x-axis, y-axis, z-axis, glyphs
-        // 1 (bottom, left, front) -> y-axis, glyphs, x-axis, z-axis
-        // 2 (top, right, front)  -> x-axis, y-axis, z-axis, glyphs
-        // 3 (bottom, right, front) -> x-axis, y-axis, z-axis, glyphs
-        // 4 (top, left, back)  -> x-axis, y-axis, z-axis, glyphs
-        // 5 (bottom, left, back) -> x-axis, glyphs, y-axis, z-axis
-        // 6 (top, right, back)  -> x-axis, glyphs, y-axis, x-axis
-        // 7 (bottom, right, back) -> y-axis, glyphs, x-axis, z-axis
+        let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
+            0
+        } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294  {
+            1 //-- right or back, z(green) is covered.  
+        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374{
+            2 //-- back all three axis lines are visible.
+        } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
+            3 //-- left or back, x(red) is covered.
+        } else {
+            0 //-- normal glyphs last
+        };
         let z_order = Z_ORDERS[z_order_index];
         let mut i = 0;
         while i < z_order.len() {
             let name = z_order[i].clone();
             self.pipeline_manager
                 .update_pipeline_z_order(&name, i as u32);
-
             i += 1;
         }
     }
