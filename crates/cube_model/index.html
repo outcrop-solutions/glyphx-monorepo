@@ -12,14 +12,17 @@
     </style>
   </head>
 
-  <body id="glyphx-cube-model">
+  <body id="glyphx-cube-model" height="100%">
     <button id="move-left-button">Move Left</button>
     <button id="move-right-button">Move Right</button>
     <button id="move-forward-button">Move Forward</button>
     <button id="move-backward-button">Move Backward</button>
+    <button id="move-up-button">Rotate Up</button>
+    <button id="move-down-button">Rotate Down</button>
     <script type="module">
       import init, { ModelRunner } from './pkg/glyphx_cube_model.js';
       async function run() {
+	let isDragRotate = false;
         await init();
         console.log('WASM Loaded');
         const modelRunner = new ModelRunner();
@@ -31,31 +34,73 @@
         const moveRightButton = document.getElementById('move-right-button');
         const moveForwardButton = document.getElementById('move-forward-button');
         const moveBackwardButton = document.getElementById('move-backward-button');
+        const moveUpButton = document.getElementById('move-up-button');
+        const moveDownButton = document.getElementById('move-down-button');
+        const canvas = document.getElementById('glyphx-cube-model');
+
+ // Append our event listeners.
+            canvas.addEventListener('mousedown', e => {
+                isDragRotate = true;
+            });
+
+            canvas.addEventListener('mousemove', e => {
+                if (isDragRotate === true) {
+		    //Here we invert our x and y to get the rotation to match
+		    const rotation = -e.movementX;
+                     modelRunner.add_yaw(rotation);
+		     modelRunner.add_pitch(e.movementY);
+
+                }
+            });
+
+            canvas.addEventListener('mouseup', e => {
+                if (isDragRotate === true) {
+                    isDragRotate = false;
+                }
+            });
+
+            canvas.addEventListener('wheel', e => {
+		console.log("wheel event");
+                e.preventDefault();
+		modelRunner.add_distance(-e.deltaY);
+            }, true);
+
 
         moveLeftButton.addEventListener('click', function onClick() {
           console.log('Move Left Button Clicked');
 
-          modelRunner.move_left();
+          modelRunner.add_yaw(-5.0);
         });
 
         moveRightButton.addEventListener('click', function onClick() {
           console.log('Move Right Button Clicked');
 
-          modelRunner.move_right();
+          modelRunner.add_yaw(5.0);
         });
 
         moveForwardButton.addEventListener('click', function onClick() {
           console.log('Move Forward Button Clicked');
 
-          modelRunner.move_forward();
+          modelRunner.add_distance(-120.0);
         });
 
         moveBackwardButton.addEventListener('click', function onClick() {
           console.log('Move Backward Button Clicked');
 
-          modelRunner.move_back();
+          modelRunner.add_distance(120.0);
         });
 
+        moveUpButton.addEventListener('click', function onClick() {
+          console.log('Move Up Button Clicked');
+
+          modelRunner.add_pitch(-5.0);
+        });
+
+        moveDownButton.addEventListener('click', function onClick() {
+          console.log('Move Down Button Clicked');
+
+          modelRunner.add_pitch(5.0);
+        });
         window.addEventListener('model-event', (event) => {
           console.log('Model Event Received');
           console.log({ event });

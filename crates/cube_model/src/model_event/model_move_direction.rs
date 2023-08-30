@@ -1,8 +1,8 @@
 use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ModelMoveDirection {
-    Left(bool),
-    Right(bool),
-    Forward(bool),
-    Backward(bool),
+    Pitch(f32),
+    Yaw(f32),
+    Distance(f32),
+
 }
