@@ -1,5 +1,5 @@
-import {database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 
@@ -11,7 +11,7 @@ export class TagService {
       const id =
         tagId instanceof mongooseTypes.ObjectId
           ? tagId
-          : new (mongooseTypes.ObjectId as any)(tagId);
+          : new mongooseTypes.ObjectId(tagId);
       const tag = await mongoDbConnection.models.TagModel.getTagById(id);
       return tag;
     } catch (err: any) {

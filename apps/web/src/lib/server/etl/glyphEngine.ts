@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { generalPurposeFunctions } from '@glyphx/core';
+import { generalPurposeFunctions } from 'core';
 
-import { GlyphEngine } from '@glyphx/glyphengine';
+import { GlyphEngine } from 'glyphengine';
 import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
-import { processTrackingService, activityLogService, projectService, stateService } from '@glyphx/business';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { processTrackingService, activityLogService, projectService, stateService } from 'business';
+import { databaseTypes, webTypes } from 'types';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
 import { generateFilterQuery } from 'lib/client/helpers';
 import { isValidPayload } from 'lib/utils/isValidPayload';

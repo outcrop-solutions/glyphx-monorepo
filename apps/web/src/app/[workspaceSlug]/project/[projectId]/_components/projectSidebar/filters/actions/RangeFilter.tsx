@@ -8,7 +8,7 @@ import FilterTypeIcon from 'public/svg/filter-type-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
 import { WritableDraft } from 'immer/dist/internal';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 export const RangeFilter = ({ prop }) => {
   const setProject = useSetRecoilState(projectAtom);

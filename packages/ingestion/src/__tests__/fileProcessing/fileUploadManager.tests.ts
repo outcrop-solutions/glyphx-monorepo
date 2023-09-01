@@ -2,13 +2,13 @@ import 'mocha';
 import {assert} from 'chai';
 import * as fileProcessing from '@fileProcessing';
 import {createSandbox} from 'sinon';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {Readable} from 'stream';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import {mockClient} from 'aws-sdk-client-mock';
 import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import {tableService} from '@glyphx/business';
+import {tableService} from 'business';
 
 import {FILE_PROCESSING_ERROR_TYPES} from 'util/constants';
 
@@ -36,7 +36,7 @@ describe('#fileProcessing/fileUploadManager', () => {
     let inputStream: Readable;
     const fileName = 'file1.csv';
     const tableName = 'table1';
-    const fileOperationType = fileIngestion.constants.FILE_OPERATION.ADD;
+    const fileOperationType = fileIngestionTypes.constants.FILE_OPERATION.ADD;
     beforeEach(() => {
       // eslint-disable-next-line
       inputStream = Readable.from(INPUT_DATA);
@@ -138,7 +138,8 @@ describe('#fileProcessing/fileUploadManager', () => {
     let inputStream: Readable;
     const fileName = 'file1.csv';
     const tableName = 'table1';
-    const fileOperationType = fileIngestion.constants.FILE_OPERATION.APPEND;
+    const fileOperationType =
+      fileIngestionTypes.constants.FILE_OPERATION.APPEND;
     beforeEach(() => {
       // eslint-disable-next-line
       inputStream = Readable.from(INPUT_DATA);

@@ -1,9 +1,9 @@
 import 'mocha';
 import {assert} from 'chai';
 import {v4} from 'uuid';
-import {MongoDbConnection} from '@glyphx/database';
+import {MongoDbConnection} from 'database';
 import {Types as mongooseTypes} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 import {membershipService} from '../services';
 
 type ObjectId = mongooseTypes.ObjectId;

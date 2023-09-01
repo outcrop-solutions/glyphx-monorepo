@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { _updateConfig, api } from 'lib';
 import { togglesConfigDirtyAtom, configSelector, currentConfigAtom } from 'state';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import { Toggle } from './Toggle';
 
 const fields = ['Toggle Grid Lines', 'Toggle Glyph Offset', 'Toggle Z Offset'];

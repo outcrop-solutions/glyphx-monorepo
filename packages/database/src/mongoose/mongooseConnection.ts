@@ -1,6 +1,6 @@
 import * as models from './models';
 import mongoose from 'mongoose';
-import {bindSecrets, boundProperty, error} from '@glyphx/core';
+import {bindSecrets, boundProperty, error} from 'core';
 
 @bindSecrets('dev/mongodb')
 export class MongoDbConnection {

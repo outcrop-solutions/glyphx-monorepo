@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {SinonSandbox, createSandbox} from 'sinon';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {
   BasicAthenaProcessor,
   BasicTableSorter,
@@ -9,7 +9,7 @@ import {
   BasicJoinProcessor,
 } from '@fileProcessing';
 import {IJoinTableDefinition} from 'interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
 const MOCK_FILE_INFORMATION = [
   {
@@ -261,7 +261,7 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
     it('should not process our appended files tables', async () => {
       const copiedMock = JSON.parse(JSON.stringify(MOCK_FILE_INFORMATION));
       copiedMock[0].fileOperationType =
-        fileIngestion.constants.FILE_OPERATION.APPEND;
+        fileIngestionTypes.constants.FILE_OPERATION.APPEND;
       sandbox.replace(
         BasicTableSorter.prototype,
         'sortTables',

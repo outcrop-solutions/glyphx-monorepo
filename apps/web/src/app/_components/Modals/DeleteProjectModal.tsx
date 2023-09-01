@@ -6,7 +6,7 @@ import { useSWRConfig } from 'swr';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { _deleteProject, _deleteWorkspace, api } from 'lib';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';

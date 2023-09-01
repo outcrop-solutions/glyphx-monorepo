@@ -1,8 +1,8 @@
 import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {NumberFieldChecker} from './numberFieldChecker';
 // eslint-disable-next-line node/no-unpublished-import
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import {DateFieldChecker} from './dateFieldChecker';
 
 /**
@@ -25,7 +25,7 @@ export class BasicFieldTypeCalculator
   private readonly sampleRateField: number;
   private numberPassedField: number;
   private samplesAnalyzedField: number;
-  private fieldTypeField: fileIngestion.constants.FIELD_TYPE;
+  private fieldTypeField: fileIngestionTypes.constants.FIELD_TYPE;
   private hasProcessedItemsField: boolean;
   private allItemsProcessedField: boolean;
 
@@ -99,7 +99,7 @@ export class BasicFieldTypeCalculator
    * See the interface IFieldTypeCalculator for more information --
    * {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator.fieldType | IFieldTypeCalculator.fieldType}
    */
-  get fieldType(): fileIngestion.constants.FIELD_TYPE {
+  get fieldType(): fileIngestionTypes.constants.FIELD_TYPE {
     if (!this.hasProcessedItemsField) {
       throw new error.InvalidOperationError(
         'This information is not available until processItems has been called',
@@ -138,7 +138,7 @@ export class BasicFieldTypeCalculator
     this.sampleRateField = sampleRate;
     this.numberPassedField = 0;
     this.samplesAnalyzedField = 0;
-    this.fieldTypeField = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+    this.fieldTypeField = fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
     this.hasProcessedItemsField = false;
     this.allItemsProcessedField = false;
     this.numberOfStrings = 0;
@@ -151,7 +151,7 @@ export class BasicFieldTypeCalculator
   /**
    * will evaluate the values of {@link numberOfStrings} and {@link numberOfNumbers} to
    * determne our {@link fieldType}.  In the case of an equal number of each, the field
-   * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | fileIngestion.constants.FIELD_TYPE.STRING}
+   * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | fileIngestionTypes.constants.FIELD_TYPE.STRING}
    */
   private calculateFieldType(): void {
     const percentNumber =
@@ -163,10 +163,10 @@ export class BasicFieldTypeCalculator
       (this.numberOfDates + this.numberOfStrings + this.numberOfNumbers);
     this.fieldTypeField =
       percentNumber < 0.65 && percentDate < 0.65
-        ? fileIngestion.constants.FIELD_TYPE.STRING
+        ? fileIngestionTypes.constants.FIELD_TYPE.STRING
         : percentNumber > percentDate
-        ? fileIngestion.constants.FIELD_TYPE.NUMBER
-        : fileIngestion.constants.FIELD_TYPE.DATE;
+        ? fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+        : fileIngestionTypes.constants.FIELD_TYPE.DATE;
     this.hasProcessedItemsField = true;
   }
 

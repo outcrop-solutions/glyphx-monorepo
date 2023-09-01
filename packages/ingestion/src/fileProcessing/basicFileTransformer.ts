@@ -4,7 +4,7 @@ import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
 import {FILE_PROCESSING_ERROR_TYPES} from '../util/constants';
 import {NumberFieldChecker, DateFieldChecker} from '../fieldProcessing';
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 /**
  * After further reading and research. I was able to find
  * the Parquet transformer so I can create a similar approach.
@@ -101,7 +101,7 @@ export class BasicFileTransformer extends Transform {
    * reported back through a callback.
    */
 
-  private readonly fileOperation: fileIngestion.constants.FILE_OPERATION;
+  private readonly fileOperation: fileIngestionTypes.constants.FILE_OPERATION;
   /**
    * Once all data has been read, this will be called to report out the results.
    * See {@link interfaces/fileProcessing/iFileInformation!FileInformationCallback} for additional
@@ -162,7 +162,7 @@ export class BasicFileTransformer extends Transform {
     outputFileName: string,
     outputDirectory: string,
     tableName: string,
-    fileOperation: fileIngestion.constants.FILE_OPERATION,
+    fileOperation: fileIngestionTypes.constants.FILE_OPERATION,
     callback: fileProcessingInterfaces.FileInformationCallback,
     errorCallback: fileProcessingInterfaces.FileProcessingErrorHandler,
     fieldTypeCalculator: fieldProcessingInterfaces.IConstructableFieldTypeCalculator,
@@ -210,7 +210,7 @@ export class BasicFileTransformer extends Transform {
         fieldType: c.fieldTypeCalculator.fieldType,
         longestString:
           c.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
             ? c.maxFieldLength
             : undefined,
       };
@@ -218,7 +218,7 @@ export class BasicFileTransformer extends Transform {
     columns.unshift({
       name: GLYPHX_ID_COLUMN_NAME,
       origionalName: GLYPHX_ID_COLUMN_NAME,
-      fieldType: fileIngestion.constants.FIELD_TYPE.INTEGER,
+      fieldType: fileIngestionTypes.constants.FIELD_TYPE.INTEGER,
       longestString: undefined,
     });
     return {
@@ -289,17 +289,17 @@ export class BasicFileTransformer extends Transform {
         //We are going to store our dates as numbers in the database.
         type:
           c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.NUMBER ||
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER ||
           c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.DATE
+            fileIngestionTypes.constants.FIELD_TYPE.DATE
             ? 'DOUBLE'
             : 'UTF8',
         encoding: 'PLAIN',
         optional:
           c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.NUMBER ||
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER ||
           c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.DATE,
+            fileIngestionTypes.constants.FIELD_TYPE.DATE,
       };
     });
 
@@ -328,13 +328,13 @@ export class BasicFileTransformer extends Transform {
         //istanbul ignore next
         if (
           fieldTypeCalculator?.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.DATE
+          fileIngestionTypes.constants.FIELD_TYPE.DATE
         ) {
           //convert the date to milliseconds
           value = this.dateFieldChecker.convertField(dirtyValue).getTime();
         } else if (
           fieldTypeCalculator?.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.NUMBER
+          fileIngestionTypes.constants.FIELD_TYPE.NUMBER
         ) {
           value = this.numberFieldChecker.convertField(dirtyValue);
         } else {

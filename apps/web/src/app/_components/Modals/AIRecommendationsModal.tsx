@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { _createState, _createProjectFromTemplate, api } from 'lib';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, templatesAtom, workspaceAtom } from 'state';

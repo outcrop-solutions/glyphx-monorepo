@@ -1,12 +1,9 @@
 import 'mocha';
 import {assert} from 'chai';
-import {MongoDbConnection} from '@glyphx/database';
+import {MongoDbConnection} from 'database';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {
-  database as databaseTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
+import {databaseTypes, fileIngestionTypes} from 'types';
 import {projectService} from '../services';
 
 type ObjectId = mongooseTypes.ObjectId;

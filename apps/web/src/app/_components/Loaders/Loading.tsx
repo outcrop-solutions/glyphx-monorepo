@@ -1,7 +1,7 @@
 import BarLoader from 'react-spinners/BarLoader';
 import { useRecoilValue } from 'recoil';
 import { showLoadingAtom } from 'state';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 // {
 //  processId: string;
 //  processName: string;

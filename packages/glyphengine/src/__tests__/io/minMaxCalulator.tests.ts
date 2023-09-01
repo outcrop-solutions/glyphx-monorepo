@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {MinMaxCalculator} from '../../io/minMaxCalulator';
 import athenaClient from '../../io/athenaClient';
 

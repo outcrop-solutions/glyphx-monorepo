@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 export const deepMergeProject = (axis: webTypes.constants.AXIS, column: any, project) => {
   return {

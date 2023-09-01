@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import {CustomerPaymentModel} from '../../..//mongoose/models/customerPayment';
 import {UserModel} from '../../..//mongoose/models/user';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 

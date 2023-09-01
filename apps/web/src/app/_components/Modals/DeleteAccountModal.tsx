@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import { DocumentDuplicateIcon } from '@heroicons/react/outline';

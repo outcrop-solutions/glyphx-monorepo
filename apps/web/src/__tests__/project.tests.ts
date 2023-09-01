@@ -9,7 +9,7 @@ import { testApiHandler } from 'next-test-api-route-handler';
 import { _createDefaultProject, _deleteProject, _updateProjectState } from 'lib/client/mutations/project';
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericGet, genericPatch } from './utilities/genericReqs';
-import { database as databaseTypes, fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
+import { databaseTypes, fileIngestionTypes, webTypes } from 'types';
 import { Types as mongooseTypes } from 'mongoose';
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
@@ -212,7 +212,7 @@ describe('PROJECT ROUTES', () => {
     /************************* GET PROJECT **************************/
     // replace handler import resolution
     getProject = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -223,7 +223,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getProjectRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -235,7 +235,7 @@ describe('PROJECT ROUTES', () => {
     /************************* CREATE PROJECT **************************/
     // replace handler import resolution
     createProject = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -246,7 +246,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     createProjectRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -258,7 +258,7 @@ describe('PROJECT ROUTES', () => {
     /************************* UPDATE PROJECT **************************/
     // replace handler import resolution
     updateProjectState = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -269,7 +269,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     updateProjectStateRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -281,7 +281,7 @@ describe('PROJECT ROUTES', () => {
     /************************* DELETE PROJECT **************************/
     // replace handler import resolution
     deleteProject = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -292,7 +292,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     deleteProjectRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -303,7 +303,7 @@ describe('PROJECT ROUTES', () => {
 
     /************************* PROJECT ROUTE **************************/
     projectRoute = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

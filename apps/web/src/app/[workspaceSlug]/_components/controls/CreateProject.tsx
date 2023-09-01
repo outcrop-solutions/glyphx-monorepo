@@ -3,7 +3,7 @@ import NewProjectIcon from 'public/svg/new-project-icon.svg';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 import produce from 'immer';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { WritableDraft } from 'immer/dist/internal';
 
 const btnTextPrimary = 'text-black font-roboto font-medium leading-[16px] pl-1';

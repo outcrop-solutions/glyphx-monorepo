@@ -11,7 +11,7 @@ import StateIcon from 'public/svg/state.svg';
 import ActiveStateIcon from 'public/svg/active-state.svg';
 import { isNullCamera } from 'lib/utils/isNullCamera';
 import Image from 'next/image';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { databaseTypes, webTypes } from 'types';
 
 export const State = ({ item, idx }) => {
   const session = useSession();

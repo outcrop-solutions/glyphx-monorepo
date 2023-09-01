@@ -1,12 +1,12 @@
 import {IFileInformation} from '../interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
-import {generalPurposeFunctions} from '@glyphx/core';
+import {fileIngestionTypes} from 'types';
+import {generalPurposeFunctions} from 'core';
 
 export class FileReconciliator {
   private static getDeletedTables(fileInfo: fileIngestion.IFileInfo[]) {
     return fileInfo
       .filter(
-        d => d.operation === fileIngestion.constants.FILE_OPERATION.DELETE
+        d => d.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE
       )
       .map(d => d.tableName);
   }
@@ -18,7 +18,8 @@ export class FileReconciliator {
     fileInfos: IFileInformation[]
   ) {
     fileInfo.forEach(f => {
-      if (f.operation === fileIngestion.constants.FILE_OPERATION.DELETE) return;
+      if (f.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE)
+        return;
       const fileStats = processedFileInformation.find(
         fi => fi.tableName === f.tableName && fi.fileName === f.fileName
       ) as unknown as IFileInformation;
@@ -42,11 +43,12 @@ export class FileReconciliator {
             fi.tableName === f.tableName &&
             (fi.fileName === f.fileName ||
               fi.fileOperationType ===
-                fileIngestion.constants.FILE_OPERATION.REPLACE)
+                fileIngestionTypes.constants.FILE_OPERATION.REPLACE)
         )
       ) {
         //these are essentially no-ops for the Athena Proceser.  This will make sure that they are included in the view, but the table wwill not be regenerated.
-        fInfo.fileOperationType = fileIngestion.constants.FILE_OPERATION.APPEND;
+        fInfo.fileOperationType =
+          fileIngestionTypes.constants.FILE_OPERATION.APPEND;
         fileInfos.push(fInfo);
       }
     });
@@ -112,7 +114,7 @@ export class FileReconciliator {
           numberOfColumns: 0,
           columns: [],
           fileSize: 0,
-          fileOperationType: fileIngestion.constants.FILE_OPERATION.DELETE,
+          fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.DELETE,
         } as IFileInformation
       );
 

@@ -1,5 +1,5 @@
 import AthenaConnection from '../lib/athenaConnection';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 export class DataService {
   public static async getDataByGlyphxIds(

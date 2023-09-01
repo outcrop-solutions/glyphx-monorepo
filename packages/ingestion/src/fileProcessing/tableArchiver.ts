@@ -1,8 +1,4 @@
-import {
-  aws,
-  error,
-  generalPurposeFunctions as coreFunctions,
-} from '@glyphx/core';
+import {aws, error, generalPurposeFunctions as coreFunctions} from 'core';
 import {PassThrough} from 'stream';
 import {pipeline} from 'node:stream/promises';
 

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, fileIngestionTypes } from 'types';
 import { _deleteProject, _deleteWorkspace, _getSignedUploadUrls, _ingestFiles, _uploadFile, api } from 'lib';
 
 import { useRecoilState, useSetRecoilState } from 'recoil';

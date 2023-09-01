@@ -6,7 +6,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom } from 'state';
 import { toSnakeCase } from './toSnakeCase';
 import { _updateConfig, api } from 'lib';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 const fields = ['Max Color', 'Min Color', 'Background Color', 'X Axis Color', 'Y Axis Color', 'Z Axis Color'];
 
 export const Colors = () => {

@@ -1,11 +1,11 @@
 import 'mocha';
 import {assert} from 'chai';
-import {MongoDbConnection} from '@glyphx/database';
+import {MongoDbConnection} from 'database';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 import {processTrackingService} from '../services';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 

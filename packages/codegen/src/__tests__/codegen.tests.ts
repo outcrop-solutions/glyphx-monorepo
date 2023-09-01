@@ -2,13 +2,13 @@ import 'mocha';
 import path from 'node:path';
 import ts from 'typescript';
 import fs from 'fs-extra';
-import { assert } from 'chai';
+import {assert} from 'chai';
 import Handlebars from 'handlebars';
-import { createSandbox } from 'sinon';
-import { CodeGenerator } from '../generator/codeGenerator';
-import { error } from '@glyphx/core';
-import { database as databaseTypes } from '@glyphx/types';
-import { DEFAULT_CONFIG } from '../generator/config';
+import {createSandbox} from 'sinon';
+import {CodeGenerator} from '../generator/codeGenerator';
+import {error} from 'core';
+import {databaseTypes} from 'types';
+import {DEFAULT_CONFIG} from '../generator/config';
 
 describe('#codegen/generator', () => {
   context('generator', () => {
@@ -67,8 +67,8 @@ describe('#codegen/generator', () => {
         // Creating spy for processFiles
         const processFilesSpy = sandbox.spy(codeGen, 'processFiles');
 
-        fsStatStub.onFirstCall().resolves({ isDirectory: () => false });
-        fsStatStub.onSecondCall().resolves({ isDirectory: () => false });
+        fsStatStub.onFirstCall().resolves({isDirectory: () => false});
+        fsStatStub.onSecondCall().resolves({isDirectory: () => false});
 
         let errored = false;
         try {
@@ -81,7 +81,8 @@ describe('#codegen/generator', () => {
         assert.isTrue(parseFileStub.calledTwice);
       });
       it('should throw a CodeGenError when dbDir is not provided (readdir fails)', async () => {
-        const errMessage = 'An error occurred while generating the db boilerplate, See inner error for details';
+        const errMessage =
+          'An error occurred while generating the db boilerplate, See inner error for details';
         const err = new error.CodeGenError(errMessage, {});
 
         const fsReaddirStub = sandbox.stub(fs, 'readdir');
@@ -135,8 +136,8 @@ describe('#codegen/generator', () => {
         // Creating spy for processFiles
         const processFilesSpy = sandbox.spy(codeGen, 'processFiles');
 
-        fsStatStub.onFirstCall().resolves({ isDirectory: () => false });
-        fsStatStub.onSecondCall().resolves({ isDirectory: () => false });
+        fsStatStub.onFirstCall().resolves({isDirectory: () => false});
+        fsStatStub.onSecondCall().resolves({isDirectory: () => false});
 
         let errored = false;
         try {
@@ -152,7 +153,8 @@ describe('#codegen/generator', () => {
       });
       it('should publish a FileParseError when underlying function call throws one', async () => {
         const dbDir = path.resolve(__dirname, './mocks');
-        const errMessage = 'An error occurred while parsing the interface file, See inner error for details';
+        const errMessage =
+          'An error occurred while parsing the interface file, See inner error for details';
         const err = new error.FileParseError(errMessage, {});
         const fsReaddirStub = sandbox.stub(fs, 'readdir');
         fsReaddirStub.resolves(['file1', 'file2']);
@@ -193,8 +195,8 @@ describe('#codegen/generator', () => {
         // Creating spy for processFiles
         const processFilesSpy = sandbox.spy(codeGen, 'processFiles');
 
-        fsStatStub.onFirstCall().resolves({ isDirectory: () => false });
-        fsStatStub.onSecondCall().resolves({ isDirectory: () => false });
+        fsStatStub.onFirstCall().resolves({isDirectory: () => false});
+        fsStatStub.onSecondCall().resolves({isDirectory: () => false});
 
         function fakePublish() {
           /*eslint-disable  @typescript-eslint/ban-ts-comment */
@@ -207,7 +209,11 @@ describe('#codegen/generator', () => {
         const boundPublish = fakePublish.bind(err);
         const publishOverride = sandbox.stub();
         publishOverride.callsFake(boundPublish);
-        sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+        sandbox.replace(
+          error.GlyphxError.prototype,
+          'publish',
+          publishOverride
+        );
 
         let errored = false;
         try {
@@ -289,7 +295,8 @@ describe('#codegen/generator', () => {
         assert.isTrue(getSourceStub.calledOnce);
       });
       it('should throw a TypeCheckError when underlying extractTypes call throws one', async () => {
-        const errMessage = 'An error occurred while extracting the interface definition, See inner error for details';
+        const errMessage =
+          'An error occurred while extracting the interface definition, See inner error for details';
         const err = new error.TypeCheckError(errMessage, {});
         const filePath = 'file1';
         const mockSourceFile = {
@@ -321,7 +328,11 @@ describe('#codegen/generator', () => {
         const boundPublish = fakePublish.bind(err);
         const publishOverride = sandbox.stub();
         publishOverride.callsFake(boundPublish);
-        sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+        sandbox.replace(
+          error.GlyphxError.prototype,
+          'publish',
+          publishOverride
+        );
 
         const forEachChildStub = sandbox.stub(ts, 'forEachChild');
         forEachChildStub.throws(err);
@@ -351,16 +362,25 @@ describe('#codegen/generator', () => {
           kind: ts.SyntaxKind.InterfaceDeclaration,
         } as unknown as ts.Node;
 
-        const isInterfaceDeclarationStub = sandbox.stub(ts, 'isInterfaceDeclaration');
+        const isInterfaceDeclarationStub = sandbox.stub(
+          ts,
+          'isInterfaceDeclaration'
+        );
         isInterfaceDeclarationStub.returns(true);
 
         const getInterfaceNameStub = sandbox.stub(codeGen, 'getInterfaceName');
         getInterfaceNameStub.returns(mockInterfaceName);
 
-        const getInterfacePropertiesStub = sandbox.stub(codeGen, 'getInterfaceProperties');
+        const getInterfacePropertiesStub = sandbox.stub(
+          codeGen,
+          'getInterfaceProperties'
+        );
         getInterfacePropertiesStub.returns(mockProperties);
 
-        const getInterfaceRelationshipsStub = sandbox.stub(codeGen, 'getInterfaceRelationships');
+        const getInterfaceRelationshipsStub = sandbox.stub(
+          codeGen,
+          'getInterfaceRelationships'
+        );
         getInterfaceRelationshipsStub.returns(mockRelationships);
 
         const forEachChildStub = sandbox.stub(ts, 'forEachChild');
@@ -389,7 +409,10 @@ describe('#codegen/generator', () => {
           forEachChild: (cb: (childNode: ts.Node) => void) => cb(nodeChild),
         } as unknown as ts.Node;
 
-        const isInterfaceDeclarationStub = sandbox.stub(ts, 'isInterfaceDeclaration');
+        const isInterfaceDeclarationStub = sandbox.stub(
+          ts,
+          'isInterfaceDeclaration'
+        );
         isInterfaceDeclarationStub.onFirstCall().returns(false); // the node is not an InterfaceDeclaration
 
         let errored = false;
@@ -404,14 +427,18 @@ describe('#codegen/generator', () => {
       });
       it('should throw a TypeCheckError when getInterfaceName call throws one', async () => {
         const filePath = 'file1';
-        const errMessage = 'An error occurred while extracting the interface definition, See inner error for details';
+        const errMessage =
+          'An error occurred while extracting the interface definition, See inner error for details';
         const err = new error.TypeCheckError(errMessage, {});
 
         const mockNode = {
           kind: ts.SyntaxKind.InterfaceDeclaration,
         } as unknown as ts.Node;
 
-        const isInterfaceDeclarationStub = sandbox.stub(ts, 'isInterfaceDeclaration');
+        const isInterfaceDeclarationStub = sandbox.stub(
+          ts,
+          'isInterfaceDeclaration'
+        );
         isInterfaceDeclarationStub.returns(true);
 
         const getInterfaceNameStub = sandbox.stub(codeGen, 'getInterfaceName');
@@ -431,20 +458,27 @@ describe('#codegen/generator', () => {
       });
       it('should throw a TypeCheckError when getInterfaceProperties call throws one', async () => {
         const filePath = 'file1';
-        const errMessage = 'An error occurred while extracting the interface definition, See inner error for details';
+        const errMessage =
+          'An error occurred while extracting the interface definition, See inner error for details';
         const err = new error.TypeCheckError(errMessage, {});
         const mockInterfaceName = 'MockInterface';
         const mockNode = {
           kind: ts.SyntaxKind.InterfaceDeclaration,
         } as unknown as ts.Node;
 
-        const isInterfaceDeclarationStub = sandbox.stub(ts, 'isInterfaceDeclaration');
+        const isInterfaceDeclarationStub = sandbox.stub(
+          ts,
+          'isInterfaceDeclaration'
+        );
         isInterfaceDeclarationStub.returns(true);
 
         const getInterfaceNameStub = sandbox.stub(codeGen, 'getInterfaceName');
         getInterfaceNameStub.returns(mockInterfaceName);
 
-        const getInterfacePropertiesStub = sandbox.stub(codeGen, 'getInterfaceProperties');
+        const getInterfacePropertiesStub = sandbox.stub(
+          codeGen,
+          'getInterfaceProperties'
+        );
         getInterfacePropertiesStub.throws(err);
 
         let errored = false;
@@ -462,7 +496,8 @@ describe('#codegen/generator', () => {
       });
       it('should throw a TypeCheckError when getInterfaceRelationships call throws one', async () => {
         const filePath = 'file1';
-        const errMessage = 'An error occurred while extracting the interface definition, See inner error for details';
+        const errMessage =
+          'An error occurred while extracting the interface definition, See inner error for details';
         const err = new error.TypeCheckError(errMessage, {});
         const mockInterfaceName = 'MockInterface';
         const mockProperties = [] as any;
@@ -471,16 +506,25 @@ describe('#codegen/generator', () => {
           kind: ts.SyntaxKind.InterfaceDeclaration,
         } as unknown as ts.Node;
 
-        const isInterfaceDeclarationStub = sandbox.stub(ts, 'isInterfaceDeclaration');
+        const isInterfaceDeclarationStub = sandbox.stub(
+          ts,
+          'isInterfaceDeclaration'
+        );
         isInterfaceDeclarationStub.returns(true);
 
         const getInterfaceNameStub = sandbox.stub(codeGen, 'getInterfaceName');
         getInterfaceNameStub.returns(mockInterfaceName);
 
-        const getInterfacePropertiesStub = sandbox.stub(codeGen, 'getInterfaceProperties');
+        const getInterfacePropertiesStub = sandbox.stub(
+          codeGen,
+          'getInterfaceProperties'
+        );
         getInterfacePropertiesStub.returns(mockProperties);
 
-        const getInterfaceRelationshipsStub = sandbox.stub(codeGen, 'getInterfaceRelationships');
+        const getInterfaceRelationshipsStub = sandbox.stub(
+          codeGen,
+          'getInterfaceRelationships'
+        );
         getInterfaceRelationshipsStub.throws(err);
 
         let errored = false;
@@ -552,7 +596,11 @@ describe('#codegen/generator', () => {
         const properties = codeGen.getInterfaceProperties(mockNode);
 
         assert.lengthOf(properties, 1);
-        assert.deepEqual(properties[0], { name: 'propertyName', type: 'typeString', protected: false });
+        assert.deepEqual(properties[0], {
+          name: 'propertyName',
+          type: 'typeString',
+          protected: false,
+        });
       });
 
       it('should throw a TypeCheckError when the ts compiler throws', () => {
@@ -628,26 +676,28 @@ describe('#codegen/generator', () => {
         const mockProperties = [
           {
             type: userTypeNode,
-            name: { text: 'user', kind: ts.SyntaxKind.PropertySignature },
+            name: {text: 'user', kind: ts.SyntaxKind.PropertySignature},
           } as unknown as ts.PropertySignature,
           {
             type: stateArrayTypeNode,
-            name: { text: 'states', kind: ts.SyntaxKind.PropertySignature },
+            name: {text: 'states', kind: ts.SyntaxKind.PropertySignature},
           } as unknown as ts.PropertySignature,
         ];
 
         // Create a mock InterfaceDeclaration
         const mockNode = {
           members: mockProperties,
-          name: { text: 'IComment', kind: ts.SyntaxKind.Identifier },
+          name: {text: 'IComment', kind: ts.SyntaxKind.Identifier},
         } as unknown as ts.InterfaceDeclaration;
 
         // Create a stub for ts.isPropertySignature
         const isPropertySignatureStub = sandbox.stub(ts, 'isPropertySignature');
 
         // Make the stub return true for your mock properties, and default to the real implementation otherwise
-        isPropertySignatureStub.callsFake((node) => {
-          if (mockProperties.includes(node as unknown as ts.PropertySignature)) {
+        isPropertySignatureStub.callsFake(node => {
+          if (
+            mockProperties.includes(node as unknown as ts.PropertySignature)
+          ) {
             return true;
           }
           return ts.isPropertySignature(node);

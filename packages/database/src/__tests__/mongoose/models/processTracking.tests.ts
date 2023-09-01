@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {ProcessTrackingModel} from '../../../mongoose/models/processTracking';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 

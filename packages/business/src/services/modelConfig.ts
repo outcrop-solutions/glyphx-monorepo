@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
-import {database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
 import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from '../lib/databaseConnection';
 
@@ -12,7 +12,7 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new (mongooseTypes.ObjectId as any)(modelConfigId);
+          : new mongooseTypes.ObjectId(modelConfigId);
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.getModelConfigById(id);
       return modelConfig;
@@ -102,7 +102,7 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new (mongooseTypes.ObjectId as any)(modelConfigId);
+          : new mongooseTypes.ObjectId(modelConfigId);
 
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
@@ -140,7 +140,7 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new (mongooseTypes.ObjectId as any)(modelConfigId);
+          : new mongooseTypes.ObjectId(modelConfigId);
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
           id,

@@ -7,10 +7,10 @@ import {
   validateUpdateWorkspaceSlug,
   workspaceService,
   activityLogService,
-} from '@glyphx/business';
+} from 'business';
 import slugify from 'slugify';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 /**
  * Create Workspace

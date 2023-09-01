@@ -1,5 +1,5 @@
-import {error, constants} from '@glyphx/core';
-import {database as databaseTypes} from '@glyphx/types';
+import {error, constants} from 'core';
+import {databaseTypes} from 'types';
 import {StripeClient} from '../lib/stripe';
 import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
@@ -40,7 +40,7 @@ export class CustomerPaymentService {
       const id =
         customerId instanceof mongooseTypes.ObjectId
           ? customerId
-          : new (mongooseTypes.ObjectId as any)(customerId);
+          : new mongooseTypes.ObjectId(customerId);
       // create customer payment
       // add to the user
       // add user to the customerpayment

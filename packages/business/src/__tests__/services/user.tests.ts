@@ -1,12 +1,12 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
-import {MongoDbConnection} from '@glyphx/database';
-import {error} from '@glyphx/core';
+import {MongoDbConnection} from 'database';
+import {error} from 'core';
 import {userService} from '../../services';
-import {EmailClient} from '@glyphx/email';
+import {EmailClient} from 'email';
 
 describe('#services/user', () => {
   const sandbox = createSandbox();

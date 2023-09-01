@@ -1,4 +1,4 @@
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createOpenProject, _getSignedDataUrls } from '../../mutations';

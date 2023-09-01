@@ -1,5 +1,5 @@
 import { atom, selector } from 'recoil';
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, fileIngestionTypes } from 'types';
 import { projectAtom } from './project';
 
 /**

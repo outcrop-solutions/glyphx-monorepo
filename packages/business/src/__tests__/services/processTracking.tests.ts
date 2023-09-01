@@ -2,10 +2,10 @@ import 'mocha';
 import {assert} from 'chai';
 import {ProcessTrackingService} from '../../services/processTracking';
 import {createSandbox} from 'sinon';
-import {MongoDbConnection} from '@glyphx/database';
-import {database as databaseTypes} from '@glyphx/types';
+import {MongoDbConnection} from 'database';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {dbConnection} from '../../../dist';
 describe('ProcessTrackingService', () => {
   context('createProcessTracking', () => {

@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 /**
  * Takes in papaparsed file data and returns the rendarable grid state

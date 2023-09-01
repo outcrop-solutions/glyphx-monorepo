@@ -10,7 +10,7 @@ import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPut } from './utilities/genericReqs';
 import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { databaseTypes, webTypes, fileIngestionTypes } from 'types';
 import type { PageConfig } from 'next';
 import upload, { config } from 'pages/api/etl/upload';
 // Respect the Next.js config object if it's exported
@@ -215,17 +215,17 @@ describe('FILE UPLOAD ROUTE', () => {
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
     uploadFile = proxyquire.load('../lib/server/etl/uploadFile', {
-      '@glyphx/fileingestion': {
+      fileingestion: {
         BasicColumnCleaner: mockBasicColumnCleaner,
       },
-      '@glyphx/core': {
+      core: {
         aws: mockAws,
       },
     }).uploadFile;
 
     // swap overridden import into handler to be able to call
     uploadFileRouteWrapper = proxyquire('../pages/api/etl/upload', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -236,7 +236,7 @@ describe('FILE UPLOAD ROUTE', () => {
 
     // for testing routing at api/workspace
     uploadFileRoute = proxyquire('../pages/api/etl/upload', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

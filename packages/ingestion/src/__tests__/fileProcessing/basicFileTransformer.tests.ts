@@ -6,7 +6,7 @@ import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
 import {FILE_PROCESSING_ERROR_TYPES} from 'util/constants';
 import {Writable, Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 
 describe('#fileProcessing/basicFileTransformer', () => {
@@ -25,7 +25,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
-        fileIngestion.constants.FILE_OPERATION.ADD,
+        fileIngestionTypes.constants.FILE_OPERATION.ADD,
         (info: fileProcessingInterfaces.IFileInformation) => {
           assert.strictEqual(info.fileName, fileName);
           //just make sure this is not 0
@@ -37,7 +37,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
           assert.strictEqual(info.numberOfColumns, 3);
           assert.strictEqual(
             info.fileOperationType,
-            fileIngestion.constants.FILE_OPERATION.ADD
+            fileIngestionTypes.constants.FILE_OPERATION.ADD
           );
 
           assert.strictEqual(info.columns[0].name, GLYPHX_ID_COLUMN_NAME);
@@ -47,14 +47,14 @@ describe('#fileProcessing/basicFileTransformer', () => {
           );
           assert.strictEqual(
             info.columns[0].fieldType,
-            fileIngestion.constants.FIELD_TYPE.INTEGER
+            fileIngestionTypes.constants.FIELD_TYPE.INTEGER
           );
 
           assert.strictEqual(info.columns[1].name, 'name');
           assert.strictEqual(info.columns[1].origionalName, 'name');
           assert.strictEqual(
             info.columns[1].fieldType,
-            fileIngestion.constants.FIELD_TYPE.STRING
+            fileIngestionTypes.constants.FIELD_TYPE.STRING
           );
           assert.strictEqual(info.columns[1].longestString, 8);
 
@@ -62,14 +62,14 @@ describe('#fileProcessing/basicFileTransformer', () => {
           assert.strictEqual(info.columns[2].origionalName, 'value');
           assert.strictEqual(
             info.columns[2].fieldType,
-            fileIngestion.constants.FIELD_TYPE.NUMBER
+            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
           );
           //Column name cleaner will lcase the name
           assert.strictEqual(info.columns[3].name, 'somedate');
           assert.strictEqual(info.columns[3].origionalName, 'someDate');
           assert.strictEqual(
             info.columns[3].fieldType,
-            fileIngestion.constants.FIELD_TYPE.DATE
+            fileIngestionTypes.constants.FIELD_TYPE.DATE
           );
           done = true;
         },
@@ -151,7 +151,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
-        fileIngestion.constants.FILE_OPERATION.ADD,
+        fileIngestionTypes.constants.FILE_OPERATION.ADD,
         () => {
           done = true;
         },
@@ -205,7 +205,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
-        fileIngestion.constants.FILE_OPERATION.ADD,
+        fileIngestionTypes.constants.FILE_OPERATION.ADD,
         () => {
           done = true;
         },
@@ -259,7 +259,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         outputFileName,
         outputDirectory,
         tableName,
-        fileIngestion.constants.FILE_OPERATION.ADD,
+        fileIngestionTypes.constants.FILE_OPERATION.ADD,
         () => {
           done = true;
         },
@@ -318,7 +318,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
           outputFileName,
           outputDirectory,
           tableName,
-          fileIngestion.constants.FILE_OPERATION.ADD,
+          fileIngestionTypes.constants.FILE_OPERATION.ADD,
           () => {
             done = true;
           },

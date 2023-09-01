@@ -4,8 +4,8 @@ import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
-import { signInHtml, signInText, EmailClient } from '@glyphx/email';
-import { customerPaymentService } from '@glyphx/business';
+import { signInHtml, signInText, EmailClient } from 'email';
+import { customerPaymentService } from 'business';
 import clientPromise from 'lib/server/mongodb';
 
 export const authOptions: NextAuthOptions = {

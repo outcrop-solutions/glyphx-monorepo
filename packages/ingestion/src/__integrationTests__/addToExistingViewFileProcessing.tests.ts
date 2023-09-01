@@ -1,17 +1,13 @@
 import {assert} from 'chai';
-import {aws, generalPurposeFunctions} from '@glyphx/core';
+import {aws, generalPurposeFunctions} from 'core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 import addFilesJson2 from './assets/addTables2.json';
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
-import {
-  Initializer,
-  processTrackingService,
-  dbConnection,
-} from '@glyphx/business';
+import {Initializer, processTrackingService, dbConnection} from 'business';
 import {v4} from 'uuid';
 
 import {config} from '../config';

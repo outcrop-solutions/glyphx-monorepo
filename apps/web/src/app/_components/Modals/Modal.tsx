@@ -2,7 +2,7 @@ import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 import ClickAwayListener from 'react-click-away-listener';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 import { CreateWorkspaceModal } from './CreateWorkspaceModal';
 import { CreateProjectModal } from './CreateProjectModal';

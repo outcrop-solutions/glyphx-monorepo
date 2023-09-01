@@ -1,8 +1,8 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { authOptions } from 'app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth/next';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Initializer } from '@glyphx/business';
+import { Initializer } from 'business';
 import { declineInvitation } from 'lib/server/team';
 
 const decline = async (req: NextApiRequest, res: NextApiResponse) => {

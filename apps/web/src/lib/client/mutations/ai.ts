@@ -1,5 +1,5 @@
-import { web as webTypes } from '@glyphx/types';
-import { IClientSidePayload } from '@glyphx/types/src/web';
+import { webTypes } from 'types';
+import { IClientSidePayload } from 'types/src/web';
 
 /**
  * Gets a completion stream from OpenAI

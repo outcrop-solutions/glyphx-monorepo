@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, databaseTypes} from 'types';
 import {ICustomerPaymentMethods} from './iCustomerPaymentMethods';
 import {ICustomerPaymentCreateInput} from './iCustomerPaymentCreateInput';
 export interface ICustomerPaymentStaticMethods

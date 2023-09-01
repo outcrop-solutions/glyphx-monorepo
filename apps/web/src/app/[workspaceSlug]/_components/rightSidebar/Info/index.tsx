@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { MemberList } from '../Share/MemberList';
 import { rightSidebarControlAtom } from 'state';
 import { useRecoilState } from 'recoil';

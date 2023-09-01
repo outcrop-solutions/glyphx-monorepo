@@ -1,11 +1,5 @@
-import {
-  aws,
-  error,
-  logging,
-  generalPurposeFunctions,
-  streams,
-} from '@glyphx/core';
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
+import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
+import {fileIngestion, databaseTypes} from 'types';
 import {SdtParser} from './io';
 import {QueryRunner} from './io/queryRunner';
 import {IQueryResponse} from './interfaces';
@@ -14,11 +8,7 @@ import {GlyphStream} from './io/glyphStream';
 import {SgcStream} from './io/sgcStream';
 import {SgnStream} from './io/sgnStream';
 import {PassThrough} from 'stream';
-import {
-  processTrackingService,
-  Heartbeat,
-  projectService,
-} from '@glyphx/business';
+import {processTrackingService, Heartbeat, projectService} from 'business';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -131,7 +121,7 @@ export class GlyphEngine {
       prefix: string,
       tableDef: {
         columnName: string;
-        columnType: fileIngestion.constants.FIELD_TYPE;
+        columnType: fileIngestionTypes.constants.FIELD_TYPE;
       }[],
       data: Map<string, string>,
       project: databaseTypes.IProject
@@ -139,11 +129,11 @@ export class GlyphEngine {
       const col = data.get(`${prefix}_axis`);
       const colxType =
         tableDef.find(d => d.columnName === col)?.columnType ??
-        fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+        fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
 
       let colAsString = 'string';
-      if (colxType !== fileIngestion.constants.FIELD_TYPE.STRING) {
-        let foundType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+      if (colxType !== fileIngestionTypes.constants.FIELD_TYPE.STRING) {
+        let foundType = fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
         for (let i = 0; i < project.files.length; i++) {
           const file = project.files[i];
           for (let j = 0; j < file.columns.length; j++) {
@@ -153,9 +143,9 @@ export class GlyphEngine {
             }
           }
         }
-        if (foundType === fileIngestion.constants.FIELD_TYPE.NUMBER) {
+        if (foundType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
           colAsString = 'number';
-        } else if (foundType === fileIngestion.constants.FIELD_TYPE.DATE) {
+        } else if (foundType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
           colAsString = 'date';
         }
       }

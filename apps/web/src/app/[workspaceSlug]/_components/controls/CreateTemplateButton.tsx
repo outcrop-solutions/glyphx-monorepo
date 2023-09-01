@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { modalsAtom, projectAtom } from 'state';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';

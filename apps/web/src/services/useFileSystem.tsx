@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import produce from 'immer';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { databaseTypes, webTypes } from 'types';
 import { WritableDraft } from 'immer/dist/internal';
 import { useSWRConfig } from 'swr';
 import { projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom, showLoadingAtom } from 'state';

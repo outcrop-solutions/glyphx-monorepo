@@ -2,8 +2,8 @@ import 'mocha';
 import {assert} from 'chai';
 import {GlyphEngine} from '../glyphEngine';
 import {createSandbox} from 'sinon';
-import {aws, error, logging, streams} from '@glyphx/core';
-import {fileIngestion} from '@glyphx/types';
+import {aws, error, logging, streams} from 'core';
+import {fileIngestionTypes} from 'types';
 import {Readable} from 'node:stream';
 import * as helperFunctions from './glyphEnginHelpers';
 import {XMLParser} from 'fast-xml-parser';
@@ -11,11 +11,7 @@ import {QueryRunner} from '../io/queryRunner';
 import {IQueryResponse} from '../interfaces';
 import {QUERY_STATUS} from '../constants';
 import {SdtParser} from '../io/sdtParser';
-import {
-  Heartbeat,
-  processTrackingService,
-  projectService,
-} from '@glyphx/business';
+import {Heartbeat, processTrackingService, projectService} from 'business';
 
 describe('GlyphEngine', () => {
   const mockProject = {
@@ -302,15 +298,15 @@ describe('GlyphEngine', () => {
       const dataDef = [
         {
           columnName: 'columnx',
-          columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           columnName: 'columny',
-          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           columnName: 'columnz',
-          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
       ];
 
@@ -344,15 +340,15 @@ describe('GlyphEngine', () => {
       const dataDef = [
         {
           columnName: 'columnxx',
-          columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           columnName: 'columnyy',
-          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           columnName: 'columnzz',
-          columnType: fileIngestion.constants.FIELD_TYPE.INTEGER,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.INTEGER,
         },
       ];
 
@@ -426,15 +422,15 @@ describe('GlyphEngine', () => {
       const dataDef = [
         {
           columnName: 'columnx',
-          columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           columnName: 'columny',
-          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           columnName: 'columnz',
-          columnType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          columnType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
       ];
 

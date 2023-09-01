@@ -1,10 +1,7 @@
 import {ProjectTemplateModel} from '../../../mongoose/models/projectTemplate';
 import {ProjectModel} from '../../../mongoose/models/project';
-import {
-  database as databaseTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes, fileIngestionTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {assert} from 'chai';

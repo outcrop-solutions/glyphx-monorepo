@@ -2,7 +2,7 @@ import produce from 'immer';
 import React, { useCallback } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { togglesConfigDirtyAtom, configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom } from 'state';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import { toSnakeCase } from './toSnakeCase';
 import { _updateConfig, api } from 'lib';
 

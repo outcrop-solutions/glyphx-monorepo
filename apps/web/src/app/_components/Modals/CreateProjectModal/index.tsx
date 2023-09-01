@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import produce from 'immer';
 
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 import { NewProject } from './NewProject';
 import ImportProject from './ImportProject';

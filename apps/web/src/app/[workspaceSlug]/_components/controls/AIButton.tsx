@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { LightBulbIcon } from '@heroicons/react/outline';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { completionAtom } from 'state/ai';
 import { _createCompletion } from 'lib/client/mutations/ai';
 import { WritableDraft } from 'immer/dist/internal';

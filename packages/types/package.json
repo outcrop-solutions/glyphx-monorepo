@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/types",
+  "name": "types",
   "version": "0.0.0",
   "description": "Holds the types and interfaces to be shared with the front end and backend",
   "author": "JP Burford <jp.burford@h1insights.com>",
@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/tsconfig": "workspace:*",
+    "tsconfig": "workspace:*",
     "@types/node": "^18.11.7",
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.42.0",

@@ -1,4 +1,4 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, fileIngestionTypes } from 'types';
 
 /**
  * Cleans payload in case user ops to CANCEL a FILE_OPERATION

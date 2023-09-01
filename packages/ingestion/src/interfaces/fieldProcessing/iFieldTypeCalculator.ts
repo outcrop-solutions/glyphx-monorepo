@@ -1,4 +1,4 @@
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 /**
  * The IFieldTypeCalulator interface accepts an array of items and
  * determines a common {@link util/constants/fieldType!FIELD_TYPE} for the items in the set.
@@ -49,7 +49,7 @@ export interface IFieldTypeCalulator {
    *
    * @throws InvalidOperationError if a set has has not been processed through {@link processItems}
    */
-  get fieldType(): fileIngestion.constants.FIELD_TYPE;
+  get fieldType(): fileIngestionTypes.constants.FIELD_TYPE;
   /**
    * indicates whether or not data has been processed to determiine a {@link util/constants/fieldType!FIELD_TYPE}
    */

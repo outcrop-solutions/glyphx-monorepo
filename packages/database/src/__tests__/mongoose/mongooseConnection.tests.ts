@@ -2,7 +2,7 @@ import 'mocha';
 import {MongoDbConnection} from '../../mongoose/mongooseConnection';
 import {createSandbox} from 'sinon';
 import mongoose from 'mongoose';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {assert} from 'chai';
 
 const MOCK_DB_SECRETS = {

@@ -1,4 +1,4 @@
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { databaseTypes, webTypes } from 'types';
 /**
  * Creates Project Template from a project
  * @param id

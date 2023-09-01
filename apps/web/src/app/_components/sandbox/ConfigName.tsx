@@ -5,7 +5,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { configNameDirtyFamily, configsAtom, currentConfigAtom } from 'state';
 import { _updateConfig, _deleteConfig, api } from 'lib';
 import { CheckCircleIcon, TrashIcon } from '@heroicons/react/outline';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');

@@ -3,7 +3,7 @@ import Button from 'app/_components/Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, _updateStateName, api } from 'lib';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom, projectAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import produce from 'immer';
 import ShowInfoIcon from 'public/svg/show-add-project.svg';
 import { rightSidebarControlAtom } from 'state';

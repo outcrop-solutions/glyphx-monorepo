@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import produce from 'immer';
-import { web as webTypes, database as databaseTypes } from '@glyphx/types';
+import { webTypes, databaseTypes } from 'types';
 import { useSWRConfig } from 'swr';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';

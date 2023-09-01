@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { useEffect } from 'react';

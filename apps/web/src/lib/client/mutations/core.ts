@@ -1,4 +1,4 @@
-import { web as webTypes, database as databaseTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, databaseTypes, fileIngestionTypes } from 'types';
 
 /******************** INGESTION *********************/
 /**

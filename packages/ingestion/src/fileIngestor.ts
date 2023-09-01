@@ -1,9 +1,5 @@
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
-import {
-  error,
-  aws,
-  generalPurposeFunctions as sharedFunctions,
-} from '@glyphx/core';
+import {fileIngestion, databaseTypes} from 'types';
+import {error, aws, generalPurposeFunctions as sharedFunctions} from 'core';
 import {Readable} from 'node:stream';
 import {
   BasicAthenaProcessor,
@@ -15,7 +11,7 @@ import {
   processTrackingService,
   Initializer as businessLogicInit,
   Heartbeat,
-} from '@glyphx/business';
+} from 'business';
 
 import {
   IFileInformation,
@@ -177,7 +173,7 @@ export class FileIngestor {
       tableName,
       fileName,
       fileStream,
-      fileIngestion.constants.FILE_OPERATION.REPLACE
+      fileIngestionTypes.constants.FILE_OPERATION.REPLACE
     );
   }
 
@@ -192,7 +188,7 @@ export class FileIngestor {
       tableName,
       fileName,
       fileStream,
-      fileIngestion.constants.FILE_OPERATION.APPEND
+      fileIngestionTypes.constants.FILE_OPERATION.APPEND
     );
   }
 
@@ -200,7 +196,7 @@ export class FileIngestor {
     tableName: string,
     fileName: string,
     fileStream: Readable,
-    fileOperationType = fileIngestion.constants.FILE_OPERATION.ADD
+    fileOperationType = fileIngestionTypes.constants.FILE_OPERATION.ADD
   ) {
     //This is a view affecting operation so remove it if it exists
 
@@ -212,7 +208,7 @@ export class FileIngestor {
     tableName: string,
     fileName: string,
     fileStream: Readable,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION
   ) {
     const {fileInformation, errorInformation} =
       await FileUploadManager.processAndUploadNewFiles(
@@ -260,7 +256,7 @@ export class FileIngestor {
           message: message,
         });
       } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.ADD
+        fileInfo.operation === fileIngestionTypes.constants.FILE_OPERATION.ADD
       ) {
         if (
           await this.athenaManager.tableExists(
@@ -291,7 +287,8 @@ export class FileIngestor {
         }
         //An append can be called if we are plannig on adding a table in this operation.
       } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.APPEND
+        fileInfo.operation ===
+        fileIngestionTypes.constants.FILE_OPERATION.APPEND
       ) {
         if (
           !(await this.athenaManager.tableExists(
@@ -328,7 +325,8 @@ export class FileIngestor {
           }
         }
       } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.REPLACE &&
+        fileInfo.operation ===
+          fileIngestionTypes.constants.FILE_OPERATION.REPLACE &&
         !(await this.athenaManager.tableExists(
           sharedFunctions.fileIngestion.getFullTableName(
             this.clientId,
@@ -345,7 +343,8 @@ export class FileIngestor {
           message: message,
         });
       } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.DELETE &&
+        fileInfo.operation ===
+          fileIngestionTypes.constants.FILE_OPERATION.DELETE &&
         !(await this.athenaManager.tableExists(
           sharedFunctions.fileIngestion.getFullTableName(
             this.clientId,
@@ -377,7 +376,8 @@ export class FileIngestor {
     for (let i = 0; i < this.fileInfo.length; i++) {
       const fileInformation = this.fileInfo[i];
       if (
-        fileInformation.operation === fileIngestion.constants.FILE_OPERATION.ADD
+        fileInformation.operation ===
+        fileIngestionTypes.constants.FILE_OPERATION.ADD
       ) {
         //1. Adding a table starts at rowid = 0
         await this.addTable(
@@ -388,7 +388,7 @@ export class FileIngestor {
         viewAffectingOperations = true;
       } else if (
         fileInformation.operation ===
-        fileIngestion.constants.FILE_OPERATION.APPEND
+        fileIngestionTypes.constants.FILE_OPERATION.APPEND
       ) {
         //2. Appending a file will require that we get the row id.
         await this.appendFile(
@@ -398,7 +398,7 @@ export class FileIngestor {
         );
       } else if (
         fileInformation.operation ===
-        fileIngestion.constants.FILE_OPERATION.REPLACE
+        fileIngestionTypes.constants.FILE_OPERATION.REPLACE
       ) {
         //3. Replace will drop and start over so rowid starts at 0
         await this.replaceTable(

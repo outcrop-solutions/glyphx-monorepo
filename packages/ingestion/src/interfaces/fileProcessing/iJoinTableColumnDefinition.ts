@@ -1,5 +1,5 @@
 import {IJoinTableDefinition} from './iJoinTableDefinition';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 /**
  * Defines join informaton for individual columns in a table.
  */
@@ -19,7 +19,7 @@ export interface IJoinTableColumnDefinition {
   /**
    * The data type of the column
    */
-  columnType: fileIngestion.constants.FIELD_TYPE;
+  columnType: fileIngestionTypes.constants.FIELD_TYPE;
   /**
    * For string types, we need to specify a length.  This
    * optional field will hold that value.

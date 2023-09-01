@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Session } from 'next-auth';
 import { loadStripe } from '@stripe/stripe-js';
 import { buffer } from 'micro';
-import { StripeClient, customerPaymentService } from '@glyphx/business';
+import { StripeClient, customerPaymentService } from 'business';
 
 export async function redirectToCheckout(sessionId) {
   if (process.env.NEXT_PUBLIC_PUBLISHABLE_KEY) {

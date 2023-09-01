@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 import { dusplicateColumnRule } from './duplicateColumnRule';
 import { fileCollisionRule } from './fileCollisionRule';

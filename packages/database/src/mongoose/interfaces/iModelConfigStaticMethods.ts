@@ -1,7 +1,7 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
-import {IQueryResult} from '@glyphx/types';
+import {databaseTypes} from 'types';
+import {IQueryResult} from 'types';
 import {IModelConfigMethods} from './iModelConfigMethods';
 import {IModelConfigCreateInput} from './iModelConfigCreateInput';
 

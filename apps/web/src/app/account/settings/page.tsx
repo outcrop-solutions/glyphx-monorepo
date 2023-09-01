@@ -9,7 +9,7 @@ import { useSetRecoilState } from 'recoil';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';

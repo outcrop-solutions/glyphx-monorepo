@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { activityLogService } from '@glyphx/business';
-import { database as databaseTypes } from '@glyphx/types';
+import { activityLogService } from 'business';
+import { databaseTypes } from 'types';
 /**
  * Get Project Logs
  *

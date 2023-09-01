@@ -10,7 +10,7 @@ import { _deactivateAccount, _updateUserEmail, _updateUserName } from 'lib/clien
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPut } from './utilities/genericReqs';
 import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes, fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
+import { databaseTypes, fileIngestionTypes, webTypes } from 'types';
 import { formatGridData } from 'lib/client/files/transforms/formatGridData';
 import { _getDataGrid, _getRowIds } from 'lib';
 
@@ -186,10 +186,10 @@ describe('DATA ROUTES', () => {
     // GET DATA BY ROW ID
     // replace handler import resolution
     getDataByTableName = proxyquire.load('../lib/server/data', {
-      '@glyphx/business': {
+      business: {
         dataService: mockDataService,
       },
-      '@glyphx/core': {
+      core: {
         generalPurposeFunctions: mockGeneralPurposeFunctions,
       },
       'lib/client/files/transforms/formatGridData': {
@@ -199,7 +199,7 @@ describe('DATA ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getDataByTableNameRouteWrapper = proxyquire('../pages/api/data/grid', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -210,7 +210,7 @@ describe('DATA ROUTES', () => {
 
     // for testing routing
     getDataByTableNameRoute = proxyquire('../pages/api/data/grid', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -222,10 +222,10 @@ describe('DATA ROUTES', () => {
     // GET DATA BY ROW ID
     // replace handler import resolution
     getDataByRowId = proxyquire.load('../lib/server/data', {
-      '@glyphx/business': {
+      business: {
         dataService: mockDataService,
       },
-      '@glyphx/core': {
+      core: {
         generalPurposeFunctions: mockGeneralPurposeFunctions,
       },
       'lib/client/files/transforms/formatGridData': {
@@ -235,7 +235,7 @@ describe('DATA ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getDataByRowIdRouteWrapper = proxyquire('../pages/api/data/rows', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -246,7 +246,7 @@ describe('DATA ROUTES', () => {
 
     // for testing routing
     getDataByRowIdRoute = proxyquire('../pages/api/data/rows', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

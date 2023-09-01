@@ -1,4 +1,4 @@
-import {error} from '@glyphx/core';
+import {error} from 'core';
 /**
  * a linear interpolation function to map the data value to the range of values supported by the glyph.  i,e, glyhps on access z are interpolated in a range of 1 to 71.
  * @param dataValue the value that we are interpolating

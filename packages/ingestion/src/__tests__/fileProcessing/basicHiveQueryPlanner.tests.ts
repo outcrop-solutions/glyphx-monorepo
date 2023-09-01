@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {BasicHiveQueryPlanner} from '@fileProcessing';
 import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
 //$1 = our tableName -- this is case sensitive
 const FROM_REGEX_TEMPLATE = '[Ff][Rr][Oo][Mm]\\s*$1\\s*(?:[Aa][Ss]\\s*)?$2\\s*';
@@ -160,7 +160,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -169,7 +169,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -192,7 +192,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -201,7 +201,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 1,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -225,7 +225,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -234,7 +234,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -243,7 +243,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 2,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -268,7 +268,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: thirdTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -277,7 +277,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: thirdTable,
         columnIndex: 2,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -300,7 +300,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -309,7 +309,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 1,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -390,7 +390,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -399,7 +399,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });

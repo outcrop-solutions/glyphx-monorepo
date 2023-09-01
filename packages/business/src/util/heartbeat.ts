@@ -1,5 +1,5 @@
 import {processTrackingService} from '../services';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {EventEmitter} from 'events';
 
 export class Heartbeat extends EventEmitter {

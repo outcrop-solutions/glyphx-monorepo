@@ -4,10 +4,10 @@ import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {databaseTypes} from '../../../../database';
 import {Types as mongooseTypes} from 'mongoose';
-import {MongoDbConnection} from '@glyphx/database';
-import {error} from '@glyphx/core';
+import {MongoDbConnection} from 'database';
+import {error} from 'core';
 import {modelConfigService} from '../../services';
-import * as mocks from '@glyphx/database';
+import * as mocks from 'database';
 
 describe('#services/modelConfig', () => {
   const sandbox = createSandbox();

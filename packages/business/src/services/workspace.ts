@@ -4,14 +4,9 @@ import {
   workspaceCreateText,
   inviteHtml,
   inviteText,
-} from '@glyphx/email';
-import {
-  IWorkspacePath,
-  database,
-  database as databaseTypes,
-  IQueryResult,
-} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+} from 'email';
+import {IWorkspacePath, databaseTypes, IQueryResult} from 'types';
+import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
@@ -51,7 +46,7 @@ export class WorkspaceService {
 
       const castCreatorId =
         typeof creatorId === 'string'
-          ? new (mongooseTypes.ObjectId as any)(creatorId)
+          ? new mongooseTypes.ObjectId(creatorId)
           : creatorId;
 
       const input = {
@@ -134,7 +129,7 @@ export class WorkspaceService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
 
       const workspace = await WorkspaceService.getOwnWorkspace(
         userId,
@@ -147,7 +142,7 @@ export class WorkspaceService {
         const workspaceId =
           workId instanceof mongooseTypes.ObjectId
             ? workId
-            : new (mongooseTypes.ObjectId as any)(workId);
+            : new mongooseTypes.ObjectId(workId);
 
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
@@ -570,7 +565,7 @@ export class WorkspaceService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
 
       const invitedBy = await mongoDbConnection.models.UserModel.getUserById(
         id
@@ -667,7 +662,7 @@ export class WorkspaceService {
     const member = workspace.members.find(
       member =>
         member.email === email &&
-        member.teamRole === database.constants.ROLE.OWNER
+        member.teamRole === databaseTypes.constants.ROLE.OWNER
     );
 
     if (member) {
@@ -698,12 +693,12 @@ export class WorkspaceService {
 
         const input = {
           workspace: workspaces.results[0],
-          type: database.constants.MEMBERSHIP_TYPE.WORKSPACE,
+          type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
           inviter: workspaces.results[0].creator.email,
           invitedAt: new Date(),
           joinedAt: new Date(),
           email,
-          status: database.constants.INVITATION_STATUS.ACCEPTED,
+          status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
         } as Omit<databaseTypes.IMember, '_id'>;
 
         if (memberExists) {
@@ -863,7 +858,7 @@ export class WorkspaceService {
       const id =
         workspaceId instanceof mongooseTypes.ObjectId
           ? workspaceId
-          : new (mongooseTypes.ObjectId as any)(workspaceId);
+          : new mongooseTypes.ObjectId(workspaceId);
       const updatedWorkspace =
         await mongoDbConnection.models.WorkspaceModel.addTags(id, tags);
 

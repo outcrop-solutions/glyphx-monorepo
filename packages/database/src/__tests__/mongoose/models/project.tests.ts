@@ -6,8 +6,8 @@ import {ProjectTemplateModel} from '../../../mongoose/models/projectTemplate';
 import {StateModel} from '../../../mongoose/models/state';
 import {MemberModel} from '../../../mongoose/models/member';
 
-import {database, database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {TagModel} from '../../../mongoose/models';

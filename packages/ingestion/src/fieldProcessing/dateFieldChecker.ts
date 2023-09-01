@@ -1,5 +1,5 @@
 import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 export class DateFieldChecker
   implements fieldProcessingInterfaces.IFieldChecker<Date>

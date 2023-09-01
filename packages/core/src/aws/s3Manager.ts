@@ -7,7 +7,7 @@ import {
 import {Upload} from '@aws-sdk/lib-storage';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import * as error from '../error';
-import {aws} from '@glyphx/types';
+import {awsTypes} from 'types';
 import {Readable} from 'node:stream';
 
 /**`
@@ -140,7 +140,7 @@ export class S3Manager {
    */
   public async getFileInformation(
     fileName: string
-  ): Promise<aws.IHeadObjectData> {
+  ): Promise<awsTypes.IHeadObjectData> {
     try {
       const result = await this.bucket.headObject({
         Bucket: this.bucketName,

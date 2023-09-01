@@ -1,11 +1,12 @@
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+// eslint-disable-next-line node/no-unpublished-import
+import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IVerificationTokenMethods,
   IVerificationTokenStaticMethods,
   IVerificationTokenDocument,
 } from '../interfaces';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 const SCHEMA = new Schema<
   IVerificationTokenDocument,

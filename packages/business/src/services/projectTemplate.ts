@@ -1,9 +1,5 @@
-import {
-  database as databaseTypes,
-  web as webTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
+import {error, constants} from 'core';
 import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from '../lib/databaseConnection';
 
@@ -15,7 +11,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
+          : new mongooseTypes.ObjectId(projectTemplateId);
       const projectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.getProjectTemplateById(
           id
@@ -106,7 +102,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
+          : new mongooseTypes.ObjectId(projectTemplateId);
       const project =
         await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
           id,
@@ -147,7 +143,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
+          : new mongooseTypes.ObjectId(projectTemplateId);
       const updatedProjectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
           id,
@@ -184,7 +180,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
+          : new mongooseTypes.ObjectId(projectTemplateId);
       const updatedProjectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.addTags(id, tags);
 
@@ -218,7 +214,7 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new (mongooseTypes.ObjectId as any)(projectTemplateId);
+          : new mongooseTypes.ObjectId(projectTemplateId);
       const updatedProjectTemplate =
         await mongoDbConnection.models.ProjectTemplateModel.removeTags(
           id,

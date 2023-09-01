@@ -1,6 +1,6 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
-import {error, constants} from '@glyphx/core';
+import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 
 const TIMEOUT = 900000; // 15 minutes

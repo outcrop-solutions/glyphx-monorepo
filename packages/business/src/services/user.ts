@@ -1,6 +1,6 @@
-import {EmailClient, updateHtml, updateText} from '@glyphx/email';
-import {database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {EmailClient, updateHtml, updateText} from 'email';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
@@ -13,7 +13,7 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.getUserById(id);
       return user;
     } catch (err: any) {
@@ -41,7 +41,7 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
 
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         deletedAt: new Date(),
@@ -103,7 +103,7 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
 
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         email,
@@ -162,7 +162,7 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         name,
       });
@@ -195,7 +195,7 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         userCode: v4().replaceAll('-', ''),
       });

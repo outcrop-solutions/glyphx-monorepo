@@ -1,4 +1,4 @@
-import {error, constants} from '@glyphx/core';
+import {error, constants} from 'core';
 import Stripe from 'stripe';
 
 export class StripeClient {

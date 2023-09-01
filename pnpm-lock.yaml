@@ -25,13 +25,6 @@ importers:
     specifiers:
       '@aws-sdk/client-secrets-manager': ^3.332.0
       '@aws-sdk/types': 3.222.0
-      '@glyphx/business': workspace:*
-      '@glyphx/core': workspace:*
-      '@glyphx/database': workspace:*
-      '@glyphx/email': workspace:*
-      '@glyphx/fileingestion': workspace:*
-      '@glyphx/glyphengine': workspace:*
-      '@glyphx/types': workspace:*
       '@headlessui/react': ^1.4.2
       '@heroicons/react': ^1.0.5
       '@minoru/react-dnd-treeview': ^1.5.10
@@ -61,18 +54,24 @@ importers:
       aws-sdk-client-mock: ^2.1.1
       bindings: 1.2.1
       bufferutil: ^4.0.7
+      business: workspace:*
       chai: ^4.3.6
       chai-http: ^4.3.0
       classnames: ^2.3.1
+      core: workspace:*
       crypto-js: ^4.1.1
       cypress: 9.5.1
+      database: workspace:*
       date-fns: ^2.28.0
       dayjs: ^1.10.7
+      email: workspace:*
       eslint-config-custom: workspace:*
       eslint-plugin-cypress: 2.12.1
       evaporate: ^2.1.4
       express: ^4.18.2
+      fileingestion: workspace:*
       fuse.js: ^6.6.2
+      glyphengine: workspace:*
       immer: ^9.0.16
       immutability-helper: ^3.1.1
       intercept-stdout: ^0.1.2
@@ -131,6 +130,7 @@ importers:
       tailwindcss: latest
       tailwindcss-scoped-groups: ^2.0.0
       ts-node: ^10.9.1
+      types: workspace:*
       typescript: 4.9.5
       useragent: ^2.3.0
       utf-8-validate: ^5.0.10
@@ -139,12 +139,6 @@ importers:
       web-vitals: ^1.1.1
       ws: 8.11.0
     dependencies:
-      '@glyphx/business': link:../../packages/business
-      '@glyphx/core': link:../../packages/core
-      '@glyphx/database': link:../../packages/database
-      '@glyphx/email': link:../../packages/email
-      '@glyphx/fileingestion': link:../../packages/ingestion
-      '@glyphx/glyphengine': link:../../packages/glyphengine
       '@headlessui/react': 1.7.17_biqbaboplfbrettd7655fr4n2y
       '@heroicons/react': 1.0.6_react@18.2.0
       '@minoru/react-dnd-treeview': 1.6.1_zea4e5eosbywspykgjhzupigoq
@@ -161,14 +155,20 @@ importers:
       ai: 2.2.10_ipxzy6bolgulmzkkxqvlhxedju
       bindings: 1.2.1
       bufferutil: 4.0.7
+      business: link:../../packages/business
       classnames: 2.3.2
+      core: link:../../packages/core
       crypto-js: 4.1.1
       cypress: 9.5.1
+      database: link:../../packages/database
       date-fns: 2.30.0
       dayjs: 1.11.9
+      email: link:../../packages/email
       eslint-plugin-cypress: 2.12.1_eslint@8.48.0
       evaporate: 2.1.4
+      fileingestion: link:../../packages/ingestion
       fuse.js: 6.6.2
+      glyphengine: link:../../packages/glyphengine
       immer: 9.0.21
       immutability-helper: 3.1.1
       intercept-stdout: 0.1.2
@@ -223,7 +223,6 @@ importers:
     devDependencies:
       '@aws-sdk/client-secrets-manager': 3.398.0
       '@aws-sdk/types': 3.222.0
-      '@glyphx/types': link:../../packages/types
       '@svgr/webpack': 7.0.0
       '@tailwindcss/forms': 0.4.1_tailwindcss@3.3.3
       '@tailwindcss/line-clamp': 0.3.1_tailwindcss@3.3.3
@@ -235,7 +234,7 @@ importers:
       '@types/react': 18.2.21
       '@types/react-dom': 18.2.7
       '@types/sinon': 10.0.16
-      autoprefixer: 10.4.15_postcss@8.4.28
+      autoprefixer: 10.4.15_postcss@8.4.29
       aws-sdk-client-mock: 2.2.0
       chai: 4.3.8
       chai-http: 4.4.0
@@ -246,7 +245,7 @@ importers:
       next-test-api-route-handler: 3.1.8_next@13.4.19
       node-mocks-http: 1.13.0
       nyc: 15.1.0
-      postcss: 8.4.28
+      postcss: 8.4.29
       prettier: 2.8.8
       proxyquire: 2.1.3
       rewire: 6.0.0
@@ -254,6 +253,7 @@ importers:
       sinon: 14.0.2
       tailwindcss: 3.3.3_ts-node@10.9.1
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      types: link:../../packages/types
       typescript: 4.9.5
 
   apps/web/src/public/wasm:
@@ -267,12 +267,7 @@ importers:
       '@aws-sdk/lib-storage': 3.292.0
       '@aws-sdk/signature-v4-crt': 3.292.0
       '@aws-sdk/types': 3.292.0
-      '@glyphx/core': workspace:*
-      '@glyphx/database': workspace:*
-      '@glyphx/email': workspace:*
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/tsconfig': workspace:*
-      '@glyphx/types': workspace:*
       '@stripe/stripe-js': ^1.23.0
       '@types/chai': ^4.3.3
       '@types/mocha': ^10.0.0
@@ -284,11 +279,14 @@ importers:
       '@typescript-eslint/parser': ^5.42.0
       aws-sdk-client-mock: ^2.1.1
       chai: ^4.3.6
+      core: workspace:*
       crypto-js: ^4.1.1
       csv: ^6.2.2
       currency-symbol-map: ^5.1.0
+      database: workspace:*
       date-fns: ^2.28.0
       dotenv: ^16.0.3
+      email: workspace:*
       eslint: ^8.12.0
       eslint-import-resolver-node: ^0.3.7
       eslint-import-resolver-typescript: ^3.5.2
@@ -311,9 +309,11 @@ importers:
       slugify: ^1.6.5
       stripe: ^8.203.0
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       tsconfig-paths: ^4.1.0
       tsup: ^5.11.13
       tsx: ^3.7.1
+      types: workspace:*
       typescript: 4.9.5
       uuid: ^8.3.2
       validator: ^13.7.0
@@ -323,15 +323,15 @@ importers:
       '@aws-sdk/client-secrets-manager': 3.292.0
       '@aws-sdk/lib-storage': 3.292.0_ja3l2tg3xtljjltoj5cuudrvjy
       '@aws-sdk/signature-v4-crt': 3.292.0
-      '@glyphx/core': link:../core
-      '@glyphx/database': link:../database
-      '@glyphx/email': link:../email
       '@stripe/stripe-js': 1.54.2
+      core: link:../core
       crypto-js: 4.1.1
       csv: 6.3.3
       currency-symbol-map: 5.1.0
+      database: link:../database
       date-fns: 2.30.0
       dotenv: 16.3.1
+      email: link:../email
       express-validator: 6.15.0
       logsnag: 0.1.8
       mongoose: 6.12.0
@@ -344,8 +344,6 @@ importers:
     devDependencies:
       '@aws-sdk/types': 3.292.0
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/tsconfig': link:../tsconfig
-      '@glyphx/types': link:../types
       '@types/chai': 4.3.5
       '@types/mocha': 10.0.1
       '@types/node': 18.17.12
@@ -370,19 +368,17 @@ importers:
       rimraf: 3.0.2
       sinon: 14.0.2
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      tsconfig: link:../tsconfig
       tsconfig-paths: 4.2.0
       tsup: 5.12.9_6qtx7vkbdhwvdm4crzlegk4mvi
       tsx: 3.12.7
+      types: link:../types
       typescript: 4.9.5
       uuid: 8.3.2
 
   packages/codegen:
     specifiers:
-      '@glyphx/core': workspace:^1.0.0
-      '@glyphx/database': workspace:*
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/tsconfig': workspace:*
-      '@glyphx/types': workspace:*
       '@types/chai': ^4.3.3
       '@types/fs-extra': ^11.0.1
       '@types/lodash': ^4.14.195
@@ -395,6 +391,8 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.46.1
       '@typescript-eslint/parser': ^5.42.0
       chai: ^4.3.6
+      core: workspace:^1.0.0
+      database: workspace:*
       eslint: ^8.12.0
       eslint-import-resolver-typescript: ^3.5.2
       eslint-plugin-filename-rules: ^1.2.0
@@ -417,8 +415,10 @@ importers:
       rimraf: ^3.0.2
       sinon: ^14.0.1
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       tsup: ^5.11.13
       tsx: ^3.7.1
+      types: workspace:*
       typescript: 4.9.5
       uuid: ^8.3.2
       zod: ^3.21.4
@@ -428,11 +428,7 @@ importers:
       prettier: 3.0.3
       zod: 3.22.2
     devDependencies:
-      '@glyphx/core': link:../core
-      '@glyphx/database': link:../database
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/tsconfig': link:../tsconfig
-      '@glyphx/types': link:../types
       '@types/chai': 4.3.5
       '@types/fs-extra': 11.0.1
       '@types/lodash': 4.14.197
@@ -445,6 +441,8 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.46.1_negeeoqbi2ljvsevyuoae5nley
       '@typescript-eslint/parser': 5.62.0_cgvy6hrg3pjeapqw5wnuqcmdo4
       chai: 4.3.8
+      core: link:../core
+      database: link:../database
       eslint: 8.48.0
       eslint-import-resolver-typescript: 3.6.0_rksubgp4nk5ffepfua3qexp6q4
       eslint-plugin-filename-rules: 1.3.1
@@ -464,8 +462,10 @@ importers:
       rimraf: 3.0.2
       sinon: 14.0.2
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      tsconfig: link:../tsconfig
       tsup: 5.12.9_6qtx7vkbdhwvdm4crzlegk4mvi
       tsx: 3.12.7
+      types: link:../types
       typescript: 4.9.5
       uuid: 8.3.2
 
@@ -478,8 +478,6 @@ importers:
       '@aws-sdk/s3-request-presigner': 3.292.0
       '@aws-sdk/types': 3.292.0
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/tsconfig': workspace:*
-      '@glyphx/types': workspace:*
       '@huggingface/inference': ^2.5.2
       '@types/chai': ^4.3.3
       '@types/mocha': ^10.0.0
@@ -510,10 +508,12 @@ importers:
       server-only: ^0.0.1
       sinon: ^14.0.1
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       tsconfig-paths: ^4.1.0
       tsup: ^5.11.13
       typedoc: ^0.23.20
       typedoc-plugin-not-exported: ^0.1.6
+      types: workspace:*
       typescript: 4.9.5
       uuid: ^8.3.2
       winston: ^3.8.2
@@ -524,19 +524,18 @@ importers:
       '@aws-sdk/client-secrets-manager': 3.292.0
       '@aws-sdk/lib-storage': 3.292.0_ja3l2tg3xtljjltoj5cuudrvjy
       '@aws-sdk/s3-request-presigner': 3.292.0
-      '@glyphx/types': link:../types
       '@huggingface/inference': 2.6.1
       ai: 2.2.10_ipxzy6bolgulmzkkxqvlhxedju
       openai-edge: 1.2.2
       reflect-metadata: 0.1.13
       server-only: 0.0.1
+      types: link:../types
       uuid: 8.3.2
       winston: 3.10.0
       winston-daily-rotate-file: 4.7.1_winston@3.10.0
     devDependencies:
       '@aws-sdk/types': 3.292.0
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/tsconfig': link:../tsconfig
       '@types/chai': 4.3.5
       '@types/mocha': 10.0.1
       '@types/node': 18.17.12
@@ -562,6 +561,7 @@ importers:
       rimraf: 3.0.2
       sinon: 14.0.2
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      tsconfig: link:../tsconfig
       tsconfig-paths: 4.2.0
       tsup: 5.12.9_6qtx7vkbdhwvdm4crzlegk4mvi
       typedoc: 0.23.28_typescript@4.9.5
@@ -570,10 +570,7 @@ importers:
 
   packages/database:
     specifiers:
-      '@glyphx/core': workspace:*
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/tsconfig': workspace:*
-      '@glyphx/types': workspace:*
       '@types/chai': ^4.3.3
       '@types/mocha': ^10.0.0
       '@types/node': ^18.11.7
@@ -583,6 +580,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.46.1
       '@typescript-eslint/parser': ^5.42.0
       chai: ^4.3.6
+      core: workspace:*
       dotenv: ^16.0.3
       eslint: ^8.12.0
       eslint-import-resolver-typescript: ^3.5.2
@@ -599,18 +597,18 @@ importers:
       server-only: ^0.0.1
       sinon: ^14.0.1
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       tsup: ^5.11.13
       tsx: ^3.7.1
+      types: workspace:*
       typescript: 4.9.5
       uuid: ^8.3.2
     dependencies:
-      '@glyphx/core': link:../core
+      core: link:../core
       mongoose: 6.12.0
       server-only: 0.0.1
     devDependencies:
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/tsconfig': link:../tsconfig
-      '@glyphx/types': link:../types
       '@types/chai': 4.3.5
       '@types/mocha': 10.0.1
       '@types/node': 18.17.12
@@ -634,15 +632,16 @@ importers:
       rimraf: 3.0.2
       sinon: 14.0.2
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      tsconfig: link:../tsconfig
       tsup: 5.12.9_6qtx7vkbdhwvdm4crzlegk4mvi
       tsx: 3.12.7
+      types: link:../types
       typescript: 4.9.5
       uuid: 8.3.2
 
   packages/email:
     specifiers:
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/tsconfig': workspace:*
       '@types/chai': ^4.3.3
       '@types/mocha': ^10.0.0
       '@types/node': ^18.11.7
@@ -668,6 +667,7 @@ importers:
       rimraf: ^3.0.2
       sinon: ^14.0.1
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       tsup: ^5.11.13
       tsx: ^3.7.1
       typescript: 4.9.5
@@ -676,7 +676,6 @@ importers:
       nodemailer: 6.9.4
     devDependencies:
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/tsconfig': link:../tsconfig
       '@types/chai': 4.3.5
       '@types/mocha': 10.0.1
       '@types/node': 18.17.12
@@ -701,6 +700,7 @@ importers:
       rimraf: 3.0.2
       sinon: 14.0.2
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      tsconfig: link:../tsconfig
       tsup: 5.12.9_6qtx7vkbdhwvdm4crzlegk4mvi
       tsx: 3.12.7
       typescript: 4.9.5
@@ -751,13 +751,7 @@ importers:
       '@aws-sdk/client-secrets-manager': 3.223.0
       '@aws-sdk/lib-storage': 3.223.0
       '@aws-sdk/types': 3.222.0
-      '@glyphx/business': workspace:*
-      '@glyphx/core': workspace:*
-      '@glyphx/database': workspace:*
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/fileingestion': workspace:^1.0.0
-      '@glyphx/tsconfig': workspace:*
-      '@glyphx/types': workspace:*
       '@types/chai': ^4.3.3
       '@types/mocha': ^10.0.0
       '@types/node': ^18.11.7
@@ -767,7 +761,10 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.46.1
       '@typescript-eslint/parser': ^5.42.0
       aws-sdk-client-mock: ^2.0.1
+      business: workspace:*
       chai: ^4.3.6
+      core: workspace:*
+      database: workspace:*
       dotenv: ^16.0.3
       eslint: ^8.12.0
       eslint-import-resolver-typescript: ^3.5.2
@@ -776,6 +773,7 @@ importers:
       eslint-plugin-node: ^11.1.0
       eslint-plugin-prettier: ^4.2.1
       fast-xml-parser: ^4.1.3
+      fileingestion: workspace:^1.0.0
       gts: ^3.1.0
       mocha: ^10.1.0
       nyc: ^15.1.0
@@ -784,9 +782,11 @@ importers:
       server-only: ^0.0.1
       sinon: ^14.0.1
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       tsconfig-paths: ^4.1.0
       tsup: ^5.11.13
       tsx: ^3.7.1
+      types: workspace:*
       typescript: 4.9.5
       uuid: ^8.3.2
     dependencies:
@@ -794,17 +794,14 @@ importers:
       '@aws-sdk/client-s3': 3.223.0
       '@aws-sdk/client-secrets-manager': 3.223.0
       '@aws-sdk/lib-storage': 3.223.0_tjhwtmhkrw6ipclzkxjlf64uva
-      '@glyphx/business': link:../business
-      '@glyphx/core': link:../core
-      '@glyphx/database': link:../database
+      business: link:../business
+      core: link:../core
+      database: link:../database
       dotenv: 16.3.1
       server-only: 0.0.1
     devDependencies:
       '@aws-sdk/types': 3.222.0
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/fileingestion': link:../ingestion
-      '@glyphx/tsconfig': link:../tsconfig
-      '@glyphx/types': link:../types
       '@types/chai': 4.3.5
       '@types/mocha': 10.0.1
       '@types/node': 18.17.12
@@ -822,6 +819,7 @@ importers:
       eslint-plugin-node: 11.1.0_eslint@8.48.0
       eslint-plugin-prettier: 4.2.1_men7ly5cnlj53ck524lfh6r344
       fast-xml-parser: 4.2.7
+      fileingestion: link:../ingestion
       gts: 3.1.1_typescript@4.9.5
       mocha: 10.2.0
       nyc: 15.1.0
@@ -829,9 +827,11 @@ importers:
       rimraf: 3.0.2
       sinon: 14.0.2
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      tsconfig: link:../tsconfig
       tsconfig-paths: 4.2.0
       tsup: 5.12.9_6qtx7vkbdhwvdm4crzlegk4mvi
       tsx: 3.12.7
+      types: link:../types
       typescript: 4.9.5
       uuid: 8.3.2
 
@@ -841,11 +841,7 @@ importers:
       '@aws-sdk/client-s3': 3.292.0
       '@aws-sdk/lib-storage': 3.292.0
       '@aws-sdk/types': 3.292.0
-      '@glyphx/business': workspace:*
-      '@glyphx/core': workspace:*
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/tsconfig': workspace:*
-      '@glyphx/types': workspace:*
       '@types/chai': ^4.3.3
       '@types/mocha': ^10.0.0
       '@types/node': ^18.11.7
@@ -855,7 +851,9 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.46.1
       '@typescript-eslint/parser': ^5.42.0
       aws-sdk-client-mock: ^2.1.1
+      business: workspace:*
       chai: ^4.3.6
+      core: workspace:*
       csv: ^6.2.2
       currency-symbol-map: ^5.1.0
       dotenv: ^16.0.3
@@ -877,18 +875,20 @@ importers:
       server-only: ^0.0.1
       sinon: ^14.0.1
       ts-node: ^10.9.1
+      tsconfig: workspace:*
       tsconfig-paths: ^4.1.0
       tsup: ^5.11.13
       typedoc: ^0.23.20
       typedoc-plugin-not-exported: ^0.1.6
+      types: workspace:*
       typescript: 4.9.5
       uuid: ^8.3.2
     dependencies:
       '@aws-sdk/client-athena': 3.292.0
       '@aws-sdk/client-s3': 3.292.0
       '@aws-sdk/lib-storage': 3.292.0_ja3l2tg3xtljjltoj5cuudrvjy
-      '@glyphx/business': link:../business
-      '@glyphx/core': link:../core
+      business: link:../business
+      core: link:../core
       csv: 6.3.3
       currency-symbol-map: 5.1.0
       dotenv: 16.3.1
@@ -898,8 +898,6 @@ importers:
     devDependencies:
       '@aws-sdk/types': 3.292.0
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/tsconfig': link:../tsconfig
-      '@glyphx/types': link:../types
       '@types/chai': 4.3.5
       '@types/mocha': 10.0.1
       '@types/node': 18.17.12
@@ -925,10 +923,12 @@ importers:
       rimraf: 3.0.2
       sinon: 14.0.2
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
+      tsconfig: link:../tsconfig
       tsconfig-paths: 4.2.0
       tsup: 5.12.9_6qtx7vkbdhwvdm4crzlegk4mvi
       typedoc: 0.23.28_typescript@4.9.5
       typedoc-plugin-not-exported: 0.1.6_typedoc@0.23.28
+      types: link:../types
       typescript: 4.9.5
       uuid: 8.3.2
 
@@ -939,7 +939,6 @@ importers:
     specifiers:
       '@aws-sdk/client-s3': ^3.295.0
       '@glyphx/eslint-config-glyphx-backend': workspace:*
-      '@glyphx/tsconfig': workspace:*
       '@types/node': ^18.11.7
       '@typescript-eslint/eslint-plugin': ^5.46.1
       '@typescript-eslint/parser': ^5.42.0
@@ -954,6 +953,7 @@ importers:
       lint-staged: ^13.0.3
       mongoose: ^6.8.1
       rimraf: ^3.0.2
+      tsconfig: workspace:*
       tsup: ^5.11.13
       typedoc: ^0.23.20
       typedoc-plugin-not-exported: ^0.1.6
@@ -961,7 +961,6 @@ importers:
     devDependencies:
       '@aws-sdk/client-s3': 3.400.0
       '@glyphx/eslint-config-glyphx-backend': link:../eslint-backend-config
-      '@glyphx/tsconfig': link:../tsconfig
       '@types/node': 18.17.12
       '@typescript-eslint/eslint-plugin': 5.46.1_negeeoqbi2ljvsevyuoae5nley
       '@typescript-eslint/parser': 5.62.0_cgvy6hrg3pjeapqw5wnuqcmdo4
@@ -976,6 +975,7 @@ importers:
       lint-staged: 13.3.0
       mongoose: 6.12.0
       rimraf: 3.0.2
+      tsconfig: link:../tsconfig
       tsup: 5.12.9_typescript@4.9.5
       typedoc: 0.23.28_typescript@4.9.5
       typedoc-plugin-not-exported: 0.1.6_typedoc@0.23.28
@@ -7499,7 +7499,7 @@ packages:
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
       magic-string: 0.30.3
-      postcss: 8.4.28
+      postcss: 8.4.29
       source-map-js: 1.0.2
     dev: false
 
@@ -7935,7 +7935,7 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
-  /autoprefixer/10.4.15_postcss@8.4.28:
+  /autoprefixer/10.4.15_postcss@8.4.29:
     resolution: {integrity: sha512-KCuPB8ZCIqFdA4HwKXsvz7j6gvSDNhDP7WnUjBleRkKjPdvCmHFuQ77ocavI8FT6NdvlBnE2UFr2H4Mycn8Vew==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
@@ -7947,7 +7947,7 @@ packages:
       fraction.js: 4.3.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
-      postcss: 8.4.28
+      postcss: 8.4.29
       postcss-value-parser: 4.2.0
     dev: true
 
@@ -13724,25 +13724,25 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /postcss-import/15.1.0_postcss@8.4.28:
+  /postcss-import/15.1.0_postcss@8.4.29:
     resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       postcss: ^8.0.0
     dependencies:
-      postcss: 8.4.28
+      postcss: 8.4.29
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.4
 
-  /postcss-js/4.0.1_postcss@8.4.28:
+  /postcss-js/4.0.1_postcss@8.4.29:
     resolution: {integrity: sha512-dDLF8pEO191hJMtlHFPRa8xsizHaM82MLfNkUHdUtVEV3tgTp5oj+8qbEqYM57SLfc74KSbw//4SeJma2LRVIw==}
     engines: {node: ^12 || ^14 || >= 16}
     peerDependencies:
       postcss: ^8.4.21
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.4.28
+      postcss: 8.4.29
 
   /postcss-load-config/3.1.4:
     resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
@@ -13777,7 +13777,7 @@ packages:
       yaml: 1.10.2
     dev: true
 
-  /postcss-load-config/4.0.1_4mfcaxiunfsxzel3cshxru4qj4:
+  /postcss-load-config/4.0.1_ntcifew6f27c4l7dh5q6i7owpq:
     resolution: {integrity: sha512-vEJIc8RdiBRu3oRAI0ymerOn+7rPuMvRXslTvZUKZonDHFIczxztIyJ1urxM1x9JXEikvpWWTUUqal5j/8QgvA==}
     engines: {node: '>= 14'}
     peerDependencies:
@@ -13790,17 +13790,17 @@ packages:
         optional: true
     dependencies:
       lilconfig: 2.1.0
-      postcss: 8.4.28
+      postcss: 8.4.29
       ts-node: 10.9.1_ucwc2cc4dvhyxqw5ggc6i4h7ly
       yaml: 2.3.2
 
-  /postcss-nested/6.0.1_postcss@8.4.28:
+  /postcss-nested/6.0.1_postcss@8.4.29:
     resolution: {integrity: sha512-mEp4xPMi5bSWiMbsgoPfcP74lsWLHkQbZc3sY+jWYd65CUwXrUaTp0fmNpa01ZcETKlIgUdFN/MpS2xZtqL9dQ==}
     engines: {node: '>=12.0'}
     peerDependencies:
       postcss: ^8.2.14
     dependencies:
-      postcss: 8.4.28
+      postcss: 8.4.29
       postcss-selector-parser: 6.0.13
 
   /postcss-selector-parser/6.0.10:
@@ -13829,8 +13829,8 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
-  /postcss/8.4.28:
-    resolution: {integrity: sha512-Z7V5j0cq8oEKyejIKfpD8b4eBy9cwW2JWPk0+fB1HOAMsfHbnAXLLS+PfVWlzMSLQaWttKDt607I0XHmpE67Vw==}
+  /postcss/8.4.29:
+    resolution: {integrity: sha512-cbI+jaqIeu/VGqXEarWkRCCffhjgXc0qjBtXpqJhTBohMUjUQnbBr0xqX3vEKudc4iviTewcJo5ajcec5+wdJw==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.6
@@ -15579,11 +15579,11 @@ packages:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.0.0
-      postcss: 8.4.28
-      postcss-import: 15.1.0_postcss@8.4.28
-      postcss-js: 4.0.1_postcss@8.4.28
-      postcss-load-config: 4.0.1_4mfcaxiunfsxzel3cshxru4qj4
-      postcss-nested: 6.0.1_postcss@8.4.28
+      postcss: 8.4.29
+      postcss-import: 15.1.0_postcss@8.4.29
+      postcss-js: 4.0.1_postcss@8.4.29
+      postcss-load-config: 4.0.1_ntcifew6f27c4l7dh5q6i7owpq
+      postcss-nested: 6.0.1_postcss@8.4.29
       postcss-selector-parser: 6.0.13
       resolve: 1.22.4
       sucrase: 3.34.0

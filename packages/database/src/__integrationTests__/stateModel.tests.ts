@@ -3,11 +3,8 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {
-  web as webTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {webTypes, fileIngestionTypes} from 'types';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 

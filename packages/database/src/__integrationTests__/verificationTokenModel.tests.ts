@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 

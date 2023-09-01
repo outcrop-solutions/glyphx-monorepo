@@ -1,6 +1,6 @@
 import produce from 'immer';
 import api from '../api';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations';
 

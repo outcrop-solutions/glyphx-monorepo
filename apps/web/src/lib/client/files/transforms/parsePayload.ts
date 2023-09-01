@@ -1,7 +1,7 @@
 import { parse } from 'papaparse';
 import { S3_BUCKET_NAME } from 'config/constants';
 import { Types as mongooseTypes } from 'mongoose';
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, fileIngestionTypes } from 'types';
 
 // @jp-burford added in here because the class this lives in can't be imported on the client
 const REPLACEABLE_CHARS = [

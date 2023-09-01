@@ -9,7 +9,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
 import { useRouter } from 'next/navigation';
 import { WritableDraft } from 'immer/dist/internal';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import produce from 'immer';
 import { useParams } from 'next/navigation';
 

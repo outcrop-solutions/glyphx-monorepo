@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useSetRecoilState } from 'recoil';
 
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { _deleteProject } from 'lib/client';
 import { ProjectTemplateIcons } from '../../project/[projectId]/_components/projectSidebar/icons';
 

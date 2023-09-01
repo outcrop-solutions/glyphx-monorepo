@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { authOptions } from 'app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth/next';

@@ -15,7 +15,7 @@ import {
 } from 'lib/client/mutations/workspace';
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPatch, genericPost, genericPut } from './utilities/genericReqs';
-import { database, database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import mongoose, { Types as mongooseTypes } from 'mongoose';
 import { _acceptInvitation, _createMember, _declineInvitation, _removeMember, _updateRole } from 'lib';
 // import type { PageConfig } from 'next';
@@ -268,7 +268,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace ********************/
     // replace handler import resolution
     createWorkspace = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -283,7 +283,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     createWorkspaceRouteWrapper = proxyquire('../pages/api/workspace', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -294,7 +294,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     createWorkspaceRoute = proxyquire('../pages/api/workspace', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -306,7 +306,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/[workspaceSlug] ********************/
     // replace handler import resolution
     getWorkspace = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -321,7 +321,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // replace handler import resolution
     deleteWorkspace = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -336,7 +336,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     workspaceRouteWrapper = proxyquire('../pages/api/workspace/[workspaceSlug]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -348,7 +348,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     workspaceRoute = proxyquire('../pages/api/workspace/[workspaceSlug]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -361,7 +361,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/[workspaceSlug]/invite ********************/
     // replace handler import resolution
     inviteUsers = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -376,7 +376,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     inviteUsersRouteWrapper = proxyquire('../pages/api/workspace/[workspaceSlug]/invite', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -387,7 +387,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     inviteUsersRoute = proxyquire('../pages/api/workspace/[workspaceSlug]/invite', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -399,7 +399,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/[workspaceSlug]/isTeamOwner ********************/
     // replace handler import resolution
     isTeamOwner = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -414,7 +414,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     isTeamOwnerRouteWrapper = proxyquire('../pages/api/workspace/[workspaceSlug]/isTeamOwner', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -425,7 +425,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     isTeamOwnerRoute = proxyquire('../pages/api/workspace/[workspaceSlug]/isTeamOwner', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -436,7 +436,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/[workspaceSlug]/getMembers ********************/
     // replace handler import resolution
     getMembers = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -451,7 +451,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getMembersRouteWrapper = proxyquire('../pages/api/workspace/[workspaceSlug]/members', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -462,7 +462,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     getMembersRoute = proxyquire('../pages/api/workspace/[workspaceSlug]/members', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -473,7 +473,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/[workspaceSlug]/name ********************/
     // replace handler import resolution
     updateWorkspaceName = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -488,7 +488,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     updateWorkspaceNameRouteWrapper = proxyquire('../pages/api/workspace/[workspaceSlug]/name', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -499,7 +499,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     updateWorkspaceNameRoute = proxyquire('../pages/api/workspace/[workspaceSlug]/name', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -510,7 +510,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/[workspaceSlug]/slug ********************/
     // replace handler import resolution
     updateWorkspaceSlug = proxyquire.load('../lib/server/workspace', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -525,7 +525,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     updateWorkspaceSlugRouteWrapper = proxyquire('../pages/api/workspace/[workspaceSlug]/slug', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -536,7 +536,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     updateWorkspaceSlugRoute = proxyquire('../pages/api/workspace/[workspaceSlug]/slug', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -547,7 +547,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/team/accept ********************/
     // replace handler import resolution
     acceptInvitation = proxyquire.load('../lib/server/team', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -559,7 +559,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     acceptInvitationRouteWrapper = proxyquire('../pages/api/workspace/team/accept', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -570,7 +570,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     acceptInvitationRoute = proxyquire('../pages/api/workspace/team/accept', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -581,7 +581,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/team/decline ********************/
     // replace handler import resolution
     declineInvitation = proxyquire.load('../lib/server/team', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -593,7 +593,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     declineInvitationRouteWrapper = proxyquire('../pages/api/workspace/team/decline', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -604,7 +604,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     declineInvitationRoute = proxyquire('../pages/api/workspace/team/decline', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -615,7 +615,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/team/join ********************/
     // replace handler import resolution
     joinWorkspace = proxyquire.load('../lib/server/team', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -627,7 +627,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     joinWorkspaceRouteWrapper = proxyquire('../pages/api/workspace/team/join', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -638,7 +638,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     joinWorkspaceRoute = proxyquire('../pages/api/workspace/team/join', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -649,7 +649,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/team/member ********************/
     // replace handler import resolution
     removeMember = proxyquire.load('../lib/server/team', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -661,7 +661,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     removeMemberRouteWrapper = proxyquire('../pages/api/workspace/team/member', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -672,7 +672,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     removeMemberRoute = proxyquire('../pages/api/workspace/team/member', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -684,7 +684,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
     updateRole = proxyquire.load('../lib/server/team', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -696,7 +696,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     updateRoleRouteWrapper = proxyquire('../pages/api/workspace/team/role', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -707,7 +707,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     updateRoleRoute = proxyquire('../pages/api/workspace/team/role', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -718,7 +718,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspaces ********************/
     // replace handler import resolution
     getWorkspaces = proxyquire.load('../lib/server/workspaces', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -730,7 +730,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getWorkspacesRouteWrapper = proxyquire('../pages/api/workspaces', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -741,7 +741,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     getWorkspacesRoute = proxyquire('../pages/api/workspaces', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -752,7 +752,7 @@ describe('WORKSPACE ROUTES', () => {
     /******************** ROUTE /api/workspaces/invitations ********************/
     // replace handler import resolution
     getPendingInvitations = proxyquire.load('../lib/server/workspaces', {
-      '@glyphx/business': {
+      business: {
         workspaceService: mockWorkspaceService,
         activityLogService: mockActivityLogService,
         membershipService: mockMembershipService,
@@ -764,7 +764,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getPendingInvitationsRouteWrapper = proxyquire('../pages/api/workspaces/invitations', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -775,7 +775,7 @@ describe('WORKSPACE ROUTES', () => {
 
     // for testing routing at api/workspace
     getPendingInvitationsRoute = proxyquire('../pages/api/workspaces/invitations', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

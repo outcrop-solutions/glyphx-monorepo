@@ -3,7 +3,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import produce from 'immer';
 import toast from 'react-hot-toast';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { LinkDropDown } from './LinkDropDown';
 import { MemberList } from './MemberList';
 

@@ -10,7 +10,7 @@ import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
 import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 const MOCK_SESSION = {
   user: {
@@ -66,14 +66,14 @@ describe('SIGN URLS ROUTES', () => {
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
     signDataUrls = proxyquire.load('../lib/server/etl/signDataUrls', {
-      '@glyphx/core': {
+      core: {
         aws: mockAws,
       },
     }).signDataUrls;
 
     // swap overridden import into handler to be able to call
     signDataUrlsRouteWrapper = proxyquire('../pages/api/etl/sign-data-urls', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -84,7 +84,7 @@ describe('SIGN URLS ROUTES', () => {
 
     // for testing routing at api/workspace
     signDataUrlsRoute = proxyquire('../pages/api/etl/sign-data-urls', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

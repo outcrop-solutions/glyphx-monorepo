@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
-import { aws } from '@glyphx/core';
+import { BasicColumnNameCleaner } from 'fileingestion';
+import { aws } from 'core';
 import { S3_BUCKET_NAME } from 'config/constants';
-import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { fileIngestionTypes } from 'types';
 /**
  * Created signed url to upload files
  *

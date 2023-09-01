@@ -10,8 +10,8 @@ import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
 import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
+import { databaseTypes, webTypes, fileIngestionTypes } from 'types';
+import { BasicColumnNameCleaner } from 'fileingestion';
 
 const MOCK_SESSION = {
   user: {
@@ -254,7 +254,7 @@ describe('FILE INGESTION ROUTE', () => {
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
     fileIngestion = proxyquire.load('../lib/server/etl/fileIngestion', {
-      '@glyphx/business': {
+      business: {
         processTrackingService: mockProcessTrackingService,
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
@@ -262,10 +262,10 @@ describe('FILE INGESTION ROUTE', () => {
       'lib/utils/formatUserAgent': {
         formatUserAgent: formatUserAgentStub,
       },
-      '@glyphx/fileingestion': {
+      fileingestion: {
         FileIngestor: mockFileIngestor,
       },
-      '@glyphx/core': {
+      core: {
         generalPursposeFunctions: mockGeneralPurposeFunctions,
         aws: mockAws,
       },
@@ -273,7 +273,7 @@ describe('FILE INGESTION ROUTE', () => {
 
     // swap overridden import into handler to be able to call
     fileIngestionRouteWrapper = proxyquire('../pages/api/etl/ingest', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -284,7 +284,7 @@ describe('FILE INGESTION ROUTE', () => {
 
     // for testing routing at api/workspace
     fileIngestionRoute = proxyquire('../pages/api/etl/ingest', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

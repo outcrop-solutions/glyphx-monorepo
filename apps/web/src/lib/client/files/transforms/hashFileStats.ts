@@ -1,5 +1,5 @@
 import MD5 from 'crypto-js/md5';
-import { fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { fileIngestionTypes } from 'types';
 
 // handles rowId prefix
 function removePrefix(str: string, prefix: string): string {

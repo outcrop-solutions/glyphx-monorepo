@@ -7,7 +7,7 @@ import { _createState, api } from 'lib';
 import { CreateStateInput } from './CreateStateInput';
 import { cameraAtom, imageHashAtom, viewerPositionSelector } from 'state';
 import { useSWRConfig } from 'swr';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 export const States = () => {
   const { mutate } = useSWRConfig();

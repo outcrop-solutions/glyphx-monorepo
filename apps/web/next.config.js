@@ -21,13 +21,13 @@ module.exports = {
   //https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable
   transpilePackages: [
     '@glyphx/codegen',
-    '@glyphx/core',
-    '@glyphx/business',
-    '@glyphx/database',
-    '@glyphx/email',
-    '@glyphx/fileingestion',
-    '@glyphx/glyphengine',
-    '@glyphx/types',
+    'core',
+    'business',
+    'database',
+    'email',
+    'fileingestion',
+    'glyphengine',
+    'types',
   ],
   modularizeImports: {
     lodash: {

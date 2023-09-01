@@ -1,4 +1,4 @@
-import { Initializer } from '@glyphx/business';
+import { Initializer } from 'business';
 import { stripeHooks } from 'lib/server';
 import { NextApiRequest, NextApiResponse } from 'next';
 

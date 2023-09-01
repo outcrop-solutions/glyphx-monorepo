@@ -1,4 +1,4 @@
-import { web as webTypes, database as databaseTypes } from '@glyphx/types';
+import { webTypes, databaseTypes } from 'types';
 
 // WORKSPACE MEMBERSHIP MUTATIONS
 

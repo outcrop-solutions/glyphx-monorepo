@@ -1,4 +1,5 @@
-import {database as databaseTypes, IQueryResult} from '@glyphx/types';
+// eslint-disable-next-line node/no-unpublished-import
+import {databaseTypes, IQueryResult} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IActivityLogMethods,
@@ -6,7 +7,7 @@ import {
   IActivityLogDocument,
   IActivityLogCreateInput,
 } from '../interfaces';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {UserModel} from './user';
 import {userAgentSchema} from '../schemas';
 import {ProjectModel} from './project';
@@ -229,14 +230,14 @@ SCHEMA.static(
     const userId =
       input.actor instanceof mongooseTypes.ObjectId
         ? input.actor
-        : new (mongooseTypes.ObjectId as any)(input.actor._id);
+        : new mongooseTypes.ObjectId(input.actor._id);
 
     const userExists = await UserModel.userIdExists(userId);
     if (!userExists)
       throw new error.InvalidArgumentError(
         `A user with _id : ${userId} cannot be found`,
         'user._id',
-        input.actor._id
+        userId
       );
 
     let workspaceId;
@@ -245,7 +246,7 @@ SCHEMA.static(
       workspaceId =
         input.workspaceId instanceof mongooseTypes.ObjectId
           ? input.workspaceId
-          : new (mongooseTypes.ObjectId as any)(input.workspaceId);
+          : new mongooseTypes.ObjectId(input.workspaceId);
 
       const workspaceExists = await WorkspaceModel.workspaceIdExists(
         workspaceId
@@ -262,7 +263,7 @@ SCHEMA.static(
     const resourceId =
       input.resource instanceof mongooseTypes.ObjectId
         ? input.resource
-        : new (mongooseTypes.ObjectId as any)(input.resource._id);
+        : new mongooseTypes.ObjectId(input.resource._id);
 
     switch (input.onModel) {
       case databaseTypes.constants.RESOURCE_MODEL.USER:

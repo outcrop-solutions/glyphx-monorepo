@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 export const CollisionType = ({ type }: { type: webTypes.constants.COLLISION_CASE }) => {
   switch (type) {

@@ -1,8 +1,8 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { authOptions } from 'app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth/next';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Initializer } from '@glyphx/business';
+import { Initializer } from 'business';
 import { getWorkspaceLogs } from 'lib/server/activity';
 
 const workspaceLogs = async (req: NextApiRequest, res: NextApiResponse) => {

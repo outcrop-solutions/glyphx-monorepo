@@ -3,7 +3,7 @@ import Button from 'app/_components/Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, api } from 'lib';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom, projectAtom } from 'state';
 import toast from 'react-hot-toast';

@@ -1,4 +1,5 @@
-import {database as databaseTypes, IQueryResult} from '@glyphx/types';
+// eslint-disable-next-line node/no-unpublished-import
+import {databaseTypes, IQueryResult} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IAnnotationMethods,
@@ -6,7 +7,7 @@ import {
   IAnnotationDocument,
   IAnnotationCreateInput,
 } from '../interfaces';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {UserModel} from './user';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
@@ -198,7 +199,7 @@ SCHEMA.static(
     const userId =
       input.author instanceof mongooseTypes.ObjectId
         ? input.author
-        : new (mongooseTypes.ObjectId as any)(input.author._id);
+        : new mongooseTypes.ObjectId(input.author._id);
 
     const userExists = await UserModel.userIdExists(userId);
     if (!userExists)
@@ -214,7 +215,7 @@ SCHEMA.static(
       projectId =
         input.projectId instanceof mongooseTypes.ObjectId
           ? input.projectId
-          : new (mongooseTypes.ObjectId as any)(input.projectId);
+          : new mongooseTypes.ObjectId(input.projectId);
 
       const projectExists = await ProjectModel.projectIdExists(projectId);
       if (!projectExists)
@@ -231,7 +232,7 @@ SCHEMA.static(
       stateId =
         input.stateId instanceof mongooseTypes.ObjectId
           ? input.stateId
-          : new (mongooseTypes.ObjectId as any)(input.stateId);
+          : new mongooseTypes.ObjectId(input.stateId);
 
       const stateExists = await StateModel.stateIdExists(stateId);
       if (!stateExists)

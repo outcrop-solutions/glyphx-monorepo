@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/core",
+  "name": "core",
   "version": "1.0.0",
   "description": "A set of common components for use in Glyphx Backend applications",
   "main": "src/index.ts",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/tsconfig": "workspace:*",
+    "tsconfig": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
@@ -67,7 +67,7 @@
     "@aws-sdk/client-secrets-manager": "3.292.0",
     "@aws-sdk/lib-storage": "3.292.0",
     "@aws-sdk/s3-request-presigner": "3.292.0",
-    "@glyphx/types": "workspace:*",
+    "types": "workspace:*",
     "@huggingface/inference": "^2.5.2",
     "ai": "^2.1.8",
     "openai-edge": "^1.1.0",

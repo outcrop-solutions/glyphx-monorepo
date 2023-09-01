@@ -1,5 +1,5 @@
 import type { NextApiRequest } from 'next';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import useragent from 'useragent';
 
 export const formatUserAgent = (req: NextApiRequest): { agentData: databaseTypes.IUserAgent; location: string } => {

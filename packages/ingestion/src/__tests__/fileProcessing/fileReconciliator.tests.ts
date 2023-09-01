@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {FileReconciliator} from '@fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
 /*
  * this is a pretty hairy test that has some built in assumptions that I won't explain here,
@@ -12,27 +12,27 @@ const FILE_INFO = [
   {
     tableName: 'table1',
     fileName: 'file1.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.ADD,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.ADD,
   },
   {
     tableName: 'table1',
     fileName: 'file1-1.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.APPEND,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
   {
     tableName: 'table2',
     fileName: 'file2.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.REPLACE,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.REPLACE,
   },
   {
     tableName: 'table3',
     fileName: 'file3-1.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.APPEND,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
   {
     tableName: 'table4',
     fileName: 'file4.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.DELETE,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.DELETE,
   },
 ] as unknown as fileIngestion.IFileInfo[];
 
@@ -73,7 +73,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.ADD,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.ADD,
   },
   {
     fileName: 'file1-1.csv',
@@ -84,7 +84,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.APPEND,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
   {
     fileName: 'file2.csv',
@@ -95,7 +95,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.REPLACE,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.REPLACE,
   },
   {
     fileName: 'file3-1.csv',
@@ -106,7 +106,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.APPEND,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
 ];
 

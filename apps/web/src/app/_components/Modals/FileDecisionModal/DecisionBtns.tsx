@@ -1,5 +1,5 @@
 import React from 'react';
-import { fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
+import { fileIngestionTypes, webTypes } from 'types';
 
 const Btn = ({ children, payload, idx, op, handleOp, className, ...rest }) => {
   const isActive = payload?.fileInfo[idx].operation === op;

@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {database as databaseTypes, IQueryResult} from '@glyphx/types';
+import {databaseTypes, IQueryResult} from 'types';
 import {IMemberMethods} from './iMemberMethods';
 import {IMemberCreateInput} from './iMemberCreateInput';
 

@@ -10,9 +10,9 @@ import {
 } from './';
 
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../util/constants';
 
@@ -106,7 +106,7 @@ export class BasicAthenaProcessor {
         //to be recreated.
         if (
           tableInfo.fileOperationType !==
-          fileIngestion.constants.FILE_OPERATION.APPEND
+          fileIngestionTypes.constants.FILE_OPERATION.APPEND
         ) {
           const joinData = joinInformation[i];
           const tableQuery = tablePlanner.defineQuery(

@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Session } from 'next-auth';
-import { userService, activityLogService, validateUpdateName, validateUpdateEmail } from '@glyphx/business';
+import { userService, activityLogService, validateUpdateName, validateUpdateEmail } from 'business';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 /**
  * Update Name

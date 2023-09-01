@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
 import {BasicTableSorter} from '@fileProcessing';
-import {error} from '@glyphx/core';
-import {fileIngestion} from '@glyphx/types';
+import {error} from 'core';
+import {fileIngestionTypes} from 'types';
 
 describe('#fileProcessing/BasicTableSorter', () => {
   const table1: fileProcessingInterfaces.IFileInformation = {
@@ -14,7 +14,7 @@ describe('#fileProcessing/BasicTableSorter', () => {
     numberOfColumns: 10,
     columns: [],
     fileSize: 1000,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.ADD,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.ADD,
   };
   const table2: fileProcessingInterfaces.IFileInformation = {
     fileName: 'table2',
@@ -25,7 +25,7 @@ describe('#fileProcessing/BasicTableSorter', () => {
     numberOfColumns: 10,
     columns: [],
     fileSize: 500,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.ADD,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.ADD,
   };
   const table3: fileProcessingInterfaces.IFileInformation = {
     fileName: 'table3',
@@ -36,7 +36,7 @@ describe('#fileProcessing/BasicTableSorter', () => {
     numberOfColumns: 10,
     columns: [],
     fileSize: 5000,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.ADD,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.ADD,
   };
 
   context('sortTables', () => {

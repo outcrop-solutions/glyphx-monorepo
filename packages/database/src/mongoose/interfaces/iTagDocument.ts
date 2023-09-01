@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 
 export interface ITagDocument

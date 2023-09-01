@@ -3,8 +3,8 @@ import {
   ITableQueryPlanner,
 } from '../interfaces/fileProcessing';
 import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../util/constants';
-import {generalPurposeFunctions} from '@glyphx/core';
-import {fileIngestion} from '@glyphx/types';
+import {generalPurposeFunctions} from 'core';
+import {fileIngestionTypes} from 'types';
 
 /**
  * This is our basic table query planner for hive tables (AWS Athena).  It renders the proper SQL like syntaxt to represent a suppoert file type ( parquet, csv, json etc)
@@ -76,12 +76,12 @@ export class BasicHiveTableQueryPlanner implements ITableQueryPlanner {
     const columnDef = tableData.columns
       .map(c => {
         return `${c.columnName} ${
-          c.columnType === fileIngestion.constants.FIELD_TYPE.STRING
+          c.columnType === fileIngestionTypes.constants.FIELD_TYPE.STRING
             ? `varchar(${
                 (c.columnLength ?? -1) > 65535 ? 65535 : c.columnLength ?? 100
               })`
-            : c.columnType === fileIngestion.constants.FIELD_TYPE.NUMBER ||
-              c.columnType === fileIngestion.constants.FIELD_TYPE.DATE
+            : c.columnType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ||
+              c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE
             ? 'double'
             : 'bigint'
         }`;

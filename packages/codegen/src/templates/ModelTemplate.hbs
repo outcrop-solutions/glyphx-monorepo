@@ -1,6 +1,6 @@
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {I{{pascalcase this.name}}Document, I{{pascalcase this.name}}CreateInput, I{{pascalcase this.name}}StaticMethods, I{{pascalcase name}}Methods} from '../interfaces';
 {{#each properties}}
 {{#if (isOneToMany this.relationType)}}

@@ -1,17 +1,17 @@
 import 'mocha';
 import {assert} from 'chai';
-import {aws, generalPurposeFunctions} from '@glyphx/core';
+import {aws, generalPurposeFunctions} from 'core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
+import {fileIngestion, databaseTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 import {
   Initializer,
   processTrackingService,
   projectService,
   dbConnection,
-} from '@glyphx/business';
+} from 'business';
 import {v4} from 'uuid';
 import {config} from '../config';
 const UNIQUE_KEY = v4().replaceAll('-', '');

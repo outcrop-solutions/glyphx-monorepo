@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { hashFileStats } from '../transforms/hashFileStats';
 import { handleCollisionCase } from '../mappings/handleCollisionCase';
 import { handelOperations } from '../mappings/handleOperations';

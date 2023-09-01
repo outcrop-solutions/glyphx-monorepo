@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/email",
+  "name": "email",
   "version": "1.0.0",
   "description": "Transactional Email",
   "main": "src/index.ts",
@@ -25,7 +25,7 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
-    "@glyphx/tsconfig": "workspace:*",
+    "tsconfig": "workspace:*",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",

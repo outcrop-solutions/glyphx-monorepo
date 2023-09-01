@@ -1,6 +1,6 @@
 import { useDrag, useDrop } from 'react-dnd';
 import { useRecoilValue } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 import { SortableHeaderCell } from './SortableHeaderCell';
 

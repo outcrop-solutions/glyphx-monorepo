@@ -1,5 +1,5 @@
-import { web as webTypes } from '@glyphx/types';
-import { Initializer } from '@glyphx/business';
+import { webTypes } from 'types';
+import { Initializer } from 'business';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getDataByTableName } from 'lib/server/data';
 import { authOptions } from 'app/api/auth/[...nextauth]/route';

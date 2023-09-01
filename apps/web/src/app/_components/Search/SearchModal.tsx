@@ -4,7 +4,7 @@ import Fuse from 'fuse.js';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { rightSidebarControlAtom } from 'state/ui';
 import { workspaceAtom } from 'state/workspace';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { databaseTypes, webTypes } from 'types';
 // importing fuse
 import SearchInputIcon from 'public/svg/search-input-icon.svg';
 import SearchFilterIcon from 'public/svg/search-filter-icon.svg';

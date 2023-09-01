@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { dataService, projectService } from '@glyphx/business';
-import { generalPurposeFunctions as sharedFunctions } from '@glyphx/core';
+import { dataService, projectService } from 'business';
+import { generalPurposeFunctions as sharedFunctions } from 'core';
 import { formatGridData } from 'lib/client/files/transforms/formatGridData';
 
 export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {

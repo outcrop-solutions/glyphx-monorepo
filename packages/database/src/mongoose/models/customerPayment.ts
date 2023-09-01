@@ -1,4 +1,5 @@
-import {database as databaseTypes, IQueryResult} from '@glyphx/types';
+// eslint-disable-next-line node/no-unpublished-import
+import {databaseTypes, IQueryResult} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   ICustomerPaymentMethods,
@@ -6,7 +7,7 @@ import {
   ICustomerPaymentDocument,
   ICustomerPaymentCreateInput,
 } from '../interfaces';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {UserModel} from './user';
 
 const SCHEMA = new Schema<
@@ -231,7 +232,7 @@ SCHEMA.static(
     const customerId =
       input.customer instanceof mongooseTypes.ObjectId
         ? input.customer
-        : new (mongooseTypes.ObjectId as any)(input.customer._id);
+        : new mongooseTypes.ObjectId(input.customer._id);
 
     const userExists = await UserModel.userIdExists(customerId);
 

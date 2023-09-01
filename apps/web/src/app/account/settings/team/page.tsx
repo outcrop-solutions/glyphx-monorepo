@@ -8,7 +8,7 @@ import {
   PlusCircleIcon,
   XIcon,
 } from '@heroicons/react/outline';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';

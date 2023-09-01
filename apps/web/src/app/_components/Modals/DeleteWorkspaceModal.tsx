@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useSWRConfig } from 'swr';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';

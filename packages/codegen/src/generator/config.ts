@@ -1,4 +1,4 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 
 // TODO: make these paths customizable from package.json
 export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {

@@ -1,4 +1,5 @@
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+// eslint-disable-next-line node/no-unpublished-import
+import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IStateMethods,
@@ -6,7 +7,7 @@ import {
   IStateDocument,
   IStateCreateInput,
 } from '../interfaces';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
@@ -120,7 +121,7 @@ SCHEMA.static(
       const workspaceId =
         input.workspace instanceof mongooseTypes.ObjectId
           ? input.workspace
-          : new (mongooseTypes.ObjectId as any)(input.workspace._id);
+          : new mongooseTypes.ObjectId(input.workspace._id);
 
       const workspaceExists = await WorkspaceModel.workspaceIdExists(
         workspaceId
@@ -136,7 +137,7 @@ SCHEMA.static(
       const projectId =
         input.project instanceof mongooseTypes.ObjectId
           ? input.project
-          : new (mongooseTypes.ObjectId as any)(input.project._id);
+          : new mongooseTypes.ObjectId(input.project._id);
 
       const projectExists = await ProjectModel.projectIdExists(projectId);
       if (!projectExists) {
@@ -150,7 +151,7 @@ SCHEMA.static(
       const userId =
         input.createdBy instanceof mongooseTypes.ObjectId
           ? input.createdBy
-          : new (mongooseTypes.ObjectId as any)(input.createdBy._id);
+          : new mongooseTypes.ObjectId(input.createdBy._id);
 
       const creatorExists = await UserModel.userIdExists(userId);
       if (!creatorExists) {

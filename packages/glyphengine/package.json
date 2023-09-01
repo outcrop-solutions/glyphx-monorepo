@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/glyphengine",
+  "name": "glyphengine",
   "version": "1.0.0",
   "description": "Builds our glyphs and stores them in sgn and sdt files ",
   "main": "src/index.ts",
@@ -23,9 +23,9 @@
   "devDependencies": {
     "@aws-sdk/types": "3.222.0",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/fileingestion": "workspace:^1.0.0",
-    "@glyphx/tsconfig": "workspace:*",
-    "@glyphx/types": "workspace:*",
+    "fileingestion": "workspace:^1.0.0",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
@@ -61,9 +61,9 @@
     "@aws-sdk/client-s3": "3.223.0",
     "@aws-sdk/client-secrets-manager": "3.223.0",
     "@aws-sdk/lib-storage": "3.223.0",
-    "@glyphx/business": "workspace:*",
-    "@glyphx/core": "workspace:*",
-    "@glyphx/database": "workspace:*",
+    "business": "workspace:*",
+    "core": "workspace:*",
+    "database": "workspace:*",
     "dotenv": "^16.0.3",
     "server-only": "^0.0.1"
   }

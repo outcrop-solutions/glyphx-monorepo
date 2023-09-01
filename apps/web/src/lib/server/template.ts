@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Session } from 'next-auth';
-import { projectTemplateService, activityLogService } from '@glyphx/business';
-import { database as databaseTypes } from '@glyphx/types';
+import { projectTemplateService, activityLogService } from 'business';
+import { databaseTypes } from 'types';
 import { formatUserAgent } from 'lib/utils';
-import { projectService } from '@glyphx/business';
+import { projectService } from 'business';
 /**
  * Create Default ProjectTemplate
  *

@@ -2,7 +2,7 @@ import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import rewire from 'rewire';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import athenaConnection from '../../../lib/athenaConnection';
 
 describe('#lib/athenaConnection', () => {

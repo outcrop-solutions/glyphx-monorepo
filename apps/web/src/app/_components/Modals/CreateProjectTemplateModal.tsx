@@ -3,7 +3,7 @@ import Button from '../Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, _createProjectTemplate, api } from 'lib';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
 import ColXIcon from 'public/svg/col-x-icon.svg';

@@ -5,8 +5,8 @@ import {IAnnotationCreateInput} from '../../../mongoose/interfaces/iAnnotationCr
 import {UserModel} from '../../../mongoose/models/user';
 import {StateModel} from '../../../mongoose/models/state';
 import {ProjectModel} from '../../../mongoose/models/project';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 

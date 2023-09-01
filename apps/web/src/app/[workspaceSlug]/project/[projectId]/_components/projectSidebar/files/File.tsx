@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { selectedFileIndexSelector } from 'state/files';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useFileSystem } from 'services/useFileSystem';
 import { modalsAtom } from 'state';
 

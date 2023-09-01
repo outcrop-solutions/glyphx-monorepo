@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 // ensure viewer doesn't cover resize handles
 const buffer = 5; //resize handle buffer

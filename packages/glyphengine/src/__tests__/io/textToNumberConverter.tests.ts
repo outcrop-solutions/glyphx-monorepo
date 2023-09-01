@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {TextColumnToNumberConverter} from '../../io/textToNumberConverter';
 import athenaClient from '../../io/athenaClient';
-import {error, aws} from '@glyphx/core';
+import {error, aws} from 'core';
 
 class MockAthenaClient {
   private data: any;

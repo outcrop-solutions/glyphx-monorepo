@@ -1,8 +1,8 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
 import {ModelConfigModel} from '../../../mongoose/models/modelConfig';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import * as mocks from '../../../mongoose/mocks';

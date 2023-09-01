@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/fileingestion",
+  "name": "fileingestion",
   "version": "1.0.0",
   "description": "A Lambda Function for ingesting CSV files uploaded to an S3 Bucket.",
   "main": "src/index.ts",
@@ -30,8 +30,8 @@
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/tsconfig": "workspace:*",
-    "@glyphx/types": "workspace:*",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
@@ -68,8 +68,8 @@
     "@aws-sdk/client-athena": "3.292.0",
     "@aws-sdk/client-s3": "3.292.0",
     "@aws-sdk/lib-storage": "3.292.0",
-    "@glyphx/business": "workspace:*",
-    "@glyphx/core": "workspace:*",
+    "business": "workspace:*",
+    "core": "workspace:*",
     "csv": "^6.2.2",
     "currency-symbol-map": "^5.1.0",
     "dotenv": "^16.0.3",

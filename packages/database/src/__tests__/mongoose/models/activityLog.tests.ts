@@ -9,8 +9,8 @@ import {MemberModel} from '../../../mongoose/models/member';
 import {WebhookModel} from '../../../mongoose/models/webhook';
 import {ProcessTrackingModel} from '../../../mongoose/models/processTracking';
 import {CustomerPaymentModel} from '../../../mongoose/models/customerPayment';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 

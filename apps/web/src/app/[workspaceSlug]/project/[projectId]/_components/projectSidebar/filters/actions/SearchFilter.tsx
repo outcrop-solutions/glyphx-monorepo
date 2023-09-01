@@ -6,7 +6,7 @@ import HideIcon from 'public/svg/hide-visibility.svg';
 import { isFilterWritableSelector, projectAtom } from 'state';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { WritableDraft } from 'immer/dist/internal';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 export const SearchFilter = ({ prop }) => {
   const setProject = useSetRecoilState(projectAtom);

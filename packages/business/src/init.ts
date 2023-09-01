@@ -1,5 +1,5 @@
-import {logging} from '@glyphx/core';
-import {EmailClient} from '@glyphx/email';
+import {logging} from 'core';
+import {EmailClient} from 'email';
 import databaseConnection from './lib/databaseConnection';
 import athenaConnection from './lib/athenaConnection';
 import {StripeClient} from './lib/stripe';

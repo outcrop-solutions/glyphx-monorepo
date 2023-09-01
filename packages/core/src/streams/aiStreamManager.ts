@@ -9,7 +9,7 @@ import {
 import {Configuration, OpenAIApi} from 'openai-edge';
 import {ChatOpenAI} from 'langchain/chat_models/openai';
 import {AIChatMessage, HumanChatMessage} from 'langchain/schema';
-import {ai as aiTypes} from '@glyphx/types';
+import {ai as aiTypes} from 'types';
 
 export class AiStreamManager {
   private streamSource: aiTypes.AiStreamSourceType;

@@ -3,7 +3,7 @@ import 'mocha';
 import {assert} from 'chai';
 import {Heartbeat} from '../../util';
 import {createSandbox, useFakeTimers} from 'sinon';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 describe('#util/heartBeat', () => {
   context('constructor', () => {

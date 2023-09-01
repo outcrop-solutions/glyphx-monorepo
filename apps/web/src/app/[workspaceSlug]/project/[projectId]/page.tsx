@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useSetRecoilState } from 'recoil';
 import { dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom } from 'state';
 import { useSendPosition, useSocket, useWindowSize } from 'services';

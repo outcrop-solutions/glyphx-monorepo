@@ -2,7 +2,7 @@
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 import { modalsAtom } from 'state';
 import { useRecoilState } from 'recoil';

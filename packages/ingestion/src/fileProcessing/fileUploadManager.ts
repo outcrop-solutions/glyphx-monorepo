@@ -1,5 +1,5 @@
-import {fileIngestion} from '@glyphx/types';
-import {error, streams, generalPurposeFunctions, aws} from '@glyphx/core';
+import {fileIngestionTypes} from 'types';
+import {error, streams, generalPurposeFunctions, aws} from 'core';
 import {
   BasicFileTransformer,
   BasicParquetProcessor,
@@ -12,7 +12,7 @@ import {
   IFileInformation,
   IFileProcessingError,
 } from '../interfaces/fileProcessing';
-import {tableService} from '@glyphx/business';
+import {tableService} from 'business';
 
 export class FileUploadManager {
   private static creatBaseStream(fileStream: Readable) {
@@ -36,7 +36,7 @@ export class FileUploadManager {
     parquetFileName: string,
     parquetPath: string,
     tableName: string,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION,
     splitStream: streams.ForkingStream,
     s3Manager: aws.S3Manager,
     processedFileInformation: IFileInformation,
@@ -111,7 +111,7 @@ export class FileUploadManager {
     fileStream: Readable,
     tableName: string,
     fileName: string,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION,
     s3Manager: aws.S3Manager
   ) {
     try {
@@ -142,7 +142,7 @@ export class FileUploadManager {
       const processedFileInformation: IFileInformation = {} as IFileInformation;
       const processedFileErrorInformation: IFileProcessingError[] = [];
       const startingRowId =
-        fileOperationType !== fileIngestion.constants.FILE_OPERATION.APPEND
+        fileOperationType !== fileIngestionTypes.constants.FILE_OPERATION.APPEND
           ? 0
           : await FileUploadManager.getMaxRowId(clientId, modelId, tableName);
       const {parquetUpload} = FileUploadManager.createParquetStream(

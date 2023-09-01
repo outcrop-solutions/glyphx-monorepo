@@ -1,6 +1,6 @@
 import { useDrop } from 'react-dnd';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, fileIngestionTypes } from 'types';
 import { AxesIcons } from '../icons/AxesIcons';
 
 import { useProject } from 'services';

@@ -13,7 +13,7 @@ import {
 import ResultSetMock from './resultSetMocks.json';
 import * as error from '../../error';
 import {createSandbox} from 'sinon';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import {ResultSetConverter} from '../../aws/util/resultsetConverter';
 
 describe('#aws/AthenaManager', () => {
@@ -469,24 +469,24 @@ describe('#aws/AthenaManager', () => {
       assert.strictEqual(r[0].columnName, 'col1');
       assert.strictEqual(
         r[0].columnType,
-        fileIngestion.constants.FIELD_TYPE.INTEGER
+        fileIngestionTypes.constants.FIELD_TYPE.INTEGER
       );
 
       assert.strictEqual(r[1].columnName, 'col2');
       assert.strictEqual(
         r[1].columnType,
-        fileIngestion.constants.FIELD_TYPE.STRING
+        fileIngestionTypes.constants.FIELD_TYPE.STRING
       );
 
       assert.strictEqual(r[2].columnName, 'col3');
       assert.strictEqual(
         r[2].columnType,
-        fileIngestion.constants.FIELD_TYPE.NUMBER
+        fileIngestionTypes.constants.FIELD_TYPE.NUMBER
       );
       assert.strictEqual(r[3].columnName, 'col4');
       assert.strictEqual(
         r[3].columnType,
-        fileIngestion.constants.FIELD_TYPE.STRING
+        fileIngestionTypes.constants.FIELD_TYPE.STRING
       );
     });
 

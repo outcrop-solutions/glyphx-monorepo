@@ -15,7 +15,7 @@ import {
 import {ResultSetConverter} from './util/resultsetConverter';
 import {Paginator} from '@aws-sdk/types';
 import * as error from '../error';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
 /**
  * The data catalog name that is used to find our database.
@@ -371,7 +371,7 @@ export class AthenaManager {
   public async getTableDescription(
     tableName: string
   ): Promise<
-    {columnName: string; columnType: fileIngestion.constants.FIELD_TYPE}[]
+    {columnName: string; columnType: fileIngestionTypes.constants.FIELD_TYPE}[]
   > {
     const query = `DESCRIBE \`${tableName}\`;`;
     const results = await this.runQuery(query, 10, true);
@@ -379,13 +379,13 @@ export class AthenaManager {
       const dirty = r.col_name as string;
       const split = dirty.split('\t');
       const colTypeString = split[1].trim();
-      let colType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+      let colType = fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
       if (colTypeString === 'string' || colTypeString.startsWith('varchar(')) {
-        colType = fileIngestion.constants.FIELD_TYPE.STRING;
+        colType = fileIngestionTypes.constants.FIELD_TYPE.STRING;
       } else if (colTypeString === 'bigint') {
-        colType = fileIngestion.constants.FIELD_TYPE.INTEGER;
+        colType = fileIngestionTypes.constants.FIELD_TYPE.INTEGER;
       } else if (colTypeString === 'double') {
-        colType = fileIngestion.constants.FIELD_TYPE.NUMBER;
+        colType = fileIngestionTypes.constants.FIELD_TYPE.NUMBER;
       } else {
         throw new error.InvalidOperationError(
           `The column type: ${colTypeString} for column: ${split[0].trim()}is not a known column type.`,

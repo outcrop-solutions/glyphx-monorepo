@@ -1,4 +1,4 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, fileIngestionTypes } from 'types';
 
 export const dusplicateColumnRule: webTypes.IFileRule = {
   type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS,

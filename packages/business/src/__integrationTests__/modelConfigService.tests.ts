@@ -1,10 +1,10 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
 import {assert} from 'chai';
-import {MongoDbConnection} from '@glyphx/database';
+import {MongoDbConnection} from 'database';
 import {Types as mongooseTypes} from 'mongoose';
-import {database as databaseTypes} from '@glyphx/types';
-import * as mocks from '@glyphx/database';
+import {databaseTypes} from 'types';
+import * as mocks from 'database';
 import {modelConfigService} from '../services';
 
 type ObjectId = mongooseTypes.ObjectId;

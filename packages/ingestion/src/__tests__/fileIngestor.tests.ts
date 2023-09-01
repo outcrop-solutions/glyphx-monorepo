@@ -3,12 +3,12 @@ import {assert} from 'chai';
 import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
-import {error, aws, generalPurposeFunctions} from '@glyphx/core';
+import {error, aws, generalPurposeFunctions} from 'core';
 import {
   BasicAthenaProcessor,
   BasicJoinProcessor as JoinProcessor,
 } from '@fileProcessing';
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
+import {fileIngestion, databaseTypes} from 'types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
 import {
   IFileInformation,
@@ -21,7 +21,7 @@ import {
   FILE_PROCESSING_STATUS,
   FILE_PROCESSING_ERROR_TYPES,
 } from 'util/constants';
-import * as businessLogic from '@glyphx/business';
+import * as businessLogic from 'business';
 import {config} from '../config';
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
 describe('fileIngestor', () => {
@@ -731,7 +731,7 @@ describe('fileIngestor', () => {
 
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
-        fileIngestion.constants.FILE_OPERATION.APPEND;
+        fileIngestionTypes.constants.FILE_OPERATION.APPEND;
       fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
@@ -835,7 +835,7 @@ describe('fileIngestor', () => {
       newFileInfo.fileName = 'APPEND' + newFileInfo.fileName;
       payload.fileInfo.push(newFileInfo);
       payload.fileInfo[0].operation =
-        fileIngestion.constants.FILE_OPERATION.ADD;
+        fileIngestionTypes.constants.FILE_OPERATION.ADD;
 
       sandbox.replace(
         fileIngestor['athenaManager'],
@@ -1111,7 +1111,7 @@ describe('fileIngestor', () => {
       payload.fileInfo.push(newFileInfo);
       payload.fileInfo.push(newFileInfo);
       payload.fileInfo[0].operation =
-        fileIngestion.constants.FILE_OPERATION.ADD;
+        fileIngestionTypes.constants.FILE_OPERATION.ADD;
 
       sandbox.replace(
         fileIngestor['athenaManager'],
@@ -1251,7 +1251,7 @@ describe('fileIngestor', () => {
 
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
-        fileIngestion.constants.FILE_OPERATION.REPLACE;
+        fileIngestionTypes.constants.FILE_OPERATION.REPLACE;
       fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
@@ -1473,7 +1473,7 @@ describe('fileIngestor', () => {
 
     it('should fail if we try to replace a table being added in this set', async () => {
       const addTableInfo = JSON.parse(JSON.stringify(payload.fileInfo[0]));
-      addTableInfo.operation = fileIngestion.constants.FILE_OPERATION.ADD;
+      addTableInfo.operation = fileIngestionTypes.constants.FILE_OPERATION.ADD;
       addTableInfo.fileName = 'ADD' + addTableInfo.fileName;
       payload.fileInfo.unshift(addTableInfo);
       const dropViewFake = sandbox.fake.resolves(true as unknown);
@@ -1621,7 +1621,7 @@ describe('fileIngestor', () => {
 
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation =
-        fileIngestion.constants.FILE_OPERATION.DELETE;
+        fileIngestionTypes.constants.FILE_OPERATION.DELETE;
       fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
@@ -1843,7 +1843,7 @@ describe('fileIngestor', () => {
 
     it('should fail if the table is added and deleted in the same set', async () => {
       const addTableInfo = JSON.parse(JSON.stringify(payload.fileInfo[0]));
-      addTableInfo.operation = fileIngestion.constants.FILE_OPERATION.ADD;
+      addTableInfo.operation = fileIngestionTypes.constants.FILE_OPERATION.ADD;
       addTableInfo.fileName = 'ADD' + addTableInfo.fileName;
       payload.fileInfo.unshift(addTableInfo);
       const dropViewFake = sandbox.fake.resolves(true as unknown);
@@ -2203,17 +2203,17 @@ describe('fileIngestor', () => {
         {
           name: 'GLYPHX_ID_COLUMN_NAME',
           origionalName: 'GLYPHX_ID_COLUMN_NAME',
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           name: 'field1',
           origionalName: 'field1',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           name: 'field2',
           origionalName: 'field2',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
       ],
     };
@@ -2225,17 +2225,17 @@ describe('fileIngestor', () => {
         {
           name: 'GLYPHX_ID_COLUMN_NAME',
           origionalName: 'GLYPHX_ID_COLUMN_NAME',
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           name: 'field1',
           origionalName: 'field1',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           name: 'field3',
           origionalName: 'field3',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
       ],
     };

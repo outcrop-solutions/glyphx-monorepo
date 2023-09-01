@@ -3,7 +3,7 @@ import produce from 'immer';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { _updateConfig, api } from 'lib';
 import { togglesConfigDirtyAtom, configSelector, configsAtom, currentConfigAtom } from 'state';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import { toSnakeCase } from './toSnakeCase';
 
 export const Toggle = ({ field, config, currentConfig }) => {

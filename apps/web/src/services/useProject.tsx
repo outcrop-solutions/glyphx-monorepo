@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { _updateProjectState } from 'lib/client';
 import { doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom } from 'state';
 import { _createModel, _getSignedDataUrls } from 'lib/client/mutations/core';

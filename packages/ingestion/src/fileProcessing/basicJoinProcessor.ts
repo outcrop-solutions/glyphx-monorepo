@@ -1,7 +1,7 @@
 import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {GLYPHX_ID_COLUMN_NAME} from './basicFileTransformer';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
 /**
  * IJoinData is an internal interface for holding temorary join information.
@@ -186,7 +186,7 @@ export class BasicJoinProcessor
               //we do not want to join on glyphxId ever
               joinTablecolumn.columnName !== GLYPHX_ID_COLUMN_NAME &&
               joinTablecolumn.columnType !==
-                fileIngestion.constants.FIELD_TYPE.DATE &&
+                fileIngestionTypes.constants.FIELD_TYPE.DATE &&
               joinTablecolumn.columnName === tableColumn.columnName &&
               joinTablecolumn.columnType === tableColumn.columnType
           );
@@ -223,7 +223,9 @@ export class BasicJoinProcessor
         //we only wan't the left most glyphxId column to be selected
         if (c.columnName === GLYPHX_ID_COLUMN_NAME) {
           c.isSelectedColumn = false;
-        } else if (c.columnType === fileIngestion.constants.FIELD_TYPE.DATE) {
+        } else if (
+          c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ) {
           //For dates we don't want to join even if they have the same name.
           //For instance, some databases may have a deletedAt column,
           //in this case, we will only select the same named column from
@@ -250,7 +252,9 @@ export class BasicJoinProcessor
       table.columns.forEach(c => {
         if (c.columnName === GLYPHX_ID_COLUMN_NAME) {
           c.isSelectedColumn = false;
-        } else if (c.columnType === fileIngestion.constants.FIELD_TYPE.DATE) {
+        } else if (
+          c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ) {
           for (let i = this.joinData.length - 2; i >= 0; i--) {
             const leftTable = this.joinData[i];
             const sharedColumn = leftTable.columns.find(lc => {

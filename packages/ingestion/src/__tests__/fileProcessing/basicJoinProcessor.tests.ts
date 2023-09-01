@@ -1,11 +1,11 @@
 import {assert} from 'chai';
 import {BasicJoinProcessor as JoinProcessor} from '@fileProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {
   IFieldDefinition,
   IJoinTableColumnDefinition,
 } from 'interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 
 describe('#fileProcessing/basicJoinProcessor', () => {
@@ -27,17 +27,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         {
           name: GLYPHX_ID_COLUMN_NAME,
           origionalName: GLYPHX_ID_COLUMN_NAME,
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           name: 'field1',
           origionalName: 'field1',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           name: 'field2',
           origionalName: 'field2',
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
       ];
       const joinProcessor = new JoinProcessor();
@@ -131,17 +131,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         {
           name: GLYPHX_ID_COLUMN_NAME,
           origionalName: GLYPHX_ID_COLUMN_NAME,
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           name: 'field1',
           origionalName: 'field1',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           name: 'field2',
           origionalName: 'field2',
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
       ];
       joinProcessor['addTable'](
@@ -167,17 +167,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -212,17 +212,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -234,17 +234,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -301,17 +301,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -323,17 +323,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -345,17 +345,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -433,17 +433,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -455,17 +455,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -477,17 +477,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -566,28 +566,28 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
 
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -599,27 +599,27 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -631,32 +631,32 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -750,28 +750,28 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
 
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -783,27 +783,27 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -815,32 +815,32 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -933,17 +933,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -955,17 +955,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
         ],
       };
@@ -1019,17 +1019,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -1041,17 +1041,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -1106,17 +1106,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -1128,22 +1128,22 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
         ],
       };

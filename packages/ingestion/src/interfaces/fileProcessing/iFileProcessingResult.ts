@@ -1,7 +1,7 @@
 import {FILE_PROCESSING_STATUS} from '../../util/constants';
 import {IFileProcessingError} from './iFileProcessingError';
 import {IJoinTableDefinition} from './iJoinTableDefinition';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
 export interface IFileProcessingResult {
   status: FILE_PROCESSING_STATUS;

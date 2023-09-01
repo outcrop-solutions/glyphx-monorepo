@@ -1,9 +1,5 @@
-import {
-  database as databaseTypes,
-  fileIngestion as fileIngestionTypes,
-  web as webTypes,
-} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {error, constants} from 'core';
 import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from '../lib/databaseConnection';
 
@@ -15,7 +11,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const project =
         await mongoDbConnection.models.ProjectModel.getProjectById(id);
       return project;
@@ -74,7 +70,7 @@ export class ProjectService {
       const workspaceCastId =
         workspaceId instanceof mongooseTypes.ObjectId
           ? workspaceId
-          : new (mongooseTypes.ObjectId as any)(workspaceId);
+          : new mongooseTypes.ObjectId(workspaceId);
 
       let projectTemplateCastId;
 
@@ -82,13 +78,13 @@ export class ProjectService {
         projectTemplateCastId =
           template?._id instanceof mongooseTypes.ObjectId
             ? template._id
-            : new (mongooseTypes.ObjectId as any)(template._id);
+            : new mongooseTypes.ObjectId(template._id);
       }
 
       const creatorCastId =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new (mongooseTypes.ObjectId as any)(userId);
+          : new mongooseTypes.ObjectId(userId);
 
       // TODO: requires getProjectTemplate service
       const input = {
@@ -268,7 +264,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const project =
         await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
           state: state,
@@ -302,7 +298,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const project =
         await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
           deletedAt: new Date(),
@@ -351,7 +347,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const updatedProject =
         await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
           files: fileStats,
@@ -387,7 +383,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const updatedProject =
         await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
           viewName: viewName,
@@ -426,7 +422,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const updatedProject =
         await mongoDbConnection.models.ProjectModel.updateProjectById(
           id,
@@ -463,7 +459,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const updatedProject =
         await mongoDbConnection.models.ProjectModel.addStates(id, states);
 
@@ -497,7 +493,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const updatedProject =
         await mongoDbConnection.models.ProjectModel.addTags(id, tags);
 
@@ -530,7 +526,7 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new (mongooseTypes.ObjectId as any)(projectId);
+          : new mongooseTypes.ObjectId(projectId);
       const updatedProject =
         await mongoDbConnection.models.ProjectModel.removeTags(id, tags);
 

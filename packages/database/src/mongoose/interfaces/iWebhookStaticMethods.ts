@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, databaseTypes} from 'types';
 import {IWebhookMethods} from './iWebhookMethods';
 import {IWebhookCreateInput} from './iWebhookCreateInput';
 export interface IWebhookStaticMethods

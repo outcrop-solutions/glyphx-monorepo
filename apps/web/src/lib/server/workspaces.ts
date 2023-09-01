@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Session } from 'next-auth';
-import { membershipService, workspaceService } from '@glyphx/business';
+import { membershipService, workspaceService } from 'business';
 
 /**
  * Get Workspaces

@@ -10,7 +10,7 @@ import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
 import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { databaseTypes, webTypes, fileIngestionTypes } from 'types';
 
 const MOCK_SESSION = {
   user: {
@@ -307,16 +307,16 @@ describe('GLYPH ENGINE ROUTE', () => {
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
     glyphEngine = proxyquire.load('../lib/server/etl/glyphEngine', {
-      '@glyphx/business': {
+      business: {
         processTrackingService: mockProcessTrackingService,
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
         stateService: mockStateService,
       },
-      '@glyphx/glyphengine': {
+      glyphengine: {
         GlyphEngine: mockGlyphEngine,
       },
-      '@glyphx/core': {
+      core: {
         generalPursposeFunctions: mockGeneralPurposeFunctions,
       },
       'lib/utils/formatUserAgent': {
@@ -332,7 +332,7 @@ describe('GLYPH ENGINE ROUTE', () => {
 
     // swap overridden import into handler to be able to call
     glyphEngineRouteWrapper = proxyquire('../pages/api/etl/glyphengine', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
       },
       'lib/server/etl/glyphEngine': {
@@ -342,7 +342,7 @@ describe('GLYPH ENGINE ROUTE', () => {
 
     // for testing routing at api/workspace
     glyphEngineRoute = proxyquire('../pages/api/etl/glyphengine', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

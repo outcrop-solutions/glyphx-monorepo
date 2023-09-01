@@ -4,7 +4,7 @@ import { useSWRConfig } from 'swr';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createState, api } from 'lib';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { cameraAtom, imageHashAtom, modalsAtom, projectAtom, viewerPositionSelector } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';

@@ -1,4 +1,5 @@
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+// eslint-disable-next-line node/no-unpublished-import
+import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IUserMethods,
@@ -6,7 +7,7 @@ import {
   IUserDocument,
   IUserCreateInput,
 } from '../interfaces';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {ProjectModel} from './project';
 import {AccountModel} from './account';
 import {SessionModel} from './session';

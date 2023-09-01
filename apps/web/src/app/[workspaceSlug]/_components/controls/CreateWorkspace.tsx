@@ -3,7 +3,7 @@ import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 export const CreateWorkspace = () => {
   const setModals = useSetRecoilState(modalsAtom);

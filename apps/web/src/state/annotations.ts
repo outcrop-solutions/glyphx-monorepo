@@ -1,5 +1,5 @@
 import { selector } from 'recoil';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 import { activeStateAtom, stateSelector } from './snapshot';
 import { projectAtom } from './project';
 import { Types as mongooseTypes } from 'mongoose';

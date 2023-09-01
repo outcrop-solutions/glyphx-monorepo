@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import * as interpolation from '../../util/interperolation';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 describe('#util/interpolation', () => {
   context('linearInterpolation', () => {
     it('will interpolate a value between two points', () => {

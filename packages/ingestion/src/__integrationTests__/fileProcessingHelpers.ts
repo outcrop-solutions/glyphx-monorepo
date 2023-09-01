@@ -1,8 +1,8 @@
 import {assert} from 'chai';
-import {aws, error, generalPurposeFunctions} from '@glyphx/core';
+import {aws, error, generalPurposeFunctions} from 'core';
 import {createReadStream} from 'fs';
 import {IJoinTableDefinition} from 'interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import {GLYPHX_ID_COLUMN_NAME} from 'fileProcessing/basicFileTransformer';
 export async function removeS3File(filePath: string, s3Bucket: aws.S3Manager) {
   await s3Bucket.removeObject(filePath);
@@ -129,7 +129,7 @@ export async function validateViewResults(
       if (c.isSelectedColumn) {
         let foundAtLeastOneNumber = false;
         results.forEach(r => {
-          if (c.columnType === fileIngestion.constants.FIELD_TYPE.STRING) {
+          if (c.columnType === fileIngestionTypes.constants.FIELD_TYPE.STRING) {
             const objectNames = Object.getOwnPropertyNames(r);
             const name = objectNames.find(
               o => o === c.columnName.toLowerCase()
@@ -142,7 +142,7 @@ export async function validateViewResults(
             }
           }
         });
-        if (c.columnType === fileIngestion.constants.FIELD_TYPE.NUMBER)
+        if (c.columnType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER)
           assert.isTrue(foundAtLeastOneNumber);
       }
     });
@@ -183,7 +183,7 @@ export async function validateTableResults(
         assert.isOk(colDefinition);
         if (
           colDefinition?.columnType ===
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         ) {
           assert.isString(r[key]);
         } else {

@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {VerificationTokenModel} from '../../../mongoose/models/verificationToken';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 

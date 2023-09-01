@@ -1,4 +1,4 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { webTypes, fileIngestionTypes } from 'types';
 import { FILE_RULES } from './rules';
 /**
  * @note populates file error modal

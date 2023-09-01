@@ -1,4 +1,4 @@
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {QUERY_STATUS} from '../constants';
 import {IQueryResponse} from '../interfaces';
 

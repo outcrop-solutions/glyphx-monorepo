@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/monorepo",
+  "name": "monorepo",
   "repository": "https://github.com/glyphx/monorepo.git",
   "private": true,
   "workspaces": [

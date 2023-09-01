@@ -1,7 +1,7 @@
 import {assert} from 'chai';
-import {aws, error, generalPurposeFunctions} from '@glyphx/core';
+import {aws, error, generalPurposeFunctions} from 'core';
 import {createReadStream} from 'fs';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 export async function removeS3File(filePath: string, s3Bucket: aws.S3Manager) {
   await s3Bucket.removeObject(filePath);
 

@@ -10,7 +10,7 @@ import { _deactivateAccount, _updateUserEmail, _updateUserName } from 'lib/clien
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
 import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
@@ -157,7 +157,7 @@ describe('LOG ROUTES', () => {
     // GET PROJECT LOGS
     // replace handler import resolution
     getProjectLogs = proxyquire.load('../lib/server/activity', {
-      '@glyphx/business': {
+      business: {
         activityLogService: mockActivityLogService,
       },
       'lib/utils/formatUserAgent': {
@@ -167,7 +167,7 @@ describe('LOG ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getProjectLogsRouteWrapper = proxyquire('../pages/api/logs/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -178,7 +178,7 @@ describe('LOG ROUTES', () => {
 
     // for testing routing
     getProjectLogsRoute = proxyquire('../pages/api/logs/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -189,7 +189,7 @@ describe('LOG ROUTES', () => {
     // GET WORKSPACE LOGS
     // replace handler import resolution
     getWorkspaceLogs = proxyquire.load('../lib/server/activity', {
-      '@glyphx/business': {
+      business: {
         activityLogService: mockActivityLogService,
       },
       'lib/utils/formatUserAgent': {
@@ -199,7 +199,7 @@ describe('LOG ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getWorkspaceLogsRouteWrapper = proxyquire('../pages/api/logs/workspace/[workspaceId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -210,7 +210,7 @@ describe('LOG ROUTES', () => {
 
     // for testing routing
     getWorkspaceLogsRoute = proxyquire('../pages/api/logs/workspace/[workspaceId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

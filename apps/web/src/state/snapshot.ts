@@ -1,6 +1,6 @@
 import { atom, selector } from 'recoil';
 import { projectAtom } from './project';
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import { databaseTypes, webTypes } from 'types';
 import { hashPayload } from 'lib/utils/hashPayload';
 import { hashFileSystem } from 'lib/utils/hashFileSystem';
 

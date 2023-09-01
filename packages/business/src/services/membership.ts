@@ -1,5 +1,5 @@
-import {database, database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
 import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from '../lib/databaseConnection';
 
@@ -11,7 +11,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new (mongooseTypes.ObjectId as any)(memberId);
+          : new mongooseTypes.ObjectId(memberId);
       const member = await mongoDbConnection.models.MemberModel.getMemberById(
         id
       );
@@ -74,7 +74,7 @@ export class MembershipService {
       const members = await MembershipService.getMembers({
         email,
         deletedAt: undefined,
-        status: database.constants.INVITATION_STATUS.PENDING,
+        status: databaseTypes.constants.INVITATION_STATUS.PENDING,
       });
       return members;
     } catch (err: any) {
@@ -102,7 +102,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new (mongooseTypes.ObjectId as any)(memberId);
+          : new mongooseTypes.ObjectId(memberId);
       const member =
         await mongoDbConnection.models.MemberModel.updateMemberById(id, {
           deletedAt: new Date(),
@@ -137,7 +137,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new (mongooseTypes.ObjectId as any)(memberId);
+          : new mongooseTypes.ObjectId(memberId);
       if (
         role === databaseTypes.constants.ROLE.MEMBER ||
         role === databaseTypes.constants.ROLE.OWNER
@@ -189,7 +189,7 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : new (mongooseTypes.ObjectId as any)(memberId);
+          : new mongooseTypes.ObjectId(memberId);
       const member =
         await mongoDbConnection.models.MemberModel.updateMemberById(id, {
           status,

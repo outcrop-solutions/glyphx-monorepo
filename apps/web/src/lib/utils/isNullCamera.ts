@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 export const isNullCamera = (obj: any): obj is webTypes.Camera => {
   if (typeof obj !== 'object' || obj === null) {

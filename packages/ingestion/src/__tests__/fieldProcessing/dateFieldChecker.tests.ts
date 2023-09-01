@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {DateFieldChecker} from 'fieldProcessing';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 describe('#fieldProcessing/DateFieldChecker', () => {
   context('checkField', () => {

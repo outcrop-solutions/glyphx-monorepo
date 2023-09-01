@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import Button from 'app/_components/Button';
 import { _createState, _createProjectFromTemplate, api } from 'lib';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalsAtom, workspaceAtom } from 'state';
 import { LoadingDots } from 'app/_components/Loaders/LoadingDots';

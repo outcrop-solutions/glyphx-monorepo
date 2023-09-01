@@ -1,6 +1,6 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Initializer } from '@glyphx/business';
+import { Initializer } from 'business';
 import { signDataUrls } from 'lib/server/etl/signDataUrls';
 import { getServerSession } from 'next-auth';
 import { authOptions } from 'app/api/auth/[...nextauth]/route';

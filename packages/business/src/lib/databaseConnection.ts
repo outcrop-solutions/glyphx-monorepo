@@ -1,4 +1,4 @@
-import {MongoDbConnection} from '@glyphx/database';
+import {MongoDbConnection} from 'database';
 
 /*eslint-disable*/
 const connection = new MongoDbConnection();

@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/database",
+  "name": "database",
   "version": "1.0.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -18,14 +18,14 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "@glyphx/core": "workspace:*",
+    "core": "workspace:*",
     "mongoose": "^6.8.1",
     "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/tsconfig": "workspace:*",
-    "@glyphx/types": "workspace:*",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",

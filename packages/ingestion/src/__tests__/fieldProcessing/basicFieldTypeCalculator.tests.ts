@@ -1,8 +1,8 @@
 import {assert} from 'chai';
 import {BasicFieldTypeCalculator} from 'fieldProcessing';
 import Stream from 'stream';
-import {error} from '@glyphx/core';
-import {fileIngestion} from '@glyphx/types';
+import {error} from 'core';
+import {fileIngestionTypes} from 'types';
 
 describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
   context('ProcessItemsSync', () => {
@@ -17,7 +17,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
 
       assert.strictEqual(
         fieldCalculator.fieldType,
-        fileIngestion.constants.FIELD_TYPE.STRING
+        fileIngestionTypes.constants.FIELD_TYPE.STRING
       );
       assert.isTrue(fieldCalculator.allItemsProcessed);
       assert.strictEqual(fieldCalculator.numberPassed, 10000);
@@ -39,7 +39,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       fieldCalculator.finish();
       assert.strictEqual(
         fieldCalculator.fieldType,
-        fileIngestion.constants.FIELD_TYPE.STRING
+        fileIngestionTypes.constants.FIELD_TYPE.STRING
       );
       assert.isTrue(fieldCalculator.allItemsProcessed);
       assert.strictEqual(fieldCalculator.numberPassed, 10000);
@@ -70,7 +70,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         assert.isTrue(fieldCalculator.allItemsProcessed);
         assert.strictEqual(fieldCalculator.numberPassed, 10000);
@@ -102,7 +102,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.NUMBER
+          fileIngestionTypes.constants.FIELD_TYPE.NUMBER
         );
         assert.isTrue(fieldCalculator.allItemsProcessed);
         assert.strictEqual(fieldCalculator.numberPassed, 10000);
@@ -134,7 +134,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.DATE
+          fileIngestionTypes.constants.FIELD_TYPE.DATE
         );
         assert.isTrue(fieldCalculator.allItemsProcessed);
         assert.strictEqual(fieldCalculator.numberPassed, 10000);
@@ -168,7 +168,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         done();
       });
@@ -194,7 +194,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         done();
       });
@@ -220,7 +220,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.NUMBER
+          fileIngestionTypes.constants.FIELD_TYPE.NUMBER
         );
         done();
       });
@@ -246,7 +246,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.DATE
+          fileIngestionTypes.constants.FIELD_TYPE.DATE
         );
         done();
       });
@@ -273,7 +273,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.DATE
+          fileIngestionTypes.constants.FIELD_TYPE.DATE
         );
         done();
       });
@@ -300,7 +300,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.NUMBER
+          fileIngestionTypes.constants.FIELD_TYPE.NUMBER
         );
         done();
       });
@@ -325,7 +325,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         done();
       });
@@ -350,7 +350,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         assert.strictEqual(fieldCalculator.sampleRate, 0.5);
         assert.strictEqual(fieldCalculator.numberPassed, 10000);
@@ -367,14 +367,14 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       let counter = 0;
       rStream.on('data', () => {
         if (counter === 99) {
-          let fieldType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+          let fieldType = fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
           assert.isTrue(fieldCalculator.hasProcessedItems);
           assert.doesNotThrow(() => {
             fieldType = fieldCalculator.fieldType;
           }, error.InvalidOperationError);
           assert.strictEqual(
             fieldType,
-            fileIngestion.constants.FIELD_TYPE.STRING
+            fileIngestionTypes.constants.FIELD_TYPE.STRING
           );
         }
 
@@ -394,7 +394,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         done();
       });
@@ -438,7 +438,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         done();
       });
@@ -463,7 +463,7 @@ describe('#fieldProcessing/BasicFieldTypeCalculator', () => {
       rStream.once('end', () => {
         assert.strictEqual(
           fieldCalculator.fieldType,
-          fileIngestion.constants.FIELD_TYPE.STRING
+          fileIngestionTypes.constants.FIELD_TYPE.STRING
         );
         assert.isTrue(fieldCalculator.allItemsProcessed);
         assert.strictEqual(fieldCalculator.numberPassed, 10);

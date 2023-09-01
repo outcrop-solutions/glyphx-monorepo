@@ -1,5 +1,5 @@
 import React from 'react';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import NotificationIcon from 'public/svg/notification-icon.svg';
 import { useSetRecoilState } from 'recoil';
 import { rightSidebarControlAtom } from 'state';

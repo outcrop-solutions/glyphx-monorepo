@@ -1,18 +1,14 @@
 import 'mocha';
 import {assert} from 'chai';
-import {aws, generalPurposeFunctions} from '@glyphx/core';
-import {FileIngestor} from '@glyphx/fileingestion';
-import {
-  Initializer,
-  processTrackingService,
-  dbConnection,
-} from '@glyphx/business';
+import {aws, generalPurposeFunctions} from 'core';
+import {FileIngestor} from 'fileingestion';
+import {Initializer, processTrackingService, dbConnection} from 'business';
 
 import addFilesJson from './assets/addTables.json';
 import {v4} from 'uuid';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
+import {fileIngestion, databaseTypes} from 'types';
 import {GlyphEngine} from '../glyphEngine';
 import {Initializer as glyphEngineInitializer} from '../init';
 const UNIQUE_KEY = v4().replaceAll('-', '');

@@ -9,7 +9,7 @@ import { testApiHandler } from 'next-test-api-route-handler';
 import { _deactivateAccount, _updateUserEmail, _updateUserName } from 'lib/client/mutations/user';
 import { wrapConfig } from './utilities/wrapConfig';
 import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
@@ -105,7 +105,7 @@ describe('USER ROUTES', () => {
     // DEACTIVATE USER
     // replace handler import resolution
     deactivateUser = proxyquire.load('../lib/server/user', {
-      '@glyphx/business': {
+      business: {
         userService: mockUserService,
         activityLogService: mockActivityLogService,
         validateUpdateEmail: validateUpdateEmailStub,
@@ -118,7 +118,7 @@ describe('USER ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     deactivateUserRouteWrapper = proxyquire('../pages/api/user', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -129,7 +129,7 @@ describe('USER ROUTES', () => {
 
     // for testing routing
     deactivateUserRoute = proxyquire('../pages/api/user', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -141,7 +141,7 @@ describe('USER ROUTES', () => {
     // UPDATE EMAIL
     // replace handler import resolution
     updateEmail = proxyquire.load('../lib/server/user', {
-      '@glyphx/business': {
+      business: {
         userService: mockUserService,
         activityLogService: mockActivityLogService,
         validateUpdateEmail: validateUpdateEmailStub,
@@ -154,7 +154,7 @@ describe('USER ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     updateEmailRouteWrapper = proxyquire('../pages/api/user/email', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -165,7 +165,7 @@ describe('USER ROUTES', () => {
 
     // for testing routing
     updateEmailRoute = proxyquire('../pages/api/user/email', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -177,7 +177,7 @@ describe('USER ROUTES', () => {
     // UPDATE NAME
     // replace handler import resolution
     updateName = proxyquire.load('../lib/server/user', {
-      '@glyphx/business': {
+      business: {
         userService: mockUserService,
         activityLogService: mockActivityLogService,
         validateUpdateEmail: validateUpdateEmailStub,
@@ -190,7 +190,7 @@ describe('USER ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     updateNameRouteWrapper = proxyquire('../pages/api/user/name', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -201,7 +201,7 @@ describe('USER ROUTES', () => {
 
     // for testing routing
     updateNameRoute = proxyquire('../pages/api/user/name', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },

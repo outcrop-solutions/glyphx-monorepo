@@ -2,8 +2,7 @@ import React from 'react';
 import { rightSidebarControlAtom } from 'state';
 import { useRecoilState } from 'recoil';
 import produce from 'immer';
-import { web as webTypes } from '@glyphx/types';
-import NotificationIcon from 'public/svg/notif-icon.svg';
+import { webTypes } from 'types';
 import CloseNotificationsIcon from 'public/svg/close-project-info.svg';
 import { WritableDraft } from 'immer/dist/internal';
 

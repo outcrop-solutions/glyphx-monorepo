@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { usePosition } from 'services/usePosition';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { rightCoordinatesAtom, rightSidebarControlAtom } from 'state';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { Info } from './Info';
 import { Share } from './Share';
 import { Notifications } from './Notifications';

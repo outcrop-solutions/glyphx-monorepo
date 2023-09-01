@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 export const workspaceAtom = atom<databaseTypes.IWorkspace>({
   key: 'workspaceAtom',

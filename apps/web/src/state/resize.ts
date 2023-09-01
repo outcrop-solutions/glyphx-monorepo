@@ -1,5 +1,5 @@
 import { atom, selector } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { rightSidebarControlAtom } from './ui';
 import { calcH, calcW, calcX, calcY } from './utilities';
 /**

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { drawerOpenAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom } from 'state';
 import HorizontalIcon from 'public/svg/horizontal-layout.svg';
 import VerticalIcon from 'public/svg/vertical-layout.svg';

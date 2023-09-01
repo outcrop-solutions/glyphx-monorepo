@@ -1,7 +1,7 @@
 import {TagModel} from '../../../mongoose/models/tag';
 import {ProjectModel} from '../../../mongoose/models/project';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import {assert} from 'chai';

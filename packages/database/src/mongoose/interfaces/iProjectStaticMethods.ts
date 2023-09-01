@@ -1,5 +1,5 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, databaseTypes} from 'types';
 import {IProjectMethods} from './iProjectMethods';
 import {IProjectCreateInput} from './iProjectCreateInput';
 export interface IProjectStaticMethods

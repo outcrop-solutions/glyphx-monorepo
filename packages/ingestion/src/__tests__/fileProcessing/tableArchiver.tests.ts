@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {TableArchiver} from '@fileProcessing';
 import {createSandbox} from 'sinon';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {Readable} from 'stream';
 
 class MockS3Manger {

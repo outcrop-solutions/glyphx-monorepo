@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useDrop } from 'react-dnd';
-import { fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
+import { fileIngestionTypes, webTypes } from 'types';
 
 import { RangeFilter } from './actions/RangeFilter';
 import { SearchFilter } from './actions/SearchFilter';

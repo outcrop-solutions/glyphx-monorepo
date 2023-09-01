@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {error, aws} from '@glyphx/core';
+import {error, aws} from 'core';
 import {QueryRunner} from '../../io/queryRunner';
 import {QUERY_STATUS} from '../../constants';
 

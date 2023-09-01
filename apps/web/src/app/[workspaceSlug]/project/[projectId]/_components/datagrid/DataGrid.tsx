@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useMemo } from 'react';
 import BarLoader from 'react-spinners/BarLoader';
 import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';

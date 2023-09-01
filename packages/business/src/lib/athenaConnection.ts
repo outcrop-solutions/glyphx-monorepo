@@ -1,10 +1,4 @@
-import {
-  aws,
-  bindSecrets,
-  boundProperty,
-  initializer,
-  error,
-} from '@glyphx/core';
+import {aws, bindSecrets, boundProperty, initializer, error} from 'core';
 
 @bindSecrets('dev/athena')
 class AthenaConnection {

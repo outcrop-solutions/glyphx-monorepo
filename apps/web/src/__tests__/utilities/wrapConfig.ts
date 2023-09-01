@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 
 // mocks the api fetch configuration
 export const wrapConfig = (config: webTypes.IFetchConfig) => {

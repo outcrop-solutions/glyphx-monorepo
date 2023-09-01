@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { annotationService } from '@glyphx/business';
+import { annotationService } from 'business';
 import { Session } from 'next-auth';
 
 /**

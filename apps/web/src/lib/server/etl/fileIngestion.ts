@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { aws, generalPurposeFunctions } from '@glyphx/core';
-import { FileIngestor } from '@glyphx/fileingestion';
+import { aws, generalPurposeFunctions } from 'core';
+import { FileIngestor } from 'fileingestion';
 import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
 import { formatUserAgent } from 'lib/utils/formatUserAgent';
-import { database as databaseTypes } from '@glyphx/types';
-import { processTrackingService, activityLogService, projectService } from '@glyphx/business';
-import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
+import { databaseTypes } from 'types';
+import { processTrackingService, activityLogService, projectService } from 'business';
+import { BasicColumnNameCleaner } from 'fileingestion';
 import { Session } from 'next-auth';
 /**
  * File Ingestion Key Notes

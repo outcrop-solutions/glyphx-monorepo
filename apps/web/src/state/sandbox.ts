@@ -1,5 +1,5 @@
 import { atom, atomFamily, selector } from 'recoil';
-import { database as databaseTypes } from '@glyphx/types';
+import { databaseTypes } from 'types';
 
 export const configsAtom = atom<Partial<databaseTypes.IModelConfig>[]>({
   key: 'configsAtomKey',

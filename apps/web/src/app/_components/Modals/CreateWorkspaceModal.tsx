@@ -3,7 +3,7 @@ import Button from 'app/_components/Button';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createWorkspace, api } from 'lib';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import { useRouter } from 'next/navigation';
 import { useSetRecoilState } from 'recoil';
 import { modalsAtom } from 'state';

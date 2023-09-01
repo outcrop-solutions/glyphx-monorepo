@@ -1,5 +1,5 @@
 import { atom, selector, selectorFamily } from 'recoil';
-import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import { databaseTypes, webTypes, fileIngestionTypes } from 'types';
 // import { generateFilterQuery } from 'lib/client/helpers';
 
 /**

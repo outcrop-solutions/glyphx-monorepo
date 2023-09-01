@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { QWebChannel } from 'qwebchannel';
 import { useSetRecoilState } from 'recoil';
 import { cameraAtom, imageHashAtom, rowIdsAtom } from 'state';
-import { web as webTypes } from '@glyphx/types';
+import { webTypes } from 'types';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 /**
