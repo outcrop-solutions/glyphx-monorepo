@@ -1,6 +1,6 @@
 import {aws, secretBinders, error} from '@glyphx/core';
 
-@secretBinders.bindSecrets('dev/athena')
+@secretBinders.bindSecrets('athena')
 class AthenaConnection {
   @secretBinders.boundProperty()
   private databaseName: string;

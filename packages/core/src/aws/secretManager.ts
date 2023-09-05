@@ -9,7 +9,19 @@ export class SecretManager {
   }
 
   constructor(secretName: string) {
-    this.secretNameField = secretName;
+    const isVercel = process.env.VERCEL === '1' ? true : false;
+    let environment = 'dev';
+    if (isVercel) {
+      if (process.env.VERCEL_ENV === 'production') {
+        environment = 'prod';
+      } else if (process.env.VERCEL_ENV === 'preview') {
+        environment = 'demo';
+      } else {
+        environment = 'dev';
+      }
+    }
+    this.secretNameField = `${environment}/${secretName}`;
+
     //TODO: we need to figure out how we want to handle secret configurations
     this.secretsManager = new SecretsManager({});
   }

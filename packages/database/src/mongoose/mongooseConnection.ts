@@ -2,7 +2,7 @@ import * as models from './models';
 import mongoose from 'mongoose';
 import {error, secretBinders} from '@glyphx/core';
 
-@secretBinders.bindSecrets('dev/mongodb')
+@secretBinders.bindSecrets('db/mongo')
 export class MongoDbConnection {
   @secretBinders.boundProperty()
   endpoint: string;

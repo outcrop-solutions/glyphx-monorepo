@@ -46,7 +46,7 @@ export class S3Manager {
    *
    * @throws InvalidOperationError - if we have not previously called {@link init}
    */
-  private get bucket(): S3 {
+  public get bucket(): S3 {
     if (!this.initedField)
       throw new error.InvalidOperationError(
         'you must call init before using this object',

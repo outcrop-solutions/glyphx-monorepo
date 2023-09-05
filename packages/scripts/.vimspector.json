@@ -1,0 +1,17 @@
+{
+  "configurations": {
+    "copyAthenaDatabase": {
+      "adapter": "vscode-node",
+      "configuration": {
+        "request": "launch",
+        "protocol": "auto",
+        "stopOnEntry": false,
+        "console": "integratedTerminal",
+        "program": "/usr/bin/ts-node",
+        "args": ["./src/copyAthenaDatabase.ts"],
+        "cwd": "${workspaceRoot}"
+      }
+    }
+  }
+}
+
