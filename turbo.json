@@ -10,6 +10,9 @@
     "format": {
       "outputs": []
     },
+    "format:write": {
+      "outputs": []
+    },
     "start": {
       "cache": false
     },
@@ -29,6 +32,9 @@
       "cache": false
     },
     "clean": {
+      "cache": false
+    },
+    "type-check": {
       "cache": false
     },
     "codegen": {

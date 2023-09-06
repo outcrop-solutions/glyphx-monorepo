@@ -17,7 +17,7 @@ export class EmailClient {
     EmailClient.TRANSPORT = nodemailer.createTransport(process.env.EMAIL_SERVER);
   }
   // send email via smtp transport
-  static async sendMail({ from, html, subject, text, to }: ISendMail): SendMailResult {
+  static async sendMail({from, html, subject, text, to}: ISendMail): SendMailResult {
     const data = {
       from: from ?? process.env.EMAIL_FROM,
       to,

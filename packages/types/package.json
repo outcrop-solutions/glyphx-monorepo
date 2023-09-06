@@ -12,7 +12,7 @@
     "url": "git+https://github.com/SynGlyphX/serverless.git"
   },
   "scripts": {
-    "lint": "gts lint",
+   "lint": "eslint .",
     "clean": "rimraf .turbo node_modules dist",
     "fix": "gts fix",
     "build": "tsup",
@@ -20,22 +20,10 @@
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
   },
-  "bugs": {
-    "url": "https://github.com/SynGlyphX/serverless/issues"
-  },
   "devDependencies": {
-    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
+    "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
     "@types/node": "^18.11.7",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.42.0",
-    "eslint": "^8.12.0",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-filename-rules": "^1.2.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "gts": "^3.1.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "mongoose": "^6.8.1",

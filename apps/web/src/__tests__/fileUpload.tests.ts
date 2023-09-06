@@ -18,7 +18,10 @@ const handler: typeof upload & { config?: PageConfig } = upload;
 // handler.config = config;
 
 const MOCK_WORKSPACE = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
 };
 
 const MOCK_SESSION = {
@@ -31,7 +34,10 @@ const MOCK_SESSION = {
 } as unknown as Session;
 
 const MOCK_PROJECT: databaseTypes.IProject = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'test project',
@@ -40,11 +46,17 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   currentVersion: 0,
   tags: [],
   workspace: {
-    _id: new mongooseTypes.ObjectId(),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    _id:
+      // @ts-ignore
+      new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
   template: {
-    _id: new mongooseTypes.ObjectId(),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    _id:
+      // @ts-ignore
+      new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IProjectTemplate,
   stateHistory: [],
   members: [],
@@ -139,10 +151,10 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
   language: '',
   cookieEnabled: false,
 };
-const MOCK_CLEAN_TABLE_NAME: string = 'cleanTableName';
-const MOCK_CLEAN_FILE_NAME: string = 'cleanFileName';
+const MOCK_CLEAN_TABLE_NAME = 'cleanTableName';
+const MOCK_CLEAN_FILE_NAME = 'cleanFileName';
 
-const MOCK_KEY: string = `client/${MOCK_WORKSPACE._id.toString()}/${MOCK_PROJECT._id.toString()}/input/${MOCK_CLEAN_TABLE_NAME}/${MOCK_CLEAN_FILE_NAME}.csv`;
+const MOCK_KEY = `client/${MOCK_WORKSPACE._id.toString()}/${MOCK_PROJECT._id.toString()}/input/${MOCK_CLEAN_TABLE_NAME}/${MOCK_CLEAN_FILE_NAME}.csv`;
 
 const MOCK_USER: databaseTypes.IUser = {
   userCode: 'dfkadfkljafdkalsjskldf',
@@ -250,9 +262,9 @@ describe('FILE UPLOAD ROUTE', () => {
     sandbox.restore();
   });
 
-  context('/api/etl/upload', async function () {
+  context('/api/etl/upload', async () => {
     describe('FILE UPLOAD handler', () => {
-      it('should deactivate a user', async function () {
+      it('should deactivate a user', async () => {
         mockBasicColumnCleaner.cleanColumnName.resolves();
         mockAws.S3Manager.resolves();
         mockS3Manager.init.resolves();

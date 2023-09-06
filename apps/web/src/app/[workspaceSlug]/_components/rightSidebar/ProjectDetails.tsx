@@ -1,32 +1,28 @@
-import React, { Fragment, useState } from 'react';
+import React, {useState} from 'react';
 import Image from 'next/image';
-import { FolderIcon } from '@heroicons/react/outline';
-import { CheckIcon, PencilIcon, PlusSmIcon } from '@heroicons/react/solid';
+import {FolderIcon} from '@heroicons/react/outline';
+import {CheckIcon, PencilIcon, PlusSmIcon} from '@heroicons/react/solid';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-import { useRecoilState } from 'recoil';
-import { projectDetailsAtom, rightSidebarControlAtom } from 'state';
-import { useSession } from 'next-auth/react';
+import {useRecoilState} from 'recoil';
+import {rightSidebarControlAtom} from 'state';
 
 const tabs = [
-  { name: 'Info', href: '#', current: true },
-  { name: 'Activity', href: '#', current: false },
+  {name: 'Info', href: '#', current: true},
+  {name: 'Activity', href: '#', current: false},
 ];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 export const ProjectDetails = () => {
-  const [projectDetails, setProjectDetails] = useRecoilState(rightSidebarControlAtom);
-  const { data } = useSession();
-
-  const [open, setOpen] = useState(true);
+  const [projectDetails] = useRecoilState(rightSidebarControlAtom);
   const [name, setName] = useState(projectDetails.data.name);
   const [description, setDescription] = useState(projectDetails.data.description);
   const [members, setMembers] = useState('');
-  const [msg, setMsg] = useState(null);
-  const [error, setError] = useState(null);
+  const [msg] = useState(null);
+  const [error] = useState(null);
   const [editShare, setEditShare] = useState(false);
   const [editTitle, setEditTitle] = useState(false);
   const [editDesc, setEditDesc] = useState(false);

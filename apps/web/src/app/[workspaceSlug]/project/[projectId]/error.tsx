@@ -1,12 +1,11 @@
 'use client';
 import React from 'react';
-import { FallbackProps } from 'react-error-boundary';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 
 import ProjectErrorIcon from 'public/svg/project-error-icon.svg';
-import { Route } from 'next';
+import {Route} from 'next';
 
-export const ProjectErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
+export const ProjectErrorFallback = () => {
   const router = useRouter();
 
   function returnToHome() {

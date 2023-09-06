@@ -1,7 +1,7 @@
-import { webTypes } from 'types';
-import { hashFileStats } from '../transforms/hashFileStats';
-import { handleCollisionCase } from '../mappings/handleCollisionCase';
-import { handelOperations } from '../mappings/handleOperations';
+import {webTypes} from 'types';
+import {hashFileStats} from '../transforms/hashFileStats';
+import {handleCollisionCase} from '../mappings/handleCollisionCase';
+import {handelOperations} from '../mappings/handleOperations';
 
 export const fileCollisionRule: webTypes.IFileRule = {
   type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS,
@@ -19,7 +19,7 @@ export const fileCollisionRule: webTypes.IFileRule = {
     // determine column matches from hashes
     const findIndexInExistingHashes = (fileColumnsHash, columnsHash) =>
       existingHashes.findIndex(
-        ({ fileColumnsHash: existingFileColumnsHash, columnsHash: existingColumnsHash }) =>
+        ({fileColumnsHash: existingFileColumnsHash, columnsHash: existingColumnsHash}) =>
           fileColumnsHash === existingFileColumnsHash || columnsHash === existingColumnsHash
       );
 
@@ -27,7 +27,7 @@ export const fileCollisionRule: webTypes.IFileRule = {
     const foundIndexes: number[] = [];
 
     const retval = newHashes
-      .map(({ fileColumnsHash, columnsHash }, idx) => {
+      .map(({fileColumnsHash, columnsHash}, idx) => {
         const foundIndex = findIndexInExistingHashes(fileColumnsHash, columnsHash);
         if (foundIndex !== -1) {
           return {
@@ -48,13 +48,13 @@ export const fileCollisionRule: webTypes.IFileRule = {
       ...payload,
       fileInfo: payload.fileInfo.map((info, idx) => {
         if (!foundIndexes.includes(idx)) {
-          return { ...info, operation: -1 };
+          return {...info, operation: -1};
         } else return info;
       }),
     };
 
     return retval.length > 0
-      ? { collisions: retval as webTypes.Collision[], payload: cleanPayload, acceptedFiles }
+      ? {collisions: retval as webTypes.Collision[], payload: cleanPayload, acceptedFiles}
       : false;
   },
 };

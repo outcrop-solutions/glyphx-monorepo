@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { useRouter } from 'next/navigation';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import {useEffect, useState} from 'react';
+import {DocumentDuplicateIcon} from '@heroicons/react/outline';
+import {useRouter} from 'next/navigation';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isAlphanumeric from 'validator/lib/isAlphanumeric';
 import isSlug from 'validator/lib/isSlug';
@@ -10,16 +10,16 @@ import isSlug from 'validator/lib/isSlug';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { _updateWorkspaceName, _updateWorkspaceSlug, api } from 'lib/client';
-import { useRecoilValue } from 'recoil';
-import { workspaceAtom } from 'state';
+import {_updateWorkspaceName, _updateWorkspaceSlug, api} from 'lib/client';
+import {useRecoilValue} from 'recoil';
+import {workspaceAtom} from 'state';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
-import { Route } from 'next';
+import {Route} from 'next';
 
 const General = () => {
   const router = useRouter();
   const workspace = useRecoilValue(workspaceAtom);
-  const { data: ownership, isLoading: isOwnershipLoading } = useIsTeamOwner();
+  const {data: ownership} = useIsTeamOwner();
 
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(workspace?.name || '');
@@ -27,7 +27,7 @@ const General = () => {
 
   const validName = name?.length > 0 && name?.length <= 16;
   const validSlug =
-    slug?.length > 0 && slug?.length <= 16 && isSlug(slug) && isAlphanumeric(slug, undefined, { ignore: '-' });
+    slug?.length > 0 && slug?.length <= 16 && isSlug(slug) && isAlphanumeric(slug, undefined, {ignore: '-'});
 
   // local state
   const copyToClipboard = () => toast.success('Copied to clipboard!');
@@ -38,7 +38,7 @@ const General = () => {
   const changeName = (event) => {
     event.preventDefault();
     api({
-      ..._updateWorkspaceName({ slug: workspace.slug, name }),
+      ..._updateWorkspaceName({slug: workspace.slug, name}),
       setLoading: (state) => setSubmittingState(state as boolean),
     });
   };
@@ -46,7 +46,7 @@ const General = () => {
   const changeSlug = (event) => {
     event.preventDefault();
     api({
-      ..._updateWorkspaceSlug({ slug: workspace.slug, newSlug: slug }),
+      ..._updateWorkspaceSlug({slug: workspace.slug, newSlug: slug}),
       setLoading: (state) => setSubmittingState(state as boolean),
       onSuccess: (data) => {
         router.replace(`/account/${data?.slug}/settings/general` as Route);

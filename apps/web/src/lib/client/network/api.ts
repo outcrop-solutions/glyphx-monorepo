@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
 export async function api({
   url,
@@ -13,14 +13,14 @@ export async function api({
   returnData = false,
 }: webTypes.IFrontendApiReq) {
   setLoading(true);
-  const { body, headers, ...opts } = options;
+  const {body, headers, ...opts} = options;
   let requestBody;
   if (upload) {
     requestBody = body;
   } else {
     requestBody = JSON.stringify(body);
   }
-  const header = upload ? { 'Content-Length': requestBody.size } : { 'Content-Type': 'application/json' };
+  const header = upload ? {'Content-Length': requestBody.size} : {'Content-Type': 'application/json'};
 
   try {
     const res = await fetch(url, {
@@ -32,7 +32,7 @@ export async function api({
       ...opts,
     });
     const data = await res.json();
-    const response = { status: res.status, ...data, url };
+    const response = {status: res.status, ...data, url};
     setLoading(false);
 
     if (response.errors) {
@@ -51,7 +51,7 @@ export async function api({
       }
     }
   } catch (error) {
-    console.log({ error });
+    console.log({error});
   }
 }
 

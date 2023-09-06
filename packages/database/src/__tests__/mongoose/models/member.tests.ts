@@ -110,7 +110,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return true if the member email exists type === PROJECT', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves({email: memberEmail});
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -126,7 +128,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return false if the member email does not exist type === PROJECT', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves(null);
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -142,7 +146,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return true if the member email exists type === WORKSPACE', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves({email: memberEmail});
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -158,7 +164,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return false if the member email does not exist type === WORKSPACE', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves(null);
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -174,7 +182,9 @@ describe('#mongoose/models/member', () => {
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.rejects('something unexpected has happend');
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);

@@ -1,10 +1,10 @@
 import React from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { webTypes } from 'types';
-import { modalsAtom, projectAtom } from 'state';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {webTypes} from 'types';
+import {modalsAtom, projectAtom} from 'state';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { PlusIcon } from '@heroicons/react/outline';
+import {WritableDraft} from 'immer/dist/internal';
+import {PlusIcon} from '@heroicons/react/outline';
 
 const btnTextPrimary = 'text-white font-roboto font-medium leading-[16px] pl-1';
 

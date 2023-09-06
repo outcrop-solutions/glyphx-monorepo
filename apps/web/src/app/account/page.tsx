@@ -1,17 +1,17 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {useState} from 'react';
+import {useRouter} from 'next/navigation';
 
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { _acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces, useWorkspace } from 'lib/client';
-import { Route } from 'next';
+import {_acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces} from 'lib/client';
+import {Route} from 'next';
 
 const Welcome = () => {
   const router = useRouter();
-  const { data: invitationsData, isLoading: isFetchingInvitations } = useInvitations();
-  const { data: workspacesData, isLoading: isFetchingWorkspaces } = useWorkspaces();
+  const {data: invitationsData, isLoading: isFetchingInvitations} = useInvitations();
+  const {data: workspacesData, isLoading: isFetchingWorkspaces} = useWorkspaces();
   const [isSubmitting, setSubmittingState] = useState(false);
 
   // mutatations

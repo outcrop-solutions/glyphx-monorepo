@@ -1,40 +1,19 @@
 'use client';
-import { api, _createProjectFromTemplate } from 'lib';
-import type { Route } from 'next';
 import useTemplates from 'lib/client/hooks/useTemplates';
 import Button from 'app/_components/Button';
 import PinnedIcon from 'public/svg/pinned-icon.svg';
-import { SetStateAction, useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { modalsAtom, workspaceAtom } from 'state';
-import { useRouter } from 'next/navigation';
-import { WritableDraft } from 'immer/dist/internal';
-import { webTypes } from 'types';
+import {useState} from 'react';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import {WritableDraft} from 'immer/dist/internal';
+import {webTypes} from 'types';
 import produce from 'immer';
-import { useParams } from 'next/navigation';
 
 export const PinnedProjects = () => {
-  const router = useRouter();
-  const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
-  const { data } = useTemplates();
+  const {data} = useTemplates();
   const setModals = useSetRecoilState(modalsAtom);
-  const [loading, setLoading] = useState(false);
-  const { _id } = useRecoilValue(workspaceAtom);
-  const { templates } = data;
-
-  const createProjectFromTemplate = (template) => {
-    api({
-      ..._createProjectFromTemplate(_id!.toString(), template),
-      setLoading: (state) => {
-        setLoading(state as SetStateAction<boolean>);
-      },
-      onSuccess: (data: any) => {
-        setLoading(false);
-        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
-      },
-    });
-  };
+  const [loading] = useState(false);
+  const {templates} = data;
 
   return (
     <div className="pt-8 mb-8 relative">

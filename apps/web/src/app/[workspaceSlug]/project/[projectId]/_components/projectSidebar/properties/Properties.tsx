@@ -1,14 +1,14 @@
 /* eslint-disable no-lone-blocks */
-import React, { useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { Property } from './Property';
-import { propertiesSelector } from 'state';
+import React, {useState} from 'react';
+import {useRecoilValue} from 'recoil';
+import {Property} from './Property';
+import {propertiesSelector} from 'state';
 
 export const Properties = () => {
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
 
-  console.log({ properties });
+  console.log({properties});
   return (
     properties && (
       <React.Fragment>

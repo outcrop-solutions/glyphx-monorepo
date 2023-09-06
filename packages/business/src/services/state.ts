@@ -13,7 +13,9 @@ export class StateService {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
       const state = await mongoDbConnection.models.StateModel.getStateById(id);
       return state;
     } catch (err: any) {
@@ -46,12 +48,16 @@ export class StateService {
       const pid =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
 
       const uid =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       const project =
         await mongoDbConnection.models.ProjectModel.getProjectById(pid);
@@ -59,7 +65,9 @@ export class StateService {
       const pwid =
         project.workspace._id instanceof mongooseTypes.ObjectId
           ? project.workspace._id
-          : new mongooseTypes.ObjectId(project.workspace._id);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(project.workspace._id);
 
       const workspace =
         await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(pwid);
@@ -96,7 +104,9 @@ export class StateService {
       const wid =
         workspace._id instanceof mongooseTypes.ObjectId
           ? workspace._id
-          : new mongooseTypes.ObjectId(workspace._id);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(workspace._id);
 
       await mongoDbConnection.models.WorkspaceModel.addStates(wid, [state]);
       await mongoDbConnection.models.ProjectModel.addStates(pid, [state]);
@@ -127,7 +137,9 @@ export class StateService {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
       const state = await mongoDbConnection.models.StateModel.updateStateById(
         id,
@@ -167,7 +179,9 @@ export class StateService {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
       const image = imageHash ? {imageHash} : {};
       const nameObj = name ? {name} : {};

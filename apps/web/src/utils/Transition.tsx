@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useContext, Ref } from 'react';
-import { CSSTransition as ReactCSSTransition } from 'react-transition-group';
+import React, {useRef, useEffect, useContext, Ref} from 'react';
+import {CSSTransition as ReactCSSTransition} from 'react-transition-group';
 
 const TransitionContext = React.createContext({
   parent: {},
@@ -82,15 +82,15 @@ function CSSTransition({
       }}
     >
       {/* @ts-ignore */}
-      <Component ref={nodeRef} {...rest} style={{ display: !removeFromDom ? 'none' : null }}>
+      <Component ref={nodeRef} {...rest} style={{display: !removeFromDom ? 'none' : null}}>
         {children}
       </Component>
     </ReactCSSTransition>
   );
 }
 
-export const Transition = ({ show, appear, ...rest }) => {
-  const { parent } = useContext(TransitionContext);
+export const Transition = ({show, appear, ...rest}) => {
+  const {parent} = useContext(TransitionContext);
   const isInitialRender = useIsInitialRender();
   const isChild = show === undefined;
 

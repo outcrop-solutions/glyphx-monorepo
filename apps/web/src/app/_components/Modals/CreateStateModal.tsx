@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from 'app/_components/Button';
-import { useSWRConfig } from 'swr';
+import {useSWRConfig} from 'swr';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createState, api } from 'lib';
-import { webTypes } from 'types';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { cameraAtom, imageHashAtom, modalsAtom, projectAtom, viewerPositionSelector } from 'state';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createState, api} from 'lib';
+import {webTypes} from 'types';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, viewerPositionSelector} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
-export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProps) => {
-  const { mutate } = useSWRConfig();
+export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps) => {
+  const {mutate} = useSWRConfig();
   const setModals = useSetRecoilState(modalsAtom);
   const [camera, setCamera] = useRecoilState(cameraAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
@@ -50,18 +50,18 @@ export const CreateStateModal = ({ modalContent }: webTypes.CreateStateModalProp
               draft.modals[0].isSubmitting = state as boolean;
             })
           ),
-        onError: (_: any) => {
+        onError: () => {
           setCamera({});
-          setImage({ imageHash: false });
+          setImage({imageHash: false});
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
               draft.modals.splice(0, 1);
             })
           );
         },
-        onSuccess: (data: any) => {
+        onSuccess: () => {
           setCamera({});
-          setImage({ imageHash: false });
+          setImage({imageHash: false});
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
               draft.modals.splice(0, 1);

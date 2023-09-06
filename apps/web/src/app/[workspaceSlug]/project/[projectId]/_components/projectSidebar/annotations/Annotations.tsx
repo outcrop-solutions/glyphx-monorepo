@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { AnnotationList } from './AnnotationList';
-import { useAnnotations } from 'lib/client/hooks';
+import React, {useState} from 'react';
+import {AnnotationList} from './AnnotationList';
+import {useAnnotations} from 'lib/client/hooks';
 
 export const Annotations = () => {
   const [isCollapsed, setCollapsed] = useState(false);
-  const { isLoading } = useAnnotations();
+  const {isLoading} = useAnnotations();
 
   return (
     <div className="group flex flex-col grow">

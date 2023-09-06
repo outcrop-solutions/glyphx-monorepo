@@ -29,7 +29,10 @@ const MOCK_USER: databaseTypes.IUser = {
 };
 
 const INPUT_STATE: databaseTypes.IState = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   createdBy: MOCK_USER,
@@ -109,10 +112,16 @@ const INPUT_STATE: databaseTypes.IState = {
   },
   fileSystem: [],
   workspace: {
-    _id: new mongooseTypes.ObjectId(),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    _id:
+      // @ts-ignore
+      new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   project: {
-    _id: new mongooseTypes.ObjectId(),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    _id:
+      // @ts-ignore
+      new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IProject,
   fileSystemHash: MOCK_FILESYSTEM_HASH,
   payloadHash: MOCK_PAYLOAD_HASH,

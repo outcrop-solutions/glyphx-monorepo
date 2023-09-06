@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
-import { ConfigList } from './ConfigList';
-import { RadiusLengths } from './RadiusLengths';
-import { Toggles } from './Toggles';
-import { Colors } from './Colors';
-import { Controls } from './Controls';
-import { useConfigs } from 'lib';
-import { useSetRecoilState } from 'recoil';
-import { configsAtom } from 'state';
+import React, {useEffect} from 'react';
+import {ConfigList} from './ConfigList';
+import {RadiusLengths} from './RadiusLengths';
+import {Toggles} from './Toggles';
+import {Colors} from './Colors';
+import {Controls} from './Controls';
+import {useConfigs} from 'lib';
+import {useSetRecoilState} from 'recoil';
+import {configsAtom} from 'state';
 
 export const SandboxSidebar = () => {
-  const { data, isLoading } = useConfigs();
+  const {data, isLoading} = useConfigs();
   const setConfigs = useSetRecoilState(configsAtom);
 
   useEffect(() => {

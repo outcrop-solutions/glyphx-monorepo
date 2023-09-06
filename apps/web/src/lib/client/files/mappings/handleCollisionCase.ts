@@ -1,4 +1,4 @@
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
 /**
  * Determine collision case
@@ -10,7 +10,7 @@ import { webTypes } from 'types';
 export const handleCollisionCase = (
   fileColumnsHash: string,
   columnsHash: string,
-  existingHashes: { fileColumnsHash: string; columnsHash: string }[],
+  existingHashes: {fileColumnsHash: string; columnsHash: string}[],
   idx: number
 ): webTypes.constants.COLLISION_CASE | undefined => {
   const fileCollision: boolean = fileColumnsHash === existingHashes[idx]?.fileColumnsHash;

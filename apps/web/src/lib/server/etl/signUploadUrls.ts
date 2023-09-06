@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { BasicColumnNameCleaner } from 'fileingestion';
-import { aws } from 'core';
-import { S3_BUCKET_NAME } from 'config/constants';
-import { fileIngestionTypes } from 'types';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {BasicColumnNameCleaner} from 'fileingestion';
+import {aws} from 'core';
+import {S3_BUCKET_NAME} from 'config/constants';
+import {fileIngestionTypes} from 'types';
 /**
  * Created signed url to upload files
  *
@@ -14,7 +14,7 @@ import { fileIngestionTypes } from 'types';
  */
 
 export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { keys, workspaceId, projectId } = req.body;
+  const {keys, workspaceId, projectId} = req.body;
 
   if (Array.isArray(workspaceId) || Array.isArray(projectId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
@@ -43,8 +43,8 @@ export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) 
     // Use Promise.all to fetch all URLs concurrently
     const signedUrls = await Promise.all(promises);
 
-    res.status(200).json({ data: { signedUrls } });
+    res.status(200).json({data: {signedUrls}});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };

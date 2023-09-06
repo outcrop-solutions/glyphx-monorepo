@@ -1,14 +1,14 @@
 'use client';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { getProviders, signIn, useSession } from 'next-auth/react';
+import {getProviders, signIn, useSession} from 'next-auth/react';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
-import { useRouter } from 'next/navigation';
-import { Route } from 'next';
+import {useRouter} from 'next/navigation';
+import {Route} from 'next';
 
 const Login = () => {
-  const { status } = useSession();
+  const {status} = useSession();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
@@ -20,7 +20,7 @@ const Login = () => {
   const signInWithEmail = async (event) => {
     event.preventDefault();
     setSubmittingState(true);
-    const response = await signIn('email', { email, redirect: true });
+    const response = await signIn('email', {email, redirect: true});
 
     if (response?.error === null) {
       toast.success(`Please check your email (${email}) for the login link.`, {
@@ -43,7 +43,7 @@ const Login = () => {
     (async () => {
       const socialProviders = [];
       // @ts-ignore
-      const { email, ...providers } = await getProviders();
+      const {email, ...providers} = await getProviders();
       for (const provider in providers) {
         // @ts-ignore
         socialProviders.push(providers[provider]);

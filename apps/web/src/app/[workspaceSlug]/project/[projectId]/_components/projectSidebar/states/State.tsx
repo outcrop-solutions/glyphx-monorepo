@@ -1,19 +1,19 @@
-import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-import { useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom } from 'state';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { WritableDraft } from 'immer/dist/internal';
+import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
+import {useCallback} from 'react';
+import {useSession} from 'next-auth/react';
+import {activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
-import { _createOpenProject, _getSignedDataUrls, api } from 'lib';
-import { useUrl } from 'lib/client/hooks';
+import {_createOpenProject, _getSignedDataUrls, api} from 'lib';
+import {useUrl} from 'lib/client/hooks';
 import StateIcon from 'public/svg/state.svg';
 import ActiveStateIcon from 'public/svg/active-state.svg';
-import { isNullCamera } from 'lib/utils/isNullCamera';
+import {isNullCamera} from 'lib/utils/isNullCamera';
 import Image from 'next/image';
-import { databaseTypes, webTypes } from 'types';
+import {databaseTypes, webTypes} from 'types';
 
-export const State = ({ item, idx }) => {
+export const State = ({item, idx}) => {
   const session = useSession();
   const url = useUrl();
   const setDrawer = useSetRecoilState(drawerOpenAtom);

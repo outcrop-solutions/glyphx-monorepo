@@ -1,18 +1,18 @@
 import React from 'react';
 import Image from 'next/image';
 
-import { webTypes } from 'types';
-import { MemberList } from '../Share/MemberList';
-import { rightSidebarControlAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import {webTypes} from 'types';
+import {MemberList} from '../Share/MemberList';
+import {rightSidebarControlAtom} from 'state';
+import {useRecoilState} from 'recoil';
 
 import ProjectIcon from 'public/svg/project-icon.svg';
 import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
 import produce from 'immer';
 import projectCard from 'public/images/project.png';
 import EditIcon from 'public/svg/edit-icon.svg';
-import { WritableDraft } from 'immer/dist/internal';
-import { ActivityLog } from './ActivityLog';
+import {WritableDraft} from 'immer/dist/internal';
+import {ActivityLog} from './ActivityLog';
 
 export const Info = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);

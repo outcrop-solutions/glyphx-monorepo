@@ -1,12 +1,12 @@
-import { webTypes, fileIngestionTypes } from 'types';
+import {webTypes, fileIngestionTypes} from 'types';
 
 export const dusplicateColumnRule: webTypes.IFileRule = {
   type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS,
   name: 'Duplicate column names',
   desc: 'Your csv has duplicate column names which is not allowed in model generation. Please de-duplicate the following columns and re-upload your file:',
   condition: (payload, existingFiles): webTypes.DuplicateColumnData => {
-    const intraFileDuplicates: { file: string; column: string }[] = [];
-    const interFileDuplicates: { columnName: string; duplicates: { fieldType: string; fileName: string }[] }[] = [];
+    const intraFileDuplicates: {file: string; column: string}[] = [];
+    const interFileDuplicates: {columnName: string; duplicates: {fieldType: string; fileName: string}[]}[] = [];
     const nameTypes = new Map<string, Map<number, string[]>>();
 
     // Combine payload.fileStats and existingFiles into a new array
@@ -20,7 +20,7 @@ export const dusplicateColumnRule: webTypes.IFileRule = {
         const columnType = column.fieldType;
 
         if (fileColumnNames.has(columnName)) {
-          intraFileDuplicates.push({ file: fileStat.fileName, column: columnName });
+          intraFileDuplicates.push({file: fileStat.fileName, column: columnName});
         } else {
           fileColumnNames.add(columnName);
         }
@@ -45,13 +45,13 @@ export const dusplicateColumnRule: webTypes.IFileRule = {
           fieldType: fileIngestionTypes.constants.FIELD_TYPE[fieldType],
           fileName: fileNames.join(', '),
         }));
-        interFileDuplicates.push({ columnName: columnName, duplicates: typeArr });
+        interFileDuplicates.push({columnName: columnName, duplicates: typeArr});
       }
     }
 
     const result: {
-      intraFileDuplicates?: { file: string; column: string }[];
-      interFileDuplicates?: { columnName: string; duplicates: { fieldType: string; fileName: string }[] }[];
+      intraFileDuplicates?: {file: string; column: string}[];
+      interFileDuplicates?: {columnName: string; duplicates: {fieldType: string; fileName: string}[]}[];
     } = {};
     if (intraFileDuplicates.length > 0) {
       result.intraFileDuplicates = intraFileDuplicates;

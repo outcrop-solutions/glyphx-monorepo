@@ -1,13 +1,13 @@
 'use client';
-import { useState } from 'react';
+import {useState} from 'react';
 import formatDistance from 'date-fns/formatDistance';
 import Link from 'next/link';
 
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { api, _createSubscription } from 'lib/client';
-import { Route } from 'next';
+import {api, _createSubscription} from 'lib/client';
+import {Route} from 'next';
 // import { redirectToCheckout } from 'lib/server';
 
 //  if (!Initializer.initedField) {
@@ -25,20 +25,20 @@ import { Route } from 'next';
 const invoices = [];
 
 const Billing = () => {
-  const [isSubmitting, setSubmittingState] = useState(false);
+  const [isSubmitting] = useState(false);
   const [showModal, setModalVisibility] = useState(false);
 
   const toggleModal = () => setModalVisibility(!showModal);
 
-  const subscribe = (priceId) => {
-    api({
-      ..._createSubscription(priceId),
-      setLoading: (state) => setSubmittingState(state as boolean),
-      onSuccess: (data) => {
-        // return (async () => redirectToCheckout(data.sessionId))();
-      },
-    });
-  };
+  // const subscribe = (priceId) => {
+  //   api({
+  //     ..._createSubscription(priceId),
+  //     setLoading: (state) => setSubmittingState(state as boolean),
+  //     onSuccess: (data) => {
+  //       // return (async () => redirectToCheckout(data.sessionId))();
+  //     },
+  //   });
+  // };
 
   return (
     <>
@@ -111,9 +111,11 @@ const Billing = () => {
                       addSuffix: true,
                     })}
                   </td>
+                  {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                   {/* @ts-ignore */}
                   <td className="py-5">{invoice.status}</td>
                   <td className="py-5">
+                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                     {/* @ts-ignore */}
                     <Link href={invoice.hosted_invoice_url as Route}>
                       <a className="text-blue-600" target="_blank">

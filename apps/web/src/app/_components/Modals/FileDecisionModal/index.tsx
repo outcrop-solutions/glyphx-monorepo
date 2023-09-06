@@ -1,27 +1,28 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
-import { webTypes, fileIngestionTypes } from 'types';
-import { _deleteProject, _deleteWorkspace, _getSignedUploadUrls, _ingestFiles, _uploadFile, api } from 'lib';
+import {webTypes} from 'types';
+import {_getSignedUploadUrls, _ingestFiles, _uploadFile, api} from 'lib';
 
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { modalsAtom, projectAtom } from 'state';
+import {useRecoilState, useSetRecoilState} from 'recoil';
+import {modalsAtom, projectAtom} from 'state';
 
 import Button from 'app/_components/Button';
-import { DecisionBtns } from './DecisionBtns';
-import { CollisionType } from './CollisionType';
-import { cleanNoOps } from 'lib/client/files/transforms/cleanNoOps';
-import { renameAppend } from 'lib/client/files/transforms/renameAppend';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import {DecisionBtns} from './DecisionBtns';
+import {CollisionType} from './CollisionType';
+import {cleanNoOps} from 'lib/client/files/transforms/cleanNoOps';
+import {renameAppend} from 'lib/client/files/transforms/renameAppend';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
-export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalProps) => {
+export const FileDecisionModal = ({modalContent}: webTypes.FileDecisionsModalProps) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [payload, setPayload] = useState<webTypes.IClientSidePayload>(modalContent.data.payload);
   const [project, _] = useRecoilState(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
-  const { name, desc, data } = modalContent;
+  const {name, desc, data} = modalContent;
 
   // mutations
   const closeModal = useCallback(() => {
@@ -43,14 +44,16 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
   // execute upload/glyph engine
   const upload = useCallback(async () => {
     // forced to filter out no-ops on the fly to allow non-desctructive state ops on toggle
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { cleanPayload, cleanFiles } = cleanNoOps(payload, data.acceptedFiles);
+    const {cleanPayload, cleanFiles} = cleanNoOps(payload, data.acceptedFiles);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const finalPayload = renameAppend(cleanPayload, data.collisions);
     // get s3 keys for upload
     const keys = finalPayload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
-    const { signedUrls } = await api({
+    const {signedUrls} = await api({
       ..._getSignedUploadUrls(project.workspace._id.toString(), project._id.toString(), keys),
       returnData: true,
     });
@@ -69,7 +72,7 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
     if (finalPayload.fileInfo.length > 0) {
       await api({
         ..._ingestFiles(finalPayload),
-        onSuccess: (data) => {
+        onSuccess: () => {
           // update project filesystem
           // setProject(
           //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
@@ -116,7 +119,7 @@ export const FileDecisionModal = ({ modalContent }: webTypes.FileDecisionsModalP
           </div>
         </div>
         {/* @ts-ignore */}
-        {data.collisions.map(({ newFile, existingFile, type, operations }, idx) => (
+        {data.collisions.map(({newFile, existingFile, type, operations}, idx) => (
           <div className="grid grid-cols-12 gap-2" key={`${idx}-${type}`}>
             <div className="col-span-2 rounded-md p-2 text-xs">
               <div className="truncate max-w-20">

@@ -1,25 +1,25 @@
 import React from 'react';
-import { useRecoilValue } from 'recoil';
-import { MainDropzone } from '../projectSidebar/files';
+import {useRecoilValue} from 'recoil';
+import {MainDropzone} from '../projectSidebar/files';
 import SplitPane from 'react-split-pane';
-import { Datagrid } from './DataGrid';
-import { GridHeader } from './GridHeader';
-import { ModelFooter } from './ModelFooter';
+import {Datagrid} from './DataGrid';
+import {GridHeader} from './GridHeader';
+import {ModelFooter} from './ModelFooter';
 
-import { filesOpenSelector } from 'state/files';
-import { useResize } from 'services/useResize';
-import { orientationAtom, projectAtom, splitPaneSizeAtom, stateSelector, windowSizeAtom } from 'state';
+import {filesOpenSelector} from 'state/files';
+import {useResize} from 'services/useResize';
+import {orientationAtom, projectAtom, splitPaneSizeAtom, stateSelector, windowSizeAtom} from 'state';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
 import Image from 'next/image';
 
 export const GridContainer = () => {
-  const { data } = useDataGrid();
+  const {data} = useDataGrid();
   const openFiles = useRecoilValue(filesOpenSelector);
   const activeState = useRecoilValue(stateSelector);
   const project = useRecoilValue(projectAtom);
   const orientation = useRecoilValue(orientationAtom);
-  const { height } = useRecoilValue(windowSizeAtom);
-  const { handlePaneResize, defaultSize, maxSize, minSize, split } = useResize();
+  const {height} = useRecoilValue(windowSizeAtom);
+  const {handlePaneResize, defaultSize, maxSize, minSize, split} = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
   const isBrowser = !(window && window?.core);
 
@@ -36,9 +36,10 @@ export const GridContainer = () => {
   return (
     <div className="relative h-full w-full border-r border-gray">
       <ModelFooter />
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore */}
       <SplitPane
-        style={{ overflow: 'scroll', height: `${getPaneHeight()}px` }}
+        style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
         key={resize}
         split={split()}
         allowResize={true}

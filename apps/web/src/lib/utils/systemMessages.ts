@@ -1,4 +1,4 @@
-import type { ChatCompletionRequestMessage } from 'openai-edge';
+import type {ChatCompletionRequestMessage} from 'openai-edge';
 
 export const systemMessage = (fileStats, templates): ChatCompletionRequestMessage[] => [
   {

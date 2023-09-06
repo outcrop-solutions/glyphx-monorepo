@@ -1,23 +1,6 @@
 import React from 'react';
 import {webTypes} from 'types';
-
-const projects = [
-  {
-    name: 'Days Sales Outstanding',
-  },
-  {
-    name: 'Logistics by Distribution center',
-  },
-  {
-    name: 'Inventory Count by Warehouse',
-  },
-  {
-    name: 'Purchasing by Raw Material',
-  },
-  {
-    name: 'Manufacturing Production by Raw Facility',
-  },
-];
+import {projects} from './AIUploadModal';
 
 export const AIUploadModal = ({modalContent}: webTypes.CreateProjectModalProps) => {
   // const completion = useRecoilValue(completionAtom);
@@ -43,11 +26,12 @@ export const AIUploadModal = ({modalContent}: webTypes.CreateProjectModalProps) 
   //     })
   //   );
   // };
-
   return (
     <div className="rounded-lg px-20 py-10 bg-secondary-midnight w-[1000px] h-[800px] z-60">
-      <div className="text-white text-xl py-4">Recommendations</div>ƒ
+      <div className="text-white text-xl py-4">Recommendations</div>
+      {/* @ts-ignore */}
       {completion && <div className="text-white text-md">{completion}</div>}
+
       <div
         className={`group my-8 flex shadow-sm rounded border  ${'border-transparent'} bg-secondary-space-blue hover:cursor-pointer hover:border-white p-2`}
       >
@@ -60,6 +44,7 @@ export const AIUploadModal = ({modalContent}: webTypes.CreateProjectModalProps) 
           <div className="px-3 py-1 bg-primary-yellow rounded">Get Template</div>
         </div>
       </div>
+
       <div className="relative py-4">
         <p className="font-rubik font-light text-[18px] text-white text-xl">Templates</p>
         <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">

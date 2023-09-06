@@ -1,14 +1,12 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { drawerOpenAtom, projectAtom } from 'state';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import {useRouter,useParams,usePathname} from 'next/navigation';
+import {drawerOpenAtom, projectAtom} from 'state';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 
-import { Controls } from 'app/[workspaceSlug]/_components/controls';
+import {Controls} from 'app/[workspaceSlug]/_components/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
-import { useParams } from 'next/navigation';
-import { usePathname } from 'next/navigation';
-import { Route } from 'next';
+import {Route} from 'next';
 
 const Header = () => {
   const project = useRecoilValue(projectAtom);
@@ -17,7 +15,7 @@ const Header = () => {
 
   const router = useRouter();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
+  const {workspaceSlug} = params as {workspaceSlug: string};
   const pathname = usePathname();
 
   const backPressed = () => {

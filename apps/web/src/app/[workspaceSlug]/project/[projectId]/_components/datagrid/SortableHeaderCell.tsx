@@ -1,6 +1,6 @@
-import { useFocusRef } from 'services/useFocusRef';
-export function SortableHeaderCell({ onSort, sortDirection, priority, children, isCellSelected }) {
-  const { ref, tabIndex } = useFocusRef(isCellSelected);
+import {useFocusRef} from 'services/useFocusRef';
+export function SortableHeaderCell({onSort, children, isCellSelected}) {
+  const {ref, tabIndex} = useFocusRef(isCellSelected);
 
   function handleKeyDown(event) {
     if (event.key === ' ' || event.key === 'Enter') {

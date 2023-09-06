@@ -1,15 +1,15 @@
 import 'mocha';
-import { assert } from 'chai';
+import {assert} from 'chai';
 
-import { createSandbox } from 'sinon';
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _deactivateAccount, _updateUserEmail, _updateUserName } from 'lib/client/mutations/user';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
-import { databaseTypes } from 'types';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {_deactivateAccount, _updateUserEmail, _updateUserName} from 'lib/client/mutations/user';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericDelete, genericGet, genericPost, genericPut} from './utilities/genericReqs';
+import {databaseTypes} from 'types';
 
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
@@ -34,7 +34,7 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
   language: '',
   cookieEnabled: false,
 };
-const MOCK_LOCATION: string = 'location';
+const MOCK_LOCATION = 'location';
 
 const MOCK_USER: databaseTypes.IUser = {
   userCode: 'dfkadfkljafdkalsjskldf',
@@ -89,7 +89,7 @@ describe('USER ROUTES', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
     deactivateUserStub = sandbox.stub();
     updateEmailStub = sandbox.stub();
@@ -97,8 +97,8 @@ describe('USER ROUTES', () => {
 
     // handler stubs
     formatUserAgentStub = sandbox.stub();
-    mockUserService = { deactivate: sandbox.stub(), updateEmail: sandbox.stub(), updateName: sandbox.stub() };
-    mockActivityLogService = { createLog: sandbox.stub() };
+    mockUserService = {deactivate: sandbox.stub(), updateEmail: sandbox.stub(), updateName: sandbox.stub()};
+    mockActivityLogService = {createLog: sandbox.stub()};
     validateUpdateEmailStub = sandbox.stub();
     validateUpdateNameStub = sandbox.stub();
 
@@ -215,17 +215,17 @@ describe('USER ROUTES', () => {
     sandbox.restore();
   });
 
-  context('/api/user', async function () {
+  context('/api/user', async () => {
     describe('DELETE handler', () => {
-      it('should deactivate a user', async function () {
+      it('should deactivate a user', async () => {
         mockUserService.deactivate.resolves(MOCK_USER);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: deactivateUserRouteWrapper,
           url: '/api/user',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(_deactivateAccount());
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
@@ -242,7 +242,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: deactivateUserRoute,
           url: '/api/user',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -261,7 +261,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: deactivateUserRoute,
           url: '/api/user',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -283,7 +283,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: deactivateUserRoute,
           url: '/api/user',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -305,7 +305,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: deactivateUserRoute,
           url: '/api/user',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -322,18 +322,18 @@ describe('USER ROUTES', () => {
     });
   });
 
-  context('/api/user/email', async function () {
+  context('/api/user/email', async () => {
     describe('PUT handler', () => {
-      it('should update user email', async function () {
+      it('should update user email', async () => {
         validateUpdateEmailStub.resolves();
         mockUserService.updateEmail.resolves(MOCK_USER);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: updateEmailRouteWrapper,
           url: '/api/user/email',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(_updateUserEmail(MOCK_USER.email));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
@@ -349,7 +349,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: deactivateUserRoute,
           url: '/api/user/email',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -367,7 +367,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: updateEmailRoute,
           url: '/api/user/email',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -389,7 +389,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: updateEmailRoute,
           url: '/api/user/email',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -411,7 +411,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: updateEmailRoute,
           url: '/api/user/email',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -428,18 +428,18 @@ describe('USER ROUTES', () => {
     });
   });
 
-  context('/api/user/name', async function () {
+  context('/api/user/name', async () => {
     describe('PUT Handler', () => {
-      it('should change user name', async function () {
+      it('should change user name', async () => {
         validateUpdateNameStub.resolves();
         mockUserService.updateName.resolves(MOCK_USER);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: updateNameRouteWrapper,
           url: '/api/user/name',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(_updateUserName(MOCK_USER.name));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
@@ -455,7 +455,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: updateNameRoute,
           url: '/api/user/name',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -473,7 +473,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: updateNameRoute,
           url: '/api/user/name',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -495,7 +495,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: updateNameRoute,
           url: '/api/user/name',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -517,7 +517,7 @@ describe('USER ROUTES', () => {
         await testApiHandler({
           handler: updateNameRoute,
           url: '/api/user/name',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

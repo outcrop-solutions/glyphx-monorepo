@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { signOut, useSession } from 'next-auth/react';
+import React, {useState} from 'react';
+import {signOut, useSession} from 'next-auth/react';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { webTypes } from 'types';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import {WritableDraft} from 'immer/dist/internal';
+import {webTypes} from 'types';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
+import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import Button from 'app/_components/Button';
 
-import { _deactivateAccount, _deleteWorkspace, api } from 'lib';
-import { useUrl } from 'lib/client/hooks';
+import {_deactivateAccount, api} from 'lib';
+import {useUrl} from 'lib/client/hooks';
 
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom } from 'state';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
-export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModalProps) => {
-  const { data } = useSession();
+export const DeleteAccountModal = ({modalContent}: webTypes.DeleteAccountModalProps) => {
+  const {data} = useSession();
   const url = useUrl();
   const setModals = useSetRecoilState(modalsAtom);
   const [verifyEmail, setVerifyEmail] = useState('');
@@ -43,7 +43,7 @@ export const DeleteAccountModal = ({ modalContent }: webTypes.DeleteAccountModal
             draft.modals.splice(0, 1);
           })
         );
-        signOut({ callbackUrl: `${url}/auth/login` });
+        signOut({callbackUrl: `${url}/auth/login`});
       },
     });
   };

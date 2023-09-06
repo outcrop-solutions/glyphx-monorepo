@@ -1,5 +1,5 @@
 'use client';
-import { usePathname } from 'next/navigation';
+import {usePathname} from 'next/navigation';
 
 /**
  * Returns base url based on environment

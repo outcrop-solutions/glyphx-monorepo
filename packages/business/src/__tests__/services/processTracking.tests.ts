@@ -10,7 +10,10 @@ import {dbConnection} from '../../../dist';
 describe('ProcessTrackingService', () => {
   context('createProcessTracking', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -145,7 +148,10 @@ describe('ProcessTrackingService', () => {
 
   context('getProcessStatus', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -357,7 +363,10 @@ describe('ProcessTrackingService', () => {
 
   context('updateProcessStatus', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -425,7 +434,9 @@ describe('ProcessTrackingService', () => {
         addMessageStub
       );
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
 
       await ProcessTrackingService.updateProcessStatus(
@@ -462,7 +473,9 @@ describe('ProcessTrackingService', () => {
         addMessageStub
       );
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
 
       await ProcessTrackingService.updateProcessStatus(
@@ -499,7 +512,9 @@ describe('ProcessTrackingService', () => {
         addMessageStub
       );
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
 
       await ProcessTrackingService.updateProcessStatus(
@@ -536,7 +551,9 @@ describe('ProcessTrackingService', () => {
         addMessageStub
       );
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       await ProcessTrackingService.updateProcessStatus(
@@ -593,7 +610,9 @@ describe('ProcessTrackingService', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       let errored = false;
@@ -646,7 +665,9 @@ describe('ProcessTrackingService', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       let errored = false;
@@ -693,7 +714,9 @@ describe('ProcessTrackingService', () => {
       publishOverride.returns(databaseError);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       let errored = false;
@@ -717,7 +740,10 @@ describe('ProcessTrackingService', () => {
 
   context('completeProcess', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -817,7 +843,9 @@ describe('ProcessTrackingService', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
       const result = {text: 'I am finished'};
       let errored = false;
@@ -864,7 +892,9 @@ describe('ProcessTrackingService', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
       const result = {text: 'I am finished'};
       let errored = false;
@@ -902,7 +932,9 @@ describe('ProcessTrackingService', () => {
       publishOverride.returns(databaseError);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
       const result = {text: 'I am finished'};
       let errored = false;
@@ -925,7 +957,10 @@ describe('ProcessTrackingService', () => {
 
   context('addProcessError', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -1109,7 +1144,10 @@ describe('ProcessTrackingService', () => {
 
   context('addProcessMessage', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -1293,7 +1331,10 @@ describe('ProcessTrackingService', () => {
 
   context('getProcessTracking', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -1535,7 +1576,10 @@ describe('ProcessTrackingService', () => {
 
   context('getProcessError', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -1624,7 +1668,10 @@ describe('ProcessTrackingService', () => {
 
   context('getProcessMessages', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -1715,7 +1762,10 @@ describe('ProcessTrackingService', () => {
 
   context('getProcessResult', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      _id: new mongooseTypes.ObjectId(),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      _id:
+        // @ts-ignore
+        new mongooseTypes.ObjectId(),
       processId: 'testProcessId',
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -1810,7 +1860,9 @@ describe('ProcessTrackingService', () => {
         deleteStub
       );
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       await ProcessTrackingService.removeProcessTrackingDocument(processId);
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -1842,7 +1894,9 @@ describe('ProcessTrackingService', () => {
       const publishOverride = sandbox.stub();
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       let errored = false;
       try {
         await ProcessTrackingService.removeProcessTrackingDocument(processId);
@@ -1872,7 +1926,9 @@ describe('ProcessTrackingService', () => {
       const publishOverride = sandbox.stub();
       publishOverride.resolves();
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       let errored = false;
       try {
         await ProcessTrackingService.removeProcessTrackingDocument(processId);
@@ -1915,7 +1971,9 @@ describe('ProcessTrackingService', () => {
         updateStub
       );
 
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       await ProcessTrackingService.setHeartbeat(processId);
       assert.isTrue(updateStub.calledOnce);
     });
@@ -1947,7 +2005,9 @@ describe('ProcessTrackingService', () => {
       const publishOverride = sandbox.stub();
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       let errored = false;
       try {
         await ProcessTrackingService.setHeartbeat(processId);
@@ -1986,7 +2046,9 @@ describe('ProcessTrackingService', () => {
       const publishOverride = sandbox.stub();
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       let errored = false;
       try {
         await ProcessTrackingService.setHeartbeat(processId);
@@ -2016,7 +2078,9 @@ describe('ProcessTrackingService', () => {
       const publishOverride = sandbox.stub();
       publishOverride.resolves();
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-      const processId = new mongooseTypes.ObjectId();
+      const processId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       let errored = false;
       try {
         await ProcessTrackingService.setHeartbeat(processId);

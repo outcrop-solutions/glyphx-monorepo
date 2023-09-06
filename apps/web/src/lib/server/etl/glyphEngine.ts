@@ -1,14 +1,14 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { generalPurposeFunctions } from 'core';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {generalPurposeFunctions} from 'core';
 
-import { GlyphEngine } from 'glyphengine';
-import { ATHENA_DB_NAME, S3_BUCKET_NAME } from 'config/constants';
-import { processTrackingService, activityLogService, projectService, stateService } from 'business';
-import { databaseTypes, webTypes } from 'types';
-import { formatUserAgent } from 'lib/utils/formatUserAgent';
-import { generateFilterQuery } from 'lib/client/helpers';
-import { isValidPayload } from 'lib/utils/isValidPayload';
-import { Session } from 'next-auth';
+import {GlyphEngine} from 'glyphengine';
+import {ATHENA_DB_NAME, S3_BUCKET_NAME} from 'config/constants';
+import {processTrackingService, activityLogService, projectService, stateService} from 'business';
+import {databaseTypes, webTypes} from 'types';
+import {formatUserAgent} from 'lib/utils/formatUserAgent';
+import {generateFilterQuery} from 'lib/client/helpers';
+import {isValidPayload} from 'lib/utils/isValidPayload';
+import {Session} from 'next-auth';
 /**
  * Call Glyph Engine
  *
@@ -70,11 +70,11 @@ import { Session } from 'next-auth';
 // });
 
 export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { project, isFilter, payloadHash } = req.body;
+  const {project, isFilter, payloadHash} = req.body;
 
   if (!isValidPayload(project.state.properties)) {
     // fails silently
-    res.status(404).json({ errors: { error: { msg: 'Invalid Payload' } } });
+    res.status(404).json({errors: {error: {msg: 'Invalid Payload'}}});
   } else {
     const properties = project.state.properties;
 
@@ -126,7 +126,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       ]);
 
       // process glyph engine
-      const { sdtFileName, sgnFileName, sgcFileName } = await glyphEngine.process(data);
+      const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(data);
 
       const updatedProject = await projectService.updateProjectState(project._id, project.state);
 
@@ -143,7 +143,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       //   { height: 300, width: 300 }
       // );
 
-      const { agentData, location } = formatUserAgent(req);
+      const {agentData, location} = formatUserAgent(req);
       await activityLogService.createLog({
         actorId: session?.user?.userId as string,
         resourceId: payload.model_id,
@@ -155,9 +155,9 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
         action: databaseTypes.constants.ACTION_TYPE.MODEL_GENERATED,
       });
 
-      res.status(200).json({ data: { sdtFileName, sgnFileName, sgcFileName, updatedProject } });
+      res.status(200).json({data: {sdtFileName, sgnFileName, sgcFileName, updatedProject}});
     } catch (error) {
-      res.status(404).json({ errors: { error: { msg: error.message } } });
+      res.status(404).json({errors: {error: {msg: error.message}}});
     }
   }
 };

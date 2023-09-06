@@ -17,7 +17,9 @@ describe('#services/membership', () => {
 
   context('getMember', () => {
     it('should get a member by id', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testemail@gmail.com';
 
       const getMembershipFromModelStub = sandbox.stub();
@@ -39,7 +41,9 @@ describe('#services/membership', () => {
       assert.isTrue(getMembershipFromModelStub.calledOnce);
     });
     it('should get a member by id when id is a string', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testemail@gmail.com';
 
       const getMembershipFromModelStub = sandbox.stub();
@@ -61,7 +65,9 @@ describe('#services/membership', () => {
       assert.isTrue(getMembershipFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the member cannot be found', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the member';
       const err = new error.DataNotFoundError(errMessage, 'email', memberId);
       const getMembershipFromModelStub = sandbox.stub();
@@ -92,7 +98,9 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -133,7 +141,9 @@ describe('#services/membership', () => {
   });
   context('getMembers', () => {
     it('should get members by filter', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testemail@gmail.com';
       const memberFilter = {email: memberEmail};
 
@@ -243,7 +253,9 @@ describe('#services/membership', () => {
   });
   context('getPendingInvitations', () => {
     it('should get a member by email', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testemail@gmail.com';
 
       const getMembersServiceStub = sandbox.stub();
@@ -335,7 +347,9 @@ describe('#services/membership', () => {
   });
   context('remove', () => {
     it('will delete a member by updating the deletedAt property', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const deletedAt = new Date();
 
       const updateMembershipFromModelStub = sandbox.stub();
@@ -354,7 +368,9 @@ describe('#services/membership', () => {
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will delete a member by updating the deletedAt property when memberId is a string', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const deletedAt = new Date();
 
       const updateMembershipFromModelStub = sandbox.stub();
@@ -373,7 +389,9 @@ describe('#services/membership', () => {
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       // const deletedAt = new Date();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'memberId', true);
@@ -411,7 +429,9 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateMembershipFromModelStub = sandbox.stub();
@@ -448,7 +468,9 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -491,7 +513,9 @@ describe('#services/membership', () => {
   });
   context('updateRole', () => {
     it('will update a member teamRole', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const teamRole = databaseTypes.constants.ROLE.MEMBER;
 
       const updateMembershipFromModelStub = sandbox.stub();
@@ -510,7 +534,9 @@ describe('#services/membership', () => {
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will update a member teamRole when memberId is a string', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const teamRole = databaseTypes.constants.ROLE.MEMBER;
 
       const updateMembershipFromModelStub = sandbox.stub();
@@ -529,7 +555,9 @@ describe('#services/membership', () => {
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const teamRole = databaseTypes.constants.ROLE.MEMBER;
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'memberId', true);
@@ -567,7 +595,9 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const teamRole = databaseTypes.constants.ROLE.MEMBER;
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -605,7 +635,9 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const teamRole = databaseTypes.constants.ROLE.MEMBER;
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
@@ -649,7 +681,9 @@ describe('#services/membership', () => {
   });
   context('updateStatus', () => {
     it('will update a member status', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
 
       const updateMembershipFromModelStub = sandbox.stub();
@@ -668,7 +702,9 @@ describe('#services/membership', () => {
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will update a member status when memberId is a string', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
 
       const updateMembershipFromModelStub = sandbox.stub();
@@ -687,7 +723,9 @@ describe('#services/membership', () => {
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'memberId', true);
@@ -725,7 +763,9 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -763,7 +803,9 @@ describe('#services/membership', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(

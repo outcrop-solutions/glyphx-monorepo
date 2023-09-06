@@ -275,7 +275,9 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('should update an existing customerPaymentById', async () => {
-      const customerId = new mongooseTypes.ObjectId();
+      const customerId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       class MockMongooseQuery {
         mockData?: any;

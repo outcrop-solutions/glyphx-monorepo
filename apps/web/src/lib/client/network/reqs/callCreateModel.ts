@@ -1,8 +1,8 @@
 import produce from 'immer';
 import api from '../api';
-import { databaseTypes } from 'types';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations';
+import {databaseTypes} from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createModel, _createOpenProject, _getSignedDataUrls} from 'lib/client/mutations';
 
 export const callCreateModel = async ({
   isFilter,

@@ -3,9 +3,9 @@ import Error from 'public/svg/error-notif.svg';
 import Success from 'public/svg/success-notif.svg';
 import Default from 'public/svg/tooltip-icon.svg';
 import NotifIcon from 'public/svg/notif-icon.svg';
-import { Route } from 'next';
+import {Route} from 'next';
 
-export function Notification({ children, className, type, open, setOpen }) {
+export function Notification({children, className, type, open, setOpen}) {
   const typeIcon = (type) => {
     switch (type) {
       case 'warning':

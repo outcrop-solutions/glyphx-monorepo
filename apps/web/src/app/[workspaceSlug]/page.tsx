@@ -1,18 +1,18 @@
 'use client';
 // layout
 import Content from 'app/_components/Content';
-import { useWorkspace } from 'lib';
-import { useEffect } from 'react';
-import { useSetRecoilState } from 'recoil';
+import {useWorkspace} from 'lib';
+import {useEffect} from 'react';
+import {useSetRecoilState} from 'recoil';
 
 // Hooks
-import { useRecoilValue } from 'recoil';
-import { showProjectsGridViewAtom, workspaceAtom } from 'state';
-import { GridView, PinnedProjects, TableView, Templates } from './_components/workspace';
-import { RightSidebar } from './_components/rightSidebar';
+import {useRecoilValue} from 'recoil';
+import {showProjectsGridViewAtom, workspaceAtom} from 'state';
+import {GridView, PinnedProjects, TableView, Templates} from './_components/workspace';
+import {RightSidebar} from './_components/rightSidebar';
 
 const Workspace = () => {
-  const { data, isLoading } = useWorkspace();
+  const {data, isLoading} = useWorkspace();
   const setWorkspace = useSetRecoilState(workspaceAtom);
   // hydrate recoil state
   useEffect(() => {

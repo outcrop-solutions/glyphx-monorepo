@@ -15,7 +15,9 @@ describe('#services/tag', () => {
   });
   context('getTag', () => {
     it('should get a tag by id', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getTagFromModelStub = sandbox.stub();
       getTagFromModelStub.resolves({
@@ -34,7 +36,9 @@ describe('#services/tag', () => {
       assert.isTrue(getTagFromModelStub.calledOnce);
     });
     it('should get a tag by id when id is a string', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getTagFromModelStub = sandbox.stub();
       getTagFromModelStub.resolves({
@@ -53,7 +57,9 @@ describe('#services/tag', () => {
       assert.isTrue(getTagFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the tag cannot be found', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the tag';
       const err = new error.DataNotFoundError(errMessage, 'tagId', tagId);
       const getTagFromModelStub = sandbox.stub();
@@ -84,7 +90,9 @@ describe('#services/tag', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,

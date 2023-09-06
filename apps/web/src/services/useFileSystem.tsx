@@ -1,13 +1,13 @@
-import { useCallback } from 'react';
+import {useCallback} from 'react';
 import produce from 'immer';
-import { databaseTypes, webTypes } from 'types';
-import { WritableDraft } from 'immer/dist/internal';
-import { useSWRConfig } from 'swr';
-import { projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom, showLoadingAtom } from 'state';
-import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { _getSignedUploadUrls, _ingestFiles, _uploadFile, api } from 'lib';
-import { runRulesEngine } from 'lib/client/files/engine';
-import { parsePayload } from 'lib/client/files/transforms/parsePayload';
+import {databaseTypes, webTypes} from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {useSWRConfig} from 'swr';
+import {projectAtom, selectedFileIndexSelector, filesOpenSelector, modalsAtom, showLoadingAtom} from 'state';
+import {useSetRecoilState, useRecoilState, useRecoilValue} from 'recoil';
+import {_getSignedUploadUrls, _ingestFiles, _uploadFile, api} from 'lib';
+import {runRulesEngine} from 'lib/client/files/engine';
+import {parsePayload} from 'lib/client/files/transforms/parsePayload';
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
  * @param {Array} filtersApplied
@@ -19,7 +19,7 @@ import { parsePayload } from 'lib/client/files/transforms/parsePayload';
  */
 
 export const useFileSystem = () => {
-  const { mutate } = useSWRConfig();
+  const {mutate} = useSWRConfig();
   const [project, setProject] = useRecoilState(projectAtom);
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);

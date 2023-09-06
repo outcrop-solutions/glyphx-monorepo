@@ -10,7 +10,10 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_USER: databaseTypes.IUser = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   name: 'testUser' + UNIQUE_KEY,
   userCode: 'testUserCode' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
@@ -29,7 +32,10 @@ const INPUT_USER: databaseTypes.IUser = {
 };
 
 const INPUT_WORKSPACE: databaseTypes.IWorkspace = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   workspaceCode: 'testWorkspace' + UNIQUE_KEY,
   inviteCode: 'testWorkspace' + UNIQUE_KEY,
   name: 'testName' + UNIQUE_KEY,
@@ -45,7 +51,10 @@ const INPUT_WORKSPACE: databaseTypes.IWorkspace = {
 };
 
 const INPUT_ACTIVITY_LOG: databaseTypes.IActivityLog = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   actor: INPUT_USER,

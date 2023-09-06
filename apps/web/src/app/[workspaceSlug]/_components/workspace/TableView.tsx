@@ -1,26 +1,29 @@
 'use client';
 import dayjs from 'dayjs';
-import { useRouter } from 'next/navigation';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import {useRouter,useParams} from 'next/navigation';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { fileIngestionTypes } from 'types';
-import { webTypes } from 'types';
-import { modalsAtom, rightSidebarControlAtom, workspaceAtom } from 'state';
+import {fileIngestionTypes,webTypes} from 'types';
+import {modalsAtom, rightSidebarControlAtom, workspaceAtom} from 'state';
 import TableItemInfoIcon from 'public/svg/table-item-info.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 import produce from 'immer';
-import { useCallback } from 'react';
-import { WritableDraft } from 'immer/dist/internal';
-import { useParams } from 'next/navigation';
-import { Route } from 'next';
+import {useCallback} from 'react';
+import {WritableDraft} from 'immer/dist/internal';
+import {Route} from 'next';
 
-const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+const dateOptions = {
+  weekday: 'short',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+};
 
 export const TableView = () => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
+  const {workspaceSlug} = params as {workspaceSlug: string};
   const workspace = useRecoilValue(workspaceAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
@@ -57,7 +60,7 @@ export const TableView = () => {
           draft.modals.push({
             type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT,
             isSubmitting: false,
-            data: { projectId: project._id, projectName: project.name },
+            data: {projectId: project._id, projectName: project.name},
           });
         })
       );
@@ -103,8 +106,7 @@ export const TableView = () => {
                       title="Last Updated"
                       className="p-2"
                     >
-                      {/* @ts-ignore */}
-                      {new Date(project?.updatedAt).toLocaleDateString('en-US', dateOptions)}
+                      {new Date(project?.updatedAt).toLocaleDateString('en-US', dateOptions as any)}
                     </td>
                     <td
                       onClick={() => {

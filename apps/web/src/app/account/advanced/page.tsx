@@ -2,19 +2,17 @@
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
-import { modalsAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import {modalsAtom,workspaceAtom} from 'state';
+import {useRecoilState,useSetRecoilState} from 'recoil';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _deleteWorkspace, useWorkspace } from 'lib/client';
-import { workspaceAtom } from 'state';
-import { useSetRecoilState } from 'recoil';
-import { useEffect } from 'react';
+import {WritableDraft} from 'immer/dist/internal';
+import {useWorkspace} from 'lib/client';
+import {useEffect} from 'react';
 
 const Advanced = () => {
-  const { data, isLoading } = useWorkspace();
+  const {data, isLoading} = useWorkspace();
   const setWorkspace = useSetRecoilState(workspaceAtom);
 
   useEffect(() => {

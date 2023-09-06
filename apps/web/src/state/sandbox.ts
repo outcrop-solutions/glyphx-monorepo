@@ -1,5 +1,5 @@
-import { atom, atomFamily, selector } from 'recoil';
-import { databaseTypes } from 'types';
+import {atom, atomFamily, selector} from 'recoil';
+import {databaseTypes} from 'types';
 
 export const configsAtom = atom<Partial<databaseTypes.IModelConfig>[]>({
   key: 'configsAtomKey',
@@ -29,7 +29,7 @@ export const currentConfigAtom = atom<number>({
 
 export const configSelector = selector<Partial<databaseTypes.IModelConfig>>({
   key: 'sandboxConfigAtomKey',
-  get: ({ get }) => {
+  get: ({get}) => {
     const configs = get(configsAtom);
     const currentConfig = get(currentConfigAtom);
     if (configs?.length > 0) {

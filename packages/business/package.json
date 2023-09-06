@@ -7,21 +7,20 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
+    "lint": "eslint .",
     "clean": "rimraf .turbo node_modules dist .nyc_output",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "test": "TS_NODE_FILES=true EMAIL_SERVER=smtp://apikey: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@smtp.sendgrid.net:587 mocha -r ts-node/register -r dotenv/config -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
-    "lint": "gts lint",
-    "fix": "gts fix",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "author": "James M. Graham",
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",
-    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
+    "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
     "types": "workspace:*",
     "@types/chai": "^4.3.3",
@@ -30,18 +29,8 @@
     "@types/rewire": "^2.5.28",
     "@types/sinon": "^10.0.13",
     "@types/uuid": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.42.0",
     "aws-sdk-client-mock": "^2.1.1",
     "chai": "^4.3.6",
-    "eslint": "^8.12.0",
-    "eslint-import-resolver-node": "^0.3.7",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-filename-rules": "^1.2.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "gts": "^3.1.0",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
     "rewire": "^6.0.0",

@@ -77,7 +77,7 @@ module.exports = {
     maxPayloadSize: 1024 * 1024 * 1024,
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV == 'production',
+    removeConsole: process.env.NODE_ENV === 'production',
   },
 
   onDemandEntries: {

@@ -1,14 +1,14 @@
-import { useRef, useEffect } from 'react';
-import { usePosition } from 'services/usePosition';
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { rightCoordinatesAtom, rightSidebarControlAtom } from 'state';
-import { webTypes } from 'types';
-import { Info } from './Info';
-import { Share } from './Share';
-import { Notifications } from './Notifications';
+import {useRef, useEffect} from 'react';
+import {usePosition} from 'services/usePosition';
+import {useRecoilState, useSetRecoilState} from 'recoil';
+import {rightCoordinatesAtom, rightSidebarControlAtom} from 'state';
+import {webTypes} from 'types';
+import {Info} from './Info';
+import {Share} from './Share';
+import {Notifications} from './Notifications';
 
 export const RightSidebar = () => {
-  const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
+  const [sidebarControl] = useRecoilState(rightSidebarControlAtom);
   //utilities
   const sidebar = useRef(null);
   // trigger sendPosition when sidebar changes
@@ -18,6 +18,7 @@ export const RightSidebar = () => {
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const coords = sidebar.current.getBoundingClientRect();
       setCoords(coords);

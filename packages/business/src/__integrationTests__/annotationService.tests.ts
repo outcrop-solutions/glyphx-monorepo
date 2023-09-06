@@ -31,9 +31,15 @@ const INPUT_USER: databaseTypes.IUser = {
 };
 
 const INPUT_PROJECT = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   name: 'testProject' + UNIQUE_KEY,
-  template: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  template:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   state: {
     properties: {
       X: {
@@ -114,7 +120,10 @@ const INPUT_PROJECT = {
 };
 
 const INPUT_STATE: databaseTypes.IState = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   createdBy: INPUT_USER,

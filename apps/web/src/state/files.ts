@@ -1,6 +1,6 @@
-import { atom, selector } from 'recoil';
-import { webTypes, fileIngestionTypes } from 'types';
-import { projectAtom } from './project';
+import {atom, selector} from 'recoil';
+import {webTypes, fileIngestionTypes} from 'types';
+import {projectAtom} from './project';
 
 /**
  * APPLICATION FILESYSTEM
@@ -40,7 +40,7 @@ import { projectAtom } from './project';
 // Intermediate Representation
 export const fileSystemSelector = selector<fileIngestionTypes.IFileStats[]>({
   key: 'fileSystemSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     return project?.files;
   },
@@ -52,7 +52,7 @@ export const fileSystemSelector = selector<fileIngestionTypes.IFileStats[]>({
 
 export const selectedFileIndexSelector = selector({
   key: 'selectedFileSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const files = get(fileSystemSelector);
     // @ts-ignore
     return files?.findIndex((file) => file?.selected);
@@ -61,7 +61,7 @@ export const selectedFileIndexSelector = selector({
 
 export const dataGridPayloadSelector = selector({
   key: 'dataGridPayloadSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     const idx = get(selectedFileIndexSelector);
     return {
@@ -87,7 +87,7 @@ export const matchingFilesAtom = atom<webTypes.MatchingFileStatsData[] | null>({
  * */
 export const filesSelector = selector<string[]>({
   key: 'filesSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const fileSystem = get(fileSystemSelector);
     if (Array.isArray(fileSystem)) {
       return fileSystem?.map((file) => file?.tableName);
@@ -102,10 +102,10 @@ export const filesSelector = selector<string[]>({
  * */
 export const fileStatsSelector = selector<fileIngestionTypes.IFileStats[]>({
   key: 'fileStatsSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const fileSystem = get(fileSystemSelector);
     if (Array.isArray(fileSystem) && fileSystem?.length > 0) {
-      return fileSystem?.map(({ fileName, tableName, numberOfRows, numberOfColumns, columns, fileSize }) => ({
+      return fileSystem?.map(({fileName, tableName, numberOfRows, numberOfColumns, columns, fileSize}) => ({
         fileName,
         tableName,
         numberOfRows,
@@ -125,11 +125,11 @@ export const fileStatsSelector = selector<fileIngestionTypes.IFileStats[]>({
  */
 export const filesOpenSelector = selector<webTypes.OpenFile[]>({
   key: 'filesOpenAtom',
-  get: ({ get }) => {
+  get: ({get}) => {
     const fileSystem = get(fileSystemSelector);
     if (fileSystem) {
       return (fileSystem
-        .map(({ open, tableName }, idx) => (open ? { tableName, fileIndex: idx } : null))
+        .map(({open, tableName}, idx) => (open ? {tableName, fileIndex: idx} : null))
         .filter((el) => el !== null) || null) as webTypes.OpenFile[];
     } else {
       return [];
@@ -150,8 +150,8 @@ export const dataGridAtom = atom<webTypes.IRenderableDataGrid | null>({
  */
 export const columnsSelector = selector<webTypes.GridColumn[]>({
   key: 'columnsSelector',
-  get: ({ get }) => {
-    let dataGrid = get(dataGridAtom);
+  get: ({get}) => {
+    const dataGrid = get(dataGridAtom);
     return dataGrid?.columns || [];
   },
 });
@@ -161,8 +161,8 @@ export const columnsSelector = selector<webTypes.GridColumn[]>({
  */
 export const rowsSelector = selector({
   key: 'rowsSelector',
-  get: ({ get }) => {
-    let dataGrid = get(dataGridAtom);
+  get: ({get}) => {
+    const dataGrid = get(dataGridAtom);
     return dataGrid?.rows || [];
   },
 });

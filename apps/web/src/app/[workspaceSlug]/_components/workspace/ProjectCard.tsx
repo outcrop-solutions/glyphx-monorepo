@@ -1,32 +1,29 @@
 'use client';
-import React, { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, {useCallback} from 'react';
+import {useRouter,useParams} from 'next/navigation';
 import Image from 'next/image';
 import produce from 'immer';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useSetRecoilState } from 'recoil';
+import {useSetRecoilState} from 'recoil';
 
-import { webTypes } from 'types';
-import { _deleteProject } from 'lib/client';
-import { ProjectTemplateIcons } from '../../project/[projectId]/_components/projectSidebar/icons';
+import {webTypes} from 'types';
+import {ProjectTemplateIcons} from '../../project/[projectId]/_components/projectSidebar/icons';
 
-import { modalsAtom } from 'state';
+import {modalsAtom,rightSidebarControlAtom} from 'state';
 
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
 import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
-import { rightSidebarControlAtom } from 'state';
-import { WritableDraft } from 'immer/dist/internal';
-import { useParams } from 'next/navigation';
-import { Route } from 'next';
+import {WritableDraft} from 'immer/dist/internal';
+import {Route} from 'next';
 
-export const ProjectCard = ({ idx, project }) => {
+export const ProjectCard = ({project}) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
+  const {workspaceSlug} = params as {workspaceSlug: string};
 
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
@@ -41,7 +38,7 @@ export const ProjectCard = ({ idx, project }) => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT,
           isSubmitting: false,
-          data: { projectId: project._id, projectName: project.name },
+          data: {projectId: project._id, projectName: project.name},
         });
       })
     );

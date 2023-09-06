@@ -1,20 +1,18 @@
-import React, { useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { useRecoilValue } from 'recoil';
-import { filesSelector } from 'state/files';
-import { useFileSystem } from 'services/useFileSystem';
-import { File } from './File';
-import { SidebarDropzone } from './SidebarDropzone';
-import FilesIcon from 'public/svg/files-icon.svg';
-import UploadIcon from 'public/svg/upload-icon.svg';
-import { PlusCircleIcon } from '@heroicons/react/outline';
+import React, {useState} from 'react';
+import {useDropzone} from 'react-dropzone';
+import {useRecoilValue} from 'recoil';
+import {filesSelector} from 'state/files';
+import {useFileSystem} from 'services/useFileSystem';
+import {File} from './File';
+import {SidebarDropzone} from './SidebarDropzone';
+import {PlusCircleIcon} from '@heroicons/react/outline';
 
 export const Files = () => {
-  const { onDrop } = useFileSystem();
+  const {onDrop} = useFileSystem();
   const files = useRecoilValue(filesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const {getRootProps, getInputProps} = useDropzone({
     onDrop,
     accept: ['.csv', 'application/vnd.ms-excel', 'text/csv'],
     multiple: true,

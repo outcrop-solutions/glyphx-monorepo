@@ -1,10 +1,10 @@
 import React from 'react';
-import { rightSidebarControlAtom } from 'state';
-import { useRecoilState } from 'recoil';
+import {rightSidebarControlAtom} from 'state';
+import {useRecoilState} from 'recoil';
 import produce from 'immer';
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 import CloseNotificationsIcon from 'public/svg/close-project-info.svg';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
 export const Notifications = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
@@ -33,7 +33,7 @@ export const Notifications = () => {
       <div className="px-3 border-t-[1px] border-t-gray">
         <p className="font-roboto font-normal text-[10px] leading-[12px] text-gray mt-2">
           {new Date(sidebarControl?.data?.createdAt).toLocaleDateString()}{' '}
-          {new Date(sidebarControl?.data?.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {new Date(sidebarControl?.data?.createdAt).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
         </p>
         <div className="flex flex-row mt-2">
           <div className="flex items-center">

@@ -16,7 +16,8 @@ describe('#services/user', () => {
   });
   context('getUser', () => {
     it('should get a user by id', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
 
       const getUserFromModelStub = sandbox.stub();
       getUserFromModelStub.resolves({
@@ -35,7 +36,8 @@ describe('#services/user', () => {
       assert.isTrue(getUserFromModelStub.calledOnce);
     });
     it('should get a user by id when id is a string', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
 
       const getUserFromModelStub = sandbox.stub();
       getUserFromModelStub.resolves({
@@ -54,7 +56,8 @@ describe('#services/user', () => {
       assert.isTrue(getUserFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the user cannot be found', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the user';
       const err = new error.DataNotFoundError(errMessage, 'userId', userId);
       const getUserFromModelStub = sandbox.stub();
@@ -64,12 +67,8 @@ describe('#services/user', () => {
         'getUserById',
         getUserFromModelStub
       );
-      function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
+      function fakePublish(this: any) {
         assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
 
@@ -85,7 +84,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -126,7 +126,8 @@ describe('#services/user', () => {
   });
   context('deactivate', () => {
     it('will deactivate a user', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
@@ -170,7 +171,8 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
     });
     it('will deactivate the user when the id is a string', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
@@ -217,7 +219,8 @@ describe('#services/user', () => {
 
     // user model fails
     it('will publish and rethrow an InvalidArgumentError when user model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
         errMessage,
@@ -258,7 +261,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when user model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateUserFromModelStub = sandbox.stub();
@@ -295,7 +299,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when user model throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -338,7 +343,8 @@ describe('#services/user', () => {
 
     // workspace model fails
     it('will publish and rethrow an InvalidArgumentError when workspace model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
@@ -392,7 +398,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when workspace model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const deletedAt = new Date();
@@ -442,7 +449,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
@@ -498,7 +506,8 @@ describe('#services/user', () => {
 
     // member model fails
     it('will publish and rethrow an InvalidArgumentError when Member model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
         errMessage,
@@ -561,7 +570,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when Member model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -620,7 +630,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when Member model throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -685,7 +696,8 @@ describe('#services/user', () => {
 
     // customer payment model fails
     it('will publish and rethrow an InvalidArgumentError when Customer Payment model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
         errMessage,
@@ -757,7 +769,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when Customer Payment model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const deletedAt = new Date();
@@ -825,7 +838,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when Customer Payment throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -899,7 +913,8 @@ describe('#services/user', () => {
   });
   context('updateEmail', () => {
     it('will update a users email', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
 
@@ -946,7 +961,8 @@ describe('#services/user', () => {
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
     });
     it('will update a users email when the id is a string', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const updateUserFromModelStub = sandbox.stub();
@@ -996,7 +1012,8 @@ describe('#services/user', () => {
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when user model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testpreviousemail@gmail.com';
       const errMessage = 'You have an invalid argument';
@@ -1039,7 +1056,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when user model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'You tried to perform an invalid operation';
@@ -1078,7 +1096,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when user model throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'A DataOperationError has occurred';
@@ -1122,7 +1141,8 @@ describe('#services/user', () => {
     });
     // TODO: fix these tests
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testpreviousemail@gmail.com';
       const errMessage = 'You have an invalid argument';
@@ -1183,7 +1203,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'You tried to perform an invalid operation';
@@ -1240,7 +1261,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'A DataOperationError has occurred';
@@ -1301,7 +1323,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testpreviousemail@gmail.com';
       const errMessage = 'You have an invalid argument';
@@ -1371,7 +1394,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when customerPayment model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'You tried to perform an invalid operation';
@@ -1437,7 +1461,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when customerPayment model throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'A DataOperationError has occurred';
@@ -1509,7 +1534,8 @@ describe('#services/user', () => {
   });
   context('updateName', () => {
     it('will update a users name', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const name = 'testName';
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
@@ -1530,7 +1556,8 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
     });
     it('will update a users name when the id is a string', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const name = 'testName';
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
@@ -1551,7 +1578,8 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when user model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const name = 'testName';
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
@@ -1593,7 +1621,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when user model throws it ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const name = 'testName';
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -1631,7 +1660,8 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when user model throws a DataOperationError ', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = 
+        new mongooseTypes.ObjectId();
       const name = 'testName';
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(

@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { Axes } from './Axes';
+import React, {useCallback, useState} from 'react';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {Axes} from './Axes';
 import {
   doesStateExistSelector,
   drawerOpenAtom,
@@ -9,19 +9,19 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import { callCreateModel } from 'lib/client/network/reqs/callCreateModel';
+import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
 import toast from 'react-hot-toast';
-import { useSession } from 'next-auth/react';
-import { useUrl } from 'lib/client/hooks';
-import { useSWRConfig } from 'swr';
-import { hashPayload } from 'lib/utils/hashPayload';
-import { hashFileSystem } from 'lib/utils/hashFileSystem';
-import { isValidPayload } from 'lib/utils/isValidPayload';
-import { callUpdateProject } from 'lib/client/network/reqs/callUpdateProject';
-import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
+import {useSession} from 'next-auth/react';
+import {useUrl} from 'lib/client/hooks';
+import {useSWRConfig} from 'swr';
+import {hashPayload} from 'lib/utils/hashPayload';
+import {hashFileSystem} from 'lib/utils/hashFileSystem';
+import {isValidPayload} from 'lib/utils/isValidPayload';
+import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
+import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 
 export const Filters = () => {
-  const { mutate } = useSWRConfig();
+  const {mutate} = useSWRConfig();
   const session = useSession();
   const url = useUrl();
   const doesStateExist = useRecoilValue(doesStateExistSelector);

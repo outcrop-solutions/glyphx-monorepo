@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import type { Session } from 'next-auth';
-import { stateService, activityLogService } from 'business';
-import { formatUserAgent } from 'lib/utils';
-import { databaseTypes } from 'types';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import type {Session} from 'next-auth';
+import {stateService, activityLogService} from 'business';
+import {formatUserAgent} from 'lib/utils';
+import {databaseTypes} from 'types';
 /**
  * Get a State
  *
@@ -15,12 +15,12 @@ import { databaseTypes } from 'types';
  */
 
 export const getState = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { stateId } = req.body;
+  const {stateId} = req.body;
   try {
     const state = await stateService.getState(stateId);
-    res.status(200).json({ data: state });
+    res.status(200).json({data: state});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 /**
@@ -35,7 +35,7 @@ export const getState = async (req: NextApiRequest, res: NextApiResponse) => {
  */
 
 export const createState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { name, camera, projectId, imageHash, aspectRatio } = req.body;
+  const {name, camera, projectId, imageHash, aspectRatio} = req.body;
   try {
     const state = await stateService.createState(
       name,
@@ -45,7 +45,7 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
       aspectRatio,
       imageHash
     );
-    const { agentData, location } = formatUserAgent(req);
+    const {agentData, location} = formatUserAgent(req);
 
     if (state) {
       await activityLogService.createLog({
@@ -59,9 +59,9 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
       });
     }
 
-    res.status(200).json({ data: state });
+    res.status(200).json({data: state});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 
@@ -77,10 +77,10 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
  */
 
 export const updateState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { stateId, name } = req.body;
+  const {stateId, name} = req.body;
   try {
     const state = await stateService.updateState(stateId, name);
-    const { agentData, location } = formatUserAgent(req);
+    const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
@@ -92,9 +92,9 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
       onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
       action: databaseTypes.constants.ACTION_TYPE.UPDATED,
     });
-    res.status(200).json({ data: { name } });
+    res.status(200).json({data: {name}});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 
@@ -111,9 +111,9 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
 
 export const deleteState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {
-    const { stateId } = req.body;
+    const {stateId} = req.body;
     const state = await stateService.deleteState(stateId);
-    const { agentData, location } = formatUserAgent(req);
+    const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
@@ -125,8 +125,8 @@ export const deleteState = async (req: NextApiRequest, res: NextApiResponse, ses
       onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
       action: databaseTypes.constants.ACTION_TYPE.DELETED,
     });
-    res.status(200).json({ data: { deleted: true } });
+    res.status(200).json({data: {deleted: true}});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };

@@ -1,5 +1,5 @@
-import { BasicColumnNameCleaner } from 'fileingestion';
-import { webTypes, fileIngestionTypes } from 'types';
+import {BasicColumnNameCleaner} from 'fileingestion';
+import {webTypes, fileIngestionTypes} from 'types';
 
 export const generateFilterQuery = (prop: webTypes.Property) => {
   const cleaner = new BasicColumnNameCleaner();

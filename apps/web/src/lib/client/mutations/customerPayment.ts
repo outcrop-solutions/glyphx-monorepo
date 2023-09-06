@@ -1,4 +1,4 @@
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 // CUSTOMER PAYMENT MUTATIONS
 
 /**

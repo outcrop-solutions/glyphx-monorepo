@@ -1,22 +1,22 @@
-import React, { useCallback, useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import produce from 'immer';
-import { webTypes, databaseTypes } from 'types';
-import { useSWRConfig } from 'swr';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import {webTypes} from 'types';
+import {useSWRConfig} from 'swr';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
+import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 
 import Button from 'app/_components/Button';
 
-import { _ingestFiles, api } from 'lib';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { modalsAtom, projectAtom } from 'state';
-import { parseDeletePayload } from 'lib/client/files/transforms/parseDeletePayload';
-import { WritableDraft } from 'immer/dist/internal';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import {_ingestFiles, api} from 'lib';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {modalsAtom, projectAtom} from 'state';
+import {parseDeletePayload} from 'lib/client/files/transforms/parseDeletePayload';
+import {WritableDraft} from 'immer/dist/internal';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
-export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps) => {
-  const { mutate } = useSWRConfig();
+export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) => {
+  const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
@@ -38,7 +38,7 @@ export const DeleteFileModal = ({ modalContent }: webTypes.DeleteFileModalProps)
             draft.modals[0].isSubmitting = state as boolean;
           })
         ),
-      onSuccess: (data) => {
+      onSuccess: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.splice(0, 1);

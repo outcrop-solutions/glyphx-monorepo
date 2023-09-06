@@ -11,7 +11,10 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_PROJECT_TEMPLATE: databaseTypes.IProjectTemplate = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'projectTemplateTest',

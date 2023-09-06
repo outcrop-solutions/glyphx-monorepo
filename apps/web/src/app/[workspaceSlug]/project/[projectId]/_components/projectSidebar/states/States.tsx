@@ -1,16 +1,16 @@
-import React, { SetStateAction, useEffect, useState } from 'react';
-import { StateList } from './StateList';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { projectAtom } from 'state/project';
-import { PlusIcon } from '@heroicons/react/outline';
-import { _createState, api } from 'lib';
-import { CreateStateInput } from './CreateStateInput';
-import { cameraAtom, imageHashAtom, viewerPositionSelector } from 'state';
-import { useSWRConfig } from 'swr';
-import { webTypes } from 'types';
+import React, {SetStateAction, useEffect, useState} from 'react';
+import {StateList} from './StateList';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {projectAtom} from 'state/project';
+import {PlusIcon} from '@heroicons/react/outline';
+import {_createState, api} from 'lib';
+import {CreateStateInput} from './CreateStateInput';
+import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
+import {useSWRConfig} from 'swr';
+import {webTypes} from 'types';
 
 export const States = () => {
-  const { mutate } = useSWRConfig();
+  const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
@@ -35,14 +35,14 @@ export const States = () => {
           image.imageHash
         ),
         setLoading: (state) => setIsSubmitting(state as SetStateAction<boolean>),
-        onError: (_: any) => {
+        onError: () => {
           setCamera({});
-          setImage({ imageHash: false });
+          setImage({imageHash: false});
           setAddState(false);
         },
-        onSuccess: (data: any) => {
+        onSuccess: () => {
           setCamera({});
-          setImage({ imageHash: false });
+          setImage({imageHash: false});
           setAddState(false);
           mutate(`/api/project/${project._id}`);
         },

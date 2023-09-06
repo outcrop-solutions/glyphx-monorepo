@@ -1,6 +1,6 @@
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
-export const CollisionType = ({ type }: { type: webTypes.constants.COLLISION_CASE }) => {
+export const CollisionType = ({type}: {type: webTypes.constants.COLLISION_CASE}) => {
   switch (type) {
     case webTypes.constants.COLLISION_CASE.COLUMNS:
       return <>{'Columns'}</>;

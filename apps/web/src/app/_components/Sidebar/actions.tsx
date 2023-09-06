@@ -1,16 +1,16 @@
 'use client';
-import { Fragment } from 'react';
-import { useRouter } from 'next/navigation';
-import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
-import { useWorkspace, useWorkspaces } from 'lib/client';
-import { CreateWorkspace } from 'app/[workspaceSlug]/_components/controls/CreateWorkspace';
-import { Route } from 'next';
+import {Fragment} from 'react';
+import {useRouter} from 'next/navigation';
+import {Listbox, Transition} from '@headlessui/react';
+import {CheckIcon, SelectorIcon} from '@heroicons/react/solid';
+import {useWorkspace, useWorkspaces} from 'lib/client';
+import {CreateWorkspace} from 'app/[workspaceSlug]/_components/controls/CreateWorkspace';
+import {Route} from 'next';
 
 const Actions = () => {
   const router = useRouter();
-  const { data: result } = useWorkspace();
-  const { data, isLoading } = useWorkspaces();
+  const {data: result} = useWorkspace();
+  const {data, isLoading} = useWorkspaces();
 
   // local state
   const handleWorkspaceChange = (workspace) => {
@@ -47,13 +47,13 @@ const Actions = () => {
                 {data.workspaces.map((workspace, index) => (
                   <Listbox.Option
                     key={index}
-                    className={({ active }) =>
+                    className={({active}) =>
                       `${active ? 'bg-primary-dark-blue' : 'bg-secondary-midnight'}
                           cursor-pointer select-none relative py-4 pl-10 pr-4`
                     }
                     value={workspace}
                   >
-                    {({ selected, active }) => (
+                    {({selected, active}) => (
                       <>
                         <span className={`${selected ? 'font-bold' : 'font-normal'} block truncate`}>
                           {workspace.name}

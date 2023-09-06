@@ -1,17 +1,17 @@
 import produce from 'immer';
-import React, { useCallback, useRef, useState } from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import ClickAwayListener from 'react-click-away-listener';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { configNameDirtyFamily, configsAtom, currentConfigAtom } from 'state';
-import { _updateConfig, _deleteConfig, api } from 'lib';
-import { CheckCircleIcon, TrashIcon } from '@heroicons/react/outline';
-import { databaseTypes } from 'types';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {configNameDirtyFamily, configsAtom, currentConfigAtom} from 'state';
+import {_updateConfig, _deleteConfig, api} from 'lib';
+import {CheckCircleIcon, TrashIcon} from '@heroicons/react/outline';
+import {databaseTypes} from 'types';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export const ConfigName = ({ config, idx }) => {
+export const ConfigName = ({config, idx}) => {
   const [selected, setSelected] = useState(false);
   const setConfigs = useSetRecoilState(configsAtom);
   const [configDirty, setConfigDirty] = useRecoilState(configNameDirtyFamily(idx));

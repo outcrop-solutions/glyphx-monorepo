@@ -1,4 +1,4 @@
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
 /**
  * Takes in papaparsed file data and returns the rendarable grid state
@@ -7,7 +7,7 @@ import { webTypes } from 'types';
  */
 export const formatGridData = (data, columns): webTypes.IRenderableDataGrid => {
   const dateFields: string[] = [];
-  const cols = columns.map(({ name, fieldType }, idx) => {
+  const cols = columns.map(({name, fieldType}, idx) => {
     if (fieldType === 3) {
       dateFields.push(name);
     }
@@ -24,7 +24,7 @@ export const formatGridData = (data, columns): webTypes.IRenderableDataGrid => {
 
   // Modify rows
   const rows = data.map((row, idx) => {
-    const formattedRow = { ...row, id: idx };
+    const formattedRow = {...row, id: idx};
     dateFields.forEach((dateField) => {
       const date = new Date(row[dateField]);
       if (!isNaN(date.getTime())) {
@@ -37,5 +37,5 @@ export const formatGridData = (data, columns): webTypes.IRenderableDataGrid => {
     return formattedRow;
   });
 
-  return { columns: cols, rows };
+  return {columns: cols, rows};
 };

@@ -1,4 +1,4 @@
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
 // USER MUTATIONS
 
@@ -11,7 +11,7 @@ export const _updateUserName = (name: string): webTypes.IFetchConfig => {
   return {
     url: '/api/user/name',
     options: {
-      body: { name: name },
+      body: {name: name},
       method: 'PUT',
     },
     successMsg: 'Name successfully updated',
@@ -27,7 +27,7 @@ export const _updateUserEmail = (email: string): webTypes.IFetchConfig => {
   return {
     url: '/api/user/email',
     options: {
-      body: { email: email },
+      body: {email: email},
       method: 'PUT',
     },
     successMsg: 'Email successfully updated and signing you out!',

@@ -1,4 +1,4 @@
-import { fetcher } from 'lib/client';
+import {fetcher} from 'lib/client';
 
 const handleOnError = (error) => {
   throw new Error(`Error: ${error}`);

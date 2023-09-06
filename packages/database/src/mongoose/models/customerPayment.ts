@@ -232,7 +232,9 @@ SCHEMA.static(
     const customerId =
       input.customer instanceof mongooseTypes.ObjectId
         ? input.customer
-        : new mongooseTypes.ObjectId(input.customer._id);
+        : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          new mongooseTypes.ObjectId(input.customer._id);
 
     const userExists = await UserModel.userIdExists(customerId);
 

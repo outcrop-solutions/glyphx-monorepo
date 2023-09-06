@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import React, {useCallback} from 'react';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { webTypes } from 'types';
-import { drawerOpenAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom } from 'state';
+import {WritableDraft} from 'immer/dist/internal';
+import {webTypes} from 'types';
+import {drawerOpenAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
 import HorizontalIcon from 'public/svg/horizontal-layout.svg';
 import VerticalIcon from 'public/svg/vertical-layout.svg';
 
@@ -13,7 +13,6 @@ const btnClass =
 export const OrientationToggle = () => {
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
   const setPaneSize = useSetRecoilState(splitPaneSizeAtom);
-  const windowSize = useRecoilValue(windowSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const handleOrientation = useCallback(() => {

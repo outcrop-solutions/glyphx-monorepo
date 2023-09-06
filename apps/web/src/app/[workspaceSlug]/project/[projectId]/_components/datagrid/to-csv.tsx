@@ -25,7 +25,7 @@ export const getHeaderValue = (property, obj) => {
   const foundValue = property
     .replace(/\[([^\]]+)]/g, '.$1')
     .split('.')
-    .reduce(function (o, p, i, arr) {
+    .reduce((o, p, i, arr) => {
       // if at any point the nested keys passed do not exist, splice the array so it doesnt keep reducing
       const value = o[p];
       if (value === undefined || value === null) {
@@ -45,7 +45,7 @@ export const elementOrEmpty = (element) => {
 export const joiner = (data, separator = ',', enclosingCharacter = '"') => {
   return data
     .filter((e) => e)
-    .map((row, idx) => {
+    .map((row) => {
       row = row.map((element) => {
         const result = elementOrEmpty(element);
         return result;

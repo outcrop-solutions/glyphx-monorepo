@@ -1,27 +1,28 @@
-import { useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { useDrop } from 'react-dnd';
-import { fileIngestionTypes, webTypes } from 'types';
+import {useState} from 'react';
+import {useRecoilValue} from 'recoil';
+import {useDrop} from 'react-dnd';
+import {fileIngestionTypes, webTypes} from 'types';
 
-import { RangeFilter } from './actions/RangeFilter';
-import { SearchFilter } from './actions/SearchFilter';
+import {RangeFilter} from './actions/RangeFilter';
+import {SearchFilter} from './actions/SearchFilter';
 
-import { AxesIcons } from '../icons/AxesIcons';
+import {AxesIcons} from '../icons/AxesIcons';
 import PlusIcon from 'public/svg/plus-icon.svg';
 import GarbageIcon from 'public/svg/garbage-can-icon.svg';
 
-import { projectAtom, singlePropertySelectorFamily } from 'state';
-import { useProject } from 'services';
-import { handleDataType } from 'lib/client/helpers/handleDataType';
+import {projectAtom, singlePropertySelectorFamily} from 'state';
+import {useProject} from 'services';
+import {handleDataType} from 'lib/client/helpers/handleDataType';
 
-export const Axes = ({ axis }) => {
+export const Axes = ({axis}) => {
   const project = useRecoilValue(projectAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const [showFilter, setShowFilter] = useState(false); //shows filter property
-  const { handleDrop } = useProject();
+  const {handleDrop} = useProject();
 
-  console.log({ accept: prop.accepts, axis: true });
-  const [{ isOver, canDrop }, drop] = useDrop({
+  console.log({accept: prop.accepts, axis: true});
+  // eslint-disable-next-line
+  const [_, drop] = useDrop({
     accept: prop.accepts,
     drop: (item) => handleDrop(axis, item, project as webTypes.IHydratedProject, false),
     collect: (monitor) => ({

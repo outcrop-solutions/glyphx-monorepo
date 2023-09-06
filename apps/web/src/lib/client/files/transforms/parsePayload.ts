@@ -1,7 +1,7 @@
-import { parse } from 'papaparse';
-import { S3_BUCKET_NAME } from 'config/constants';
-import { Types as mongooseTypes } from 'mongoose';
-import { webTypes, fileIngestionTypes } from 'types';
+import {parse} from 'papaparse';
+import {S3_BUCKET_NAME} from 'config/constants';
+import {Types as mongooseTypes} from 'mongoose';
+import {webTypes, fileIngestionTypes} from 'types';
 
 // @jp-burford added in here because the class this lives in can't be imported on the client
 const REPLACEABLE_CHARS = [
@@ -57,7 +57,7 @@ export const parsePayload = async (
   const stats = await Promise.all(
     acceptedFiles.map(async (file: File): Promise<fileIngestionTypes.IFileStats> => {
       const text = await file.text();
-      const { data } = parse(text, { preview: 10 });
+      const {data} = parse(text, {preview: 10});
       return {
         fileName: `${cleanColumnName(file.name.split('.')[0])}.csv`,
         tableName: cleanColumnName(file.name.split('.')[0]),

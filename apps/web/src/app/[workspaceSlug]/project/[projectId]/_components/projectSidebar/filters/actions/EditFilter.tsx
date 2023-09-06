@@ -1,13 +1,7 @@
-import { useState } from "react";
+import {useState} from 'react';
 
-export function EditFilter(props) {
+export function EditFilter() {
   const [edit, setEdit] = useState(false);
-  const [name, setName] = useState("");
-
-  const handleName = (e) => {
-    setName(e.target.value);
-  };
-  const handleSaveName = () => {};
 
   return (
     <div>

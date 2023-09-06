@@ -46,7 +46,9 @@ export class WorkspaceService {
 
       const castCreatorId =
         typeof creatorId === 'string'
-          ? new mongooseTypes.ObjectId(creatorId)
+          ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(creatorId)
           : creatorId;
 
       const input = {
@@ -129,7 +131,9 @@ export class WorkspaceService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       const workspace = await WorkspaceService.getOwnWorkspace(
         userId,
@@ -142,7 +146,9 @@ export class WorkspaceService {
         const workspaceId =
           workId instanceof mongooseTypes.ObjectId
             ? workId
-            : new mongooseTypes.ObjectId(workId);
+            : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              new mongooseTypes.ObjectId(workId);
 
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
@@ -565,7 +571,9 @@ export class WorkspaceService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       const invitedBy = await mongoDbConnection.models.UserModel.getUserById(
         id
@@ -858,7 +866,9 @@ export class WorkspaceService {
       const id =
         workspaceId instanceof mongooseTypes.ObjectId
           ? workspaceId
-          : new mongooseTypes.ObjectId(workspaceId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(workspaceId);
       const updatedWorkspace =
         await mongoDbConnection.models.WorkspaceModel.addTags(id, tags);
 

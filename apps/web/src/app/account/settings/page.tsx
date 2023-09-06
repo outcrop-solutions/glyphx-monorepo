@@ -1,26 +1,26 @@
 'use client';
-import { useState, Fragment, useEffect, SetStateAction } from 'react';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { useSession } from 'next-auth/react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import {useState, Fragment, useEffect, SetStateAction} from 'react';
+import {DocumentDuplicateIcon} from '@heroicons/react/outline';
+import {useSession} from 'next-auth/react';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 
-import { useSetRecoilState } from 'recoil';
+import {useSetRecoilState} from 'recoil';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
 
 import isEmail from 'validator/lib/isEmail';
-import { _deactivateAccount, _updateUserName, _updateUserEmail, api } from 'lib/client';
-import { modalsAtom } from 'state';
+import {_updateUserName, _updateUserEmail, api} from 'lib/client';
+import {modalsAtom} from 'state';
 
 export default function Settings() {
-  const { data } = useSession();
+  const {data} = useSession();
   const setModals = useSetRecoilState(modalsAtom);
 
   const [email, setEmail] = useState('');
@@ -38,7 +38,7 @@ export default function Settings() {
   // mutations
   const changeName = (event) => {
     event.preventDefault();
-    api({ ..._updateUserName(name), setLoading: (state) => setSubmittingState(state as boolean) });
+    api({..._updateUserName(name), setLoading: (state) => setSubmittingState(state as boolean)});
   };
   const changeEmail = (event) => {
     event.preventDefault();

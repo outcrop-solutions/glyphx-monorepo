@@ -23,7 +23,10 @@ const INPUT_WORKSPACE = {
 
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
-  template: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  template:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   state: {
     properties: {
       X: {
@@ -105,7 +108,10 @@ const INPUT_PROJECT = {
 
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
-  template: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  template:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   state: {
     properties: {
       X: {

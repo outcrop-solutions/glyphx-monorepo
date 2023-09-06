@@ -1,19 +1,19 @@
-import React, { useCallback } from 'react';
-import { selectedFileIndexSelector } from 'state/files';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import React, {useCallback} from 'react';
+import {selectedFileIndexSelector} from 'state/files';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 
-import { webTypes } from 'types';
-import { useFileSystem } from 'services/useFileSystem';
-import { modalsAtom } from 'state';
+import {webTypes} from 'types';
+import {useFileSystem} from 'services/useFileSystem';
+import {modalsAtom} from 'state';
 
 import StackedDragHandleIcon from 'public/svg/stacked-drag-handle-icon.svg';
 import FileIcon from 'public/svg/file-icon.svg';
 import DeleteFileIcon from 'public/svg/delete-file-icon.svg';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
-export const File = ({ fileName, idx }) => {
-  const { openFile } = useFileSystem();
+export const File = ({fileName, idx}) => {
+  const {openFile} = useFileSystem();
   const selectedFile = useRecoilValue(selectedFileIndexSelector);
   const setModals = useSetRecoilState(modalsAtom);
 
@@ -34,7 +34,7 @@ export const File = ({ fileName, idx }) => {
   return (
     <div
       className={`group grid items-center ${
-        selectedFile == idx ? 'bg-secondary-midnight' : ''
+        selectedFile === idx ? 'bg-secondary-midnight' : ''
       } gap-x-2 px-2 h-8 grid-cols-12 hover:bg-secondary-midnight`}
     >
       {/* LEADING FILE ICON */}

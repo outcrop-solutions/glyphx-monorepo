@@ -1,7 +1,7 @@
-import { useCallback } from 'react';
-import { debounce } from 'lodash';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { orientationAtom, splitPaneSizeAtom } from 'state';
+import {useCallback} from 'react';
+import {debounce} from 'lodash';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {orientationAtom, splitPaneSizeAtom} from 'state';
 
 export const useResize = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
@@ -58,5 +58,5 @@ export const useResize = () => {
     [debouncedOnChange]
   );
 
-  return { handlePaneResize, defaultSize, maxSize, minSize, split };
+  return {handlePaneResize, defaultSize, maxSize, minSize, split};
 };

@@ -1,21 +1,20 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
-import { api } from '../network';
-import { _getDataGrid, _getRowIds } from '../mutations';
-import { dataGridPayloadSelector, rowIdsAtom } from 'state';
-import { useRecoilValue } from 'recoil';
+import {useEffect, useMemo, useState} from 'react';
+import {api} from '../network';
+import {_getDataGrid, _getRowIds} from '../mutations';
+import {dataGridPayloadSelector, rowIdsAtom} from 'state';
+import {useRecoilValue} from 'recoil';
 
 const useDataGrid = () => {
   const [data, setData] = useState(null);
   const rowIds = useRecoilValue(rowIdsAtom);
-  const { workspaceId, projectId, tableName } = useRecoilValue(dataGridPayloadSelector);
+  const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
   const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);
   const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
 
   const fetchRowIdsConfig = useMemo(
     () => ({
-      // @ts-ignore
-      ..._getRowIds(workspaceId, projectId, tableName, rowIds),
+      ..._getRowIds(workspaceId, projectId, tableName, rowIds as string[]),
       returnData: true,
     }),
     [workspaceId, projectId, tableName, rowIds]
@@ -59,7 +58,7 @@ const useDataGrid = () => {
     fetchDataWithoutRowIds();
   }, [isLoadingDataGrid, tableName, fetchDataGridConfig, rowIds]);
 
-  return { data };
+  return {data};
 };
 
 export default useDataGrid;

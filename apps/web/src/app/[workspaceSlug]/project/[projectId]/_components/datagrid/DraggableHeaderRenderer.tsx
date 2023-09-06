@@ -1,32 +1,25 @@
-import { useDrag, useDrop } from 'react-dnd';
-import { useRecoilValue } from 'recoil';
-import { webTypes } from 'types';
-
-import { SortableHeaderCell } from './SortableHeaderCell';
-
-import { useCombinedRefs } from 'services/useCombinedRefs';
-import { droppedPropertiesSelector } from 'state/project';
-
+import {useDrag, useDrop} from 'react-dnd';
+import {useRecoilValue} from 'recoil';
+import {webTypes} from 'types';
+import {SortableHeaderCell} from './SortableHeaderCell';
+import {useCombinedRefs} from 'services/useCombinedRefs';
+import {droppedPropertiesSelector} from 'state/project';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
 
-export function DraggableHeaderRenderer({ column, sortDirection, onSort, priority, isCellSelected }) {
+export function DraggableHeaderRenderer({column, sortDirection, priority, isCellSelected}) {
   const droppedProps = useRecoilValue(droppedPropertiesSelector);
 
-  const [{ isDragging }, drag] = useDrag({
-    item: { type: 'COLUMN_DRAG', ...column },
+  const [{isDragging}, drag] = useDrag({
+    item: {type: 'COLUMN_DRAG', ...column},
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
-  const [{ isOver }, drop] = useDrop({
+  const [{isOver}, drop] = useDrop({
     accept: 'COLUMN_DRAG',
-    // @ts-ignore
-    drop({ key }) {
-      console.log({ key });
-    },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),

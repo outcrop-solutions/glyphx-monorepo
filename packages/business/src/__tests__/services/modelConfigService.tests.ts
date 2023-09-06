@@ -21,7 +21,10 @@ describe('#services/modelConfig', () => {
       const createModelConfigFromModelStub = sandbox.stub();
       createModelConfigFromModelStub.resolves({
         ...mocks.MOCK_MODELCONFIG,
-        _id: new mongooseTypes.ObjectId(),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        _id:
+          // @ts-ignore
+          new mongooseTypes.ObjectId(),
       } as unknown as databaseTypes.IModelConfig);
 
       sandbox.replace(
@@ -32,7 +35,10 @@ describe('#services/modelConfig', () => {
 
       const doc = await modelConfigService.createModelConfig({
         ...mocks.MOCK_MODELCONFIG,
-        _id: new mongooseTypes.ObjectId(),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        _id:
+          // @ts-ignore
+          new mongooseTypes.ObjectId(),
       } as unknown as databaseTypes.IModelConfig);
 
       assert.isTrue(createModelConfigFromModelStub.calledOnce);
@@ -226,7 +232,9 @@ describe('#services/modelConfig', () => {
   });
   context('getModelConfig', () => {
     it('should get a modelConfig by id', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getModelConfigFromModelStub = sandbox.stub();
       getModelConfigFromModelStub.resolves({
@@ -250,7 +258,9 @@ describe('#services/modelConfig', () => {
       assert.isTrue(getModelConfigFromModelStub.calledOnce);
     });
     it('should get a modelConfig by id when id is a string', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getModelConfigFromModelStub = sandbox.stub();
       getModelConfigFromModelStub.resolves({
@@ -274,7 +284,9 @@ describe('#services/modelConfig', () => {
       assert.isTrue(getModelConfigFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the modelConfig cannot be found', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the psoject';
       const err = new error.DataNotFoundError(
         errMessage,
@@ -312,7 +324,9 @@ describe('#services/modelConfig', () => {
     });
 
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -353,8 +367,12 @@ describe('#services/modelConfig', () => {
   });
   context('getModelConfigs', () => {
     it('should get modelConfigs by filter', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
-      const modelConfigId2 = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const modelConfigId2 = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const modelConfigFilter = {_id: modelConfigId};
 
       const queryModelConfigsFromModelStub = sandbox.stub();
@@ -468,11 +486,16 @@ describe('#services/modelConfig', () => {
   });
   context('updateModelConfig', () => {
     it('will update a modelConfig', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const updateModelConfigFromModelStub = sandbox.stub();
       updateModelConfigFromModelStub.resolves({
         ...mocks.MOCK_MODELCONFIG,
-        _id: new mongooseTypes.ObjectId(),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        _id:
+          // @ts-ignore
+          new mongooseTypes.ObjectId(),
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(
         dbConnection.models.ModelConfigModel,
@@ -492,11 +515,16 @@ describe('#services/modelConfig', () => {
       assert.isTrue(updateModelConfigFromModelStub.calledOnce);
     });
     it('will update a modelConfig when the id is a string', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const updateModelConfigFromModelStub = sandbox.stub();
       updateModelConfigFromModelStub.resolves({
         ...mocks.MOCK_MODELCONFIG,
-        _id: new mongooseTypes.ObjectId(),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        _id:
+          // @ts-ignore
+          new mongooseTypes.ObjectId(),
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(
         dbConnection.models.ModelConfigModel,
@@ -516,7 +544,9 @@ describe('#services/modelConfig', () => {
       assert.isTrue(updateModelConfigFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'args', []);
       const updateModelConfigFromModelStub = sandbox.stub();
@@ -555,7 +585,9 @@ describe('#services/modelConfig', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when modelConfig model throws it ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateModelConfigFromModelStub = sandbox.stub();
@@ -593,7 +625,9 @@ describe('#services/modelConfig', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when modelConfig model throws a DataOperationError ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+      const modelConfigId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,

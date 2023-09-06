@@ -1,6 +1,6 @@
 'use client';
 /* eslint-disable react/display-name */
-const Card = ({ children, danger }: { children?: any; danger?: any }) => {
+const Card = ({children, danger}: {children?: any; danger?: any}) => {
   return danger ? (
     <div className="flex flex-col justify-between border-2 border-red-600 rounded">{children}</div>
   ) : (
@@ -8,7 +8,7 @@ const Card = ({ children, danger }: { children?: any; danger?: any }) => {
   );
 };
 
-Card.Body = ({ children, subtitle, title }: { children?: any; subtitle?: string; title?: string }) => {
+Card.Body = ({children, subtitle, title}: {children?: any; subtitle?: string; title?: string}) => {
   return (
     <div className="flex flex-col p-5 space-y-3 overflow-auto">
       {title ? (
@@ -22,7 +22,7 @@ Card.Body = ({ children, subtitle, title }: { children?: any; subtitle?: string;
   );
 };
 
-Card.Empty = ({ children }: { children?: any }) => {
+Card.Empty = ({children}: {children?: any}) => {
   return (
     <div>
       <div className="flex items-center justify-center p-5 bg-primary-blue border-4 border-gray border-dashed rounded">
@@ -32,7 +32,7 @@ Card.Empty = ({ children }: { children?: any }) => {
   );
 };
 
-Card.Footer = ({ children }: { children?: any }) => {
+Card.Footer = ({children}: {children?: any}) => {
   return (
     <div className="flex flex-row items-center justify-between px-5 py-3 space-x-5 bg-secondary-midnight border-t border-gray rounded-b">
       {children}

@@ -1,4 +1,4 @@
-import { fileIngestionTypes, webTypes } from 'types';
+import {fileIngestionTypes, webTypes} from 'types';
 
 export const isValidPayload = (properties) => {
   let retval = true;

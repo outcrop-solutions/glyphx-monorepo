@@ -1,9 +1,9 @@
-import { webTypes } from 'types';
-import { authOptions } from 'app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth/next';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { Initializer } from 'business';
-import { getProject, createProject, updateProjectState, deleteProject } from 'lib/server/project';
+import {webTypes} from 'types';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
+import {NextApiRequest, NextApiResponse} from 'next';
+import {Initializer} from 'business';
+import {getProject, createProject, updateProjectState, deleteProject} from 'lib/server/project';
 
 const project = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
@@ -32,7 +32,7 @@ const project = async (req: NextApiRequest, res: NextApiResponse) => {
         webTypes.constants.HTTP_METHOD.PUT,
         webTypes.constants.HTTP_METHOD.DELETE,
       ]);
-      return res.status(405).json({ error: `${req.method} method unsupported` });
+      return res.status(405).json({error: `${req.method} method unsupported`});
   }
 };
 

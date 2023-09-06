@@ -1,15 +1,11 @@
-import { ArrowRightIcon } from '@heroicons/react/outline';
-import { _createAnnotation, api } from 'lib';
-import { useCallback, useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { mutate, useSWRConfig } from 'swr';
+import {ArrowRightIcon} from '@heroicons/react/outline';
+import {_createAnnotation, api} from 'lib';
+import {useCallback, useState} from 'react';
+import {toast} from 'react-hot-toast';
+import {useSWRConfig} from 'swr';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
-
-export const InputArea = ({ id, type }) => {
-  const { mutate } = useSWRConfig();
+export const InputArea = ({id, type}) => {
+  const {mutate} = useSWRConfig();
   const [value, setValue] = useState('');
 
   const createAnnotation = useCallback(() => {
@@ -18,7 +14,7 @@ export const InputArea = ({ id, type }) => {
       return;
     }
     api({
-      ..._createAnnotation({ id, type, value }),
+      ..._createAnnotation({id, type, value}),
       onSuccess: () => {
         setValue('');
         mutate(`/api/annotations/project/${id}`);

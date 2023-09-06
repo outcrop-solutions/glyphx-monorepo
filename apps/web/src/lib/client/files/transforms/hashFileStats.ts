@@ -1,5 +1,5 @@
 import MD5 from 'crypto-js/md5';
-import { fileIngestionTypes } from 'types';
+import {fileIngestionTypes} from 'types';
 
 // handles rowId prefix
 function removePrefix(str: string, prefix: string): string {
@@ -18,9 +18,9 @@ function removePrefix(str: string, prefix: string): string {
 export const hashFileStats = (
   fileStats: fileIngestionTypes.IFileStats[],
   existing: boolean
-): { fileColumnsHash: string; columnsHash: string }[] =>
-  fileStats.map(({ fileName, columns }: { fileName: string; columns: fileIngestionTypes.IColumn[] }) => {
-    const columnHashes = columns.map(({ name, fieldType }) => `${name}${fieldType}`).join('');
+): {fileColumnsHash: string; columnsHash: string}[] =>
+  fileStats.map(({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
+    const columnHashes = columns.map(({name, fieldType}) => `${name}${fieldType}`).join('');
     const formattedColHashInput = existing ? removePrefix(columnHashes, 'glyphx_id__2') : columnHashes;
     return {
       fileColumnsHash: MD5(`${fileName}${formattedColHashInput}`).toString(),

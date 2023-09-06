@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import React, {useState} from 'react';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import produce from 'immer';
 import toast from 'react-hot-toast';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { webTypes } from 'types';
-import { LinkDropDown } from './LinkDropDown';
-import { MemberList } from './MemberList';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {webTypes} from 'types';
+import {LinkDropDown} from './LinkDropDown';
+import {MemberList} from './MemberList';
 
-import { projectAtom, rightSidebarControlAtom } from 'state';
+import {projectAtom, rightSidebarControlAtom} from 'state';
 
 import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
 import CopyToClipboardIcon from 'public/svg/copy-to-clipboard.svg';
 import ShareIcon from 'public/svg/share-header-icon.svg';
 import GroupIcon from 'public/svg/group-icon.svg';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
 export const Share = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);

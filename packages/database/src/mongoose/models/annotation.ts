@@ -199,7 +199,9 @@ SCHEMA.static(
     const userId =
       input.author instanceof mongooseTypes.ObjectId
         ? input.author
-        : new mongooseTypes.ObjectId(input.author._id);
+        : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          new mongooseTypes.ObjectId(input.author._id);
 
     const userExists = await UserModel.userIdExists(userId);
     if (!userExists)
@@ -215,7 +217,9 @@ SCHEMA.static(
       projectId =
         input.projectId instanceof mongooseTypes.ObjectId
           ? input.projectId
-          : new mongooseTypes.ObjectId(input.projectId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(input.projectId);
 
       const projectExists = await ProjectModel.projectIdExists(projectId);
       if (!projectExists)
@@ -232,7 +236,9 @@ SCHEMA.static(
       stateId =
         input.stateId instanceof mongooseTypes.ObjectId
           ? input.stateId
-          : new mongooseTypes.ObjectId(input.stateId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(input.stateId);
 
       const stateExists = await StateModel.stateIdExists(stateId);
       if (!stateExists)

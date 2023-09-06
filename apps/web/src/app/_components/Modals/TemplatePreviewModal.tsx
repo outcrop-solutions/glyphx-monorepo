@@ -1,27 +1,26 @@
-import React, { useCallback, useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import Button from 'app/_components/Button';
-import { _createState, _createProjectFromTemplate, api } from 'lib';
-import { webTypes } from 'types';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { modalsAtom, workspaceAtom } from 'state';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
-import { useRouter } from 'next/navigation';
+import {_createProjectFromTemplate, api} from 'lib';
+import {webTypes} from 'types';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {modalsAtom, workspaceAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {useRouter,useParams} from 'next/navigation';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { useParams } from 'next/navigation';
-import { Route } from 'next';
+import {WritableDraft} from 'immer/dist/internal';
+import {Route} from 'next';
 
-export const TemplatePreviewModal = ({ modalContent }: webTypes.TemplatePreviewModalProps) => {
+export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewModalProps) => {
   const router = useRouter();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
+  const {workspaceSlug} = params as {workspaceSlug: string};
   const [loading, setLoading] = useState(false);
   const setModals = useSetRecoilState(modalsAtom);
-  const { _id } = useRecoilValue(workspaceAtom);
-  const { data } = modalContent;
+  const {_id} = useRecoilValue(workspaceAtom);
+  const {data} = modalContent;
   const axes = ['X', 'Y', 'Z'];
 
   const renderAxisIcon = (axis) => {

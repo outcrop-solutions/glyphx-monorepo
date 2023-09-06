@@ -1,8 +1,7 @@
-import { Route } from 'next';
-import React from 'react';
-import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Transition } from 'utils/Transition';
+import {Route} from 'next';
+import React, {useState, useRef, useEffect} from 'react';
+import {Link} from 'react-router-dom';
+import {Transition} from 'utils/Transition';
 
 export function Notifications() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -12,8 +11,9 @@ export function Notifications() {
 
   // close on click outside
   useEffect(() => {
-    const clickHandler = ({ target }) => {
+    const clickHandler = ({target}) => {
       if (!dropdown.current) return;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
@@ -24,7 +24,7 @@ export function Notifications() {
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler = ({keyCode}) => {
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };

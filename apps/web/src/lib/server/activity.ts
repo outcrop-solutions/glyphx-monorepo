@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { activityLogService } from 'business';
-import { databaseTypes } from 'types';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {activityLogService} from 'business';
+import {databaseTypes} from 'types';
 /**
  * Get Project Logs
  *
@@ -12,15 +12,15 @@ import { databaseTypes } from 'types';
  */
 
 export const getProjectLogs = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { projectId } = req.query;
+  const {projectId} = req.query;
   if (Array.isArray(projectId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
     const logs = await activityLogService.getLogs(projectId, databaseTypes.constants.RESOURCE_MODEL.PROJECT);
-    res.status(200).json({ data: logs });
+    res.status(200).json({data: logs});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 
@@ -35,14 +35,14 @@ export const getProjectLogs = async (req: NextApiRequest, res: NextApiResponse) 
  */
 
 export const getWorkspaceLogs = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { workspaceId } = req.query;
+  const {workspaceId} = req.query;
   if (Array.isArray(workspaceId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
     const logs = await activityLogService.getLogs(workspaceId, databaseTypes.constants.RESOURCE_MODEL.WORKSPACE);
-    res.status(200).json({ data: logs });
+    res.status(200).json({data: logs});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };

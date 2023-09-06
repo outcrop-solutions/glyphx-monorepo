@@ -1,9 +1,9 @@
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { useEffect } from 'react';
-import { useSetRecoilState } from 'recoil';
-import { splitPaneSizeAtom, windowSizeAtom } from 'state';
+import {WritableDraft} from 'immer/dist/internal';
+import {useEffect} from 'react';
+import {useSetRecoilState} from 'recoil';
+import {splitPaneSizeAtom, windowSizeAtom} from 'state';
 
 export const useWindowSize = () => {
   // return new callback when window size changes

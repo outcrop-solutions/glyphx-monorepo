@@ -1,7 +1,7 @@
 import React from 'react';
-import { fileIngestionTypes, webTypes } from 'types';
+import {fileIngestionTypes, webTypes} from 'types';
 
-const Btn = ({ children, payload, idx, op, handleOp, className, ...rest }) => {
+const Btn = ({children, payload, idx, op, handleOp, className, ...rest}) => {
   const isActive = payload?.fileInfo[idx].operation === op;
   return (
     <button

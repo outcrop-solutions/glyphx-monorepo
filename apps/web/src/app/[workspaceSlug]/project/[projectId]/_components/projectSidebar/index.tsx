@@ -1,14 +1,14 @@
-import { useRef, useEffect } from 'react';
+import {useRef, useEffect} from 'react';
 
-import { Files } from './files';
-import { Properties as Axes } from './properties';
-import { Filters } from './filters';
-import { States } from './states';
+import {Files} from './files';
+import {Properties as Axes} from './properties';
+import {Filters} from './filters';
+import {States} from './states';
 
-import { usePosition } from 'services/usePosition';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { leftCoordinatesAtom, windowSizeAtom } from 'state';
-import { Annotations } from './annotations';
+import {usePosition} from 'services/usePosition';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {leftCoordinatesAtom, windowSizeAtom} from 'state';
+import {Annotations} from './annotations';
 
 export const ProjectSidebar = () => {
   //utilities
@@ -16,11 +16,12 @@ export const ProjectSidebar = () => {
   // trigger sendPosition when sidebar changes
   const pos = usePosition(sidebar);
   const setCoords = useSetRecoilState(leftCoordinatesAtom);
-  const { height } = useRecoilValue(windowSizeAtom);
+  const {height} = useRecoilValue(windowSizeAtom);
 
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const coords = sidebar.current.getBoundingClientRect();
       setCoords(coords);

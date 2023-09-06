@@ -1,11 +1,11 @@
 import 'mocha';
-import { assert } from 'chai';
+import {assert} from 'chai';
 
-import { createSandbox } from 'sinon';
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
+import {testApiHandler} from 'next-test-api-route-handler';
 import {
   _createWorkspace,
   _deleteWorkspace,
@@ -13,11 +13,11 @@ import {
   _updateWorkspaceName,
   _updateWorkspaceSlug,
 } from 'lib/client/mutations/workspace';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPatch, genericPost, genericPut } from './utilities/genericReqs';
-import { databaseTypes } from 'types';
-import mongoose, { Types as mongooseTypes } from 'mongoose';
-import { _acceptInvitation, _createMember, _declineInvitation, _removeMember, _updateRole } from 'lib';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericDelete, genericGet, genericPatch, genericPost, genericPut} from './utilities/genericReqs';
+import {databaseTypes} from 'types';
+import mongoose, {Types as mongooseTypes} from 'mongoose';
+import {_acceptInvitation, _createMember, _declineInvitation, _removeMember, _updateRole} from 'lib';
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
 // const handler: typeof deactivate & { config?: PageConfig } = deactivate;
@@ -41,7 +41,7 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
   language: '',
   cookieEnabled: false,
 };
-const MOCK_LOCATION: string = 'location';
+const MOCK_LOCATION = 'location';
 
 const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   createdAt: new Date(),
@@ -87,9 +87,9 @@ const MOCK_MEMBER_1: databaseTypes.IMember = {
   invitedAt: new Date(),
   status: databaseTypes.constants.INVITATION_STATUS.PENDING,
   teamRole: databaseTypes.constants.ROLE.MEMBER,
-  member: { _id: new mongoose.Types.ObjectId() } as databaseTypes.IUser,
-  invitedBy: { _id: new mongoose.Types.ObjectId() } as databaseTypes.IUser,
-  workspace: { _id: new mongoose.Types.ObjectId() } as databaseTypes.IWorkspace,
+  member: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
+  invitedBy: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
+  workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
 };
 const MOCK_MEMBER_2: databaseTypes.IMember = {
   email: 'jamesmurdockgraham@gmail.com',
@@ -101,9 +101,9 @@ const MOCK_MEMBER_2: databaseTypes.IMember = {
   invitedAt: new Date(),
   status: databaseTypes.constants.INVITATION_STATUS.PENDING,
   teamRole: databaseTypes.constants.ROLE.MEMBER,
-  member: { _id: new mongoose.Types.ObjectId() } as databaseTypes.IUser,
-  invitedBy: { _id: new mongoose.Types.ObjectId() } as databaseTypes.IUser,
-  workspace: { _id: new mongoose.Types.ObjectId() } as databaseTypes.IWorkspace,
+  member: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
+  invitedBy: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
+  workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
 };
 
 const MOCK_MEMBERS: databaseTypes.IMember[] = [MOCK_MEMBER_1, MOCK_MEMBER_2];
@@ -216,7 +216,7 @@ describe('WORKSPACE ROUTES', () => {
     validateUpdateWorkspaceSlugStub = sandbox.stub();
     validateCreateWorkspaceStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
     createWorkspaceStub = sandbox.stub();
     getWorkspaceStub = sandbox.stub();
@@ -263,7 +263,7 @@ describe('WORKSPACE ROUTES', () => {
       updateStatus: sandbox.stub(),
     };
 
-    mockActivityLogService = { createLog: sandbox.stub() };
+    mockActivityLogService = {createLog: sandbox.stub()};
 
     /******************** ROUTE /api/workspace ********************/
     // replace handler import resolution
@@ -789,18 +789,18 @@ describe('WORKSPACE ROUTES', () => {
     sandbox.restore();
   });
 
-  context('/api/workspace', async function () {
+  context('/api/workspace', async () => {
     describe('CREATE handler', () => {
-      it('should create a workspace', async function () {
+      it('should create a workspace', async () => {
         validateCreateWorkspaceStub.resolves();
         mockWorkspaceService.createWorkspace.resolves(MOCK_WORKSPACE);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: createWorkspaceRouteWrapper,
           url: '/api/workspace',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(_createWorkspace(MOCK_WORKSPACE.name));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
@@ -817,7 +817,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: createWorkspaceRoute,
           url: '/api/workspace',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -836,7 +836,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: createWorkspaceRoute,
           url: '/api/workspace',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -858,7 +858,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: createWorkspaceRoute,
           url: '/api/workspace',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -880,7 +880,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: createWorkspaceRoute,
           url: '/api/workspace',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -897,23 +897,23 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/[workspaceSlug]', async function () {
+  context('/api/workspace/[workspaceSlug]', async () => {
     describe('GET handler', () => {
-      it('should get a workspace', async function () {
+      it('should get a workspace', async () => {
         mockWorkspaceService.getSiteWorkspace.resolves(MOCK_WORKSPACE);
 
         await testApiHandler({
           handler: workspaceRouteWrapper,
           url: `/api/workspace/[workspaceSlug]`,
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isTrue(mockWorkspaceService.getSiteWorkspace.calledOnce);
             assert.strictEqual(res.status, 200);
 
-            const { data } = await res.json();
+            const {data} = await res.json();
             assert.strictEqual(data.workspace.name, MOCK_WORKSPACE.name);
             assert.strictEqual(data.workspace.slug, MOCK_WORKSPACE.slug);
           },
@@ -921,16 +921,16 @@ describe('WORKSPACE ROUTES', () => {
       });
     });
     describe('DELETE handler', () => {
-      it('should delete a workspace', async function () {
+      it('should delete a workspace', async () => {
         mockWorkspaceService.deleteWorkspace.resolves(MOCK_WORKSPACE);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: workspaceRouteWrapper,
           url: `/api/workspace/[workspaceSlug]`,
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const config = wrapConfig(_deleteWorkspace(MOCK_WORKSPACE.slug));
             const res = await fetch(config);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -938,7 +938,7 @@ describe('WORKSPACE ROUTES', () => {
             assert.isTrue(mockWorkspaceService.deleteWorkspace.calledOnce);
             assert.strictEqual(res.status, 200);
 
-            const { data } = await res.json();
+            const {data} = await res.json();
             assert.strictEqual(data.workspace.name, MOCK_WORKSPACE.name);
             assert.strictEqual(data.workspace.slug, MOCK_WORKSPACE.slug);
           },
@@ -953,8 +953,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -973,8 +973,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericPatch);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -996,8 +996,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1019,8 +1019,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1038,26 +1038,26 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/[workspaceSlug]/invite', async function () {
+  context('/api/workspace/[workspaceSlug]/invite', async () => {
     describe('INVITE handler', () => {
-      it('should invite users to a workspace', async function () {
-        mockWorkspaceService.inviteUsers.resolves({ members: MOCK_MEMBERS, workspace: MOCK_WORKSPACE });
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+      it('should invite users to a workspace', async () => {
+        mockWorkspaceService.inviteUsers.resolves({members: MOCK_MEMBERS, workspace: MOCK_WORKSPACE});
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: inviteUsersRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/invite',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
-            const config = wrapConfig(_createMember({ slug: MOCK_WORKSPACE.slug, members: MOCK_MEMBERS }));
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
+            const config = wrapConfig(_createMember({slug: MOCK_WORKSPACE.slug, members: MOCK_MEMBERS}));
             const res = await fetch(config);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isTrue(mockWorkspaceService.inviteUsers.calledOnce);
             assert.strictEqual(res.status, 200);
 
-            const { data } = await res.json();
+            const {data} = await res.json();
             assert.strictEqual(data.members.length, 2);
           },
         });
@@ -1072,8 +1072,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: inviteUsersRoute,
           url: '/api/workspace/[workspaceSlug]/invite',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1092,8 +1092,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: inviteUsersRoute,
           url: '/api/workspace/[workspaceSlug]/invite',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1115,7 +1115,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: inviteUsersRoute,
           url: '/api/workspace',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1137,7 +1137,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: inviteUsersRoute,
           url: '/api/workspace',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1154,17 +1154,17 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/[workspaceSlug]/isTeamOwner', async function () {
+  context('/api/workspace/[workspaceSlug]/isTeamOwner', async () => {
     describe('IS TEAM OWNER handler', () => {
-      it('should check if member is a team to a workspace', async function () {
+      it('should check if member is a team to a workspace', async () => {
         mockWorkspaceService.getWorkspace.resolves(MOCK_WORKSPACE);
         mockWorkspaceService.isWorkspaceOwner.resolves(true);
 
         await testApiHandler({
           handler: isTeamOwnerRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
           },
@@ -1180,8 +1180,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: isTeamOwnerRoute,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1201,8 +1201,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: isTeamOwnerRoute,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1224,7 +1224,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: isTeamOwnerRoute,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1246,7 +1246,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: isTeamOwnerRoute,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1263,16 +1263,16 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/[workspaceSlug]/members', async function () {
+  context('/api/workspace/[workspaceSlug]/members', async () => {
     describe('MEMBERS handler', () => {
-      it('should get members for a workspace', async function () {
+      it('should get members for a workspace', async () => {
         mockMembershipService.getMembers.resolves(MOCK_MEMBERS);
 
         await testApiHandler({
           handler: getMembersRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/members',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
           },
@@ -1288,8 +1288,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getMembersRoute,
           url: '/api/workspace/[workspaceSlug]/members',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1308,8 +1308,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getMembersRoute,
           url: '/api/workspace/[workspaceSlug]/members',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1331,7 +1331,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getMembersRoute,
           url: '/api/workspace/[workspaceSlug]/members',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1353,7 +1353,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getMembersRoute,
           url: '/api/workspace/[workspaceSlug]/members',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1370,20 +1370,20 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/[workspaceSlug]/name', async function () {
+  context('/api/workspace/[workspaceSlug]/name', async () => {
     describe('CHANGE WORKSPACE NAME handler', () => {
-      it('should update name for a workspace', async function () {
+      it('should update name for a workspace', async () => {
         validateUpdateWorkspaceNameStub.resolves();
         mockWorkspaceService.updateWorkspaceName.resolves(MOCK_WORKSPACE);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: updateWorkspaceNameRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/name',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
-            const config = _updateWorkspaceName({ slug: MOCK_WORKSPACE.slug, name: 'NEW NAME' });
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
+            const config = _updateWorkspaceName({slug: MOCK_WORKSPACE.slug, name: 'NEW NAME'});
             const res = await fetch(wrapConfig(config));
 
             assert.strictEqual(res.status, 200);
@@ -1400,8 +1400,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceNameRoute,
           url: '/api/workspace/[workspaceSlug]/name',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1420,8 +1420,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceNameRoute,
           url: '/api/workspace/[workspaceSlug]/name',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1443,7 +1443,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceNameRoute,
           url: '/api/workspace/[workspaceSlug]/name',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1465,7 +1465,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceNameRoute,
           url: '/api/workspace/[workspaceSlug]/name',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1482,20 +1482,20 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/[workspaceSlug]/slug', async function () {
+  context('/api/workspace/[workspaceSlug]/slug', async () => {
     describe('CHANGE WORKSPACE SLUG handler', () => {
-      it('should update slug for a workspace', async function () {
+      it('should update slug for a workspace', async () => {
         validateUpdateWorkspaceSlugStub.resolves();
         mockWorkspaceService.updateWorkspaceSlug.resolves(MOCK_WORKSPACE);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: updateWorkspaceSlugRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/slug',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
-            const config = _updateWorkspaceSlug({ slug: MOCK_WORKSPACE.slug, newSlug: 'NEW_SLUG' });
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
+            const config = _updateWorkspaceSlug({slug: MOCK_WORKSPACE.slug, newSlug: 'NEW_SLUG'});
             const res = await fetch(wrapConfig(config));
 
             assert.strictEqual(res.status, 200);
@@ -1512,8 +1512,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceSlugRoute,
           url: '/api/workspace/[workspaceSlug]/slug',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1532,8 +1532,8 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceSlugRoute,
           url: '/api/workspace/[workspaceSlug]/slug',
-          params: { workspaceSlug: MOCK_WORKSPACE.slug },
-          test: async ({ fetch }) => {
+          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1555,7 +1555,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceSlugRoute,
           url: '/api/workspace/[workspaceSlug]/slug',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1577,7 +1577,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceSlugRoute,
           url: '/api/workspace/[workspaceSlug]/slug',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1594,17 +1594,17 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/team/accept', async function () {
+  context('/api/workspace/team/accept', async () => {
     describe('ACCEPT INVITATION handler', () => {
-      it('should accept an invitation for a workspace', async function () {
+      it('should accept an invitation for a workspace', async () => {
         mockMembershipService.updateStatus.resolves(MOCK_MEMBER_1);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: acceptInvitationRouteWrapper,
           url: '/api/workspace/team/accept',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = _acceptInvitation(MOCK_MEMBER_1._id.toString());
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
@@ -1621,7 +1621,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: acceptInvitationRoute,
           url: '/api/workspace/team/accept',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1640,7 +1640,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: acceptInvitationRoute,
           url: '/api/workspace/team/accept',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1659,7 +1659,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: acceptInvitationRoute,
           url: '/api/workspace/team/accept',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1681,7 +1681,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: acceptInvitationRoute,
           url: '/api/workspace/team/accept',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1703,7 +1703,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: acceptInvitationRoute,
           url: '/api/workspace/team/accept',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1720,17 +1720,17 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/team/decline', async function () {
+  context('/api/workspace/team/decline', async () => {
     describe('DECLINE INVITATION handler', () => {
-      it('should decline an invitation for a workspace', async function () {
+      it('should decline an invitation for a workspace', async () => {
         mockMembershipService.updateStatus.resolves(MOCK_MEMBER_1);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: declineInvitationRouteWrapper,
           url: '/api/workspace/team/decline',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = _declineInvitation(MOCK_MEMBER_1._id.toString());
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
@@ -1747,7 +1747,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: declineInvitationRoute,
           url: '/api/workspace/team/decline',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1766,7 +1766,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: declineInvitationRoute,
           url: '/api/workspace/team/decline',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1788,7 +1788,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: declineInvitationRoute,
           url: '/api/workspace/team/decline',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1810,7 +1810,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: declineInvitationRoute,
           url: '/api/workspace/team/decline',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1827,17 +1827,17 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/team/join', async function () {
+  context('/api/workspace/team/join', async () => {
     describe('JOIN WORKSPACE handler', () => {
-      it('should join an invitation for a workspace', async function () {
+      it('should join an invitation for a workspace', async () => {
         mockWorkspaceService.joinWorkspace.resolves(MOCK_WORKSPACE);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: joinWorkspaceRouteWrapper,
           url: '/api/workspace/team/join',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = _joinWorkspace(MOCK_WORKSPACE.workspaceCode);
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
@@ -1854,7 +1854,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: joinWorkspaceRoute,
           url: '/api/workspace/team/join',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1873,7 +1873,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: joinWorkspaceRoute,
           url: '/api/workspace/team/join',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1895,7 +1895,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: joinWorkspaceRoute,
           url: '/api/workspace/team/join',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1917,7 +1917,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: joinWorkspaceRoute,
           url: '/api/workspace/team/join',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1934,17 +1934,17 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/team/member', async function () {
+  context('/api/workspace/team/member', async () => {
     describe('REMOVE MEMBER handler', () => {
-      it('should remove a member from a workspace', async function () {
+      it('should remove a member from a workspace', async () => {
         mockMembershipService.remove.resolves(MOCK_MEMBER_1);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: removeMemberRouteWrapper,
           url: '/api/workspace/team/member',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = _removeMember(MOCK_MEMBER_1._id.toString());
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
@@ -1961,7 +1961,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: removeMemberRoute,
           url: '/api/workspace/team/member',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1980,7 +1980,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: removeMemberRoute,
           url: '/api/workspace/team/member',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2002,7 +2002,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: removeMemberRoute,
           url: '/api/workspace/team/member',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2024,7 +2024,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: removeMemberRoute,
           url: '/api/workspace/team/member',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2041,18 +2041,18 @@ describe('WORKSPACE ROUTES', () => {
     });
   });
 
-  context('/api/workspace/team/role', async function () {
+  context('/api/workspace/team/role', async () => {
     describe('UPDATE ROLE handler', () => {
-      it('should update a member role in a workspace', async function () {
+      it('should update a member role in a workspace', async () => {
         mockMembershipService.getMember.resolves(MOCK_MEMBER_1);
         mockMembershipService.updateRole.resolves();
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: updateRoleRouteWrapper,
           url: '/api/workspace/team/role',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = _updateRole(MOCK_MEMBER_1._id.toString(), databaseTypes.constants.ROLE.OWNER);
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
@@ -2069,7 +2069,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateRoleRoute,
           url: '/api/workspace/team/role',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2088,7 +2088,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateRoleRoute,
           url: '/api/workspace/team/role',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2110,7 +2110,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateRoleRoute,
           url: '/api/workspace/team/role',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2132,7 +2132,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateRoleRoute,
           url: '/api/workspace/team/role',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2148,15 +2148,15 @@ describe('WORKSPACE ROUTES', () => {
       });
     });
   });
-  context('/api/workspaces', async function () {
+  context('/api/workspaces', async () => {
     describe('GET WORKSPACES handler', () => {
-      it('should get all workspaces', async function () {
+      it('should get all workspaces', async () => {
         mockWorkspaceService.getWorkspaces.resolves(MOCK_WORKSPACES);
 
         await testApiHandler({
           handler: getWorkspacesRouteWrapper,
           url: '/api/workspaces',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
           },
@@ -2172,7 +2172,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getWorkspacesRoute,
           url: '/api/workspaces',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2191,7 +2191,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getWorkspacesRoute,
           url: '/api/workspaces',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2213,7 +2213,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getWorkspacesRoute,
           url: '/api/workspaces',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2235,7 +2235,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getWorkspacesRoute,
           url: '/api/workspaces',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2251,15 +2251,15 @@ describe('WORKSPACE ROUTES', () => {
       });
     });
   });
-  context('/api/workspaces/invitations', async function () {
+  context('/api/workspaces/invitations', async () => {
     describe('GET WORKSPACE INVITATIONS handler', () => {
-      it('should get all workspace invitations', async function () {
+      it('should get all workspace invitations', async () => {
         mockMembershipService.getPendingInvitations.resolves(MOCK_MEMBERS);
 
         await testApiHandler({
           handler: getPendingInvitationsRouteWrapper,
           url: '/api/workspaces/invitations',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
           },
@@ -2275,7 +2275,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getPendingInvitationsRoute,
           url: '/api/workspaces/invitations',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2294,7 +2294,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getPendingInvitationsRoute,
           url: '/api/workspaces/invitations',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2316,7 +2316,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getPendingInvitationsRoute,
           url: '/api/workspaces/invitations',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -2338,7 +2338,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getPendingInvitationsRoute,
           url: '/api/workspaces/invitations',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

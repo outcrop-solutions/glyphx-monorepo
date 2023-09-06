@@ -1,9 +1,9 @@
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import {useParams} from 'next/navigation';
 
 export default function Share() {
   const params = useParams();
-  const { modelId } = params as { modelId: string };
+  const {modelId} = params as {modelId: string};
 
   const onClickOpenGlyph = () => {
     window.open(`glyphx:\\model=${modelId}`);

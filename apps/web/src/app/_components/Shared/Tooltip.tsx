@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Transition } from 'utils/Transition';
+import {useState} from 'react';
+import {Transition} from 'utils/Transition';
 import TooltipIcon from 'public/svg/tooltip-icon.svg';
 
-export function Tooltip({ children, className, bg, size, position }) {
+export function Tooltip({children, className, bg, size, position}) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const positionOuterClasses = (position) => {

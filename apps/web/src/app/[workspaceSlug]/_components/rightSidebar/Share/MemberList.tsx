@@ -1,12 +1,7 @@
 import React from 'react';
-import { PermissionsDropDown } from './PermissionsDropDown';
+import {PermissionsDropDown} from './PermissionsDropDown';
 
-import { projectAtom } from 'state';
-import { useRecoilValue } from 'recoil';
-
-export const MemberList = ({ size, members }) => {
-  const selectedProject = useRecoilValue(projectAtom);
-
+export const MemberList = ({size, members}) => {
   return (
     members && (
       <ul className="my-4 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray">

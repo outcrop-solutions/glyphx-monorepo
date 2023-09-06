@@ -1,10 +1,9 @@
 import React from 'react';
 import StateIcon from 'public/svg/state.svg';
-import { _createState } from 'lib';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
-import { CameraIcon, SaveIcon } from '@heroicons/react/outline';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {CameraIcon} from '@heroicons/react/outline';
 
-export const CreateStateInput = ({ isSubmitting, name, setName }) => {
+export const CreateStateInput = ({isSubmitting, name, setName}) => {
   const validName = name?.length > 0 && name?.length <= 16;
 
   // local state

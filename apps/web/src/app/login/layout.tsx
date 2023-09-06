@@ -1,12 +1,12 @@
 'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { Route } from 'next';
+import {useEffect} from 'react';
+import {useRouter} from 'next/navigation';
+import {useSession} from 'next-auth/react';
+import {Route} from 'next';
 
-const AuthLayout = ({ children }) => {
+const AuthLayout = ({children}) => {
   const router = useRouter();
-  const { data } = useSession();
+  const {data} = useSession();
 
   useEffect(() => {
     if (data) {

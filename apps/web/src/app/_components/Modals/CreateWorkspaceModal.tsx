@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createWorkspace, api } from 'lib';
-import { webTypes } from 'types';
-import { useRouter } from 'next/navigation';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom } from 'state';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
-import { Route } from 'next';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createWorkspace, api} from 'lib';
+import {webTypes} from 'types';
+import {useRouter} from 'next/navigation';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {Route} from 'next';
 
-export const CreateWorkspaceModal = ({ modalContent }: webTypes.CreateWorkspaceModalProps) => {
+export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceModalProps) => {
   const router = useRouter();
   const setModals = useSetRecoilState(modalsAtom);
   const [name, setName] = useState('');

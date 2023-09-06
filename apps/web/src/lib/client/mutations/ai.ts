@@ -1,5 +1,5 @@
-import { webTypes } from 'types';
-import { IClientSidePayload } from 'types/src/web';
+import {webTypes} from 'types';
+import {IClientSidePayload} from 'types/src/web';
 
 /**
  * Gets a completion stream from OpenAI
@@ -11,7 +11,7 @@ export const _createCompletion = (payload: IClientSidePayload): webTypes.IFetchC
     url: `/api/completion`,
     options: {
       method: 'POST',
-      body: { payload },
+      body: {payload},
     },
     successMsg: '',
   };

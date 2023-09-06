@@ -230,7 +230,9 @@ SCHEMA.static(
     const userId =
       input.actor instanceof mongooseTypes.ObjectId
         ? input.actor
-        : new mongooseTypes.ObjectId(input.actor._id);
+        : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          new mongooseTypes.ObjectId(input.actor._id);
 
     const userExists = await UserModel.userIdExists(userId);
     if (!userExists)
@@ -246,7 +248,9 @@ SCHEMA.static(
       workspaceId =
         input.workspaceId instanceof mongooseTypes.ObjectId
           ? input.workspaceId
-          : new mongooseTypes.ObjectId(input.workspaceId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(input.workspaceId);
 
       const workspaceExists = await WorkspaceModel.workspaceIdExists(
         workspaceId
@@ -263,7 +267,9 @@ SCHEMA.static(
     const resourceId =
       input.resource instanceof mongooseTypes.ObjectId
         ? input.resource
-        : new mongooseTypes.ObjectId(input.resource._id);
+        : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          new mongooseTypes.ObjectId(input.resource._id);
 
     switch (input.onModel) {
       case databaseTypes.constants.RESOURCE_MODEL.USER:

@@ -17,7 +17,9 @@ describe('#services/projectTemplate', () => {
 
   context('getProjectTemplate', () => {
     it('should get a projectTemplate by id', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getProjectTemplateFromModelStub = sandbox.stub();
       getProjectTemplateFromModelStub.resolves({
@@ -41,7 +43,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(getProjectTemplateFromModelStub.calledOnce);
     });
     it('should get a projectTemplate by id when id is a string', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getProjectTemplateFromModelStub = sandbox.stub();
       getProjectTemplateFromModelStub.resolves({
@@ -65,7 +69,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(getProjectTemplateFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the projectTemplate cannot be found', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the psoject';
       const err = new error.DataNotFoundError(
         errMessage,
@@ -102,7 +108,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -143,7 +151,9 @@ describe('#services/projectTemplate', () => {
   });
   context('getProjectTemplates', () => {
     it('should get templates by filter', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplate1';
       const projectFilter = {name: projectTemplateName};
 
@@ -254,9 +264,13 @@ describe('#services/projectTemplate', () => {
   });
   context('createTemplateFromProject', () => {
     it('will create a ProjectTemplate from a Project', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplateName1';
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
@@ -293,9 +307,13 @@ describe('#services/projectTemplate', () => {
 
     // project model fails
     it('will log the failure and return null if the projectTemplate cannot be found', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplateName1';
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the project';
       const err = new error.DataNotFoundError(
         errMessage,
@@ -351,9 +369,13 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplateName1';
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -415,9 +437,13 @@ describe('#services/projectTemplate', () => {
   });
   context('cloneProjectFromTemplate', () => {
     it('will clone a Project from a Template', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getProjectTemplateFromModelStub = sandbox.stub();
       getProjectTemplateFromModelStub.resolves({
@@ -457,9 +483,13 @@ describe('#services/projectTemplate', () => {
     });
     // project model fails
     it('will log the failure and return null if the projectTemplate cannot be found', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the project';
       const err = new error.DataNotFoundError(
         errMessage,
@@ -521,9 +551,13 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -591,7 +625,9 @@ describe('#services/projectTemplate', () => {
   });
   context('deactivate', () => {
     it('will deactivate a template', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
@@ -614,7 +650,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will deactivate template when the id is a string', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
         _id: projectTemplateId,
@@ -636,7 +674,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'testViewName';
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
@@ -675,7 +715,9 @@ describe('#services/projectTemplate', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateProjectFromModelStub = sandbox.stub();
@@ -712,7 +754,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -755,7 +799,9 @@ describe('#services/projectTemplate', () => {
   });
   context('updateProjectTemplate', () => {
     it('will update a templates name', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projName = 'test name';
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
@@ -779,7 +825,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will update a templates name when the id is a string', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projName = 'test name';
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
@@ -804,7 +852,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projName = 'testName';
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
@@ -845,7 +895,9 @@ describe('#services/projectTemplate', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projName = 'test name';
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -885,7 +937,9 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projName = 'test view name';
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
@@ -931,8 +985,12 @@ describe('#services/projectTemplate', () => {
   });
   context('addTags', () => {
     it('will add a tag to a project template', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
 
       const addTagsFromModelStub = sandbox.stub();
@@ -958,8 +1016,12 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(addTagsFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
@@ -999,8 +1061,12 @@ describe('#services/projectTemplate', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -1039,8 +1105,12 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
@@ -1085,8 +1155,12 @@ describe('#services/projectTemplate', () => {
   });
   context('removeTags', () => {
     it('will add a tag to a project template', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
 
       const removeTagsFromModelStub = sandbox.stub();
@@ -1112,8 +1186,12 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(removeTagsFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
@@ -1153,8 +1231,12 @@ describe('#services/projectTemplate', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when projectTemplate model throws it ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -1193,8 +1275,12 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when projectTemplate model throws a DataOperationError ', async () => {
-      const projectTemplateId = new mongooseTypes.ObjectId();
-      const tagId = new mongooseTypes.ObjectId();
+      const projectTemplateId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const tagId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const tags = [tagId];
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(

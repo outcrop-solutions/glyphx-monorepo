@@ -12,7 +12,10 @@ const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const USER_EMAIL = 'testEmail' + UNIQUE_KEY + '@email.com';
 const INPUT_USER: Partial<databaseTypes.IUser> = {
-  _id: new mongooseTypes.ObjectId(),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  _id:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   name: 'testUser' + UNIQUE_KEY,
   userCode: 'testUserCode' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,

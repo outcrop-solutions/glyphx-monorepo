@@ -11,7 +11,9 @@ export class TagService {
       const id =
         tagId instanceof mongooseTypes.ObjectId
           ? tagId
-          : new mongooseTypes.ObjectId(tagId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(tagId);
       const tag = await mongoDbConnection.models.TagModel.getTagById(id);
       return tag;
     } catch (err: any) {

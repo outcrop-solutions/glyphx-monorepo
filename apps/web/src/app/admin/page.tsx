@@ -1,9 +1,9 @@
 'use client';
-import React, { Fragment } from 'react';
-import { Disclosure, Menu, Transition } from '@headlessui/react';
-import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline';
+import React, {Fragment} from 'react';
+import {Disclosure, Menu, Transition} from '@headlessui/react';
+import {BellIcon, MenuIcon, XIcon} from '@heroicons/react/outline';
 import Image from 'next/image';
-import { Route } from 'next';
+import {Route} from 'next';
 // DUMMY DATA
 const user = {
   name: 'Bryan Holster',
@@ -11,14 +11,14 @@ const user = {
   imageUrl: '/bryan.jpg',
 };
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Billing', href: '#', current: false },
-  { name: 'Team', href: '#', current: false },
+  {name: 'Dashboard', href: '#', current: true},
+  {name: 'Billing', href: '#', current: false},
+  {name: 'Team', href: '#', current: false},
 ];
 const userNavigation = [
-  { name: 'Your Profile', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
+  {name: 'Your Profile', href: '#'},
+  {name: 'Settings', href: '#'},
+  {name: 'Sign out', href: '#'},
 ];
 
 const people = [
@@ -89,7 +89,7 @@ export default function Dashboard() {
       <div className="h-screen">
         <div className="min-h-full">
           <Disclosure as="nav" className="bg-primary-dark-blue shadow-sm">
-            {({ open }) => (
+            {({open}) => (
               <>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="flex justify-between h-16">
@@ -144,7 +144,7 @@ export default function Dashboard() {
                           <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 focus:outline-none">
                             {userNavigation.map((item) => (
                               <Menu.Item key={item.name}>
-                                {({ active }) => (
+                                {({active}) => (
                                   <a
                                     href={item.href as Route}
                                     className={classNames(active ? 'bg-gray' : '', 'block px-4 py-2 text-sm text-gray')}

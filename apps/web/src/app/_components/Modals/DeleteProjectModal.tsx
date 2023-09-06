@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { useSWRConfig } from 'swr';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import {WritableDraft} from 'immer/dist/internal';
+import {useSWRConfig} from 'swr';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { webTypes } from 'types';
-import { _deleteProject, _deleteWorkspace, api } from 'lib';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom } from 'state';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import {DocumentDuplicateIcon} from '@heroicons/react/outline';
+import {webTypes} from 'types';
+import {_deleteProject, api} from 'lib';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {useRouter,useParams} from 'next/navigation';
 
-export const DeleteProjectModal = ({ modalContent }: webTypes.DeleteProjectModalProps) => {
-  const { mutate } = useSWRConfig();
-  const router = useRouter();
+export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalProps) => {
+  const {mutate} = useSWRConfig();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
+  const {workspaceSlug} = params as {workspaceSlug: string};
   const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyProject, setVerifyProject] = useState('');

@@ -13,7 +13,9 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.getUserById(id);
       return user;
     } catch (err: any) {
@@ -41,7 +43,9 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         deletedAt: new Date(),
@@ -103,7 +107,9 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         email,
@@ -162,7 +168,9 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         name,
       });
@@ -195,7 +203,9 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         userCode: v4().replaceAll('-', ''),
       });

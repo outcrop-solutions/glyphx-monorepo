@@ -1,5 +1,5 @@
-import { atom } from 'recoil';
-import { databaseTypes } from 'types';
+import {atom} from 'recoil';
+import {databaseTypes} from 'types';
 
 export const workspaceAtom = atom<databaseTypes.IWorkspace>({
   key: 'workspaceAtom',

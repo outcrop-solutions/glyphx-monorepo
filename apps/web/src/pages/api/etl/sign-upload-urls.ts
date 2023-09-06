@@ -1,9 +1,9 @@
-import { webTypes } from 'types';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { authOptions } from 'app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth/next';
-import { Initializer } from 'business';
-import { signUploadUrls } from 'lib/server/etl/signUploadUrls';
+import {webTypes} from 'types';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
+import {Initializer} from 'business';
+import {signUploadUrls} from 'lib/server/etl/signUploadUrls';
 /**
  * Implements controller of browser based FILE OPERATIONS
  * HANDLERS FOUND @ /lib/server/fileingestion.ts

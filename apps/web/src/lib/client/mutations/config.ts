@@ -1,7 +1,7 @@
-import { databaseTypes, webTypes } from 'types';
+import {databaseTypes, webTypes} from 'types';
 
 const cleanConfig = (config) => {
-  const cleanConfig = { ...config };
+  const cleanConfig = {...config};
   delete cleanConfig.createdAt;
   delete cleanConfig.updatedAt;
   delete cleanConfig.deletedAt;
@@ -38,7 +38,7 @@ export const _updateConfig = (id: string, dirtyConfig: databaseTypes.IModelConfi
   return {
     url: `/api/config/${id}`,
     options: {
-      body: { config },
+      body: {config},
       method: 'PUT',
     },
     successMsg: 'Config updated successfully',

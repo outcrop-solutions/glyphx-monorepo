@@ -1,10 +1,10 @@
 import produce from 'immer';
-import React, { useCallback } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { togglesConfigDirtyAtom, configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom } from 'state';
-import { databaseTypes } from 'types';
-import { toSnakeCase } from './toSnakeCase';
-import { _updateConfig, api } from 'lib';
+import React, {useCallback} from 'react';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom} from 'state';
+import {databaseTypes} from 'types';
+import {toSnakeCase} from './toSnakeCase';
+import {_updateConfig, api} from 'lib';
 
 const fields = [
   'Grid Cylinder Radius',

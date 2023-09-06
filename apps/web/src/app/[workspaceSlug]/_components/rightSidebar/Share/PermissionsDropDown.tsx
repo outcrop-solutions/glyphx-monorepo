@@ -1,28 +1,21 @@
-import { useState, useRef, useEffect, Fragment } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import {
-  ChevronDownIcon,
-  DocumentDuplicateIcon,
-  DotsVerticalIcon,
-  PlusCircleIcon,
-  XIcon,
-} from '@heroicons/react/outline';
-import { databaseTypes } from 'types';
-import toast from 'react-hot-toast';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import { _updateRole, api } from 'lib';
+import {useState, Fragment} from 'react';
+import {Menu, Transition} from '@headlessui/react';
+import {ChevronDownIcon, DotsVerticalIcon} from '@heroicons/react/outline';
+import {databaseTypes} from 'types';
+// import toast from 'react-hot-toast';
+// import { _updateRole, api } from 'lib';
 
 export function PermissionsDropDown() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isSubmitting, setSubmittingState] = useState(false);
-  const trigger = useRef(null);
-  const dropdown = useRef(null);
+  // const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isSubmitting] = useState(false);
+  // const trigger = useRef(null);
+  // const dropdown = useRef(null);
 
-  const copyToClipboard = () => toast.success('Copied to clipboard!');
-  // mutations
-  const changeRole = (memberId, role) => {
-    api({ ..._updateRole(memberId, role) });
-  };
+  // const copyToClipboard = () => toast.success('Copied to clipboard!');
+  // // mutations
+  // const changeRole = (memberId, role) => {
+  //   api({ ..._updateRole(memberId, role) });
+  // };
 
   return (
     <Menu as="div" className="relative inline-block text-left">

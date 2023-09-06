@@ -1,8 +1,8 @@
-import { atom, selector } from 'recoil';
-import { projectAtom } from './project';
-import { databaseTypes, webTypes } from 'types';
-import { hashPayload } from 'lib/utils/hashPayload';
-import { hashFileSystem } from 'lib/utils/hashFileSystem';
+import {atom, selector} from 'recoil';
+import {projectAtom} from './project';
+import {databaseTypes, webTypes} from 'types';
+import {hashPayload} from 'lib/utils/hashPayload';
+import {hashFileSystem} from 'lib/utils/hashFileSystem';
 
 // controls styling of state list items
 export const activeStateAtom = atom<number>({
@@ -25,7 +25,7 @@ export const cameraAtom = atom<webTypes.Camera | {}>({
 // populates state list
 export const stateSnapshotsSelector = selector<databaseTypes.IState[]>({
   key: 'stateSnapshopsSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     return project?.stateHistory.filter((state) => !state.deletedAt);
   },
@@ -33,7 +33,7 @@ export const stateSnapshotsSelector = selector<databaseTypes.IState[]>({
 
 export const stateSelector = selector({
   key: 'activeSnapshotSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     const activeStateIndex = get(activeStateAtom);
     return project?.stateHistory[activeStateIndex];
@@ -43,7 +43,7 @@ export const stateSelector = selector({
 // does current project's payload hash exist in it's fileHistory
 export const doesStateExistSelector = selector<boolean>({
   key: 'doesStateExistSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     if (!project?.files) return false;
     const currentPayloadHash = hashPayload(hashFileSystem(project.files), project);
@@ -55,7 +55,7 @@ export const doesStateExistSelector = selector<boolean>({
 // is active state fileHash the same as project fileHash
 export const isFilterWritableSelector = selector<boolean>({
   key: 'isFilterWritableSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const state = get(stateSelector);
     const project = get(projectAtom);
     return state?.fileSystemHash === hashFileSystem(project?.files);

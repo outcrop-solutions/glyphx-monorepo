@@ -12,7 +12,9 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new mongooseTypes.ObjectId(modelConfigId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(modelConfigId);
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.getModelConfigById(id);
       return modelConfig;
@@ -102,7 +104,9 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new mongooseTypes.ObjectId(modelConfigId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(modelConfigId);
 
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
@@ -140,7 +144,9 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : new mongooseTypes.ObjectId(modelConfigId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(modelConfigId);
       const modelConfig =
         await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
           id,

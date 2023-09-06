@@ -1,14 +1,14 @@
-import React, { useCallback, useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import produce from 'immer';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { _updateConfig, api } from 'lib';
-import { togglesConfigDirtyAtom, configSelector, configsAtom, currentConfigAtom } from 'state';
-import { databaseTypes } from 'types';
-import { toSnakeCase } from './toSnakeCase';
+import {useRecoilState, useSetRecoilState} from 'recoil';
+// import { _updateConfig, api } from 'lib';
+import {togglesConfigDirtyAtom, configsAtom} from 'state';
+import {toSnakeCase} from './toSnakeCase';
 
-export const Toggle = ({ field, config, currentConfig }) => {
+export const Toggle = ({field, config, currentConfig}) => {
   const setConfigs = useSetRecoilState(configsAtom);
   const [checked, setChecked] = useState(config[toSnakeCase(field)]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [configDirty, setConfigDirty] = useRecoilState(togglesConfigDirtyAtom);
 
   const handleChange = useCallback(
@@ -24,9 +24,9 @@ export const Toggle = ({ field, config, currentConfig }) => {
     [setConfigDirty, setConfigs]
   );
 
-  const saveChanges = useCallback(async () => {
-    await api({ ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig) });
-  }, [config]);
+  // const saveChanges = useCallback(async () => {
+  //   await api({ ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig) });
+  // }, [config]);
 
   return (
     <div key={field} className="relative flex items-start">

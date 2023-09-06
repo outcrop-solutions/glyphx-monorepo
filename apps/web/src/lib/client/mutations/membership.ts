@@ -1,4 +1,4 @@
-import { webTypes, databaseTypes } from 'types';
+import {webTypes, databaseTypes} from 'types';
 
 // WORKSPACE MEMBERSHIP MUTATIONS
 
@@ -79,7 +79,7 @@ export const _acceptInvitation = (memberId: string): webTypes.IFetchConfig => {
   return {
     url: `/api/workspace/team/accept`,
     options: {
-      body: { memberId: memberId },
+      body: {memberId: memberId},
       method: 'PUT',
     },
     successMsg: 'Accepted invitation',
@@ -95,7 +95,7 @@ export const _declineInvitation = (memberId: string): webTypes.IFetchConfig => {
   return {
     url: `/api/workspace/team/decline`,
     options: {
-      body: { memberId: memberId },
+      body: {memberId: memberId},
       method: 'PUT',
     },
     successMsg: 'Invitation declined',

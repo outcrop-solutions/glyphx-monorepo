@@ -1,5 +1,5 @@
-import { atom } from 'recoil';
-import { databaseTypes, webTypes } from 'types';
+import {atom} from 'recoil';
+import {databaseTypes, webTypes} from 'types';
 // SHOW/HIDE UI ELEMENTS
 // SHOW = TRUE
 // HIDE = FALSE

@@ -1,13 +1,13 @@
-import { useDrop } from 'react-dnd';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { webTypes, fileIngestionTypes } from 'types';
-import { AxesIcons } from '../icons/AxesIcons';
+import {useDrop} from 'react-dnd';
+import {useRecoilState, useRecoilValue} from 'recoil';
+import {webTypes, fileIngestionTypes} from 'types';
+import {AxesIcons} from '../icons/AxesIcons';
 
-import { useProject } from 'services';
-import { handleDataType } from 'lib/client/helpers/handleDataType';
+import {useProject} from 'services';
+import {handleDataType} from 'lib/client/helpers/handleDataType';
 
 // state
-import { projectAtom, singlePropertySelectorFamily } from 'state/project';
+import {projectAtom, singlePropertySelectorFamily} from 'state/project';
 
 import ClearIcon from 'public/svg/clear-icon.svg';
 import LinIcon from 'public/svg/lin-icon.svg';
@@ -15,20 +15,20 @@ import LogIcon from 'public/svg/log-icon.svg';
 import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
 import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 import produce from 'immer';
-import { useCallback } from 'react';
-import { WritableDraft } from 'immer/dist/internal';
-import { showLoadingAtom } from 'state';
-import { _updateProjectState, api } from 'lib';
-import { useSWRConfig } from 'swr';
+import {useCallback} from 'react';
+import {WritableDraft} from 'immer/dist/internal';
+import {showLoadingAtom} from 'state';
+import {_updateProjectState, api} from 'lib';
+import {useSWRConfig} from 'swr';
 
-export const Property = ({ axis }) => {
+export const Property = ({axis}) => {
   const [project, setProject] = useRecoilState(projectAtom);
-  const { mutate } = useSWRConfig();
+  const {mutate} = useSWRConfig();
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
-  const { handleDrop } = useProject();
+  const {handleDrop} = useProject();
 
-  console.log({ accept: prop, property: true });
-  const [{ isOver, canDrop }, drop] = useDrop({
+  console.log({accept: prop, property: true});
+  const [{isOver, canDrop}, drop] = useDrop({
     accept: prop.accepts,
     drop: (item) => handleDrop(axis, item, project, false),
     collect: (monitor) => ({

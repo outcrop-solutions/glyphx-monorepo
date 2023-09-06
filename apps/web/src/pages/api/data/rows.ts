@@ -1,9 +1,9 @@
-import { webTypes } from 'types';
-import { Initializer } from 'business';
-import { authOptions } from 'app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth/next';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getDataByRowId } from 'lib/server';
+import {webTypes} from 'types';
+import {Initializer} from 'business';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
+import {NextApiRequest, NextApiResponse} from 'next';
+import {getDataByRowId} from 'lib/server';
 
 const rows = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the glyphengine layer
@@ -20,7 +20,7 @@ const rows = async (req: NextApiRequest, res: NextApiResponse) => {
       return getDataByRowId(req, res);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
-      return res.status(405).json({ error: `${req.method} method unsupported` });
+      return res.status(405).json({error: `${req.method} method unsupported`});
   }
 };
 

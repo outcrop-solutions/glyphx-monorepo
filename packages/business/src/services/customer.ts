@@ -40,7 +40,9 @@ export class CustomerPaymentService {
       const id =
         customerId instanceof mongooseTypes.ObjectId
           ? customerId
-          : new mongooseTypes.ObjectId(customerId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(customerId);
       // create customer payment
       // add to the user
       // add user to the customerpayment

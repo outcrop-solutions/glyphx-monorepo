@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/solid';
-import { Disclosure } from '@headlessui/react';
+import {useState} from 'react';
+import {ChevronDownIcon, ChevronRightIcon} from '@heroicons/react/solid';
+import {Disclosure} from '@headlessui/react';
 
-export const ObjectRenderer = ({ data }) => {
+export const ObjectRenderer = ({data}) => {
   const [openStates, setOpenStates] = useState({});
 
   const renderValue = (key, value, isTopLevel, id) => {
@@ -21,7 +21,7 @@ export const ObjectRenderer = ({ data }) => {
             className="flex items-center cursor-pointer"
             onClick={() => {
               openStates[id] = !isOpen;
-              setOpenStates({ ...openStates });
+              setOpenStates({...openStates});
             }}
           >
             {isOpen ? (
@@ -41,7 +41,7 @@ export const ObjectRenderer = ({ data }) => {
           {isOpen && (
             <div className={`pl-${isTopLevel ? 0 : 2} space-y-4`}>
               {isObjectValue
-                ? Object.entries(value).map(([subKey, subValue], i) => (
+                ? Object.entries(value).map(([subKey, subValue]) => (
                     <div key={`${id}-${subKey}`}>{renderValue(subKey, subValue, false, `${id}-${subKey}`)}</div>
                   ))
                 : value.map((subValue, i) => (
@@ -70,7 +70,7 @@ export const ObjectRenderer = ({ data }) => {
       )}
       {typeof data === 'object' && !Array.isArray(data) && (
         <Disclosure defaultOpen={true}>
-          {({ open }) => (
+          {({open}) => (
             <>
               <Disclosure.Button className="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-left text-white bg-secondary-midnight hover:bg-secondary-blue rounded focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-50">
                 {open ? (

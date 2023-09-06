@@ -1,4 +1,4 @@
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
 // ensure viewer doesn't cover resize handles
 const buffer = 5; //resize handle buffer
@@ -62,4 +62,4 @@ const calcH = (coords: DOMRectReadOnly, resize: number, orientation: webTypes.Sp
 //   );
 // };
 
-export { calcX, calcY, calcW, calcH };
+export {calcX, calcY, calcW, calcH};

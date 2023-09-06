@@ -1,21 +1,20 @@
 'use client';
-import React from 'react';
-import { useState } from 'react';
+import React, {useState} from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { Toaster } from 'react-hot-toast';
+import {useSession} from 'next-auth/react';
+import {useRouter} from 'next/navigation';
+import {Toaster} from 'react-hot-toast';
 
 import Card from 'app/_components/Card';
 import Button from 'app/_components/Button';
-import { _joinWorkspace, api } from 'lib/client';
-import { useRecoilValue } from 'recoil';
-import { workspaceAtom } from 'state';
-import { Route } from 'next';
+import {_joinWorkspace, api} from 'lib/client';
+import {useRecoilValue} from 'recoil';
+import {workspaceAtom} from 'state';
+import {Route} from 'next';
 
 export default function Invite() {
   const router = useRouter();
-  const { data } = useSession();
+  const {data} = useSession();
   const [isSubmitting, setSubmittingState] = useState(false);
   const workspace = useRecoilValue(workspaceAtom);
 
@@ -33,7 +32,7 @@ export default function Invite() {
 
   return (
     <main className="relative flex flex-col items-center justify-center h-screen space-y-10 bg-secondary-midnight">
-      <Toaster position="bottom-center" toastOptions={{ duration: 10000 }} />
+      <Toaster position="bottom-center" toastOptions={{duration: 10000}} />
       <div className="w-full py-5">
         <div className="relative flex flex-col mx-auto space-y-5">
           <div className="flex flex-col items-center justify-center mx-auto">

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useRecoilValue } from 'recoil';
-import { State } from './State';
-import { stateSnapshotsSelector } from 'state';
+import {useRecoilValue} from 'recoil';
+import {State} from './State';
+import {stateSnapshotsSelector} from 'state';
 
 export const StateList = () => {
   const states = useRecoilValue(stateSnapshotsSelector);

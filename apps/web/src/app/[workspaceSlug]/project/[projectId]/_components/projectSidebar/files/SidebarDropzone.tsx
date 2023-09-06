@@ -1,11 +1,11 @@
 import React from 'react';
-import { useDropzone } from 'react-dropzone';
-import { useFileSystem } from 'services/useFileSystem';
+import {useDropzone} from 'react-dropzone';
+import {useFileSystem} from 'services/useFileSystem';
 
 export const SidebarDropzone = () => {
-  const { onDrop } = useFileSystem();
+  const {onDrop} = useFileSystem();
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const {getRootProps, getInputProps, isDragActive} = useDropzone({
     onDrop,
     accept: ['.csv', 'application/vnd.ms-excel', 'text/csv'],
     multiple: true,

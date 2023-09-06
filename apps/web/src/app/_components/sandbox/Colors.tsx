@@ -1,12 +1,12 @@
 import produce from 'immer';
-import React, { useCallback } from 'react';
-import { SketchPicker } from 'react-color';
+import React, {useCallback} from 'react';
+import {SketchPicker} from 'react-color';
 
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom } from 'state';
-import { toSnakeCase } from './toSnakeCase';
-import { _updateConfig, api } from 'lib';
-import { databaseTypes } from 'types';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom} from 'state';
+import {toSnakeCase} from './toSnakeCase';
+import {_updateConfig, api} from 'lib';
+import {databaseTypes} from 'types';
 const fields = ['Max Color', 'Min Color', 'Background Color', 'X Axis Color', 'Y Axis Color', 'Z Axis Color'];
 
 export const Colors = () => {
@@ -54,7 +54,7 @@ export const Colors = () => {
               <summary className="text-sm text-white font-bold mb-2">{field}</summary>
               <SketchPicker
                 color={config[toSnakeCase(field)]}
-                onChange={({ rgb }, _) => handleChange(currentConfig, toSnakeCase(field), rgb)}
+                onChange={({rgb}) => handleChange(currentConfig, toSnakeCase(field), rgb)}
               />
             </details>
           ))}

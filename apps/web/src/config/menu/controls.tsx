@@ -1,12 +1,12 @@
-import { CreateProject } from 'app/[workspaceSlug]/_components/controls/CreateProject';
-import { GridToggle } from 'app/[workspaceSlug]/_components/controls/GridToggle';
-import { OrientationToggle } from 'app/[workspaceSlug]/_components/controls/OrientationToggle';
-import { SettingsDropdown } from 'app/[workspaceSlug]/_components/controls/SettingsDropdown';
-import { ShareButton } from 'app/[workspaceSlug]/_components/controls/ShareButton';
-import { ShowInfo } from 'app/[workspaceSlug]/_components/controls/ShowInfo';
-import { ShowNotifications } from 'app/[workspaceSlug]/_components/controls/ShowNotifications';
-import { CreateTemplateButton } from 'app/[workspaceSlug]/_components/controls/CreateTemplateButton';
-import { AIButton } from 'app/[workspaceSlug]/_components/controls/AIButton';
+import {CreateProject} from 'app/[workspaceSlug]/_components/controls/CreateProject';
+import {GridToggle} from 'app/[workspaceSlug]/_components/controls/GridToggle';
+import {OrientationToggle} from 'app/[workspaceSlug]/_components/controls/OrientationToggle';
+import {SettingsDropdown} from 'app/[workspaceSlug]/_components/controls/SettingsDropdown';
+import {ShareButton} from 'app/[workspaceSlug]/_components/controls/ShareButton';
+import {ShowInfo} from 'app/[workspaceSlug]/_components/controls/ShowInfo';
+import {ShowNotifications} from 'app/[workspaceSlug]/_components/controls/ShowNotifications';
+import {CreateTemplateButton} from 'app/[workspaceSlug]/_components/controls/CreateTemplateButton';
+import {AIButton} from 'app/[workspaceSlug]/_components/controls/AIButton';
 
 export const projectControls = () => [
   {

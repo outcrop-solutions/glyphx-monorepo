@@ -1,9 +1,9 @@
 'use client';
-import { ChevronRightIcon } from '@heroicons/react/solid';
-import { CalendarIcon, SpeakerphoneIcon, TerminalIcon } from '@heroicons/react/outline';
-import { _createDefaultProject, api, useWorkspace } from 'lib/client';
-import { useParams, useRouter } from 'next/navigation';
-import { Route } from 'next';
+import {ChevronRightIcon} from '@heroicons/react/solid';
+import {CalendarIcon, SpeakerphoneIcon, TerminalIcon} from '@heroicons/react/outline';
+import {_createDefaultProject, api, useWorkspace} from 'lib/client';
+import {useParams, useRouter} from 'next/navigation';
+import {Route} from 'next';
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -31,8 +31,8 @@ const items = [
 export const Templates = () => {
   const router = useRouter();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
-  const { data } = useWorkspace();
+  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {data} = useWorkspace();
 
   // mutations
   const handleCreate = async () => {

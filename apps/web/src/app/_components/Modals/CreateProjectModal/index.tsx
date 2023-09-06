@@ -1,22 +1,21 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import produce from 'immer';
-
-import { webTypes } from 'types';
-
-import { NewProject } from './NewProject';
+import {webTypes} from 'types';
+import {NewProject} from './NewProject';
 import ImportProject from './ImportProject';
 import TemplateLibrary from './TemplateLibrary';
 
-import { useSetRecoilState } from 'recoil';
+import {useSetRecoilState} from 'recoil';
 
 import BackBtnIcon from 'public/svg/back-btn-icon.svg';
 import ImportProjectIcon from 'public/svg/import-project-icon.svg';
 import BlankProjectIcon from 'public/svg/blank-project-icon.svg';
 import TemplateLibraryIcon from 'public/svg/template-lib-icon.svg';
-import { WritableDraft } from 'immer/dist/internal';
-import { modalsAtom } from 'state';
+import {WritableDraft} from 'immer/dist/internal';
+import {modalsAtom} from 'state';
 
-export const CreateProjectModal = ({ modalContent }: webTypes.CreateProjectModalProps) => {
+// export const CreateProjectModal = ({ modalContent }: webTypes.CreateProjectModalProps) => {
+export const CreateProjectModal = () => {
   const setModals = useSetRecoilState(modalsAtom);
   const [current, setCurrent] = useState(0);
 

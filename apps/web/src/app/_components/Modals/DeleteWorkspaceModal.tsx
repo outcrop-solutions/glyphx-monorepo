@@ -1,27 +1,26 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { webTypes } from 'types';
-import { useSWRConfig } from 'swr';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import React, {useState} from 'react';
+import {useRouter,useParams} from 'next/navigation';
+import {webTypes} from 'types';
+import {useSWRConfig} from 'swr';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
+import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
-import { _deleteWorkspace, api } from 'lib';
+import {_deleteWorkspace, api} from 'lib';
 import Button from 'app/_components/Button';
 
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { modalsAtom, workspaceAtom } from 'state';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
-import { useParams } from 'next/navigation';
-import { Route } from 'next';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom, workspaceAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {Route} from 'next';
 
-export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceModalProps) => {
-  const { mutate } = useSWRConfig();
+export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceModalProps) => {
+  const {mutate} = useSWRConfig();
   const router = useRouter();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
+  const {workspaceSlug} = params as {workspaceSlug: string};
   const setModals = useSetRecoilState(modalsAtom);
   const setWorkspace = useSetRecoilState(workspaceAtom);
 
@@ -49,6 +48,7 @@ export const DeleteWorkspaceModal = ({ modalContent }: webTypes.DeleteWorkspaceM
               draft.modals.splice(0, 1);
             })
           );
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           setWorkspace(null);
           router.replace('/account' as Route);

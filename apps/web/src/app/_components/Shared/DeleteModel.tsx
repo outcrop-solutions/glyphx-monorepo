@@ -1,8 +1,8 @@
 // NOT USED
-import { useState, useRef, useEffect } from 'react';
-import { Transition } from 'utils/Transition';
+import {useState, useRef, useEffect} from 'react';
+import {Transition} from 'utils/Transition';
 
-export function DeleteModel({ align }) {
+export function DeleteModel({align}) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const trigger = useRef(null);
@@ -10,8 +10,9 @@ export function DeleteModel({ align }) {
 
   // close on click outside
   useEffect(() => {
-    const clickHandler = ({ target }) => {
+    const clickHandler = ({target}) => {
       if (!dropdown.current) return;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
@@ -22,7 +23,7 @@ export function DeleteModel({ align }) {
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler = ({keyCode}) => {
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };

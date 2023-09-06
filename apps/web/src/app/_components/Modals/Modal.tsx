@@ -1,27 +1,27 @@
 import React from 'react';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom } from 'state';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
 import ClickAwayListener from 'react-click-away-listener';
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
-import { CreateWorkspaceModal } from './CreateWorkspaceModal';
-import { CreateProjectModal } from './CreateProjectModal';
+import {CreateWorkspaceModal} from './CreateWorkspaceModal';
+import {CreateProjectModal} from './CreateProjectModal';
 import produce from 'immer';
-import { DeleteAccountModal } from './DeleteAccountModal';
-import { DeleteWorkspaceModal } from './DeleteWorkspaceModal';
-import { DeleteProjectModal } from './DeleteProjectModal';
-import { FileErrorsModal } from './FileErrorsModal';
-import { FileDecisionModal } from './FileDecisionModal';
-import { WritableDraft } from 'immer/dist/internal';
-import { DeleteFileModal } from './DeleteFileModal';
-import { CreateStateModal } from './CreateStateModal';
-import { DeleteStateModal } from './DeleteStateModal';
-import { UpdateStateModal } from './UpdateStateModal';
-import { AIRecommendationsModal } from './AIRecommendationsModal';
-import { CreateProjectTemplateModal } from './CreateProjectTemplateModal';
-import { TemplatePreviewModal } from './TemplatePreviewModal';
+import {DeleteAccountModal} from './DeleteAccountModal';
+import {DeleteWorkspaceModal} from './DeleteWorkspaceModal';
+import {DeleteProjectModal} from './DeleteProjectModal';
+import {FileErrorsModal} from './FileErrorsModal';
+import {FileDecisionModal} from './FileDecisionModal';
+import {WritableDraft} from 'immer/dist/internal';
+import {DeleteFileModal} from './DeleteFileModal';
+import {CreateStateModal} from './CreateStateModal';
+import {DeleteStateModal} from './DeleteStateModal';
+import {UpdateStateModal} from './UpdateStateModal';
+import {AIRecommendationsModal} from './AIRecommendationsModal';
+import {CreateProjectTemplateModal} from './CreateProjectTemplateModal';
+import {TemplatePreviewModal} from './TemplatePreviewModal';
 
-export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) => {
+export const Modal = ({modalContent}: {modalContent: webTypes.ModalState}) => {
   const setModals = useSetRecoilState(modalsAtom);
 
   // pop current modal off the stack
@@ -47,7 +47,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS}
                           >
                         }
                       />
@@ -58,7 +58,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW}
                           >
                         }
                       />
@@ -69,7 +69,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE}
                           >
                         }
                       />
@@ -80,7 +80,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT}
                           >
                         }
                       />
@@ -91,7 +91,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE}
                           >
                         }
                       />
@@ -102,7 +102,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.UPDATE_STATE }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.UPDATE_STATE}
                           >
                         }
                       />
@@ -113,7 +113,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_STATE }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_STATE}
                           >
                         }
                       />
@@ -124,7 +124,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_WORKSPACE}
                           >
                         }
                       />
@@ -135,7 +135,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT}
                           >
                         }
                       />
@@ -146,7 +146,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_WORKSPACE}
                           >
                         }
                       />
@@ -157,7 +157,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT}
                           >
                         }
                       />
@@ -168,7 +168,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_FILE }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.DELETE_FILE}
                           >
                         }
                       />
@@ -179,7 +179,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS}
                           >
                         }
                       />
@@ -190,7 +190,7 @@ export const Modal = ({ modalContent }: { modalContent: webTypes.ModalState }) =
                         modalContent={
                           modalContent as Extract<
                             webTypes.ModalState,
-                            { type: typeof webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS }
+                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.FILE_ERRORS}
                           >
                         }
                       />

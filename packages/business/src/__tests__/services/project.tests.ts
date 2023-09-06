@@ -15,7 +15,9 @@ describe('#services/project', () => {
   });
   context('getProject', () => {
     it('should get a project by id', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
@@ -35,7 +37,9 @@ describe('#services/project', () => {
     });
 
     it('should get a project by id when id is a string', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
@@ -54,7 +58,9 @@ describe('#services/project', () => {
       assert.isTrue(getProjectFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the project cannot be found', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the psoject';
       const err = new error.DataNotFoundError(
         errMessage,
@@ -90,7 +96,9 @@ describe('#services/project', () => {
     });
 
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -131,12 +139,20 @@ describe('#services/project', () => {
   });
   context('createProject', () => {
     it('will create a Project, attach to workspace models, and create project membership', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const memberEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       // createProject
       const createProjectFromModelStub = sandbox.stub();
@@ -225,12 +241,20 @@ describe('#services/project', () => {
       assert.isTrue(updateWorkspaceStub.calledOnce);
     });
     it('will create a Project, attach to workspace models, and create project membership when workspaceId is a string', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       // createProject
       const createProjectFromModelStub = sandbox.stub();
@@ -318,12 +342,20 @@ describe('#services/project', () => {
       // assert.isOk(doc.workspace.projects);
     });
     it('will create a Project, attach to workspace models, and create project membership when userId is a string', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       // createProject
       const createProjectFromModelStub = sandbox.stub();
@@ -414,9 +446,13 @@ describe('#services/project', () => {
     // project model fails
     it('will publish and rethrow an DataValidationError when project model throws it', async () => {
       const projectName = 'projectName1';
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
       const errMessage = 'Data validation error';
@@ -461,9 +497,13 @@ describe('#services/project', () => {
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError', async () => {
       const projectName = 'projectName1';
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
       const errMessage = 'A DataOperationError has occurred';
@@ -512,9 +552,13 @@ describe('#services/project', () => {
     });
     it('will publish and throw an DataServiceError when project model throws a UnexpectedError', async () => {
       const projectName = 'projectName1';
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
       const errMessage = 'A DataOperationError has occurred';
@@ -564,12 +608,20 @@ describe('#services/project', () => {
 
     // member model fails
     it('will publish and rethrow an InvalidArgumentError when member model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
@@ -634,12 +686,20 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when member model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
-      const memberId = new mongooseTypes.ObjectId();
-      const userId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
@@ -704,12 +764,20 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when member model throws a DataOperationError', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.DatabaseOperationError(errMessage, '', '');
 
@@ -776,12 +844,20 @@ describe('#services/project', () => {
 
     // project model fails
     it('will publish and rethrow an InvalidArgumentError when pr model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
@@ -861,12 +937,20 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when workspace model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
@@ -946,12 +1030,20 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.DatabaseOperationError(errMessage, '', '');
 
@@ -1032,12 +1124,20 @@ describe('#services/project', () => {
 
     // user model fails
     it('will publish and rethrow an InvalidArgumentError when pr model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
@@ -1131,12 +1231,20 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when workspace model throws it', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
@@ -1230,12 +1338,20 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const memberId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
       const err = new error.DatabaseOperationError(errMessage, '', '');
 
@@ -1331,7 +1447,9 @@ describe('#services/project', () => {
   });
   context('getProjects', () => {
     it('should get projects by filter', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const projectName = 'project1';
       const projectFilter = {name: projectName};
 
@@ -1435,7 +1553,9 @@ describe('#services/project', () => {
   });
   context('getProjectFileStats', () => {
     it("should get a project's file stats by id", async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
         fileName: 'testFile',
         tableName: 'testTable',
@@ -1464,7 +1584,9 @@ describe('#services/project', () => {
       assert.isTrue(getProjectFromModelStub.calledOnce);
     });
     it("should get a project's file stats returning an empty array if the stats do not exist", async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
         _id: projectId,
@@ -1487,7 +1609,9 @@ describe('#services/project', () => {
   });
   context('getProjectViewName', () => {
     it("should get a project's viewName by id", async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'testViewName';
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
@@ -1509,7 +1633,9 @@ describe('#services/project', () => {
       assert.isTrue(getProjectFromModelStub.calledOnce);
     });
     it("should get a project's viewName returning an empty string if the viewName does not exist", async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
         _id: projectId,
@@ -1529,7 +1655,9 @@ describe('#services/project', () => {
   });
   context('updateProjectFileStats', () => {
     it('will update a projects file stats', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
         fileName: 'testFile',
         tableName: 'testTable',
@@ -1559,7 +1687,9 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will update a projects file stats when the id is a string', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
         fileName: 'testFile',
         tableName: 'testTable',
@@ -1590,7 +1720,9 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when project model throws it ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
         fileName: 'testFile',
         tableName: 'testTable',
@@ -1636,7 +1768,9 @@ describe('#services/project', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when project model throws it ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
         fileName: 'testFile',
         tableName: 'testTable',
@@ -1681,7 +1815,9 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
         fileName: 'testFile',
         tableName: 'testTable',
@@ -1732,7 +1868,9 @@ describe('#services/project', () => {
   });
   context('updateProjectViewName', () => {
     it('will update a projects view name', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
@@ -1756,7 +1894,9 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will update a projects view name when the id is a string', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
@@ -1780,7 +1920,9 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when project model throws it ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'testViewName';
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
@@ -1819,7 +1961,9 @@ describe('#services/project', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when project model throws it ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -1857,7 +2001,9 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
@@ -1901,7 +2047,9 @@ describe('#services/project', () => {
   });
   context('updateProjectView', () => {
     it('will update a project', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
@@ -1924,7 +2072,9 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will update a project when the id is a string', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.resolves({
@@ -1947,7 +2097,9 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when project model throws it ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'testViewName';
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
@@ -1986,7 +2138,9 @@ describe('#services/project', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when project model throws it ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -2024,7 +2178,9 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError ', async () => {
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(

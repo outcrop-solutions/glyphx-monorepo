@@ -1,5 +1,5 @@
-import { webTypes, fileIngestionTypes } from 'types';
-import { FILE_RULES } from './rules';
+import {webTypes, fileIngestionTypes} from 'types';
+import {FILE_RULES} from './rules';
 /**
  * @note populates file error modal
  * @param payload
@@ -14,7 +14,7 @@ export const runRulesEngine = (
 ): webTypes.RuleWithData<webTypes.IFileRule>[] | false => {
   const stats = FILE_RULES.map((rule: webTypes.IFileRule) => {
     const data = rule?.condition!(payload, existingFiles, acceptedFiles);
-    return { ...rule, isSubmitting: false, data: data };
+    return {...rule, isSubmitting: false, data: data};
   });
 
   const filtered = stats.filter((stat) => stat.data);

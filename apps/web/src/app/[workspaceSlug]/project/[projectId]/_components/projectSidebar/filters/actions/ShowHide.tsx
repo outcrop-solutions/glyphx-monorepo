@@ -1,11 +1,8 @@
-import React from "react";
+import React from 'react';
 
-export function ShowHide({ applied, handleApply }) {
+export function ShowHide({applied, handleApply}) {
   return (
-    <div
-      onClick={handleApply}
-      className="flex items-center justify-center h-6 w-6"
-    >
+    <div onClick={handleApply} className="flex items-center justify-center h-6 w-6">
       {applied ? (
         <svg
           aria-hidden="true"
@@ -23,15 +20,7 @@ export function ShowHide({ applied, handleApply }) {
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <circle
-              cx="12"
-              cy="12"
-              r="3"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <circle cx="12" cy="12" r="3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </g>
         </svg>
       ) : (

@@ -78,11 +78,15 @@ describe('#services/workspace', () => {
   });
   context('createWorkspace', () => {
     it('will create a Workspace with user associated as creator', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -189,11 +193,15 @@ describe('#services/workspace', () => {
       assert.strictEqual(doc?.creator._id, creatorId);
     });
     it('will create Workspace with user associated as creator when creatorId is a string', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -300,11 +308,15 @@ describe('#services/workspace', () => {
       assert.strictEqual(doc?.creator._id, creatorId);
     });
     it('will create Workspace with user associated as creator with correct slug when count is 0', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 0;
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -413,7 +425,9 @@ describe('#services/workspace', () => {
     it('will publish and rethrow a DataServiceError when workspace service throws it ', async () => {
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
       const errMessage = 'You have an invalid argument';
       const err = new error.DataServiceError(
@@ -464,7 +478,9 @@ describe('#services/workspace', () => {
     it('will publish and rethrow a DataValidationError when workspace model throws it', async () => {
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
       const count = 1;
       const errMessage = 'You have an invalid document';
@@ -524,7 +540,9 @@ describe('#services/workspace', () => {
     it('will publish and rethrow an UnexpectedError when underlying workspace model throws it ', async () => {
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
       const count = 1;
       const errMessage = 'You have an invalid document';
@@ -580,7 +598,9 @@ describe('#services/workspace', () => {
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError ', async () => {
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const count = 1;
       const creatorEmail = 'testUserEmail';
       const errMessage = 'A DataOperationError has occurred';
@@ -640,9 +660,13 @@ describe('#services/workspace', () => {
   });
   context('deleteWorkspace', () => {
     it('should update a workspace deletedAt', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const getWorkspaceFromModelStub = sandbox.stub();
@@ -730,9 +754,13 @@ describe('#services/workspace', () => {
       assert.isTrue(updateMemberWithFilterStub.calledOnce);
     });
     it('should update a workspace deletedAt wehn userId is a string', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const getWorkspaceFromModelStub = sandbox.stub();
@@ -822,7 +850,9 @@ describe('#services/workspace', () => {
 
     // getOwnWorkspace fails
     it('will return null, and publish DataNotFoundError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -865,7 +895,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish DataNotFoundError if getOwnWorkspace returns null', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -908,7 +940,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidArgumentError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -951,7 +985,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will re-publish DataServiceError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1004,8 +1040,12 @@ describe('#services/workspace', () => {
 
     // delete workspace fails
     it('will return null, and publish InvalidArgumentError if updateWorkspaceByFilter in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1070,8 +1110,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidOperationError if updateWorkspaceByFilter in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1136,8 +1180,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will throw and publish DataServiceError if updateWorkspaceByFilter in underlying model throws DatabaseOperationError', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1203,9 +1251,13 @@ describe('#services/workspace', () => {
   });
   context('getOwnWorkspace', () => {
     it('should get default user workspace by filter if all condiitons match happy case', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1244,10 +1296,16 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('should return null if no workspaces contain a member email match', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const differentUserId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const differentUserId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1284,10 +1342,16 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('should return null if no workspaces contain a member email match that is also OWNER', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const differentUserId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const differentUserId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1324,10 +1388,16 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('should return null if no workspaces contain a member owner match that has not been deleted', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const differentUserId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const differentUserId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1364,7 +1434,9 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('will log the failure, return null and publish DataNotFoundError if the underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1403,7 +1475,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure, return null and publish InvalidArgumentError if the underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1444,7 +1518,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Something bad has happened';
@@ -1491,7 +1567,9 @@ describe('#services/workspace', () => {
   });
   context('getInvitation', () => {
     it('should get associated workspace with invite by inviteCode', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceInviteCode = 'testInviteCode';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1639,7 +1717,9 @@ describe('#services/workspace', () => {
   });
   context('getSiteWorkspace', () => {
     it('should get non-deleted workspaces by slug', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1778,9 +1858,13 @@ describe('#services/workspace', () => {
   });
   context('getWorkspace', () => {
     it('should get a workspace by slug for a given user', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1819,10 +1903,16 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('should return null if no workspaces contain a member email match', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const differentUserId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const differentUserId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1859,10 +1949,16 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('should return null if no workspaces contain a member match that has not been deleted', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const differentUserId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const differentUserId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -1899,7 +1995,9 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('will log the failure, return null and publish DataNotFoundError if the underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1938,7 +2036,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure, return null and publish InvalidArgumentError if the underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Cannot find the workspace';
@@ -1979,7 +2079,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const errMessage = 'Something bad has happened';
@@ -2022,9 +2124,13 @@ describe('#services/workspace', () => {
   });
   context('getWorkspaces', () => {
     it('should get all workspaces with accepted invitations for a given user', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -2065,10 +2171,16 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('should return null if no workspaces contain a member email match', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const differentUserId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const differentUserId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -2104,10 +2216,16 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('should return null if no workspaces contain a member match that has not been deleted', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const differentUserId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const differentUserId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -2143,7 +2261,9 @@ describe('#services/workspace', () => {
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
     it('will log the failure, return null and publish DataNotFoundError if the underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const errMessage = 'Cannot find the workspace';
 
@@ -2180,7 +2300,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure, return null and publish InvalidArgumentError if the underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const errMessage = 'Cannot find the workspace';
 
@@ -2219,7 +2341,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const errMessage = 'Something bad has happened';
       const err = new error.DatabaseOperationError(
@@ -2261,7 +2385,9 @@ describe('#services/workspace', () => {
   });
   context('getWorkspacePaths', () => {
     it('should get workspace paths compatible with what nextjs expects', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
       const numItems = 1;
 
@@ -2404,13 +2530,19 @@ describe('#services/workspace', () => {
   context('inviteUsers', () => {
     // happy case
     it('should create members if they do not already exist and attach them to the workspace', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
@@ -2493,13 +2625,19 @@ describe('#services/workspace', () => {
       assert.strictEqual(result!.members!.length, 1);
     });
     it('should create members if they do not already exist and attach them to the workspace when the userId is a string', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
@@ -2586,7 +2724,9 @@ describe('#services/workspace', () => {
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
@@ -2643,7 +2783,9 @@ describe('#services/workspace', () => {
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
@@ -2705,11 +2847,15 @@ describe('#services/workspace', () => {
     });
     // user model fails
     it('will publish and rethrow a DataNotFoundError when user model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
@@ -2776,11 +2922,15 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw a DataServiceError when user model throws DatabaseOperationError', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
@@ -2854,11 +3004,15 @@ describe('#services/workspace', () => {
     });
     // member model fails
     it('will publish and throw a DataServiceError when member model create fails', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
@@ -2939,13 +3093,19 @@ describe('#services/workspace', () => {
     });
     // workspace model fails
     it('will publish and rethrow a InvalidArgumentError when workspace model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
@@ -3030,13 +3190,19 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow a DataValidationError when workspace model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
@@ -3121,13 +3287,19 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow a DataNotFoundError when workspace model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
@@ -3212,13 +3384,19 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish a DataServiceError when workspace model throws a DatabaseOperationError', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const count = 1;
 
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
       const memberRole = databaseTypes.constants.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
@@ -3315,7 +3493,9 @@ describe('#services/workspace', () => {
   });
   context('isWorkspaceCreator', () => {
     it('should return true when creatorId and Id are equal', async () => {
-      const creatorId = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const result = await workspaceService.isWorkspaceCreator(
         creatorId,
         creatorId
@@ -3323,8 +3503,12 @@ describe('#services/workspace', () => {
       assert.isTrue(result);
     });
     it('should return false when creatorId and Id are not equal', async () => {
-      const creatorId = new mongooseTypes.ObjectId();
-      const id = new mongooseTypes.ObjectId();
+      const creatorId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const id = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const result = await workspaceService.isWorkspaceCreator(id, creatorId);
       assert.isFalse(result);
@@ -3332,9 +3516,13 @@ describe('#services/workspace', () => {
   });
   context('isWorkspaceOwner', () => {
     it('should return true when given user is the owner of the workspace', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
 
       const workspace = {
@@ -3357,9 +3545,13 @@ describe('#services/workspace', () => {
       assert.isTrue(result);
     });
     it('should return false when the user is not the workspace owner', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
 
       const workspace = {
@@ -3385,14 +3577,20 @@ describe('#services/workspace', () => {
   context('joinWorkspace', () => {
     // happy case
     it('will create member, add it to the workspace, and change their invitation status to accepted when member does not exist', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
       const memberEmail = 'testmember@gmail.com';
 
@@ -3493,14 +3691,20 @@ describe('#services/workspace', () => {
       assert.isTrue(addMembersFromWorkspaceModel.calledOnce);
     });
     it('will update member, add it to the workspace, and change their invitation status to accepted when member already exists', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
       const memberEmail = 'testmember@gmail.com';
 
@@ -3707,12 +3911,16 @@ describe('#services/workspace', () => {
 
     // memberEmailExists fails
     it('will publish a DataServiceError when member model throws a DatabaseOperationError', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -3793,12 +4001,16 @@ describe('#services/workspace', () => {
 
     // createMember fails
     it('will publish and rethrow an InvalidArgumentError when the member model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -3883,12 +4095,16 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an DataValidationError when the member model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -3973,12 +4189,16 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish a DataServiceError when member model throws a DatabaseOperationError', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4071,12 +4291,16 @@ describe('#services/workspace', () => {
 
     // updateMemberWithFilter fails
     it('will publish and rethrow an InvalidArgumentError when the member model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4161,12 +4385,16 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when the member model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4251,12 +4479,16 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish a DataServiceError when member model throws a DatabaseOperationError', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4349,14 +4581,20 @@ describe('#services/workspace', () => {
 
     // addMembers fails
     it('will publish and rethrow an InvalidArgumentError when the workspace model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4458,14 +4696,20 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow a DataNotFoundError when the workspace model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4567,14 +4811,20 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow a DataValidationError when the workspace model throws it', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4676,14 +4926,20 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw a DataServiceError when the workspace model throws a DatabaseOperationError', async () => {
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testWorkspaceSlug';
       const joinedDate = new Date();
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberId = new mongooseTypes.ObjectId();
+      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
       const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
 
@@ -4792,9 +5048,13 @@ describe('#services/workspace', () => {
   });
   context('updateWorkspaceName', () => {
     it('should update a workspace name', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
 
@@ -4857,7 +5117,9 @@ describe('#services/workspace', () => {
       assert.isTrue(getWorkspaceFromModelStub.calledOnce);
     });
     it('will return null, and publish DataNotFoundError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -4902,7 +5164,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish DataNotFoundError if getOwnWorkspace returns null', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -4947,7 +5211,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidArgumentError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -4992,7 +5258,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will re-publish DataServiceError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -5045,8 +5313,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidArgumentError if updateWorkspaceByFilter in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -5113,8 +5385,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidOperationError if updateWorkspaceByFilter in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -5181,8 +5457,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will throw and publish DataServiceError if updateWorkspaceByFilter in underlying model throws DatabaseOperationError', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -5248,8 +5528,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish DataNotFoundError if getWorkspaceById in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -5326,8 +5610,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will throw and publish DataServiceError if getWorkspaceById in underlying model throws DatabaseOperationError', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceName = 'testName';
@@ -5404,9 +5692,13 @@ describe('#services/workspace', () => {
   });
   context('updateWorkspaceSlug', () => {
     it('should update a workspace slug', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId = new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const workspaceSlug = 'testSlug';
       const workspaceName = 'testName';
       const newWorkspaceSlug = 'testNewSlug';
@@ -5471,7 +5763,9 @@ describe('#services/workspace', () => {
       assert.isTrue(getWorkspaceFromModelStub.calledOnce);
     });
     it('will return null, and publish DataNotFoundError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';
@@ -5516,7 +5810,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish DataNotFoundError if getOwnWorkspace returns null', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'tnewTstSlug';
@@ -5561,7 +5857,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidArgumentError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';
@@ -5606,7 +5904,9 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will re-publish DataServiceError if getOwnWorkspace throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';
@@ -5659,8 +5959,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidArgumentError if updateWorkspaceByFilter in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';
@@ -5727,8 +6031,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish InvalidOperationError if updateWorkspaceByFilter in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';
@@ -5795,8 +6103,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will throw and publish DataServiceError if updateWorkspaceByFilter in underlying model throws DatabaseOperationError', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';
@@ -5862,8 +6174,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will return null, and publish DataNotFoundError if getWorkspaceById in underlying model throws one', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';
@@ -5940,8 +6256,12 @@ describe('#services/workspace', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will throw and publish DataServiceError if getWorkspaceById in underlying model throws DatabaseOperationError', async () => {
-      const userId = new mongooseTypes.ObjectId();
-      const workspaceId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const workspaceSlug = 'testSlug';
       const newWorkspaceSlug = 'newTestSlug';

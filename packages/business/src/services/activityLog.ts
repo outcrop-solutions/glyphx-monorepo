@@ -11,7 +11,9 @@ export class ActivityLogService {
       const id =
         logId instanceof mongooseTypes.ObjectId
           ? logId
-          : new mongooseTypes.ObjectId(logId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(logId);
       const log =
         await mongoDbConnection.models.ActivityLogModel.getActivityLogById(id);
       return log;
@@ -43,7 +45,9 @@ export class ActivityLogService {
       const id =
         resourceId instanceof mongooseTypes.ObjectId
           ? resourceId
-          : new mongooseTypes.ObjectId(resourceId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(resourceId);
 
       let logs;
       if (type === databaseTypes.constants.RESOURCE_MODEL.PROJECT) {
@@ -101,18 +105,24 @@ export class ActivityLogService {
       const actorCastId =
         actorId instanceof mongooseTypes.ObjectId
           ? actorId
-          : new mongooseTypes.ObjectId(actorId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(actorId);
       const resourceCastId =
         resourceId instanceof mongooseTypes.ObjectId
           ? resourceId
-          : new mongooseTypes.ObjectId(resourceId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(resourceId);
 
       let spaceCastId;
       if (workspaceId) {
         spaceCastId =
           workspaceId instanceof mongooseTypes.ObjectId
             ? workspaceId
-            : new mongooseTypes.ObjectId(workspaceId);
+            : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              new mongooseTypes.ObjectId(workspaceId);
       }
 
       let projCastId;
@@ -120,7 +130,9 @@ export class ActivityLogService {
         projCastId =
           projectId instanceof mongooseTypes.ObjectId
             ? projectId
-            : new mongooseTypes.ObjectId(projectId);
+            : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              new mongooseTypes.ObjectId(projectId);
       }
 
       const input = {

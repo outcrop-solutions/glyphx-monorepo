@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import {useState, useRef, useEffect} from 'react';
+import {useRecoilState, useSetRecoilState} from 'recoil';
 
-import { showProjectsGridViewAtom } from 'state/ui';
-import { projectAtom } from 'state/project';
+import {showProjectsGridViewAtom} from 'state/ui';
+import {projectAtom} from 'state/project';
 
 import ToggleGridOnIcon from 'public/svg/toggle-grid-on.svg';
 import ToggleGridOffIcon from 'public/svg/toggle-grid-off.svg';
@@ -20,8 +20,9 @@ export function GridToggle() {
 
   // close on click outside
   useEffect(() => {
-    const clickHandler = ({ target }) => {
+    const clickHandler = ({target}) => {
       if (!dropdown.current) return;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);
@@ -32,7 +33,7 @@ export function GridToggle() {
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler = ({keyCode}) => {
       if (!dropdownOpen || keyCode !== 27) return;
       setDropdownOpen(false);
     };

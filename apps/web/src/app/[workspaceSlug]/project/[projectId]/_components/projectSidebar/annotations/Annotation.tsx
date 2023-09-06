@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-export const Annotation = ({ item }) => {
+export const Annotation = ({item}) => {
   dayjs.extend(relativeTime);
   return (
     <li

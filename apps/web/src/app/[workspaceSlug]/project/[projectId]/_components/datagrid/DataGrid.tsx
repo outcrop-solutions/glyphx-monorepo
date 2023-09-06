@@ -1,16 +1,13 @@
-import { webTypes } from 'types';
-import { useMemo } from 'react';
+import {useMemo} from 'react';
 import BarLoader from 'react-spinners/BarLoader';
-import { DraggableHeaderRenderer } from './DraggableHeaderRenderer';
+import {DraggableHeaderRenderer} from './DraggableHeaderRenderer';
 import dynamic from 'next/dynamic';
-import { useRecoilValue } from 'recoil';
-import { orientationAtom } from 'state';
+
 const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
 });
 
-export const Datagrid = ({ data }) => {
-  const orientation = useRecoilValue(orientationAtom);
+export const Datagrid = ({data}) => {
   // data grid column handling
   const draggableColumns = useMemo(() => {
     function HeaderRenderer(props) {
@@ -20,13 +17,14 @@ export const Datagrid = ({ data }) => {
     return data
       ? data.columns?.map((c) => {
           if (c.key === 'id') return c;
-          return { ...c, headerRenderer: HeaderRenderer };
+          return {...c, headerRenderer: HeaderRenderer};
         })
       : [];
   }, [data]);
 
   return data ? (
     <ReactDataGrid
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       columns={draggableColumns}
       rowGetter={(i) => data.rows[i]}

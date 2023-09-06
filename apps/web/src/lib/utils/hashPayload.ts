@@ -1,5 +1,5 @@
 import MD5 from 'crypto-js/md5';
-import { databaseTypes } from 'types';
+import {databaseTypes} from 'types';
 
 /**
  * Performs payload hashing operation

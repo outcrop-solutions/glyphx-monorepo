@@ -1,6 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import type { Session } from 'next-auth';
-import { modelConfigService } from 'business';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import type {Session} from 'next-auth';
+import {modelConfigService} from 'business';
 /**
  * Create Default Config
  *
@@ -15,9 +15,9 @@ import { modelConfigService } from 'business';
 export const createConfig = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const config = await modelConfigService.createModelConfig(req.body);
-    res.status(200).json({ data: config });
+    res.status(200).json({data: config});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 
@@ -34,10 +34,10 @@ export const createConfig = async (req: NextApiRequest, res: NextApiResponse) =>
 
 export const getConfigs = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const configs = await modelConfigService.getModelConfigs({ deletedAt: undefined });
-    res.status(200).json({ data: { configs } });
+    const configs = await modelConfigService.getModelConfigs({deletedAt: undefined});
+    res.status(200).json({data: {configs}});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 
@@ -53,15 +53,15 @@ export const getConfigs = async (req: NextApiRequest, res: NextApiResponse) => {
  */
 
 export const getConfig = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { configId } = req.query;
+  const {configId} = req.query;
   if (Array.isArray(configId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
     const config = await modelConfigService.getModelConfig(configId as string);
-    res.status(200).json({ data: { config } });
+    res.status(200).json({data: {config}});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 
@@ -77,17 +77,17 @@ export const getConfig = async (req: NextApiRequest, res: NextApiResponse) => {
  */
 
 export const updateConfig = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { configId } = req.query;
-  const { config } = req.body;
+  const {configId} = req.query;
+  const {config} = req.body;
   if (Array.isArray(configId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
   try {
     const updatedConfig = await modelConfigService.updateModelConfig(configId as string, config);
 
-    res.status(200).json({ data: { config: updatedConfig } });
+    res.status(200).json({data: {config: updatedConfig}});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };
 
@@ -105,7 +105,7 @@ export const updateConfig = async (req: NextApiRequest, res: NextApiResponse, se
 const ALLOW_DELETE = true;
 
 export const deleteConfig = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { configId } = req.query;
+  const {configId} = req.query;
   if (Array.isArray(configId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
@@ -113,8 +113,8 @@ export const deleteConfig = async (req: NextApiRequest, res: NextApiResponse, se
     if (ALLOW_DELETE) {
       await modelConfigService.deleteModelConfig(configId as string);
     }
-    res.status(200).json({ data: { email: session?.user?.email } });
+    res.status(200).json({data: {email: session?.user?.email}});
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };

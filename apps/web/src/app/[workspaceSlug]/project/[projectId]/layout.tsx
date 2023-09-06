@@ -1,20 +1,20 @@
 'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import {useEffect} from 'react';
+import {useRouter} from 'next/navigation';
+import {useSession} from 'next-auth/react';
 
 import Content from 'app/_components/Content';
 import Header from 'app/_components/Header';
 import Sidebar from 'app/_components/Sidebar';
 import menu from 'config/menu/index';
-import { useWorkspace } from 'lib';
-import { RightSidebar } from 'app/[workspaceSlug]/_components/rightSidebar';
-import { ProjectSidebar } from './_components/projectSidebar';
+import {useWorkspace} from 'lib';
+import {RightSidebar} from 'app/[workspaceSlug]/_components/rightSidebar';
+import {ProjectSidebar} from './_components/projectSidebar';
 
-const ProjectLayout = ({ children }) => {
-  const { data } = useSession();
+const ProjectLayout = ({children}) => {
+  const {data} = useSession();
   const router = useRouter();
-  const { data: result } = useWorkspace();
+  const {data: result} = useWorkspace();
 
   useEffect(() => {
     if (!data) {

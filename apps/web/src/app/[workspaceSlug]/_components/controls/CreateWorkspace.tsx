@@ -1,9 +1,9 @@
 import React from 'react';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom } from 'state';
-import { webTypes } from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import {webTypes} from 'types';
 
 export const CreateWorkspace = () => {
   const setModals = useSetRecoilState(modalsAtom);

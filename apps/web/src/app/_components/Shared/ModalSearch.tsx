@@ -1,16 +1,16 @@
-import { useRef, useEffect } from 'react';
+import React, {useRef, useEffect} from 'react';
 import Link from 'next/link';
-import { Transition } from 'utils/Transition';
-import React from 'react';
-import { Route } from 'next';
+import {Transition} from 'utils/Transition';
+import {Route} from 'next';
 
-export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
+export function ModalSearch({id, searchId, modalOpen, setModalOpen}) {
   const modalContent = useRef(null);
   const searchInput = useRef(null);
 
   // close on click outside
   useEffect(() => {
-    const clickHandler = ({ target }) => {
+    const clickHandler = ({target}) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!modalOpen || modalContent.current?.contains(target)) return;
       setModalOpen(false);
@@ -21,7 +21,7 @@ export function ModalSearch({ id, searchId, modalOpen, setModalOpen }) {
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler = ({keyCode}) => {
       if (!modalOpen || keyCode !== 27) return;
       setModalOpen(false);
     };

@@ -1,9 +1,9 @@
-import { webTypes } from 'types';
-import { authOptions } from 'app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth/next';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { Initializer } from 'business';
-import { createCompletion } from 'lib/server/ai';
+import {webTypes} from 'types';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
+import {NextApiRequest, NextApiResponse} from 'next';
+import {Initializer} from 'business';
+import {createCompletion} from 'lib/server/ai';
 
 // export const runtime = 'edge';
 
@@ -23,7 +23,7 @@ const ai = async (req: NextApiRequest, res: NextApiResponse) => {
       return createCompletion(req, res);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
-      return res.status(405).json({ error: `${req.method} method unsupported` });
+      return res.status(405).json({error: `${req.method} method unsupported`});
   }
 };
 

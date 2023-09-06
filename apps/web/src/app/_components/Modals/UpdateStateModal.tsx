@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createState, _updateStateName, api } from 'lib';
-import { webTypes } from 'types';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom, projectAtom } from 'state';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import {WritableDraft} from 'immer/dist/internal';
+import {_updateStateName, api} from 'lib';
+import {webTypes} from 'types';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom, projectAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
-export const UpdateStateModal = ({ modalContent }: webTypes.UpdateStateModalProps) => {
+export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [name, setName] = useState('');
@@ -21,21 +21,21 @@ export const UpdateStateModal = ({ modalContent }: webTypes.UpdateStateModalProp
   const updateState = (event) => {
     event.preventDefault();
     api({
-      ..._updateStateName({ id: modalContent.data.id.toString(), name: name }),
+      ..._updateStateName({id: modalContent.data.id.toString(), name: name}),
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals[0].isSubmitting = state as boolean;
           })
         ),
-      onError: (_: any) => {
+      onError: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.splice(0, 1);
           })
         );
       },
-      onSuccess: (data: any) => {
+      onSuccess: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.splice(0, 1);

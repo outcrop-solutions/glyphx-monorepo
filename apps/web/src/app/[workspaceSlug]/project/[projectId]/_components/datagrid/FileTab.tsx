@@ -1,10 +1,10 @@
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { selectedFileIndexSelector } from 'state/files';
-import { XIcon } from '@heroicons/react/solid';
-import { useFileSystem } from 'services/useFileSystem';
+import {useRecoilValue} from 'recoil';
+import {selectedFileIndexSelector} from 'state/files';
+import {XIcon} from '@heroicons/react/solid';
+import {useFileSystem} from 'services/useFileSystem';
 
-export const FileTab = ({ tableName, fileIndex }) => {
-  const { closeFile, selectFile } = useFileSystem();
+export const FileTab = ({tableName, fileIndex}) => {
+  const {closeFile, selectFile} = useFileSystem();
   const selectedFile = useRecoilValue(selectedFileIndexSelector);
 
   const handleClose = (e) => {

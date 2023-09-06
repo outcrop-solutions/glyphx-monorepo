@@ -19,7 +19,9 @@ describe('#services/customer', () => {
 
   context('getPayment', () => {
     it('should get a customerPayment by email', async () => {
-      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
 
       const getCustomerPaymentFromModelStub = sandbox.stub();
@@ -118,10 +120,16 @@ describe('#services/customer', () => {
   });
   context('createPaymentAccount', () => {
     it('will createCustomerPayment with user associated as customer', async () => {
-      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const stripeId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const createStub = sandbox.stub();
       createStub.resolves({id: customerPaymentId});
@@ -180,10 +188,16 @@ describe('#services/customer', () => {
       assert.strictEqual(doc?.customer._id, userId);
     });
     it('will createCustomerPayment with user associated as customer when customerId is a string', async () => {
-      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const userId = new mongooseTypes.ObjectId();
-      const stripeId = new mongooseTypes.ObjectId();
+      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
+      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const createStub = sandbox.stub();
       createStub.resolves({id: customerPaymentId});
@@ -242,9 +256,13 @@ describe('#services/customer', () => {
       assert.strictEqual(doc?.customer._id, userId);
     });
     it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
-      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const stripeId = new mongooseTypes.ObjectId();
+      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(
         errMessage,
@@ -306,9 +324,13 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow a DataValidationError when customerPayment model throws it ', async () => {
-      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const stripeId = new mongooseTypes.ObjectId();
+      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
       const err = new error.DataValidationError(errMessage, '', '');
 
@@ -366,9 +388,13 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when customerPayment model throws a DataOperationError ', async () => {
-      const customerPaymentId = new mongooseTypes.ObjectId();
+      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const stripeId = new mongooseTypes.ObjectId();
+      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,

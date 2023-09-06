@@ -1,6 +1,6 @@
 'use client';
 /* eslint-disable react/display-name */
-const Button = ({ children, className, ...rest }) => {
+const Button = ({children, className, ...rest}) => {
   return (
     <button
       className={`flex items-center bg-primary-yellow text-secondary-space-blue justify-around px-5 py-2 rounded disabled:opacity-75 ${className}`}
@@ -11,7 +11,7 @@ const Button = ({ children, className, ...rest }) => {
   );
 };
 
-Button.Secondary = ({ children, className, ...rest }) => {
+Button.Secondary = ({children, className, ...rest}) => {
   return (
     <button
       className={`flex items-center bg-gray justify-around px-5 py-2 rounded disabled:opacity-75 text-white ${className}`}

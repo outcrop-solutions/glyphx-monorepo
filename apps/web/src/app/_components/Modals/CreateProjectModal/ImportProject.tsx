@@ -1,4 +1,4 @@
-export default function ImportProject({ exit }) {
+export default function ImportProject({exit}) {
   return (
     <div className="px-4 py-5 w-full">
       <div className="flex flex-row items-center justify-between border-b border-b-gray pb-1 mb-5">

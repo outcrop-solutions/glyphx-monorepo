@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Button from '../Button';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createState, _createProjectTemplate, api } from 'lib';
-import { webTypes } from 'types';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom } from 'state';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createProjectTemplate, api} from 'lib';
+import {webTypes} from 'types';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
-import { LoadingDots } from '../Loaders/LoadingDots';
+import {LoadingDots} from '../Loaders/LoadingDots';
 
-export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProjectTemplateModalProps) => {
+export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjectTemplateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
@@ -62,14 +62,14 @@ export const CreateProjectTemplateModal = ({ modalContent }: webTypes.CreateProj
             draft.modals[0].isSubmitting = state as boolean;
           })
         ),
-      onError: (_: any) => {
+      onError: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.splice(0, 1);
           })
         );
       },
-      onSuccess: (data: any) => {
+      onSuccess: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.splice(0, 1);

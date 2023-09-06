@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type {NextApiRequest, NextApiResponse} from 'next';
 
-import { Configuration, OpenAIApi } from 'openai-edge';
-import { systemMessage } from 'lib/utils/systemMessages';
-import { projectService, projectTemplateService } from 'business';
+import {Configuration, OpenAIApi} from 'openai-edge';
+import {systemMessage} from 'lib/utils/systemMessages';
+import {projectService, projectTemplateService} from 'business';
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -18,7 +18,7 @@ const configuration = new Configuration({
  */
 
 export const createCompletion = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { payload } = req.body;
+  const {payload} = req.body;
   try {
     const openai = new OpenAIApi(configuration);
     const templates = await projectTemplateService.getProjectTemplates({});
@@ -34,10 +34,10 @@ export const createCompletion = async (req: NextApiRequest, res: NextApiResponse
     });
 
     const result = await response.json();
-    res.status(200).json({ data: result });
+    res.status(200).json({data: result});
 
     // return new StreamingTextResponse(stream);
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };

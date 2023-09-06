@@ -1,8 +1,8 @@
 'use client';
-import { ProjectCard } from './ProjectCard';
+import {ProjectCard} from './ProjectCard';
 import React from 'react';
-import { useRecoilValue } from 'recoil';
-import { workspaceAtom } from 'state';
+import {useRecoilValue} from 'recoil';
+import {workspaceAtom} from 'state';
 
 export const GridView = () => {
   const workspace = useRecoilValue(workspaceAtom);

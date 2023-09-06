@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
+import {useState} from 'react';
 import Link from 'next/link';
-import { MenuIcon } from '@heroicons/react/outline';
+import {MenuIcon} from '@heroicons/react/outline';
 
 // components
 import Actions from './actions';
@@ -11,21 +11,20 @@ import sidebarMenu from 'config/menu/sidebar-static';
 import FullLogo from 'public/svg/full-logo.svg';
 import SmallLogo from 'public/svg/small-logo.svg';
 // hooks
-import { useWorkspace, useWorkspaces } from 'lib/client';
-import { useRouter } from 'next/navigation';
-import { drawerOpenAtom } from 'state';
-import { useSetRecoilState } from 'recoil';
-import { useParams } from 'next/navigation';
+import {useWorkspace, useWorkspaces} from 'lib/client';
+import {drawerOpenAtom} from 'state';
+import {useSetRecoilState} from 'recoil';
+import {useParams} from 'next/navigation';
 
 const staticMenu = sidebarMenu();
 
-const Sidebar = ({ menu }) => {
+const Sidebar = ({menu}) => {
   const [showMenu, setMenuVisibility] = useState(false);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const params = useParams();
-  const { projectId } = params as { projectId: string };
-  const { data, isLoading } = useWorkspaces();
-  const { data: workspace } = useWorkspace();
+  const {projectId} = params as {projectId: string};
+  const {data, isLoading} = useWorkspaces();
+  const {data: workspace} = useWorkspace();
 
   const renderMenu = () => {
     return (

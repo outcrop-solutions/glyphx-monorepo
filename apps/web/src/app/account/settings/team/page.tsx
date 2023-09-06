@@ -1,6 +1,6 @@
 'use client';
-import { Fragment, SetStateAction, useState } from 'react';
-import { Menu, Transition } from '@headlessui/react';
+import {Fragment, SetStateAction, useState} from 'react';
+import {Menu, Transition} from '@headlessui/react';
 import {
   ChevronDownIcon,
   DocumentDuplicateIcon,
@@ -8,7 +8,7 @@ import {
   PlusCircleIcon,
   XIcon,
 } from '@heroicons/react/outline';
-import { databaseTypes } from 'types';
+import {databaseTypes} from 'types';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
@@ -16,24 +16,24 @@ import isEmail from 'validator/lib/isEmail';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import { _createMember, _removeMember, _updateRole, api } from 'lib/client';
-import { useRecoilValue } from 'recoil';
-import { workspaceAtom } from 'state';
+import {_createMember, _removeMember, _updateRole, api} from 'lib/client';
+import {useRecoilValue} from 'recoil';
+import {workspaceAtom} from 'state';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 
-const MEMBERS_TEMPLATE = { email: '', teamRole: databaseTypes.constants.ROLE.MEMBER };
+const MEMBERS_TEMPLATE = {email: '', teamRole: databaseTypes.constants.ROLE.MEMBER};
 
 const Team = () => {
   const workspace = useRecoilValue(workspaceAtom);
-  const { data: ownership, isLoading: isOwnershipLoading } = useIsTeamOwner();
+  const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
 
   const [isSubmitting, setSubmittingState] = useState(false);
-  const [members, setMembers] = useState([{ ...MEMBERS_TEMPLATE }]);
+  const [members, setMembers] = useState([{...MEMBERS_TEMPLATE}]);
   const validateEmails = members.filter((member) => !isEmail(member.email))?.length !== 0;
 
   // local state
   const addEmail = () => {
-    members.push({ ...MEMBERS_TEMPLATE });
+    members.push({...MEMBERS_TEMPLATE});
     setMembers([...members]);
   };
   const copyToClipboard = () => toast.success('Copied to clipboard!');
@@ -56,23 +56,23 @@ const Team = () => {
 
   // mutations
   const changeRole = (memberId, role) => {
-    api({ ..._updateRole(memberId, role) });
+    api({..._updateRole(memberId, role)});
   };
 
   const invite = () => {
     api({
-      ..._createMember({ slug: workspace.slug, members }),
+      ..._createMember({slug: workspace.slug, members}),
       setLoading: (value) => setSubmittingState(value as unknown as SetStateAction<boolean>),
 
       onSuccess: () => {
-        const members = [{ ...MEMBERS_TEMPLATE }];
+        const members = [{...MEMBERS_TEMPLATE}];
         setMembers([...members]);
       },
     });
   };
 
   const removeMember = (memberId) => {
-    api({ ..._removeMember(memberId) });
+    api({..._removeMember(memberId)});
   };
 
   return (

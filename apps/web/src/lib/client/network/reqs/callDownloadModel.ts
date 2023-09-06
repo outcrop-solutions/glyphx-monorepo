@@ -1,10 +1,10 @@
-import { databaseTypes } from 'types';
+import {databaseTypes} from 'types';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createOpenProject, _getSignedDataUrls } from '../../mutations';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createOpenProject, _getSignedDataUrls} from '../../mutations';
 import api from '../api';
 
-export const callDownloadModel = async ({ project, payloadHash, session, url, setLoading, setDrawer, setResize }) => {
+export const callDownloadModel = async ({project, payloadHash, session, url, setLoading, setDrawer, setResize}) => {
   setLoading(
     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
       draft.processName = 'Fetching Data...';

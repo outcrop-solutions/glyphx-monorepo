@@ -1,13 +1,12 @@
 'use client';
-import { useParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import {useParams,useRouter} from 'next/navigation';
 import useSWR from 'swr';
 
 const useProject = () => {
   const params = useParams();
-  const { projectId } = params as { projectId: string };
+  const {projectId} = params as {projectId: string};
   const apiRoute = `/api/project/${projectId}`;
-  const { data, error } = useSWR(projectId && `${apiRoute}`, {
+  const {data, error} = useSWR(projectId && `${apiRoute}`, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,

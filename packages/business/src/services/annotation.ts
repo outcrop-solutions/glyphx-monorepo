@@ -11,7 +11,9 @@ export class AnnotationService {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
       const annotations =
         await mongoDbConnection.models.AnnotationModel.queryAnnotations({
@@ -44,7 +46,9 @@ export class AnnotationService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
 
       const annotations =
         await mongoDbConnection.models.AnnotationModel.queryAnnotations({
@@ -83,11 +87,15 @@ export class AnnotationService {
       const authorCastId =
         authorId instanceof mongooseTypes.ObjectId
           ? authorId
-          : new mongooseTypes.ObjectId(authorId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(authorId);
       const stateCastId =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
       const input = {
         author: authorCastId,
@@ -132,11 +140,15 @@ export class AnnotationService {
       const authorCastId =
         authorId instanceof mongooseTypes.ObjectId
           ? authorId
-          : new mongooseTypes.ObjectId(authorId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(authorId);
       const projectCastId =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
 
       const input = {
         author: authorCastId,

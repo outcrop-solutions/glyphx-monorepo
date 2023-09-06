@@ -1,10 +1,10 @@
 import React from 'react';
 import ShareIcon from 'public/svg/share-icon.svg';
-import { useSetRecoilState } from 'recoil';
-import { webTypes } from 'types';
-import { rightSidebarControlAtom } from 'state';
+import {useSetRecoilState} from 'recoil';
+import {webTypes} from 'types';
+import {rightSidebarControlAtom} from 'state';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
 const btnTextPrimary = 'text-black font-roboto font-medium leading-[16px] pl-1';
 

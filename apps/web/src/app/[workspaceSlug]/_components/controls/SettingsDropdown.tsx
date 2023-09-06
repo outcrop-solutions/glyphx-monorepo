@@ -1,18 +1,18 @@
-import React, { Fragment } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import { signOut } from 'next-auth/react';
+import React, {Fragment} from 'react';
+import {Menu, Transition} from '@headlessui/react';
+import {signOut} from 'next-auth/react';
 import Link from 'next/link';
 
-import { CogIcon, CreditCardIcon, DesktopComputerIcon, LogoutIcon, UserCircleIcon } from '@heroicons/react/outline';
-import { useUrl } from 'lib/client/hooks';
-import { Route } from 'next';
+import {CogIcon, CreditCardIcon, DesktopComputerIcon, LogoutIcon, UserCircleIcon} from '@heroicons/react/outline';
+import {useUrl} from 'lib/client/hooks';
+import {Route} from 'next';
 
 export const SettingsDropdown = () => {
   const url = useUrl();
   const logOut = () => {
     const result = confirm('Are you sure you want to logout?');
     if (result) {
-      signOut({ callbackUrl: `${url}/auth/login` });
+      signOut({callbackUrl: `${url}/auth/login`});
     }
   };
 

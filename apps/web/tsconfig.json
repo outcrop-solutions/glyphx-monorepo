@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2015",
-    "lib": ["dom", "dom.iterable", "esnext", "es5"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",
     "paths": {
       "@/email/*": ["src/email/*"],
@@ -47,7 +47,8 @@
     "src/**/*.tsx",
     "src/utils/scrollbar.js",
     "src/__tests__/utilities",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../../packages/database/node_modules/mongoose/types/index.d.ts"
   ],
   "exclude": ["node_modules"]
 }

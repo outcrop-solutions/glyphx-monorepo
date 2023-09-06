@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import {useSearchParams} from 'next/navigation';
 
 const Payment = () => {
   const searchParams = useSearchParams();

@@ -1,18 +1,18 @@
 import React from 'react';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
+import {WritableDraft} from 'immer/dist/internal';
 
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom } from 'state';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
 
 import Button from 'app/_components/Button';
-import { ObjectRenderer } from './ObjectRenderer';
+import {ObjectRenderer} from './ObjectRenderer';
 
-export const FileErrorsModal = ({ modalContent }: webTypes.FileErrorsModalProps) => {
+export const FileErrorsModal = ({modalContent}: webTypes.FileErrorsModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
-  const { name, desc, data } = modalContent;
+  const {name, desc, data} = modalContent;
 
   const closeModal = () => {
     setModals(

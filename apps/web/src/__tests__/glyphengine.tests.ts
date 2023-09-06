@@ -1,16 +1,16 @@
 import 'mocha';
-import { assert } from 'chai';
+import {assert} from 'chai';
 
-import { createSandbox } from 'sinon';
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib/client/mutations/core';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
-import { Types as mongooseTypes } from 'mongoose';
-import { databaseTypes, webTypes, fileIngestionTypes } from 'types';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {_createModel} from 'lib/client/mutations/core';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
+import {Types as mongooseTypes} from 'mongoose';
+import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
 
 const MOCK_SESSION = {
   user: {
@@ -30,7 +30,7 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
   language: '',
   cookieEnabled: false,
 };
-const MOCK_LOCATION: string = 'location';
+const MOCK_LOCATION = 'location';
 
 const MOCK_PROJECT: databaseTypes.IProject = {
   _id: new mongooseTypes.ObjectId(),
@@ -40,6 +40,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   description: 'this is a test description',
   sdtPath: 'sdtPath',
   currentVersion: 0,
+  tags: [],
   workspace: {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
@@ -287,7 +288,7 @@ describe('GLYPH ENGINE ROUTE', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
 
     //   handler stubs
@@ -297,12 +298,12 @@ describe('GLYPH ENGINE ROUTE', () => {
     isValidPayloadStub = sandbox.stub();
 
     //   mock services
-    mockProjectService = { addStates: sandbox.stub(), updateProjectState: sandbox.stub() };
-    mockGlyphEngine = { init: sandbox.stub(), process: sandbox.stub() };
-    mockProcessTrackingService = { createProcessTracking: sandbox.stub() };
-    mockStateService = { createState: sandbox.stub() };
-    mockGeneralPurposeFunctions = { createProcessTracking: sandbox.stub(), getProcessId: sandbox.stub() };
-    mockActivityLogService = { createLog: sandbox.stub() };
+    mockProjectService = {addStates: sandbox.stub(), updateProjectState: sandbox.stub()};
+    mockGlyphEngine = {init: sandbox.stub(), process: sandbox.stub()};
+    mockProcessTrackingService = {createProcessTracking: sandbox.stub()};
+    mockStateService = {createState: sandbox.stub()};
+    mockGeneralPurposeFunctions = {createProcessTracking: sandbox.stub(), getProcessId: sandbox.stub()};
+    mockActivityLogService = {createLog: sandbox.stub()};
 
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
@@ -356,9 +357,9 @@ describe('GLYPH ENGINE ROUTE', () => {
     sandbox.restore();
   });
 
-  context('/api/etl/glyphengine', async function () {
+  context('/api/etl/glyphengine', async () => {
     describe('GlyphEngine handler', () => {
-      it('should run glyph engine', async function () {
+      it('should run glyph engine', async () => {
         isValidPayloadStub.resolves(true);
 
         mockGeneralPurposeFunctions.getProcessId.returns(new mongooseTypes.ObjectId());
@@ -375,13 +376,13 @@ describe('GLYPH ENGINE ROUTE', () => {
         mockStateService.createState.resolves(MOCK_STATE);
         mockProjectService.addStates.resolves();
 
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: glyphEngineRouteWrapper,
           url: 'api/etl/glyphengine',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(_createModel(MOCK_PROJECT, false, MOCK_PAYLOAD_HASH));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
@@ -397,7 +398,7 @@ describe('GLYPH ENGINE ROUTE', () => {
         await testApiHandler({
           handler: glyphEngineRoute,
           url: 'api/etl/glyphengine',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isFalse(glyphEngineStub.calledOnce);
@@ -414,7 +415,7 @@ describe('GLYPH ENGINE ROUTE', () => {
         await testApiHandler({
           handler: glyphEngineRoute,
           url: 'api/etl/glyphengine',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isFalse(glyphEngineStub.calledOnce);
@@ -434,7 +435,7 @@ describe('GLYPH ENGINE ROUTE', () => {
         await testApiHandler({
           handler: glyphEngineRoute,
           url: 'api/etl/glyphengine',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isFalse(glyphEngineStub.calledOnce);
@@ -454,7 +455,7 @@ describe('GLYPH ENGINE ROUTE', () => {
         await testApiHandler({
           handler: glyphEngineRoute,
           url: 'api/etl/glyphengine',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isFalse(glyphEngineStub.calledOnce);

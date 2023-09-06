@@ -1,19 +1,19 @@
-import React, { useCallback } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { _updateConfig, api } from 'lib';
-import { togglesConfigDirtyAtom, configSelector, currentConfigAtom } from 'state';
-import { databaseTypes } from 'types';
-import { Toggle } from './Toggle';
+import React, {useCallback} from 'react';
+import {useRecoilState, useRecoilValue} from 'recoil';
+import {_updateConfig, api} from 'lib';
+import {togglesConfigDirtyAtom, configSelector, currentConfigAtom} from 'state';
+import {databaseTypes} from 'types';
+import {Toggle} from './Toggle';
 
 const fields = ['Toggle Grid Lines', 'Toggle Glyph Offset', 'Toggle Z Offset'];
 
 export const Toggles = () => {
   const config = useRecoilValue(configSelector);
   const currentConfig = useRecoilValue(currentConfigAtom);
-  const [configDirty, _] = useRecoilState(togglesConfigDirtyAtom);
+  const [configDirty] = useRecoilState(togglesConfigDirtyAtom);
 
   const saveChanges = useCallback(async () => {
-    await api({ ..._updateConfig(config?._id!.toString(), config as databaseTypes.IModelConfig) });
+    await api({..._updateConfig(config?._id!.toString(), config as databaseTypes.IModelConfig)});
   }, [config]);
 
   return (

@@ -1,25 +1,25 @@
-import React, { useCallback, useState } from 'react';
-import { webTypes } from 'types';
-import { _createState, _createProjectFromTemplate, api } from 'lib';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { modalsAtom, templatesAtom, workspaceAtom } from 'state';
-import { useRouter } from 'next/navigation';
+import React, {useCallback, useState} from 'react';
+import {webTypes} from 'types';
+import {_createProjectFromTemplate, api} from 'lib';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {modalsAtom, templatesAtom, workspaceAtom} from 'state';
+import {useRouter,useParams} from 'next/navigation';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { LoadingDots } from '../Loaders/LoadingDots';
+import {WritableDraft} from 'immer/dist/internal';
+import {LoadingDots} from '../Loaders/LoadingDots';
 import Button from '../Button';
-import { useParams } from 'next/navigation';
-import { Route } from 'next';
+import {Route} from 'next';
 
 // FIXME: NOTE: completions require streaming + RSC in feature/next-13.4-layout - placeholder for now so Will can mark it up
-export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendationsModalProps) => {
+// export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendationsModalProps) => {
+export const AIRecommendationsModal = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const params = useParams();
-  const { workspaceSlug } = params as { workspaceSlug: string };
-  const { templates } = useRecoilValue(templatesAtom);
+  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {templates} = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
-  const { _id } = useRecoilValue(workspaceAtom);
+  const {_id} = useRecoilValue(workspaceAtom);
   // mutations
   const getTemplate = useCallback(
     (template) => {

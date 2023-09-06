@@ -1,16 +1,16 @@
-import React, { useCallback, useState } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import React, {useCallback, useState} from 'react';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
 
-import { isFilterWritableSelector, projectAtom } from 'state';
+import {isFilterWritableSelector, projectAtom} from 'state';
 
 import FilterTypeIcon from 'public/svg/filter-type-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
-import { WritableDraft } from 'immer/dist/internal';
-import { webTypes } from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {webTypes} from 'types';
 
-export const RangeFilter = ({ prop }) => {
+export const RangeFilter = ({prop}) => {
   const setProject = useSetRecoilState(projectAtom);
   const isFilterWritable = useRecoilValue(isFilterWritableSelector);
   const [visibility, setVisibility] = useState(false);

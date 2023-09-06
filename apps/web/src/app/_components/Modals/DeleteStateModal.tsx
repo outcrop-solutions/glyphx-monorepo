@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createState, api } from 'lib';
-import { webTypes } from 'types';
-import { useSetRecoilState } from 'recoil';
-import { modalsAtom, projectAtom } from 'state';
+import {WritableDraft} from 'immer/dist/internal';
+import {api,_deleteState} from 'lib';
+import {webTypes} from 'types';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom, projectAtom} from 'state';
 import toast from 'react-hot-toast';
-import { _deleteState } from 'lib';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { DocumentDuplicateIcon } from '@heroicons/react/outline';
-import { LoadingDots } from 'app/_components/Loaders/LoadingDots';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {DocumentDuplicateIcon} from '@heroicons/react/outline';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
-export const DeleteStateModal = ({ modalContent }: webTypes.DeleteStateModalProps) => {
+export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [name, setName] = useState('');
@@ -33,14 +32,14 @@ export const DeleteStateModal = ({ modalContent }: webTypes.DeleteStateModalProp
             draft.modals[0].isSubmitting = state as boolean;
           })
         ),
-      onError: (_: any) => {
+      onError: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.splice(0, 1);
           })
         );
       },
-      onSuccess: (data: any) => {
+      onSuccess: () => {
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
             draft.modals.splice(0, 1);

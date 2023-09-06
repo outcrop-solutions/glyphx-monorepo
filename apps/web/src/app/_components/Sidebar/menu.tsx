@@ -1,10 +1,10 @@
 'use client';
 import Item from './item';
-import { useParams } from 'next/navigation';
+import {useParams} from 'next/navigation';
 
-const Menu = ({ data, isLoading, showMenu }) => {
+const Menu = ({data, isLoading, showMenu}) => {
   const params = useParams();
-  const { projectId } = params as { projectId: string };
+  const {projectId} = params as {projectId: string};
   return showMenu ? (
     <div className="space-y-2">
       {!projectId ? <h5 className="text-sm font-bold text-gray-400">{data.name}</h5> : <></>}

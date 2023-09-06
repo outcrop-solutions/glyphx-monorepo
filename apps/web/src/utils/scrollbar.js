@@ -1,6 +1,6 @@
 const plugin = require('tailwindcss/plugin');
 
-module.exports = plugin(function ({ addUtilities, matchUtilities, theme }) {
+module.exports = plugin(({addUtilities, matchUtilities, theme}) => {
   const scrollbarTrackColorValue = (value) => ({
     '--scrollbar-track': value,
     '&::-webkit-scrollbar-track': {

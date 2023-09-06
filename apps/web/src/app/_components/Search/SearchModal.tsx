@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import Link from 'next/link';
 import Fuse from 'fuse.js';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { rightSidebarControlAtom } from 'state/ui';
-import { workspaceAtom } from 'state/workspace';
-import { databaseTypes, webTypes } from 'types';
+import {useRecoilState, useRecoilValue} from 'recoil';
+import {rightSidebarControlAtom} from 'state/ui';
+import {workspaceAtom} from 'state/workspace';
+import {databaseTypes, webTypes} from 'types';
 // importing fuse
 import SearchInputIcon from 'public/svg/search-input-icon.svg';
 import SearchFilterIcon from 'public/svg/search-filter-icon.svg';
 import ProjectResultIcon from 'public/svg/project-result-icon.svg';
-import { useParams } from 'next/navigation';
-import { WritableDraft } from 'immer/dist/internal';
+import {useParams} from 'next/navigation';
+import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
-import { Route } from 'next';
+import {Route} from 'next';
 
 export function SearchModal() {
   const params = useParams();
-  const { workspaceId } = params as { workspaceId: string };
+  const {workspaceId} = params as {workspaceId: string};
 
   const [rightSidebar, setRightSidebar] = useRecoilState(rightSidebarControlAtom);
   const workspace = useRecoilValue(workspaceAtom);
@@ -54,7 +54,7 @@ export function SearchModal() {
 
   // close if the esc key is pressed
   useEffect(() => {
-    const keyHandler = ({ keyCode }) => {
+    const keyHandler = ({keyCode}) => {
       if (!rightSidebar || keyCode !== 27) return;
       setRightSidebar(
         produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
@@ -68,6 +68,7 @@ export function SearchModal() {
      */
     const clickHandler = (e) => {
       try {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (document.getElementById('search').contains(e.target)) {
           // Clicked in box

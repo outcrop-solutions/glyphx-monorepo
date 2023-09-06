@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import {useCallback} from 'react';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
   drawerOpenAtom,
   orientationAtom,
@@ -9,11 +9,11 @@ import {
   viewerPositionSelector,
   windowSizeAtom,
 } from 'state';
-import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
-import { hashFileSystem } from 'lib/utils/hashFileSystem';
-import { hashPayload } from 'lib/utils/hashPayload';
-import { useSession } from 'next-auth/react';
-import { useUrl } from 'lib/client/hooks';
+import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {hashFileSystem} from 'lib/utils/hashFileSystem';
+import {hashPayload} from 'lib/utils/hashPayload';
+import {useSession} from 'next-auth/react';
+import {useUrl} from 'lib/client/hooks';
 
 export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
@@ -42,7 +42,7 @@ export const ModelFooter = () => {
     } else {
       // open drawer
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      await callDownloadModel({ project, payloadHash, session, url, setLoading, setDrawer, setResize });
+      await callDownloadModel({project, payloadHash, session, url, setLoading, setDrawer, setResize});
     }
   }, [drawer, isBrowser, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
 
